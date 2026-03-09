@@ -32,7 +32,7 @@ class ReportController extends Controller
             $rows = $report['rows']->map(fn ($row) => collect($report['keys'])->map(fn ($key) => $row[$key] ?? null)->all());
 
             return Excel::download(
-                new GenericReportExport($rows, $report['headings']),
+                new GenericReportExport($rows, $report['headings'], $report['title']),
                 sprintf('%s-%s.xlsx', $type, now()->format('Ymd_His'))
             );
         }

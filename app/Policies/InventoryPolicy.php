@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Inventory;
+use App\Models\User;
+use Illuminate\Auth\Access\Response;
+
+class InventoryPolicy
+{
+    /**
+     * Determine whether the user can view any models.
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->hasRole('administrador') || $user->hasRole('recepcionista') || $user->hasRole('barbero');
+    }
+
+    /**
+     * Determine whether the user can view the model.
+     */
+    public function view(User $user, Inventory $inventory): bool
+    {
+        return $user->hasRole('administrador') || $user->hasRole('recepcionista') || $user->hasRole('barbero');
+    }
+
+    /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $user): bool
+    {
+        return $user->hasRole('administrador') || $user->hasRole('recepcionista');
+    }
+
+    /**
+     * Grant all abilities to administrators before checking other methods.
+     */
+    public function before(User $user, $ability): bool|null
+    {
+        if ($user->hasRole('administrador')) {
+            return true;
+        }
+        return null;
+    }
+
+    /**
+     * Determine whether the user can delete the model.
+     */
+    public function delete(User $user, Inventory $inventory): bool
+    {
+        return $user->hasRole('administrador');
+    }
+
+    /**
+     * Determine whether the user can restore the model.
+     */
+    public function restore(User $user, Inventory $inventory): bool
+    {
+        return $user->hasRole('administrador');
+    }
+
+    /**
+     * Determine whether the user can permanently delete the model.
+     */
+    public function forceDelete(User $user, Inventory $inventory): bool
+    {
+        return $user->hasRole('administrador');
+    }
+}

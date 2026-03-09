@@ -7,134 +7,188 @@
     $unread = $user?->unreadNotifications()->count() ?? 0;
 @endphp
 
-<nav x-data="{ open: false }" class="ui-panel m-4 p-3 lg:m-6 lg:h-[calc(100vh-3rem)] lg:sticky lg:top-6">
-    <div class="flex items-center justify-between border-b border-[#666] px-2 pb-4">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-sm font-semibold tracking-wide text-[#f2f2f2]">
-            <x-application-logo class="h-8 w-8 fill-current text-[#f2f2f2]" />
-            <div>
-                <span class="block">Barbershop</span>
-                <span class="text-[11px] font-normal tracking-normal text-[#cfcfcf]">Panel operativo</span>
+<nav x-data="{ open: false }" class="ui-panel m-4 flex flex-col p-3 lg:m-6 lg:h-[calc(100vh-3rem)] lg:sticky lg:top-6 bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border-[#2a2a2a] overflow-hidden">
+    <!-- Brand Section (Fixed) -->
+    <div class="flex items-center justify-between px-2 pb-8 pt-4 flex-shrink-0">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-sm font-semibold tracking-wide text-white">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-700 shadow-xl shadow-indigo-900/20 ring-1 ring-white/20">
+                <svg class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="hidden lg:block">
+                <span class="block text-lg font-bold leading-tight">Barber<span class="text-indigo-400">Pro</span></span>
+                <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-muted">Management System</span>
             </div>
         </a>
-        <button @click="open = !open" class="inline-flex rounded-md border border-[#666] p-2 text-[#f2f2f2] lg:hidden" aria-label="Abrir menu">
+        <button @click="open = !open" class="inline-flex rounded-md p-2 text-white hover:bg-white/10 lg:hidden" aria-label="Abrir menu">
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
             </svg>
         </button>
     </div>
 
-    <div :class="open ? 'block' : 'hidden'" class="hidden pt-4 lg:block">
+    <!-- Links Section (Scrollable) -->
+    <div :class="open ? 'block' : 'hidden'" class="hidden flex-1 space-y-6 overflow-y-auto lg:block pr-1 custom-scrollbar min-h-0">
+        
+        <!-- Section: General -->
         <div class="space-y-1">
-            <p class="px-3 pb-1 pt-1 text-[11px] uppercase tracking-wider text-[#bdbdbd]">General</p>
+            <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Principal</p>
             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-8 9 8v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></svg>
                 <span>Dashboard</span>
             </x-nav-link>
+            <x-nav-link :href="route('social.feed')" :active="request()->routeIs('social.feed')">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <span>Muro Inspiración</span>
+            </x-nav-link>
 
-            @if($isAdmin || $isReception)
-                <p class="px-3 pb-1 pt-3 text-[11px] uppercase tracking-wider text-[#bdbdbd]">Operacion</p>
-                <x-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
-                    <span>Clientes</span>
-                </x-nav-link>
+        </div>
 
+        @if($isAdmin || $isReception)
+            <!-- Section: Operacion -->
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Operación</p>
                 <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.*')">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
                     <span>Citas</span>
                 </x-nav-link>
 
+                <x-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Clientes</span>
+                </x-nav-link>
+
                 <x-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M2.5 10h19M7 14h3"/></svg>
-                    <span>Pagos</span>
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <span>Facturación</span>
                 </x-nav-link>
-
                 <x-nav-link :href="route('inventory.movements.index')" :active="request()->routeIs('inventory.movements.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h16v10H4z"/><path d="M9 7V5h6v2M8 12h8"/></svg>
-                    <span>Movimientos</span>
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
+                    <span>Caja y Movimientos</span>
                 </x-nav-link>
-            @endif
+            </div>
+        @endif
 
-            @if($isBarber)
-                <p class="px-3 pb-1 pt-3 text-[11px] uppercase tracking-wider text-[#bdbdbd]">Barbero</p>
-                <x-nav-link :href="route('barber.agenda')" :active="request()->routeIs('barber.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 4h12M9 4v4m6-4v4M5 10h14v10H5z"/></svg>
-                    <span>Mi agenda</span>
-                </x-nav-link>
-            @endif
-
-            @if($isClient)
-                <p class="px-3 pb-1 pt-3 text-[11px] uppercase tracking-wider text-[#bdbdbd]">Cliente</p>
-                <x-nav-link :href="route('client.appointments.index')" :active="request()->routeIs('client.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7h18M3 12h18M3 17h12"/></svg>
-                    <span>Mis citas</span>
-                </x-nav-link>
-            @endif
-
-            @if($isAdmin)
-                <p class="px-3 pb-1 pt-3 text-[11px] uppercase tracking-wider text-[#bdbdbd]">Gestion</p>
+        @if($isAdmin)
+            <!-- Section: Gestion -->
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Administración</p>
                 <x-nav-link :href="route('barbers.index')" :active="request()->routeIs('barbers.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 4l8 8M9 12l-2 8M16 4l-8 8M15 12l2 8"/></svg>
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     <span>Barberos</span>
                 </x-nav-link>
 
                 <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M14 19a4.5 4.5 0 0 1 6.5-4"/></svg>
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                     <span>Usuarios</span>
                 </x-nav-link>
 
                 <x-nav-link :href="route('services.index')" :active="request()->routeIs('services.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
                     <span>Servicios</span>
                 </x-nav-link>
 
                 <x-nav-link :href="route('inventory.products.index')" :active="request()->routeIs('inventory.products.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/></svg>
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                     <span>Productos</span>
                 </x-nav-link>
 
-                <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20h16M7 16V8M12 16V4M17 16v-6"/></svg>
+                <x-nav-link :href="route('almacen.index')" :active="request()->routeIs('almacen.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    <span>Almacén Central</span>
+                </x-nav-link>
+                </div>
+             <!-- Section: Analisis -->
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Análisis</p>
+                 <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                     <span>Reportes</span>
                 </x-nav-link>
-
-                <x-nav-link :href="route('settings.edit')" :active="request()->routeIs('settings.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a1.8 1.8 0 1 1-2.6 2.6l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a1.8 1.8 0 1 1-3.6 0v-.1a1 1 0 0 0-.6-.9 1 1 0 0 0-1.1.2l-.1.1a1.8 1.8 0 0 1-2.6-2.6l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a1.8 1.8 0 1 1 0-3.6h.1a1 1 0 0 0 .9-.6 1 1 0 0 0-.2-1.1l-.1-.1a1.8 1.8 0 0 1 2.6-2.6l.1.1a1 1 0 0 0 1.1.2h.1a1 1 0 0 0 .6-.9V4a1.8 1.8 0 1 1 3.6 0v.1a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a1.8 1.8 0 1 1 2.6 2.6l-.1.1a1 1 0 0 0-.2 1.1v.1a1 1 0 0 0 .9.6H20a1.8 1.8 0 1 1 0 3.6h-.1a1 1 0 0 0-.9.6Z"/></svg>
-                    <span>Configuracion</span>
-                </x-nav-link>
-
-                <x-nav-link :href="route('logs.index')" :active="request()->routeIs('logs.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4h14v16H5z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
+                 <x-nav-link :href="route('logs.index')" :active="request()->routeIs('logs.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
                     <span>Logs</span>
                 </x-nav-link>
-            @endif
-
-            <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.*')">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 18H5l1.5-2.5V11a5.5 5.5 0 0 1 11 0v4.5L19 18h-4"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
-                <span class="flex items-center gap-2">
-                    Notificaciones
-                    @if($unread > 0)
-                        <span class="rounded-full bg-[#f0f0f0] px-2 py-[1px] text-[10px] font-semibold text-[#1f1f1f]">{{ $unread }}</span>
-                    @endif
-                </span>
-            </x-nav-link>
-        </div>
-
-        <div class="mt-4 border-t border-[#666] pt-4">
-            <div class="px-3 pb-3 text-xs text-[#c9c9c9]">
-                <div class="font-medium text-[#f2f2f2]">{{ $user?->name }}</div>
-                <div>{{ $user?->email }}</div>
             </div>
+        @endif
+
+        @if($isBarber)
             <div class="space-y-1">
-                <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
-                    <span>Perfil</span>
+                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Mi Espacio</p>
+                <x-nav-link :href="route('barber.agenda')" :active="request()->routeIs('barber.agenda')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Mi Agenda</span>
+                </x-nav-link>
+                <x-nav-link :href="route('barber.portfolio.index')" :active="request()->routeIs('barber.portfolio.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <span>Mi Portafolio</span>
+                </x-nav-link>
+                <x-nav-link :href="route('barber.schedule.edit')" :active="request()->routeIs('barber.schedule.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    <span>Mi Horario</span>
+                </x-nav-link>
+
+            </div>
+        @endif
+
+        @if($isClient)
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Mi Cuenta</p>
+                <x-nav-link :href="route('client.appointments.index')" :active="request()->routeIs('client.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Mis Citas</span>
                 </x-nav-link>
             </div>
+        @endif
+    </div>
 
-            <form method="POST" action="{{ route('logout') }}" class="mt-3 px-2">
-                @csrf
-                <button type="submit" class="ui-btn w-full justify-center">Cerrar sesion</button>
-            </form>
+    <!-- User Footer Section (Fixed) -->
+    <div :class="open ? 'block' : 'hidden'" class="hidden space-y-4 pt-4 lg:block border-t border-white/10 flex-shrink-0">
+         <!-- Shortcut Hint -->
+         <div class="px-2 mb-2 hidden lg:block">
+            <div class="flex items-center justify-between rounded-lg bg-white/5 px-2 py-1.5 border border-white/5">
+                <span class="text-[9px] font-black uppercase text-muted tracking-widest">Atajos</span>
+                <div class="flex items-center gap-1">
+                    <kbd class="px-1 py-0.5 rounded border border-white/10 bg-black text-[8px] font-bold text-gold">Ctrl</kbd>
+                    <span class="text-[8px] text-muted">+</span>
+                    <kbd class="px-1 py-0.5 rounded border border-white/10 bg-black text-[8px] font-bold text-gold">K</kbd>
+                </div>
+            </div>
+         </div>
+
+         <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.*')">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="flex items-center gap-2 w-full justify-between">
+                Notificaciones
+                @if($unread > 0)
+                    <span class="relative flex h-4 w-4">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex items-center justify-center rounded-full bg-red-500 h-4 w-4 text-[10px] font-black text-white leading-none">{{ $unread }}</span>
+                    </span>
+                @endif
+            </span>
+        </x-nav-link>
+
+        <div class="flex items-center gap-3 px-2">
+            <div class="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white border border-white/10">
+                {{ substr($user?->name, 0, 2) }}
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="truncate text-xs font-bold text-white">{{ $user?->name }}</p>
+                <p class="truncate text-[10px] font-medium text-muted uppercase tracking-tighter">{{ $user?->email }}</p>
+            </div>
+            <a href="{{ route('profile.edit') }}" class="text-muted hover:text-gold transition-colors" title="Perfil">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><circle cx="12" cy="12" r="10"/></svg>
+            </a>
         </div>
+        
+        <form method="POST" action="{{ route('logout') }}" class="px-2">
+            @csrf
+            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20">
+                <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Cerrar Sesion
+            </button>
+        </form>
     </div>
 </nav>

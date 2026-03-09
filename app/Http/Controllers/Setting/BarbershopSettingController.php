@@ -43,4 +43,20 @@ class BarbershopSettingController extends Controller
 
         return redirect()->route('settings.edit')->with('status', 'Configuracion actualizada correctamente.');
     }
+
+    public function toggleMaintenance(): RedirectResponse
+    {
+        $setting = BarbershopSetting::query()->firstOrCreate(
+            ['id' => 1],
+            ['nombre' => config('app.name', 'Barbershop'), 'politica_cancelacion' => 24]
+        );
+
+        $setting->update([
+            'maintenance_mode' => !$setting->maintenance_mode
+        ]);
+
+        $status = $setting->maintenance_mode ? 'El sistema ha entrado en modo mantenimiento.' : 'El sistema está nuevamente en línea.';
+
+        return back()->with('status', $status);
+    }
 }

@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            \App\Http\Middleware\CheckMaintenanceMode::class,
+        ]);
         $middleware->alias([
             'role.custom' => \App\Http\Middleware\Role\EnsureUserHasRole::class,
             'permission.custom' => \App\Http\Middleware\Role\EnsureUserHasPermission::class,

@@ -41,6 +41,15 @@ class BarberController extends Controller
         return view('barbers.edit', compact('barber'));
     }
 
+    public function show(Barber $barber): View
+    {
+        $barber->load(['user:id,name', 'appointments' => function($q) {
+            $q->where('estado', 'completada')->limit(5);
+        }]);
+
+        return view('barbers.public-show', compact('barber'));
+    }
+
     public function update(UpdateBarberRequest $request, Barber $barber): RedirectResponse
     {
         $data = $request->validated();

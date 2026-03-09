@@ -19,7 +19,6 @@ class StoreClientAppointmentRequest extends FormRequest
             'service_id' => ['required', 'integer', 'exists:services,id'],
             'fecha' => ['required', 'date', 'after_or_equal:today'],
             'hora_inicio' => ['required', 'date_format:H:i'],
-            'hora_fin' => ['required', 'date_format:H:i', 'after:hora_inicio'],
             'notas' => ['nullable', 'string', 'max:1000'],
         ];
     }

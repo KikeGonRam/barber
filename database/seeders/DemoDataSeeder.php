@@ -26,6 +26,21 @@ class DemoDataSeeder extends Seeder
         $barbers = Barber::factory()->count(4)->create();
         foreach ($barbers as $barber) {
             $barber->user->assignRole('barbero');
+            
+            // Initialize schedule for each barber
+            for ($i = 1; $i <= 6; $i++) {
+                $barber->schedules()->create([
+                    'day_of_week' => $i,
+                    'start_time' => '09:00:00',
+                    'end_time' => '21:00:00',
+                    'is_working' => true,
+                ]);
+            }
+            // Sunday off
+            $barber->schedules()->create([
+                'day_of_week' => 0,
+                'is_working' => false,
+            ]);
         }
 
         $clients = Client::factory()->count(20)->create();

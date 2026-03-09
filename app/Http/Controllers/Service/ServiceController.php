@@ -27,6 +27,12 @@ class ServiceController extends Controller
         return view('services.index', compact('services', 'categories', 'filters'));
     }
 
+    public function publicIndex(): View
+    {
+        $services = Service::where('activo', true)->get();
+        return view('services.public-index', compact('services'));
+    }
+
     public function create(): View
     {
         return view('services.create');

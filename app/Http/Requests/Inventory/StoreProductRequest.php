@@ -23,6 +23,7 @@ class StoreProductRequest extends FormRequest
             'stock_actual' => ['required', 'integer', 'min:0'],
             'stock_minimo' => ['required', 'integer', 'min:0'],
             'tipo' => ['required', Rule::in(['venta_cliente', 'insumo_trabajo'])],
+            'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 }

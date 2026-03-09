@@ -64,6 +64,55 @@ class BarberDashboardController extends Controller
         return view('barber.profile', compact('barber'));
     }
 
+    public function editSchedule(Request $request): View
+    {
+        $barber = $request->user()?->barberProfile;
+        abort_if(! $barber, 403);
+
+        $schedules = $barber->schedules()->orderBy('day_of_week')->get();
+
+        // If no schedules, create defaults (Mon-Sat 9-21)
+        if ($schedules->isEmpty()) {
+            for ($i = 0; $i <= 6; $i++) {
+                $barber->schedules()->create([
+                    'day_of_week' => $i,
+                    'start_time' => '09:00:00',
+                    'end_time' => '21:00:00',
+                    'is_working' => ($i !== 0), // Default Sunday off
+                ]);
+            }
+            $schedules = $barber->schedules()->orderBy('day_of_week')->get();
+        }
+
+        return view('barber.schedule', compact('barber', 'schedules'));
+    }
+
+    public function updateSchedule(Request $request): RedirectResponse
+    {
+        $barber = $request->user()?->barberProfile;
+        abort_if(! $barber, 403);
+
+        $data = $request->validate([
+            'schedules' => 'required|array|size:7',
+            'schedules.*.start_time' => 'nullable|date_format:H:i',
+            'schedules.*.end_time' => 'nullable|date_format:H:i',
+            'schedules.*.is_working' => 'nullable|boolean',
+        ]);
+
+        foreach ($data['schedules'] as $day => $values) {
+            $barber->schedules()->updateOrCreate(
+                ['day_of_week' => $day],
+                [
+                    'start_time' => $values['start_time'] ? $values['start_time'].':00' : null,
+                    'end_time' => $values['end_time'] ? $values['end_time'].':00' : null,
+                    'is_working' => isset($values['is_working']),
+                ]
+            );
+        }
+
+        return back()->with('status', 'Horario actualizado correctamente.');
+    }
+
     public function updateProfile(UpdateBarberProfileRequest $request): RedirectResponse
     {
         $barber = $request->user()?->barberProfile;

@@ -18,12 +18,14 @@ class BarbershopSetting extends Model
         'horario_cierre',
         'politica_cancelacion',
         'redes_sociales',
+        'maintenance_mode',
     ];
 
     protected function casts(): array
     {
         return [
             'redes_sociales' => 'array',
+            'maintenance_mode' => 'boolean',
         ];
     }
 }

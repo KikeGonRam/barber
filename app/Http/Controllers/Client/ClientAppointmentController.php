@@ -23,7 +23,12 @@ class ClientAppointmentController extends Controller
 
     public function index(): View
     {
-        $client = auth()->user()->clientProfile;
+        $user = auth()->user();
+        $client = $user->clientProfile;
+
+        if (! $client && $user->hasRole('cliente')) {
+            $client = $user->clientProfile()->create();
+        }
 
         abort_if(! $client, 403);
 
@@ -50,8 +55,16 @@ class ClientAppointmentController extends Controller
         $client = $request->user()->clientProfile;
         abort_if(! $client, 403);
 
-        $payload = array_merge($request->validated(), [
+        $data = $request->validated();
+        $service = Service::findOrFail($data['service_id']);
+        
+        // Calculate end time
+        $start = Carbon::parse($data['fecha'] . ' ' . $data['hora_inicio']);
+        $end = $start->copy()->addMinutes($service->duracion_min);
+
+        $payload = array_merge($data, [
             'client_id' => $client->id,
+            'hora_fin' => $end->format('H:i:s'),
             'estado' => 'pendiente',
         ]);
 
@@ -79,11 +92,18 @@ class ClientAppointmentController extends Controller
     public function update(UpdateClientAppointmentRequest $request, Appointment $appointment): RedirectResponse
     {
         $client = $request->user()->clientProfile;
-
         abort_if(! $client || $appointment->client_id !== $client->id, 403);
 
-        $payload = array_merge($request->validated(), [
+        $data = $request->validated();
+        $service = Service::findOrFail($data['service_id']);
+        
+        // Calculate end time
+        $start = Carbon::parse($data['fecha'] . ' ' . $data['hora_inicio']);
+        $end = $start->copy()->addMinutes($service->duracion_min);
+
+        $payload = array_merge($data, [
             'client_id' => $client->id,
+            'hora_fin' => $end->format('H:i:s'),
             'estado' => in_array($appointment->estado, ['completada', 'cancelada', 'no_asistio'], true) ? $appointment->estado : 'pendiente',
         ]);
 

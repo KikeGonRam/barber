@@ -34,7 +34,13 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): RedirectResponse
     {
-        $this->inventoryService->createProduct($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('imagen')) {
+            $data['imagen'] = $request->file('imagen')->store('products', 'public');
+        }
+
+        $this->inventoryService->createProduct($data);
 
         return redirect()->route('inventory.products.index')->with('status', 'Producto creado correctamente.');
     }
@@ -46,7 +52,14 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
-        $this->inventoryService->updateProduct($product, $request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('imagen')) {
+            // Option: delete old image here if needed
+            $data['imagen'] = $request->file('imagen')->store('products', 'public');
+        }
+
+        $this->inventoryService->updateProduct($product, $data);
 
         return redirect()->route('inventory.products.index')->with('status', 'Producto actualizado correctamente.');
     }

@@ -32,5 +32,42 @@
             </main>
         </div>
     </div>
+
+    <x-toast />
+    <x-command-palette />
+    <div class="fixed bottom-6 right-6 z-50">
+        <x-chatbot />
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        // Confetti Listener
+        window.addEventListener('celebrate', () => {
+            confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#d4af37', '#ffffff', '#aa8c2c']
+            });
+        });
+
+        // Auto-notify from Laravel Session
+        document.addEventListener('DOMContentLoaded', () => {
+            @if(session('status'))
+                window.dispatchEvent(new CustomEvent('notify', { 
+                    detail: { message: "{{ session('status') }}", type: 'success' } 
+                }));
+                @if(str_contains(strtolower(session('status')), 'registrado') || str_contains(strtolower(session('status')), 'correcto'))
+                    window.dispatchEvent(new CustomEvent('celebrate'));
+                @endif
+            @endif
+
+            @if($errors->any())
+                window.dispatchEvent(new CustomEvent('notify', { 
+                    detail: { message: "{{ $errors->first() }}", type: 'error' } 
+                }));
+            @endif
+        });
+    </script>
 </body>
 </html>

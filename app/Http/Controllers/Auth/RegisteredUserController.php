@@ -45,23 +45,30 @@ class RegisteredUserController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
-            Role::firstOrCreate([
-                'name' => 'cliente',
-                'guard_name' => 'web',
-            ]);
-
-            $user->assignRole('cliente');
-
-            Client::firstOrCreate([
-                'user_id' => $user->id,
-            ], [
-                'preferencias_notificacion' => [
-                    'in_app' => true,
-                    'email' => true,
-                    'sms' => false,
-                    'whatsapp' => false,
-                ],
-            ]);
+            // Si es el primer usuario, asignar rol administrador
+            if (User::count() === 1) {
+                Role::firstOrCreate([
+                    'name' => 'administrador',
+                    'guard_name' => 'web',
+                ]);
+                $user->assignRole('administrador');
+            } else {
+                Role::firstOrCreate([
+                    'name' => 'cliente',
+                    'guard_name' => 'web',
+                ]);
+                $user->assignRole('cliente');
+                Client::firstOrCreate([
+                    'user_id' => $user->id,
+                ], [
+                    'preferencias_notificacion' => [
+                        'in_app' => true,
+                        'email' => true,
+                        'sms' => false,
+                        'whatsapp' => false,
+                    ],
+                ]);
+            }
 
             return $user;
         });

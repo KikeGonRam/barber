@@ -1,65 +1,113 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between gap-3">
-            <h2 class="ui-title">Reprogramar cita</h2>
-            <span class="ui-badge">Portal cliente</span>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="ui-title">Reagendar <span class="text-gold">Cita</span></h2>
+                <p class="ui-subtitle">Ajusta el horario de tu sesión premium.</p>
+            </div>
+            <a href="{{ route('client.appointments.index') }}" class="text-xs font-bold uppercase tracking-widest text-muted hover:text-gold transition">
+                &larr; Volver a mis citas
+            </a>
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="mx-auto max-w-4xl sm:px-6 lg:px-8">
-            <section class="ui-surface">
-                <form method="POST" action="{{ route('client.appointments.update', $appointment) }}" class="space-y-4">
-                    @csrf
-                    @method('PUT')
+    <div class="py-8" x-data="bookingSystem()">
+        <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <form method="POST" action="{{ route('client.appointments.update', $appointment) }}">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="service_id" :value="selectedService?.id">
+                <input type="hidden" name="barber_id" :value="selectedBarber?.id">
+                <input type="hidden" name="fecha" :value="selectedDate">
+                <input type="hidden" name="hora_inicio" :value="selectedSlot">
 
-                    <div class="ui-form-grid">
-                        <div>
-                            <label class="ui-label">Barbero</label>
-                            <select name="barber_id" class="ui-input" required>
-                                @foreach($barbers as $barber)
-                                    <option value="{{ $barber->id }}" @selected(old('barber_id', $appointment->barber_id) == $barber->id)>{{ $barber->user?->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('barber_id')<p class="text-sm text-[#525252]">{{ $message }}</p>@enderror
+                <div class="ui-surface space-y-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Summary -->
+                        <div class="space-y-6">
+                            <h3 class="text-sm font-black text-white uppercase tracking-widest border-b border-white/5 pb-4">Detalles Actuales</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-[10px] font-bold text-muted uppercase">Servicio</p>
+                                    <p class="text-lg font-black text-white uppercase">{{ $appointment->service->nombre }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-muted uppercase">Barbero</p>
+                                    <p class="text-lg font-black text-gold uppercase">{{ $appointment->barber->user->name }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="ui-label">Servicio</label>
-                            <select name="service_id" class="ui-input" required>
-                                @foreach($services as $service)
-                                    <option value="{{ $service->id }}" @selected(old('service_id', $appointment->service_id) == $service->id)>{{ $service->nombre }}</option>
-                                @endforeach
-                            </select>
-                            @error('service_id')<p class="text-sm text-[#525252]">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="ui-label">Fecha</label>
-                            <input type="date" name="fecha" class="ui-input" value="{{ old('fecha', $appointment->fecha?->format('Y-m-d')) }}" required>
-                            @error('fecha')<p class="text-sm text-[#525252]">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="ui-label">Hora inicio</label>
-                            <input type="time" name="hora_inicio" class="ui-input" value="{{ old('hora_inicio', \Illuminate\Support\Str::of($appointment->hora_inicio)->substr(0,5)) }}" required>
-                            @error('hora_inicio')<p class="text-sm text-[#525252]">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="ui-label">Hora fin</label>
-                            <input type="time" name="hora_fin" class="ui-input" value="{{ old('hora_fin', \Illuminate\Support\Str::of($appointment->hora_fin)->substr(0,5)) }}" required>
-                            @error('hora_fin')<p class="text-sm text-[#525252]">{{ $message }}</p>@enderror
+
+                        <!-- Date Selection -->
+                        <div class="space-y-6">
+                            <h3 class="text-sm font-black text-white uppercase tracking-widest border-b border-white/5 pb-4">Nueva Fecha</h3>
+                            <input type="date" name="fecha_picker" x-model="selectedDate" @change="fetchSlots()" class="ui-input !bg-panel border-white/10 text-white" min="{{ date('Y-m-d') }}">
                         </div>
                     </div>
 
-                    <div>
-                        <label class="ui-label">Motivo reprogramacion</label>
-                        <input name="motivo_reagendamiento" class="ui-input" value="{{ old('motivo_reagendamiento', $appointment->motivo_reagendamiento) }}">
+                    <!-- Time Slots -->
+                    <div class="space-y-6">
+                        <h3 class="text-sm font-black text-white uppercase tracking-widest border-b border-white/5 pb-4">Horarios Disponibles</h3>
+                        
+                        <div x-show="loadingSlots" class="flex justify-center py-8">
+                            <div class="h-6 w-6 border-2 border-gold border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+
+                        <div x-show="!loadingSlots && slots.length > 0" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                            <template x-for="slot in slots">
+                                <button 
+                                    type="button"
+                                    @click="selectedSlot = slot.time"
+                                    :class="selectedSlot === slot.time ? 'border-gold bg-gold text-black' : 'border-white/5 bg-white/5 text-white hover:border-gold/30'"
+                                    class="py-2.5 rounded-xl border font-black text-[10px] transition-all"
+                                    x-text="slot.label"
+                                ></button>
+                            </template>
+                        </div>
+
+                        <div x-show="!loadingSlots && slots.length === 0" class="text-center py-8 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                            <p class="text-xs text-muted">No hay horarios para este día.</p>
+                        </div>
                     </div>
 
-                    <div class="ui-toolbar-group pt-2">
-                        <button type="submit" class="ui-btn">Actualizar cita</button>
-                        <a href="{{ route('client.appointments.index') }}" class="ui-btn-secondary">Volver</a>
+                    <div class="pt-8 border-t border-white/5 flex justify-end">
+                        <button type="submit" :disabled="!selectedSlot" :class="!selectedSlot ? 'opacity-20 cursor-not-allowed' : 'gold-glow'" class="ui-btn px-16 py-4">
+                            Confirmar Reprogramación
+                        </button>
                     </div>
-                </form>
-            </section>
+                </div>
+            </form>
         </div>
     </div>
+
+    <script>
+        function bookingSystem() {
+            return {
+                selectedService: { id: {{ $appointment->service_id }} },
+                selectedBarber: { id: {{ $appointment->barber_id }} },
+                selectedDate: '{{ $appointment->fecha->format('Y-m-d') }}',
+                selectedSlot: '{{ substr($appointment->hora_inicio, 0, 5) }}',
+                slots: [],
+                loadingSlots: false,
+
+                init() {
+                    this.fetchSlots();
+                },
+
+                async fetchSlots() {
+                    if (!this.selectedDate) return;
+                    this.loadingSlots = true;
+                    try {
+                        const response = await fetch(`/api/availability/slots?barber_id=${this.selectedBarber.id}&service_id=${this.selectedService.id}&date=${this.selectedDate}`);
+                        const data = await response.json();
+                        this.slots = data.slots;
+                    } catch (e) {
+                        console.error('Error fetching slots', e);
+                    } finally {
+                        this.loadingSlots = false;
+                    }
+                }
+            }
+        }
+    </script>
 </x-app-layout>

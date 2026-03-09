@@ -22,6 +22,7 @@ class Product extends Model
         'stock_actual',
         'stock_minimo',
         'tipo',
+        'imagen',
     ];
 
     protected function casts(): array

@@ -62,10 +62,22 @@ class PaymentController extends Controller
 
     public function downloadReceipt(Payment $payment)
     {
-        abort_unless($payment->comprobante_pdf && Storage::disk('public')->exists($payment->comprobante_pdf), 404);
+        $pdfPath = $payment->comprobante_pdf;
+
+        // Generate on demand if file is missing
+        if (!$pdfPath || !Storage::disk('public')->exists($pdfPath)) {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('payments.receipt', [
+                'payment' => $payment->load(['appointment.client.user', 'appointment.barber.user', 'appointment.service', 'creator']),
+            ]);
+
+            $pdfPath = 'comprobantes/pago-' . $payment->id . '.pdf';
+            Storage::disk('public')->put($pdfPath, $pdf->output());
+
+            $payment->update(['comprobante_pdf' => $pdfPath]);
+        }
 
         $stamp = optional($payment->created_at)->format('Ymd-His') ?: now()->format('Ymd-His');
 
-        return Storage::disk('public')->download($payment->comprobante_pdf, 'comprobante-pago-'.$stamp.'.pdf');
+        return Storage::disk('public')->download($pdfPath, 'factura-' . $payment->id . '-' . $stamp . '.pdf');
     }
 }

@@ -98,4 +98,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->clientProfile?->telefono;
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(Reaction::class);
+    }
+
+    public function savedWorks(): HasMany
+    {
+        return $this->hasMany(SavedWork::class);
+    }
 }

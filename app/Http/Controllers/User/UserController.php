@@ -48,8 +48,10 @@ class UserController extends Controller
 
     public function create(): View
     {
+        // Solo permitir crear barbero y recepcionista si el usuario actual es admin
         $roles = Role::query()
             ->where('guard_name', 'web')
+            ->whereIn('name', ['barbero', 'recepcionista', 'cliente'])
             ->orderBy('name')
             ->pluck('name');
 

@@ -1,60 +1,147 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between gap-3">
-            <h2 class="ui-title">Registrar pago</h2>
-            <span class="ui-badge">Cobro</span>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="ui-title">Registro de <span class="text-gold">Cobro</span></h2>
+                <p class="ui-subtitle">Finaliza el servicio y procesa el pago de forma segura.</p>
+            </div>
+            <a href="{{ route('payments.index') }}" class="text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition">
+                &larr; Ver historial de pagos
+            </a>
         </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="mx-auto max-w-4xl sm:px-6 lg:px-8">
-            <section class="ui-surface">
-                <form method="POST" action="{{ route('payments.store') }}" class="space-y-4">
-                    @csrf
+    <div class="py-8">
+        <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <section 
+                x-data="{ 
+                    monto: {{ old('monto', 0) }}, 
+                    propina: {{ old('propina', 0) }},
+                    metodo: '{{ old('metodo_pago', 'efectivo') }}',
+                    get total() { return (parseFloat(this.monto) || 0) + (parseFloat(this.propina) || 0) }
+                }"
+                class="grid grid-cols-1 lg:grid-cols-3 gap-8"
+            >
+                <!-- Form Side -->
+                <div class="lg:col-span-2 space-y-8">
+                    <form method="POST" action="{{ route('payments.store') }}" class="ui-surface space-y-8">
+                        @csrf
 
-                    <div>
-                        <label class="ui-label" for="appointment_id">Cita</label>
-                        <select id="appointment_id" name="appointment_id" class="ui-input" required>
-                            <option value="">Seleccionar cita</option>
-                            @foreach($appointments as $appointment)
-                                <option value="{{ $appointment->id }}" @selected(old('appointment_id') == $appointment->id)>
-                                    {{ $appointment->fecha }} {{ $appointment->hora_inicio }} - {{ $appointment->client?->user?->name }} / {{ $appointment->service?->nombre }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('appointment_id') <p class="text-sm text-[#525252]">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div class="ui-form-grid">
+                        <!-- Appointment Selection -->
                         <div>
-                            <label class="ui-label" for="monto">Monto</label>
-                            <input id="monto" type="number" step="0.01" min="0.01" name="monto" value="{{ old('monto') }}" class="ui-input" required>
-                            @error('monto') <p class="text-sm text-[#525252]">{{ $message }}</p> @enderror
+                            <label class="ui-label flex items-center gap-2">
+                                <svg class="h-3 w-3 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                Seleccionar Cita Pendiente
+                            </label>
+                            <select id="appointment_id" name="appointment_id" class="ui-input !bg-panel border-white/10 text-white" required>
+                                <option value="">Selecciona el servicio a cobrar...</option>
+                                @foreach($appointments as $appointment)
+                                    <option value="{{ $appointment->id }}" 
+                                            data-monto="{{ $appointment->service?->precio }}"
+                                            @selected(old('appointment_id') == $appointment->id)>
+                                        {{ \Carbon\Carbon::parse($appointment->fecha)->format('d/m') }} - {{ $appointment->client?->user?->name }} ({{ $appointment->service?->nombre }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('appointment_id') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                         </div>
 
+                        <!-- Amount Inputs -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="group">
+                                <label class="ui-label">Monto del Servicio</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gold font-bold">$</span>
+                                    <input type="number" step="0.01" min="0.01" name="monto" x-model="monto"
+                                           class="ui-input !pl-10 !bg-panel border-white/10 focus:border-gold/50 text-white" required>
+                                </div>
+                                @error('monto') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                            </div>
+
+                            <div class="group">
+                                <label class="ui-label">Propina / Gratificación</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted font-bold">$</span>
+                                    <input type="number" step="0.01" min="0" name="propina" x-model="propina"
+                                           class="ui-input !pl-10 !bg-panel border-white/10 focus:border-gold/50 text-white">
+                                </div>
+                                @error('propina') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+
+                        <!-- Payment Method Visual Selector -->
                         <div>
-                            <label class="ui-label" for="propina">Propina (opcional)</label>
-                            <input id="propina" type="number" step="0.01" min="0" name="propina" value="{{ old('propina', 0) }}" class="ui-input">
-                            @error('propina') <p class="text-sm text-[#525252]">{{ $message }}</p> @enderror
+                            <label class="ui-label mb-4">Método de Pago</label>
+                            <input type="hidden" name="metodo_pago" x-model="metodo">
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                @foreach(['efectivo' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 
+                                          'tarjeta' => 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
+                                          'transferencia' => 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+                                          'qr' => 'M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z'] as $id => $icon)
+                                    <button type="button" 
+                                            @click="metodo = '{{ $id }}'"
+                                            :class="metodo === '{{ $id }}' ? 'border-gold bg-gold/10 text-gold' : 'border-white/5 bg-white/5 text-muted'"
+                                            class="flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all hover:border-gold/30">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $icon }}" /></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">{{ ucfirst($id) }}</span>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="pt-6">
+                            <button type="submit" class="ui-btn w-full py-4 text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-gold/20">
+                                Confirmar y Cerrar Servicio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Summary Side -->
+                <aside class="space-y-6">
+                    <div class="ui-card-premium p-8 border-gold/30 gold-glow bg-black/40 backdrop-blur-xl sticky top-24">
+                        <h3 class="text-xs font-black text-white uppercase tracking-[0.2em] mb-8 text-center border-b border-white/10 pb-4">Resumen de Cobro</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-muted font-bold uppercase tracking-widest text-[10px]">Subtotal</span>
+                                <span class="text-white font-black" x-text="'$' + (parseFloat(monto) || 0).toFixed(2)"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-muted font-bold uppercase tracking-widest text-[10px]">Propina</span>
+                                <span class="text-gold font-black" x-text="'$' + (parseFloat(propina) || 0).toFixed(2)"></span>
+                            </div>
+                            <div class="ui-divider"></div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-white font-black uppercase tracking-widest text-xs">Total a Pagar</span>
+                                <span class="text-3xl font-black text-gradient-gold" x-text="'$' + total.toFixed(2)"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-10 p-4 rounded-xl bg-white/5 border border-white/5">
+                            <div class="flex items-center gap-3">
+                                <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                                <p class="text-[10px] font-black text-muted uppercase tracking-widest">Listo para procesar</p>
+                            </div>
+                            <p class="mt-2 text-[9px] text-muted leading-relaxed italic">Al confirmar, el estado de la cita cambiará automáticamente a 'Completada'.</p>
                         </div>
                     </div>
-
-                    <div class="md:max-w-[50%]">
-                        <label class="ui-label" for="metodo_pago">Metodo de pago</label>
-                        <select id="metodo_pago" name="metodo_pago" class="ui-input" required>
-                            @foreach(['efectivo', 'tarjeta', 'transferencia', 'qr'] as $metodo)
-                                <option value="{{ $metodo }}" @selected(old('metodo_pago') === $metodo)>{{ ucfirst($metodo) }}</option>
-                            @endforeach
-                        </select>
-                        @error('metodo_pago') <p class="text-sm text-[#525252]">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div class="ui-toolbar-group pt-2">
-                        <button type="submit" class="ui-btn">Guardar pago</button>
-                        <a href="{{ route('payments.index') }}" class="ui-btn-secondary">Volver</a>
-                    </div>
-                </form>
+                </aside>
             </section>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.getElementById('appointment_id').addEventListener('change', function() {
+            const selected = this.options[this.selectedIndex];
+            if (selected.value) {
+                // Actualizar el monto en el componente Alpine
+                const monto = selected.getAttribute('data-monto');
+                const alpineData = document.querySelector('[x-data]').__x.$data;
+                alpineData.monto = monto;
+            }
+        });
+    </script>
+    @endpush
 </x-app-layout>

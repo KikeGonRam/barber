@@ -48,6 +48,7 @@ class RolePermissionSeeder extends Seeder
                 'citas.gestionar',
                 'pagos.gestionar',
                 'inventario.ver',
+                'reportes.ver',
             ],
             'cliente' => [
                 'dashboard.ver',

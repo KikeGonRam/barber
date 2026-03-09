@@ -35,4 +35,14 @@ class Barber extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+
+    public function works(): HasMany
+    {
+        return $this->hasMany(Work::class, 'barbero_id');
+    }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(BarberSchedule::class);
+    }
 }
