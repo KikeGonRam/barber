@@ -1,65 +1,98 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# BarberPro Elite - Premium Grooming Management Suite
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel v12](https://img.shields.io/badge/Laravel-v12-FF2D20?style=flat-square&logo=laravel)](https://laravel.com)
+[![TailwindCSS v4](https://img.shields.io/badge/TailwindCSS-v4-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
+[![Alpine.js](https://img.shields.io/badge/Alpine.js-v3-8BC0D0?style=flat-square&logo=alpine.js)](https://alpinejs.dev)
+[![Gemini AI](https://img.shields.io/badge/Gemini_AI-Enabled-4285F4?style=flat-square&logo=google-gemini)](https://deepmind.google/technologies/gemini/)
 
-## About Laravel
+**BarberPro Elite** es un ecosistema digital de alta gama diseñado para revolucionar la gestión de barberías de lujo. Combina una estética visual sofisticada con herramientas operativas de última generación, inteligencia artificial y una experiencia social integrada.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Características Principales
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 💎 Diseño Premium "Dark Mode"
+- **UI de Lujo:** Interfaz refinada basada en una paleta de Negros Profundos, Dorados Metálicos e Indigo Vibrante.
+- **Micro-interacciones:** Animaciones fluidas, efectos de cristal esmerilado (glassmorphism) y resplandores dinámicos.
+- **Mobile-First:** Optimización total para dispositivos móviles, garantizando una gestión fluida desde cualquier lugar.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🤖 BarberPro Concierge (IA Asistente)
+- **Cerebro Gemini:** Integración con la API de Google Gemini para respuestas naturales y contextuales.
+- **Modo Híbrido:** Lógica RAG (Retrieval-Augmented Generation) que consulta la base de datos real antes de responder.
+- **Fallback Robusto:** Sistema de conocimiento manual offline para asegurar disponibilidad total sin internet.
 
-## Learning Laravel
+### 📅 Sistema de Reservas de Élite
+- **Calendario Maestro:** Visualización de disponibilidad a 30 días con bloqueo automático de días festivos y descansos.
+- **Slots Inteligentes:** Generación dinámica de horarios basada en la duración real de cada servicio y la agenda del barbero.
+- **Gestión Individual:** Cada barbero controla su propia jornada laboral, entradas, salidas y días de descanso.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 📸 Ecosistema Social & Portafolio
+- **Muro de Inspiración:** Feed vertical tipo Instagram para descubrir las últimas tendencias de los maestros.
+- **Interacciones Reales:** Sistema de Likes, Comentarios y Guardado de estilos para fidelización de clientes.
+- **Portafolio Digital:** Vitrina profesional para cada barbero con galerías de trabajos en alta resolución.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 🏢 Gestión Administrativa & Facturación
+- **Dashboard Multiprofil:** Paneles especializados para Admin, Recepcionista, Barbero y Cliente.
+- **Facturación Pro:** Emisión automática de comprobantes de pago en PDF con diseño corporativo "Executive".
+- **Almacén Central:** Control de stock crítico con soporte de imágenes y trazabilidad de movimientos.
+- **Centro de Reportes:** Inteligencia de negocio con exportación de datos a PDF y Excel con estilos profesionales.
 
-## Laravel Sponsors
+### 🚀 Herramientas de Productividad
+- **Paleta de Comandos (Ctrl + K):** Navegación ultra-rápida y ejecución de acciones mediante teclado.
+- **Modo Mantenimiento Profesional:** Sistema de "Actualización en Progreso" con visualización técnica de despliegue.
+- **Notificaciones Premium:** Sistema de Toasts flotantes y correos electrónicos con identidad visual unificada.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠️ Stack Tecnológico
 
-### Premium Partners
+- **Backend:** Laravel 12 (PHP 8.4)
+- **Frontend:** TailwindCSS 4, Alpine.js, Blade Components
+- **Asset Manager:** Vite
+- **Base de Datos:** MySQL / MariaDB
+- **IA:** Google Gemini API
+- **Documentos:** DomPDF & Maatwebsite Excel
+- **Auditoría:** Spatie Activity Log & Laravel Permissions
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 📦 Instalación y Configuración
 
-## Contributing
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/tu-usuario/barberpro-elite.git
+   cd barberpro-elite
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. **Instalar dependencias:**
+   ```bash
+   composer install
+   npm install
+   ```
 
-## Code of Conduct
+3. **Configuración de entorno:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. **Base de Datos:**
+   ```bash
+   php artisan migrate --seed
+   ```
 
-## Security Vulnerabilities
+5. **Activar el "Cerebro de IA" (Opcional):**
+   Añade tu clave en el `.env`:
+   ```env
+   GEMINI_API_KEY=tu_clave_de_google_gemini
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+6. **Compilar activos:**
+   ```bash
+   npm run build
+   ```
 
-## License
+## 🔐 Credenciales Demo (Seed)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Administrador:** `admin@barberia.local` / `password`
+- **Recepcionista:** `recepcion@example.com` / `password`
+- **Barbero/Cliente:** Ver listado generado en `php artisan tinker`
 
-## Barbería App Notes
+---
 
-- Guía de despliegue a producción: [docs/despliegue-produccion.md](docs/despliegue-produccion.md)
-- Scheduler de recordatorios: comando `appointments:send-reminders` (programado cada 10 minutos)
-- Requiere worker de colas activo para procesar notificaciones en segundo plano
+Desarrollado con ❤️ para la excelencia en el Grooming Masculino.  
+**© 2026 BarberPro Elite Grooming Studio.**
