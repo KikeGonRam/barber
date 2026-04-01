@@ -451,6 +451,13 @@
                     <div class="h-12 w-12 rounded-2xl bg-white/10 text-white flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
                 </a>
             </section>
+        @else
+            <section class="ui-card-premium p-8">
+                <h3 class="text-lg font-black text-white uppercase tracking-widest">Panel no disponible</h3>
+                <p class="mt-2 text-sm text-muted">
+                    Tu perfil no tiene un modo de dashboard configurado todavia. Contacta a un administrador para completar la configuracion de rol/perfil.
+                </p>
+            </section>
         @endif
     </div>
 
