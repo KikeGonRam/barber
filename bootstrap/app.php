@@ -1,5 +1,11 @@
 <?php
 
+use App\Exceptions\Domain\AppointmentConflictException;
+use App\Exceptions\Domain\InsufficientStockException;
+use App\Exceptions\Domain\PaymentException;
+use App\Http\Middleware\CheckMaintenanceMode;
+use App\Http\Middleware\Role\EnsureUserHasPermission;
+use App\Http\Middleware\Role\EnsureUserHasRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,19 +18,19 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
-            \App\Http\Middleware\CheckMaintenanceMode::class,
+            CheckMaintenanceMode::class,
         ]);
         $middleware->alias([
-            'role.custom' => \App\Http\Middleware\Role\EnsureUserHasRole::class,
-            'permission.custom' => \App\Http\Middleware\Role\EnsureUserHasPermission::class,
+            'role.custom' => EnsureUserHasRole::class,
+            'permission.custom' => EnsureUserHasPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Throwable $exception, $request) {
+        $exceptions->render(function (Throwable $exception, $request) {
             $domainExceptions = [
-                \App\Exceptions\Domain\AppointmentConflictException::class,
-                \App\Exceptions\Domain\InsufficientStockException::class,
-                \App\Exceptions\Domain\PaymentException::class,
+                AppointmentConflictException::class,
+                InsufficientStockException::class,
+                PaymentException::class,
             ];
 
             foreach ($domainExceptions as $domainException) {

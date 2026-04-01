@@ -2,6 +2,4 @@
 
 namespace App\Http\Requests\Appointment;
 
-class UpdateAppointmentRequest extends StoreAppointmentRequest
-{
-}
+class UpdateAppointmentRequest extends StoreAppointmentRequest {}

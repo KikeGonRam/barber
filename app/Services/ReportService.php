@@ -6,7 +6,6 @@ use App\Models\Appointment;
 use App\Models\Payment;
 use App\Models\Product;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class ReportService
 {

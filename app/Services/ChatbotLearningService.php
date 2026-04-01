@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class ChatbotLearningService
 {
@@ -31,18 +30,18 @@ class ChatbotLearningService
      */
     public function learnQuestion(string $question, string $category, float $confidence = 0.8, $userId = null): void
     {
-        $key = "chatbot_learned_questions" . ($userId ? "_{$userId}" : "");
+        $key = 'chatbot_learned_questions'.($userId ? "_{$userId}" : '');
         $learned = Cache::get($key, []);
 
         // Normalizar pregunta
         $normalized = $this->normalizeText($question);
-        
-        if (!isset($learned[$category])) {
+
+        if (! isset($learned[$category])) {
             $learned[$category] = [];
         }
 
         // Agregar si no existe
-        if (!in_array($normalized, array_column($learned[$category], 'normalized'))) {
+        if (! in_array($normalized, array_column($learned[$category], 'normalized'))) {
             $learned[$category][] = [
                 'question' => $question,
                 'normalized' => $normalized,
@@ -144,7 +143,7 @@ class ChatbotLearningService
      */
     public function suggestResponse(string $question, $userId = null): ?string
     {
-        $key = "chatbot_learned_questions" . ($userId ? "_{$userId}" : "");
+        $key = 'chatbot_learned_questions'.($userId ? "_{$userId}" : '');
         $learned = Cache::get($key, []);
         $normalized = $this->normalizeText($question);
 
@@ -154,7 +153,7 @@ class ChatbotLearningService
         foreach ($learned as $category => $questions) {
             foreach ($questions as $item) {
                 $similarity = $this->stringSimilarity($normalized, $item['normalized']);
-                
+
                 if ($similarity > $bestScore) {
                     $bestScore = $similarity;
                     $bestMatch = $item;
@@ -175,7 +174,7 @@ class ChatbotLearningService
 
         $len1 = strlen($str1);
         $len2 = strlen($str2);
-        
+
         if ($len1 === 0 && $len2 === 0) {
             return 1.0;
         }
@@ -198,8 +197,12 @@ class ChatbotLearningService
         $len1 = strlen($s1);
         $len2 = strlen($s2);
 
-        if ($len1 === 0) return $len2;
-        if ($len2 === 0) return $len1;
+        if ($len1 === 0) {
+            return $len2;
+        }
+        if ($len2 === 0) {
+            return $len1;
+        }
 
         // Crear matriz
         $matrix = [];
@@ -216,7 +219,7 @@ class ChatbotLearningService
         for ($i = 1; $i <= $len1; $i++) {
             for ($j = 1; $j <= $len2; $j++) {
                 $cost = ($s1[$i - 1] === $s2[$j - 1]) ? 0 : 1;
-                
+
                 $matrix[$i][$j] = min(
                     $matrix[$i - 1][$j] + 1,      // delete
                     $matrix[$i][$j - 1] + 1,      // insert
@@ -261,7 +264,7 @@ class ChatbotLearningService
      */
     public function getLearningReport($userId = null): array
     {
-        $key = "chatbot_learned_questions" . ($userId ? "_{$userId}" : "");
+        $key = 'chatbot_learned_questions'.($userId ? "_{$userId}" : '');
         $learned = Cache::get($key, []);
 
         $totalQuestions = 0;
@@ -271,7 +274,7 @@ class ChatbotLearningService
             $totalQuestions += count($questions);
             $categoriesInfo[$category] = [
                 'count' => count($questions),
-                'examples' => array_slice(array_column($questions, 'question'), 0, 3)
+                'examples' => array_slice(array_column($questions, 'question'), 0, 3),
             ];
         }
 
@@ -279,7 +282,7 @@ class ChatbotLearningService
             'total_categories' => count($learned),
             'total_learned_questions' => $totalQuestions,
             'categories' => $categoriesInfo,
-            'generated_at' => now()->toIso8601String()
+            'generated_at' => now()->toIso8601String(),
         ];
     }
 
@@ -288,7 +291,7 @@ class ChatbotLearningService
      */
     public function getTopCategories($userId = null, int $limit = 5): array
     {
-        $key = "chatbot_learned_questions" . ($userId ? "_{$userId}" : "");
+        $key = 'chatbot_learned_questions'.($userId ? "_{$userId}" : '');
         $learned = Cache::get($key, []);
 
         // Contar

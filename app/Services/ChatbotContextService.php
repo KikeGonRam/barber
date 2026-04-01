@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Log;
 
 class ChatbotContextService
 {
@@ -14,6 +12,7 @@ class ChatbotContextService
     public function getConversationHistory($userId = null): array
     {
         $key = $this->getSessionKey($userId);
+
         return Session::get($key, []);
     }
 
@@ -47,12 +46,13 @@ class ChatbotContextService
     public function getLastContext($userId = null): ?array
     {
         $history = $this->getConversationHistory($userId);
-        
+
         if (empty($history)) {
             return null;
         }
 
         $lastItem = end($history);
+
         return $lastItem['context'] ?? null;
     }
 
@@ -77,7 +77,7 @@ class ChatbotContextService
     private function extractKeywords(string $message): array
     {
         $keywords = [];
-        
+
         // Palabras importantes para barbería
         $important = [
             'cita', 'servicio', 'barbero', 'precio', 'horario', 'ubicación',
@@ -151,6 +151,7 @@ class ChatbotContextService
     public function getSimilarity(string $message1, string $message2): float
     {
         $similarity = similar_text($message1, $message2, $percentage);
+
         return $percentage;
     }
 
@@ -165,7 +166,7 @@ class ChatbotContextService
         foreach ($history as $item) {
             if ($item['type'] === 'user') {
                 $similarity = $this->getSimilarity($message, $item['message']);
-                
+
                 if ($similarity >= $threshold) {
                     $similar[] = [
                         'question' => $item['message'],
@@ -178,7 +179,7 @@ class ChatbotContextService
         }
 
         // Ordenar por similitud descendente
-        usort($similar, fn($a, $b) => $b['similarity'] <=> $a['similarity']);
+        usort($similar, fn ($a, $b) => $b['similarity'] <=> $a['similarity']);
 
         return array_slice($similar, 0, 3); // Top 3
     }
@@ -190,16 +191,17 @@ class ChatbotContextService
     {
         // Palabras que indican follow-up
         $followUpWords = [
-            'eso', 'aquello', 'también', 'más', 'y qué', 'pero', 
+            'eso', 'aquello', 'también', 'más', 'y qué', 'pero',
             'cómo así', 'es decir', 'o sea', 'entonces', 'me explicas',
         ];
 
         $message = strtolower($message);
-        
+
         foreach ($followUpWords as $word) {
             if (str_contains($message, $word)) {
                 $history = $this->getConversationHistory($userId);
-                return !empty($history); // Es follow-up si hay historial
+
+                return ! empty($history); // Es follow-up si hay historial
             }
         }
 
@@ -234,11 +236,11 @@ class ChatbotContextService
     private function formatHistoryForAI(array $history): string
     {
         if (empty($history)) {
-            return "Sin historial anterior en esta conversación.";
+            return 'Sin historial anterior en esta conversación.';
         }
 
         $formatted = "Historial de conversación:\n";
-        
+
         foreach (array_slice($history, -5) as $item) { // Últimos 5 mensajes
             $type = $item['type'] === 'user' ? '👤 Cliente' : '🤖 Bot';
             $formatted .= "\n{$type}: {$item['message']}\n";
@@ -252,17 +254,17 @@ class ChatbotContextService
      */
     private function getSuggestedContext(string $message, ?array $lastContext, $userId = null): string
     {
-        $context = "Contexto relevante: ";
+        $context = 'Contexto relevante: ';
 
-        if ($lastContext && !empty($lastContext['keywords'])) {
-            $context .= "El usuario preguntaba sobre " . implode(", ", $lastContext['keywords']) . ". ";
+        if ($lastContext && ! empty($lastContext['keywords'])) {
+            $context .= 'El usuario preguntaba sobre '.implode(', ', $lastContext['keywords']).'. ';
         }
 
         $similar = $this->findSimilarQuestions($message, $userId, 70);
-        
-        if (!empty($similar)) {
-            $context .= "Preguntas similares recientes del usuario indican interés en " . 
-                       implode(", ", array_column($similar, 'question')) . ". ";
+
+        if (! empty($similar)) {
+            $context .= 'Preguntas similares recientes del usuario indican interés en '.
+                       implode(', ', array_column($similar, 'question')).'. ';
         }
 
         return $context;
@@ -283,7 +285,7 @@ class ChatbotContextService
     public function getConversationSummary($userId = null): array
     {
         $history = $this->getConversationHistory($userId);
-        
+
         $summary = [
             'total_messages' => count($history),
             'user_messages' => 0,
@@ -323,10 +325,10 @@ class ChatbotContextService
         $summary['intents'] = array_keys(array_slice($intentCounts, 0, 3));
 
         // Duración aproximada
-        if (!empty($history)) {
+        if (! empty($history)) {
             $first = strtotime($history[0]['timestamp']);
             $last = strtotime(end($history)['timestamp']);
-            $summary['duration'] = round(($last - $first) / 60) . ' minutos';
+            $summary['duration'] = round(($last - $first) / 60).' minutos';
         }
 
         return $summary;
@@ -338,19 +340,19 @@ class ChatbotContextService
     public function generateAugmentedPrompt(string $userMessage, string $basePrompt, $userId = null): string
     {
         $augmented = $this->getAugmentedContext($userMessage, $userId);
-        
-        $prompt = $basePrompt . "\n\n";
+
+        $prompt = $basePrompt."\n\n";
         $prompt .= "=== CONTEXTO DE CONVERSACIÓN ===\n";
-        $prompt .= $augmented['conversation_history'] . "\n";
+        $prompt .= $augmented['conversation_history']."\n";
 
         if ($augmented['is_followup']) {
             $prompt .= "\n⚠️ NOTA: Esta es una pregunta de seguimiento (follow-up).\n";
             if ($augmented['last_context']) {
-                $prompt .= "Contexto anterior: " . json_encode($augmented['last_context']) . "\n";
+                $prompt .= 'Contexto anterior: '.json_encode($augmented['last_context'])."\n";
             }
         }
 
-        if (!empty($augmented['similar_questions'])) {
+        if (! empty($augmented['similar_questions'])) {
             $prompt .= "\n📌 PREGUNTAS SIMILARES PASADAS:\n";
             foreach ($augmented['similar_questions'] as $sim) {
                 $prompt .= "- Q: {$sim['question']}\n  A: {$sim['answer']}\n";
@@ -360,8 +362,8 @@ class ChatbotContextService
         $prompt .= "\n=== NUEVA CONSULTA ===\n";
         $prompt .= "Usuario pregunta: {$userMessage}\n";
         $prompt .= "Intención detectada: {$augmented['message_intent']}\n";
-        $prompt .= "Palabras clave: " . implode(", ", $augmented['keywords']) . "\n\n";
-        $prompt .= "Responde considerando todo el contexto anterior. Si es seguimiento, enlaza con respuestas pasadas.";
+        $prompt .= 'Palabras clave: '.implode(', ', $augmented['keywords'])."\n\n";
+        $prompt .= 'Responde considerando todo el contexto anterior. Si es seguimiento, enlaza con respuestas pasadas.';
 
         return $prompt;
     }
@@ -371,7 +373,8 @@ class ChatbotContextService
      */
     private function getSessionKey($userId = null): string
     {
-        $id = $userId ?? auth()->id() ?? 'guest_' . request()->ip();
+        $id = $userId ?? auth()->id() ?? 'guest_'.request()->ip();
+
         return "chatbot_history_{$id}";
     }
 }

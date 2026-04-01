@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Inventory;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class InventoryPolicy
 {
@@ -43,11 +42,12 @@ class InventoryPolicy
     /**
      * Grant all abilities to administrators before checking other methods.
      */
-    public function before(User $user, $ability): bool|null
+    public function before(User $user, $ability): ?bool
     {
         if ($user->hasRole('administrador')) {
             return true;
         }
+
         return null;
     }
 

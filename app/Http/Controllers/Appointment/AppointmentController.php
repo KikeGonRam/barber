@@ -17,9 +17,7 @@ use Illuminate\View\View;
 
 class AppointmentController extends Controller
 {
-    public function __construct(private readonly AppointmentService $appointmentService)
-    {
-    }
+    public function __construct(private readonly AppointmentService $appointmentService) {}
 
     public function index(): View
     {

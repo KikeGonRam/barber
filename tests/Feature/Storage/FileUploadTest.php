@@ -14,6 +14,9 @@ use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\Work;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -29,8 +32,8 @@ class FileUploadTest extends TestCase
         parent::setUp();
 
         $this->withoutMiddleware([
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            ValidateCsrfToken::class,
+            VerifyCsrfToken::class,
             'verified',
         ]);
 
@@ -64,7 +67,7 @@ class FileUploadTest extends TestCase
         $barber->refresh();
 
         $this->assertNotNull($barber->foto);
-        $this->assertStringContainsString('barbers/' . $barberUser->id . '/', $barber->foto);
+        $this->assertStringContainsString('barbers/'.$barberUser->id.'/', $barber->foto);
         Storage::disk('public')->assertExists($barber->foto);
     }
 
@@ -86,7 +89,7 @@ class FileUploadTest extends TestCase
             ])
             ->assertRedirect(route('barbers.show', $barberUser));
 
-        $work = \App\Models\Work::query()->where('barbero_id', $barberUser->id)->firstOrFail();
+        $work = Work::query()->where('barbero_id', $barberUser->id)->firstOrFail();
 
         $this->assertCount(3, $work->images);
         foreach ($work->images as $image) {

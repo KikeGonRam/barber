@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Inventory;
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -12,12 +14,12 @@ class InventoryFlowTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         // Refrescar permisos y roles
-        if (class_exists(\Database\Seeders\RolePermissionSeeder::class)) {
-            $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        if (class_exists(RolePermissionSeeder::class)) {
+            $this->seed(RolePermissionSeeder::class);
         } else {
             Role::firstOrCreate(['name' => 'administrador']);
             Role::firstOrCreate(['name' => 'recepcionista']);
@@ -33,7 +35,7 @@ class InventoryFlowTest extends TestCase
         $admin->assignRole('administrador');
         // Asignar todos los permisos al admin explícitamente
         if (method_exists($admin, 'givePermissionTo')) {
-            $admin->givePermissionTo(\Spatie\Permission\Models\Permission::all());
+            $admin->givePermissionTo(Permission::all());
         }
 
         $this->actingAs($admin)

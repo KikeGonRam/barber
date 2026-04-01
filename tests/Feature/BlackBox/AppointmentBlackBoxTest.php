@@ -13,6 +13,8 @@ use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\Service;
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -26,8 +28,8 @@ class AppointmentBlackBoxTest extends TestCase
         parent::setUp();
 
         $this->withoutMiddleware([
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            ValidateCsrfToken::class,
+            VerifyCsrfToken::class,
         ]);
 
         BarbershopSetting::query()->create([

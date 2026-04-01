@@ -3,28 +3,25 @@
 namespace App\Services;
 
 use App\Exceptions\Domain\AppointmentConflictException;
-use App\Notifications\AppointmentNotification;
-use App\Repositories\Contracts\AppointmentRepositoryInterface;
-
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarbershopSetting;
 use App\Models\Service;
+use App\Notifications\AppointmentNotification;
+use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use Carbon\Carbon;
 
 class AppointmentService
 {
-    public function __construct(private readonly AppointmentRepositoryInterface $appointments)
-    {
-    }
+    public function __construct(private readonly AppointmentRepositoryInterface $appointments) {}
 
     public function getAvailableSlots(Barber $barber, string $date, Service $service): array
     {
         $carbonDate = Carbon::parse($date);
         $dayOfWeek = $carbonDate->dayOfWeek; // 0 (Sun) to 6 (Sat)
-        
+
         $barberSchedule = $barber->schedules()->where('day_of_week', $dayOfWeek)->first();
-        
+
         $startTime = null;
         $endTime = null;
         $isWorking = false;
@@ -40,19 +37,19 @@ class AppointmentService
                 $startTime = $settings->horario_apertura;
                 $endTime = $settings->horario_cierre;
                 // Por defecto, permitir lunes a sábado si no hay configuración específica
-                $isWorking = ($dayOfWeek !== 0); 
+                $isWorking = ($dayOfWeek !== 0);
             }
         }
-        
+
         // Si el barbero explícitamente no trabaja o faltan datos, lista vacía
-        if (!$isWorking || !$startTime || !$endTime) {
+        if (! $isWorking || ! $startTime || ! $endTime) {
             return [];
         }
 
-        $start = Carbon::parse($date . ' ' . $startTime)->startOfMinute();
-        $end = Carbon::parse($date . ' ' . $endTime)->startOfMinute();
+        $start = Carbon::parse($date.' '.$startTime)->startOfMinute();
+        $end = Carbon::parse($date.' '.$endTime)->startOfMinute();
         $duration = (int) ($service->duracion_min ?? 30);
-        $interval = 30; 
+        $interval = 30;
 
         $slots = [];
         $current = $start->copy();
@@ -68,7 +65,7 @@ class AppointmentService
             $slotEnd = $current->copy()->addMinutes($duration)->format('H:i:00');
 
             $isAvailable = true;
-            
+
             // Si es HOY, solo permitir horarios en el futuro (margen de 10 min)
             if ($carbonDate->isToday() && $current->lt(now()->addMinutes(10))) {
                 $isAvailable = false;

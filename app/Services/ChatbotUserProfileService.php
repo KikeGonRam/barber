@@ -12,7 +12,7 @@ class ChatbotUserProfileService
     public function getUserProfile($userId = null): array
     {
         $key = $this->getProfileKey($userId);
-        
+
         $profile = Cache::get($key, [
             'user_id' => $userId,
             'conversation_style' => 'professional_friendly',
@@ -44,8 +44,8 @@ class ChatbotUserProfileService
     public function updateTopics(string $keyword, $userId = null): array
     {
         $profile = $this->getUserProfile($userId);
-        
-        if (!in_array($keyword, $profile['topics_discussed'])) {
+
+        if (! in_array($keyword, $profile['topics_discussed'])) {
             $profile['topics_discussed'][] = $keyword;
             // Limitar a últimos 10 tópicos
             if (count($profile['topics_discussed']) > 10) {
@@ -54,6 +54,7 @@ class ChatbotUserProfileService
         }
 
         $this->saveUserProfile($profile, $userId);
+
         return $profile;
     }
 
@@ -73,15 +74,15 @@ class ChatbotUserProfileService
     public function getProfileSummary($userId = null): string
     {
         $profile = $this->getUserProfile($userId);
-        
+
         $summary = "PERFIL DE USUARIO:\n";
         $summary .= "Estilo: {$profile['conversation_style']}\n";
         $summary .= "Tono: {$profile['response_tone']}\n";
-        
-        if (!empty($profile['topics_discussed'])) {
-            $summary .= "Tópicos recientes: " . implode(", ", array_slice($profile['topics_discussed'], -3)) . "\n";
+
+        if (! empty($profile['topics_discussed'])) {
+            $summary .= 'Tópicos recientes: '.implode(', ', array_slice($profile['topics_discussed'], -3))."\n";
         }
-        
+
         if ($profile['last_intent']) {
             $summary .= "Última intención: {$profile['last_intent']}\n";
         }
@@ -94,7 +95,8 @@ class ChatbotUserProfileService
      */
     private function getProfileKey($userId = null): string
     {
-        $id = $userId ?? auth()->id() ?? 'guest_' . request()->ip();
+        $id = $userId ?? auth()->id() ?? 'guest_'.request()->ip();
+
         return "chatbot_profile_{$id}";
     }
 

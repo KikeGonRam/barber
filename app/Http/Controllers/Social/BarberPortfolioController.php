@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Social;
 
 use App\Http\Controllers\Controller;
-use App\Models\Work;
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Models\Work;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class BarberPortfolioController extends Controller
@@ -15,7 +15,7 @@ class BarberPortfolioController extends Controller
     {
         $barber = auth()->user()->barberProfile;
         $works = Work::where('barbero_id', auth()->id())->latest()->paginate(12);
-        
+
         return view('barber.portfolio.index', compact('works'));
     }
 
@@ -28,7 +28,7 @@ class BarberPortfolioController extends Controller
     {
         // If barber is passed as route parameter, use it; otherwise use authenticated user
         $barberId = $barber?->id ?? auth()->id();
-        
+
         // Ensure the authenticated user is uploading for themselves
         abort_if($barberId !== auth()->id(), 403);
 
@@ -55,17 +55,16 @@ class BarberPortfolioController extends Controller
         if ($barber) {
             return redirect()->route('barbers.show', $barber)->with('status', 'Trabajo publicado exitosamente en tu portafolio.');
         }
-        
+
         return redirect()->route('barber.portfolio.index')->with('status', 'Trabajo publicado exitosamente en tu portafolio.');
     }
 
     public function destroy(Work $work): RedirectResponse
     {
         abort_if($work->barbero_id !== auth()->id(), 403);
-        
+
         $work->delete(); // This should delete images if using boot or cascade
-        
+
         return back()->with('status', 'Trabajo eliminado de tu portafolio.');
     }
 }
-

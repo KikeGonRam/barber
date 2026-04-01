@@ -7,9 +7,7 @@ use App\Repositories\Contracts\ServiceRepositoryInterface;
 
 class ServiceService
 {
-    public function __construct(private readonly ServiceRepositoryInterface $services)
-    {
-    }
+    public function __construct(private readonly ServiceRepositoryInterface $services) {}
 
     public function list(array $filters = [], int $perPage = 15)
     {

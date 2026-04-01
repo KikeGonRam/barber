@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PaymentService
 {
-    public function __construct(private readonly PaymentRepositoryInterface $payments)
-    {
-    }
+    public function __construct(private readonly PaymentRepositoryInterface $payments) {}
 
     public function list(array $filters = [], int $perPage = 15)
     {

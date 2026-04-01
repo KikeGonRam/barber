@@ -2,10 +2,16 @@
 
 namespace App\Services;
 
-use App\Models\{Service, Barber, Appointment, Work, WorkImage, Comment, Reaction, Payment, Product, User, Client};
-use Illuminate\Support\Collection;
+use App\Models\Appointment;
+use App\Models\Barber;
+use App\Models\Client;
+use App\Models\Comment;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Service;
+use App\Models\User;
+use App\Models\Work;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class ChatbotIntelligenceService
 {
@@ -36,14 +42,14 @@ class ChatbotIntelligenceService
         $barbers = Barber::with('user')
             ->where('activo', true)
             ->withCount([
-                'works' => fn($q) => $q->where('created_at', '>=', now()->subMonths(3)),
-                'appointments' => fn($q) => $q->where('estado', 'completada')->where('fecha', '>=', now()->subMonths(3)),
+                'works' => fn ($q) => $q->where('created_at', '>=', now()->subMonths(3)),
+                'appointments' => fn ($q) => $q->where('estado', 'completada')->where('fecha', '>=', now()->subMonths(3)),
             ])
             ->withAvg('comments', 'puntuacion')
             ->orderByDesc('works_count')
             ->limit(5)
             ->get()
-            ->map(function($barber) {
+            ->map(function ($barber) {
                 return [
                     'name' => $barber->user->name,
                     'works' => $barber->works_count ?? 0,
@@ -53,7 +59,7 @@ class ChatbotIntelligenceService
                 ];
             })
             ->toArray();
-        
+
         return $barbers;
     }
 
@@ -65,13 +71,13 @@ class ChatbotIntelligenceService
         $works = Work::with('barber.user', 'workImages')
             ->where('created_at', '>=', now()->subMonths(3))
             ->withCount([
-                'reactions' => fn($q) => $q->where('tipo', 'like'),
-                'comments'
+                'reactions' => fn ($q) => $q->where('tipo', 'like'),
+                'comments',
             ])
             ->orderByDesc('reactions_count')
             ->limit(5)
             ->get()
-            ->map(function($work) {
+            ->map(function ($work) {
                 return [
                     'title' => $work->titulo,
                     'barber' => $work->barber?->user?->name,
@@ -92,12 +98,12 @@ class ChatbotIntelligenceService
     {
         $services = Service::where('activo', true)
             ->withCount([
-                'appointments' => fn($q) => $q->where('estado', 'completada')->where('created_at', '>=', now()->subMonths(3))
+                'appointments' => fn ($q) => $q->where('estado', 'completada')->where('created_at', '>=', now()->subMonths(3)),
             ])
             ->orderByDesc('appointments_count')
             ->limit(5)
             ->get()
-            ->map(function($service) {
+            ->map(function ($service) {
                 return [
                     'name' => $service->nombre,
                     'price' => $service->precio,
@@ -121,11 +127,11 @@ class ChatbotIntelligenceService
             ->orderByDesc('puntuacion')
             ->limit(5)
             ->get()
-            ->map(function($comment) {
+            ->map(function ($comment) {
                 return [
                     'author' => $comment->user?->name,
                     'rating' => $comment->puntuacion,
-                    'text' => substr($comment->contenido, 0, 100) . '...',
+                    'text' => substr($comment->contenido, 0, 100).'...',
                     'barber' => $comment->work?->barber?->user?->name,
                 ];
             })
@@ -140,8 +146,8 @@ class ChatbotIntelligenceService
     private function getUserHistory($user): array
     {
         $client = $user->clientProfile;
-        
-        if (!$client) {
+
+        if (! $client) {
             return [];
         }
 
@@ -150,7 +156,7 @@ class ChatbotIntelligenceService
             ->orderByDesc('fecha')
             ->limit(10)
             ->get()
-            ->map(fn($apt) => [
+            ->map(fn ($apt) => [
                 'barber' => $apt->barber?->user?->name,
                 'service' => $apt->service?->nombre,
                 'date' => Carbon::parse($apt->fecha)->translatedFormat('l j F'),
@@ -182,8 +188,8 @@ class ChatbotIntelligenceService
     private function getUserPreferences($user): array
     {
         $client = $user->clientProfile;
-        
-        if (!$client) {
+
+        if (! $client) {
             return [];
         }
 
@@ -205,7 +211,7 @@ class ChatbotIntelligenceService
             ?->barber?->user?->name;
 
         // Promedio de gasto
-        $avgSpent = Payment::whereHas('appointment', fn($q) => $q->where('client_id', $client->id))
+        $avgSpent = Payment::whereHas('appointment', fn ($q) => $q->where('client_id', $client->id))
             ->recent()
             ->average('monto') ?? 0;
 
@@ -226,9 +232,16 @@ class ChatbotIntelligenceService
             ->where('estado', 'completada')
             ->count();
 
-        if ($appointmentCount >= 20) return 'VIP';
-        if ($appointmentCount >= 10) return 'Frecuente';
-        if ($appointmentCount >= 5) return 'Regular';
+        if ($appointmentCount >= 20) {
+            return 'VIP';
+        }
+        if ($appointmentCount >= 10) {
+            return 'Frecuente';
+        }
+        if ($appointmentCount >= 5) {
+            return 'Regular';
+        }
+
         return 'Nuevo';
     }
 
@@ -244,7 +257,7 @@ class ChatbotIntelligenceService
             ->orderByDesc('count')
             ->limit(3)
             ->get()
-            ->map(fn($apt) => $apt->hora_inicio)
+            ->map(fn ($apt) => $apt->hora_inicio)
             ->toArray();
 
         return $busy;
@@ -257,12 +270,12 @@ class ChatbotIntelligenceService
     {
         $slowTimes = [];
         for ($hour = 9; $hour <= 20; $hour++) {
-            $time = str_pad($hour, 2, '0', STR_PAD_LEFT) . ':00';
+            $time = str_pad($hour, 2, '0', STR_PAD_LEFT).':00';
             $count = Appointment::where('hora_inicio', $time)
                 ->where('fecha', '>=', now()->toDateString())
                 ->where('estado', '!=', 'cancelada')
                 ->count();
-            
+
             if ($count == 0) {
                 $slowTimes[] = $time;
             }
@@ -281,7 +294,7 @@ class ChatbotIntelligenceService
             ->orderByDesc('created_at')
             ->limit(5)
             ->get()
-            ->map(fn($p) => [
+            ->map(fn ($p) => [
                 'name' => $p->nombre,
                 'price' => $p->precio,
                 'category' => $p->categoria ?? 'Producto',
@@ -322,7 +335,7 @@ class ChatbotIntelligenceService
     {
         $recommendations = [];
 
-        if (!$user) {
+        if (! $user) {
             return [
                 'message' => '¡Bienvenido! Visita nuestro portafolio para ver los trabajos más destacados.',
                 'trending' => $this->getTrendingBarbers(),
@@ -332,16 +345,16 @@ class ChatbotIntelligenceService
         $preferences = $this->getUserPreferences($user);
         $trending = $this->getTrendingWorks();
 
-        if (!empty($preferences['favorite_barber'])) {
+        if (! empty($preferences['favorite_barber'])) {
             $recommendations[] = "Te recomendamos agendar nuevamente con {$preferences['favorite_barber']}, tu barbero favorito.";
         }
 
-        if (!empty($trending)) {
-            $recommendations[] = "Mira nuestros trabajos trending: " . implode(', ', array_slice(array_map(fn($w) => $w['title'], $trending), 0, 2));
+        if (! empty($trending)) {
+            $recommendations[] = 'Mira nuestros trabajos trending: '.implode(', ', array_slice(array_map(fn ($w) => $w['title'], $trending), 0, 2));
         }
 
         if ($preferences['loyalty_level'] === 'VIP') {
-            $recommendations[] = "Como miembro VIP, tienes acceso a descuentos exclusivos. ¡Consulta con recepción!";
+            $recommendations[] = 'Como miembro VIP, tienes acceso a descuentos exclusivos. ¡Consulta con recepción!';
         }
 
         return $recommendations;
@@ -357,25 +370,27 @@ class ChatbotIntelligenceService
 
         // TRENDING QUERIES
         if (str_contains($message, 'trending') || str_contains($message, 'popular') || str_contains($message, 'moda')) {
-            if (!empty($extended['trending_works'])) {
-                $works = array_map(fn($w) => "{$w['title']} ({$w['likes']} likes)", $extended['trending_works']);
-                return "📈 TRABAJOS TRENDING:\n• " . implode("\n• ", $works);
+            if (! empty($extended['trending_works'])) {
+                $works = array_map(fn ($w) => "{$w['title']} ({$w['likes']} likes)", $extended['trending_works']);
+
+                return "📈 TRABAJOS TRENDING:\n• ".implode("\n• ", $works);
             }
         }
 
         // BEST BARBERS
         if (str_contains($message, 'mejor barbero') || str_contains($message, 'maestro') || str_contains($message, 'top barber')) {
-            if (!empty($extended['trending_barbers'])) {
-                $barbers = array_map(fn($b) => "{$b['name']} ({$b['rating']}⭐)", $extended['trending_barbers']);
-                return "🏆 MAESTROS TOP:\n• " . implode("\n• ", $barbers);
+            if (! empty($extended['trending_barbers'])) {
+                $barbers = array_map(fn ($b) => "{$b['name']} ({$b['rating']}⭐)", $extended['trending_barbers']);
+
+                return "🏆 MAESTROS TOP:\n• ".implode("\n• ", $barbers);
             }
         }
 
         // BUSY VS SLOW TIMES
         if (str_contains($message, 'cuándo disponible') || str_contains($message, 'horario libre')) {
             $slowTimes = $extended['slow_times'];
-            if (!empty($slowTimes)) {
-                return "✅ HORARIOS DISPONIBLES:\n• " . implode("\n• ", $slowTimes) . "\n\nReserva en estos horarios sin esperar.";
+            if (! empty($slowTimes)) {
+                return "✅ HORARIOS DISPONIBLES:\n• ".implode("\n• ", $slowTimes)."\n\nReserva en estos horarios sin esperar.";
             }
         }
 
@@ -383,16 +398,17 @@ class ChatbotIntelligenceService
         if ($user && $user->hasRole('cliente')) {
             if (str_contains($message, 'recomendación') || str_contains($message, 'qué debería')) {
                 $recs = $this->getRecommendations($user);
-                if (!empty($recs)) {
+                if (! empty($recs)) {
                     return implode("\n\n", $recs);
                 }
             }
 
             if (str_contains($message, 'mi historial') || str_contains($message, 'mis citas')) {
-                if (!empty($extended['user_history'])) {
+                if (! empty($extended['user_history'])) {
                     $history = $extended['user_history'];
                     $level = $extended['user_preferences']['loyalty_level'] ?? 'Nuevo';
                     $favBarber = $history['favorite_barbers'][0] ?? 'N/A';
+
                     return "📋 TU PERFIL:\nNivel: {$level}\nCitas realizadas: {$history['total_citas']}\nBarbero favorito: {$favBarber}";
                 }
             }
@@ -402,6 +418,7 @@ class ChatbotIntelligenceService
         if ($user && $user->hasRole('administrador')) {
             if (str_contains($message, 'estadística') || str_contains($message, 'métricas hoy')) {
                 $stats = $extended['stats'];
+
                 return "📊 MÉTRICAS HOY:\n💵 Ingresos: \${$stats['today_revenue']}\n📅 Citas: {$stats['today_appointments']}\n👥 Total de clientes: {$stats['total_clients']}\n💈 Barberos activos: {$stats['active_barbers']}";
             }
         }

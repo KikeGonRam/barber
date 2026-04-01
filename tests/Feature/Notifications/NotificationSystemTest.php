@@ -15,9 +15,12 @@ use App\Models\Service;
 use App\Models\User;
 use App\Notifications\AppointmentNotification;
 use Carbon\Carbon;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -30,8 +33,8 @@ class NotificationSystemTest extends TestCase
         parent::setUp();
 
         $this->withoutMiddleware([
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            ValidateCsrfToken::class,
+            VerifyCsrfToken::class,
             'verified',
         ]);
 
@@ -112,7 +115,7 @@ class NotificationSystemTest extends TestCase
             ->assertRedirect(route('appointments.index'));
 
         Notification::assertSentTo($client->user, AppointmentNotification::class, function ($notification, $channels): bool {
-            return !in_array('mail', $channels, true) && in_array('database', $channels, true);
+            return ! in_array('mail', $channels, true) && in_array('database', $channels, true);
         });
     }
 
@@ -189,7 +192,7 @@ class NotificationSystemTest extends TestCase
         $user = $this->createVerifiedUserWithRole('cliente');
 
         $user->notifications()->create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'type' => AppointmentNotification::class,
             'data' => [
                 'title' => 'Notif A',
@@ -199,7 +202,7 @@ class NotificationSystemTest extends TestCase
         ]);
 
         $user->notifications()->create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'type' => AppointmentNotification::class,
             'data' => [
                 'title' => 'Notif B',

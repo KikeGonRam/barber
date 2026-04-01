@@ -2,6 +2,9 @@
 
 namespace Tests;
 
+use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\PermissionRegistrar;
@@ -14,14 +17,14 @@ abstract class TestCase extends BaseTestCase
 
         // Disable middleware for easier testing
         $this->withoutMiddleware([
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            ValidateCsrfToken::class,
+            VerifyCsrfToken::class,
             'verified',
         ]);
 
         if (Schema::hasTable('permissions')) {
             app(PermissionRegistrar::class)->forgetCachedPermissions();
-            $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+            $this->seed(RolePermissionSeeder::class);
         }
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Appointment;
+use App\Models\Barber;
+use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Product;
 use Carbon\Carbon;
@@ -53,9 +55,9 @@ class DashboardService
         $lowStockCount = Product::query()->whereColumn('stock_actual', '<=', 'stock_minimo')->count();
 
         // New: Barber Status Logic
-        $barbers = \App\Models\Barber::with('user')->where('activo', true)->get();
+        $barbers = Barber::with('user')->where('activo', true)->get();
         $now = Carbon::now();
-        
+
         $barbersStatus = $barbers->map(function ($barber) use ($now) {
             $currentAppt = Appointment::query()
                 ->where('barber_id', $barber->id)
@@ -65,12 +67,12 @@ class DashboardService
                 ->where('estado', '!=', 'cancelada')
                 ->first();
 
-            $isBusy = (bool)$currentAppt;
+            $isBusy = (bool) $currentAppt;
             $progress = 0;
 
             if ($isBusy) {
-                $start = Carbon::parse($currentAppt->fecha . ' ' . $currentAppt->hora_inicio);
-                $end = Carbon::parse($currentAppt->fecha . ' ' . $currentAppt->hora_fin);
+                $start = Carbon::parse($currentAppt->fecha.' '.$currentAppt->hora_inicio);
+                $end = Carbon::parse($currentAppt->fecha.' '.$currentAppt->hora_fin);
                 $total = $end->diffInMinutes($start);
                 $elapsed = $now->diffInMinutes($start);
                 $progress = min(100, max(0, round(($elapsed / ($total ?: 1)) * 100)));
@@ -192,7 +194,7 @@ class DashboardService
             ->whereDoesntHave('payments')
             ->count();
 
-        $newClientsToday = \App\Models\Client::query()->whereDate('created_at', $today)->count();
+        $newClientsToday = Client::query()->whereDate('created_at', $today)->count();
         $lowStockCount = Product::query()->whereColumn('stock_actual', '<=', 'stock_minimo')->count();
 
         $nextAppointments = Appointment::query()
@@ -220,7 +222,7 @@ class DashboardService
     {
         $totalAppointments = Appointment::query()->where('client_id', $clientId)->count();
         $completedAppointments = Appointment::query()->where('client_id', $clientId)->where('estado', 'completada')->count();
-        
+
         $nextAppt = Appointment::query()
             ->with(['barber.user', 'service'])
             ->where('client_id', $clientId)
@@ -239,8 +241,11 @@ class DashboardService
             ->first();
 
         $status = 'Caballero';
-        if ($completedAppointments >= 10) $status = 'Leyenda';
-        elseif ($completedAppointments >= 5) $status = 'V.I.P';
+        if ($completedAppointments >= 10) {
+            $status = 'Leyenda';
+        } elseif ($completedAppointments >= 5) {
+            $status = 'V.I.P';
+        }
 
         // Chart: Visits per month (Last 6 months)
         $visitData = collect(range(0, 5))->map(function ($offset) use ($clientId) {
@@ -250,9 +255,10 @@ class DashboardService
                 ->whereMonth('fecha', $date->month)
                 ->whereYear('fecha', $date->year)
                 ->count();
+
             return [
                 'label' => $date->translatedFormat('M'),
-                'total' => $count
+                'total' => $count,
             ];
         });
 
@@ -267,7 +273,7 @@ class DashboardService
             'visit_chart' => [
                 'labels' => $visitData->pluck('label')->all(),
                 'values' => $visitData->pluck('total')->all(),
-            ]
+            ],
         ];
     }
 
@@ -285,7 +291,7 @@ class DashboardService
 
         return [
             'labels' => $hours,
-            'values' => $counts
+            'values' => $counts,
         ];
     }
 }

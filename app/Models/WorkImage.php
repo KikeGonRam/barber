@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\WorkImageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class WorkImage extends Model
 {
-    /** @use HasFactory<\Database\Factories\WorkImageFactory> */
+    /** @use HasFactory<WorkImageFactory> */
     use HasFactory;
 
     protected $fillable = [

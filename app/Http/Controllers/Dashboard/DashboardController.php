@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\BarbershopSetting;
 use App\Services\DashboardService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __construct(private readonly DashboardService $dashboardService)
-    {
-    }
+    public function __construct(private readonly DashboardService $dashboardService) {}
 
     public function index(): View
     {
@@ -22,7 +21,7 @@ class DashboardController extends Controller
 
         if ($user->hasRole('administrador')) {
             $data = $this->dashboardService->adminMetrics();
-            $setting = \App\Models\BarbershopSetting::firstOrCreate(
+            $setting = BarbershopSetting::firstOrCreate(
                 ['id' => 1],
                 ['nombre' => config('app.name'), 'politica_cancelacion' => 24]
             );

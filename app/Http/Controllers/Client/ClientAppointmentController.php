@@ -17,9 +17,7 @@ use Illuminate\View\View;
 
 class ClientAppointmentController extends Controller
 {
-    public function __construct(private readonly AppointmentService $appointmentService)
-    {
-    }
+    public function __construct(private readonly AppointmentService $appointmentService) {}
 
     public function index(): View
     {
@@ -57,9 +55,9 @@ class ClientAppointmentController extends Controller
 
         $data = $request->validated();
         $service = Service::findOrFail($data['service_id']);
-        
+
         // Calculate end time
-        $start = Carbon::parse($data['fecha'] . ' ' . $data['hora_inicio']);
+        $start = Carbon::parse($data['fecha'].' '.$data['hora_inicio']);
         $end = $start->copy()->addMinutes($service->duracion_min);
 
         $payload = array_merge($data, [
@@ -96,9 +94,9 @@ class ClientAppointmentController extends Controller
 
         $data = $request->validated();
         $service = Service::findOrFail($data['service_id']);
-        
+
         // Calculate end time
-        $start = Carbon::parse($data['fecha'] . ' ' . $data['hora_inicio']);
+        $start = Carbon::parse($data['fecha'].' '.$data['hora_inicio']);
         $end = $start->copy()->addMinutes($service->duracion_min);
 
         $payload = array_merge($data, [

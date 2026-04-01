@@ -13,9 +13,7 @@ use Illuminate\View\View;
 
 class ServiceController extends Controller
 {
-    public function __construct(private readonly ServiceService $serviceService)
-    {
-    }
+    public function __construct(private readonly ServiceService $serviceService) {}
 
     public function index(Request $request): View
     {
@@ -30,6 +28,7 @@ class ServiceController extends Controller
     public function publicIndex(): View
     {
         $services = Service::where('activo', true)->get();
+
         return view('services.public-index', compact('services'));
     }
 

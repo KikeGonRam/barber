@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Appointment\AppointmentController;
-use App\Http\Controllers\Barber\BarberDashboardController;
 use App\Http\Controllers\Barber\BarberController;
-use App\Http\Controllers\BarberProfileController;
-use App\Http\Controllers\Client\ClientController;
+use App\Http\Controllers\Barber\BarberDashboardController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\Client\ClientAppointmentController;
+use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Inventory\InventoryMovementController;
 use App\Http\Controllers\Inventory\ProductController;
@@ -15,14 +16,18 @@ use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Report\ReportController;
-use App\Http\Controllers\Setting\BarbershopSettingController;
 use App\Http\Controllers\Service\ServiceController;
+use App\Http\Controllers\Setting\BarbershopSettingController;
 use App\Http\Controllers\Social\BarberPortfolioController;
 use App\Http\Controllers\Social\SocialController;
+use App\Http\Controllers\User\UserController;
+use App\Models\Barber;
+use App\Models\Service;
 
 Route::get('/', function () {
-    $services = \App\Models\Service::where('activo', true)->limit(6)->get();
-    $barbers = \App\Models\Barber::with('user')->where('activo', true)->limit(4)->get();
+    $services = Service::where('activo', true)->limit(6)->get();
+    $barbers = Barber::with('user')->where('activo', true)->limit(4)->get();
+
     return view('welcome', compact('services', 'barbers'));
 });
 
@@ -33,17 +38,17 @@ Route::get('/mantenimiento', function () {
 Route::get('/equipo/{barber}', [BarberController::class, 'show'])->whereNumber('barber')->name('barbers.public.show');
 Route::get('/barbero/{barber}', [BarberController::class, 'show'])->whereNumber('barber')->name('barbers.show');
 Route::get('/servicios', [ServiceController::class, 'publicIndex'])->name('services.public.index');
-Route::post('/chatbot/query', [\App\Http\Controllers\ChatbotController::class, 'query'])->name('chatbot.query');
+Route::post('/chatbot/query', [ChatbotController::class, 'query'])->name('chatbot.query');
 Route::middleware(['auth'])->group(function () {
-    Route::get('/chatbot/history', [\App\Http\Controllers\ChatbotController::class, 'getHistory'])->name('chatbot.history');
-    Route::get('/chatbot/profile', [\App\Http\Controllers\ChatbotController::class, 'getProfile'])->name('chatbot.profile');
-    Route::post('/chatbot/clear-history', [\App\Http\Controllers\ChatbotController::class, 'clearHistory'])->name('chatbot.clear-history');
-    Route::get('/chatbot/learning-stats', [\App\Http\Controllers\ChatbotController::class, 'getLearningStats'])->name('chatbot.learning-stats');
-    Route::post('/chatbot/train-history', [\App\Http\Controllers\ChatbotController::class, 'trainFromHistory'])->name('chatbot.train-history');
+    Route::get('/chatbot/history', [ChatbotController::class, 'getHistory'])->name('chatbot.history');
+    Route::get('/chatbot/profile', [ChatbotController::class, 'getProfile'])->name('chatbot.profile');
+    Route::post('/chatbot/clear-history', [ChatbotController::class, 'clearHistory'])->name('chatbot.clear-history');
+    Route::get('/chatbot/learning-stats', [ChatbotController::class, 'getLearningStats'])->name('chatbot.learning-stats');
+    Route::post('/chatbot/train-history', [ChatbotController::class, 'trainFromHistory'])->name('chatbot.train-history');
 });
 
 // Availability API
-Route::get('/api/availability/slots', [\App\Http\Controllers\Api\AvailabilityController::class, 'slots'])->name('api.availability.slots');
+Route::get('/api/availability/slots', [AvailabilityController::class, 'slots'])->name('api.availability.slots');
 
 // Social Feed (Instagram Style)
 Route::get('/descubrir', [SocialController::class, 'feed'])->name('social.feed');
@@ -113,7 +118,7 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::middleware('permission.custom:usuarios.gestionar')->group(function () {
-            Route::resource('users', \App\Http\Controllers\User\UserController::class)->except('show');
+            Route::resource('users', UserController::class)->except('show');
         });
 
         Route::middleware('permission.custom:barberos.gestionar')->group(function () {
@@ -140,7 +145,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('appointments/{appointment}/status', [BarberDashboardController::class, 'updateAppointmentStatus'])->name('appointments.status');
         Route::get('profile', [BarberDashboardController::class, 'editProfile'])->name('profile.edit');
         Route::put('profile', [BarberDashboardController::class, 'updateProfile'])->name('profile.update');
-        
+
         // Schedule Management
         Route::get('schedule', [BarberDashboardController::class, 'editSchedule'])->name('schedule.edit');
         Route::put('schedule', [BarberDashboardController::class, 'updateSchedule'])->name('schedule.update');

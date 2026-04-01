@@ -26,7 +26,7 @@ class DemoDataSeeder extends Seeder
         $barbers = Barber::factory()->count(4)->create();
         foreach ($barbers as $barber) {
             $barber->user->assignRole('barbero');
-            
+
             // Initialize schedule for each barber
             for ($i = 1; $i <= 6; $i++) {
                 $barber->schedules()->create([

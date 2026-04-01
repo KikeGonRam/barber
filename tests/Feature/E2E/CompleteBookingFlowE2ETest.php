@@ -15,6 +15,8 @@ use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
@@ -29,8 +31,8 @@ class CompleteBookingFlowE2ETest extends TestCase
         parent::setUp();
 
         $this->withoutMiddleware([
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            ValidateCsrfToken::class,
+            VerifyCsrfToken::class,
             'verified',
         ]);
 
@@ -235,8 +237,8 @@ class CompleteBookingFlowE2ETest extends TestCase
     private function createVerifiedUserWithRole(string $roleName, array $attributes = []): User
     {
         $defaults = [
-            'name' => 'User ' . $roleName,
-            'email' => $roleName . '.' . uniqid() . '@example.com',
+            'name' => 'User '.$roleName,
+            'email' => $roleName.'.'.uniqid().'@example.com',
             'email_verified_at' => now(),
         ];
 
@@ -255,7 +257,7 @@ class CompleteBookingFlowE2ETest extends TestCase
     private function createVerifiedClientUser(string $email): User
     {
         $user = $this->createVerifiedUserWithRole('cliente', [
-            'name' => 'Cliente ' . $email,
+            'name' => 'Cliente '.$email,
             'email' => $email,
         ]);
 

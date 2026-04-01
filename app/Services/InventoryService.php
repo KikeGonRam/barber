@@ -13,8 +13,7 @@ class InventoryService
     public function __construct(
         private readonly ProductRepositoryInterface $products,
         private readonly InventoryMovementRepositoryInterface $movements,
-    ) {
-    }
+    ) {}
 
     public function listProducts(array $filters = [], int $perPage = 15)
     {

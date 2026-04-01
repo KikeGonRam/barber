@@ -52,7 +52,7 @@ class BarbershopSettingController extends Controller
         );
 
         $setting->update([
-            'maintenance_mode' => !$setting->maintenance_mode
+            'maintenance_mode' => ! $setting->maintenance_mode,
         ]);
 
         $status = $setting->maintenance_mode ? 'El sistema ha entrado en modo mantenimiento.' : 'El sistema está nuevamente en línea.';

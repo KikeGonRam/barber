@@ -14,13 +14,16 @@ use App\Models\Client;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\Work;
+use App\Notifications\AppointmentNotification;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
-use App\Notifications\AppointmentNotification;
 
 class UserStoryAcceptanceTest extends TestCase
 {
@@ -31,8 +34,8 @@ class UserStoryAcceptanceTest extends TestCase
         parent::setUp();
 
         $this->withoutMiddleware([
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            ValidateCsrfToken::class,
+            VerifyCsrfToken::class,
             'verified',
         ]);
 
@@ -356,7 +359,7 @@ class UserStoryAcceptanceTest extends TestCase
             ])
             ->assertRedirect(route('barbers.show', $barberUser));
 
-        $work = \App\Models\Work::query()->where('barbero_id', $barberUser->id)->firstOrFail();
+        $work = Work::query()->where('barbero_id', $barberUser->id)->firstOrFail();
 
         $this->assertCount(3, $work->images);
         foreach ($work->images as $img) {
@@ -378,7 +381,7 @@ class UserStoryAcceptanceTest extends TestCase
     private function createVerifiedUserWithRole(string $roleName, ?string $email = null): User
     {
         $user = User::factory()->create([
-            'email' => $email ?? ($roleName . '.' . uniqid() . '@example.com'),
+            'email' => $email ?? ($roleName.'.'.uniqid().'@example.com'),
             'email_verified_at' => now(),
         ]);
 

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Services\ChatbotLearningService;
+use Illuminate\Console\Command;
 
 class TestLearningSystem extends Command
 {
@@ -27,20 +27,20 @@ class TestLearningSystem extends Command
     public function handle(ChatbotLearningService $learningService): int
     {
         $userId = $this->argument('user_id') ?? null;
-        
+
         $this->info('=== TEST 1: Intent Detection ===');
         $testQuestions = [
-            "¿Cuánto cuesta un fade?" => "precio",
-            "¿Cuál es el horario?" => "horario",
-            "¿Puedo reservar una cita?" => "cita",
-            "¿Quién es el mejor barbero?" => "barbero",
-            "¿Qué servicios ofrecen?" => "servicio",
-            "¿Dónde están ubicados?" => "ubicación",
+            '¿Cuánto cuesta un fade?' => 'precio',
+            '¿Cuál es el horario?' => 'horario',
+            '¿Puedo reservar una cita?' => 'cita',
+            '¿Quién es el mejor barbero?' => 'barbero',
+            '¿Qué servicios ofrecen?' => 'servicio',
+            '¿Dónde están ubicados?' => 'ubicación',
         ];
 
         foreach ($testQuestions as $question => $expectedIntent) {
             $intent = $learningService->detectRealIntent($question);
-            $status = ($intent === $expectedIntent) ? "✅" : "⚠️";
+            $status = ($intent === $expectedIntent) ? '✅' : '⚠️';
             $this->line("$status Pregunta: '$question'");
             $this->line("   Intención: $intent (esperado: $expectedIntent)");
         }
@@ -48,12 +48,12 @@ class TestLearningSystem extends Command
 
         // Test 2: Question Learning
         $this->info('=== TEST 2: Question Learning ===');
-        $testQuestion = "¿Qué es un desvanecimiento?";
-        $testIntent = "fade";
+        $testQuestion = '¿Qué es un desvanecimiento?';
+        $testIntent = 'fade';
         $learningService->learnQuestion($testQuestion, $testIntent, 0.95, $userId);
         $this->line("✅ Pregunta aprendida: '$testQuestion'");
         $this->line("   Intención: $testIntent");
-        $this->line("   Confianza: 95%");
+        $this->line('   Confianza: 95%');
         $this->newLine();
 
         // Test 3: Synonyms
@@ -62,16 +62,16 @@ class TestLearningSystem extends Command
         foreach ($testWords as $word) {
             $synonyms = $learningService->findSynonyms($word);
             $this->line("✅ Palabra: '$word'");
-            $this->line("   Sinónimos encontrados: " . count($synonyms));
+            $this->line('   Sinónimos encontrados: '.count($synonyms));
         }
         $this->newLine();
 
         // Test 4: Similarity
         $this->info('=== TEST 4: Similitud Levenshtein ===');
-        $q1 = "¿Cuánto cuesta un fade?";
-        $q2 = "¿Cuál es el precio del desvanecimiento?";
+        $q1 = '¿Cuánto cuesta un fade?';
+        $q2 = '¿Cuál es el precio del desvanecimiento?';
         $similarity = $learningService->stringSimilarity($q1, $q2);
-        $this->line("✅ Similitud entre preguntas: " . round($similarity * 100, 2) . "%");
+        $this->line('✅ Similitud entre preguntas: '.round($similarity * 100, 2).'%');
         $this->line("   Q1: '$q1'");
         $this->line("   Q2: '$q2'");
         $this->newLine();
@@ -79,43 +79,43 @@ class TestLearningSystem extends Command
         // Test 5: Feedback Recording
         $this->info('=== TEST 5: Registro de Feedback ===');
         $learningService->recordFeedback(
-            "¿Cuánto cuesta?",
-            "Nuestros precios varían según el servicio.",
+            '¿Cuánto cuesta?',
+            'Nuestros precios varían según el servicio.',
             true,
             $userId
         );
-        $this->line("✅ Feedback registrado correctamente");
+        $this->line('✅ Feedback registrado correctamente');
         $this->newLine();
 
         // Test 6: Learning Report
         $this->info('=== TEST 6: Reporte de Aprendizaje ===');
         try {
             $report = $learningService->getLearningReport($userId);
-            $this->line("✅ Reporte generado:");
+            $this->line('✅ Reporte generado:');
             $this->line("   Total categorías: {$report['total_categories']}");
             $this->line("   Preguntas aprendidas: {$report['total_learned_questions']}");
         } catch (\Exception $e) {
-            $this->line("ℹ️  Sin datos aún: " . $e->getMessage());
+            $this->line('ℹ️  Sin datos aún: '.$e->getMessage());
         }
         $this->newLine();
 
         // Test 7: Top Categories
         $this->info('=== TEST 7: Top Categorías ===');
         $topCategories = $learningService->getTopCategories($userId);
-        if (!empty($topCategories)) {
-            $this->line("✅ Top categorías detectadas:");
+        if (! empty($topCategories)) {
+            $this->line('✅ Top categorías detectadas:');
             foreach ($topCategories as $key => $category) {
                 $this->line("   $key. $category");
             }
         } else {
-            $this->line("ℹ️  Sin categorías principales aún");
+            $this->line('ℹ️  Sin categorías principales aún');
         }
         $this->newLine();
 
         // Summary
         $this->info('=== RESUMEN ===');
-        $this->line("✅ Todos los tests completados");
-        $this->line("✅ Sistema de Aprendizaje OPERATIVO");
+        $this->line('✅ Todos los tests completados');
+        $this->line('✅ Sistema de Aprendizaje OPERATIVO');
         $this->line("\n🚀 El chatbot está listo para aprender de interacciones");
 
         return Command::SUCCESS;

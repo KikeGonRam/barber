@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StoreClientProfileRequest;
 use App\Http\Requests\Client\UpdateClientProfileRequest;
 use App\Models\Client;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,7 +45,7 @@ class ClientController extends Controller
         $data = $request->validated();
 
         DB::transaction(function () use ($data): void {
-            $user = \App\Models\User::query()->create([
+            $user = User::query()->create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password'] ?: Str::password(12)),

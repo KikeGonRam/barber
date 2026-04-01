@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Models\Service;
-use App\Models\Barber;
 use App\Models\Appointment;
+use App\Models\Barber;
 use App\Models\Payment;
 use App\Models\Product;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use App\Services\GeminiService;
-use App\Services\ChatbotIntelligenceService;
-use App\Services\ChatbotExternalDataService;
+use App\Models\Service;
 use App\Services\ChatbotContextService;
-use App\Services\ChatbotUserProfileService;
+use App\Services\ChatbotExternalDataService;
+use App\Services\ChatbotIntelligenceService;
 use App\Services\ChatbotLearningService;
+use App\Services\ChatbotUserProfileService;
+use App\Services\GeminiService;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ChatbotController extends Controller
 {
@@ -31,7 +31,7 @@ class ChatbotController extends Controller
         'general' => [
             'ubicacion' => 'Estamos en Av. Reforma 123, CDMX.',
             'horario' => 'Lunes a Sábado de 9AM a 9PM.',
-        ]
+        ],
     ];
 
     public function __construct(
@@ -41,8 +41,7 @@ class ChatbotController extends Controller
         private ChatbotContextService $contextService,
         private ChatbotUserProfileService $profileService,
         private ChatbotLearningService $learningService
-    )
-    {}
+    ) {}
 
     public function query(Request $request): JsonResponse
     {
@@ -56,13 +55,14 @@ class ChatbotController extends Controller
 
         // GUARDAR CONTEXTO DEL USUARIO
         $this->profileService->updateTopics($message, $userId);
-        
+
         // 1. PRIORIDAD: Historial local (MÁS RÁPIDO, CONSISTENTE)
         $similarQuestions = $this->contextService->findSimilarQuestions($message, $userId, 70);
-        if (!empty($similarQuestions) && $similarQuestions[0]['similarity'] > 80) {
+        if (! empty($similarQuestions) && $similarQuestions[0]['similarity'] > 80) {
             $response = $similarQuestions[0]['answer'];
             $this->contextService->addMessage($message, $response, 'bot', $userId);
             $this->learningService->recordFeedback($message, $response, true, $userId);
+
             return response()->json(['response' => $response]);
         }
 
@@ -72,13 +72,14 @@ class ChatbotController extends Controller
             $this->contextService->addMessage($message, $intelligentResponse, 'bot', $userId);
             $this->profileService->updateIntent($realIntent, $userId);
             $this->learningService->recordFeedback($message, $intelligentResponse, true, $userId);
+
             return response()->json(['response' => $intelligentResponse]);
         }
 
         // 3. TERCERO: Lógica Manual (Rápida, confiable, sin API externa)
         $contextData = $this->gatherContext($user);
         $manualResponse = $this->manualLogic($message, $user, $contextData);
-        
+
         // Solo si es respuesta genérica, intentar datos externos
         if (str_contains($manualResponse, 'No estoy seguro')) {
             // 4. FOURTH: Datos Externos (Wikipedia, OSM) - Solo si nada más funciona
@@ -87,6 +88,7 @@ class ChatbotController extends Controller
                 $this->contextService->addMessage($message, $externalResponse, 'bot', $userId);
                 $this->profileService->updateIntent($realIntent, $userId);
                 $this->learningService->recordFeedback($message, $externalResponse, true, $userId);
+
                 return response()->json(['response' => $externalResponse]);
             }
 
@@ -96,17 +98,18 @@ class ChatbotController extends Controller
                     $basePrompt = $this->aiService->buildSystemPrompt($contextData);
                     $augmentedPrompt = $this->contextService->generateAugmentedPrompt($message, $basePrompt, $userId);
                     $aiResponse = $this->aiService->generateResponseWithPrompt($augmentedPrompt);
-                    
-                    if ($aiResponse && 
-                        !str_contains($aiResponse, 'MODO OFFLINE') && 
-                        !str_contains($aiResponse, 'interferencias')) {
+
+                    if ($aiResponse &&
+                        ! str_contains($aiResponse, 'MODO OFFLINE') &&
+                        ! str_contains($aiResponse, 'interferencias')) {
                         $this->contextService->addMessage($message, $aiResponse, 'bot', $userId);
                         $this->profileService->updateIntent($realIntent, $userId);
                         $this->learningService->recordFeedback($message, $aiResponse, true, $userId);
+
                         return response()->json(['response' => $aiResponse]);
                     }
                 } catch (\Exception $e) {
-                    \Log::warning('Chatbot AI fallback: ' . $e->getMessage());
+                    \Log::warning('Chatbot AI fallback: '.$e->getMessage());
                 }
             }
         }
@@ -164,29 +167,29 @@ class ChatbotController extends Controller
     private function gatherContext($user): array
     {
         // Servicios
-        $services = Service::where('activo', true)->get()->map(fn($s) => "{$s->nombre} (\${$s->precio})")->toArray();
-        
+        $services = Service::where('activo', true)->get()->map(fn ($s) => "{$s->nombre} (\${$s->precio})")->toArray();
+
         // Barberos
         $barbers = Barber::with('user')->where('activo', true)->get()->pluck('user.name')->toArray();
 
         // Contexto específico del usuario
-        $extraContext = "";
+        $extraContext = '';
         if ($user) {
             if ($user->hasRole('cliente') && $user->clientProfile) {
                 $nextAppt = Appointment::where('client_id', $user->clientProfile->id)
                     ->where('fecha', '>=', now()->toDateString())
                     ->where('estado', '!=', 'cancelada')
                     ->orderBy('fecha')->first();
-                
+
                 if ($nextAppt) {
                     $fecha = Carbon::parse($nextAppt->fecha)->translatedFormat('l j de F');
                     $extraContext = "El usuario TIENE una cita programada para el {$fecha} a las {$nextAppt->hora_inicio} con {$nextAppt->barber?->user?->name}.";
                 } else {
-                    $extraContext = "El usuario NO tiene citas futuras.";
+                    $extraContext = 'El usuario NO tiene citas futuras.';
                 }
             } elseif ($user->hasRole('administrador')) {
                 $total = Payment::whereDate('created_at', now())->sum(DB::raw('monto + propina'));
-                $extraContext = "El usuario es ADMIN. La caja de hoy es: $" . number_format($total, 2);
+                $extraContext = 'El usuario es ADMIN. La caja de hoy es: $'.number_format($total, 2);
             }
         }
 
@@ -195,7 +198,7 @@ class ChatbotController extends Controller
             'barbers' => $barbers,
             'user_name' => $user?->name,
             'user_role' => $user?->roles->first()?->name ?? 'Visitante',
-            'extra_context' => $extraContext
+            'extra_context' => $extraContext,
         ];
     }
 
@@ -206,9 +209,10 @@ class ChatbotController extends Controller
         // ============ PREGUNTAS SOBRE SERVICIOS ============
         if ($this->matchesKeywords($message, ['servicio', 'qué ofrece', 'qué hace', 'precio', 'costo', 'tarifa', 'cuánto cuesta'])) {
             if (empty($data['services'])) {
-                return "📋 Contamos con una amplia gama de servicios de barbería premium incluyendo cortes, afeitados, tratamientos capilares y más. Visita la sección Servicios para ver detalles y precios.";
+                return '📋 Contamos con una amplia gama de servicios de barbería premium incluyendo cortes, afeitados, tratamientos capilares y más. Visita la sección Servicios para ver detalles y precios.';
             }
             $servicesList = implode("\n• ", $data['services']);
+
             return "📋 Nuestros servicios disponibles:\n• {$servicesList}\n\n¿Quieres reservar alguno?";
         }
 
@@ -218,17 +222,20 @@ class ChatbotController extends Controller
                 if (str_contains($data['extra_context'], 'TIENE')) {
                     return "📅 {$data['extra_context']}\n\n¿Quieres hacer otra reserva o modificar esta cita?";
                 }
+
                 return "📅 Tienes disponible agendar nuevas citas. Ingresa a la sección 'Citas' en tu Dashboard para ver disponibilidad y reservar con tus barberos favoritos.";
             }
+
             return "📅 Para agendar una cita:\n1. Regístrate o inicia sesión\n2. Ve a la sección 'Citas'\n3. Selecciona barbero, servicio y horario\n4. Confirma tu reserva\n\n¡Te esperamos!";
         }
 
         // ============ PREGUNTAS SOBRE BARBEROS/PROFESIONALES ============
         if ($this->matchesKeywords($message, ['barbero', 'estilista', 'maestro', 'quién atiende', 'profesional', 'barber'])) {
             if (empty($data['barbers'])) {
-                return "👨‍💼 Contamos con un equipo de maestros barberos expertos y certificados, especializados en cortes modernos y tradicionales.";
+                return '👨‍💼 Contamos con un equipo de maestros barberos expertos y certificados, especializados en cortes modernos y tradicionales.';
             }
-            $barbersList = implode(", ", $data['barbers']);
+            $barbersList = implode(', ', $data['barbers']);
+
             return "👨‍💼 Nuestros maestros barberos: {$barbersList}\n\nCada uno especializado en diferentes estilos. ¿Prefieres alguno en particular?";
         }
 
@@ -260,7 +267,8 @@ class ChatbotController extends Controller
         // ============ PREGUNTAS PARA ADMINISTRADORES ============
         if ($user && $user->hasRole('administrador')) {
             if ($this->matchesKeywords($message, ['caja', 'ventas', 'hoy', 'dinero', 'ingresos', 'reporte'])) {
-                $extraInfo = $data['extra_context'] ?? "Accede al Dashboard para ver métricas";
+                $extraInfo = $data['extra_context'] ?? 'Accede al Dashboard para ver métricas';
+
                 return "📊 INFORMACIÓN ADMIN:\n{$extraInfo}\n\nPuedes ver reportes detallados en la sección 'Reportes' del Dashboard.";
             }
             if ($this->matchesKeywords($message, ['permiso', 'usuario', 'rol', 'acceso'])) {
@@ -279,7 +287,8 @@ class ChatbotController extends Controller
 
         if ($this->matchesKeywords($message, ['producto', 'vender', 'comprar', 'inventario'])) {
             $products = Product::where('activo', true)->count();
-            $productsInfo = $products > 0 ? "Tenemos {$products} productos disponibles" : "Consulta nuestro catálogo de productos";
+            $productsInfo = $products > 0 ? "Tenemos {$products} productos disponibles" : 'Consulta nuestro catálogo de productos';
+
             return "🛍️ PRODUCTOS:\n{$productsInfo}. Visita la sección 'Tienda' para ver detalles, precios y características.";
         }
 
@@ -302,17 +311,16 @@ class ChatbotController extends Controller
     /**
      * Busca múltiples palabras clave en el mensaje
      */
-
     public function getLearningStats(Request $request): JsonResponse
     {
         $userId = auth()->id();
         $stats = $this->learningService->getLearningReport($userId);
         $topCategories = $this->learningService->getTopCategories($userId);
-        
+
         return response()->json([
             'stats' => $stats,
             'top_categories' => $topCategories,
-            'message' => 'Learning intelligence report generated'
+            'message' => 'Learning intelligence report generated',
         ]);
     }
 
@@ -320,13 +328,13 @@ class ChatbotController extends Controller
     {
         $userId = auth()->id();
         $historyCount = $request->input('history_count', 20);
-        
+
         // Entrenar desde el historial existente
         $report = $this->learningService->trainFromHistory($userId, $historyCount);
-        
+
         return response()->json([
             'message' => 'Training from history completed',
-            'report' => $report
+            'report' => $report,
         ]);
     }
 }

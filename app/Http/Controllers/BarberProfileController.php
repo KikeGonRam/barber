@@ -2,29 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Work;
-use App\Models\Comment;
-use App\Models\Reaction;
+use Illuminate\Http\Request;
 
 class BarberProfileController extends Controller
 {
     public function index()
     {
         $barbers = User::role('barbero')->get();
+
         return view('barbers.index', compact('barbers'));
     }
 
     public function show(User $barber)
     {
         $works = Work::where('barbero_id', $barber->id)->latest()->paginate(12);
+
         return view('barbers.show', compact('barber', 'works'));
     }
 
     public function works(User $barber)
     {
         $works = Work::where('barbero_id', $barber->id)->latest()->paginate(12);
+
         return view('barbers.works', compact('barber', 'works'));
     }
 
@@ -64,6 +65,7 @@ class BarberProfileController extends Controller
             'comment' => $request->comment,
             'rating' => $request->rating,
         ]);
+
         return back()->with('success', 'Comentario agregado.');
     }
 
@@ -79,6 +81,7 @@ class BarberProfileController extends Controller
         ], [
             'type' => $request->type,
         ]);
+
         return back()->with('success', 'Reacción registrada.');
     }
 }

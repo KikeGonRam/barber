@@ -43,7 +43,7 @@ class BarberController extends Controller
 
     public function show(Barber $barber): View
     {
-        $barber->load(['user:id,name', 'appointments' => function($q) {
+        $barber->load(['user:id,name', 'appointments' => function ($q) {
             $q->where('estado', 'completada')->limit(5);
         }]);
 

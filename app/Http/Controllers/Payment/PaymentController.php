@@ -8,15 +8,14 @@ use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Models\Appointment;
 use App\Models\Payment;
 use App\Services\PaymentService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class PaymentController extends Controller
 {
-    public function __construct(private readonly PaymentService $paymentService)
-    {
-    }
+    public function __construct(private readonly PaymentService $paymentService) {}
 
     public function index(): View
     {
@@ -65,12 +64,12 @@ class PaymentController extends Controller
         $pdfPath = $payment->comprobante_pdf;
 
         // Generate on demand if file is missing
-        if (!$pdfPath || !Storage::disk('public')->exists($pdfPath)) {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('payments.receipt', [
+        if (! $pdfPath || ! Storage::disk('public')->exists($pdfPath)) {
+            $pdf = Pdf::loadView('payments.receipt', [
                 'payment' => $payment->load(['appointment.client.user', 'appointment.barber.user', 'appointment.service', 'creator']),
             ]);
 
-            $pdfPath = 'comprobantes/pago-' . $payment->id . '.pdf';
+            $pdfPath = 'comprobantes/pago-'.$payment->id.'.pdf';
             Storage::disk('public')->put($pdfPath, $pdf->output());
 
             $payment->update(['comprobante_pdf' => $pdfPath]);
@@ -78,6 +77,6 @@ class PaymentController extends Controller
 
         $stamp = optional($payment->created_at)->format('Ymd-His') ?: now()->format('Ymd-His');
 
-        return Storage::disk('public')->download($pdfPath, 'factura-' . $payment->id . '-' . $stamp . '.pdf');
+        return Storage::disk('public')->download($pdfPath, 'factura-'.$payment->id.'-'.$stamp.'.pdf');
     }
 }

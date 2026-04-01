@@ -1,5 +1,7 @@
 <?php
 
+use Spatie\Activitylog\Models\Activity;
+
 return [
     'enabled' => env('ACTIVITY_LOGGER_ENABLED', true),
 
@@ -7,7 +9,7 @@ return [
 
     'default_log_name' => env('ACTIVITY_LOGGER_DEFAULT_LOG_NAME', 'default'),
 
-    'activity_model' => Spatie\Activitylog\Models\Activity::class,
+    'activity_model' => Activity::class,
 
     'table_name' => env('ACTIVITY_LOGGER_TABLE_NAME', 'activity_log'),
 

@@ -17,8 +17,7 @@ class AppointmentNotification extends Notification implements ShouldQueue
         public readonly string $subject,
         public readonly string $title,
         public readonly string $message,
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

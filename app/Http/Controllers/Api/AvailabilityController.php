@@ -11,9 +11,7 @@ use Illuminate\Http\Request;
 
 class AvailabilityController extends Controller
 {
-    public function __construct(private readonly AppointmentService $appointmentService)
-    {
-    }
+    public function __construct(private readonly AppointmentService $appointmentService) {}
 
     public function slots(Request $request): JsonResponse
     {
@@ -30,7 +28,7 @@ class AvailabilityController extends Controller
         $slots = $this->appointmentService->getAvailableSlots($barber, $date, $service);
 
         return response()->json([
-            'slots' => $slots
+            'slots' => $slots,
         ]);
     }
 }

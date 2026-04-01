@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inventory;
 use App\Http\Requests\InventoryStoreRequest;
 use App\Http\Requests\InventoryUpdateRequest;
+use App\Models\Inventory;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class InventoryController extends Controller
 {
     use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -17,7 +18,8 @@ class InventoryController extends Controller
     {
         $this->authorize('viewAny', Inventory::class);
         $inventories = Inventory::paginate(15);
-        $lowStockCount = $inventories->filter(fn($inv) => $inv->quantity <= $inv->min_stock)->count();
+        $lowStockCount = $inventories->filter(fn ($inv) => $inv->quantity <= $inv->min_stock)->count();
+
         return view('almacen.index', compact('inventories', 'lowStockCount'));
     }
 
@@ -27,6 +29,7 @@ class InventoryController extends Controller
     public function create()
     {
         $this->authorize('create', Inventory::class);
+
         return view('almacen.create');
     }
 
@@ -43,6 +46,7 @@ class InventoryController extends Controller
         }
 
         $inventory = Inventory::create($data);
+
         return redirect()->route('almacen.index')->with('success', 'Inventario creado correctamente.');
     }
 
@@ -52,6 +56,7 @@ class InventoryController extends Controller
     public function show(Inventory $inventory)
     {
         $this->authorize('view', $inventory);
+
         return view('almacen.show', compact('inventory'));
     }
 
@@ -61,6 +66,7 @@ class InventoryController extends Controller
     public function edit(Inventory $inventory)
     {
         $this->authorize('update', $inventory);
+
         return view('almacen.edit', compact('inventory'));
     }
 
@@ -77,6 +83,7 @@ class InventoryController extends Controller
         }
 
         $inventory->update($data);
+
         return redirect()->route('almacen.index')->with('success', 'Inventario actualizado correctamente.');
     }
 
@@ -87,6 +94,7 @@ class InventoryController extends Controller
     {
         $this->authorize('delete', $inventory);
         $inventory->delete();
+
         return redirect()->route('almacen.index')->with('success', 'Inventario eliminado correctamente.');
     }
 }

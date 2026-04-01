@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class ChatbotExternalDataService
@@ -14,23 +14,23 @@ class ChatbotExternalDataService
     public function getWikipediaInfo(string $query): ?string
     {
         // Cachear por 24 horas
-        $cacheKey = "wikipedia_" . md5($query);
-        
+        $cacheKey = 'wikipedia_'.md5($query);
+
         return Cache::remember($cacheKey, 86400, function () use ($query) {
             try {
                 $response = Http::withHeaders([
                     'User-Agent' => 'BarberPro-Chatbot/1.0',
                 ])
-                ->timeout(5)
-                ->get('https://es.wikipedia.org/w/api.php', [
-                    'action' => 'query',
-                    'format' => 'json',
-                    'titles' => $query,
-                    'prop' => 'extracts',
-                    'exintro' => true,
-                    'explaintext' => true,
-                    'redirects' => 1,
-                ]);
+                    ->timeout(5)
+                    ->get('https://es.wikipedia.org/w/api.php', [
+                        'action' => 'query',
+                        'format' => 'json',
+                        'titles' => $query,
+                        'prop' => 'extracts',
+                        'exintro' => true,
+                        'explaintext' => true,
+                        'redirects' => 1,
+                    ]);
 
                 if ($response->failed()) {
                     return null;
@@ -38,7 +38,7 @@ class ChatbotExternalDataService
 
                 $data = $response->json();
                 $pages = $data['query']['pages'] ?? [];
-                
+
                 if (empty($pages)) {
                     return null;
                 }
@@ -47,13 +47,14 @@ class ChatbotExternalDataService
                 $extract = $page['extract'] ?? null;
 
                 if ($extract) {
-                    return substr($extract, 0, 300) . '...';
+                    return substr($extract, 0, 300).'...';
                 }
 
                 return null;
 
             } catch (\Exception $e) {
-                Log::warning('Wikipedia API Error: ' . $e->getMessage());
+                Log::warning('Wikipedia API Error: '.$e->getMessage());
+
                 return null;
             }
         });
@@ -94,7 +95,7 @@ class ChatbotExternalDataService
     public function getBarberTrends(): ?string
     {
         $info = $this->getWikipediaInfo('Barbería moderna');
-        
+
         if ($info) {
             return "📚 TENDENCIAS EN BARBERÍA:\n{$info}";
         }
@@ -107,26 +108,26 @@ class ChatbotExternalDataService
      */
     public function getLocationInfo(string $address): ?array
     {
-        $cacheKey = "osm_" . md5($address);
-        
+        $cacheKey = 'osm_'.md5($address);
+
         return Cache::remember($cacheKey, 86400 * 7, function () use ($address) {
             try {
                 $response = Http::withHeaders([
                     'User-Agent' => 'BarberPro-Chatbot/1.0',
                 ])
-                ->timeout(5)
-                ->get('https://nominatim.openstreetmap.org/search', [
-                    'q' => $address,
-                    'format' => 'json',
-                    'limit' => 1,
-                ]);
+                    ->timeout(5)
+                    ->get('https://nominatim.openstreetmap.org/search', [
+                        'q' => $address,
+                        'format' => 'json',
+                        'limit' => 1,
+                    ]);
 
                 if ($response->failed()) {
                     return null;
                 }
 
                 $data = $response->json();
-                
+
                 if (empty($data)) {
                     return null;
                 }
@@ -145,7 +146,8 @@ class ChatbotExternalDataService
                 return null;
 
             } catch (\Exception $e) {
-                Log::warning('OpenStreetMap API Error: ' . $e->getMessage());
+                Log::warning('OpenStreetMap API Error: '.$e->getMessage());
+
                 return null;
             }
         });
@@ -157,7 +159,7 @@ class ChatbotExternalDataService
     public function getNearbyBarbers(float $lat, float $lon, int $radius = 2): ?array
     {
         $cacheKey = "nearby_barbers_{$lat}_{$lon}_{$radius}";
-        
+
         return Cache::remember($cacheKey, 86400, function () use ($lat, $lon, $radius) {
             try {
                 // Usar Overpass API para buscar barbershops
@@ -198,7 +200,8 @@ EOQ;
                 return array_slice($barbers, 0, 5);
 
             } catch (\Exception $e) {
-                Log::warning('Overpass API Error: ' . $e->getMessage());
+                Log::warning('Overpass API Error: '.$e->getMessage());
+
                 return null;
             }
         });
@@ -209,7 +212,7 @@ EOQ;
      */
     public function getGoogleMapsUrl(string $address): string
     {
-        return "https://www.google.com/maps/search/" . urlencode($address);
+        return 'https://www.google.com/maps/search/'.urlencode($address);
     }
 
     /**
@@ -230,21 +233,23 @@ EOQ;
         // NEARBY COMPETITION
         if (str_contains($message, 'cerca') || str_contains($message, 'competencia') || str_contains($message, 'otros barberos')) {
             // Para esto necesitaríamos coordenadas reales del negocio
-            return "🗺️ Para encontrar barbershops cercanas, ingresa tu ubicación o consulta con nuestro equipo.";
+            return '🗺️ Para encontrar barbershops cercanas, ingresa tu ubicación o consulta con nuestro equipo.';
         }
 
         // DIRECTIONS
         if (str_contains($message, 'cómo llego') || str_contains($message, 'ruta')) {
             $mapsUrl = $this->getGoogleMapsUrl('Av. Reforma 123, CDMX');
+
             return "🗺️ CÓMO LLEGAR:\n📍 Av. Reforma 123, CDMX\n🔗 Ver en Google Maps: {$mapsUrl}";
         }
 
         // LOCATION DETAILS
         if (str_contains($message, 'dónde estamos') || str_contains($message, 'ubicación')) {
             $location = $this->getLocationInfo('Av. Reforma 123, CDMX');
-            
+
             if ($location) {
                 $mapsUrl = $this->getGoogleMapsUrl($location['address']);
+
                 return "📍 UBICACIÓN EXACTA:\n{$location['address']}\n🔗 Ver en mapa: {$mapsUrl}";
             }
         }
@@ -258,10 +263,10 @@ EOQ;
     public function answerStyleQuestion(string $message): ?string
     {
         $message = strtolower($message);
-        
+
         // STYLE QUERIES
         $styles = ['fade', 'undercut', 'pompadour', 'quiff', 'crew cut', 'buzz cut', 'slick back'];
-        
+
         foreach ($styles as $style) {
             if (str_contains($message, $style)) {
                 $info = $this->getHairstyleInfo($style);
@@ -333,7 +338,7 @@ EOQ;
         // Si tenemos ubicación del usuario, buscar cercanos
         if ($userLocation && isset($userLocation['lat']) && isset($userLocation['lon'])) {
             $context['nearby_barbers'] = $this->getNearbyBarbers(
-                $userLocation['lat'], 
+                $userLocation['lat'],
                 $userLocation['lon']
             );
         }
