@@ -62,9 +62,9 @@ class AppointmentBlackBoxTest extends TestCase
             'client_id' => $client->id,
             'barber_id' => $barber->id,
             'service_id' => $service->id,
-            'fecha' => $date,
-            'hora_inicio' => '10:00:00',
-            'hora_fin' => '10:30:00',
+            'fecha' => now()->addDays(2)->startOfDay()->format('Y-m-d H:i:s'),
+            'hora_inicio' => '10:00',
+            'hora_fin' => '10:30',
         ]);
     }
 

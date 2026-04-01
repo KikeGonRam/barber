@@ -48,7 +48,7 @@ class AppointmentStoreTest extends TestCase
         $this->assertDatabaseHas('appointments', [
             'barber_id' => $barber->id,
             'client_id' => $client->id,
-            'fecha' => $date,
+            'fecha' => now()->addDays(2)->startOfDay()->format('Y-m-d H:i:s'),
             'hora_inicio' => '10:00',
             'hora_fin' => '10:30',
         ]);

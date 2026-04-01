@@ -228,9 +228,9 @@ class CompleteBookingFlowE2ETest extends TestCase
         $this->assertDatabaseHas('appointments', [
             'client_id' => $clientUserB->clientProfile->id,
             'barber_id' => $barber->id,
-            'fecha' => $date,
-            'hora_inicio' => '12:00:00',
-            'hora_fin' => '12:30:00',
+            'fecha' => now()->addDays(3)->startOfDay()->format('Y-m-d H:i:s'),
+            'hora_inicio' => '12:00',
+            'hora_fin' => '12:30',
         ]);
     }
 

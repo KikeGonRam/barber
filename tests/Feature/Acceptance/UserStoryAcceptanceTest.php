@@ -69,7 +69,7 @@ class UserStoryAcceptanceTest extends TestCase
         $this->assertDatabaseHas('appointments', [
             'client_id' => $client->id,
             'barber_id' => $barber->id,
-            'fecha' => $date,
+            'fecha' => now()->addDays(2)->startOfDay()->format('Y-m-d H:i:s'),
         ]);
     }
 
