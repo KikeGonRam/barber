@@ -34,7 +34,7 @@ class DashboardController extends Controller
                 'kpis' => $data['kpis'],
                 'incomeChart' => $data['income_chart'],
                 'servicesChart' => $data['services_chart'],
-                'chatbotTelemetry' => $data['chatbot_telemetry'],
+                'chatbotTelemetry' => $data['chatbot_telemetry'] ?? [],
                 'maintenanceMode' => $setting?->maintenance_mode ?? false,
             ]);
         }
@@ -46,9 +46,11 @@ class DashboardController extends Controller
                 'adminMode' => false,
                 'isBarberMode' => true,
                 'isReceptionMode' => false,
+                'isClientMode' => false,
                 'kpis' => $data['kpis'],
                 'performanceChart' => $data['performance_chart'],
                 'servicesChart' => $data['services_chart'],
+                'chatbotTelemetry' => [],
             ]);
         }
 
@@ -63,6 +65,7 @@ class DashboardController extends Controller
                 'kpis' => $data['kpis'],
                 'nextAppointments' => $data['next_appointments'],
                 'flow_chart' => $data['flow_chart'],
+                'chatbotTelemetry' => [],
             ]);
         }
 
@@ -81,6 +84,7 @@ class DashboardController extends Controller
                 'isClientMode' => true,
                 'kpis' => $data['kpis'],
                 'nextAppointment' => $data['next_appointment'],
+                'chatbotTelemetry' => [],
                 'visit_chart' => $data['visit_chart'],
             ]);
         }

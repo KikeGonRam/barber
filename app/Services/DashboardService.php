@@ -346,6 +346,8 @@ class DashboardService
 
         arsort($bySource);
 
+        $trendByDay = $this->chatbotTelemetryTrend(7);
+
         return [
             'window_days' => $days,
             'total_requests' => $total,
@@ -354,6 +356,53 @@ class DashboardService
             'avg_latency_ms' => $total > 0 ? (int) round($latencyTotal / $total) : 0,
             'estimated_cost_usd' => round($costTotal, 6),
             'top_sources' => collect($bySource)->take(4)->all(),
+            'trend_chart' => $trendByDay,
+        ];
+    }
+
+    private function chatbotTelemetryTrend(int $days): array
+    {
+        $data = collect(range(0, $days - 1))->map(function (int $offset) use ($days) {
+            $date = Carbon::now()->subDays($days - 1 - $offset)->toDateString();
+            $start = Carbon::parse($date)->startOfDay();
+            $end = Carbon::parse($date)->endOfDay();
+
+            $events = Activity::query()
+                ->where('log_name', 'chatbot')
+                ->where('description', 'chatbot_provider_telemetry')
+                ->whereBetween('created_at', [$start, $end])
+                ->get(['properties']);
+
+            $count = $events->count();
+            $errors = 0;
+            $latencyTotal = 0;
+
+            foreach ($events as $event) {
+                $rawProps = $event->properties;
+                if ($rawProps instanceof \Illuminate\Support\Collection) {
+                    $rawProps = $rawProps->toArray();
+                } else {
+                    $rawProps = (array) $rawProps;
+                }
+
+                $props = (array) ($rawProps['attributes'] ?? $rawProps);
+                if (($props['status'] ?? null) === 'error') {
+                    $errors++;
+                }
+                $latencyTotal += (int) ($props['latency_ms'] ?? 0);
+            }
+
+            return [
+                'date' => Carbon::parse($date)->format('M d'),
+                'error_rate_pct' => $count > 0 ? round(($errors / $count) * 100, 1) : 0.0,
+                'avg_latency_ms' => $count > 0 ? (int) round($latencyTotal / $count) : 0,
+            ];
+        });
+
+        return [
+            'labels' => $data->pluck('date')->all(),
+            'error_rates' => $data->pluck('error_rate_pct')->all(),
+            'latencies' => $data->pluck('avg_latency_ms')->all(),
         ];
     }
 }

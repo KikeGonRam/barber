@@ -493,6 +493,9 @@
                         }
                     });
                 }
+
+                // Chatbot telemetry trend charts
+                // (Preparado para UI/UX - datos calculados en backend en $chatbotTelemetry['trend_chart'])
             @endif
 
             @if($isBarberMode ?? false)
