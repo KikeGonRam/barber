@@ -49,6 +49,7 @@ class ChatbotController extends Controller
 
     public function query(Request $request): JsonResponse
     {
+        $requestStartedAt = hrtime(true);
         $message = strtolower(trim((string) $request->input('message', '')));
         $user = auth()->user();
         $userId = $user?->id;
@@ -69,6 +70,10 @@ class ChatbotController extends Controller
             $this->businessEventService->record('chatbot', 'chatbot_rate_limited', [
                 'user_id' => $userId,
                 'ip' => $request->ip(),
+                'retry_after_seconds' => $retryAfter,
+            ]);
+
+            $this->recordProviderTelemetry($userId, 'rate_limit', 'blocked', $requestStartedAt, [
                 'retry_after_seconds' => $retryAfter,
             ]);
 
@@ -94,6 +99,10 @@ class ChatbotController extends Controller
             $this->contextService->addMessage($message, $response, 'bot', $userId);
             $this->learningService->recordFeedback($message, $response, true, $userId);
 
+            $this->recordProviderTelemetry($userId, 'memory', 'success', $requestStartedAt, [
+                'similarity' => $similarQuestions[0]['similarity'],
+            ]);
+
             return response()->json(['response' => $response]);
         }
 
@@ -109,6 +118,10 @@ class ChatbotController extends Controller
                 'error' => $exception->getMessage(),
             ]);
 
+            $this->recordProviderTelemetry($userId, 'intelligence', 'error', $requestStartedAt, [
+                'error' => $exception->getMessage(),
+            ]);
+
             Log::warning('Chatbot intelligence fallback: '.$exception->getMessage());
         }
 
@@ -116,6 +129,8 @@ class ChatbotController extends Controller
             $this->contextService->addMessage($message, $intelligentResponse, 'bot', $userId);
             $this->profileService->updateIntent($realIntent, $userId);
             $this->learningService->recordFeedback($message, $intelligentResponse, true, $userId);
+
+            $this->recordProviderTelemetry($userId, 'intelligence', 'success', $requestStartedAt);
 
             return response()->json(['response' => $intelligentResponse]);
         }
@@ -125,7 +140,7 @@ class ChatbotController extends Controller
         $manualResponse = $this->manualLogic($message, $user, $contextData);
 
         // Solo si es respuesta genérica, intentar datos externos
-        if (str_contains($manualResponse, 'No estoy seguro')) {
+        if ($this->isManualFallbackResponse($manualResponse)) {
             // 4. FOURTH: Datos Externos (Wikipedia, OSM) - Solo si nada más funciona
             $externalResponse = null;
 
@@ -138,6 +153,10 @@ class ChatbotController extends Controller
                     'error' => $exception->getMessage(),
                 ]);
 
+                $this->recordProviderTelemetry($userId, 'external_data', 'error', $requestStartedAt, [
+                    'error' => $exception->getMessage(),
+                ]);
+
                 Log::warning('Chatbot external data fallback: '.$exception->getMessage());
             }
 
@@ -145,6 +164,8 @@ class ChatbotController extends Controller
                 $this->contextService->addMessage($message, $externalResponse, 'bot', $userId);
                 $this->profileService->updateIntent($realIntent, $userId);
                 $this->learningService->recordFeedback($message, $externalResponse, true, $userId);
+
+                $this->recordProviderTelemetry($userId, 'external_data', 'success', $requestStartedAt);
 
                 return response()->json(['response' => $externalResponse]);
             }
@@ -163,6 +184,18 @@ class ChatbotController extends Controller
                         $this->profileService->updateIntent($realIntent, $userId);
                         $this->learningService->recordFeedback($message, $aiResponse, true, $userId);
 
+                        $promptTokens = $this->estimateTokenCount($augmentedPrompt);
+                        $responseTokens = $this->estimateTokenCount($aiResponse);
+                        $totalTokens = $promptTokens + $responseTokens;
+
+                        $this->recordProviderTelemetry($userId, 'gemini', 'success', $requestStartedAt, [
+                            'model' => 'gemini-2.0-flash',
+                            'input_tokens_estimate' => $promptTokens,
+                            'output_tokens_estimate' => $responseTokens,
+                            'total_tokens_estimate' => $totalTokens,
+                            'estimated_cost_usd' => $this->estimateAiCostUsd($totalTokens),
+                        ]);
+
                         return response()->json(['response' => $aiResponse]);
                     }
                 } catch (\Exception $e) {
@@ -172,18 +205,28 @@ class ChatbotController extends Controller
                         'error' => $e->getMessage(),
                     ]);
 
+                    $this->recordProviderTelemetry($userId, 'gemini', 'error', $requestStartedAt, [
+                        'error' => $e->getMessage(),
+                    ]);
+
                     \Log::warning('Chatbot AI fallback: '.$e->getMessage());
                 }
             }
         }
 
         // Guardar respuesta manual en contexto
-        $normalizedManualResponse = strtolower($manualResponse);
-
-        if (str_contains($normalizedManualResponse, 'no estoy seguro') || str_contains($normalizedManualResponse, 'no estoy completamente seguro')) {
+        if ($this->isManualFallbackResponse($manualResponse)) {
             $this->businessEventService->record('chatbot', 'chatbot_fallback', [
                 'message' => $message,
                 'user_id' => $userId,
+                'intent' => $realIntent,
+            ]);
+
+            $this->recordProviderTelemetry($userId, 'manual', 'fallback', $requestStartedAt, [
+                'intent' => $realIntent,
+            ]);
+        } else {
+            $this->recordProviderTelemetry($userId, 'manual', 'success', $requestStartedAt, [
                 'intent' => $realIntent,
             ]);
         }
@@ -425,5 +468,52 @@ class ChatbotController extends Controller
         }
 
         return false;
+    }
+
+    private function isManualFallbackResponse(string $response): bool
+    {
+        $normalizedResponse = strtolower($response);
+
+        return str_contains($normalizedResponse, 'no estoy seguro')
+            || str_contains($normalizedResponse, 'no estoy completamente seguro');
+    }
+
+    private function recordProviderTelemetry(?int $userId, string $source, string $status, int $requestStartedAt, array $extraProperties = []): void
+    {
+        if (! (bool) config('chatbot.telemetry.enabled', true)) {
+            return;
+        }
+
+        $sampleRate = (float) config('chatbot.telemetry.sample_rate', 1.0);
+        $sampleRate = max(0.0, min(1.0, $sampleRate));
+
+        if ($sampleRate < 1.0 && (mt_rand() / mt_getrandmax()) > $sampleRate) {
+            return;
+        }
+
+        $latencyMs = max(0, (int) round((hrtime(true) - $requestStartedAt) / 1_000_000));
+
+        $this->businessEventService->record('chatbot', 'chatbot_provider_telemetry', array_merge([
+            'user_id' => $userId,
+            'source' => $source,
+            'status' => $status,
+            'latency_ms' => $latencyMs,
+        ], $extraProperties));
+    }
+
+    private function estimateTokenCount(string $text): int
+    {
+        return (int) ceil(max(strlen(trim($text)), 1) / 4);
+    }
+
+    private function estimateAiCostUsd(int $totalTokens): float
+    {
+        $costPer1kTokens = (float) config('chatbot.telemetry.ai_cost_per_1k_tokens', 0.0);
+
+        if ($costPer1kTokens <= 0) {
+            return 0.0;
+        }
+
+        return round(($totalTokens / 1000) * $costPer1kTokens, 6);
     }
 }

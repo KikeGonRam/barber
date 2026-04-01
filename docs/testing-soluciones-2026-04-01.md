@@ -386,6 +386,28 @@ Objetivo:
 - Se corrige condicion para que detecte tambien el texto real:
 	- "No estoy completamente seguro".
 
+5. Telemetria por proveedor de respuesta:
+- Archivos:
+	- `app/Http/Controllers/ChatbotController.php`
+	- `config/chatbot.php`
+- Se registra evento `chatbot_provider_telemetry` con:
+	- `source` (`rate_limit`, `memory`, `intelligence`, `external_data`, `gemini`, `manual`)
+	- `status` (`blocked`, `success`, `error`, `fallback`)
+	- `latency_ms`
+	- para Gemini: `input_tokens_estimate`, `output_tokens_estimate`, `total_tokens_estimate`, `estimated_cost_usd`.
+- Se agregan controles de configuracion:
+	- `CHATBOT_TELEMETRY_ENABLED`
+	- `CHATBOT_TELEMETRY_SAMPLE_RATE`
+	- `CHATBOT_TELEMETRY_AI_COST_PER_1K_TOKENS`
+
+6. Tests de telemetria en hardening:
+- Archivo: `tests/Feature/Chatbot/ChatbotProductionHardeningTest.php`
+- Se valida:
+	- telemetria para bloqueo por rate limit,
+	- telemetria de error en inteligencia,
+	- telemetria de fallback manual,
+	- telemetria de exito Gemini con costo estimado.
+
 5. Tests nuevos de hardening:
 - Archivo: `tests/Feature/Chatbot/ChatbotProductionHardeningTest.php`
 - Cobertura:
@@ -399,7 +421,7 @@ Ejecucion Docker:
 - `php artisan test tests/Feature/Chatbot/ChatbotProductionHardeningTest.php`
 - `php artisan test`
 
-Estado final: `158/158` tests pasando (`588 assertions`).
+Estado final: `159/159` tests pasando (`606 assertions`).
 
 ## 8) Functional Tests - ServiceCRUDFunctionalTest
 
