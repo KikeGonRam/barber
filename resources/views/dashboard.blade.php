@@ -163,6 +163,51 @@
                 </article>
             </section>
 
+            <section class="ui-card-premium p-8">
+                <div class="mb-6 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-black text-white uppercase tracking-widest">Telemetria Chatbot</h3>
+                        <p class="text-[10px] text-muted font-bold uppercase mt-1">Ventana: ultimos {{ $chatbotTelemetry['window_days'] ?? 7 }} dias</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[9px] font-black uppercase text-muted">
+                        Operational
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-muted">Eventos</p>
+                        <p class="mt-2 text-2xl font-black text-white">{{ $chatbotTelemetry['total_requests'] ?? 0 }}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-muted">Error Rate</p>
+                        <p class="mt-2 text-2xl font-black text-red-400">{{ number_format($chatbotTelemetry['error_rate_pct'] ?? 0, 2) }}%</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-muted">Latencia Promedio</p>
+                        <p class="mt-2 text-2xl font-black text-blue-300">{{ $chatbotTelemetry['avg_latency_ms'] ?? 0 }}ms</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-muted">Costo Estimado</p>
+                        <p class="mt-2 text-2xl font-black text-green-400">${{ number_format($chatbotTelemetry['estimated_cost_usd'] ?? 0, 4) }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 rounded-2xl border border-white/5 bg-bg-accent/40 p-4">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-muted mb-3">Top Fuentes</p>
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                        @forelse(($chatbotTelemetry['top_sources'] ?? []) as $source => $count)
+                            <div class="rounded-xl border border-white/5 bg-white/5 px-3 py-2 flex items-center justify-between">
+                                <span class="text-xs font-bold text-white uppercase">{{ str_replace('_', ' ', $source) }}</span>
+                                <span class="text-xs font-black text-gold">{{ $count }}</span>
+                            </div>
+                        @empty
+                            <p class="text-sm text-muted italic">Sin eventos de telemetria aun.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </section>
+
         @elseif ($isBarberMode ?? false)
             <!-- ========================================== -->
             <!-- BARBER DASHBOARD                           -->

@@ -7,6 +7,7 @@ use App\Models\Barber;
 use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Product;
+use Spatie\Activitylog\Models\Activity;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -95,6 +96,8 @@ class DashboardService
             ];
         });
 
+        $chatbotTelemetry = $this->chatbotTelemetrySummary(7);
+
         return [
             'kpis' => [
                 'appointments_today' => $appointmentsToday,
@@ -118,6 +121,7 @@ class DashboardService
                 'labels' => $topServices->map(fn ($row) => $row->service?->nombre ?? 'Sin servicio')->all(),
                 'values' => $topServices->pluck('total')->all(),
             ],
+            'chatbot_telemetry' => $chatbotTelemetry,
         ];
     }
 
@@ -292,6 +296,64 @@ class DashboardService
         return [
             'labels' => $hours,
             'values' => $counts,
+        ];
+    }
+
+    private function chatbotTelemetrySummary(int $days): array
+    {
+        $start = Carbon::now()->subDays(max(0, $days - 1))->startOfDay();
+        $telemetryEvents = Activity::query()
+            ->where('log_name', 'chatbot')
+            ->where('description', 'chatbot_provider_telemetry')
+            ->where('created_at', '>=', $start)
+            ->get(['properties']);
+
+        $total = 0;
+        $errors = 0;
+        $latencyTotal = 0;
+        $costTotal = 0.0;
+        $bySource = [];
+
+        foreach ($telemetryEvents as $event) {
+            $rawProps = $event->properties;
+
+            if ($rawProps instanceof \Illuminate\Support\Collection) {
+                $rawProps = $rawProps->toArray();
+            } else {
+                $rawProps = (array) $rawProps;
+            }
+
+            $props = (array) ($rawProps['attributes'] ?? $rawProps);
+            $source = (string) ($props['source'] ?? 'unknown');
+            $status = (string) ($props['status'] ?? 'unknown');
+            $latency = (int) ($props['latency_ms'] ?? 0);
+            $cost = (float) ($props['estimated_cost_usd'] ?? 0);
+
+            $total++;
+            $latencyTotal += $latency;
+            $costTotal += $cost;
+
+            if ($status === 'error') {
+                $errors++;
+            }
+
+            if (! isset($bySource[$source])) {
+                $bySource[$source] = 0;
+            }
+
+            $bySource[$source]++;
+        }
+
+        arsort($bySource);
+
+        return [
+            'window_days' => $days,
+            'total_requests' => $total,
+            'errors' => $errors,
+            'error_rate_pct' => $total > 0 ? round(($errors / $total) * 100, 2) : 0.0,
+            'avg_latency_ms' => $total > 0 ? (int) round($latencyTotal / $total) : 0,
+            'estimated_cost_usd' => round($costTotal, 6),
+            'top_sources' => collect($bySource)->take(4)->all(),
         ];
     }
 }

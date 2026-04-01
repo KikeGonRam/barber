@@ -34,6 +34,7 @@ class DashboardController extends Controller
                 'kpis' => $data['kpis'],
                 'incomeChart' => $data['income_chart'],
                 'servicesChart' => $data['services_chart'],
+                'chatbotTelemetry' => $data['chatbot_telemetry'],
                 'maintenanceMode' => $setting?->maintenance_mode ?? false,
             ]);
         }

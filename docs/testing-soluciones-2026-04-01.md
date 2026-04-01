@@ -423,6 +423,52 @@ Ejecucion Docker:
 
 Estado final: `159/159` tests pasando (`606 assertions`).
 
+## 16) Sprint 2.1 - Telemetria agregada para dashboard operativo
+
+Objetivo:
+- Convertir eventos de telemetria del chatbot en indicadores ejecutivos accionables para monitoreo diario.
+
+### Implementacion
+
+1. Agregados de telemetria en servicio de dashboard:
+- Archivo: `app/Services/DashboardService.php`
+- Se agrega `chatbotTelemetrySummary(7)` dentro de `adminMetrics()`.
+- Indicadores calculados:
+	- `total_requests`
+	- `errors`
+	- `error_rate_pct`
+	- `avg_latency_ms`
+	- `estimated_cost_usd`
+	- `top_sources`
+
+2. Exposicion en controlador de dashboard:
+- Archivo: `app/Http/Controllers/Dashboard/DashboardController.php`
+- Se inyecta `chatbotTelemetry` al render de la vista admin.
+
+3. Panel visual en dashboard admin:
+- Archivo: `resources/views/dashboard.blade.php`
+- Se agrega tarjeta operativa “Telemetria Chatbot” con:
+	- volumen de eventos,
+	- tasa de error,
+	- latencia promedio,
+	- costo estimado,
+	- top de fuentes.
+
+4. Pruebas nuevas:
+- Archivo: `tests/Feature/Observability/ChatbotTelemetryDashboardTest.php`
+- Cobertura:
+	- validacion de agregados de telemetria en `adminMetrics()`.
+	- validacion de render del panel en `GET /dashboard` para admin.
+
+### Resultado
+
+Ejecucion Docker:
+
+- `php artisan test tests/Feature/Observability/ChatbotTelemetryDashboardTest.php`
+- `php artisan test`
+
+Estado final: `161/161` tests pasando (`617 assertions`).
+
 ## 8) Functional Tests - ServiceCRUDFunctionalTest
 
 Archivo generado:
