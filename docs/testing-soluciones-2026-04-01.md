@@ -185,6 +185,80 @@ Ejecucion Docker:
 
 Estado: 7/7 tests pasando.
 
+## 9) Acceptance Tests - UserStoryAcceptanceTest
+
+Archivo generado:
+- `tests/Feature/Acceptance/UserStoryAcceptanceTest.php`
+
+Cobertura implementada (12 casos):
+- Historia 1 (recepcionista): crear cita libre, bloquear solape, ver agenda diaria.
+- Historia 2 (admin inventario): alta de producto, alerta visual de bajo stock, historial de movimientos.
+- Historia 3 (cliente): aislamiento de citas propias, alta de cita desde portal, notificacion al crear.
+- Historia 4 (barbero): cambiar estado solo de citas propias, 403 sobre citas ajenas, subir trabajo con 3 imagenes.
+
+### Error detectado y solucionado
+
+El caso de notificacion del cliente fallaba al esperar persistencia en `notifications` para una notificacion encolada.
+
+Solucion aplicada:
+- Se ajusto la asercion para validar despacho con `Notification::fake()` y `assertSentTo(...)`.
+
+### Resultado
+
+Ejecucion Docker:
+
+`docker compose exec app php artisan test tests/Feature/Acceptance/UserStoryAcceptanceTest.php`
+
+Estado: 12/12 tests pasando.
+
+## 10) Notifications Tests - NotificationSystemTest
+
+Archivo generado:
+- `tests/Feature/Notifications/NotificationSystemTest.php`
+
+Cobertura implementada (8 casos):
+- Envio de notificacion al crear cita.
+- Canales segun preferencias (`mail` cuando `email=true`, sin `mail` cuando `email=false`).
+- Comando de recordatorios: envio solo para citas objetivo y no reenvio si `reminder_24h_sent_at` existe.
+- Marcado masivo de leidas (`notifications.read-all`).
+- Badge visible con no leidas y estado consistente tras marcar como leidas.
+
+### Error detectado y solucionado
+
+La prueba de `mark all read` fallaba por depender de notificaciones encoladas para poblar no leidas.
+
+Solucion aplicada:
+- Se crearon notificaciones no leidas directamente en BD en el test para volverlo determinista.
+
+### Resultado
+
+Ejecucion Docker:
+
+`docker compose exec app php artisan test tests/Feature/Notifications/NotificationSystemTest.php`
+
+Estado: 8/8 tests pasando.
+
+## 11) File & Storage Tests - FileUploadTest
+
+Archivo generado:
+- `tests/Feature/Storage/FileUploadTest.php`
+
+Cobertura implementada (6 casos):
+- Subida de foto de perfil de barbero y verificacion de ruta/archivo.
+- Subida de trabajo con 3 imagenes y verificacion de registros + archivos.
+- Validacion por ausencia de imagenes.
+- Validacion por tamano excedido.
+- Validacion por tipo de archivo invalido.
+- Generacion de comprobante PDF de pago y persistencia de path en BD/storage.
+
+### Resultado
+
+Ejecucion Docker:
+
+`docker compose exec app php artisan test tests/Feature/Storage/FileUploadTest.php`
+
+Estado: 6/6 tests pasando.
+
 ## 8) Functional Tests - ServiceCRUDFunctionalTest
 
 Archivo generado:
