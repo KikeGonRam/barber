@@ -185,6 +185,36 @@ Ejecucion Docker:
 
 Estado: 7/7 tests pasando.
 
+## 7) Integration Tests - PaymentAppointmentIntegrationTest
+
+Archivo generado:
+- `tests/Feature/Integration/PaymentAppointmentIntegrationTest.php`
+
+Cobertura implementada:
+- Pago actualiza cita a `completada` y establece `precio_cobrado`.
+- Pago genera PDF y persiste comprobante en storage publico.
+- Movimiento de salida decrementa stock.
+- Movimiento de entrada incrementa stock.
+- Creacion de cita dispara notificacion al cliente.
+- Comando `appointments:send-reminders` marca `reminder_24h_sent_at`.
+- Creacion de usuario con rol registra evento en `activity_log`.
+
+### Error detectado y solucionado
+
+La ultima prueba de integracion fallo porque `User` no generaba logs de actividad.
+
+Solucion aplicada:
+- Se habilito `LogsActivity` en el modelo `User`.
+- Se agrego `getActivitylogOptions()` para registrar cambios de `name` y `email`.
+
+### Resultado
+
+Ejecucion Docker:
+
+`docker compose exec app php artisan test tests/Feature/Integration/PaymentAppointmentIntegrationTest.php`
+
+Estado: 7/7 tests pasando.
+
 ## 6) White Box Tests - AppointmentOverlapLogicTest
 
 Archivo generado:
