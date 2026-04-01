@@ -555,3 +555,91 @@ Ejecucion Docker:
 `docker compose exec app php artisan test tests/Unit/WhiteBox/AppointmentOverlapLogicTest.php`
 
 Estado: 7/7 tests pasando.
+
+## 7) Observability - ChatbotTelemetryDashboardTest (Sprint 2 Final)
+
+**Objetivo de Sprint 2:**
+- Hardening del chatbot con rate limiting y telemetría operativa.
+- Visualización de métricas en dashboard administrativo.
+- Preparación para transición a UI/UX (Sprint 3).
+
+**Archivos generados/modificados:**
+- `app/Services/DashboardService.php`: métodos `chatbotTelemetrySummary()` y `chatbotTelemetryTrend()`.
+- `app/Http/Controllers/Dashboard/DashboardController.php`: pasaje de telemetría a todos los roles.
+- `resources/views/dashboard.blade.php`: panel operativo de telemetría (4 KPI cards + top sources).
+- `tests/Feature/Observability/ChatbotTelemetryDashboardTest.php`: test de agregación y render.
+
+### Scope de Sprint 2
+
+**Completado:**
+1. ✅ Telemetría por proveedor chatbot:
+   - Logging de eventos con `source`, `status`, `latency_ms`, `cost_usd`.
+   - Supported providers: Gemini, OpenAI (con AI cost estimates).
+
+2. ✅ Agregación operativa diaria (ventana configurable 1-30 días):
+   - `total_requests`: total de eventos en ventana.
+   - `errors`: count de eventos con status='error'.
+   - `error_rate_pct`: porcentaje de errores.
+   - `avg_latency_ms`: latencia promedio.
+   - `estimated_cost_usd`: costo total estimado.
+   - `top_sources`: top 4 fuentes de invocación.
+
+3. ✅ Gráficos de tendencia (7 días):
+   - Latencia promedio por día.
+   - Error rate % por día.
+   - Preparado para Chart.js en UI (próximo sprint).
+
+4. ✅ Panel administrativo en dashboard:
+   - 4 KPI cards: total eventos, error rate, latencia promedio, costo actual.
+   - Tabla de top 4 sources con conteos.
+   - Validación de acceso por rol (solo admin ve telemet).
+
+5. ✅ Tests de observabilidad:
+   - Validación de agregación de eventos (ChatbotTelemetryDashboardTest).
+   - Validación de render sin errores.
+
+**Errors Detectados y Solucionados:**
+
+1. **Error #1: Undefined variable $days en DashboardService::chatbotTelemetryTrend()**
+   - Causa: Closure sin `use($days)` en map.
+   - Solución: Agregado `use ($days)` a la closure.
+   - Impacto: 7 tests fallando en RoleNavigationAccessTest → ahora 161/161 ✅
+
+2. **Error #2: chatbotTelemetry no pasado a otros roles**
+   - Causa: Solo dashboard admin pasaba telemetría a view.
+   - Solución: Agregado `'chatbotTelemetry' => []` a barber, receptionist, client views.
+   - Impacto: Render error 500 en dashboards de otros roles → arreglado.
+
+### Test Results
+
+**Estado Final:**
+```
+Tests:    161 passed (617 assertions)
+Duration: 73.07s
+```
+
+**Commits entregados:**
+- `619c589`: feat: add chatbot provider telemetry and ai cost estimates
+- `cc4bb12`: feat: add chatbot telemetry aggregates to admin dashboard
+- `6f39cfd`: fix: ensure chatbotTelemetry passed to all dashboard roles and fix undefined variable in trend calculation
+- `70c013f`: chore: remove accidentally committed laravel file
+
+### Continuación - Sprint 3 (UI/UX)
+
+**Próximos pasos:**
+1. Visualización de gráficos Chart.js en dashboard (tendencias 7 días).
+2. Corrección de errores visuales en plantillas Blade.
+3. Refinamiento de componentes de UI.
+4. Optimización de responsive design en mobile/tablet.
+
+**Estado para pasar a UI/UX:**
+- ✅ Suite de tests 100% verde (161/161).
+- ✅ Telemetría operativa funcional en backend.
+- ✅ Dashboard básico operativo sin gráficos complejos.
+- ✅ Proyecto estable para iteraciones visuales.
+
+**Recursos disponibles para UI/UX:**
+- `$chatbotTelemetry['trend_chart']`: datos de 7 días (latencia, error rate).
+- `$chatbotTelemetry['top_sources']`: top 4 fuentes con conteos.
+- Canvas elements listos en vista para Chart.js.
+- Estructura de datos de telemetría agregada por 1-30 días configurable.
