@@ -15,16 +15,28 @@ class AppointmentStoreTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware([
+            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+        ]);
+    }
+
     public function test_recepcionista_can_create_appointment_when_schedule_is_available(): void
     {
         [$actor, $client, $barber, $service] = $this->bootstrapScenario();
+
+        $date = now()->addDays(2)->toDateString();
 
         $this->actingAs($actor)
             ->post(route('appointments.store'), [
                 'client_id' => $client->id,
                 'barber_id' => $barber->id,
                 'service_id' => $service->id,
-                'fecha' => '2026-03-10',
+                'fecha' => $date,
                 'hora_inicio' => '10:00',
                 'hora_fin' => '10:30',
                 'estado' => 'confirmada',
@@ -34,7 +46,7 @@ class AppointmentStoreTest extends TestCase
         $this->assertDatabaseHas('appointments', [
             'barber_id' => $barber->id,
             'client_id' => $client->id,
-            'fecha' => '2026-03-10 00:00:00',
+            'fecha' => $date,
             'hora_inicio' => '10:00',
             'hora_fin' => '10:30',
         ]);
@@ -44,11 +56,13 @@ class AppointmentStoreTest extends TestCase
     {
         [$actor, $client, $barber, $service] = $this->bootstrapScenario();
 
+        $date = now()->addDays(3)->toDateString();
+
         Appointment::query()->create([
             'client_id' => $client->id,
             'barber_id' => $barber->id,
             'service_id' => $service->id,
-            'fecha' => '2026-03-10',
+            'fecha' => $date,
             'hora_inicio' => '10:00:00',
             'hora_fin' => '10:30:00',
             'estado' => 'confirmada',
@@ -60,7 +74,7 @@ class AppointmentStoreTest extends TestCase
                 'client_id' => $client->id,
                 'barber_id' => $barber->id,
                 'service_id' => $service->id,
-                'fecha' => '2026-03-10',
+                'fecha' => $date,
                 'hora_inicio' => '10:15',
                 'hora_fin' => '10:45',
                 'estado' => 'pendiente',

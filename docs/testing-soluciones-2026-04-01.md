@@ -151,3 +151,36 @@ Ejecucion Docker:
 `docker compose exec app php artisan test tests/Feature/Performance/DatabaseQueryPerformanceTest.php`
 
 Estado: 5/5 tests pasando.
+
+## 5) Black Box Tests - AppointmentBlackBoxTest
+
+Archivo generado:
+- `tests/Feature/BlackBox/AppointmentBlackBoxTest.php`
+
+Cobertura implementada:
+- Creacion de cita valida (redirect + persistencia BD).
+- Formato invalido de `hora_inicio` (error de validacion).
+- `barber_id` inexistente (error de validacion).
+- Fecha pasada (error de validacion).
+- Solapamiento con mismo barbero (error en `hora_inicio`).
+- Solapamiento con barbero distinto (permitido).
+- `hora_fin` anterior a `hora_inicio` (error de validacion).
+
+### Errores detectados y solucionados
+
+1. Respuestas 419 por CSRF en pruebas de formulario.
+	- Ajuste: desactivar CSRF en la clase de pruebas BlackBox.
+
+2. Regla de negocio faltante: se permitian citas con fecha pasada.
+	- Ajuste: en `StoreAppointmentRequest` se agrego regla `after_or_equal:today` para `fecha`.
+
+3. El test legado `AppointmentStoreTest` quedo inestable por CSRF y fecha fija antigua.
+	- Ajuste: se desactivo CSRF en ese test y se cambiaron fechas hardcodeadas por fechas relativas.
+
+### Resultado
+
+Ejecucion Docker:
+
+`docker compose exec app php artisan test tests/Feature/BlackBox/AppointmentBlackBoxTest.php`
+
+Estado: 7/7 tests pasando.
