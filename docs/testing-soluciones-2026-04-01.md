@@ -79,3 +79,42 @@ Ejecucion Docker:
 `docker compose exec app php artisan test tests/Feature/Security/SecurityHardeningTest.php`
 
 Estado: 8/8 tests pasando.
+
+## 3) E2E Tests - CompleteBookingFlowE2ETest
+
+Archivo generado:
+- `tests/Feature/E2E/CompleteBookingFlowE2ETest.php`
+
+Flujos implementados:
+
+1. Happy path completo:
+	- Registro de usuario cliente.
+	- Validacion de rol `cliente` y perfil asociado.
+	- Seleccion de barbero/servicio en portal cliente.
+	- Creacion de cita en estado `pendiente`.
+	- Confirmacion por recepcionista (`confirmada`).
+	- Inicio de servicio por barbero (`en_proceso`).
+	- Pago por recepcionista (`completada`) + comprobante PDF en storage.
+	- Visualizacion final por cliente con estado `completada`.
+
+2. Flujo de cancelacion:
+	- Cliente A crea cita.
+	- Recepcionista cancela cita (`cancelada`).
+	- Cliente B ocupa el mismo slot/horario con el mismo barbero (slot liberado).
+
+### Errores detectados y solucionados
+
+1. 419 en formularios POST/PUT/PATCH durante E2E.
+	- Ajuste: desactivar middleware CSRF en esta clase de test.
+
+2. Redireccion en acceso al create del portal cliente.
+	- Ajuste: desactivar middleware `verified` para estabilidad de entorno de test.
+	- Refuerzo: marcar usuario registrado como verificado en el flujo.
+
+### Resultado
+
+Ejecucion Docker:
+
+`docker compose exec app php artisan test tests/Feature/E2E/CompleteBookingFlowE2ETest.php`
+
+Estado: 2/2 tests pasando.
