@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\InventoryStoreRequest;
 use App\Http\Requests\InventoryUpdateRequest;
 use App\Models\Inventory;
+use App\Services\BusinessEventService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class InventoryController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(private readonly BusinessEventService $businessEventService) {}
 
     /**
      * Display a listing of the resource.
@@ -19,6 +22,13 @@ class InventoryController extends Controller
         $this->authorize('viewAny', Inventory::class);
         $inventories = Inventory::paginate(15);
         $lowStockCount = $inventories->filter(fn ($inv) => $inv->quantity <= $inv->min_stock)->count();
+
+        if ($lowStockCount > 0) {
+            $this->businessEventService->record('alerts', 'low_stock_detected', [
+                'low_stock_count' => $lowStockCount,
+                'page_items' => $inventories->count(),
+            ]);
+        }
 
         return view('almacen.index', compact('inventories', 'lowStockCount'));
     }

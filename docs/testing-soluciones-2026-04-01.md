@@ -305,6 +305,57 @@ Ajustes de estabilidad realizados para el modo paralelo:
 - Se normalizaron asserts de fechas/horas que dependian del driver.
 - Se neutralizo el test de ejemplo para evitar dependencia de rutas/UI en el ejemplo base.
 
+## 14) Sprint 1 - Observabilidad y alertas
+
+Objetivo:
+- Agregar trazabilidad de negocio en eventos criticos sin romper flujos existentes.
+
+### Implementacion
+
+1. Servicio comun de eventos:
+- Archivo: `app/Services/BusinessEventService.php`
+- Permite registrar eventos de negocio con `log_name`, `description`, `properties` y `subject` opcional.
+
+2. Alertas de stock bajo:
+- Archivo: `app/Http/Controllers/InventoryController.php`
+- En `index()`, cuando hay productos en low stock, se registra evento:
+	- `log_name = alerts`
+	- `description = low_stock_detected`
+
+3. Auditoria en inventario:
+- Archivo: `app/Models/Inventory.php`
+- Se habilito `LogsActivity` para altas/ediciones con:
+	- `log_name = inventory_items`
+
+4. Observabilidad del chatbot:
+- Archivo: `app/Http/Controllers/ChatbotController.php`
+- Se registran:
+	- `chatbot_ai_error` cuando falla el proveedor AI.
+	- `chatbot_fallback` cuando se responde con fallback manual.
+- Fix funcional adicional: se agrego `matchesKeywords()` faltante.
+
+5. Correcciones de compatibilidad del servicio de inteligencia:
+- Archivo: `app/Services/ChatbotIntelligenceService.php`
+- Se alinearon columnas legacy a esquema real (`rating`/`comment`).
+- Archivo: `app/Models/Barber.php`
+- Se agrego relacion `comments()` vía `hasManyThrough`.
+
+6. Pruebas nuevas de observabilidad:
+- Archivo: `tests/Feature/Observability/BusinessEventLoggingTest.php`
+- Cobertura:
+	- Registro de alerta por low stock.
+	- Registro de update de inventario en `activity_log`.
+	- Registro de `chatbot_fallback` en flujo manual.
+
+### Resultado
+
+Ejecucion Docker:
+
+- `php artisan test tests/Feature/Observability/BusinessEventLoggingTest.php`
+- `php artisan test`
+
+Estado: `156/156` tests pasando (`579 assertions`).
+
 ## 8) Functional Tests - ServiceCRUDFunctionalTest
 
 Archivo generado:

@@ -45,7 +45,7 @@ class ChatbotIntelligenceService
                 'works' => fn ($q) => $q->where('created_at', '>=', now()->subMonths(3)),
                 'appointments' => fn ($q) => $q->where('estado', 'completada')->where('fecha', '>=', now()->subMonths(3)),
             ])
-            ->withAvg('comments', 'puntuacion')
+            ->withAvg('comments', 'rating')
             ->orderByDesc('works_count')
             ->limit(5)
             ->get()
@@ -54,7 +54,7 @@ class ChatbotIntelligenceService
                     'name' => $barber->user->name,
                     'works' => $barber->works_count ?? 0,
                     'appointments' => $barber->appointments_count ?? 0,
-                    'rating' => round($barber->comments_avg_puntuacion ?? 0, 1),
+                    'rating' => round($barber->comments_avg_rating ?? 0, 1),
                     'specialty' => $barber->especialidad ?? 'Barbería general',
                 ];
             })
@@ -122,16 +122,16 @@ class ChatbotIntelligenceService
      */
     private function getTopComments(): array
     {
-        $comments = Comment::where('puntuacion', '>=', 4)
+        $comments = Comment::where('rating', '>=', 4)
             ->with('user', 'work.barber.user')
-            ->orderByDesc('puntuacion')
+            ->orderByDesc('rating')
             ->limit(5)
             ->get()
             ->map(function ($comment) {
                 return [
                     'author' => $comment->user?->name,
-                    'rating' => $comment->puntuacion,
-                    'text' => substr($comment->contenido, 0, 100).'...',
+                    'rating' => $comment->rating,
+                    'text' => substr((string) $comment->comment, 0, 100).'...',
                     'barber' => $comment->work?->barber?->user?->name,
                 ];
             })

@@ -12,6 +12,7 @@ use App\Services\ChatbotExternalDataService;
 use App\Services\ChatbotIntelligenceService;
 use App\Services\ChatbotLearningService;
 use App\Services\ChatbotUserProfileService;
+use App\Services\BusinessEventService;
 use App\Services\GeminiService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -40,7 +41,8 @@ class ChatbotController extends Controller
         private ChatbotExternalDataService $externalDataService,
         private ChatbotContextService $contextService,
         private ChatbotUserProfileService $profileService,
-        private ChatbotLearningService $learningService
+        private ChatbotLearningService $learningService,
+        private BusinessEventService $businessEventService
     ) {}
 
     public function query(Request $request): JsonResponse
@@ -109,12 +111,28 @@ class ChatbotController extends Controller
                         return response()->json(['response' => $aiResponse]);
                     }
                 } catch (\Exception $e) {
+                    $this->businessEventService->record('chatbot', 'chatbot_ai_error', [
+                        'message' => $message,
+                        'user_id' => $userId,
+                        'error' => $e->getMessage(),
+                    ]);
+
                     \Log::warning('Chatbot AI fallback: '.$e->getMessage());
                 }
             }
         }
 
         // Guardar respuesta manual en contexto
+        $normalizedManualResponse = strtolower($manualResponse);
+
+        if (str_contains($normalizedManualResponse, 'no estoy seguro') || str_contains($normalizedManualResponse, 'no estoy completamente seguro')) {
+            $this->businessEventService->record('chatbot', 'chatbot_fallback', [
+                'message' => $message,
+                'user_id' => $userId,
+                'intent' => $realIntent,
+            ]);
+        }
+
         $this->contextService->addMessage($message, $manualResponse, 'bot', $userId);
         $this->profileService->updateIntent($realIntent, $userId);
         $this->learningService->recordFeedback($message, $manualResponse, true, $userId);
@@ -336,5 +354,21 @@ class ChatbotController extends Controller
             'message' => 'Training from history completed',
             'report' => $report,
         ]);
+    }
+
+    /**
+     * Busca múltiples palabras clave en el mensaje.
+     */
+    private function matchesKeywords(string $message, array $keywords): bool
+    {
+        $normalizedMessage = strtolower($message);
+
+        foreach ($keywords as $keyword) {
+            if (str_contains($normalizedMessage, strtolower((string) $keyword))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

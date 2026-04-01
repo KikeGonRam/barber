@@ -5,11 +5,13 @@ namespace App\Models;
 use Database\Factories\InventoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Inventory extends Model
 {
     /** @use HasFactory<InventoryFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'name',
@@ -29,5 +31,13 @@ class Inventory extends Model
             'price' => 'decimal:2',
             'active' => 'boolean',
         ];
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('inventory_items')
+            ->logFillable()
+            ->logOnlyDirty();
     }
 }
