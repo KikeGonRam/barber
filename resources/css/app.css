@@ -151,6 +151,14 @@
         @apply text-3xl font-black tracking-tight text-white;
     }
 
+    .ui-empty-state {
+        @apply flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-center;
+    }
+
+    .ui-empty-state-copy {
+        @apply text-sm italic text-muted;
+    }
+
     .ui-list-item {
         @apply rounded-2xl border border-line bg-card p-5 transition-colors hover:bg-accent;
     }

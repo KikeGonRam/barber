@@ -144,7 +144,7 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="relative z-10 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-center">
+                    <div class="relative z-10 ui-empty-state">
                         <p class="text-xs font-black uppercase tracking-widest text-muted">Sin datos de estaciones en vivo</p>
                         <p class="mt-2 text-sm text-muted">No hay barberos con actividad registrada en este momento.</p>
                     </div>
@@ -166,8 +166,8 @@
                             <canvas id="incomeChart"></canvas>
                         </div>
                     @else
-                        <div class="h-[280px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
-                            <p class="text-sm italic text-muted">Aún no hay ingresos en la ventana seleccionada.</p>
+                        <div class="h-[280px] ui-empty-state">
+                            <p class="ui-empty-state-copy">Aún no hay ingresos en la ventana seleccionada.</p>
                         </div>
                     @endif
                 </article>
@@ -184,14 +184,14 @@
                             <canvas id="servicesChart"></canvas>
                         </div>
                     @else
-                        <div class="h-[280px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
-                            <p class="text-sm italic text-muted">Aún no hay servicios registrados para graficar.</p>
+                        <div class="h-[280px] ui-empty-state">
+                            <p class="ui-empty-state-copy">Aún no hay servicios registrados para graficar.</p>
                         </div>
                     @endif
                 </article>
             </section>
 
-            <section class="ui-card-premium p-8">
+            <section class="ui-card-premium p-6 sm:p-8">
                 <div class="mb-6 flex items-center justify-between">
                     <div>
                         <h3 class="text-sm font-black text-white uppercase tracking-widest">Telemetria Chatbot</h3>
@@ -287,8 +287,8 @@
                             <canvas id="performanceChart"></canvas>
                         </div>
                     @else
-                        <div class="h-[280px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
-                            <p class="text-sm italic text-muted">Sin citas suficientes para mostrar productividad.</p>
+                        <div class="h-[280px] ui-empty-state">
+                            <p class="ui-empty-state-copy">Sin citas suficientes para mostrar productividad.</p>
                         </div>
                     @endif
                 </article>
@@ -302,8 +302,8 @@
                             <canvas id="servicesChart"></canvas>
                         </div>
                     @else
-                        <div class="h-[280px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
-                            <p class="text-sm italic text-muted">Aún no hay especialidades suficientes para graficar.</p>
+                        <div class="h-[280px] ui-empty-state">
+                            <p class="ui-empty-state-copy">Aún no hay especialidades suficientes para graficar.</p>
                         </div>
                     @endif
                 </article>
@@ -322,7 +322,7 @@
             
             <!-- Welcome & Highlights -->
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 ui-card-premium p-10 relative overflow-hidden group">
+                <div class="lg:col-span-2 ui-card-premium p-6 sm:p-8 lg:p-10 relative overflow-hidden group">
                     <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/5 blur-3xl"></div>
                     <div class="relative z-10 flex flex-col sm:flex-row items-center gap-8">
                         <div class="h-20 w-20 rounded-3xl bg-indigo-600 flex items-center justify-center text-white shadow-lg animate-float flex-shrink-0">
@@ -334,9 +334,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="ui-card-premium p-10 flex flex-col justify-center text-center">
+                <div class="ui-card-premium p-6 sm:p-8 lg:p-10 flex flex-col justify-center text-center">
                     <p class="text-[10px] font-black uppercase text-gold tracking-widest mb-2">Cobros Pendientes</p>
-                    <p class="text-5xl font-black text-white">{{ $kpis['pending_payments'] }}</p>
+                    <p class="text-4xl sm:text-5xl font-black text-white">{{ $kpis['pending_payments'] }}</p>
                     <a href="{{ route('payments.create') }}" class="mt-4 text-[9px] font-black text-gold hover:text-white transition uppercase tracking-widest">Resolver Ahora &rarr;</a>
                 </div>
             </section>
@@ -360,7 +360,7 @@
             <!-- Main Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <!-- Next Appointments -->
-                <section class="lg:col-span-7 ui-card-premium p-8">
+                <section class="lg:col-span-7 ui-card-premium p-6 sm:p-8">
                     <div class="mb-8 flex items-center justify-between">
                         <h3 class="text-sm font-black text-white uppercase tracking-widest">Próximas Llegadas</h3>
                         <a href="{{ route('appointments.index') }}" class="text-[9px] font-black text-muted hover:text-gold transition uppercase tracking-widest">Agenda Full &rarr;</a>
@@ -396,8 +396,8 @@
                             <canvas id="flowChart"></canvas>
                         </div>
                     @else
-                        <div class="h-[300px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
-                            <p class="text-sm italic text-muted">Todavía no hay flujo operativo para este día.</p>
+                        <div class="h-[300px] ui-empty-state">
+                            <p class="ui-empty-state-copy">Todavía no hay flujo operativo para este día.</p>
                         </div>
                     @endif
                 </section>
@@ -458,7 +458,7 @@
                             <p class="text-4xl font-black">{{ \Carbon\Carbon::parse($nextAppointment->fecha)->format('d M') }}</p>
                             <p class="text-xl font-bold mt-1">{{ substr($nextAppointment->hora_inicio, 0, 5) }}</p>
                         </div>
-                        <div class="p-10 flex-1 flex flex-col sm:flex-row justify-between items-center gap-8 bg-white/5 backdrop-blur-xl">
+                        <div class="p-6 sm:p-8 lg:p-10 flex-1 flex flex-col sm:flex-row justify-between items-center gap-8 bg-white/5 backdrop-blur-xl">
                             <div>
                                 <h3 class="text-2xl font-black text-white uppercase tracking-tight">{{ $nextAppointment->service?->nombre }}</h3>
                                 <p class="text-gold font-bold uppercase tracking-widest text-xs mt-1">Con el Maestro {{ $nextAppointment->barber?->user?->name }}</p>
@@ -481,8 +481,8 @@
                             <canvas id="visitChart"></canvas>
                         </div>
                     @else
-                        <div class="h-[280px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
-                            <p class="text-sm italic text-muted">Aún no hay historial suficiente para graficar visitas.</p>
+                        <div class="h-[280px] ui-empty-state">
+                            <p class="ui-empty-state-copy">Aún no hay historial suficiente para graficar visitas.</p>
                         </div>
                     @endif
                 </section>
