@@ -27,14 +27,10 @@ class AppointmentRepository extends BaseRepository implements AppointmentReposit
             ->where('barber_id', $barberId)
             ->whereDate('fecha', $date)
             ->whereNotIn('estado', ['cancelada', 'no_asistio'])
-            ->where(function ($query) use ($startTime, $endTime) {
-                $query->whereBetween('hora_inicio', [$startTime, $endTime])
-                    ->orWhereBetween('hora_fin', [$startTime, $endTime])
-                    ->orWhere(function ($nested) use ($startTime, $endTime) {
-                        $nested->where('hora_inicio', '<=', $startTime)
-                            ->where('hora_fin', '>=', $endTime);
-                    });
-            });
+            // Solapamiento estricto: existing.start < new.end AND existing.end > new.start.
+            // Permite slots contiguos sin conflicto (ej. 10:00-10:30 y 10:30-11:00).
+            ->where('hora_inicio', '<', $endTime)
+            ->where('hora_fin', '>', $startTime);
 
         if ($ignoreAppointmentId) {
             $query->whereKeyNot($ignoreAppointmentId);

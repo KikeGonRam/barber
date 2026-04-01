@@ -184,3 +184,36 @@ Ejecucion Docker:
 `docker compose exec app php artisan test tests/Feature/BlackBox/AppointmentBlackBoxTest.php`
 
 Estado: 7/7 tests pasando.
+
+## 6) White Box Tests - AppointmentOverlapLogicTest
+
+Archivo generado:
+- `tests/Unit/WhiteBox/AppointmentOverlapLogicTest.php`
+
+Cobertura implementada:
+- No solapamiento en rangos contiguos (10:00-10:30 vs 10:30-11:00).
+- Solapamiento parcial al inicio (09:45-10:15).
+- Solapamiento de contencion total (09:00-11:00).
+- Solapamiento identico (10:00-10:30).
+- Cita cancelada no bloquea slot.
+- Stock en 0 no permite salida de inventario.
+- Stock exacto permite salida exacta.
+
+### Error detectado y solucionado
+
+La logica previa de solapamiento en `AppointmentRepository::hasOverlap()` consideraba como conflicto los slots contiguos por comparacion inclusiva.
+
+Solucion aplicada:
+- Se reemplazo por comparacion de solapamiento estricto:
+	- `hora_inicio < nuevo_fin`
+	- `hora_fin > nuevo_inicio`
+
+Con ello se permiten citas consecutivas sin hueco (p. ej. 10:00-10:30 y 10:30-11:00) y se mantienen bloqueos reales de cruces.
+
+### Resultado
+
+Ejecucion Docker:
+
+`docker compose exec app php artisan test tests/Unit/WhiteBox/AppointmentOverlapLogicTest.php`
+
+Estado: 7/7 tests pasando.
