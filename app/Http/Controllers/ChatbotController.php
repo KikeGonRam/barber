@@ -18,6 +18,8 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 class ChatbotController extends Controller
 {
@@ -47,9 +49,36 @@ class ChatbotController extends Controller
 
     public function query(Request $request): JsonResponse
     {
-        $message = strtolower($request->input('message', ''));
+        $message = strtolower(trim((string) $request->input('message', '')));
         $user = auth()->user();
         $userId = $user?->id;
+
+        if ($message === '') {
+            return response()->json([
+                'response' => 'Por favor, escribe una consulta para poder ayudarte.',
+            ], 422);
+        }
+
+        $rateLimitKey = $userId ? "chatbot:user:{$userId}" : 'chatbot:ip:'.$request->ip();
+        $maxAttempts = (int) config('chatbot.rate_limit.max_attempts', 20);
+        $decaySeconds = (int) config('chatbot.rate_limit.decay_seconds', 60);
+
+        if (RateLimiter::tooManyAttempts($rateLimitKey, $maxAttempts)) {
+            $retryAfter = RateLimiter::availableIn($rateLimitKey);
+
+            $this->businessEventService->record('chatbot', 'chatbot_rate_limited', [
+                'user_id' => $userId,
+                'ip' => $request->ip(),
+                'retry_after_seconds' => $retryAfter,
+            ]);
+
+            return response()->json([
+                'response' => 'Has alcanzado el limite temporal de consultas. Intenta de nuevo en unos segundos.',
+                'retry_after' => $retryAfter,
+            ], 429);
+        }
+
+        RateLimiter::hit($rateLimitKey, $decaySeconds);
 
         // 0. APRENDIZAJE AUTOMÁTICO - Detectar intención real
         $realIntent = $this->learningService->detectRealIntent($message);
@@ -69,7 +98,20 @@ class ChatbotController extends Controller
         }
 
         // 2. SEGUNDO: Respuesta Inteligente de BD (Local, contextual)
-        $intelligentResponse = $this->intelligenceService->getContextualResponse($message, $user);
+        $intelligentResponse = null;
+
+        try {
+            $intelligentResponse = $this->intelligenceService->getContextualResponse($message, $user);
+        } catch (\Throwable $exception) {
+            $this->businessEventService->record('chatbot', 'chatbot_intelligence_error', [
+                'message' => $message,
+                'user_id' => $userId,
+                'error' => $exception->getMessage(),
+            ]);
+
+            Log::warning('Chatbot intelligence fallback: '.$exception->getMessage());
+        }
+
         if ($intelligentResponse) {
             $this->contextService->addMessage($message, $intelligentResponse, 'bot', $userId);
             $this->profileService->updateIntent($realIntent, $userId);
@@ -85,7 +127,20 @@ class ChatbotController extends Controller
         // Solo si es respuesta genérica, intentar datos externos
         if (str_contains($manualResponse, 'No estoy seguro')) {
             // 4. FOURTH: Datos Externos (Wikipedia, OSM) - Solo si nada más funciona
-            $externalResponse = $this->externalDataService->getExternalResponse($message);
+            $externalResponse = null;
+
+            try {
+                $externalResponse = $this->externalDataService->getExternalResponse($message);
+            } catch (\Throwable $exception) {
+                $this->businessEventService->record('chatbot', 'chatbot_external_data_error', [
+                    'message' => $message,
+                    'user_id' => $userId,
+                    'error' => $exception->getMessage(),
+                ]);
+
+                Log::warning('Chatbot external data fallback: '.$exception->getMessage());
+            }
+
             if ($externalResponse) {
                 $this->contextService->addMessage($message, $externalResponse, 'bot', $userId);
                 $this->profileService->updateIntent($realIntent, $userId);

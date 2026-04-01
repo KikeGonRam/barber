@@ -356,6 +356,51 @@ Ejecucion Docker:
 
 Estado: `156/156` tests pasando (`579 assertions`).
 
+## 15) Sprint 2 - Chatbot en produccion (hardening inicial)
+
+Objetivo:
+- Endurecer el chatbot para uso real: control de abuso, fallos controlados y trazabilidad de errores.
+
+### Implementacion
+
+1. Rate limit configurable:
+- Archivo: `config/chatbot.php`
+- Parametros:
+	- `CHATBOT_RATE_LIMIT_MAX_ATTEMPTS` (default 20)
+	- `CHATBOT_RATE_LIMIT_DECAY_SECONDS` (default 60)
+
+2. Proteccion por usuario/IP en endpoint query:
+- Archivo: `app/Http/Controllers/ChatbotController.php`
+- Se agrega control con `RateLimiter`:
+	- devuelve `429` con `retry_after` cuando supera limite.
+	- registra evento `chatbot_rate_limited`.
+
+3. Fallback seguro ante excepciones:
+- Archivo: `app/Http/Controllers/ChatbotController.php`
+- Se encapsulan con `try/catch`:
+	- `ChatbotIntelligenceService` -> evento `chatbot_intelligence_error`.
+	- `ChatbotExternalDataService` -> evento `chatbot_external_data_error`.
+
+4. Correccion de deteccion de fallback manual:
+- Archivo: `app/Http/Controllers/ChatbotController.php`
+- Se corrige condicion para que detecte tambien el texto real:
+	- "No estoy completamente seguro".
+
+5. Tests nuevos de hardening:
+- Archivo: `tests/Feature/Chatbot/ChatbotProductionHardeningTest.php`
+- Cobertura:
+	- rate limit retorna 429 y registra evento.
+	- excepcion en inteligencia cae a fallback y registra eventos.
+
+### Resultado
+
+Ejecucion Docker:
+
+- `php artisan test tests/Feature/Chatbot/ChatbotProductionHardeningTest.php`
+- `php artisan test`
+
+Estado final: `158/158` tests pasando (`588 assertions`).
+
 ## 8) Functional Tests - ServiceCRUDFunctionalTest
 
 Archivo generado:
