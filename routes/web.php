@@ -30,8 +30,8 @@ Route::get('/mantenimiento', function () {
     return view('errors.maintenance');
 })->name('maintenance');
 
-Route::get('/equipo/{barber}', [BarberController::class, 'show'])->name('barbers.public.show');
-Route::get('/barbero/{barber}', [BarberController::class, 'show'])->name('barbers.show');
+Route::get('/equipo/{barber}', [BarberController::class, 'show'])->whereNumber('barber')->name('barbers.public.show');
+Route::get('/barbero/{barber}', [BarberController::class, 'show'])->whereNumber('barber')->name('barbers.show');
 Route::get('/servicios', [ServiceController::class, 'publicIndex'])->name('services.public.index');
 Route::post('/chatbot/query', [\App\Http\Controllers\ChatbotController::class, 'query'])->name('chatbot.query');
 Route::middleware(['auth'])->group(function () {
