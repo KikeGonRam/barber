@@ -185,6 +185,30 @@ Ejecucion Docker:
 
 Estado: 7/7 tests pasando.
 
+## 8) Functional Tests - ServiceCRUDFunctionalTest
+
+Archivo generado:
+- `tests/Feature/Functional/ServiceCRUDFunctionalTest.php`
+
+Cobertura implementada:
+- Admin crea servicio y aparece en listado.
+- Admin edita servicio y persiste cambios.
+- Admin desactiva servicio y desaparece del listado publico activo.
+- Admin reactiva servicio y vuelve al listado publico activo.
+- Admin crea producto con stock inicial correcto.
+- Recepcionista registra salida y baja stock correctamente.
+- Recepcionista no puede registrar entrada (error por permisos).
+- Admin exporta reporte de ingresos en PDF con content-type PDF.
+- Admin exporta reporte de ingresos en Excel con content-type XLSX.
+
+### Resultado
+
+Ejecucion Docker:
+
+`docker compose exec app php artisan test tests/Feature/Functional/ServiceCRUDFunctionalTest.php`
+
+Estado: 9/9 tests pasando.
+
 ## 7) Integration Tests - PaymentAppointmentIntegrationTest
 
 Archivo generado:
