@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Log;
 
 class GeminiService
 {
-    private string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    // gemini-1.5-pro fue deprecado — usar v1beta + gemini-2.0-flash
+    private string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
     private ?string $apiKey;
 
     public function __construct()
@@ -21,23 +22,42 @@ class GeminiService
             return "MODO OFFLINE: Para activar mi cerebro de IA, por favor configura la GEMINI_API_KEY en tu archivo .env. Mientras tanto, usaré mi base de conocimientos local.";
         }
 
-        // Construir el "System Prompt" con los datos reales de tu negocio
         $systemPrompt = $this->buildSystemPrompt($contextData);
+        return $this->sendRequest($systemPrompt . "\n\nConsulta del Usuario: " . $userMessage);
+    }
 
+    /**
+     * Genera respuesta con prompt personalizado (util para contexto de conversación)
+     */
+    public function generateResponseWithPrompt(string $fullPrompt): string
+    {
+        if (empty($this->apiKey)) {
+            return "MODO OFFLINE: Para activar mi cerebro de IA, por favor configura la GEMINI_API_KEY en tu archivo .env. Mientras tanto, usaré mi base de conocimientos local.";
+        }
+
+        return $this->sendRequest($fullPrompt);
+    }
+
+    /**
+     * Método privado para enviar request a Gemini
+     */
+    private function sendRequest(string $prompt): string
+    {
         try {
             $response = Http::withHeaders(['Content-Type' => 'application/json'])
+                ->timeout(15)
                 ->post("{$this->baseUrl}?key={$this->apiKey}", [
                     'contents' => [
                         [
                             'role' => 'user',
                             'parts' => [
-                                ['text' => $systemPrompt . "\n\nConsulta del Usuario: " . $userMessage]
+                                ['text' => $prompt]
                             ]
                         ]
                     ],
                     'generationConfig' => [
-                        'temperature' => 0.7, // Creatividad balanceada
-                        'maxOutputTokens' => 150, // Respuestas concisas
+                        'temperature' => 0.7,
+                        'maxOutputTokens' => 150,
                     ]
                 ]);
 
@@ -46,7 +66,8 @@ class GeminiService
                 return "Lo siento, mi conexión neuronal está experimentando interferencias. ¿Podrías preguntar de otra forma?";
             }
 
-            return $response->json('candidates.0.content.parts.0.text') ?? 'No pude generar una respuesta.';
+            return $response->json('candidates.0.content.parts.0.text')
+                ?? 'No pude generar una respuesta.';
 
         } catch (\Exception $e) {
             Log::error('Gemini Connection Exception: ' . $e->getMessage());
@@ -54,12 +75,13 @@ class GeminiService
         }
     }
 
-    private function buildSystemPrompt(array $data): string
+    public function buildSystemPrompt(array $data): string
     {
-        // Convertir datos a texto legible para la IA
-        $services = implode(", ", $data['services']);
-        $barbers = implode(", ", $data['barbers']);
-        $userContext = $data['user_name'] ? "El usuario se llama {$data['user_name']} y su rol es {$data['user_role']}." : "El usuario es un visitante no registrado.";
+        $services     = implode(", ", $data['services']);
+        $barbers      = implode(", ", $data['barbers']);
+        $userContext  = $data['user_name']
+            ? "El usuario se llama {$data['user_name']} y su rol es {$data['user_role']}."
+            : "El usuario es un visitante no registrado.";
         
         return <<<EOT
 Eres "BarberPro Concierge", el asistente de IA de una barbería de lujo y alta gama.

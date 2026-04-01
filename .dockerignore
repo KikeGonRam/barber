@@ -1,0 +1,15 @@
+node_modules
+vendor
+.git
+.github
+.vscode
+storage/logs
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+npm-debug.log
+yarn-error.log
+docker-compose.yml
+README.md
+docs
+tests

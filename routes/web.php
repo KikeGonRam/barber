@@ -31,8 +31,16 @@ Route::get('/mantenimiento', function () {
 })->name('maintenance');
 
 Route::get('/equipo/{barber}', [BarberController::class, 'show'])->name('barbers.public.show');
+Route::get('/barbero/{barber}', [BarberController::class, 'show'])->name('barbers.show');
 Route::get('/servicios', [ServiceController::class, 'publicIndex'])->name('services.public.index');
 Route::post('/chatbot/query', [\App\Http\Controllers\ChatbotController::class, 'query'])->name('chatbot.query');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/chatbot/history', [\App\Http\Controllers\ChatbotController::class, 'getHistory'])->name('chatbot.history');
+    Route::get('/chatbot/profile', [\App\Http\Controllers\ChatbotController::class, 'getProfile'])->name('chatbot.profile');
+    Route::post('/chatbot/clear-history', [\App\Http\Controllers\ChatbotController::class, 'clearHistory'])->name('chatbot.clear-history');
+    Route::get('/chatbot/learning-stats', [\App\Http\Controllers\ChatbotController::class, 'getLearningStats'])->name('chatbot.learning-stats');
+    Route::post('/chatbot/train-history', [\App\Http\Controllers\ChatbotController::class, 'trainFromHistory'])->name('chatbot.train-history');
+});
 
 // Availability API
 Route::get('/api/availability/slots', [\App\Http\Controllers\Api\AvailabilityController::class, 'slots'])->name('api.availability.slots');
@@ -83,6 +91,9 @@ Route::middleware('auth')->group(function () {
                 ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
         });
 
+    });
+
+    Route::middleware(['verified', 'role.custom:administrador'])->group(function () {
         Route::middleware('permission.custom:reportes.ver')->group(function () {
             Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
             Route::get('reports/{type}/{format}', [ReportController::class, 'export'])
@@ -90,9 +101,7 @@ Route::middleware('auth')->group(function () {
                 ->whereIn('format', ['pdf', 'excel'])
                 ->name('reports.export');
         });
-    });
 
-    Route::middleware(['verified', 'role.custom:administrador'])->group(function () {
         Route::middleware('permission.custom:servicios.gestionar')->group(function () {
             Route::resource('services', ServiceController::class)->except('show');
         });
@@ -141,6 +150,10 @@ Route::middleware('auth')->group(function () {
         Route::get('portfolio/create', [BarberPortfolioController::class, 'create'])->name('portfolio.create');
         Route::post('portfolio', [BarberPortfolioController::class, 'store'])->name('portfolio.store');
         Route::delete('portfolio/{work}', [BarberPortfolioController::class, 'destroy'])->name('portfolio.destroy');
+    });
+
+    Route::middleware(['verified', 'role.custom:barbero'])->group(function () {
+        Route::post('/barbero/{barber}/works', [BarberPortfolioController::class, 'store'])->name('barbers.works.store');
     });
 
     Route::middleware('auth')->group(function () {

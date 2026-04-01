@@ -12,6 +12,10 @@ Configura en `.env` de producción:
 - `CACHE_STORE=database` (o `redis`)
 - `SESSION_DRIVER=database`
 - `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`
+- IA Gemini:
+  - `GEMINI_API_KEY`
+  - `GEMINI_MODEL` (ejemplo: `gemini-1.5-pro`)
+  - `GEMINI_BASE_URL` (opcional si se usa endpoint custom)
 - Opcional Twilio:
   - `TWILIO_SID`
   - `TWILIO_AUTH_TOKEN`
@@ -30,6 +34,7 @@ php artisan route:cache
 php artisan view:cache
 npm ci
 npm run build
+php artisan optimize
 ```
 
 Si no quieres datos demo en producción, omite `php artisan db:seed --force` o ajusta el `DatabaseSeeder`.
@@ -106,8 +111,26 @@ sudo systemctl start barberia-queue
 - `php artisan queue:monitor` (si aplica)
 - `php artisan schedule:list`
 - Revisar logs: `storage/logs/laravel.log`
+- Validar rutas de chatbot:
+  - `php artisan route:list | grep chatbot`
 
-## 6) Checklist rápido
+## 6) Validaciones funcionales del chatbot
+
+Probar en ambiente productivo con un usuario autenticado:
+
+1. `POST /chatbot/query` con preguntas de servicio y agenda.
+2. `GET /chatbot/history` para confirmar persistencia de contexto.
+3. `GET /chatbot/profile` para verificar perfil conversacional.
+4. `GET /chatbot/learning-stats` para comprobar aprendizaje.
+5. `POST /chatbot/train-history` para entrenamiento incremental.
+
+Si hay errores 500, verificar:
+
+- Credenciales de `GEMINI_API_KEY`.
+- Conectividad saliente a APIs externas.
+- Cache de Laravel (`php artisan config:clear && php artisan cache:clear`).
+
+## 7) Checklist rápido
 
 - [ ] HTTPS activo
 - [ ] `APP_DEBUG=false`
@@ -115,3 +138,5 @@ sudo systemctl start barberia-queue
 - [ ] Cron de scheduler activo
 - [ ] Mail configurado
 - [ ] Backups de BD y archivos públicos (`storage/app/public/comprobantes`)
+- [ ] Variables Gemini configuradas
+- [ ] Endpoints chatbot accesibles en producción

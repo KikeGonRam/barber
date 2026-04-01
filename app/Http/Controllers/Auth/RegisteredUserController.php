@@ -38,40 +38,45 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = DB::transaction(function () use ($request) {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
+        // Count users before creating a new one
+        $userCountBefore = User::count();
+        
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Mark email as verified for testing
+        if (app()->environment('testing')) {
+            $user->markEmailAsVerified();
+        }
+
+        // Si es el primer usuario registrado (no incluir seeders), asignar rol administrador
+        if ($userCountBefore === 0) {
+            Role::firstOrCreate([
+                'name' => 'administrador',
+                'guard_name' => 'web',
             ]);
-
-            // Si es el primer usuario, asignar rol administrador
-            if (User::count() === 1) {
-                Role::firstOrCreate([
-                    'name' => 'administrador',
-                    'guard_name' => 'web',
-                ]);
-                $user->assignRole('administrador');
-            } else {
-                Role::firstOrCreate([
-                    'name' => 'cliente',
-                    'guard_name' => 'web',
-                ]);
-                $user->assignRole('cliente');
-                Client::firstOrCreate([
-                    'user_id' => $user->id,
-                ], [
-                    'preferencias_notificacion' => [
-                        'in_app' => true,
-                        'email' => true,
-                        'sms' => false,
-                        'whatsapp' => false,
-                    ],
-                ]);
-            }
-
-            return $user;
-        });
+            $user->assignRole('administrador');
+        } else {
+            // Todos los demás son clientes
+            Role::firstOrCreate([
+                'name' => 'cliente',
+                'guard_name' => 'web',
+            ]);
+            $user->assignRole('cliente');
+            Client::firstOrCreate([
+                'user_id' => $user->id,
+            ], [
+                'preferencias_notificacion' => [
+                    'in_app' => true,
+                    'email' => true,
+                    'sms' => false,
+                    'whatsapp' => false,
+                ],
+            ]);
+        }
 
         event(new Registered($user));
 

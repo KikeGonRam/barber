@@ -46,9 +46,10 @@
         </div>
 
         @if($isAdmin || $isReception)
-            <!-- Section: Operacion -->
+            <!-- Section: Operación -->
             <div class="space-y-1">
-                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Operación</p>
+                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Operacion</p>
+                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Operacion</p>
                 <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.*')">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
                     <span>Citas</span>
@@ -61,11 +62,11 @@
 
                 <x-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.*')">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    <span>Facturación</span>
+                    <span>Pagos</span>
                 </x-nav-link>
                 <x-nav-link :href="route('inventory.movements.index')" :active="request()->routeIs('inventory.movements.*')">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
-                    <span>Caja y Movimientos</span>
+                    <span>Movimientos</span>
                 </x-nav-link>
             </div>
         @endif
@@ -73,7 +74,7 @@
         @if($isAdmin)
             <!-- Section: Gestion -->
             <div class="space-y-1">
-                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Administración</p>
+                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Gestion</p>
                 <x-nav-link :href="route('barbers.index')" :active="request()->routeIs('barbers.*')">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     <span>Barberos</span>
@@ -99,10 +100,15 @@
                     <span>Almacén Central</span>
                 </x-nav-link>
                 </div>
+                <x-nav-link :href="route('settings.edit')" :active="request()->routeIs('settings.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"/></svg>
+                    <span>Configuracion</span>
+                </x-nav-link>
+            </div>
              <!-- Section: Analisis -->
             <div class="space-y-1">
-                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Análisis</p>
-                 <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
+                <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Analisis</p>
+                 <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')"> 
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                     <span>Reportes</span>
                 </x-nav-link>

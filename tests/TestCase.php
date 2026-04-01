@@ -12,6 +12,12 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // Disable middleware for easier testing
+        $this->withoutMiddleware([
+            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            'verified',
+        ]);
+
         if (Schema::hasTable('permissions')) {
             app(PermissionRegistrar::class)->forgetCachedPermissions();
             $this->seed(\Database\Seeders\RolePermissionSeeder::class);

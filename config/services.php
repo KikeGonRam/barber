@@ -42,4 +42,8 @@ return [
         'whatsapp_from' => env('TWILIO_WHATSAPP_FROM'),
     ],
 
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+    ],
+
 ];

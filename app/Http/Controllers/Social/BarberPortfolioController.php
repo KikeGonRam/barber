@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Social;
 
 use App\Http\Controllers\Controller;
 use App\Models\Work;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -23,8 +24,14 @@ class BarberPortfolioController extends Controller
         return view('barber.portfolio.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, ?User $barber = null): RedirectResponse
     {
+        // If barber is passed as route parameter, use it; otherwise use authenticated user
+        $barberId = $barber?->id ?? auth()->id();
+        
+        // Ensure the authenticated user is uploading for themselves
+        abort_if($barberId !== auth()->id(), 403);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -33,7 +40,7 @@ class BarberPortfolioController extends Controller
         ]);
 
         $work = Work::create([
-            'barbero_id' => auth()->id(),
+            'barbero_id' => $barberId,
             'title' => $request->title,
             'description' => $request->description,
             'work_date' => now(),
@@ -44,6 +51,11 @@ class BarberPortfolioController extends Controller
             $work->images()->create(['image' => $path]);
         }
 
+        // Redirect to barbers.show if passing barber as param, otherwise to barber.portfolio.index
+        if ($barber) {
+            return redirect()->route('barbers.show', $barber)->with('status', 'Trabajo publicado exitosamente en tu portafolio.');
+        }
+        
         return redirect()->route('barber.portfolio.index')->with('status', 'Trabajo publicado exitosamente en tu portafolio.');
     }
 
@@ -56,3 +68,4 @@ class BarberPortfolioController extends Controller
         return back()->with('status', 'Trabajo eliminado de tu portafolio.');
     }
 }
+

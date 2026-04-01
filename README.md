@@ -94,5 +94,31 @@
 
 ---
 
+
+## 🐳 Docker
+
+### Levantar el entorno con Docker
+
+1. Copia el archivo `.env.docker` sobre `.env`:
+   ```sh
+   cp .env.docker .env
+   ```
+2. Construye y levanta los contenedores:
+   ```sh
+   docker-compose up --build
+   ```
+3. Instala las dependencias de Composer dentro del contenedor:
+   ```sh
+   docker-compose exec app composer install
+   ```
+4. Ejecuta las migraciones:
+   ```sh
+   docker-compose exec app php artisan migrate
+   ```
+
+La aplicación estará disponible en [http://localhost:8080](http://localhost:8080)
+
+---
+
 Desarrollado con ❤️ para la excelencia en el Grooming Masculino.  
 **© 2026 BarberPro Elite Grooming Studio.**

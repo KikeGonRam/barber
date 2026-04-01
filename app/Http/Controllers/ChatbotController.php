@@ -12,6 +12,11 @@ use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Services\GeminiService;
+use App\Services\ChatbotIntelligenceService;
+use App\Services\ChatbotExternalDataService;
+use App\Services\ChatbotContextService;
+use App\Services\ChatbotUserProfileService;
+use App\Services\ChatbotLearningService;
 
 class ChatbotController extends Controller
 {
@@ -29,31 +34,130 @@ class ChatbotController extends Controller
         ]
     ];
 
-    public function __construct(private GeminiService $aiService)
+    public function __construct(
+        private GeminiService $aiService,
+        private ChatbotIntelligenceService $intelligenceService,
+        private ChatbotExternalDataService $externalDataService,
+        private ChatbotContextService $contextService,
+        private ChatbotUserProfileService $profileService,
+        private ChatbotLearningService $learningService
+    )
     {}
 
     public function query(Request $request): JsonResponse
     {
         $message = strtolower($request->input('message', ''));
         $user = auth()->user();
+        $userId = $user?->id;
 
-        // 1. Recopilar Contexto Real (RAG Lite)
+        // 0. APRENDIZAJE AUTOMÁTICO - Detectar intención real
+        $realIntent = $this->learningService->detectRealIntent($message);
+        $this->learningService->learnQuestion($message, $realIntent, 0.9);
+
+        // GUARDAR CONTEXTO DEL USUARIO
+        $this->profileService->updateTopics($message, $userId);
+        
+        // 1. PRIORIDAD: Historial local (MÁS RÁPIDO, CONSISTENTE)
+        $similarQuestions = $this->contextService->findSimilarQuestions($message, $userId, 70);
+        if (!empty($similarQuestions) && $similarQuestions[0]['similarity'] > 80) {
+            $response = $similarQuestions[0]['answer'];
+            $this->contextService->addMessage($message, $response, 'bot', $userId);
+            $this->learningService->recordFeedback($message, $response, true, $userId);
+            return response()->json(['response' => $response]);
+        }
+
+        // 2. SEGUNDO: Respuesta Inteligente de BD (Local, contextual)
+        $intelligentResponse = $this->intelligenceService->getContextualResponse($message, $user);
+        if ($intelligentResponse) {
+            $this->contextService->addMessage($message, $intelligentResponse, 'bot', $userId);
+            $this->profileService->updateIntent($realIntent, $userId);
+            $this->learningService->recordFeedback($message, $intelligentResponse, true, $userId);
+            return response()->json(['response' => $intelligentResponse]);
+        }
+
+        // 3. TERCERO: Lógica Manual (Rápida, confiable, sin API externa)
         $contextData = $this->gatherContext($user);
+        $manualResponse = $this->manualLogic($message, $user, $contextData);
+        
+        // Solo si es respuesta genérica, intentar datos externos
+        if (str_contains($manualResponse, 'No estoy seguro')) {
+            // 4. FOURTH: Datos Externos (Wikipedia, OSM) - Solo si nada más funciona
+            $externalResponse = $this->externalDataService->getExternalResponse($message);
+            if ($externalResponse) {
+                $this->contextService->addMessage($message, $externalResponse, 'bot', $userId);
+                $this->profileService->updateIntent($realIntent, $userId);
+                $this->learningService->recordFeedback($message, $externalResponse, true, $userId);
+                return response()->json(['response' => $externalResponse]);
+            }
 
-        // 2. Intentar respuesta con IA
-        if (config('services.gemini.api_key')) {
-            $aiResponse = $this->aiService->generateResponse($message, $contextData);
-            // Si la IA responde algo válido (no error), lo usamos
-            if (!str_contains($aiResponse, 'MODO OFFLINE') && !str_contains($aiResponse, 'Error de conexión')) {
-                return response()->json(['response' => $aiResponse]);
+            // 5. LAST: Gemini AI con contexto aumentado
+            if (config('services.gemini.api_key')) {
+                try {
+                    $basePrompt = $this->aiService->buildSystemPrompt($contextData);
+                    $augmentedPrompt = $this->contextService->generateAugmentedPrompt($message, $basePrompt, $userId);
+                    $aiResponse = $this->aiService->generateResponseWithPrompt($augmentedPrompt);
+                    
+                    if ($aiResponse && 
+                        !str_contains($aiResponse, 'MODO OFFLINE') && 
+                        !str_contains($aiResponse, 'interferencias')) {
+                        $this->contextService->addMessage($message, $aiResponse, 'bot', $userId);
+                        $this->profileService->updateIntent($realIntent, $userId);
+                        $this->learningService->recordFeedback($message, $aiResponse, true, $userId);
+                        return response()->json(['response' => $aiResponse]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Chatbot AI fallback: ' . $e->getMessage());
+                }
             }
         }
 
-        // 3. Fallback: Lógica Manual (Si no hay IA o falla)
-        $manualResponse = $this->manualLogic($message, $user, $contextData);
-        
+        // Guardar respuesta manual en contexto
+        $this->contextService->addMessage($message, $manualResponse, 'bot', $userId);
+        $this->profileService->updateIntent($realIntent, $userId);
+        $this->learningService->recordFeedback($message, $manualResponse, true, $userId);
+
+        return response()->json(['response' => $manualResponse]);
+    }
+
+    /**
+     * Endpoint para obtener historial de conversación
+     */
+    public function getHistory(): JsonResponse
+    {
+        $userId = auth()->id();
+        $history = $this->contextService->getConversationHistory($userId);
+        $summary = $this->contextService->getConversationSummary($userId);
+
         return response()->json([
-            'response' => $manualResponse
+            'history' => $history,
+            'summary' => $summary,
+        ]);
+    }
+
+    /**
+     * Endpoint para limpiar historial
+     */
+    public function clearHistory(): JsonResponse
+    {
+        $userId = auth()->id();
+        $this->contextService->clearHistory($userId);
+        $this->profileService->clearProfile($userId);
+
+        return response()->json(['message' => 'Historial y perfil limpiados']);
+    }
+
+    /**
+     * Endpoint para obtener perfil del usuario
+     */
+    public function getProfile(): JsonResponse
+    {
+        $userId = auth()->id();
+        $profile = $this->profileService->getUserProfile($userId);
+        $summary = $this->profileService->getProfileSummary($userId);
+
+        return response()->json([
+            'profile' => $profile,
+            'summary' => $summary,
         ]);
     }
 
@@ -97,20 +201,132 @@ class ChatbotController extends Controller
 
     private function manualLogic($message, $user, $data)
     {
-        // Reutilizamos la lógica robusta anterior como respaldo
-        if (str_contains($message, 'servicio') || str_contains($message, 'precio')) {
-            return "Ofrecemos: " . implode(', ', array_slice($data['services'], 0, 3)) . "... Ver más en la sección Servicios.";
+        // BASE DE CONOCIMIENTO EXPANDIDA - RESPUESTAS POR CATEGORÍA
+
+        // ============ PREGUNTAS SOBRE SERVICIOS ============
+        if ($this->matchesKeywords($message, ['servicio', 'qué ofrece', 'qué hace', 'precio', 'costo', 'tarifa', 'cuánto cuesta'])) {
+            if (empty($data['services'])) {
+                return "📋 Contamos con una amplia gama de servicios de barbería premium incluyendo cortes, afeitados, tratamientos capilares y más. Visita la sección Servicios para ver detalles y precios.";
+            }
+            $servicesList = implode("\n• ", $data['services']);
+            return "📋 Nuestros servicios disponibles:\n• {$servicesList}\n\n¿Quieres reservar alguno?";
         }
-        if (str_contains($message, 'cita') && str_contains($data['extra_context'], 'TIENE')) {
-            return "Recordatorio: " . $data['extra_context'];
+
+        // ============ PREGUNTAS SOBRE CITAS ============
+        if ($this->matchesKeywords($message, ['cita', 'reserva', 'agendar', 'cuando', 'disponible', 'horarios disponibles'])) {
+            if ($user && $user->hasRole('cliente')) {
+                if (str_contains($data['extra_context'], 'TIENE')) {
+                    return "📅 {$data['extra_context']}\n\n¿Quieres hacer otra reserva o modificar esta cita?";
+                }
+                return "📅 Tienes disponible agendar nuevas citas. Ingresa a la sección 'Citas' en tu Dashboard para ver disponibilidad y reservar con tus barberos favoritos.";
+            }
+            return "📅 Para agendar una cita:\n1. Regístrate o inicia sesión\n2. Ve a la sección 'Citas'\n3. Selecciona barbero, servicio y horario\n4. Confirma tu reserva\n\n¡Te esperamos!";
         }
-        
-        foreach ($this->fallbackKnowledgeBase as $category => $items) {
-            foreach ($items as $key => $answer) {
-                if (str_contains($message, $key)) return $answer;
+
+        // ============ PREGUNTAS SOBRE BARBEROS/PROFESIONALES ============
+        if ($this->matchesKeywords($message, ['barbero', 'estilista', 'maestro', 'quién atiende', 'profesional', 'barber'])) {
+            if (empty($data['barbers'])) {
+                return "👨‍💼 Contamos con un equipo de maestros barberos expertos y certificados, especializados en cortes modernos y tradicionales.";
+            }
+            $barbersList = implode(", ", $data['barbers']);
+            return "👨‍💼 Nuestros maestros barberos: {$barbersList}\n\nCada uno especializado en diferentes estilos. ¿Prefieres alguno en particular?";
+        }
+
+        // ============ PREGUNTAS SOBRE HORARIOS ============
+        if ($this->matchesKeywords($message, ['horario', 'abierto', 'cierre', 'qué hora', 'cuándo atienden', 'hora de apertura'])) {
+            return "🕒 HORARIOS DE ATENCIÓN:\n⏰ Lunes a Sábado: 9:00 AM - 9:00 PM\n🚫 Domingos: Cerrado\n\n¿Necesitas agendar algo?";
+        }
+
+        // ============ PREGUNTAS SOBRE UBICACIÓN/CONTACTO ============
+        if ($this->matchesKeywords($message, ['ubicación', 'dirección', 'dónde están', 'cómo llego', 'google maps', 'contacto', 'teléfono'])) {
+            return "📍 UBICACIÓN:\nAv. Reforma 123, CDMX\n\n📞 Teléfono: Disponible en la sección Contacto\n📧 Email: info@barberpro.com\n\n¿Necesitas indicaciones?";
+        }
+
+        // ============ PREGUNTAS SOBRE CANCELACIÓN/REEMBOLSO ============
+        if ($this->matchesKeywords($message, ['cancelar', 'cancelación', 'reembolso', 'devolver', 'anular cita', 'cambiar cita'])) {
+            return "❌ POLÍTICA DE CANCELACIÓN:\n✅ Hasta 24h antes: GRATIS (sin penalización)\n⚠️ Menos de 24h: Se aplica cargo del 50%\n🚫 Sin aviso previo: Cargo del 100%\n\n¿Necesitas cancelar tu cita?";
+        }
+
+        // ============ PREGUNTAS SOBRE PAGOS ============
+        if ($this->matchesKeywords($message, ['pago', 'tarjeta', 'efectivo', 'transferencia', 'qr', 'cómo pago', 'métodos de pago'])) {
+            return "💳 MÉTODOS DE PAGO ACEPTADOS:\n💵 Efectivo\n💳 Tarjeta de Crédito/Débito\n🏦 Transferencia Bancaria\n📱 Código QR (Mercado Pago, OXXO Pay, etc.)\n\nTodos los métodos disponibles en sucursal y en línea.";
+        }
+
+        // ============ PREGUNTAS SOBRE PUNTOS/MEMBRESÍA ============
+        if ($this->matchesKeywords($message, ['punto', 'miembro', 'membresia', 'nivel', 'caballero', 'vip', 'leyenda', 'recompensa', 'beneficio'])) {
+            return "⭐ SISTEMA DE PUNTOS 'ESTILO':\n🎯 Ganas 10 Puntos por cada cita completada\n\n📊 NIVELES DE MEMBRESÍA:\n🟢 CABALLERO (0-50 puntos): Acceso básico\n🔵 V.I.P (51-150 puntos): Descuentos + Prioridad en reservas\n👑 LEYENDA (150+ puntos): Beneficios exclusivos + Sorpresas especiales\n\n¿Cuál es tu nivel actual?";
+        }
+
+        // ============ PREGUNTAS PARA ADMINISTRADORES ============
+        if ($user && $user->hasRole('administrador')) {
+            if ($this->matchesKeywords($message, ['caja', 'ventas', 'hoy', 'dinero', 'ingresos', 'reporte'])) {
+                $extraInfo = $data['extra_context'] ?? "Accede al Dashboard para ver métricas";
+                return "📊 INFORMACIÓN ADMIN:\n{$extraInfo}\n\nPuedes ver reportes detallados en la sección 'Reportes' del Dashboard.";
+            }
+            if ($this->matchesKeywords($message, ['permiso', 'usuario', 'rol', 'acceso'])) {
+                return "🔐 GESTIÓN DE USUARIOS:\nDesde 'Usuarios' puedes:\n✏️ Crear y editar usuarios\n👥 Asignar roles (Cliente, Barbero, Admin)\n🔒 Gestionar permisos específicos\n\n¿Necesitas ayuda con algún usuario?";
             }
         }
 
-        return "Como asistente virtual (Modo Básico), no entendí eso. Por favor contacta a recepción o configura mi API Key para activarme al 100%.";
+        // ============ PREGUNTAS FRECUENTES GENERALES ============
+        if ($this->matchesKeywords($message, ['primer', 'primera vez', 'nuevo', 'cómo funciona', 'ayuda', 'tutorial'])) {
+            return "🆕 BIENVENIDO A BARBERPRO:\n\n1️⃣ Regístrate con tu correo\n2️⃣ Completa tu perfil\n3️⃣ Explora nuestros servicios\n4️⃣ Reserva tu cita\n5️⃣ ¡Gana puntos y sube de nivel!\n\n¿Necesitas ayuda con algo específico?";
+        }
+
+        if ($this->matchesKeywords($message, ['promoción', 'oferta', 'descuento', 'ofrecen'])) {
+            return "🎉 PROMOCIONES:\nEstas y muchas más promociones en el Dashboard.\n¡Seguinos en redes sociales para enterarte de las últimas ofertas!";
+        }
+
+        if ($this->matchesKeywords($message, ['producto', 'vender', 'comprar', 'inventario'])) {
+            $products = Product::where('activo', true)->count();
+            $productsInfo = $products > 0 ? "Tenemos {$products} productos disponibles" : "Consulta nuestro catálogo de productos";
+            return "🛍️ PRODUCTOS:\n{$productsInfo}. Visita la sección 'Tienda' para ver detalles, precios y características.";
+        }
+
+        if ($this->matchesKeywords($message, ['reseña', 'opinión', 'comentario', 'valoración', 'rating'])) {
+            return "⭐ OPINIONES Y RESEÑAS:\nTus comentarios nos ayudan a mejorar. Después de tu cita, comparte tu experiencia y ayuda a otros clientes a conocer nuestro servicio.";
+        }
+
+        // ============ RESPUESTAS CONTEXTUALES POR ROL ============
+        if ($user) {
+            $role = $user->roles->first()?->name ?? 'usuario';
+            if (str_contains($message, 'hola') || str_contains($message, 'buenos') || str_contains($message, 'hi')) {
+                return "👋 ¡Hola {$user->name}! Soy tu asistente virtual de BarberPro. ¿En qué puedo ayudarte hoy?";
+            }
+        }
+
+        // ============ FALLBACK FINAL ============
+        return "🤔 No estoy completamente seguro sobre eso. Puedo ayudarte con:\n\n📋 Servicios y precios\n👕 Agendar citas\n👨‍💼 Conocer nuestro equipo\n🕒 Horarios y ubicación\n💳 Métodos de pago\n⭐ Puntos y membresía\n\n¿Hay algo de eso en lo que pueda ayudarte?";
+    }
+
+    /**
+     * Busca múltiples palabras clave en el mensaje
+     */
+
+    public function getLearningStats(Request $request): JsonResponse
+    {
+        $userId = auth()->id();
+        $stats = $this->learningService->getLearningReport($userId);
+        $topCategories = $this->learningService->getTopCategories($userId);
+        
+        return response()->json([
+            'stats' => $stats,
+            'top_categories' => $topCategories,
+            'message' => 'Learning intelligence report generated'
+        ]);
+    }
+
+    public function trainFromHistory(Request $request): JsonResponse
+    {
+        $userId = auth()->id();
+        $historyCount = $request->input('history_count', 20);
+        
+        // Entrenar desde el historial existente
+        $report = $this->learningService->trainFromHistory($userId, $historyCount);
+        
+        return response()->json([
+            'message' => 'Training from history completed',
+            'report' => $report
+        ]);
     }
 }

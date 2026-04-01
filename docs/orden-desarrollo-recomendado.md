@@ -38,7 +38,14 @@
    - KPI en panel admin (Chart.js).
    - Exportables PDF/Excel por filtros.
 
-9. **Calidad y despliegue**
+9. **Chatbot IA y experiencia conversacional**
+   - Integrar `ChatbotController` con flujo por prioridad.
+   - Conectar `GeminiService` con prompt contextual.
+   - Implementar contexto (`ChatbotContextService`) y perfil (`ChatbotUserProfileService`).
+   - Agregar aprendizaje incremental (`ChatbotLearningService`) y feedback.
+   - Exponer endpoints de historial, perfil y estadisticas de aprendizaje.
+
+10. **Calidad y despliegue**
    - Seeders/factories realistas.
    - Tests de feature para flujos críticos.
    - Hardening, logs y monitoreo.
