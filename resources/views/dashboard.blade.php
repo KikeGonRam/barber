@@ -25,7 +25,7 @@
         </div>
     </x-slot>
 
-    <div class="space-y-10 py-6">
+    <div class="space-y-6 py-4 sm:space-y-8 sm:py-6">
         @if ($adminMode ?? false)
             <!-- ========================================== -->
             <!-- ADMIN DASHBOARD                            -->
@@ -96,9 +96,9 @@
             </section>
 
             <!-- Visual Live Status Widget -->
-            <section class="ui-card-premium p-8 relative overflow-hidden">
+            <section class="ui-card-premium p-6 sm:p-8 relative overflow-hidden">
                 <div class="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-gold/5 to-transparent"></div>
-                <div class="mb-8 flex items-center justify-between relative z-10">
+                <div class="mb-6 sm:mb-8 flex items-center justify-between relative z-10">
                     <div>
                         <h3 class="text-sm font-black text-white uppercase tracking-[0.2em]">Estado de Estaciones en Vivo</h3>
                         <p class="text-[10px] text-muted font-bold uppercase mt-1">Monitoreo de ocupación en tiempo real por barbero.</p>
@@ -108,58 +108,86 @@
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-                    @foreach($kpis['barbers_status'] ?? [] as $status)
-                        <div class="rounded-2xl border border-white/5 bg-white/5 p-4 hover:border-gold/30 transition-all duration-500">
-                            <div class="flex items-center gap-4">
-                                <div class="relative flex-shrink-0">
-                                    <div class="h-12 w-12 rounded-xl bg-bg-accent border border-white/10 flex items-center justify-center text-gold font-black">
-                                        {{ substr($status['name'], 0, 2) }}
+                @php
+                    $barberStatuses = $kpis['barbers_status'] ?? [];
+                @endphp
+                @if(! empty($barberStatuses))
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+                        @foreach($barberStatuses as $status)
+                            <div class="rounded-2xl border border-white/5 bg-white/5 p-4 hover:border-gold/30 transition-all duration-500">
+                                <div class="flex items-center gap-4">
+                                    <div class="relative flex-shrink-0">
+                                        <div class="h-12 w-12 rounded-xl bg-bg-accent border border-white/10 flex items-center justify-center text-gold font-black">
+                                            {{ substr($status['name'], 0, 2) }}
+                                        </div>
+                                        <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-4 border-bg-card {{ $status['is_busy'] ? 'bg-red-500' : 'bg-green-500' }}"></div>
                                     </div>
-                                    <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-4 border-bg-card {{ $status['is_busy'] ? 'bg-red-500' : 'bg-green-500' }}"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="truncate text-sm font-bold text-white">{{ $status['name'] }}</p>
+                                        <p class="text-[10px] uppercase font-black tracking-widest {{ $status['is_busy'] ? 'text-red-400' : 'text-green-400' }}">
+                                            {{ $status['is_busy'] ? 'Ocupado' : 'Disponible' }}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="truncate text-sm font-bold text-white">{{ $status['name'] }}</p>
-                                    <p class="text-[10px] uppercase font-black tracking-widest {{ $status['is_busy'] ? 'text-red-400' : 'text-green-400' }}">
-                                        {{ $status['is_busy'] ? 'Ocupado' : 'Disponible' }}
-                                    </p>
-                                </div>
+                                @if($status['is_busy'])
+                                    <div class="mt-4 space-y-1.5">
+                                        <div class="flex justify-between text-[9px] uppercase font-black text-muted tracking-widest">
+                                            <span>Progreso</span>
+                                            <span class="text-white">{{ $status['progress'] }}%</span>
+                                        </div>
+                                        <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gold animate-shimmer" style="width: {{ $status['progress'] }}%"></div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
-                            @if($status['is_busy'])
-                                <div class="mt-4 space-y-1.5">
-                                    <div class="flex justify-between text-[9px] uppercase font-black text-muted tracking-widest">
-                                        <span>Progreso</span>
-                                        <span class="text-white">{{ $status['progress'] }}%</span>
-                                    </div>
-                                    <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                        <div class="h-full bg-gold animate-shimmer" style="width: {{ $status['progress'] }}%"></div>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="relative z-10 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-center">
+                        <p class="text-xs font-black uppercase tracking-widest text-muted">Sin datos de estaciones en vivo</p>
+                        <p class="mt-2 text-sm text-muted">No hay barberos con actividad registrada en este momento.</p>
+                    </div>
+                @endif
             </section>
 
             <!-- Charts Section -->
             <section class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                <article class="ui-card-premium p-8">
+                <article class="ui-card-premium p-6 sm:p-8">
                     <div class="mb-6 flex items-center justify-between">
                         <h3 class="text-sm font-black text-white uppercase tracking-widest">Tendencia de Ingresos</h3>
                         <span class="text-[10px] text-muted font-bold uppercase">Últimos 7 días</span>
                     </div>
-                    <div class="h-[280px]">
-                        <canvas id="incomeChart"></canvas>
-                    </div>
+                    @php
+                        $hasIncomeSeries = ! empty(array_filter($incomeChart['values'] ?? []));
+                    @endphp
+                    @if($hasIncomeSeries)
+                        <div class="h-[280px]">
+                            <canvas id="incomeChart"></canvas>
+                        </div>
+                    @else
+                        <div class="h-[280px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
+                            <p class="text-sm italic text-muted">Aún no hay ingresos en la ventana seleccionada.</p>
+                        </div>
+                    @endif
                 </article>
-                <article class="ui-card-premium p-8">
+                <article class="ui-card-premium p-6 sm:p-8">
                     <div class="mb-6 flex items-center justify-between">
                         <h3 class="text-sm font-black text-white uppercase tracking-widest">Demanda de Servicios</h3>
                         <span class="text-[10px] text-muted font-bold uppercase">Distribución %</span>
                     </div>
-                    <div class="h-[280px]">
-                        <canvas id="servicesChart"></canvas>
-                    </div>
+                    @php
+                        $hasServiceSeries = ! empty(array_filter($servicesChart['values'] ?? []));
+                    @endphp
+                    @if($hasServiceSeries)
+                        <div class="h-[280px]">
+                            <canvas id="servicesChart"></canvas>
+                        </div>
+                    @else
+                        <div class="h-[280px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
+                            <p class="text-sm italic text-muted">Aún no hay servicios registrados para graficar.</p>
+                        </div>
+                    @endif
                 </article>
             </section>
 
@@ -214,7 +242,7 @@
             <!-- ========================================== -->
             
             <!-- Welcome -->
-            <section class="ui-card-premium p-10 relative overflow-hidden group">
+            <section class="ui-card-premium p-6 sm:p-8 lg:p-10 relative overflow-hidden group">
                 <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gold/5 blur-3xl"></div>
                 <div class="relative z-10 flex flex-col sm:flex-row items-center gap-8">
                     <div class="h-24 w-24 rounded-3xl bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-black shadow-lg animate-float flex-shrink-0">
@@ -249,17 +277,35 @@
 
             <!-- Charts -->
             <section class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                <article class="ui-card-premium p-8">
+                <article class="ui-card-premium p-6 sm:p-8">
                     <h3 class="text-sm font-black text-white uppercase tracking-widest mb-6">Productividad Semanal</h3>
-                    <div class="h-[280px]">
-                        <canvas id="performanceChart"></canvas>
-                    </div>
+                    @php
+                        $hasPerformanceSeries = ! empty(array_filter($performanceChart['values'] ?? []));
+                    @endphp
+                    @if($hasPerformanceSeries)
+                        <div class="h-[280px]">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    @else
+                        <div class="h-[280px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
+                            <p class="text-sm italic text-muted">Sin citas suficientes para mostrar productividad.</p>
+                        </div>
+                    @endif
                 </article>
-                <article class="ui-card-premium p-8">
+                <article class="ui-card-premium p-6 sm:p-8">
                     <h3 class="text-sm font-black text-white uppercase tracking-widest mb-6">Top de Especialidades</h3>
-                    <div class="h-[280px]">
-                        <canvas id="servicesChart"></canvas>
-                    </div>
+                    @php
+                        $hasBarberServicesSeries = ! empty(array_filter($servicesChart['values'] ?? []));
+                    @endphp
+                    @if($hasBarberServicesSeries)
+                        <div class="h-[280px]">
+                            <canvas id="servicesChart"></canvas>
+                        </div>
+                    @else
+                        <div class="h-[280px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
+                            <p class="text-sm italic text-muted">Aún no hay especialidades suficientes para graficar.</p>
+                        </div>
+                    @endif
                 </article>
             </section>
 
@@ -340,11 +386,20 @@
                 </section>
 
                 <!-- Flow Chart -->
-                <section class="lg:col-span-5 ui-card-premium p-8">
+                <section class="lg:col-span-5 ui-card-premium p-6 sm:p-8">
                     <h3 class="text-sm font-black text-white uppercase tracking-widest mb-8">Flujo Operativo (Horas)</h3>
-                    <div class="h-[300px]">
-                        <canvas id="flowChart"></canvas>
-                    </div>
+                    @php
+                        $hasFlowSeries = ! empty(array_filter($flow_chart['values'] ?? []));
+                    @endphp
+                    @if($hasFlowSeries)
+                        <div class="h-[300px]">
+                            <canvas id="flowChart"></canvas>
+                        </div>
+                    @else
+                        <div class="h-[300px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
+                            <p class="text-sm italic text-muted">Todavía no hay flujo operativo para este día.</p>
+                        </div>
+                    @endif
                 </section>
             </div>
 
@@ -361,7 +416,7 @@
             <!-- ========================================== -->
             
             <!-- Welcome Elite -->
-            <section class="ui-card-premium p-10 relative overflow-hidden group">
+            <section class="ui-card-premium p-6 sm:p-8 lg:p-10 relative overflow-hidden group">
                 <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gold/5 blur-3xl group-hover:bg-gold/10 transition-all duration-700"></div>
                 <div class="relative z-10 flex flex-col sm:flex-row items-center gap-8">
                     <div class="h-24 w-24 rounded-3xl bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-black shadow-lg animate-float flex-shrink-0">
@@ -416,11 +471,20 @@
 
             <!-- Progress & Activity -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <section class="lg:col-span-7 ui-card-premium p-8">
+                <section class="lg:col-span-7 ui-card-premium p-6 sm:p-8">
                     <h3 class="text-sm font-black text-white uppercase tracking-widest mb-8">Frecuencia de Cuidado Personal</h3>
-                    <div class="h-[280px]">
-                        <canvas id="visitChart"></canvas>
-                    </div>
+                    @php
+                        $hasVisitSeries = ! empty(array_filter($visit_chart['values'] ?? []));
+                    @endphp
+                    @if($hasVisitSeries)
+                        <div class="h-[280px]">
+                            <canvas id="visitChart"></canvas>
+                        </div>
+                    @else
+                        <div class="h-[280px] flex items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5">
+                            <p class="text-sm italic text-muted">Aún no hay historial suficiente para graficar visitas.</p>
+                        </div>
+                    @endif
                 </section>
                 
                 <section class="lg:col-span-5 ui-card-premium p-8 flex flex-col items-center justify-center relative overflow-hidden group">
