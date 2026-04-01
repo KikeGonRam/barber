@@ -18,7 +18,8 @@ class ReportAccessTest extends TestCase
         $this->actingAs($admin)
             ->get(route('reports.index'))
             ->assertOk()
-            ->assertSee('Exportar reportes');
+            ->assertSee('Centro de')
+            ->assertSee('Reportes');
     }
 
     public function test_non_admin_cannot_open_reports_index(): void

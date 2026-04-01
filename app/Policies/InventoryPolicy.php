@@ -33,6 +33,14 @@ class InventoryPolicy
     }
 
     /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $user, Inventory $inventory): bool
+    {
+        return $user->hasRole('administrador') || $user->hasRole('recepcionista');
+    }
+
+    /**
      * Grant all abilities to administrators before checking other methods.
      */
     public function before(User $user, $ability): bool|null

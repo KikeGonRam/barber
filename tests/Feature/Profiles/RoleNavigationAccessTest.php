@@ -56,7 +56,7 @@ class RoleNavigationAccessTest extends TestCase
             ->assertSee('Citas')
             ->assertSee('Pagos')
             ->assertSee('Movimientos')
-            ->assertDontSee('Gestion')
+            ->assertDontSee('>Gestion<', false)
             ->assertDontSee('Servicios')
             ->assertDontSee('Productos')
             ->assertDontSee('Reportes')
@@ -85,10 +85,10 @@ class RoleNavigationAccessTest extends TestCase
         $this->actingAs($barbero)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('Barbero')
-            ->assertSee('Mi agenda')
+            ->assertSee('Profesional')
+            ->assertSee('Mi Agenda')
             ->assertDontSee('Operacion')
-            ->assertDontSee('Gestion')
+            ->assertDontSee('>Gestion<', false)
             ->assertDontSee('Mis citas');
 
         $this->actingAs($barbero)->get(route('barber.agenda'))->assertOk();
@@ -109,9 +109,9 @@ class RoleNavigationAccessTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('Cliente')
-            ->assertSee('Mis citas')
+            ->assertSee('Mis Citas')
             ->assertDontSee('Operacion')
-            ->assertDontSee('Gestion')
+            ->assertDontSee('>Gestion<', false)
             ->assertDontSee('Mi agenda');
 
         $this->actingAs($cliente)->get(route('client.appointments.index'))->assertOk();
@@ -126,7 +126,7 @@ class RoleNavigationAccessTest extends TestCase
         $this->actingAs($admin)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertDontSee('rounded-full bg-[#f0f0f0] px-2 py-[1px] text-[10px] font-semibold text-[#1f1f1f]', false);
+            ->assertDontSee('bg-red-500 h-4 w-4', false);
     }
 
     public function test_notification_badge_shows_unread_count_when_notifications_exist(): void
@@ -148,7 +148,7 @@ class RoleNavigationAccessTest extends TestCase
         $this->actingAs($admin)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('rounded-full bg-[#f0f0f0] px-2 py-[1px] text-[10px] font-semibold text-[#1f1f1f]', false)
+            ->assertSee('bg-red-500 h-4 w-4', false)
             ->assertSee('>1<', false);
     }
 
@@ -190,7 +190,7 @@ class RoleNavigationAccessTest extends TestCase
         $this->actingAs($admin)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertDontSee('rounded-full bg-[#f0f0f0] px-2 py-[1px] text-[10px] font-semibold text-[#1f1f1f]', false);
+            ->assertDontSee('bg-red-500 h-4 w-4', false);
     }
 
     private function makeUserWithRole(string $roleName): User

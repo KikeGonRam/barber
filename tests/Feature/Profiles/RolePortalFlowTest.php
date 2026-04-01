@@ -21,6 +21,11 @@ class RolePortalFlowTest extends TestCase
     {
         Role::query()->firstOrCreate(['name' => 'cliente', 'guard_name' => 'web']);
 
+        User::factory()->create([
+            'email' => 'bootstrap-admin@example.com',
+            'email_verified_at' => now(),
+        ]);
+
         $this->post('/register', [
             'name' => 'Nuevo Cliente',
             'email' => 'nuevo-cliente@example.com',

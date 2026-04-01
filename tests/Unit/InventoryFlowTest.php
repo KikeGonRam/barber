@@ -71,7 +71,7 @@ class InventoryFlowTest extends TestCase
 
         $this->actingAs($admin)
             ->get(route('almacen.index'))
-            ->assertSee('producto(s) con stock igual o menor al mínimo');
+            ->assertSee('Alerta de Stock Crítico');
     }
 
     public function test_barbero_solo_puede_ver()

@@ -14,6 +14,7 @@ abstract class TestCase extends BaseTestCase
 
         // Disable middleware for easier testing
         $this->withoutMiddleware([
+            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
             \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
             'verified',
         ]);

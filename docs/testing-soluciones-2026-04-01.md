@@ -259,6 +259,41 @@ Ejecucion Docker:
 
 Estado: 6/6 tests pasando.
 
+## 12) Estabilizacion final de suite completa
+
+Objetivo:
+- Ejecutar toda la suite en Docker y corregir los ultimos fallos legacy para dejar estado global en verde.
+
+### Ajustes aplicados
+
+1. CSRF global en entorno testing:
+- Archivo: `tests/TestCase.php`
+- Se agrego `ValidateCsrfToken` a `withoutMiddleware(...)` junto con `VerifyCsrfToken`.
+- Impacto: eliminacion de fallos 419 en suites feature heredadas.
+
+2. Navegacion/portal y reportes (asserts desalineados con UI actual):
+- Archivos:
+	- `tests/Feature/Profiles/RoleNavigationAccessTest.php`
+	- `tests/Feature/Profiles/RolePortalFlowTest.php`
+	- `tests/Feature/Reports/ReportAccessTest.php`
+- Se actualizaron textos/asserts a etiquetas reales de la interfaz actual y flujo de registro.
+
+3. Inventario y auth:
+- `app/Policies/InventoryPolicy.php`: se agrego metodo `update(...)` para permitir actualizacion coherente con roles esperados.
+- `tests/Unit/InventoryFlowTest.php`: ajuste de assert de alerta al texto vigente.
+- `tests/Feature/Auth/RegistrationTest.php`: password de prueba actualizado para cumplir reglas actuales.
+
+### Resultado final
+
+Ejecucion Docker:
+
+`docker compose exec app php artisan test`
+
+Estado: 155/155 tests pasando (572 assertions).
+
+Nota:
+- `php artisan test --parallel` en el contenedor sigue bloqueado por dependencia faltante de ParaTest 7.x.
+
 ## 8) Functional Tests - ServiceCRUDFunctionalTest
 
 Archivo generado:
