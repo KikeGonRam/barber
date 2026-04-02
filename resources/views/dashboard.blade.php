@@ -1,9 +1,18 @@
 <x-app-layout>
     <x-slot name="header">
+        @php
+            $dashboardMode = ($adminMode ?? false) ? 'admin' : (($isBarberMode ?? false) ? 'barber' : (($isReceptionMode ?? false) ? 'reception' : 'client'));
+            $dashboardTitleClass = match ($dashboardMode) {
+                'admin' => 'ui-profile-title ui-profile-title-admin',
+                'barber' => 'ui-profile-title ui-profile-title-barber',
+                'reception' => 'ui-profile-title ui-profile-title-reception',
+                default => 'ui-profile-title ui-profile-title-client',
+            };
+        @endphp
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="ui-title">Dashboard <span class="text-gold">{{ ($adminMode ?? false) ? 'Administrativo' : (($isBarberMode ?? false) ? 'Profesional' : (($isReceptionMode ?? false) ? 'Operativo' : 'Cliente')) }}</span></h2>
-                <p class="ui-subtitle">Vista ejecutiva del rendimiento y agenda de la barbería.</p>
+                <h2 class="{{ $dashboardTitleClass }}">Dashboard <span class="text-gold">{{ ($adminMode ?? false) ? 'Administrativo' : (($isBarberMode ?? false) ? 'Profesional' : (($isReceptionMode ?? false) ? 'Operativo' : 'Cliente')) }}</span></h2>
+                <p class="ui-profile-subtitle mt-2">Vista ejecutiva del rendimiento y agenda de la barbería.</p>
             </div>
             <div class="flex items-center gap-4">
                 @if($adminMode ?? false)
@@ -33,64 +42,64 @@
             
             <!-- KPIs -->
             <section class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <article class="ui-kpi-card group">
+                <article class="ui-kpi-card group animate-slide-up" style="animation-delay: 0ms;">
                     <div class="flex items-start justify-between">
                         <div>
                             <p class="ui-kpi-label">Citas Hoy</p>
                             <p class="ui-kpi-value mt-1">{{ $kpis['appointments_today'] }}</p>
                         </div>
-                        <div class="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div class="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                         </div>
                     </div>
                     <div class="mt-4 flex items-center gap-2 text-[10px] text-muted font-bold">
-                        <span class="bg-white/5 px-1.5 py-0.5 rounded border border-white/10 uppercase">Sem: {{ $kpis['appointments_week'] }}</span>
-                        <span class="bg-white/5 px-1.5 py-0.5 rounded border border-white/10 uppercase">Mes: {{ $kpis['appointments_month'] }}</span>
+                        <span class="bg-white/5 px-1.5 py-0.5 rounded border border-white/10 uppercase transition-all duration-300 group-hover:bg-blue-500/10 group-hover:border-blue-500/30">Sem: {{ $kpis['appointments_week'] }}</span>
+                        <span class="bg-white/5 px-1.5 py-0.5 rounded border border-white/10 uppercase transition-all duration-300 group-hover:bg-blue-500/10 group-hover:border-blue-500/30">Mes: {{ $kpis['appointments_month'] }}</span>
                     </div>
                 </article>
 
-                <a href="{{ route('payments.index') }}" class="ui-kpi-card group cursor-pointer hover:border-green-500/50">
+                <a href="{{ route('payments.index') }}" class="ui-kpi-card group cursor-pointer hover:border-green-500/50 animate-slide-up" style="animation-delay: 100ms;">
                     <div class="flex items-start justify-between">
                         <div>
                             <p class="ui-kpi-label">Ingresos Hoy</p>
                             <p class="ui-kpi-value mt-1 text-green-400">${{ number_format($kpis['income_today'], 2) }}</p>
                         </div>
-                        <div class="h-10 w-10 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div class="h-10 w-10 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </div>
                     </div>
                     <div class="mt-4 flex items-center gap-2 text-[10px] text-muted font-bold">
-                        <span class="bg-green-500/10 px-1.5 py-0.5 rounded text-green-400 border border-green-500/20 uppercase">Sem: ${{ number_format($kpis['income_week'], 2) }}</span>
+                        <span class="bg-green-500/10 px-1.5 py-0.5 rounded text-green-400 border border-green-500/20 uppercase transition-all duration-300 group-hover:bg-green-500/20">Sem: ${{ number_format($kpis['income_week'], 2) }}</span>
                     </div>
                 </a>
 
-                <article class="ui-kpi-card group">
+                <article class="ui-kpi-card group animate-slide-up" style="animation-delay: 200ms;">
                     <div class="flex items-start justify-between">
                         <div>
                             <p class="ui-kpi-label">Clientes Nuevos</p>
                             <p class="ui-kpi-value mt-1">{{ $kpis['new_clients'] }}</p>
                         </div>
-                        <div class="h-10 w-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div class="h-10 w-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
                         </div>
                     </div>
                     <div class="mt-4 flex items-center gap-2 text-[10px] text-muted font-bold uppercase">
-                        <span class="bg-orange-500/10 px-1.5 py-0.5 rounded text-orange-400 border border-orange-500/20">Recurrentes: {{ $kpis['recurring_clients'] }}</span>
+                        <span class="bg-orange-500/10 px-1.5 py-0.5 rounded text-orange-400 border border-orange-500/20 transition-all duration-300 group-hover:bg-orange-500/20">Recurrentes: {{ $kpis['recurring_clients'] }}</span>
                     </div>
                 </article>
 
-                <article class="ui-kpi-card group">
+                <article class="ui-kpi-card group animate-slide-up" style="animation-delay: 300ms;">
                     <div class="flex items-start justify-between">
                         <div>
                             <p class="ui-kpi-label">Servicio Top</p>
                             <p class="mt-1 text-lg font-bold text-white truncate max-w-[120px]">{{ $kpis['top_barber_name'] ?? 'Sin datos' }}</p>
                         </div>
-                        <div class="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div class="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" /></svg>
                         </div>
                     </div>
                     <div class="mt-4 flex items-center gap-2 text-[10px] text-muted font-bold uppercase">
-                        <span class="bg-red-500/10 px-1.5 py-0.5 rounded text-red-400 border border-red-500/20">Stock Bajo: {{ $kpis['low_stock_count'] }}</span>
+                        <span class="bg-red-500/10 px-1.5 py-0.5 rounded text-red-400 border border-red-500/20 transition-all duration-300 group-hover:bg-red-500/20">Stock Bajo: {{ $kpis['low_stock_count'] }}</span>
                     </div>
                 </article>
             </section>
@@ -113,14 +122,14 @@
                 @endphp
                 @if(! empty($barberStatuses))
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-                        @foreach($barberStatuses as $status)
-                            <div class="rounded-2xl border border-white/5 bg-white/5 p-4 hover:border-gold/30 transition-all duration-500">
+                        @foreach($barberStatuses as $index => $status)
+                            <div class="rounded-2xl border border-white/5 bg-white/5 p-4 hover:border-gold/30 transition-all duration-500 animate-slide-up" style="animation-delay: {{ $index * 100 }}ms;">
                                 <div class="flex items-center gap-4">
                                     <div class="relative flex-shrink-0">
-                                        <div class="h-12 w-12 rounded-xl bg-bg-accent border border-white/10 flex items-center justify-center text-gold font-black">
+                                        <div class="h-12 w-12 rounded-xl bg-bg-accent border border-white/10 flex items-center justify-center text-gold font-black transition-transform duration-300 group-hover:scale-110">
                                             {{ substr($status['name'], 0, 2) }}
                                         </div>
-                                        <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-4 border-bg-card {{ $status['is_busy'] ? 'bg-red-500' : 'bg-green-500' }}"></div>
+                                        <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-4 border-bg-card {{ $status['is_busy'] ? 'bg-red-500 animate-pulse-gold' : 'bg-green-500' }} transition-all duration-300"></div>
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <p class="truncate text-sm font-bold text-white">{{ $status['name'] }}</p>
@@ -153,7 +162,7 @@
 
             <!-- Charts Section -->
             <section class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                <article class="ui-card-premium p-6 sm:p-8">
+                <article class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay: 400ms;">
                     <div class="mb-6 flex items-center justify-between">
                         <h3 class="text-sm font-black text-white uppercase tracking-widest">Tendencia de Ingresos</h3>
                         <span class="text-[10px] text-muted font-bold uppercase">Últimos 7 días</span>
@@ -171,7 +180,7 @@
                         </div>
                     @endif
                 </article>
-                <article class="ui-card-premium p-6 sm:p-8">
+                <article class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay: 500ms;">
                     <div class="mb-6 flex items-center justify-between">
                         <h3 class="text-sm font-black text-white uppercase tracking-widest">Demanda de Servicios</h3>
                         <span class="text-[10px] text-muted font-bold uppercase">Distribución %</span>
@@ -191,7 +200,7 @@
                 </article>
             </section>
 
-            <section class="ui-card-premium p-6 sm:p-8">
+            <section class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay: 600ms;">
                 <div class="mb-6 flex items-center justify-between">
                     <div>
                         <h3 class="text-sm font-black text-white uppercase tracking-widest">Telemetria Chatbot</h3>
@@ -203,29 +212,29 @@
                 </div>
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4">
+                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4 transition-all duration-300 hover:border-blue-500/30 hover:bg-blue-500/5 hover:shadow-lg cursor-default">
                         <p class="text-[10px] font-black uppercase tracking-widest text-muted">Eventos</p>
                         <p class="mt-2 text-2xl font-black text-white">{{ $chatbotTelemetry['total_requests'] ?? 0 }}</p>
                     </div>
-                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4">
+                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4 transition-all duration-300 hover:border-red-500/30 hover:bg-red-500/5 hover:shadow-lg cursor-default">
                         <p class="text-[10px] font-black uppercase tracking-widest text-muted">Error Rate</p>
                         <p class="mt-2 text-2xl font-black text-red-400">{{ number_format($chatbotTelemetry['error_rate_pct'] ?? 0, 2) }}%</p>
                     </div>
-                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4">
+                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4 transition-all duration-300 hover:border-blue-300/30 hover:bg-blue-300/5 hover:shadow-lg cursor-default">
                         <p class="text-[10px] font-black uppercase tracking-widest text-muted">Latencia Promedio</p>
                         <p class="mt-2 text-2xl font-black text-blue-300">{{ $chatbotTelemetry['avg_latency_ms'] ?? 0 }}ms</p>
                     </div>
-                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4">
+                    <div class="rounded-2xl border border-white/5 bg-white/5 p-4 transition-all duration-300 hover:border-green-500/30 hover:bg-green-500/5 hover:shadow-lg cursor-default">
                         <p class="text-[10px] font-black uppercase tracking-widest text-muted">Costo Estimado</p>
                         <p class="mt-2 text-2xl font-black text-green-400">${{ number_format($chatbotTelemetry['estimated_cost_usd'] ?? 0, 4) }}</p>
                     </div>
                 </div>
 
-                <div class="mt-6 rounded-2xl border border-white/5 bg-bg-accent/40 p-4">
+                <div class="mt-6 rounded-2xl border border-white/5 bg-bg-accent/40 p-4 transition-all duration-300 hover:border-gold/20">
                     <p class="text-[10px] font-black uppercase tracking-widest text-muted mb-3">Top Fuentes</p>
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                         @forelse(($chatbotTelemetry['top_sources'] ?? []) as $source => $count)
-                            <div class="rounded-xl border border-white/5 bg-white/5 px-3 py-2 flex items-center justify-between">
+                            <div class="rounded-xl border border-white/5 bg-white/5 px-3 py-2 flex items-center justify-between transition-all duration-300 hover:border-gold/30 hover:bg-gold/5 hover:shadow-md animate-slide-up" style="animation-delay: {{ $loop->index * 50 }}ms;">
                                 <span class="text-xs font-bold text-white uppercase">{{ str_replace('_', ' ', $source) }}</span>
                                 <span class="text-xs font-black text-gold">{{ $count }}</span>
                             </div>
@@ -249,7 +258,7 @@
                         <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                     <div>
-                        <h3 class="text-3xl font-black text-white tracking-tighter uppercase">¡Hola, Maestro <span class="text-gradient-gold">{{ explode(' ', auth()->user()->name)[0] }}</span>!</h3>
+                        <h3 class="ui-profile-title ui-profile-title-barber uppercase">¡Hola, Maestro <span class="text-gradient-gold">{{ explode(' ', auth()->user()->name)[0] }}</span>!</h3>
                         <p class="mt-2 text-muted max-w-xl text-lg leading-relaxed">Tu maestría define nuestro estándar. Tienes {{ $kpis['appointments_today'] }} servicios programados para hoy.</p>
                     </div>
                 </div>
@@ -329,8 +338,8 @@
                             <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-black text-white uppercase tracking-tighter">¡Hola, {{ explode(' ', auth()->user()->name)[0] }}!</h3>
-                            <p class="mt-2 text-muted text-base leading-relaxed">Centro de mando activo. Gestiona el flujo de excelencia hoy.</p>
+                            <h3 class="ui-profile-title ui-profile-title-reception uppercase">¡Hola, {{ explode(' ', auth()->user()->name)[0] }}!</h3>
+                            <p class="mt-2 ui-profile-subtitle">Centro de mando activo. Gestiona el flujo de excelencia hoy.</p>
                         </div>
                     </div>
                 </div>
@@ -423,8 +432,8 @@
                         <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                     <div>
-                        <h3 class="text-3xl font-black text-white tracking-tighter uppercase leading-none">¡Bienvenido, <span class="text-gradient-gold">{{ explode(' ', auth()->user()->name)[0] }}</span>!</h3>
-                        <p class="mt-2 text-muted max-w-xl text-lg leading-relaxed">Tu estilo es nuestra prioridad. Hoy tienes el estatus de <span class="text-white font-black uppercase">{{ $kpis['membership_status'] }}</span> en BarberPro.</p>
+                        <h3 class="ui-profile-title ui-profile-title-client uppercase leading-none">¡Bienvenido, <span class="text-gradient-gold">{{ explode(' ', auth()->user()->name)[0] }}</span>!</h3>
+                        <p class="mt-2 ui-profile-subtitle max-w-xl">Tu estilo es nuestra prioridad. Hoy tienes el estatus de <span class="text-white font-black uppercase">{{ $kpis['membership_status'] }}</span> en BarberPro.</p>
                     </div>
                 </div>
             </section>

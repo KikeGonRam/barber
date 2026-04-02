@@ -81,6 +81,28 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(InventoryMovement::class);
     }
 
+    public function mobileApiTokens(): HasMany
+    {
+        return $this->hasMany(MobileApiToken::class);
+    }
+
+    public function issueMobileApiToken(string $name = 'Mobile App', ?array $abilities = null): array
+    {
+        $plainToken = bin2hex(random_bytes(32));
+
+        $token = $this->mobileApiTokens()->create([
+            'name' => $name,
+            'token_hash' => hash('sha256', $plainToken),
+            'abilities' => $abilities,
+            'last_used_at' => now(),
+        ]);
+
+        return [
+            'token' => $plainToken,
+            'token_model' => $token,
+        ];
+    }
+
     public function notificationPreferences(): array
     {
         $defaults = [

@@ -48,13 +48,17 @@
         border: 1px solid var(--line);
         border-radius: 1.25rem;
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .ui-card-premium:hover {
-        transform: translateY(-4px);
+        transform: translateY(-6px);
         border-color: var(--gold-dim);
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 20px var(--gold-glow);
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7), 0 0 30px var(--gold-glow);
+    }
+
+    .ui-card-premium:active {
+        transform: translateY(-2px);
     }
 
     .ui-card-premium::before {
@@ -78,6 +82,42 @@
         @apply text-2xl font-bold tracking-tight;
     }
 
+    .ui-profile-title {
+        @apply text-balance font-black text-white leading-none;
+    }
+
+    .ui-profile-title-admin {
+        @apply text-2xl sm:text-3xl lg:text-4xl uppercase tracking-[0.18em];
+    }
+
+    .ui-profile-title-barber {
+        @apply text-3xl sm:text-4xl lg:text-5xl tracking-tighter;
+    }
+
+    .ui-profile-title-reception {
+        @apply text-2xl sm:text-3xl lg:text-4xl tracking-tight;
+    }
+
+    .ui-profile-title-client {
+        @apply text-2xl sm:text-3xl lg:text-4xl tracking-tight;
+    }
+
+    .ui-profile-subtitle {
+        @apply text-sm sm:text-base text-muted leading-relaxed;
+    }
+
+    .ui-mobile-drawer {
+        @apply lg:sticky lg:top-6;
+    }
+
+    .ui-mobile-drawer-panel {
+        @apply transition-all duration-300 ease-out;
+    }
+
+    .ui-mobile-drawer-backdrop {
+        @apply fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden;
+    }
+
     .ui-title-serif {
         font-family: serif;
         @apply italic tracking-wide text-gold;
@@ -89,17 +129,38 @@
     }
 
     .ui-btn {
-        @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all duration-300;
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all duration-300 active:scale-95;
         background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dim) 100%);
         color: #000;
         box-shadow: 0 4px 15px var(--gold-glow);
         border: 1px solid rgba(255,255,255,0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ui-btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.3), transparent 50%);
+        opacity: 0;
+        transition: opacity 200ms ease-out;
+        pointer-events: none;
+    }
+
+    .ui-btn:hover::before {
+        opacity: 1;
     }
 
     .ui-btn:hover {
-        transform: scale(1.02);
-        box-shadow: 0 6px 20px var(--gold-glow);
-        filter: brightness(1.1);
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 25px var(--gold-glow);
+        filter: brightness(1.15);
+    }
+
+    .ui-btn:active {
+        transform: translateY(0px) scale(0.98);
+        box-shadow: 0 2px 10px var(--gold-glow);
     }
 
     .ui-btn-secondary {
@@ -145,10 +206,30 @@
 
     .ui-kpi-card {
         @apply ui-card-premium p-6;
+        position: relative;
+    }
+
+    .ui-kpi-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212, 175, 55, 0.1), transparent 50%);
+        opacity: 0;
+        transition: opacity 300ms ease-out;
+        border-radius: 1.25rem;
+        pointer-events: none;
+    }
+
+    .ui-kpi-card:hover::after {
+        opacity: 1;
     }
 
     .ui-kpi-value {
-        @apply text-3xl font-black tracking-tight text-white;
+        @apply text-3xl font-black tracking-tight text-white transition-all duration-300;
+    }
+
+    .ui-kpi-card:hover .ui-kpi-value {
+        text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
     }
 
     .ui-empty-state {
@@ -160,35 +241,34 @@
     }
 
     .ui-list-item {
-        @apply rounded-2xl border border-line bg-card p-5 transition-colors hover:bg-accent;
+        @apply rounded-2xl border border-line bg-card p-5 transition-all duration-300 hover:border-gold/30 hover:bg-accent hover:shadow-lg;
     }
 
-    .ui-table-container {
-        @apply w-full overflow-hidden rounded-2xl border border-line bg-card shadow-2xl;
-    }
-
-    .ui-table {
-        @apply w-full text-left text-sm text-ink;
-    }
-
-    .ui-table thead {
-        @apply bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-gold;
-    }
-
-    .ui-table th {
-        @apply border-b border-line px-6 py-5;
-    }
-
-    .ui-table td {
-        @apply border-b border-line/30 px-6 py-4 text-ink/90;
-    }
-
-    .ui-table tr:last-child td {
-        @apply border-b-0;
+    .ui-table tr {
+        @apply transition-all duration-200;
     }
 
     .ui-table tr:hover {
         @apply bg-white/5;
+        box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.05);
+    }
+
+    a[class*="hover:"] {
+        @apply transition-all duration-300;
+    }
+
+    /* Input Focus Enhancement */
+    .ui-input::selection {
+        @apply bg-gold text-black;
+    }
+
+    /* Smooth Link Transitions */
+    a:not([class*="ui-btn"]) {
+        @apply transition-colors duration-200;
+    }
+
+    a:not([class*="ui-btn"]):hover {
+        @apply text-gold;
     }
 
     /* Custom Scrollbar */
@@ -241,6 +321,72 @@
     @keyframes shimmer {
         0% { background-position: -200% 0; }
         100% { background-position: 200% 0; }
+    }
+
+    /* Premium Microinteraction Animations */
+    .animate-pulse-gold {
+        animation: pulse-gold 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-gold {
+        0%, 100% { 
+            box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
+        }
+        50% {
+            box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+        }
+    }
+
+    .animate-slide-up {
+        animation: slide-up 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slide-up {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fade-in 500ms ease-out;
+    }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .animate-scale-in {
+        animation: scale-in 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes scale-in {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Chart Container Hover Effect */
+    canvas {
+        @apply transition-opacity duration-300;
+    }
+
+    .h-\[280px\]:has(canvas) {
+        @apply transition-all duration-300;
     }
 
     .text-gradient-gold {

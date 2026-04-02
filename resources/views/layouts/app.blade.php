@@ -13,8 +13,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased">
-    <div class="ui-shell lg:grid lg:grid-cols-[280px_1fr]">
+    <div x-data="{ open: false }" class="ui-shell lg:grid lg:grid-cols-[280px_1fr]">
         @include('layouts.navigation')
+        <div x-show="open" x-transition.opacity class="ui-mobile-drawer-backdrop" @click="open = false"></div>
 
         <div class="min-w-0">
             @isset($header)

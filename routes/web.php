@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Barber\BarberController;
 use App\Http\Controllers\Barber\BarberDashboardController;
@@ -46,9 +45,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chatbot/learning-stats', [ChatbotController::class, 'getLearningStats'])->name('chatbot.learning-stats');
     Route::post('/chatbot/train-history', [ChatbotController::class, 'trainFromHistory'])->name('chatbot.train-history');
 });
-
-// Availability API
-Route::get('/api/availability/slots', [AvailabilityController::class, 'slots'])->name('api.availability.slots');
 
 // Social Feed (Instagram Style)
 Route::get('/descubrir', [SocialController::class, 'feed'])->name('social.feed');

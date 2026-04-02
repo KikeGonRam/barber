@@ -7,7 +7,7 @@
     $unread = $user?->unreadNotifications()->count() ?? 0;
 @endphp
 
-<nav x-data="{ open: false }" class="ui-panel m-4 flex flex-col p-3 lg:m-6 lg:h-[calc(100vh-3rem)] lg:sticky lg:top-6 bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border-[#2a2a2a] overflow-hidden">
+<nav :class="open ? 'translate-x-0' : '-translate-x-full'" class="ui-panel ui-mobile-drawer ui-mobile-drawer-panel fixed inset-y-0 left-0 z-40 m-0 flex h-screen w-[min(88vw,320px)] flex-col p-3 bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border-[#2a2a2a] overflow-hidden lg:sticky lg:top-6 lg:z-auto lg:m-6 lg:h-[calc(100vh-3rem)] lg:w-auto lg:translate-x-0 lg:shadow-none">
     <!-- Brand Section (Fixed) -->
     <div class="flex items-center justify-between px-2 pb-8 pt-4 flex-shrink-0">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-sm font-semibold tracking-wide text-white">
@@ -21,7 +21,7 @@
                 <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-muted">Management System</span>
             </div>
         </a>
-        <button @click="open = !open" class="inline-flex rounded-md p-2 text-white hover:bg-white/10 lg:hidden" aria-label="Abrir menu">
+        <button @click="open = !open" :aria-expanded="open.toString()" class="inline-flex rounded-md p-2 text-white hover:bg-white/10 transition-colors lg:hidden" aria-label="Abrir menu">
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
             </svg>
