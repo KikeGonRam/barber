@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ClientController as ApiClientController;
+use App\Http\Controllers\Api\LogController as ApiLogController;
 use App\Http\Controllers\Api\InventoryController as ApiInventoryController;
 use App\Http\Controllers\Api\PaymentController as ApiPaymentController;
 use App\Http\Controllers\Api\UserController as ApiUserController;
@@ -34,6 +35,8 @@ Route::prefix('v1')->group(function (): void {
 
         Route::get('payments', [ApiPaymentController::class, 'index']);
         Route::post('payments', [ApiPaymentController::class, 'store']);
+
+        Route::get('logs', [ApiLogController::class, 'index']);
 
         Route::get('appointments', [AppointmentController::class, 'index']);
         Route::post('appointments', [AppointmentController::class, 'store']);
