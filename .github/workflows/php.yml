@@ -66,7 +66,9 @@ jobs:
         run: php artisan key:generate
 
       - name: Run test suite
-        run: composer test
+        run: |
+          composer test
+          php artisan test tests/Feature/Api/MobileApiParityAccessTest.php
 
   tests_parallel:
     if: github.event_name == 'workflow_dispatch'
