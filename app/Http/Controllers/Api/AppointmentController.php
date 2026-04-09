@@ -38,17 +38,27 @@ class AppointmentController extends Controller
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();
-        abort_if(! $user || ! $user->hasRole('cliente'), 403, 'Solo los clientes pueden agendar desde la app.');
+        abort_if(! $user || ! $user->hasAnyRole(['cliente', 'administrador', 'recepcionista']), 403, 'No autorizado para crear citas.');
 
-        $validated = $request->validate([
+        $rules = [
             'barber_id' => ['required', 'exists:barbers,id'],
             'service_id' => ['required', 'exists:services,id'],
             'fecha' => ['required', 'date', 'after_or_equal:today'],
             'hora_inicio' => ['required', 'date_format:H:i'],
             'notas' => ['nullable', 'string', 'max:1000'],
-        ]);
+        ];
 
-        $client = $user->clientProfile ?? $user->clientProfile()->create();
+        if ($user->hasAnyRole(['administrador', 'recepcionista'])) {
+            $rules['client_id'] = ['required', 'exists:clients,id'];
+            $rules['estado'] = ['nullable', 'in:pendiente,confirmada,en_proceso,completada,cancelada,no_asistio'];
+        }
+
+        $validated = $request->validate($rules);
+
+        $client = $user->hasRole('cliente')
+            ? ($user->clientProfile ?? $user->clientProfile()->create())
+            : Client::findOrFail((int) $validated['client_id']);
+
         $service = Service::findOrFail($validated['service_id']);
 
         $start = Carbon::parse($validated['fecha'].' '.$validated['hora_inicio']);
@@ -61,7 +71,7 @@ class AppointmentController extends Controller
             'fecha' => $validated['fecha'],
             'hora_inicio' => $start->format('H:i:00'),
             'hora_fin' => $end->format('H:i:00'),
-            'estado' => 'pendiente',
+            'estado' => $validated['estado'] ?? 'pendiente',
             'notas' => $validated['notas'] ?? null,
         ];
 
@@ -77,6 +87,50 @@ class AppointmentController extends Controller
             'message' => 'Cita creada correctamente.',
             'data' => $this->appointmentPayload($appointment->fresh(['client.user', 'barber.user', 'service'])),
         ], 201);
+    }
+
+    public function update(Request $request, Appointment $appointment): JsonResponse
+    {
+        $user = $request->user();
+        abort_if(! $user || ! $user->hasAnyRole(['administrador', 'recepcionista']), 403, 'Solo administración/recepción puede editar citas completas.');
+
+        $validated = $request->validate([
+            'client_id' => ['required', 'exists:clients,id'],
+            'barber_id' => ['required', 'exists:barbers,id'],
+            'service_id' => ['required', 'exists:services,id'],
+            'fecha' => ['required', 'date', 'after_or_equal:today'],
+            'hora_inicio' => ['required', 'date_format:H:i'],
+            'estado' => ['required', 'in:pendiente,confirmada,en_proceso,completada,cancelada,no_asistio'],
+            'notas' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $service = Service::findOrFail((int) $validated['service_id']);
+        $start = Carbon::parse($validated['fecha'].' '.$validated['hora_inicio']);
+        $end = $start->copy()->addMinutes((int) $service->duracion_min);
+
+        $payload = [
+            'client_id' => (int) $validated['client_id'],
+            'barber_id' => (int) $validated['barber_id'],
+            'service_id' => (int) $validated['service_id'],
+            'fecha' => $validated['fecha'],
+            'hora_inicio' => $start->format('H:i:00'),
+            'hora_fin' => $end->format('H:i:00'),
+            'estado' => $validated['estado'],
+            'notas' => $validated['notas'] ?? null,
+        ];
+
+        try {
+            $this->appointmentService->updateAppointment((int) $appointment->id, $payload);
+        } catch (AppointmentConflictException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Cita actualizada correctamente.',
+            'data' => $this->appointmentPayload($appointment->fresh(['client.user', 'barber.user', 'service'])),
+        ]);
     }
 
     public function updateStatus(Request $request, Appointment $appointment): JsonResponse

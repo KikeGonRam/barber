@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
 use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PaymentController extends Controller
 {
@@ -76,6 +78,46 @@ class PaymentController extends Controller
                 ],
             ],
         ], 201);
+    }
+
+    public function destroy(Request $request, Payment $payment): JsonResponse
+    {
+        $this->authorizeStaff($request);
+
+        if ($payment->comprobante_pdf) {
+            Storage::disk('public')->delete($payment->comprobante_pdf);
+        }
+
+        $payment->delete();
+
+        return response()->json([
+            'message' => 'Pago eliminado correctamente.',
+        ]);
+    }
+
+    public function receipt(Request $request, Payment $payment): JsonResponse
+    {
+        $this->authorizeStaff($request);
+
+        $pdfPath = $payment->comprobante_pdf;
+
+        if (! $pdfPath || ! Storage::disk('public')->exists($pdfPath)) {
+            $pdf = Pdf::loadView('payments.receipt', [
+                'payment' => $payment->load(['appointment.client.user', 'appointment.barber.user', 'appointment.service', 'creator']),
+            ]);
+
+            $pdfPath = 'comprobantes/pago-'.$payment->id.'.pdf';
+            Storage::disk('public')->put($pdfPath, $pdf->output());
+
+            $payment->update(['comprobante_pdf' => $pdfPath]);
+        }
+
+        return response()->json([
+            'data' => [
+                'payment_id' => $payment->id,
+                'receipt_url' => Storage::disk('public')->url($pdfPath),
+            ],
+        ]);
     }
 
     private function authorizeStaff(Request $request): void

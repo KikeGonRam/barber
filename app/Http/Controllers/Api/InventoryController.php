@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Services\InventoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Exceptions\Domain\InsufficientStockException;
 
 class InventoryController extends Controller
 {
@@ -76,6 +78,160 @@ class InventoryController extends Controller
                 'total' => $movements->total(),
             ],
         ]);
+    }
+
+    public function storeProduct(Request $request): JsonResponse
+    {
+        $this->authorizeAdmin($request);
+
+        $data = $request->validate([
+            'nombre' => ['required', 'string', 'max:120'],
+            'categoria' => ['required', 'string', 'max:100'],
+            'descripcion' => ['nullable', 'string', 'max:2000'],
+            'precio_compra' => ['required', 'numeric', 'min:0'],
+            'precio_venta' => ['required', 'numeric', 'min:0'],
+            'stock_actual' => ['required', 'integer', 'min:0'],
+            'stock_minimo' => ['required', 'integer', 'min:0'],
+            'tipo' => ['required', 'in:venta_cliente,insumo_trabajo'],
+            'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'active' => ['nullable', 'boolean'],
+        ]);
+
+        if ($request->hasFile('imagen')) {
+            $data['imagen'] = $request->file('imagen')->store('products', 'public');
+        }
+
+        $created = $this->inventoryService->createProduct($data);
+
+        return response()->json([
+            'message' => 'Producto creado correctamente.',
+            'data' => [
+                'id' => $created->id,
+                'nombre' => $created->nombre,
+                'categoria' => $created->categoria,
+                'tipo' => $created->tipo,
+                'stock_actual' => $created->stock_actual,
+                'stock_minimo' => $created->stock_minimo,
+                'precio_compra' => $created->precio_compra,
+                'precio_venta' => $created->precio_venta,
+                'active' => (bool) $created->active,
+                'imagen_url' => $created->imagen ? Storage::disk('public')->url($created->imagen) : null,
+            ],
+        ], 201);
+    }
+
+    public function updateProduct(Request $request, Product $product): JsonResponse
+    {
+        $this->authorizeAdmin($request);
+
+        $data = $request->validate([
+            'nombre' => ['sometimes', 'required', 'string', 'max:120'],
+            'categoria' => ['sometimes', 'required', 'string', 'max:100'],
+            'descripcion' => ['nullable', 'string', 'max:2000'],
+            'precio_compra' => ['sometimes', 'required', 'numeric', 'min:0'],
+            'precio_venta' => ['sometimes', 'required', 'numeric', 'min:0'],
+            'stock_actual' => ['sometimes', 'required', 'integer', 'min:0'],
+            'stock_minimo' => ['sometimes', 'required', 'integer', 'min:0'],
+            'tipo' => ['sometimes', 'required', 'in:venta_cliente,insumo_trabajo'],
+            'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'active' => ['nullable', 'boolean'],
+        ]);
+
+        if ($request->hasFile('imagen')) {
+            $data['imagen'] = $request->file('imagen')->store('products', 'public');
+        }
+
+        $this->inventoryService->updateProduct($product, $data);
+        $product->refresh();
+
+        return response()->json([
+            'message' => 'Producto actualizado correctamente.',
+            'data' => [
+                'id' => $product->id,
+                'nombre' => $product->nombre,
+                'categoria' => $product->categoria,
+                'tipo' => $product->tipo,
+                'stock_actual' => $product->stock_actual,
+                'stock_minimo' => $product->stock_minimo,
+                'precio_compra' => $product->precio_compra,
+                'precio_venta' => $product->precio_venta,
+                'active' => (bool) $product->active,
+                'imagen_url' => $product->imagen ? Storage::disk('public')->url($product->imagen) : null,
+            ],
+        ]);
+    }
+
+    public function destroyProduct(Request $request, Product $product): JsonResponse
+    {
+        $this->authorizeAdmin($request);
+
+        $this->inventoryService->deleteProduct($product);
+
+        return response()->json([
+            'message' => 'Producto eliminado correctamente.',
+        ]);
+    }
+
+    public function storeMovement(Request $request): JsonResponse
+    {
+        $this->authorizeStaff($request);
+
+        $typeRules = ['required', 'in:entrada,salida'];
+        if ($request->user()?->hasRole('recepcionista')) {
+            $typeRules = ['required', 'in:salida'];
+        }
+
+        $data = $request->validate([
+            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'tipo' => $typeRules,
+            'cantidad' => ['required', 'integer', 'min:1'],
+            'motivo' => ['nullable', 'string', 'max:255'],
+            'appointment_id' => ['nullable', 'integer', 'exists:appointments,id'],
+            'fecha' => ['nullable', 'date'],
+        ], [
+            'tipo.in' => 'No tienes permisos para registrar ese tipo de movimiento.',
+        ]);
+
+        try {
+            $movement = $this->inventoryService->registerMovement($data, (int) $request->user()->id);
+        } catch (InsufficientStockException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 422);
+        }
+
+        $movement->load(['product:id,nombre', 'user:id,name', 'appointment:id,fecha,client_id', 'appointment.client.user:id,name']);
+
+        return response()->json([
+            'message' => 'Movimiento registrado correctamente.',
+            'data' => [
+                'id' => $movement->id,
+                'tipo' => $movement->tipo,
+                'cantidad' => $movement->cantidad,
+                'motivo' => $movement->motivo,
+                'fecha' => optional($movement->fecha)->toIso8601String(),
+                'product' => [
+                    'id' => $movement->product?->id,
+                    'nombre' => $movement->product?->nombre,
+                ],
+                'user' => [
+                    'id' => $movement->user?->id,
+                    'name' => $movement->user?->name,
+                ],
+                'appointment' => [
+                    'id' => $movement->appointment?->id,
+                    'fecha' => optional($movement->appointment?->fecha)->toDateString(),
+                    'client' => $movement->appointment?->client?->user?->name,
+                ],
+            ],
+        ], 201);
+    }
+
+    private function authorizeAdmin(Request $request): void
+    {
+        $user = $request->user();
+
+        abort_if(! $user || ! $user->hasRole('administrador'), 403, 'No autorizado.');
     }
 
     private function authorizeStaff(Request $request): void
