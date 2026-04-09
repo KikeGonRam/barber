@@ -1,15 +1,34 @@
-node_modules
-vendor
-.git
-.github
-.vscode
-storage/logs
-storage/framework/cache
-storage/framework/sessions
-storage/framework/views
-npm-debug.log
-yarn-error.log
-docker-compose.yml
-README.md
-docs
-tests
+# Dependencies
+node_modules/
+vendor/
+
+# Git
+.git/
+.gitignore
+
+# Entornos
+.env
+.env.*
+!.env.example
+
+# Build artifacts (se generan dentro del container)
+public/build/
+public/hot
+
+# Logs y storage temporal
+storage/logs/*.log
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+
+# Tests
+tests/
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Docker
+docker-compose.override.yml

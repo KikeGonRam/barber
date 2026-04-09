@@ -6,12 +6,10 @@ services:
     ports:
       - "8080:80"
     volumes:
-      # Montar código para development/testing, pero sin sobrescribir public/build
       - .:/var/www/html
       - /var/www/html/public/build
       - ./storage:/var/www/html/storage
       - ./bootstrap/cache:/var/www/html/bootstrap/cache
-      # Evitar montar node_modules y vendor del host
       - /var/www/html/node_modules
       - /var/www/html/vendor
     environment:
@@ -21,8 +19,8 @@ services:
       - .env
     depends_on:
       mysql:
-        # Espera a que MySQL esté REALMENTE listo, no solo iniciado
         condition: service_healthy
+    restart: unless-stopped
     networks:
       - laravel
 
@@ -32,15 +30,14 @@ services:
     ports:
       - "3307:3306"
     environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - dbdata:/var/lib/mysql
-    # Healthcheck: Docker espera hasta que MySQL acepte conexiones
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -48,8 +45,35 @@ services:
     networks:
       - laravel
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - laravel
+
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - laravel
+
 volumes:
   dbdata:
+  redisdata:
 
 networks:
   laravel:
