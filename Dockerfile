@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────
 # STAGE 1: Build assets con Node.js (Vite)
 # ─────────────────────────────────────────────────────────────
-FROM node:20-alpine AS node_builder
+FROM node:22-alpine AS node_builder
 
 WORKDIR /app
 

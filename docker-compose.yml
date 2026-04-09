@@ -3,12 +3,12 @@ services:
   app:
     build: .
     image: laravel-app
-    container_name: laravel-app
     ports:
       - "8080:80"
     volumes:
-      # Montar código para development/testing
+      # Montar código para development/testing, pero sin sobrescribir public/build
       - .:/var/www/html
+      - /var/www/html/public/build
       - ./storage:/var/www/html/storage
       - ./bootstrap/cache:/var/www/html/bootstrap/cache
       # Evitar montar node_modules y vendor del host
@@ -28,7 +28,6 @@ services:
 
   mysql:
     image: mysql:8.0
-    container_name: laravel-mysql
     restart: unless-stopped
     ports:
       - "3307:3306"
