@@ -23,6 +23,8 @@ abstract class TestCase extends BaseTestCase
             'verified',
         ]);
 
+        Config::set('mail.default', 'array');
+
         $sqliteDatabase = Config::get('database.connections.sqlite.database');
 
         if (is_string($sqliteDatabase) && $sqliteDatabase !== ':memory:') {

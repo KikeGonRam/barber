@@ -62,9 +62,11 @@ class SettingController extends Controller
         $this->authorizeAdmin($request);
 
         $setting = $this->getSetting();
-        $setting->update([
+        $setting->forceFill([
             'maintenance_mode' => ! $setting->maintenance_mode,
-        ]);
+        ])->save();
+
+        $setting->refresh();
 
         return response()->json([
             'message' => $setting->maintenance_mode

@@ -51,9 +51,11 @@ class BarbershopSettingController extends Controller
             ['nombre' => config('app.name', 'Barbershop'), 'politica_cancelacion' => 24]
         );
 
-        $setting->update([
+        $setting->forceFill([
             'maintenance_mode' => ! $setting->maintenance_mode,
-        ]);
+        ])->save();
+
+        $setting->refresh();
 
         $status = $setting->maintenance_mode ? 'El sistema ha entrado en modo mantenimiento.' : 'El sistema está nuevamente en línea.';
 

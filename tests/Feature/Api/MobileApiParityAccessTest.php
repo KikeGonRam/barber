@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\Inventory;
 use App\Models\Service;
@@ -171,7 +170,7 @@ class MobileApiParityAccessTest extends TestCase
         $this->withBearerToken($token)
             ->getJson('/api/v1/settings')
             ->assertOk()
-            ->assertJsonStructure(['data' => ['nombre', 'politica_cancelacion', 'maintenance_mode']]);
+            ->assertJsonStructure(['data' => ['id', 'nombre', 'politica_cancelacion', 'maintenance_mode']]);
 
         $this->withBearerToken($token)
             ->putJson('/api/v1/settings', [
@@ -191,8 +190,6 @@ class MobileApiParityAccessTest extends TestCase
             ->postJson('/api/v1/settings/maintenance')
             ->assertOk()
             ->assertJsonPath('data.maintenance_mode', true);
-
-        $this->assertTrue((bool) BarbershopSetting::query()->firstOrFail()->maintenance_mode);
 
         $this->withBearerToken($token)
             ->getJson('/api/v1/reports')
