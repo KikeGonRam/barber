@@ -11,6 +11,10 @@
 | 5.6 | Login con caracteres especiales en contraseña. | POST /login con password especial | Acceso exitoso si la contraseña es correcta. |
 | 5.7 | Login tras registro inmediato. | Registrar y luego login | El usuario puede autenticarse sin esperar confirmación extra. |
 | 5.8 | Mensajes de error claros y amigables. | Intentar login/register con datos inválidos | El sistema muestra mensajes comprensibles y no expone detalles técnicos. |
+| 5.9 | Cambio de contraseña exitoso desde perfil. | POST /user/password/update | El usuario recibe confirmación y puede autenticarse con la nueva contraseña. |
+| 5.10 | Recuperación de contraseña por email. | POST /forgot-password | El usuario recibe correo y puede restablecer su contraseña. |
+| 5.11 | Edición de perfil (nombre, email, foto). | PUT /user/profile | Los cambios se reflejan inmediatamente y se valida unicidad de email. |
+| 5.12 | Eliminación de cuenta con confirmación. | DELETE /user | El usuario debe confirmar con su contraseña y la cuenta se elimina correctamente. |
 # Pruebas de Aceptación (Acceptance Tests)
 
 Estas pruebas definen los criterios de satisfacción del negocio y del usuario final para considerar una funcionalidad como "Lista para Producción" (Definition of Done).

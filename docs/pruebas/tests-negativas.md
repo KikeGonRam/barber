@@ -11,6 +11,10 @@ Estas pruebas verifican que el sistema maneje correctamente las entradas inváli
 | :--- | :--- | :--- | :--- | :--- |
 | 1.1 | Registrar usuario sin email. | `{name, password}` | 422 Unprocessable Entity - Email required. | Sí |
 | 1.2 | Contraseña con menos de 8 caracteres. | `pass: 123` | 422 Unprocessable Entity - Min length 8. | Sí |
+| 1.13 | Cambiar contraseña con confirmación incorrecta. | `password: nueva, confirmation: otra` | 422 Unprocessable Entity - Confirmación no coincide. | Sí |
+| 1.14 | Cambiar contraseña con contraseña actual incorrecta. | `current_password: mala` | 422 Unprocessable Entity - Contraseña actual inválida. | Sí |
+| 1.15 | Editar perfil con email duplicado. | `email: admin@test.com` | 422 Unprocessable Entity - Email already taken. | Sí |
+| 1.16 | Eliminar cuenta con contraseña incorrecta. | `password: mala` | 422 Unprocessable Entity - Contraseña inválida. | Sí |
 | 1.7 | Registrar usuario con email inválido. | `{name, email: 'noemail', password}` | 422 Unprocessable Entity - Email must be valid. | Sí |
 | 1.8 | Registrar usuario con email ya registrado. | `{name, email: 'cliente@test.com', password}` | 422 Unprocessable Entity - Email already taken. | Sí |
 | 1.9 | Login con email no registrado. | `{email: 'noexiste@test.com', password}` | 422 Unprocessable Entity - Invalid credentials. | Sí |
@@ -87,6 +91,8 @@ Estas pruebas verifican que el sistema maneje correctamente las entradas inváli
 | 5.4 | Marcar notificaciones sin sesión activa. | `POST /notifications/read-all` | 401 Unauthorized / redirección a login. | Sí |
 | 5.5 | Enviar consulta vacía al chatbot desde admin. | `POST /chatbot/query` | 422 Validation Error (mensaje requerido). | Sí |
 | 5.6 | Activar mantenimiento con payload inválido. | `POST /settings/maintenance` | 422 Validation Error sin alterar estado global. | Sí |
+| 5.7 | Acceso a perfil de otro usuario sin permisos. | `GET /profile/{otro}` | 403 Forbidden - Acceso denegado. | Sí |
+| 5.8 | Editar perfil de otro usuario sin permisos. | `PUT /profile/{otro}` | 403 Forbidden - Acceso denegado. | Sí |
 
 ---
 

@@ -66,6 +66,12 @@ Estas pruebas se realizan directamente sobre la interfaz gráfica. El objetivo e
 | 4.15 | Login tras registro exitoso. | El usuario puede iniciar sesión inmediatamente. | Sí |
 | 4.5 | Guardar cambios en el perfil (Nombre/Foto). | Debe aparecer una notificación "Toast" en la parte superior que desaparece en 3s. | Sí |
 | 4.6 | Recuperación de contraseña (Enviar link). | El botón debe cambiar a "Enviado..." y deshabilitarse para evitar duplicados. | Sí |
+| 4.7 | Cambiar contraseña desde perfil. | El usuario puede cambiar su contraseña y recibe confirmación. | Sí |
+| 4.8 | Recuperar contraseña con email válido. | El sistema envía un correo de recuperación y muestra mensaje de éxito. | Sí |
+| 4.9 | Intentar recuperar contraseña con email inexistente. | El sistema muestra mensaje de error sin revelar si el email existe. | Sí |
+| 4.10 | Eliminar cuenta desde perfil. | El usuario debe confirmar con su contraseña y la cuenta se elimina correctamente. | Sí |
+| 4.11 | Acceso a navegación y secciones según rol. | Cada usuario ve solo las opciones permitidas por su rol (admin, recepcionista, barbero, cliente). | Sí |
+| 4.12 | Notificaciones: marcar todas como leídas. | El contador de notificaciones se pone en 0 y la UI se actualiza. | Sí |
 
 ---
 
