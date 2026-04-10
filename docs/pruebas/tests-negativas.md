@@ -11,6 +11,22 @@ Estas pruebas verifican que el sistema maneje correctamente las entradas inváli
 | :--- | :--- | :--- | :--- | :--- |
 | 1.1 | Registrar usuario sin email. | `{name, password}` | 422 Unprocessable Entity - Email required. | Sí |
 | 1.2 | Contraseña con menos de 8 caracteres. | `pass: 123` | 422 Unprocessable Entity - Min length 8. | Sí |
+| 1.7 | Registrar usuario con email inválido. | `{name, email: 'noemail', password}` | 422 Unprocessable Entity - Email must be valid. | Sí |
+| 1.8 | Registrar usuario con email ya registrado. | `{name, email: 'cliente@test.com', password}` | 422 Unprocessable Entity - Email already taken. | Sí |
+| 1.9 | Login con email no registrado. | `{email: 'noexiste@test.com', password}` | 422 Unprocessable Entity - Invalid credentials. | Sí |
+| 1.10 | Login con contraseña incorrecta. | `{email: 'cliente@test.com', password: 'mala'}` | 422 Unprocessable Entity - Invalid credentials. | Sí |
+| 1.11 | Login con campos vacíos. | `{}` | 422 Unprocessable Entity - Required fields. | Sí |
+| 1.12 | Login con email válido y contraseña con caracteres especiales. | `{email: 'cliente@test.com', password: 'pass!@#123'}` | 200 OK si la contraseña es correcta. | Sí |
+---
+
+## Soluciones y recomendaciones para errores frecuentes
+| Error | Solución recomendada |
+| :--- | :--- |
+| Email ya registrado | Usar la función de recuperación de contraseña o elegir otro email. |
+| Contraseña corta | Ingresar una contraseña de al menos 8 caracteres. |
+| Email inválido | Verificar el formato del email antes de enviar el formulario. |
+| Credenciales incorrectas | Revisar email y contraseña, o usar "Olvidé mi contraseña". |
+| Campos vacíos | Completar todos los campos requeridos antes de enviar. |
 | 1.3 | Fecha de cita con formato inválido. | `fecha: 32/13/2026` | 422 Unprocessable Entity - Invalid date format. | Sí |
 | 1.4 | Precio de servicio negativo. | `precio: -100.00` | 422 Unprocessable Entity - Price must be positive. | Sí |
 | 1.5 | Cantidad de inventario no numérica. | `cantidad: "diez"` | 422 Unprocessable Entity - Quantity must be integer. | Sí |

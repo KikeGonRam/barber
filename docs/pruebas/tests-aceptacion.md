@@ -1,3 +1,16 @@
+## 5. Módulo: Registro y Autenticación (Web/API)
+*KPI: El usuario puede registrarse y autenticarse de forma segura y sin fricción.*
+
+| # | Criterio de Aceptación | Prueba | Condición de Éxito |
+| :--- | :--- | :--- | :--- |
+| 5.1 | Registro exitoso con datos válidos. | POST /register (web/api) | El usuario es creado y puede iniciar sesión inmediatamente. |
+| 5.2 | Registro falla con email ya registrado. | POST /register con email existente | El sistema muestra error y no crea usuario duplicado. |
+| 5.3 | Registro falla con contraseña corta. | POST /register con password <8 | El sistema muestra error de validación. |
+| 5.4 | Login exitoso con credenciales válidas. | POST /login (web/api) | El usuario accede al dashboard o recibe token. |
+| 5.5 | Login falla con credenciales incorrectas. | POST /login con datos erróneos | El sistema muestra mensaje de error y no permite acceso. |
+| 5.6 | Login con caracteres especiales en contraseña. | POST /login con password especial | Acceso exitoso si la contraseña es correcta. |
+| 5.7 | Login tras registro inmediato. | Registrar y luego login | El usuario puede autenticarse sin esperar confirmación extra. |
+| 5.8 | Mensajes de error claros y amigables. | Intentar login/register con datos inválidos | El sistema muestra mensajes comprensibles y no expone detalles técnicos. |
 # Pruebas de Aceptación (Acceptance Tests)
 
 Estas pruebas definen los criterios de satisfacción del negocio y del usuario final para considerar una funcionalidad como "Lista para Producción" (Definition of Done).

@@ -55,6 +55,15 @@ Estas pruebas se realizan directamente sobre la interfaz gráfica. El objetivo e
 | 4.2 | Intentar acceder a `/admin/logs` siendo un Cliente. | La interfaz debe redirigir a una página 403 personalizada con estética de la barbería. | Sí |
 | 4.3 | Dejar la sesión inactiva por más de 2 horas. | Al intentar cualquier acción, debe aparecer un modal de "Sesión Expirada" con botón de login. | Sí |
 | 4.4 | Registrarse con un email que ya tiene cuenta. | El campo de email debe mostrar un mensaje de error: "Este correo ya está en uso". | Sí |
+| 4.7 | Registrar usuario con contraseña válida (>=8, letras y números). | El registro es exitoso, usuario puede iniciar sesión. | Sí |
+| 4.8 | Registrar usuario con contraseña corta (<8). | El sistema muestra error: "La contraseña debe tener al menos 8 caracteres". | Sí |
+| 4.9 | Registrar usuario con email inválido. | El sistema muestra error: "El email debe ser válido". | Sí |
+| 4.10 | Login con credenciales correctas. | Acceso exitoso, dashboard visible. | Sí |
+| 4.11 | Login con contraseña incorrecta. | El sistema muestra error: "Las credenciales no son válidas". | Sí |
+| 4.12 | Login con email no registrado. | El sistema muestra error: "Las credenciales no son válidas". | Sí |
+| 4.13 | Login con email correcto y contraseña con caracteres especiales válidos. | Acceso exitoso si la contraseña es correcta. | Sí |
+| 4.14 | Login con campos vacíos. | El sistema muestra error de campos requeridos. | Sí |
+| 4.15 | Login tras registro exitoso. | El usuario puede iniciar sesión inmediatamente. | Sí |
 | 4.5 | Guardar cambios en el perfil (Nombre/Foto). | Debe aparecer una notificación "Toast" en la parte superior que desaparece en 3s. | Sí |
 | 4.6 | Recuperación de contraseña (Enviar link). | El botón debe cambiar a "Enviado..." y deshabilitarse para evitar duplicados. | Sí |
 
