@@ -69,3 +69,36 @@ Se generó un mapeo independiente de paridad para responder si la API es lo mism
 - Veredicto actual: **Paridad funcional alcanzada**.
 - La API v1 ya cubre acciones de menú y operaciones por rol para Administrador y Recepcionista.
 - Se mantiene monitoreo de contratos para evitar divergencia en futuras iteraciones.
+
+---
+
+## 5. Resultados de Ejecución de Pruebas Automatizadas (2026-04-10)
+
+- **Total de pruebas ejecutadas:** 160
+- **Pruebas pasadas:** 156
+- **Pruebas fallidas:** 4
+
+### Pruebas fallidas y diagnóstico
+
+1. **Tests\Feature\Api\MobileApiParityAccessTest > admin can manage settings and reports from mobile api**
+   - **Causa:** El test espera que el endpoint `/api/v1/settings/maintenance` active el modo mantenimiento y que el cambio se refleje en la base de datos (`maintenance_mode`). Sin embargo, la aserción `BarbershopSetting::query()->firstOrFail()->maintenance_mode` es falsa, lo que indica que el cambio no se persistió correctamente.
+   - **Solución propuesta:** Revisar el controlador y el modelo para asegurar que el endpoint realmente actualiza el campo `maintenance_mode` y que no hay problemas de caché o transacción. Verificar que el entorno de pruebas no esté sobrescribiendo la base de datos tras la petición.
+
+2. **Tests\Feature\Auth\RegistrationTest > new users can register**
+   - **Causa:** El test espera que tras el registro el usuario esté autenticado y sea redirigido al dashboard. El error indica que el usuario no está autenticado tras el registro (`$this->assertAuthenticated()` falla).
+   - **Solución propuesta:** Verificar el flujo de registro en el controlador, especialmente el middleware y el evento de login tras crear el usuario. Asegurarse de que no haya cambios recientes en el guard, eventos o listeners que impidan el login automático tras registro.
+
+3. **Tests\Feature\E2E\CompleteBookingFlowE2ETest > complete booking happy path from register to payment completion**
+   - **Causa:** El test espera un código de respuesta de redirección tras el registro, pero recibe un 500 (error interno). Esto sugiere un fallo en el flujo de registro o en la creación del usuario/cliente.
+   - **Solución propuesta:** Revisar los logs de error de Laravel (`storage/logs/laravel.log`) para identificar la excepción exacta. Es probable que esté relacionado con el mismo problema del test de registro anterior.
+
+4. **Tests\Feature\Profiles\RolePortalFlowTest > registration assigns cliente role and profile**
+   - **Causa:** Similar al anterior, el test espera un código de redirección tras el registro, pero recibe un 500. Esto indica un fallo en el flujo de registro y asignación de rol/perfil.
+   - **Solución propuesta:** Revisar el flujo de creación de usuario y perfil de cliente, así como los listeners/eventos asociados al registro. Verificar migraciones y seeders para asegurar que los roles y relaciones existen.
+
+---
+
+### Próximos pasos
+- Se recomienda revisar y corregir los flujos de registro y mantenimiento descritos arriba.
+- Una vez corregidos, volver a ejecutar la suite completa y actualizar este documento con los nuevos resultados.
+- Para ejecutar todas las pruebas por sección, ver archivo `docs/pruebas/comandos-ejecucion.md`.
