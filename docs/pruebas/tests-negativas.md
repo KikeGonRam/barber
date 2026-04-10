@@ -61,6 +61,13 @@ Estas pruebas verifican que el sistema maneje correctamente las entradas inváli
 | 2.16 | Acceso a pagos sin permisos. | GET /payments | 403 Forbidden - Acceso denegado. | Sí |
 | 2.17 | Exceso de consultas al chatbot (rate limit). | POST /chatbot/query (muchas veces) | 429 Too Many Requests - Rate limit active. | Sí |
 | 2.18 | Fallback de chatbot por error de IA. | POST /chatbot/query (error IA) | Mensaje de fallback y log registrado. | Sí |
+| 2.19 | Acceso a configuración sin permisos. | GET /settings | 403 Forbidden - Acceso denegado. | Sí |
+| 2.20 | Acceso a logs sin permisos. | GET /logs | 403 Forbidden - Acceso denegado. | Sí |
+| 2.21 | Acceso a rutas protegidas sin login. | GET /admin | 302 Redirect a login. | Sí |
+| 2.22 | Acceso a rutas protegidas sin verificación. | GET /dashboard | 302 Redirect a verificación. | Sí |
+| 2.23 | XSS en campos de usuario. | POST /users nombre: <script> | El sistema escapa el payload, no ejecuta JS. | Sí |
+| 2.24 | Mass assignment de campos protegidos. | POST /users is_admin: true | El sistema ignora el campo y no eleva privilegios. | Sí |
+| 2.25 | Performance: consulta excede límite de queries. | Listado con muchos datos | El sistema mantiene queries bajo el límite esperado. | Sí |
 
 ---
 

@@ -90,12 +90,15 @@ Estas pruebas se realizan directamente sobre la interfaz gráfica. El objetivo e
 | 5.5a | Exportar reporte de ingresos en PDF. | `GET /reports/income/pdf` | El archivo PDF se descarga correctamente y contiene los datos esperados. | Sí |
 | 5.5b | Exportar reporte de ingresos en Excel. | `GET /reports/income/excel` | El archivo Excel se descarga correctamente y contiene los datos esperados. | Sí |
 | 5.6 | Revisar Logs desde Analítica. | `GET /logs` + `GET /api/v1/logs` | Se muestran eventos recientes con actor, acción y timestamp. | Sí |
+| 5.9 | Acceder y modificar configuración global. | `GET/PUT /settings` | Solo admin puede ver y modificar settings; cambios reflejados en la app. | Sí |
 | 5.7 | Usar Notificaciones y marcar todo como leído. | `GET /notifications`, `POST /notifications/read-all` | El contador de no leídas vuelve a 0 en la UI. | Sí |
+| 5.10 | Acceso restringido por permisos. | Acciones protegidas por roles/permissions | Usuarios sin permiso reciben 403 y no ven opciones en UI. | Sí |
 | 5.7a | Recibir notificación tras crear cita/pago. | Acción relevante genera notificación en UI y badge. | Sí |
 | 5.7b | Recibir notificación por email si aplica. | Cliente con email activo recibe notificación por correo. | Sí |
 | 5.8 | Consultar Chatbot y limpiar historial. | `POST /chatbot/query`, `GET /chatbot/history`, `POST /chatbot/clear-history` | El historial se actualiza en tiempo real y se limpia correctamente. | Sí |
 | 5.8a | Chatbot responde a consulta operativa. | POST /chatbot/query | El chatbot responde con información relevante y contexto. | Sí |
 | 5.8b | Chatbot aplica límite de uso y fallback. | Exceso de consultas o error de IA | El sistema responde con mensaje de límite o fallback y lo registra. | Sí |
+| 5.11 | Observabilidad: logs y métricas de eventos. | Acciones críticas generan logs y métricas accesibles para admin. | Sí |
 
 ---
 
@@ -117,4 +120,5 @@ Estas pruebas se realizan directamente sobre la interfaz gráfica. El objetivo e
 | 6.5b | Eliminar movimiento de inventario. | `DELETE /inventory/movements/{id}` | El movimiento desaparece del historial y el stock se ajusta. | Sí |
 | 6.6 | Abrir notificaciones y limpiar pendientes. | `GET /notifications`, `POST /notifications/read-all` | El badge de notificaciones se normaliza en tiempo real. | Sí |
 | 6.7 | Consultar chatbot para soporte operativo. | `POST /chatbot/query`, `GET /chatbot/history` | El asistente responde y conserva contexto de sesión. | Sí |
+| 6.8 | Performance: tiempos de respuesta y queries. | Listados y reportes cumplen tiempos y límites de queries. | Sí |
 

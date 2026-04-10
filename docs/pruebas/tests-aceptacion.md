@@ -78,6 +78,9 @@ Estas pruebas definen los criterios de satisfacción del negocio y del usuario f
 | 4.5 | Capacidad analítica ejecutiva. | Exportar reportes PDF/Excel con filtros. | Archivos descargados son correctos y listos para toma de decisiones. |
 | 4.5a | Exportar reporte de ingresos en PDF/Excel. | Exportar desde módulo de reportes. | Archivos PDF/Excel contienen datos correctos y descargan sin error. |
 | 4.6 | Seguridad de sesión administrativa. | Cerrar sesión desde menú y reintentar acceso. | Se invalida sesión y exige autenticación para reingresar a módulos. |
+| 4.7 | Acceso y edición de configuración global solo para admin. | GET/PUT /settings | Solo admin puede ver y modificar settings; cambios reflejados en la app. |
+| 4.8 | Observabilidad y logs de eventos críticos. | Acciones críticas generan logs y métricas accesibles para admin. | Logs y métricas disponibles y auditables. |
+| 4.9 | Performance: tiempos de respuesta y queries. | Listados y reportes cumplen tiempos y límites de queries. | Todas las operaciones cumplen los KPIs de performance. |
 
 ---
 
