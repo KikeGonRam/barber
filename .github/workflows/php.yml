@@ -26,7 +26,6 @@ jobs:
           tools: composer:v2
           coverage: none
           ini-values: memory_limit=-1
-          cache: composer
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
@@ -49,7 +48,6 @@ jobs:
           tools: composer:v2
           coverage: none
           ini-values: memory_limit=-1
-          cache: composer
 
       - name: Validate composer files
         run: composer validate --strict
@@ -87,7 +85,6 @@ jobs:
           tools: composer:v2
           coverage: none
           ini-values: memory_limit=-1
-          cache: composer
 
       - name: Prepare test environment
         run: |
