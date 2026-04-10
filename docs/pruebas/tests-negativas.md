@@ -48,6 +48,12 @@ Estas pruebas verifican que el sistema maneje correctamente las entradas inváli
 | 2.3 | Registrar salida de stock sin existencias. | `salida: 50` (Stock: 2) | 422 Error - Insufficient stock in inventory. | Sí |
 | 2.4 | Cambiar estado de cita ya completada. | `PATCH status: pendiente` | 422 Error - Completed appointments cannot be reverted. | Sí |
 | 2.5 | Borrar un producto que tiene movimientos. | DELETE /product/1 | El sistema debe bloquear el borrado o usar SoftDeletes. | Sí |
+| 2.7 | Editar usuario con email duplicado. | PUT /users/{id} | 422 Unprocessable Entity - Email already taken. | Sí |
+| 2.8 | Eliminar usuario inexistente. | DELETE /users/99999 | 404 Not Found - Record not found. | Sí |
+| 2.9 | Editar cita con fecha pasada. | PUT /appointments/{id} fecha: 2020-01-01 | 422 Conflict - Date cannot be in the past. | Sí |
+| 2.10 | Eliminar cita inexistente. | DELETE /appointments/99999 | 404 Not Found - Record not found. | Sí |
+| 2.11 | Editar movimiento de inventario con cantidad negativa. | PUT /inventory/movements/{id} cantidad: -5 | 422 Validation Error (cantidad > 0). | Sí |
+| 2.12 | Eliminar movimiento inexistente. | DELETE /inventory/movements/99999 | 404 Not Found - Entry invalid. | Sí |
 | 2.6 | Crear combo sin servicios asociados. | POST /combos | 422 Error - Combo must have at least 1 service. | Sí |
 
 ---

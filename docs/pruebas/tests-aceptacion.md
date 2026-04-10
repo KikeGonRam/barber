@@ -70,6 +70,9 @@ Estas pruebas definen los criterios de satisfacción del negocio y del usuario f
 | :--- | :--- | :--- | :--- |
 | 4.1 | Navegación integral del menú administrativo. | Recorrido Dashboard -> Operación -> Gestión -> Análisis. | Todas las rutas cargan sin errores 403/404 para admin autenticado. |
 | 4.2 | CRUD crítico funcional en gestión. | Crear/editar/eliminar en Usuarios, Servicios y Productos. | Cambios persisten y se reflejan inmediatamente en listados. |
+| 4.2a | CRUD de clientes desde recepción. | Crear/editar/eliminar clientes desde el módulo de recepción. | Cambios reflejados en CRM y acceso. |
+| 4.2b | CRUD de citas desde recepción. | Crear/editar/eliminar citas desde el módulo de agenda. | Cambios reflejados en calendario y notificaciones. |
+| 4.2c | CRUD de inventario desde administración. | Crear/editar/eliminar productos y movimientos. | Cambios reflejados en stock, historial y alertas. |
 | 4.3 | Control de negocio con trazabilidad. | Registrar movimiento y revisar logs. | Cada acción queda auditada con actor y timestamp verificable. |
 | 4.4 | Inteligencia operativa disponible. | Ejecutar query chatbot, revisar historial y limpiar. | El bot responde con contexto del negocio y permite gestión del historial. |
 | 4.5 | Capacidad analítica ejecutiva. | Exportar reportes PDF/Excel con filtros. | Archivos descargados son correctos y listos para toma de decisiones. |

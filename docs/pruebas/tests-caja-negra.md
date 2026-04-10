@@ -82,6 +82,8 @@ Estas pruebas se realizan directamente sobre la interfaz gráfica. El objetivo e
 | :--- | :--- | :--- | :--- | :--- |
 | 5.1 | Abrir Dashboard desde el menú lateral. | `GET /dashboard` + `GET /api/v1/dashboard` | Debe cargar KPIs, telemetría y gráficas sin estado de error. | Sí |
 | 5.2 | Entrar a Gestión de Usuarios y crear un usuario nuevo. | `GET /users`, `POST /users` (+ lectura `GET /api/v1/users`) | El usuario aparece inmediatamente en el listado con rol correcto. | Sí |
+| 5.2a | Editar usuario existente (Admin). | `PUT /users/{id}` | El usuario se actualiza correctamente y se refleja en el listado. | Sí |
+| 5.2b | Eliminar usuario (Admin). | `DELETE /users/{id}` | El usuario desaparece del listado y no puede autenticarse. | Sí |
 | 5.3 | Entrar a Servicios y crear/editar uno existente. | `GET /services`, `POST /services`, `PUT /services/{id}` | El servicio se ve actualizado en catálogo y formularios de citas. | Sí |
 | 5.4 | Acceder a Productos y registrar ajuste de inventario. | `GET /inventory/products` (+ `GET /api/v1/inventory/products`) | Se refleja nuevo stock y badge de alerta si aplica. | Sí |
 | 5.5 | Abrir Reportes y exportar PDF/Excel. | `GET /reports`, `GET /reports/{type}/{format}` | Se descarga archivo válido sin romper la sesión. | Sí |
@@ -98,9 +100,14 @@ Estas pruebas se realizan directamente sobre la interfaz gráfica. El objetivo e
 | :--- | :--- | :--- | :--- | :--- |
 | 6.1 | Abrir Dashboard operativo desde menú. | `GET /dashboard` + `GET /api/v1/dashboard` | Carga KPIs operativos de citas/clientes/pagos sin error visual. | Sí |
 | 6.2 | Gestionar agenda de Citas desde operación. | `GET/POST/PUT/DELETE /appointments` (+ API appointments) | La cita creada/editada aparece en listado y calendario. | Sí |
+| 6.2a | Editar cita existente. | `PUT /appointments/{id}` | Los cambios se reflejan en el calendario y notificaciones. | Sí |
+| 6.2b | Eliminar cita. | `DELETE /appointments/{id}` | La cita desaparece del listado y el slot queda libre. | Sí |
 | 6.3 | Registrar y editar perfil de Cliente. | `GET/POST/PUT/DELETE /clients` + `GET /api/v1/clients` | Los cambios se reflejan de inmediato en el CRM. | Sí |
+| 6.3a | Eliminar cliente. | `DELETE /clients/{id}` | El cliente desaparece del CRM y no puede iniciar sesión. | Sí |
 | 6.4 | Registrar cobro en módulo Pagos. | `GET/POST /payments` + `GET/POST /api/v1/payments` | El pago queda registrado y visible en historial. | Sí |
 | 6.5 | Registrar movimiento de inventario. | `GET/POST /inventory/movements` + `GET /api/v1/inventory/movements` | El movimiento aparece con tipo y responsable correctos. | Sí |
+| 6.5a | Editar movimiento de inventario. | `PUT /inventory/movements/{id}` | El cambio se refleja en el historial y stock. | Sí |
+| 6.5b | Eliminar movimiento de inventario. | `DELETE /inventory/movements/{id}` | El movimiento desaparece del historial y el stock se ajusta. | Sí |
 | 6.6 | Abrir notificaciones y limpiar pendientes. | `GET /notifications`, `POST /notifications/read-all` | El badge de notificaciones se normaliza en tiempo real. | Sí |
 | 6.7 | Consultar chatbot para soporte operativo. | `POST /chatbot/query`, `GET /chatbot/history` | El asistente responde y conserva contexto de sesión. | Sí |
 
