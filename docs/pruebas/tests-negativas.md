@@ -55,6 +55,12 @@ Estas pruebas verifican que el sistema maneje correctamente las entradas inváli
 | 2.11 | Editar movimiento de inventario con cantidad negativa. | PUT /inventory/movements/{id} cantidad: -5 | 422 Validation Error (cantidad > 0). | Sí |
 | 2.12 | Eliminar movimiento inexistente. | DELETE /inventory/movements/99999 | 404 Not Found - Entry invalid. | Sí |
 | 2.6 | Crear combo sin servicios asociados. | POST /combos | 422 Error - Combo must have at least 1 service. | Sí |
+| 2.13 | Exportar reporte con tipo inválido. | GET /reports/invalid/pdf | 404 Not Found - Route not defined. | Sí |
+| 2.14 | Acceso a reportes sin permisos. | GET /reports | 403 Forbidden - Acceso denegado. | Sí |
+| 2.15 | Registrar pago duplicado para misma cita. | POST /payments (dos veces) | 422 Validation Error - Pago duplicado. | Sí |
+| 2.16 | Acceso a pagos sin permisos. | GET /payments | 403 Forbidden - Acceso denegado. | Sí |
+| 2.17 | Exceso de consultas al chatbot (rate limit). | POST /chatbot/query (muchas veces) | 429 Too Many Requests - Rate limit active. | Sí |
+| 2.18 | Fallback de chatbot por error de IA. | POST /chatbot/query (error IA) | Mensaje de fallback y log registrado. | Sí |
 
 ---
 

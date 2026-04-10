@@ -87,9 +87,15 @@ Estas pruebas se realizan directamente sobre la interfaz gráfica. El objetivo e
 | 5.3 | Entrar a Servicios y crear/editar uno existente. | `GET /services`, `POST /services`, `PUT /services/{id}` | El servicio se ve actualizado en catálogo y formularios de citas. | Sí |
 | 5.4 | Acceder a Productos y registrar ajuste de inventario. | `GET /inventory/products` (+ `GET /api/v1/inventory/products`) | Se refleja nuevo stock y badge de alerta si aplica. | Sí |
 | 5.5 | Abrir Reportes y exportar PDF/Excel. | `GET /reports`, `GET /reports/{type}/{format}` | Se descarga archivo válido sin romper la sesión. | Sí |
+| 5.5a | Exportar reporte de ingresos en PDF. | `GET /reports/income/pdf` | El archivo PDF se descarga correctamente y contiene los datos esperados. | Sí |
+| 5.5b | Exportar reporte de ingresos en Excel. | `GET /reports/income/excel` | El archivo Excel se descarga correctamente y contiene los datos esperados. | Sí |
 | 5.6 | Revisar Logs desde Analítica. | `GET /logs` + `GET /api/v1/logs` | Se muestran eventos recientes con actor, acción y timestamp. | Sí |
 | 5.7 | Usar Notificaciones y marcar todo como leído. | `GET /notifications`, `POST /notifications/read-all` | El contador de no leídas vuelve a 0 en la UI. | Sí |
+| 5.7a | Recibir notificación tras crear cita/pago. | Acción relevante genera notificación en UI y badge. | Sí |
+| 5.7b | Recibir notificación por email si aplica. | Cliente con email activo recibe notificación por correo. | Sí |
 | 5.8 | Consultar Chatbot y limpiar historial. | `POST /chatbot/query`, `GET /chatbot/history`, `POST /chatbot/clear-history` | El historial se actualiza en tiempo real y se limpia correctamente. | Sí |
+| 5.8a | Chatbot responde a consulta operativa. | POST /chatbot/query | El chatbot responde con información relevante y contexto. | Sí |
+| 5.8b | Chatbot aplica límite de uso y fallback. | Exceso de consultas o error de IA | El sistema responde con mensaje de límite o fallback y lo registra. | Sí |
 
 ---
 
@@ -105,6 +111,7 @@ Estas pruebas se realizan directamente sobre la interfaz gráfica. El objetivo e
 | 6.3 | Registrar y editar perfil de Cliente. | `GET/POST/PUT/DELETE /clients` + `GET /api/v1/clients` | Los cambios se reflejan de inmediato en el CRM. | Sí |
 | 6.3a | Eliminar cliente. | `DELETE /clients/{id}` | El cliente desaparece del CRM y no puede iniciar sesión. | Sí |
 | 6.4 | Registrar cobro en módulo Pagos. | `GET/POST /payments` + `GET/POST /api/v1/payments` | El pago queda registrado y visible en historial. | Sí |
+| 6.4a | Generar recibo PDF al registrar pago. | POST /payments genera PDF | El recibo PDF se guarda y es accesible desde el historial. | Sí |
 | 6.5 | Registrar movimiento de inventario. | `GET/POST /inventory/movements` + `GET /api/v1/inventory/movements` | El movimiento aparece con tipo y responsable correctos. | Sí |
 | 6.5a | Editar movimiento de inventario. | `PUT /inventory/movements/{id}` | El cambio se refleja en el historial y stock. | Sí |
 | 6.5b | Eliminar movimiento de inventario. | `DELETE /inventory/movements/{id}` | El movimiento desaparece del historial y el stock se ajusta. | Sí |

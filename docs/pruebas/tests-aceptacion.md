@@ -76,6 +76,7 @@ Estas pruebas definen los criterios de satisfacción del negocio y del usuario f
 | 4.3 | Control de negocio con trazabilidad. | Registrar movimiento y revisar logs. | Cada acción queda auditada con actor y timestamp verificable. |
 | 4.4 | Inteligencia operativa disponible. | Ejecutar query chatbot, revisar historial y limpiar. | El bot responde con contexto del negocio y permite gestión del historial. |
 | 4.5 | Capacidad analítica ejecutiva. | Exportar reportes PDF/Excel con filtros. | Archivos descargados son correctos y listos para toma de decisiones. |
+| 4.5a | Exportar reporte de ingresos en PDF/Excel. | Exportar desde módulo de reportes. | Archivos PDF/Excel contienen datos correctos y descargan sin error. |
 | 4.6 | Seguridad de sesión administrativa. | Cerrar sesión desde menú y reintentar acceso. | Se invalida sesión y exige autenticación para reingresar a módulos. |
 
 ---
@@ -88,7 +89,9 @@ Estas pruebas definen los criterios de satisfacción del negocio y del usuario f
 | 5.1 | Navegación operativa clara y estable. | Recorrido Dashboard -> Citas -> Clientes -> Pagos -> Movimientos. | Todas las pantallas cargan con tiempos aceptables y sin errores de permisos. |
 | 5.2 | Gestión de citas en mostrador. | Crear/reprogramar/cancelar cita durante horario de atención. | Cambios persisten y notificaciones se disparan correctamente. |
 | 5.3 | Cobro y conciliación básica. | Registrar pago posterior a cita completada. | El pago queda asociado, visible y contabilizable en el día. |
+| 5.3a | Generar recibo PDF al registrar pago. | POST /payments genera PDF. | El recibo PDF es accesible y correcto. |
 | 5.4 | Control de inventario operativo. | Registrar entrada/salida de insumos de trabajo. | El stock y la bitácora reflejan exactamente la operación realizada. |
 | 5.5 | Soporte asistido por chatbot. | Ejecutar consulta operativa y revisar historial. | El chatbot responde en contexto y mantiene registro por usuario. |
+| 5.5a | Chatbot responde a consulta operativa y aplica límites/fallback. | POST /chatbot/query, rate limit, error IA. | El sistema responde correctamente y registra eventos. |
 | 5.6 | Seguridad de turno en estación compartida. | Cerrar sesión y reintentar acceso directo a módulo. | El sistema bloquea acceso y exige autenticación nuevamente. |
 
