@@ -1,0 +1,2147 @@
+openapi: 3.0.3
+info:
+  title: 'Laravel API Documentation'
+  description: ''
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost:8000'
+tags:
+  -
+    name: Autenticación
+    description: "\nEndpoints para el manejo de sesiones de usuario (Sanctum/Mobile API)."
+  -
+    name: Citas
+    description: "\nGestión de citas para clientes, barberos y administración."
+  -
+    name: Endpoints
+    description: ''
+  -
+    name: Inventario
+    description: "\nGestión de productos, stock y movimientos de almacén."
+paths:
+  /api/v1/auth/login:
+    post:
+      summary: 'Iniciar Sesión'
+      operationId: iniciarSesin
+      description: 'Autentica al usuario y devuelve un token de acceso para la API móvil.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Autenticación exitosa.'
+                  token_type: Bearer
+                  token: 1|abc123def456...
+                  user:
+                    id: 1
+                    name: 'Juan Pérez'
+                    email: juan@example.com
+                    role: cliente
+                properties:
+                  message:
+                    type: string
+                    example: 'Autenticación exitosa.'
+                  token_type:
+                    type: string
+                    example: Bearer
+                  token:
+                    type: string
+                    example: 1|abc123def456...
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: 'Juan Pérez'
+                      email:
+                        type: string
+                        example: juan@example.com
+                      role:
+                        type: string
+                        example: cliente
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Las credenciales no son válidas.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Las credenciales no son válidas.'
+      tags:
+        - Autenticación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'El correo del usuario.'
+                  example: cliente@urbanblade.com
+                password:
+                  type: string
+                  description: 'La contraseña del usuario.'
+                  example: password123
+                device_name:
+                  type: string
+                  description: 'Nombre del dispositivo.'
+                  example: 'iPhone 15 Pro'
+                  nullable: true
+              required:
+                - email
+                - password
+      security: []
+  /api/v1/auth/register:
+    post:
+      summary: 'Registro de Usuario'
+      operationId: registroDeUsuario
+      description: 'Crea una nueva cuenta de usuario y devuelve el token de acceso inicial.'
+      parameters: []
+      responses:
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Registro exitoso.'
+                  token_type: Bearer
+                  token: 2|xyz...
+                  user:
+                    id: 5
+                    name: 'Nuevo Cliente'
+                    role: cliente
+                properties:
+                  message:
+                    type: string
+                    example: 'Registro exitoso.'
+                  token_type:
+                    type: string
+                    example: Bearer
+                  token:
+                    type: string
+                    example: 2|xyz...
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 5
+                      name:
+                        type: string
+                        example: 'Nuevo Cliente'
+                      role:
+                        type: string
+                        example: cliente
+      tags:
+        - Autenticación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Nombre completo.'
+                  example: 'Nuevo Cliente'
+                email:
+                  type: string
+                  description: 'Correo único.'
+                  example: nuevo@urbanblade.com
+                password:
+                  type: string
+                  description: 'Al menos 8 caracteres.'
+                  example: password123
+                device_name:
+                  type: string
+                  description: 'Nombre del dispositivo.'
+                  example: 'Android Emulator'
+                  nullable: true
+                password_confirmation:
+                  type: string
+                  description: 'Debe coincidir con password.'
+                  example: password123
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+      security: []
+  /api/v1/auth/me:
+    get:
+      summary: ''
+      operationId: getApiV1AuthMe
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Autenticación
+      security: []
+  /api/v1/auth/logout:
+    post:
+      summary: ''
+      operationId: postApiV1AuthLogout
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Autenticación
+      security: []
+  /api/v1/appointments:
+    get:
+      summary: 'Listar Citas'
+      operationId: listarCitas
+      description: "Obtiene el historial de citas filtrado por el rol del usuario autenticado.\nLos clientes solo ven sus citas, los barberos las suyas, y la administración todas."
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 1
+                      client_id: 10
+                      barber_id: 2
+                      service_id: 5
+                      fecha: '2026-04-15'
+                      hora_inicio: '10:00:00'
+                      hora_fin: '11:00:00'
+                      estado: confirmada
+                      notas: 'Corte de cabello degradado.'
+                      client_name: 'Juan Pérez'
+                      barber_name: 'Carlos Barbero'
+                      service_name: 'Corte Clásico'
+                      service_duration: 60
+                      created_at: '2026-04-10T15:00:00Z'
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 1
+                        client_id: 10
+                        barber_id: 2
+                        service_id: 5
+                        fecha: '2026-04-15'
+                        hora_inicio: '10:00:00'
+                        hora_fin: '11:00:00'
+                        estado: confirmada
+                        notas: 'Corte de cabello degradado.'
+                        client_name: 'Juan Pérez'
+                        barber_name: 'Carlos Barbero'
+                        service_name: 'Corte Clásico'
+                        service_duration: 60
+                        created_at: '2026-04-10T15:00:00Z'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        client_id:
+                          type: integer
+                          example: 10
+                        barber_id:
+                          type: integer
+                          example: 2
+                        service_id:
+                          type: integer
+                          example: 5
+                        fecha:
+                          type: string
+                          example: '2026-04-15'
+                        hora_inicio:
+                          type: string
+                          example: '10:00:00'
+                        hora_fin:
+                          type: string
+                          example: '11:00:00'
+                        estado:
+                          type: string
+                          example: confirmada
+                        notas:
+                          type: string
+                          example: 'Corte de cabello degradado.'
+                        client_name:
+                          type: string
+                          example: 'Juan Pérez'
+                        barber_name:
+                          type: string
+                          example: 'Carlos Barbero'
+                        service_name:
+                          type: string
+                          example: 'Corte Clásico'
+                        service_duration:
+                          type: integer
+                          example: 60
+                        created_at:
+                          type: string
+                          example: '2026-04-10T15:00:00Z'
+      tags:
+        - Citas
+    post:
+      summary: 'Crear Cita'
+      operationId: crearCita
+      description: 'Registra una nueva cita en el sistema validando la disponibilidad del barbero.'
+      parameters: []
+      responses:
+        201:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\n \"message\": \"Cita creada correctamente.\",\n \"data\": { \"id\": 1, \"estado\": \"confirmada\", ... }\n}"
+        403:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado para crear citas.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado para crear citas.'
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'El barbero ya tiene una cita en ese horario.'
+                properties:
+                  message:
+                    type: string
+                    example: 'El barbero ya tiene una cita en ese horario.'
+      tags:
+        - Citas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                barber_id:
+                  type: integer
+                  description: 'El ID del barbero.'
+                  example: 2
+                service_id:
+                  type: integer
+                  description: 'El ID del servicio.'
+                  example: 5
+                fecha:
+                  type: date
+                  description: 'La fecha de la cita (YYYY-MM-DD).'
+                  example: '2026-04-15'
+                hora_inicio:
+                  type: string
+                  description: 'La hora de inicio (HH:mm).'
+                  example: '10:00'
+                notas:
+                  type: string
+                  description: 'Opcional. Notas adicionales.'
+                  example: 'Traer foto de referencia.'
+                  nullable: true
+                client_id:
+                  type: integer
+                  description: 'Requerido solo para Admin/Recepcionista. ID del cliente.'
+                  example: 10
+                estado:
+                  type: string
+                  description: 'Requerido solo para Admin/Recepcionista. Uno de: pendiente, confirmada, en_proceso, completada, cancelada, no_asistio.'
+                  example: confirmada
+              required:
+                - barber_id
+                - service_id
+                - fecha
+                - hora_inicio
+  '/api/v1/appointments/{appointment_id}':
+    put:
+      summary: ''
+      operationId: putApiV1AppointmentsAppointment_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Citas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the clients table.'
+                  example: architecto
+                barber_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the barbers table.'
+                  example: architecto
+                service_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the services table.'
+                  example: architecto
+                fecha:
+                  type: string
+                  description: 'validation.date validation.after_or_equal.'
+                  example: '2052-05-03'
+                hora_inicio:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>.'
+                  example: '23:00'
+                estado:
+                  type: string
+                  description: ''
+                  example: pendiente
+                  enum:
+                    - pendiente
+                    - confirmada
+                    - en_proceso
+                    - completada
+                    - cancelada
+                    - no_asistio
+                notas:
+                  type: string
+                  description: validation.max.
+                  example: 'n'
+                  nullable: true
+              required:
+                - client_id
+                - barber_id
+                - service_id
+                - fecha
+                - hora_inicio
+                - estado
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiV1AppointmentsAppointment_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Citas
+      security: []
+    parameters:
+      -
+        in: path
+        name: appointment_id
+        description: 'The ID of the appointment.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  '/api/v1/appointments/{appointment_id}/status':
+    patch:
+      summary: ''
+      operationId: patchApiV1AppointmentsAppointment_idStatus
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Citas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                estado:
+                  type: string
+                  description: ''
+                  example: cancelada
+                  enum:
+                    - pendiente
+                    - confirmada
+                    - en_proceso
+                    - completada
+                    - cancelada
+                    - no_asistio
+                notas:
+                  type: string
+                  description: validation.max.
+                  example: b
+                  nullable: true
+              required:
+                - estado
+      security: []
+    parameters:
+      -
+        in: path
+        name: appointment_id
+        description: 'The ID of the appointment.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/services:
+    get:
+      summary: ''
+      operationId: getApiV1Services
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data: []
+                properties:
+                  data:
+                    type: array
+                    example: []
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/barbers:
+    get:
+      summary: ''
+      operationId: getApiV1Barbers
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data: []
+                properties:
+                  data:
+                    type: array
+                    example: []
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/availability/slots:
+    get:
+      summary: ''
+      operationId: getApiV1AvailabilitySlots
+      description: ''
+      parameters: []
+      responses:
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'validation.exists (and 1 more error)'
+                  errors:
+                    barber_id:
+                      - validation.exists
+                    service_id:
+                      - validation.exists
+                properties:
+                  message:
+                    type: string
+                    example: 'validation.exists (and 1 more error)'
+                  errors:
+                    type: object
+                    properties:
+                      barber_id:
+                        type: array
+                        example:
+                          - validation.exists
+                        items:
+                          type: string
+                      service_id:
+                        type: array
+                        example:
+                          - validation.exists
+                        items:
+                          type: string
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                barber_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the barbers table.'
+                  example: architecto
+                service_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the services table.'
+                  example: architecto
+                date:
+                  type: string
+                  description: 'validation.date validation.after_or_equal.'
+                  example: '2052-05-03'
+              required:
+                - barber_id
+                - service_id
+                - date
+      security: []
+  /api/v1/social/feed:
+    get:
+      summary: ''
+      operationId: getApiV1SocialFeed
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data: []
+                  meta:
+                    current_page: 1
+                    last_page: 1
+                    total: 0
+                properties:
+                  data:
+                    type: array
+                    example: []
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      last_page:
+                        type: integer
+                        example: 1
+                      total:
+                        type: integer
+                        example: 0
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/dashboard:
+    get:
+      summary: ''
+      operationId: getApiV1Dashboard
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/notifications:
+    get:
+      summary: ''
+      operationId: getApiV1Notifications
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/notifications/read-all:
+    post:
+      summary: ''
+      operationId: postApiV1NotificationsReadAll
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  '/api/v1/social/work/{work_id}/react':
+    post:
+      summary: ''
+      operationId: postApiV1SocialWorkWork_idReact
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: work_id
+        description: 'The ID of the work.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  '/api/v1/social/work/{work_id}/save':
+    post:
+      summary: ''
+      operationId: postApiV1SocialWorkWork_idSave
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: work_id
+        description: 'The ID of the work.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  '/api/v1/social/work/{work_id}/comment':
+    post:
+      summary: ''
+      operationId: postApiV1SocialWorkWork_idComment
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  description: validation.max.
+                  example: b
+              required:
+                - comment
+      security: []
+    parameters:
+      -
+        in: path
+        name: work_id
+        description: 'The ID of the work.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/users:
+    get:
+      summary: ''
+      operationId: getApiV1Users
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: ''
+      operationId: postApiV1Users
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: validation.max.
+                  example: b
+                email:
+                  type: string
+                  description: 'validation.email validation.max.'
+                  example: zbailey@example.net
+                password:
+                  type: string
+                  description: validation.min.
+                  example: '-0pBNvYgxw'
+                role:
+                  type: string
+                  description: 'The <code>name</code> of an existing record in the roles table.'
+                  example: architecto
+              required:
+                - name
+                - email
+                - password
+                - role
+      security: []
+  '/api/v1/users/{user_id}':
+    put:
+      summary: ''
+      operationId: putApiV1UsersUser_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: validation.max.
+                  example: b
+                email:
+                  type: string
+                  description: 'validation.email validation.max.'
+                  example: zbailey@example.net
+                password:
+                  type: string
+                  description: validation.min.
+                  example: '-0pBNvYgxw'
+                  nullable: true
+                role:
+                  type: string
+                  description: 'The <code>name</code> of an existing record in the roles table.'
+                  example: architecto
+              required:
+                - name
+                - email
+                - role
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiV1UsersUser_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: user_id
+        description: 'The ID of the user.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/clients:
+    get:
+      summary: ''
+      operationId: getApiV1Clients
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: ''
+      operationId: postApiV1Clients
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: validation.max.
+                  example: b
+                email:
+                  type: string
+                  description: 'validation.email validation.max.'
+                  example: zbailey@example.net
+                password:
+                  type: string
+                  description: validation.min.
+                  example: '-0pBNvYgxw'
+                  nullable: true
+                telefono:
+                  type: string
+                  description: validation.max.
+                  example: a
+                  nullable: true
+                fecha_nacimiento:
+                  type: string
+                  description: validation.date.
+                  example: '2026-04-10T23:00:17'
+                  nullable: true
+                pref_in_app:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+                pref_email:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+                pref_sms:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+                pref_whatsapp:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+              required:
+                - name
+                - email
+      security: []
+  '/api/v1/clients/{client_id}':
+    put:
+      summary: ''
+      operationId: putApiV1ClientsClient_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: validation.max.
+                  example: b
+                email:
+                  type: string
+                  description: 'validation.email validation.max.'
+                  example: zbailey@example.net
+                telefono:
+                  type: string
+                  description: validation.max.
+                  example: i
+                  nullable: true
+                fecha_nacimiento:
+                  type: string
+                  description: validation.date.
+                  example: '2026-04-10T23:00:17'
+                  nullable: true
+                pref_in_app:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+                pref_email:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+                pref_sms:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+                pref_whatsapp:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+              required:
+                - name
+                - email
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiV1ClientsClient_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: client_id
+        description: 'The ID of the client.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/services/manage:
+    get:
+      summary: ''
+      operationId: getApiV1ServicesManage
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: ''
+      operationId: postApiV1ServicesManage
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: validation.max.
+                  example: b
+                categoria:
+                  type: string
+                  description: validation.max.
+                  example: 'n'
+                precio:
+                  type: number
+                  description: validation.min.
+                  example: 84
+                duracion_min:
+                  type: integer
+                  description: 'validation.min validation.max.'
+                  example: 16
+                imagen:
+                  type: string
+                  description: validation.max.
+                  example: m
+                  nullable: true
+                descripcion:
+                  type: string
+                  description: validation.max.
+                  example: i
+                  nullable: true
+                activo:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+              required:
+                - nombre
+                - categoria
+                - precio
+                - duracion_min
+      security: []
+  '/api/v1/services/manage/{service_id}':
+    put:
+      summary: ''
+      operationId: putApiV1ServicesManageService_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: validation.max.
+                  example: b
+                categoria:
+                  type: string
+                  description: validation.max.
+                  example: 'n'
+                precio:
+                  type: number
+                  description: validation.min.
+                  example: 84
+                duracion_min:
+                  type: integer
+                  description: 'validation.min validation.max.'
+                  example: 16
+                imagen:
+                  type: string
+                  description: validation.max.
+                  example: m
+                  nullable: true
+                descripcion:
+                  type: string
+                  description: validation.max.
+                  example: i
+                  nullable: true
+                activo:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+              required:
+                - nombre
+                - categoria
+                - precio
+                - duracion_min
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiV1ServicesManageService_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: service_id
+        description: 'The ID of the service.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/warehouse:
+    get:
+      summary: ''
+      operationId: getApiV1Warehouse
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: ''
+      operationId: postApiV1Warehouse
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: validation.max.
+                  example: b
+                quantity:
+                  type: integer
+                  description: validation.min.
+                  example: 39
+                min_stock:
+                  type: integer
+                  description: validation.min.
+                  example: 84
+                price:
+                  type: number
+                  description: validation.min.
+                  example: 12
+                description:
+                  type: string
+                  description: ''
+                  example: 'Eius et animi quos velit et.'
+                  nullable: true
+                active:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+                imagen:
+                  type: string
+                  format: binary
+                  description: 'validation.image validation.max.'
+                  nullable: true
+              required:
+                - name
+                - quantity
+                - min_stock
+                - price
+      security: []
+  '/api/v1/warehouse/{inventory_id}':
+    put:
+      summary: ''
+      operationId: putApiV1WarehouseInventory_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: validation.max.
+                  example: b
+                quantity:
+                  type: integer
+                  description: validation.min.
+                  example: 39
+                min_stock:
+                  type: integer
+                  description: validation.min.
+                  example: 84
+                price:
+                  type: number
+                  description: validation.min.
+                  example: 12
+                description:
+                  type: string
+                  description: ''
+                  example: 'Eius et animi quos velit et.'
+                  nullable: true
+                active:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+                imagen:
+                  type: string
+                  format: binary
+                  description: 'validation.image validation.max.'
+                  nullable: true
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiV1WarehouseInventory_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: inventory_id
+        description: 'The ID of the inventory.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/payments:
+    get:
+      summary: ''
+      operationId: getApiV1Payments
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: ''
+      operationId: postApiV1Payments
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appointment_id:
+                  type: integer
+                  description: 'The <code>id</code> of an existing record in the appointments table.'
+                  example: 16
+                monto:
+                  type: number
+                  description: validation.min.
+                  example: 39
+                metodo_pago:
+                  type: string
+                  description: ''
+                  example: qr
+                  enum:
+                    - efectivo
+                    - tarjeta
+                    - transferencia
+                    - qr
+                propina:
+                  type: number
+                  description: validation.min.
+                  example: 84
+                  nullable: true
+              required:
+                - appointment_id
+                - monto
+                - metodo_pago
+      security: []
+  '/api/v1/payments/{payment_id}':
+    delete:
+      summary: ''
+      operationId: deleteApiV1PaymentsPayment_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: payment_id
+        description: 'The ID of the payment.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  '/api/v1/payments/{payment_id}/receipt':
+    get:
+      summary: ''
+      operationId: getApiV1PaymentsPayment_idReceipt
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No query results for model [App\Models\Payment] 16'
+                properties:
+                  message:
+                    type: string
+                    example: 'No query results for model [App\Models\Payment] 16'
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: payment_id
+        description: 'The ID of the payment.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/logs:
+    get:
+      summary: ''
+      operationId: getApiV1Logs
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/barbers/manage:
+    get:
+      summary: ''
+      operationId: getApiV1BarbersManage
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  '/api/v1/barbers/manage/{barber_id}':
+    put:
+      summary: ''
+      operationId: putApiV1BarbersManageBarber_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: validation.max.
+                  example: b
+                email:
+                  type: string
+                  description: 'validation.email validation.max.'
+                  example: zbailey@example.net
+                especialidades:
+                  type: string
+                  description: validation.max.
+                  example: i
+                  nullable: true
+                descripcion:
+                  type: string
+                  description: validation.max.
+                  example: 'y'
+                  nullable: true
+                foto:
+                  type: string
+                  description: validation.max.
+                  example: v
+                  nullable: true
+                activo:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+              required:
+                - name
+                - email
+      security: []
+    parameters:
+      -
+        in: path
+        name: barber_id
+        description: 'The ID of the barber.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/settings:
+    get:
+      summary: ''
+      operationId: getApiV1Settings
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    put:
+      summary: ''
+      operationId: putApiV1Settings
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: validation.max.
+                  example: b
+                direccion:
+                  type: string
+                  description: validation.max.
+                  example: 'n'
+                  nullable: true
+                telefono:
+                  type: string
+                  description: validation.max.
+                  example: g
+                  nullable: true
+                horario_apertura:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>.'
+                  example: '23:00'
+                  nullable: true
+                horario_cierre:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>. validation.after.'
+                  example: '2052-05-03'
+                  nullable: true
+                politica_cancelacion:
+                  type: integer
+                  description: 'validation.min validation.max.'
+                  example: 22
+                instagram:
+                  type: string
+                  description: validation.max.
+                  example: g
+                  nullable: true
+                facebook:
+                  type: string
+                  description: validation.max.
+                  example: z
+                  nullable: true
+                tiktok:
+                  type: string
+                  description: validation.max.
+                  example: m
+                  nullable: true
+              required:
+                - nombre
+                - politica_cancelacion
+      security: []
+  /api/v1/settings/maintenance:
+    post:
+      summary: ''
+      operationId: postApiV1SettingsMaintenance
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/reports:
+    get:
+      summary: ''
+      operationId: getApiV1Reports
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  '/api/v1/reports/{type}/{format}':
+    get:
+      summary: ''
+      operationId: getApiV1ReportsTypeFormat
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The route api/v1/reports/ingresos|citas|inventario|clientes/json|pdf|excel could not be found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The route api/v1/reports/ingresos|citas|inventario|clientes/json|pdf|excel could not be found.'
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: type
+        description: ''
+        example: ingresos|citas|inventario|clientes
+        required: true
+        schema:
+          type: string
+      -
+        in: path
+        name: format
+        description: ''
+        example: json|pdf|excel
+        required: true
+        schema:
+          type: string
+  /api/v1/chatbot/history:
+    get:
+      summary: 'Endpoint para obtener historial de conversación'
+      operationId: endpointParaObtenerHistorialDeConversacin
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/chatbot/profile:
+    get:
+      summary: 'Endpoint para obtener perfil del usuario'
+      operationId: endpointParaObtenerPerfilDelUsuario
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/chatbot/clear-history:
+    post:
+      summary: 'Endpoint para limpiar historial'
+      operationId: endpointParaLimpiarHistorial
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/chatbot/learning-stats:
+    get:
+      summary: 'Busca múltiples palabras clave en el mensaje'
+      operationId: buscaMltiplesPalabrasClaveEnElMensaje
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/chatbot/train-history:
+    post:
+      summary: ''
+      operationId: postApiV1ChatbotTrainHistory
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/chatbot/query:
+    post:
+      summary: ''
+      operationId: postApiV1ChatbotQuery
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/inventory/products:
+    get:
+      summary: 'Listar Productos'
+      operationId: listarProductos
+      description: 'Obtiene el catálogo de productos con su stock actual y alertas de stock bajo.'
+      parameters:
+        -
+          in: query
+          name: categoria
+          description: 'Filtrar por categoría.'
+          example: Barbería
+          required: false
+          schema:
+            type: string
+            description: 'Filtrar por categoría.'
+            example: Barbería
+        -
+          in: query
+          name: tipo
+          description: 'Filtrar por tipo (insumo, venta).'
+          example: venta
+          required: false
+          schema:
+            type: string
+            description: 'Filtrar por tipo (insumo, venta).'
+            example: venta
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 1
+                      nombre: 'Pomada Mate'
+                      categoria: Fijación
+                      stock_actual: 15
+                      low_stock: false
+                      precio_venta: 25.0
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 1
+                        nombre: 'Pomada Mate'
+                        categoria: Fijación
+                        stock_actual: 15
+                        low_stock: false
+                        precio_venta: 25
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        nombre:
+                          type: string
+                          example: 'Pomada Mate'
+                        categoria:
+                          type: string
+                          example: Fijación
+                        stock_actual:
+                          type: integer
+                          example: 15
+                        low_stock:
+                          type: boolean
+                          example: false
+                        precio_venta:
+                          type: number
+                          example: 25.0
+      tags:
+        - Inventario
+    post:
+      summary: ''
+      operationId: postApiV1InventoryProducts
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Inventario
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: validation.max.
+                  example: b
+                categoria:
+                  type: string
+                  description: validation.max.
+                  example: 'n'
+                descripcion:
+                  type: string
+                  description: validation.max.
+                  example: g
+                  nullable: true
+                precio_compra:
+                  type: number
+                  description: validation.min.
+                  example: 12
+                precio_venta:
+                  type: number
+                  description: validation.min.
+                  example: 77
+                stock_actual:
+                  type: integer
+                  description: validation.min.
+                  example: 8
+                stock_minimo:
+                  type: integer
+                  description: validation.min.
+                  example: 76
+                tipo:
+                  type: string
+                  description: ''
+                  example: venta_cliente
+                  enum:
+                    - venta_cliente
+                    - insumo_trabajo
+                imagen:
+                  type: string
+                  format: binary
+                  description: 'validation.image validation.max.'
+                  nullable: true
+                active:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+              required:
+                - nombre
+                - categoria
+                - precio_compra
+                - precio_venta
+                - stock_actual
+                - stock_minimo
+                - tipo
+      security: []
+  '/api/v1/inventory/products/{product_id}':
+    put:
+      summary: ''
+      operationId: putApiV1InventoryProductsProduct_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Inventario
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: validation.max.
+                  example: b
+                categoria:
+                  type: string
+                  description: validation.max.
+                  example: 'n'
+                descripcion:
+                  type: string
+                  description: validation.max.
+                  example: g
+                  nullable: true
+                precio_compra:
+                  type: number
+                  description: validation.min.
+                  example: 12
+                precio_venta:
+                  type: number
+                  description: validation.min.
+                  example: 77
+                stock_actual:
+                  type: integer
+                  description: validation.min.
+                  example: 8
+                stock_minimo:
+                  type: integer
+                  description: validation.min.
+                  example: 76
+                tipo:
+                  type: string
+                  description: ''
+                  example: insumo_trabajo
+                  enum:
+                    - venta_cliente
+                    - insumo_trabajo
+                imagen:
+                  type: string
+                  format: binary
+                  description: 'validation.image validation.max.'
+                  nullable: true
+                active:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiV1InventoryProductsProduct_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Inventario
+      security: []
+    parameters:
+      -
+        in: path
+        name: product_id
+        description: 'The ID of the product.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/inventory/movements:
+    get:
+      summary: 'Historial de Movimientos'
+      operationId: historialDeMovimientos
+      description: 'Obtiene el registro de entradas y salidas de productos del almacén.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 10
+                      producto: 'Shampoo Anti-caspa'
+                      tipo: entrada
+                      cantidad: 12
+                      motivo: 'Reposición de stock'
+                      responsable: Admin
+                      fecha: '2026-04-10T10:30:00Z'
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 10
+                        producto: 'Shampoo Anti-caspa'
+                        tipo: entrada
+                        cantidad: 12
+                        motivo: 'Reposición de stock'
+                        responsable: Admin
+                        fecha: '2026-04-10T10:30:00Z'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 10
+                        producto:
+                          type: string
+                          example: 'Shampoo Anti-caspa'
+                        tipo:
+                          type: string
+                          example: entrada
+                        cantidad:
+                          type: integer
+                          example: 12
+                        motivo:
+                          type: string
+                          example: 'Reposición de stock'
+                        responsable:
+                          type: string
+                          example: Admin
+                        fecha:
+                          type: string
+                          example: '2026-04-10T10:30:00Z'
+      tags:
+        - Inventario
+    post:
+      summary: ''
+      operationId: postApiV1InventoryMovements
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Inventario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: integer
+                  description: 'The <code>id</code> of an existing record in the products table.'
+                  example: 16
+                tipo:
+                  type: string
+                  description: ''
+                  example: null
+                cantidad:
+                  type: integer
+                  description: validation.min.
+                  example: 22
+                motivo:
+                  type: string
+                  description: validation.max.
+                  example: g
+                  nullable: true
+                appointment_id:
+                  type: integer
+                  description: 'The <code>id</code> of an existing record in the appointments table.'
+                  example: 16
+                  nullable: true
+                fecha:
+                  type: string
+                  description: validation.date.
+                  example: '2026-04-10T23:00:18'
+                  nullable: true
+              required:
+                - product_id
+                - cantidad
+      security: []

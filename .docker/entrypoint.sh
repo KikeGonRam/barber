@@ -1,16 +1,22 @@
 #!/bin/bash
 set -e
 
-echo "→ Esperando base de datos..."
-until php artisan db:show --json > /dev/null 2>&1; do
-    sleep 2
-done
+# Solo corremos migraciones y optimizaciones si somos el contenedor "app"
+if [ "$1" = "php-fpm" ]; then
+    echo "🔍 Esperando a que la base de datos esté lista..."
+    # Usamos un comando de artisan en lugar de nc para ser más nativos de Laravel
+    for i in {1..60}; do
+        if php artisan db:show > /dev/null 2>&1; then
+            echo "✅ Base de datos conectada."
+            break
+        fi
+        echo "⏳ Intentando conectar... ($i/60)"
+        sleep 2
+    done
 
-echo "→ Ejecutando migraciones..."
-php artisan migrate --force --no-interaction
+    echo "🚀 Optimizando aplicación..."
+    php artisan migrate --force --no-interaction
+    php artisan optimize
+fi
 
-echo "→ Optimizando Laravel..."
-php artisan optimize
-
-echo "→ Iniciando Apache..."
 exec "$@"

@@ -6,7 +6,7 @@
     <title>Actualización de Sistema | BarberPro Suite</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,900&display=swap" rel="stylesheet" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @safeVite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased text-white bg-[#0a0a0a]">
     <div class="relative min-h-screen flex items-center justify-center overflow-hidden">

@@ -10,10 +10,37 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Exceptions\Domain\InsufficientStockException;
 
+/**
+ * @group Inventario
+ *
+ * Gestión de productos, stock y movimientos de almacén.
+ */
 class InventoryController extends Controller
 {
     public function __construct(private readonly InventoryService $inventoryService) {}
 
+    /**
+     * Listar Productos
+     *
+     * Obtiene el catálogo de productos con su stock actual y alertas de stock bajo.
+     *
+     * @authenticated
+     * @queryParam categoria string Filtrar por categoría. Example: Barbería
+     * @queryParam tipo string Filtrar por tipo (insumo, venta). Example: venta
+     *
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "nombre": "Pomada Mate",
+     *      "categoria": "Fijación",
+     *      "stock_actual": 15,
+     *      "low_stock": false,
+     *      "precio_venta": 25.00
+     *    }
+     *  ]
+     * }
+     */
     public function products(Request $request): JsonResponse
     {
         $this->authorizeStaff($request);
@@ -44,6 +71,26 @@ class InventoryController extends Controller
         ]);
     }
 
+    /**
+     * Historial de Movimientos
+     *
+     * Obtiene el registro de entradas y salidas de productos del almacén.
+     *
+     * @authenticated
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 10,
+     *      "producto": "Shampoo Anti-caspa",
+     *      "tipo": "entrada",
+     *      "cantidad": 12,
+     *      "motivo": "Reposición de stock",
+     *      "responsable": "Admin",
+     *      "fecha": "2026-04-10T10:30:00Z"
+     *    }
+     *  ]
+     * }
+     */
     public function movements(Request $request): JsonResponse
     {
         $this->authorizeStaff($request);

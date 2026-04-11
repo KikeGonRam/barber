@@ -14,10 +14,43 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Citas
+ *
+ * Gestión de citas para clientes, barberos y administración.
+ */
 class AppointmentController extends Controller
 {
     public function __construct(private readonly AppointmentService $appointmentService) {}
 
+    /**
+     * Listar Citas
+     *
+     * Obtiene el historial de citas filtrado por el rol del usuario autenticado.
+     * Los clientes solo ven sus citas, los barberos las suyas, y la administración todas.
+     *
+     * @authenticated
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "client_id": 10,
+     *      "barber_id": 2,
+     *      "service_id": 5,
+     *      "fecha": "2026-04-15",
+     *      "hora_inicio": "10:00:00",
+     *      "hora_fin": "11:00:00",
+     *      "estado": "confirmada",
+     *      "notas": "Corte de cabello degradado.",
+     *      "client_name": "Juan Pérez",
+     *      "barber_name": "Carlos Barbero",
+     *      "service_name": "Corte Clásico",
+     *      "service_duration": 60,
+     *      "created_at": "2026-04-10T15:00:00Z"
+     *    }
+     *  ]
+     * }
+     */
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -35,6 +68,31 @@ class AppointmentController extends Controller
         return response()->json(['data' => $appointments]);
     }
 
+    /**
+     * Crear Cita
+     *
+     * Registra una nueva cita en el sistema validando la disponibilidad del barbero.
+     *
+     * @authenticated
+     * @bodyParam barber_id int required El ID del barbero. Example: 2
+     * @bodyParam service_id int required El ID del servicio. Example: 5
+     * @bodyParam fecha date required La fecha de la cita (YYYY-MM-DD). Example: 2026-04-15
+     * @bodyParam hora_inicio string required La hora de inicio (HH:mm). Example: 10:00
+     * @bodyParam client_id int Requerido solo para Admin/Recepcionista. ID del cliente. Example: 10
+     * @bodyParam estado string Requerido solo para Admin/Recepcionista. Uno de: pendiente, confirmada, en_proceso, completada, cancelada, no_asistio. Example: confirmada
+     * @bodyParam notas string Opcional. Notas adicionales. Example: Traer foto de referencia.
+     *
+     * @response 201 {
+     *  "message": "Cita creada correctamente.",
+     *  "data": { "id": 1, "estado": "confirmada", ... }
+     * }
+     * @response 422 {
+     *  "message": "El barbero ya tiene una cita en ese horario."
+     * }
+     * @response 403 {
+     *  "message": "No autorizado para crear citas."
+     * }
+     */
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();

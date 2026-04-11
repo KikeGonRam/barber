@@ -1,0 +1,466 @@
+name: Citas
+description: |-
+
+  Gestión de citas para clientes, barberos y administración.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/appointments
+    metadata:
+      custom: []
+      groupName: Citas
+      groupDescription: |-
+
+        Gestión de citas para clientes, barberos y administración.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Listar Citas'
+      description: |-
+        Obtiene el historial de citas filtrado por el rol del usuario autenticado.
+        Los clientes solo ven sus citas, los barberos las suyas, y la administración todas.
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+           "data": [
+             {
+               "id": 1,
+               "client_id": 10,
+               "barber_id": 2,
+               "service_id": 5,
+               "fecha": "2026-04-15",
+               "hora_inicio": "10:00:00",
+               "hora_fin": "11:00:00",
+               "estado": "confirmada",
+               "notas": "Corte de cabello degradado.",
+               "client_name": "Juan Pérez",
+               "barber_name": "Carlos Barbero",
+               "service_name": "Corte Clásico",
+               "service_duration": 60,
+               "created_at": "2026-04-10T15:00:00Z"
+             }
+           ]
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/appointments
+    metadata:
+      custom: []
+      groupName: Citas
+      groupDescription: |-
+
+        Gestión de citas para clientes, barberos y administración.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Crear Cita'
+      description: 'Registra una nueva cita en el sistema validando la disponibilidad del barbero.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      barber_id:
+        custom: []
+        name: barber_id
+        description: 'El ID del barbero.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      service_id:
+        custom: []
+        name: service_id
+        description: 'El ID del servicio.'
+        required: true
+        example: 5
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      fecha:
+        custom: []
+        name: fecha
+        description: 'La fecha de la cita (YYYY-MM-DD).'
+        required: true
+        example: '2026-04-15'
+        type: date
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      hora_inicio:
+        custom: []
+        name: hora_inicio
+        description: 'La hora de inicio (HH:mm).'
+        required: true
+        example: '10:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      notas:
+        custom: []
+        name: notas
+        description: 'Opcional. Notas adicionales.'
+        required: false
+        example: 'Traer foto de referencia.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      client_id:
+        custom: []
+        name: client_id
+        description: 'Requerido solo para Admin/Recepcionista. ID del cliente.'
+        required: false
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      estado:
+        custom: []
+        name: estado
+        description: 'Requerido solo para Admin/Recepcionista. Uno de: pendiente, confirmada, en_proceso, completada, cancelada, no_asistio.'
+        required: false
+        example: confirmada
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      barber_id: 2
+      service_id: 5
+      fecha: '2026-04-15'
+      hora_inicio: '10:00'
+      notas: 'Traer foto de referencia.'
+      client_id: 10
+      estado: confirmada
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+           "message": "Cita creada correctamente.",
+           "data": { "id": 1, "estado": "confirmada", ... }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+           "message": "No autorizado para crear citas."
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+           "message": "El barbero ya tiene una cita en ese horario."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/v1/appointments/{appointment_id}'
+    metadata:
+      custom: []
+      groupName: Citas
+      groupDescription: |-
+
+        Gestión de citas para clientes, barberos y administración.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      appointment_id:
+        custom: []
+        name: appointment_id
+        description: 'The ID of the appointment.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      client_id:
+        custom: []
+        name: client_id
+        description: 'The <code>id</code> of an existing record in the clients table.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      barber_id:
+        custom: []
+        name: barber_id
+        description: 'The <code>id</code> of an existing record in the barbers table.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      service_id:
+        custom: []
+        name: service_id
+        description: 'The <code>id</code> of an existing record in the services table.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      fecha:
+        custom: []
+        name: fecha
+        description: 'validation.date validation.after_or_equal.'
+        required: true
+        example: '2052-05-03'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      hora_inicio:
+        custom: []
+        name: hora_inicio
+        description: 'Must be a valid date in the format <code>H:i</code>.'
+        required: true
+        example: '23:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      estado:
+        custom: []
+        name: estado
+        description: ''
+        required: true
+        example: pendiente
+        type: string
+        enumValues:
+          - pendiente
+          - confirmada
+          - en_proceso
+          - completada
+          - cancelada
+          - no_asistio
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      notas:
+        custom: []
+        name: notas
+        description: validation.max.
+        required: false
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      client_id: architecto
+      barber_id: architecto
+      service_id: architecto
+      fecha: '2052-05-03'
+      hora_inicio: '23:00'
+      estado: pendiente
+      notas: 'n'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: 'api/v1/appointments/{appointment_id}/status'
+    metadata:
+      custom: []
+      groupName: Citas
+      groupDescription: |-
+
+        Gestión de citas para clientes, barberos y administración.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      appointment_id:
+        custom: []
+        name: appointment_id
+        description: 'The ID of the appointment.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      estado:
+        custom: []
+        name: estado
+        description: ''
+        required: true
+        example: cancelada
+        type: string
+        enumValues:
+          - pendiente
+          - confirmada
+          - en_proceso
+          - completada
+          - cancelada
+          - no_asistio
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      notas:
+        custom: []
+        name: notas
+        description: validation.max.
+        required: false
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      estado: cancelada
+      notas: b
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/appointments/{appointment_id}'
+    metadata:
+      custom: []
+      groupName: Citas
+      groupDescription: |-
+
+        Gestión de citas para clientes, barberos y administración.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      appointment_id:
+        custom: []
+        name: appointment_id
+        description: 'The ID of the appointment.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

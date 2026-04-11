@@ -1,78 +1,82 @@
 # ─────────────────────────────────────────────────────────────
-# STAGE 1: Build assets con Node.js (Vite)
+# STAGE 1: Asset Builder (Vite + Node.js)
 # ─────────────────────────────────────────────────────────────
 FROM node:22-alpine AS node_builder
-
 WORKDIR /app
-
 COPY package*.json ./
-RUN npm ci
-
+RUN npm ci --no-audit
 COPY . .
 RUN npm run build
 
-
 # ─────────────────────────────────────────────────────────────
-# STAGE 2: Imagen final PHP 8.4 + Apache
+# STAGE 2: PHP Application (FPM + Alpine)
 # ─────────────────────────────────────────────────────────────
-FROM php:8.4-apache
+FROM php:8.4-fpm-alpine
 
-# phpoffice/phpspreadsheet (maatwebsite/excel) requiere xml, gd, bcmath, etc.
-RUN apt-get update \
-    && apt-get install -y \
-        git \
-        unzip \
-        zip \
-        curl \
-        libzip-dev \
-        libonig-dev \
-        libxml2-dev \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libpng-dev \
-    && docker-php-ext-configure gd \
-        --with-freetype \
-        --with-jpeg \
-    && docker-php-ext-install \
-        pdo_mysql \
-        mbstring \
-        zip \
-        xml \
-        xmlreader \
-        xmlwriter \
-        bcmath \
-        gd \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Argumentos de compilación
+ARG USER_ID=1000
+ARG GROUP_ID=1000
 
-# Habilitar mod_rewrite de Apache
-RUN a2enmod rewrite
+# Instalador de extensiones PHP
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod +x /usr/local/bin/install-php-extensions
 
-# Instalar Composer desde imagen oficial
+# Instalación de dependencias del sistema y PHP
+RUN apk add --no-cache \
+    bash \
+    curl \
+    git \
+    libcap \
+    unzip \
+    zip \
+    && install-php-extensions \
+    bcmath \
+    gd \
+    intl \
+    mbstring \
+    opcache \
+    pdo_mysql \
+    redis \
+    zip \
+    xml \
+    dom \
+    curl
+
+# Composer oficial
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copiar el proyecto
-COPY . /var/www/html
+# Configuración personalizada de PHP y FPM
+COPY .docker/php/php.ini /usr/local/etc/php/conf.d/app-php.ini
+COPY .docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
-# Copiar assets compilados por Vite
-COPY --from=node_builder /app/public/build /var/www/html/public/build
+# Creación de usuario profesional
+RUN addgroup -g ${GROUP_ID} laravel && \
+    adduser -u ${USER_ID} -G laravel -s /bin/sh -D laravel
 
-# Copiar configuración de Apache
-COPY .docker/vhost.conf /etc/apache2/sites-available/000-default.conf
+# Pre-creamos la estructura de storage
+RUN mkdir -p \
+    storage/app/public \
+    storage/framework/cache/data \
+    storage/framework/sessions \
+    storage/framework/testing \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache && \
+    chown -R laravel:laravel storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
 
-# Instalar dependencias PHP incluyendo las de desarrollo
-# (laravel/boost y otros paquetes dev se registran en providers)
-# Se pasa APP_KEY temporal solo para que "php artisan package:discover" no falle
-RUN APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= \
-    composer install --optimize-autoloader --no-interaction
+# Copia de archivos
+COPY --chown=laravel:laravel . .
+COPY --from=node_builder --chown=laravel:laravel /app/public/build ./public/build
 
-# Permisos correctos para Laravel
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+USER laravel
 
-EXPOSE 80
+# Instalación de dependencias PHP
+RUN composer install --optimize-autoloader --no-interaction
 
-CMD ["apache2-foreground"]
+EXPOSE 9000
+
+ENTRYPOINT [".docker/entrypoint.sh"]
+CMD ["php-fpm"]

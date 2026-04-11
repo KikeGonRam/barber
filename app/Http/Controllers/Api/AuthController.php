@@ -12,8 +12,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
+/**
+ * @group Autenticación
+ *
+ * Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+ */
 class AuthController extends Controller
 {
+    /**
+     * Iniciar Sesión
+     *
+     * Autentica al usuario y devuelve un token de acceso para la API móvil.
+     *
+     * @unauthenticated
+     * @bodyParam email string required El correo del usuario. Example: cliente@urbanblade.com
+     * @bodyParam password string required La contraseña del usuario. Example: password123
+     * @bodyParam device_name string Nombre del dispositivo. Example: iPhone 15 Pro
+     *
+     * @response {
+     *  "message": "Autenticación exitosa.",
+     *  "token_type": "Bearer",
+     *  "token": "1|abc123def456...",
+     *  "user": { "id": 1, "name": "Juan Pérez", "email": "juan@example.com", "role": "cliente" }
+     * }
+     * @response 422 {
+     *  "message": "Las credenciales no son válidas."
+     * }
+     */
     public function login(Request $request): JsonResponse
     {
         $credentials = $request->validate([
@@ -46,6 +71,25 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Registro de Usuario
+     *
+     * Crea una nueva cuenta de usuario y devuelve el token de acceso inicial.
+     *
+     * @unauthenticated
+     * @bodyParam name string required Nombre completo. Example: Nuevo Cliente
+     * @bodyParam email string required Correo único. Example: nuevo@urbanblade.com
+     * @bodyParam password string required Al menos 8 caracteres. Example: password123
+     * @bodyParam password_confirmation string required Debe coincidir con password. Example: password123
+     * @bodyParam device_name string Nombre del dispositivo. Example: Android Emulator
+     *
+     * @response 201 {
+     *  "message": "Registro exitoso.",
+     *  "token_type": "Bearer",
+     *  "token": "2|xyz...",
+     *  "user": { "id": 5, "name": "Nuevo Cliente", "role": "cliente" }
+     * }
+     */
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
