@@ -4,7 +4,6 @@ namespace Tests\Feature\Api;
 
 use App\Models\Client;
 use App\Models\Inventory;
-use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\DatabaseNotification;

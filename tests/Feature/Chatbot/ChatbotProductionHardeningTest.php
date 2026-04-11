@@ -34,14 +34,16 @@ class ChatbotProductionHardeningTest extends TestCase
     {
         $user = $this->createVerifiedUserWithRole('cliente');
 
-        $this->app->instance(ChatbotIntelligenceService::class, new class extends ChatbotIntelligenceService {
+        $this->app->instance(ChatbotIntelligenceService::class, new class extends ChatbotIntelligenceService
+        {
             public function getContextualResponse(string $message, $user = null): ?string
             {
                 return null;
             }
         });
 
-        $this->app->instance(ChatbotExternalDataService::class, new class extends ChatbotExternalDataService {
+        $this->app->instance(ChatbotExternalDataService::class, new class extends ChatbotExternalDataService
+        {
             public function getExternalResponse(string $message): ?string
             {
                 return null;
@@ -71,14 +73,16 @@ class ChatbotProductionHardeningTest extends TestCase
     {
         $user = $this->createVerifiedUserWithRole('cliente');
 
-        $this->app->instance(ChatbotIntelligenceService::class, new class extends ChatbotIntelligenceService {
+        $this->app->instance(ChatbotIntelligenceService::class, new class extends ChatbotIntelligenceService
+        {
             public function getContextualResponse(string $message, $user = null): ?string
             {
                 throw new \RuntimeException('Intelligence engine exploded');
             }
         });
 
-        $this->app->instance(ChatbotExternalDataService::class, new class extends ChatbotExternalDataService {
+        $this->app->instance(ChatbotExternalDataService::class, new class extends ChatbotExternalDataService
+        {
             public function getExternalResponse(string $message): ?string
             {
                 return null;
@@ -112,21 +116,24 @@ class ChatbotProductionHardeningTest extends TestCase
 
         config(['services.gemini.api_key' => 'fake-key']);
 
-        $this->app->instance(ChatbotIntelligenceService::class, new class extends ChatbotIntelligenceService {
+        $this->app->instance(ChatbotIntelligenceService::class, new class extends ChatbotIntelligenceService
+        {
             public function getContextualResponse(string $message, $user = null): ?string
             {
                 return null;
             }
         });
 
-        $this->app->instance(ChatbotExternalDataService::class, new class extends ChatbotExternalDataService {
+        $this->app->instance(ChatbotExternalDataService::class, new class extends ChatbotExternalDataService
+        {
             public function getExternalResponse(string $message): ?string
             {
                 return null;
             }
         });
 
-        $this->app->instance(GeminiService::class, new class extends GeminiService {
+        $this->app->instance(GeminiService::class, new class extends GeminiService
+        {
             public function buildSystemPrompt(array $contextData): string
             {
                 return 'system prompt for telemetry';

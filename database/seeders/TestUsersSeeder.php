@@ -32,8 +32,8 @@ class TestUsersSeeder extends Seeder
             ]
         );
         $barber->assignRole('barbero');
-        \App\Models\Barber::firstOrCreate([
-            'user_id' => $barber->id
+        Barber::firstOrCreate([
+            'user_id' => $barber->id,
         ], [
             'especialidades' => 'Fade, Barba',
             'foto' => null,
@@ -51,8 +51,8 @@ class TestUsersSeeder extends Seeder
             ]
         );
         $client->assignRole('cliente');
-        \App\Models\Client::firstOrCreate([
-            'user_id' => $client->id
+        Client::firstOrCreate([
+            'user_id' => $client->id,
         ], [
             'telefono' => '+521234567890',
             'fecha_nacimiento' => '1990-01-01',
@@ -65,7 +65,7 @@ class TestUsersSeeder extends Seeder
         ]);
 
         // Usuarios extra para pruebas CRUD
-        foreach ([1,2] as $i) {
+        foreach ([1, 2] as $i) {
             // Recepcionista extra
             $r = User::firstOrCreate(
                 ['email' => "recepcionista${i}@test.com"],
@@ -87,8 +87,8 @@ class TestUsersSeeder extends Seeder
                 ]
             );
             $b->assignRole('barbero');
-            \App\Models\Barber::firstOrCreate([
-                'user_id' => $b->id
+            Barber::firstOrCreate([
+                'user_id' => $b->id,
             ], [
                 'especialidades' => 'Corte clásico',
                 'foto' => null,
@@ -106,11 +106,11 @@ class TestUsersSeeder extends Seeder
                 ]
             );
             $c->assignRole('cliente');
-            \App\Models\Client::firstOrCreate([
-                'user_id' => $c->id
+            Client::firstOrCreate([
+                'user_id' => $c->id,
             ], [
-                'telefono' => '+52123456789' . $i,
-                'fecha_nacimiento' => '199'+$i.'-02-01',
+                'telefono' => '+52123456789'.$i,
+                'fecha_nacimiento' => '199'.$i.'-02-01',
                 'preferencias_notificacion' => [
                     'in_app' => true,
                     'email' => true,

@@ -3,8 +3,8 @@
 use App\Exceptions\Domain\AppointmentConflictException;
 use App\Exceptions\Domain\InsufficientStockException;
 use App\Exceptions\Domain\PaymentException;
-use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\AuthenticateMobileApiToken;
+use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\Role\EnsureUserHasPermission;
 use App\Http\Middleware\Role\EnsureUserHasRole;
 use Illuminate\Foundation\Application;

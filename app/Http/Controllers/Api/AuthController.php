@@ -25,6 +25,7 @@ class AuthController extends Controller
      * Autentica al usuario y devuelve un token de acceso para la API móvil.
      *
      * @unauthenticated
+     *
      * @bodyParam email string required El correo del usuario. Example: cliente@urbanblade.com
      * @bodyParam password string required La contraseña del usuario. Example: password123
      * @bodyParam device_name string Nombre del dispositivo. Example: iPhone 15 Pro
@@ -77,6 +78,7 @@ class AuthController extends Controller
      * Crea una nueva cuenta de usuario y devuelve el token de acceso inicial.
      *
      * @unauthenticated
+     *
      * @bodyParam name string required Nombre completo. Example: Nuevo Cliente
      * @bodyParam email string required Correo único. Example: nuevo@urbanblade.com
      * @bodyParam password string required Al menos 8 caracteres. Example: password123
@@ -126,7 +128,7 @@ class AuthController extends Controller
                 'guard_name' => 'web',
             ]);
             $user->assignRole($role);
-            
+
             // Create client profile
             Client::firstOrCreate([
                 'user_id' => $user->id,
