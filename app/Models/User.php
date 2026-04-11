@@ -86,7 +86,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(MobileApiToken::class);
     }
 
-    public function issueMobileApiToken(string $name = 'Mobile App', ?array $abilities = null): array
+    public function issueMobileApiToken(string $name = 'Mobile App', ?array $abilities = null, ?\Carbon\Carbon $expiresAt = null): array
     {
         $plainToken = bin2hex(random_bytes(32));
 
@@ -95,6 +95,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'token_hash' => hash('sha256', $plainToken),
             'abilities' => $abilities,
             'last_used_at' => now(),
+            'expires_at' => $expiresAt,
         ]);
 
         return [

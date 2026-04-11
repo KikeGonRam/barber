@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\MobileApiToken;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
 /**
@@ -173,6 +176,137 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Sesión cerrada correctamente.',
         ]);
+    }
+
+    /**
+     * Renovar Token
+     *
+     * Revoca el token actual y emite uno nuevo con expiración actualizada.
+     *
+     * @response {
+     *  "message": "Token renovado exitosamente.",
+     *  "token_type": "Bearer",
+     *  "token": "3|newtoken...",
+     *  "expires_at": "2026-10-11T12:00:00.000000Z",
+     *  "user": { "id": 1, "name": "Juan Pérez", "email": "juan@example.com" }
+     * }
+     */
+    public function refreshToken(Request $request): JsonResponse
+    {
+        $currentToken = $request->attributes->get('mobile_token');
+
+        if (! $currentToken instanceof MobileApiToken) {
+            return response()->json([
+                'message' => 'Token no válido.',
+            ], 401);
+        }
+
+        // Guardar referencia al usuario antes de eliminar el token
+        $user = $currentToken->user;
+
+        // Revocar token actual
+        $currentToken->delete();
+
+        // Emitir nuevo token con expiración de 6 meses
+        $issued = $user->issueMobileApiToken(
+            $currentToken->name ?? 'Mobile App',
+            $currentToken->abilities ?? ['*'],
+            now()->addMonths(6)
+        );
+
+        return response()->json([
+            'message' => 'Token renovado exitosamente.',
+            'token_type' => 'Bearer',
+            'token' => $issued['token'],
+            'expires_at' => $issued['token']->expires_at?->toISOString(),
+            'user' => $this->userPayload($user),
+        ]);
+    }
+
+    /**
+     * Recuperar Contraseña (Solicitar Enlace)
+     *
+     * Envía un enlace de recuperación de contraseña al correo del usuario.
+     *
+     * @unauthenticated
+     *
+     * @bodyParam email string required El correo del usuario registrado. Example: usuario@urbanblade.com
+     *
+     * @response {
+     *  "message": "Enlace de recuperación enviado a tu correo."
+     * }
+     * @response 400 {
+     *  "message": "No se pudo enviar el enlace de recuperación."
+     * }
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $status = Password::sendResetLink(['email' => $validated['email']]);
+
+        if ($status === Password::RESET_LINK_SENT) {
+            return response()->json([
+                'message' => 'Enlace de recuperación enviado a tu correo.',
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'No se pudo enviar el enlace de recuperación.',
+        ], 400);
+    }
+
+    /**
+     * Restablecer Contraseña
+     *
+     * Restablece la contraseña del usuario usando el token recibido por correo.
+     *
+     * @unauthenticated
+     *
+     * @bodyParam token string required El token de recuperación recibido por correo. Example: abc123
+     * @bodyParam email string required El correo del usuario. Example: usuario@urbanblade.com
+     * @bodyParam password string required Nueva contraseña (mínimo 8 caracteres). Example: nuevaPassword123
+     * @bodyParam password_confirmation string required Confirmación de la nueva contraseña. Example: nuevaPassword123
+     *
+     * @response {
+     *  "message": "Contraseña restablecida exitosamente."
+     * }
+     * @response 400 {
+     *  "message": "Token de recuperación inválido."
+     * }
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $status = Password::reset(
+            $validated,
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json([
+                'message' => 'Contraseña restablecida exitosamente.',
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Token de recuperación inválido o expirado.',
+        ], 400);
     }
 
     private function userPayload(?User $user): array

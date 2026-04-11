@@ -65,6 +65,6 @@ class ReportController extends Controller
     {
         $user = $request->user();
 
-        abort_if(! $user || ! $user->hasRole('administrador'), 403, 'No autorizado.');
+        abort_if(! $user || (! $user->hasRole('administrador') && ! $user->hasRole('recepcionista')), 403, 'No autorizado.');
     }
 }

@@ -15,6 +15,10 @@ use App\Repositories\Eloquent\ServiceRepository;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -22,11 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(AppointmentRepositoryInterface::class, AppointmentRepository::class);
-        $this->app->bind(InventoryMovementRepositoryInterface::class, InventoryMovementRepository::class);
-        $this->app->bind(PaymentRepositoryInterface::class, PaymentRepository::class);
-        $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
-        $this->app->bind(ServiceRepositoryInterface::class, ServiceRepository::class);
+        // ... (repositorios)
     }
 
     /**
@@ -36,6 +36,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Blade::directive('safeVite', function ($expression) {
             return "<?php if (file_exists(public_path('build/manifest.json'))) { echo app(\\Illuminate\\Foundation\\Vite::class)($expression); } ?>";
+        });
+
+        // 🛡️ HARDENING: Rate Limiter para Login API
+        RateLimiter::for('login', function (Request $request) {
+            return Limit::perMinute(5)->by($request->email.$request->ip());
         });
     }
 }
