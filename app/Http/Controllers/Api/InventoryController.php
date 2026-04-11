@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\Domain\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\InventoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use App\Exceptions\Domain\InsufficientStockException;
 
 /**
  * @group Inventario
@@ -25,6 +25,7 @@ class InventoryController extends Controller
      * Obtiene el catálogo de productos con su stock actual y alertas de stock bajo.
      *
      * @authenticated
+     *
      * @queryParam categoria string Filtrar por categoría. Example: Barbería
      * @queryParam tipo string Filtrar por tipo (insumo, venta). Example: venta
      *
@@ -77,6 +78,7 @@ class InventoryController extends Controller
      * Obtiene el registro de entradas y salidas de productos del almacén.
      *
      * @authenticated
+     *
      * @response {
      *  "data": [
      *    {

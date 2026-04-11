@@ -2,20 +2,19 @@
 
 namespace Tests\Feature\Observability;
 
+use App\Http\Controllers\ChatbotController;
 use App\Models\Inventory;
 use App\Models\User;
-use App\Http\Controllers\ChatbotController;
+use App\Services\BusinessEventService;
+use App\Services\ChatbotContextService;
 use App\Services\ChatbotExternalDataService;
 use App\Services\ChatbotIntelligenceService;
-use App\Services\ChatbotContextService;
 use App\Services\ChatbotLearningService;
 use App\Services\ChatbotUserProfileService;
-use App\Services\BusinessEventService;
 use App\Services\GeminiService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
-use Spatie\Activitylog\Models\Activity;
 use Tests\TestCase;
 
 class BusinessEventLoggingTest extends TestCase
@@ -86,13 +85,15 @@ class BusinessEventLoggingTest extends TestCase
 
         $chatbot = new ChatbotController(
             app(GeminiService::class),
-            new class extends ChatbotIntelligenceService {
+            new class extends ChatbotIntelligenceService
+            {
                 public function getContextualResponse(string $message, $user = null): ?string
                 {
                     return null;
                 }
             },
-            new class extends ChatbotExternalDataService {
+            new class extends ChatbotExternalDataService
+            {
                 public function getExternalResponse(string $message): ?string
                 {
                     return null;

@@ -7,9 +7,10 @@ use App\Models\Barber;
 use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Product;
-use Spatie\Activitylog\Models\Activity;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Models\Activity;
 
 class DashboardService
 {
@@ -317,7 +318,7 @@ class DashboardService
         foreach ($telemetryEvents as $event) {
             $rawProps = $event->properties;
 
-            if ($rawProps instanceof \Illuminate\Support\Collection) {
+            if ($rawProps instanceof Collection) {
                 $rawProps = $rawProps->toArray();
             } else {
                 $rawProps = (array) $rawProps;
@@ -379,7 +380,7 @@ class DashboardService
 
             foreach ($events as $event) {
                 $rawProps = $event->properties;
-                if ($rawProps instanceof \Illuminate\Support\Collection) {
+                if ($rawProps instanceof Collection) {
                     $rawProps = $rawProps->toArray();
                 } else {
                     $rawProps = (array) $rawProps;

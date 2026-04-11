@@ -1,14 +1,14 @@
 <?php
 
-use App\Http\Controllers\Api\AvailabilityController;
-use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\BarberManagementController;
 use App\Http\Controllers\Api\CatalogController;
-use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ClientController as ApiClientController;
-use App\Http\Controllers\Api\LogController as ApiLogController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\InventoryController as ApiInventoryController;
+use App\Http\Controllers\Api\LogController as ApiLogController;
 use App\Http\Controllers\Api\NotificationController as ApiNotificationController;
 use App\Http\Controllers\Api\PaymentController as ApiPaymentController;
 use App\Http\Controllers\Api\ReportController as ApiReportController;

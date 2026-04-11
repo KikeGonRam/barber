@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\Domain\AppointmentConflictException;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
-use App\Models\Barber;
 use App\Models\Client;
 use App\Models\Service;
 use App\Notifications\AppointmentNotification;
@@ -30,6 +29,7 @@ class AppointmentController extends Controller
      * Los clientes solo ven sus citas, los barberos las suyas, y la administración todas.
      *
      * @authenticated
+     *
      * @response {
      *  "data": [
      *    {
@@ -74,6 +74,7 @@ class AppointmentController extends Controller
      * Registra una nueva cita en el sistema validando la disponibilidad del barbero.
      *
      * @authenticated
+     *
      * @bodyParam barber_id int required El ID del barbero. Example: 2
      * @bodyParam service_id int required El ID del servicio. Example: 5
      * @bodyParam fecha date required La fecha de la cita (YYYY-MM-DD). Example: 2026-04-15
