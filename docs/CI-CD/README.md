@@ -22,3 +22,4 @@ El proyecto tiene cinco workflows de GitHub Actions:
 | 2 | Laravel | `laravel-tests` | El `composer.lock` requiere PHP 8.4 pero el workflow usa PHP 8.2 | [error-2-php-version-mismatch.md](./error-2-php-version-mismatch.md) |
 | 3 | Laravel | (advertencia) | La accion `setup-php` esta fijada a un commit antiguo y usa Node.js 20 obsoleto | [error-3-deprecated-action-pin.md](./error-3-deprecated-action-pin.md) |
 | 4 | SonarCloud | `sonarcloud` | Workflow inexistente, accion vulnerable, sin cobertura y fallo sin token | [error-4-sonarqube.md](./error-4-sonarqube.md) |
+| 5 | Laravel / PHP | `laravel-tests` / `tests` | `<coverage>` en phpunit.xml provoca exit code 1 sin driver de cobertura | [error-5-phpunit-coverage-driver.md](./error-5-phpunit-coverage-driver.md) |
