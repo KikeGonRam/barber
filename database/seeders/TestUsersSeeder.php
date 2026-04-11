@@ -110,7 +110,7 @@ class TestUsersSeeder extends Seeder
                 'user_id' => $c->id,
             ], [
                 'telefono' => '+52123456789'.$i,
-                'fecha_nacimiento' => '199' + $i.'-02-01',
+                'fecha_nacimiento' => '199'.$i.'-02-01',
                 'preferencias_notificacion' => [
                     'in_app' => true,
                     'email' => true,
