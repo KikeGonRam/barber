@@ -24,6 +24,9 @@ use App\Http\Controllers\Api\WarehouseController as ApiWarehouseController;
 use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
+// Backward compatibility for older frontend cache that still calls /api/availability/slots
+Route::get('availability/slots', [AvailabilityController::class, 'slots']);
+
 Route::prefix('v1')->group(function (): void {
     // Rutas públicas (sin autenticación)
     Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:login');

@@ -7,6 +7,7 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\Client\ClientAppointmentController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\DatabaseBackupController;
 use App\Http\Controllers\Inventory\InventoryMovementController;
 use App\Http\Controllers\Inventory\ProductController;
 use App\Http\Controllers\InventoryController;
@@ -95,6 +96,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware(['verified', 'role.custom:administrador'])->group(function () {
+        Route::get('backups/database', [DatabaseBackupController::class, 'download'])->name('backups.database.download');
+
         Route::middleware('permission.custom:reportes.ver')->group(function () {
             Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
             Route::get('reports/{type}/{format}', [ReportController::class, 'export'])

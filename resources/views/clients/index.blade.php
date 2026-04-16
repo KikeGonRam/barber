@@ -49,45 +49,45 @@
 
                 <!-- Desktop Table -->
                 <div class="hidden md:block ui-table-container">
-                    <table class="ui-table">
+                    <table class="ui-table table-fixed min-w-[1100px]">
                         <thead>
                             <tr>
-                                <th>Cliente</th>
-                                <th>Email</th>
-                                <th>Teléfono</th>
-                                <th>Nacimiento</th>
-                                <th>Registrado</th>
-                                <th class="text-right">Acciones</th>
+                                <th class="w-[28%]">Cliente</th>
+                                <th class="w-[25%]">Email</th>
+                                <th class="w-[18%]">Teléfono</th>
+                                <th class="w-[13%]">Nacimiento</th>
+                                <th class="w-[10%]">Registrado</th>
+                                <th class="w-[6%] text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($clients as $client)
                                 <tr>
-                                    <td class="font-medium">
+                                    <td class="font-medium whitespace-nowrap overflow-hidden text-ellipsis">
                                         <div class="flex items-center gap-3">
                                             <div class="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold">
                                                 {{ substr($client->user?->name ?? 'CL', 0, 2) }}
                                             </div>
-                                            {{ $client->user?->name ?? 'Sin usuario' }}
+                                            <span class="truncate">{{ $client->user?->name ?? 'Sin usuario' }}</span>
                                         </div>
                                     </td>
-                                    <td>{{ $client->user?->email ?: '-' }}</td>
-                                    <td>
+                                    <td class="whitespace-nowrap overflow-hidden text-ellipsis">{{ $client->user?->email ?: '-' }}</td>
+                                    <td class="whitespace-nowrap">
                                         <div class="flex items-center gap-1">
                                             <svg class="h-3.5 w-3.5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
-                                            {{ $client->telefono ?: 'No registrado' }}
+                                            <span class="truncate">{{ $client->telefono ?: 'No registrado' }}</span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="whitespace-nowrap">
                                         {{ $client->fecha_nacimiento?->format('d M, Y') ?: '-' }}
                                     </td>
-                                    <td class="text-muted text-xs">
+                                    <td class="text-muted text-xs whitespace-nowrap">
                                         {{ $client->created_at?->format('d/m/Y') }}
                                     </td>
-                                    <td class="text-right">
-                                        <div class="flex justify-end gap-2">
+                                    <td class="text-right whitespace-nowrap">
+                                        <div class="flex justify-end gap-3">
                                             <a href="{{ route('clients.edit', $client) }}" class="text-muted hover:text-blue-600 transition-colors" title="Editar">
                                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

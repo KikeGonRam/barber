@@ -1,19 +1,26 @@
-# ─────────────────────────────────────────────────────────────
-# STAGE 1: Asset Builder (Vite + Node.js)
-# ─────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
+# STAGE 1: Frontend (Vite + Node)
+# ─────────────────────────────────────────────
 FROM node:22-alpine AS node_builder
+
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm ci --no-audit
+
 COPY . .
 RUN npm run build
 
-# ─────────────────────────────────────────────────────────────
-# STAGE 2: PHP Application (FPM + Alpine)
-# ─────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
+# STAGE 2: PHP (Laravel App)
+# ─────────────────────────────────────────────
 FROM php:8.4-fpm-alpine
 
-# Argumentos de compilación
+# Copiar entrypoint al lugar correcto SOLO en la etapa final
+COPY .docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Argumentos
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 
@@ -21,14 +28,16 @@ ARG GROUP_ID=1000
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions
 
-# Instalación de dependencias del sistema y PHP
+# Dependencias del sistema + PHP
 RUN apk add --no-cache \
     bash \
     curl \
     git \
+    mariadb-client \
     libcap \
     unzip \
     zip \
+    netcat-openbsd \
     && install-php-extensions \
     bcmath \
     gd \
@@ -42,20 +51,42 @@ RUN apk add --no-cache \
     dom \
     curl
 
-# Composer oficial
-COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
+# Composer (oficial)
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Configuración personalizada de PHP y FPM
+# Configuración PHP/FPM
 COPY .docker/php/php.ini /usr/local/etc/php/conf.d/app-php.ini
 COPY .docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
-# Creación de usuario profesional
+# Crear usuario (ANTES de copiar archivos)
 RUN addgroup -g ${GROUP_ID} laravel && \
     adduser -u ${USER_ID} -G laravel -s /bin/sh -D laravel
 
-# Pre-creamos la estructura de storage
+###############################################
+# Copiar solo archivos de dependencias primero #
+###############################################
+COPY composer.json composer.lock ./
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts --no-progress || true
+
+# Copiar solo archivos de npm primero
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit || true
+
+
+###############################################
+# Copiar el resto del proyecto y assets        #
+###############################################
+# Copiar el resto del proyecto y assets
+COPY . .
+COPY --from=node_builder /app/public/build ./public/build
+# Renombrar .env a .env.local para que Laravel use .env.testing en tests
+RUN if [ -f .env ]; then mv .env .env.local; fi
+# Eliminar cache de configuración de Laravel
+RUN rm -f bootstrap/cache/config.php
+
+# Crear estructura Laravel
 RUN mkdir -p \
     storage/app/public \
     storage/framework/cache/data \
@@ -63,20 +94,19 @@ RUN mkdir -p \
     storage/framework/testing \
     storage/framework/views \
     storage/logs \
-    bootstrap/cache && \
-    chown -R laravel:laravel storage bootstrap/cache && \
+    bootstrap/cache
+
+# Permisos
+RUN chown -R laravel:laravel /var/www/html && \
     chmod -R 775 storage bootstrap/cache
 
-# Copia de archivos
-COPY --chown=laravel:laravel . .
-COPY --from=node_builder --chown=laravel:laravel /app/public/build ./public/build
-
+# Cambiar a usuario seguro
 USER laravel
 
-# Instalación de dependencias PHP
-RUN composer install --optimize-autoloader --no-interaction
+# ⚠️ IMPORTANTE: NO ejecutar composer aquí
+# Se hará en entrypoint (para evitar problemas con volumes)
 
 EXPOSE 9000
 
-ENTRYPOINT [".docker/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["php-fpm"]

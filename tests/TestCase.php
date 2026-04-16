@@ -25,19 +25,6 @@ abstract class TestCase extends BaseTestCase
 
         Config::set('mail.default', 'array');
 
-        $sqliteDatabase = Config::get('database.connections.sqlite.database');
-
-        if (is_string($sqliteDatabase) && $sqliteDatabase !== ':memory:') {
-            $sqliteDirectory = dirname($sqliteDatabase);
-
-            if (! is_dir($sqliteDirectory)) {
-                @mkdir($sqliteDirectory, 0755, true);
-            }
-
-            if (! file_exists($sqliteDatabase)) {
-                @touch($sqliteDatabase);
-            }
-        }
 
         if (Schema::hasTable('permissions')) {
             app(PermissionRegistrar::class)->forgetCachedPermissions();

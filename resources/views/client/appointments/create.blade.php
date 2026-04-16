@@ -227,10 +227,14 @@
                 async fetchSlots() {
                     this.loadingSlots = true;
                     try {
-                        const response = await fetch(`/api/availability/slots?barber_id=${this.selectedBarber.id}&service_id=${this.selectedService.id}&date=${this.selectedDate}`);
+                        const response = await fetch(`/api/v1/availability/slots?barber_id=${this.selectedBarber.id}&service_id=${this.selectedService.id}&date=${this.selectedDate}`);
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
                         const data = await response.json();
                         this.slots = data.slots;
                     } catch (e) {
+                        this.slots = [];
                         console.error('Error fetching slots', e);
                     } finally {
                         this.loadingSlots = false;

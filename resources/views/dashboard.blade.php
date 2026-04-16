@@ -24,6 +24,11 @@
                         <span>{{ ($maintenanceMode ?? false) ? 'Sistema en Mantenimiento' : 'Modo Mantenimiento' }}</span>
                     </button>
                 </form>
+                <a href="{{ route('backups.database.download') }}"
+                   class="flex items-center gap-2 px-4 py-2 rounded-xl border bg-green-500/10 border-green-500/30 text-green-300 hover:text-white hover:bg-green-500/20 transition-all text-[10px] font-black uppercase tracking-widest">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.105.895-2 2-2h4a2 2 0 012 2v4a2 2 0 01-2 2h-4a2 2 0 01-2-2m0-4H8a2 2 0 00-2 2v4a2 2 0 002 2h4m0-8V7a2 2 0 00-2-2H6a2 2 0 00-2 2v4m8 0v4" /></svg>
+                    <span>Backup BD</span>
+                </a>
                 @endif
                 <span class="ui-badge bg-white shadow-sm ring-1 ring-white/10 border-white/5">
                     <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse mr-2"></span>

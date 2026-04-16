@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Barber;
+use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -11,6 +12,39 @@ class TestUsersSeeder extends Seeder
 {
     public function run(): void
     {
+        BarbershopSetting::updateOrCreate(
+            ['id' => 1],
+            [
+                'nombre' => 'BarberPro Elite',
+                'horario_apertura' => '09:00',
+                'horario_cierre' => '21:00',
+                'politica_cancelacion' => 24,
+                'maintenance_mode' => false,
+            ]
+        );
+
+        $seedSchedule = static function (Barber $barber): void {
+            for ($day = 1; $day <= 6; $day++) {
+                $barber->schedules()->updateOrCreate(
+                    ['day_of_week' => $day],
+                    [
+                        'start_time' => '09:00:00',
+                        'end_time' => '21:00:00',
+                        'is_working' => true,
+                    ]
+                );
+            }
+
+            $barber->schedules()->updateOrCreate(
+                ['day_of_week' => 0],
+                [
+                    'start_time' => null,
+                    'end_time' => null,
+                    'is_working' => false,
+                ]
+            );
+        };
+
         // Recepcionista principal
         $recep = User::firstOrCreate(
             ['email' => 'recepcionista@test.com'],
@@ -32,7 +66,7 @@ class TestUsersSeeder extends Seeder
             ]
         );
         $barber->assignRole('barbero');
-        Barber::firstOrCreate([
+        $barberProfile = Barber::firstOrCreate([
             'user_id' => $barber->id,
         ], [
             'especialidades' => 'Fade, Barba',
@@ -40,6 +74,7 @@ class TestUsersSeeder extends Seeder
             'descripcion' => 'Barbero de pruebas automatizadas',
             'activo' => true,
         ]);
+        $seedSchedule($barberProfile);
 
         // Cliente principal (perfil completo)
         $client = User::firstOrCreate(
@@ -87,7 +122,7 @@ class TestUsersSeeder extends Seeder
                 ]
             );
             $b->assignRole('barbero');
-            Barber::firstOrCreate([
+            $barberExtra = Barber::firstOrCreate([
                 'user_id' => $b->id,
             ], [
                 'especialidades' => 'Corte clásico',
@@ -95,6 +130,7 @@ class TestUsersSeeder extends Seeder
                 'descripcion' => "Barbero de pruebas ${i}",
                 'activo' => true,
             ]);
+            $seedSchedule($barberExtra);
 
             // Cliente extra (perfil completo)
             $c = User::firstOrCreate(

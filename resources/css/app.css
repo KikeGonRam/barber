@@ -244,6 +244,34 @@
         @apply rounded-2xl border border-line bg-card p-5 transition-all duration-300 hover:border-gold/30 hover:bg-accent hover:shadow-lg;
     }
 
+    .ui-table-container {
+        @apply overflow-x-auto rounded-2xl border border-line bg-panel shadow-[0_18px_40px_rgba(0,0,0,0.35)];
+    }
+
+    .ui-table {
+        @apply w-full min-w-[820px] border-collapse text-sm;
+    }
+
+    .ui-table thead {
+        @apply bg-white/5 text-muted;
+    }
+
+    .ui-table thead th {
+        @apply px-5 py-4 text-left text-[10px] font-black uppercase tracking-[0.22em] whitespace-nowrap;
+    }
+
+    .ui-table tbody td {
+        @apply px-5 py-4 align-middle text-ink border-t border-white/5;
+    }
+
+    .ui-table tbody tr:last-child td {
+        @apply border-b-0;
+    }
+
+    .ui-table tbody tr:nth-child(even) {
+        @apply bg-white/[0.02];
+    }
+
     .ui-table tr {
         @apply transition-all duration-200;
     }

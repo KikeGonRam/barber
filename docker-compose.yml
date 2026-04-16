@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
 
   # 🚀 Servidor de Aplicación
@@ -9,22 +11,23 @@ services:
     env_file: .env
     volumes:
       - .:/var/www/html
+      - vendor_data:/var/www/html/vendor
+      - ./.docker/php/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
-      # Chequeo ultra-ligero: ¿Está el puerto 9000 abierto?
       test: ["CMD-SHELL", "nc -z localhost 9000 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
-      start_period: 180s
+      start_period: 60s
     networks:
       - internal
 
-  # 🌐 Servidor Web
+  # 🌐 Servidor Web (NGINX)
   web:
     image: nginx:alpine
     container_name: barber-web
@@ -48,6 +51,7 @@ services:
     env_file: .env
     volumes:
       - .:/var/www/html
+      - vendor_data:/var/www/html/vendor
     depends_on:
       app:
         condition: service_healthy
@@ -55,7 +59,7 @@ services:
     networks:
       - internal
 
-  # ⏰ Task Scheduler
+  # ⏰ Scheduler
   scheduler:
     build: .
     container_name: barber-scheduler
@@ -63,6 +67,7 @@ services:
     env_file: .env
     volumes:
       - .:/var/www/html
+      - vendor_data:/var/www/html/vendor
     depends_on:
       app:
         condition: service_healthy
@@ -81,7 +86,7 @@ services:
     networks:
       - internal
 
-  # 🗄️ Database
+  # 🗄️ MySQL
   mysql:
     image: mysql:8.0
     container_name: barber-mysql
@@ -134,3 +139,4 @@ networks:
 
 volumes:
   mysql_data:
+  vendor_data:

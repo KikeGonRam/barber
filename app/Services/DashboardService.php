@@ -73,8 +73,8 @@ class DashboardService
             $progress = 0;
 
             if ($isBusy) {
-                $start = Carbon::parse($currentAppt->fecha.' '.$currentAppt->hora_inicio);
-                $end = Carbon::parse($currentAppt->fecha.' '.$currentAppt->hora_fin);
+                $start = Carbon::parse($currentAppt->fecha)->setTimeFromTimeString($currentAppt->hora_inicio);
+                $end = Carbon::parse($currentAppt->fecha)->setTimeFromTimeString($currentAppt->hora_fin);
                 $total = $end->diffInMinutes($start);
                 $elapsed = $now->diffInMinutes($start);
                 $progress = min(100, max(0, round(($elapsed / ($total ?: 1)) * 100)));

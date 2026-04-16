@@ -1,0 +1,20 @@
+services:
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin-xampp
+    environment:
+      - PMA_HOST=barber-mysql
+      - PMA_PORT=3306
+      - PMA_USER=${DB_USERNAME}
+      - PMA_PASSWORD=${DB_PASSWORD}
+      - PMA_ARBITRARY=0
+    ports:
+      - "8082:80"
+    restart: unless-stopped
+    networks:
+      - barber_net
+
+networks:
+  barber_net:
+    external: true
+    name: barber_internal
