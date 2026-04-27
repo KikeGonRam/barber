@@ -40,7 +40,7 @@ class MiddlewareTest extends TestCase
 
         $this->assertSame(401, $response->getStatusCode());
         $data = json_decode($response->getContent(), true);
-        $this->assertStringContainsString('nv', $data['message']);
+        $this->assertSame('Token inválido o expirado.', $data['message']);
     }
 
     public function test_mobile_api_middleware_returns_401_for_expired_token(): void
