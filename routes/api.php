@@ -21,6 +21,9 @@ use App\Http\Controllers\Api\SettingController as ApiSettingController;
 use App\Http\Controllers\Api\SocialController as ApiSocialController;
 use App\Http\Controllers\Api\UserController as ApiUserController;
 use App\Http\Controllers\Api\WarehouseController as ApiWarehouseController;
+use App\Http\Controllers\Api\Admin\DashboardAdminController;
+use App\Http\Controllers\Api\Admin\BarberAdminController;
+use App\Http\Controllers\Api\Admin\ClientAdminController;
 use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
@@ -149,5 +152,31 @@ Route::prefix('v1')->group(function (): void {
         // Horarios de Barbero
         Route::get('barber/schedule', [BarberScheduleController::class, 'show']);
         Route::put('barber/schedule', [BarberScheduleController::class, 'update']);
+
+        // Admin Dashboard (Phase 1)
+        Route::prefix('admin')->middleware('role.custom:administrador')->group(function (): void {
+            Route::get('dashboard/stats', [DashboardAdminController::class, 'getStats']);
+            Route::get('dashboard/appointments', [DashboardAdminController::class, 'getUpcomingAppointments']);
+            Route::get('dashboard/revenue', [DashboardAdminController::class, 'getRevenue']);
+            Route::get('dashboard/alerts', [DashboardAdminController::class, 'getAlerts']);
+            Route::get('dashboard/metrics', [DashboardAdminController::class, 'getMetrics']);
+
+            // Barberos (Phase 2)
+            Route::get('barbers', [BarberAdminController::class, 'getBarbers']);
+            Route::get('barbers/{barberId}', [BarberAdminController::class, 'show']);
+            Route::get('barbers/{barberId}/schedule', [BarberAdminController::class, 'getSchedule']);
+            Route::get('barbers/{barberId}/clients', [BarberAdminController::class, 'getRegularClients']);
+            Route::get('barbers/{barberId}/performance', [BarberAdminController::class, 'getPerformanceStats']);
+            Route::put('barbers/{barberId}', [BarberAdminController::class, 'update']);
+
+            // Clientes (Phase 2)
+            Route::get('clients', [ClientAdminController::class, 'getClients']);
+            Route::get('clients/{clientId}', [ClientAdminController::class, 'show']);
+            Route::post('clients', [ClientAdminController::class, 'store']);
+            Route::put('clients/{clientId}', [ClientAdminController::class, 'update']);
+            Route::delete('clients/{clientId}', [ClientAdminController::class, 'destroy']);
+            Route::get('clients/segmentation/data', [ClientAdminController::class, 'getSegmentation']);
+            Route::get('clients/export', [ClientAdminController::class, 'export']);
+        });
     });
 });
