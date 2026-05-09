@@ -24,6 +24,8 @@ use App\Http\Controllers\Api\WarehouseController as ApiWarehouseController;
 use App\Http\Controllers\Api\Admin\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\BarberAdminController;
 use App\Http\Controllers\Api\Admin\ClientAdminController;
+use App\Http\Controllers\Api\Admin\InventoryAdminController;
+use App\Http\Controllers\Api\Admin\ReportAdminController;
 use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
@@ -177,6 +179,26 @@ Route::prefix('v1')->group(function (): void {
             Route::delete('clients/{clientId}', [ClientAdminController::class, 'destroy']);
             Route::get('clients/segmentation/data', [ClientAdminController::class, 'getSegmentation']);
             Route::get('clients/export', [ClientAdminController::class, 'export']);
+
+            // Inventario (Phase 3)
+            Route::get('inventory/products', [InventoryAdminController::class, 'getProducts']);
+            Route::get('inventory/products/{productId}', [InventoryAdminController::class, 'show']);
+            Route::post('inventory/products', [InventoryAdminController::class, 'store']);
+            Route::put('inventory/products/{productId}', [InventoryAdminController::class, 'update']);
+            Route::delete('inventory/products/{productId}', [InventoryAdminController::class, 'destroy']);
+            Route::post('inventory/products/{productId}/movement', [InventoryAdminController::class, 'recordMovement']);
+            Route::get('inventory/movements', [InventoryAdminController::class, 'getMovements']);
+            Route::get('inventory/summary', [InventoryAdminController::class, 'getSummary']);
+            Route::get('inventory/low-stock', [InventoryAdminController::class, 'getLowStockProducts']);
+
+            // Reportes (Phase 3)
+            Route::get('reports/revenue', [ReportAdminController::class, 'generateRevenueReport']);
+            Route::get('reports/appointments', [ReportAdminController::class, 'generateAppointmentsReport']);
+            Route::get('reports/inventory', [ReportAdminController::class, 'generateInventoryReport']);
+            Route::get('reports/clients', [ReportAdminController::class, 'generateClientsReport']);
+            Route::post('reports/custom', [ReportAdminController::class, 'generateCustomReport']);
+            Route::get('reports/list', [ReportAdminController::class, 'listReports']);
+            Route::get('reports/export', [ReportAdminController::class, 'exportReport']);
         });
     });
 });
