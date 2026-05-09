@@ -149,6 +149,12 @@
 
     <!-- User Footer Section (Fixed) -->
     <div :class="open ? 'block' : 'hidden'" class="hidden space-y-4 pt-4 lg:block border-t border-white/10 flex-shrink-0">
+         <!-- Dark Mode Toggle y Keyboard Shortcuts -->
+         <div class="px-2 mb-2 flex items-center gap-2 justify-between">
+             <x-dark-mode-toggle />
+             <x-keyboard-shortcuts-help />
+         </div>
+
          <!-- Shortcut Hint -->
          <div class="px-2 mb-2 hidden lg:block">
             <div class="flex items-center justify-between rounded-lg bg-white/5 px-2 py-1.5 border border-white/5">
