@@ -57,12 +57,12 @@
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                             <div>
                                 <label class="ui-label" for="horario_apertura">Apertura</label>
-                                <input id="horario_apertura" type="time" name="horario_apertura" value="{{ old('horario_apertura', $setting->horario_apertura?->format('H:i')) }}" class="ui-input !bg-panel border-white/10 text-white">
+                                <input id="horario_apertura" type="time" name="horario_apertura" value="{{ old('horario_apertura', $setting->horario_apertura) }}" class="ui-input !bg-panel border-white/10 text-white">
                                 @error('horario_apertura') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <label class="ui-label" for="horario_cierre">Cierre</label>
-                                <input id="horario_cierre" type="time" name="horario_cierre" value="{{ old('horario_cierre', $setting->horario_cierre?->format('H:i')) }}" class="ui-input !bg-panel border-white/10 text-white">
+                                <input id="horario_cierre" type="time" name="horario_cierre" value="{{ old('horario_cierre', $setting->horario_cierre) }}" class="ui-input !bg-panel border-white/10 text-white">
                                 @error('horario_cierre') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                             </div>
                             <div>
