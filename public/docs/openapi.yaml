@@ -17,8 +17,20 @@ tags:
     name: Endpoints
     description: ''
   -
+    name: 'Gestión de Chatbot'
+    description: "\nEndpoints para gestionar el chatbot (historial, perfil, estadísticas)."
+  -
+    name: 'Gestión de Perfil'
+    description: "\nEndpoints para gestionar el perfil del usuario autenticado."
+  -
+    name: 'Horarios de Barbero'
+    description: "\nEndpoints para gestionar los horarios del barbero."
+  -
     name: Inventario
     description: "\nGestión de productos, stock y movimientos de almacén."
+  -
+    name: 'Portafolio de Barbero'
+    description: "\nEndpoints para gestionar el portafolio de trabajos del barbero."
 paths:
   /api/v1/auth/login:
     post:
@@ -184,6 +196,115 @@ paths:
                 - password
                 - password_confirmation
       security: []
+  /api/v1/auth/forgot-password:
+    post:
+      summary: 'Recuperar Contraseña (Solicitar Enlace)'
+      operationId: recuperarContraseaSolicitarEnlace
+      description: 'Envía un enlace de recuperación de contraseña al correo del usuario.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Enlace de recuperación enviado a tu correo.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Enlace de recuperación enviado a tu correo.'
+        400:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No se pudo enviar el enlace de recuperación.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No se pudo enviar el enlace de recuperación.'
+      tags:
+        - Autenticación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'El correo del usuario registrado.'
+                  example: usuario@urbanblade.com
+              required:
+                - email
+      security: []
+  /api/v1/auth/reset-password:
+    post:
+      summary: 'Restablecer Contraseña'
+      operationId: restablecerContrasea
+      description: 'Restablece la contraseña del usuario usando el token recibido por correo.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Contraseña restablecida exitosamente.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Contraseña restablecida exitosamente.'
+        400:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Token de recuperación inválido.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Token de recuperación inválido.'
+      tags:
+        - Autenticación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: 'El token de recuperación recibido por correo.'
+                  example: abc123
+                email:
+                  type: string
+                  description: 'El correo del usuario.'
+                  example: usuario@urbanblade.com
+                password:
+                  type: string
+                  description: 'Nueva contraseña (mínimo 8 caracteres).'
+                  example: nuevaPassword123
+                password_confirmation:
+                  type: string
+                  description: 'Confirmación de la nueva contraseña.'
+                  example: nuevaPassword123
+              required:
+                - token
+                - email
+                - password
+                - password_confirmation
+      security: []
   /api/v1/auth/me:
     get:
       summary: ''
@@ -213,6 +334,56 @@ paths:
       description: ''
       parameters: []
       responses: {  }
+      tags:
+        - Autenticación
+      security: []
+  /api/v1/auth/refresh-token:
+    post:
+      summary: 'Renovar Token'
+      operationId: renovarToken
+      description: 'Revoca el token actual y emite uno nuevo con expiración actualizada.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Token renovado exitosamente.'
+                  token_type: Bearer
+                  token: 3|newtoken...
+                  expires_at: '2026-10-11T12:00:00.000000Z'
+                  user:
+                    id: 1
+                    name: 'Juan Pérez'
+                    email: juan@example.com
+                properties:
+                  message:
+                    type: string
+                    example: 'Token renovado exitosamente.'
+                  token_type:
+                    type: string
+                    example: Bearer
+                  token:
+                    type: string
+                    example: 3|newtoken...
+                  expires_at:
+                    type: string
+                    example: '2026-10-11T12:00:00.000000Z'
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: 'Juan Pérez'
+                      email:
+                        type: string
+                        example: juan@example.com
       tags:
         - Autenticación
       security: []
@@ -423,15 +594,15 @@ paths:
                 fecha:
                   type: string
                   description: 'validation.date validation.after_or_equal.'
-                  example: '2052-05-03'
+                  example: '2052-05-31'
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '23:00'
+                  example: '22:53'
                 estado:
                   type: string
                   description: ''
-                  example: pendiente
+                  example: confirmada
                   enum:
                     - pendiente
                     - confirmada
@@ -466,7 +637,7 @@ paths:
         in: path
         name: appointment_id
         description: 'The ID of the appointment.'
-        example: 16
+        example: 8
         required: true
         schema:
           type: integer
@@ -489,7 +660,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: confirmada
                   enum:
                     - pendiente
                     - confirmada
@@ -510,10 +681,75 @@ paths:
         in: path
         name: appointment_id
         description: 'The ID of the appointment.'
-        example: 16
+        example: 8
         required: true
         schema:
           type: integer
+  /api/availability/slots:
+    get:
+      summary: ''
+      operationId: getApiAvailabilitySlots
+      description: ''
+      parameters: []
+      responses:
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'validation.exists (and 1 more error)'
+                  errors:
+                    barber_id:
+                      - validation.exists
+                    service_id:
+                      - validation.exists
+                properties:
+                  message:
+                    type: string
+                    example: 'validation.exists (and 1 more error)'
+                  errors:
+                    type: object
+                    properties:
+                      barber_id:
+                        type: array
+                        example:
+                          - validation.exists
+                        items:
+                          type: string
+                      service_id:
+                        type: array
+                        example:
+                          - validation.exists
+                        items:
+                          type: string
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                barber_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the barbers table.'
+                  example: architecto
+                service_id:
+                  type: string
+                  description: 'The <code>id</code> of an existing record in the services table.'
+                  example: architecto
+                date:
+                  type: string
+                  description: 'validation.date validation.after_or_equal.'
+                  example: '2052-05-31'
+              required:
+                - barber_id
+                - service_id
+                - date
+      security: []
   /api/v1/services:
     get:
       summary: ''
@@ -528,11 +764,52 @@ paths:
               schema:
                 type: object
                 example:
-                  data: []
+                  data:
+                    -
+                      id: 9
+                      nombre: 'TEST DER SERVICE'
+                      categoria: BAHB
+                      precio: '120.00'
+                      duracion_min: 159
+                      imagen: null
+                      descripcion: 'TETVSG B'
                 properties:
                   data:
                     type: array
-                    example: []
+                    example:
+                      -
+                        id: 9
+                        nombre: 'TEST DER SERVICE'
+                        categoria: BAHB
+                        precio: '120.00'
+                        duracion_min: 159
+                        imagen: null
+                        descripcion: 'TETVSG B'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 9
+                        nombre:
+                          type: string
+                          example: 'TEST DER SERVICE'
+                        categoria:
+                          type: string
+                          example: BAHB
+                        precio:
+                          type: string
+                          example: '120.00'
+                        duracion_min:
+                          type: integer
+                          example: 159
+                        imagen:
+                          type: string
+                          example: null
+                          nullable: true
+                        descripcion:
+                          type: string
+                          example: 'TETVSG B'
       tags:
         - Endpoints
       security: []
@@ -550,11 +827,65 @@ paths:
               schema:
                 type: object
                 example:
-                  data: []
+                  data:
+                    -
+                      id: 9
+                      name: 'Barbero Test'
+                      especialidades: 'Fade, Barba'
+                      foto: barbers/29/15/04/2026/cddcbff9-42ec-4209-bc8b-d724fd474b83.png
+                      descripcion: 'Barbero de pruebas automatizadas'
+                    -
+                      id: 10
+                      name: 'Barbero Test 1'
+                      especialidades: 'Corte clásico'
+                      foto: null
+                      descripcion: 'Barbero de pruebas 1'
+                    -
+                      id: 11
+                      name: 'Barbero Test 2'
+                      especialidades: 'Corte clásico'
+                      foto: null
+                      descripcion: 'Barbero de pruebas 2'
                 properties:
                   data:
                     type: array
-                    example: []
+                    example:
+                      -
+                        id: 9
+                        name: 'Barbero Test'
+                        especialidades: 'Fade, Barba'
+                        foto: barbers/29/15/04/2026/cddcbff9-42ec-4209-bc8b-d724fd474b83.png
+                        descripcion: 'Barbero de pruebas automatizadas'
+                      -
+                        id: 10
+                        name: 'Barbero Test 1'
+                        especialidades: 'Corte clásico'
+                        foto: null
+                        descripcion: 'Barbero de pruebas 1'
+                      -
+                        id: 11
+                        name: 'Barbero Test 2'
+                        especialidades: 'Corte clásico'
+                        foto: null
+                        descripcion: 'Barbero de pruebas 2'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 9
+                        name:
+                          type: string
+                          example: 'Barbero Test'
+                        especialidades:
+                          type: string
+                          example: 'Fade, Barba'
+                        foto:
+                          type: string
+                          example: barbers/29/15/04/2026/cddcbff9-42ec-4209-bc8b-d724fd474b83.png
+                        descripcion:
+                          type: string
+                          example: 'Barbero de pruebas automatizadas'
       tags:
         - Endpoints
       security: []
@@ -617,7 +948,7 @@ paths:
                 date:
                   type: string
                   description: 'validation.date validation.after_or_equal.'
-                  example: '2052-05-03'
+                  example: '2052-05-31'
               required:
                 - barber_id
                 - service_id
@@ -637,15 +968,91 @@ paths:
               schema:
                 type: object
                 example:
-                  data: []
+                  data:
+                    -
+                      id: 1
+                      title: TETS
+                      description: YGBGTFVGB
+                      work_date: null
+                      barber:
+                        id: 29
+                        name: 'Barbero Test'
+                      images:
+                        - portfolio/aY4tLlvTSMbsTWZjiKi7VwhzSqq7KVwTvmelfcST.png
+                      reactions_count: 2
+                      comments_count: 0
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
                   meta:
                     current_page: 1
                     last_page: 1
-                    total: 0
+                    total: 1
                 properties:
                   data:
                     type: array
-                    example: []
+                    example:
+                      -
+                        id: 1
+                        title: TETS
+                        description: YGBGTFVGB
+                        work_date: null
+                        barber:
+                          id: 29
+                          name: 'Barbero Test'
+                        images:
+                          - portfolio/aY4tLlvTSMbsTWZjiKi7VwhzSqq7KVwTvmelfcST.png
+                        reactions_count: 2
+                        comments_count: 0
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        title:
+                          type: string
+                          example: TETS
+                        description:
+                          type: string
+                          example: YGBGTFVGB
+                        work_date:
+                          type: string
+                          example: null
+                          nullable: true
+                        barber:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 29
+                            name:
+                              type: string
+                              example: 'Barbero Test'
+                        images:
+                          type: array
+                          example:
+                            - portfolio/aY4tLlvTSMbsTWZjiKi7VwhzSqq7KVwTvmelfcST.png
+                          items:
+                            type: string
+                        reactions_count:
+                          type: integer
+                          example: 2
+                        comments_count:
+                          type: integer
+                          example: 0
+                        saved_count:
+                          type: integer
+                          example: 0
+                        is_reacted:
+                          type: boolean
+                          example: false
+                        is_saved:
+                          type: boolean
+                          example: false
                   meta:
                     type: object
                     properties:
@@ -657,7 +1064,17 @@ paths:
                         example: 1
                       total:
                         type: integer
-                        example: 0
+                        example: 1
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/chatbot/query:
+    post:
+      summary: ''
+      operationId: postApiV1ChatbotQuery
+      description: ''
+      parameters: []
+      responses: {  }
       tags:
         - Endpoints
       security: []
@@ -683,10 +1100,10 @@ paths:
       tags:
         - Endpoints
       security: []
-  /api/v1/notifications:
+  /api/v1/payments:
     get:
       summary: ''
-      operationId: getApiV1Notifications
+      operationId: getApiV1Payments
       description: ''
       parameters: []
       responses:
@@ -705,58 +1122,9 @@ paths:
       tags:
         - Endpoints
       security: []
-  /api/v1/notifications/read-all:
     post:
       summary: ''
-      operationId: postApiV1NotificationsReadAll
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      security: []
-  '/api/v1/social/work/{work_id}/react':
-    post:
-      summary: ''
-      operationId: postApiV1SocialWorkWork_idReact
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      security: []
-    parameters:
-      -
-        in: path
-        name: work_id
-        description: 'The ID of the work.'
-        example: 16
-        required: true
-        schema:
-          type: integer
-  '/api/v1/social/work/{work_id}/save':
-    post:
-      summary: ''
-      operationId: postApiV1SocialWorkWork_idSave
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      security: []
-    parameters:
-      -
-        in: path
-        name: work_id
-        description: 'The ID of the work.'
-        example: 16
-        required: true
-        schema:
-          type: integer
-  '/api/v1/social/work/{work_id}/comment':
-    post:
-      summary: ''
-      operationId: postApiV1SocialWorkWork_idComment
+      operationId: postApiV1Payments
       description: ''
       parameters: []
       responses: {  }
@@ -769,19 +1137,464 @@ paths:
             schema:
               type: object
               properties:
-                comment:
+                appointment_id:
+                  type: integer
+                  description: 'The <code>id</code> of an existing record in the appointments table.'
+                  example: 16
+                monto:
+                  type: number
+                  description: validation.min.
+                  example: 39
+                metodo_pago:
                   type: string
-                  description: validation.max.
-                  example: b
+                  description: ''
+                  example: qr
+                  enum:
+                    - efectivo
+                    - tarjeta
+                    - transferencia
+                    - qr
+                propina:
+                  type: number
+                  description: validation.min.
+                  example: 84
+                  nullable: true
               required:
-                - comment
+                - appointment_id
+                - monto
+                - metodo_pago
+      security: []
+  '/api/v1/payments/{payment_id}':
+    delete:
+      summary: ''
+      operationId: deleteApiV1PaymentsPayment_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
       security: []
     parameters:
       -
         in: path
-        name: work_id
-        description: 'The ID of the work.'
+        name: payment_id
+        description: 'The ID of the payment.'
         example: 16
+        required: true
+        schema:
+          type: integer
+  '/api/v1/payments/{payment_id}/receipt':
+    get:
+      summary: ''
+      operationId: getApiV1PaymentsPayment_idReceipt
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No query results for model [App\Models\Payment] 16'
+                properties:
+                  message:
+                    type: string
+                    example: 'No query results for model [App\Models\Payment] 16'
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: payment_id
+        description: 'The ID of the payment.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/clients:
+    get:
+      summary: ''
+      operationId: getApiV1Clients
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: ''
+      operationId: postApiV1Clients
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: validation.max.
+                  example: b
+                email:
+                  type: string
+                  description: 'validation.email validation.max.'
+                  example: zbailey@example.net
+                password:
+                  type: string
+                  description: validation.min.
+                  example: '-0pBNvYgxw'
+                  nullable: true
+                telefono:
+                  type: string
+                  description: validation.max.
+                  example: a
+                  nullable: true
+                fecha_nacimiento:
+                  type: string
+                  description: validation.date.
+                  example: '2026-05-08T22:53:11'
+                  nullable: true
+                pref_in_app:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+                pref_email:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+                pref_sms:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+                pref_whatsapp:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+              required:
+                - name
+                - email
+      security: []
+  '/api/v1/clients/{client_id}':
+    put:
+      summary: ''
+      operationId: putApiV1ClientsClient_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: validation.max.
+                  example: b
+                email:
+                  type: string
+                  description: 'validation.email validation.max.'
+                  example: zbailey@example.net
+                telefono:
+                  type: string
+                  description: validation.max.
+                  example: i
+                  nullable: true
+                fecha_nacimiento:
+                  type: string
+                  description: validation.date.
+                  example: '2026-05-08T22:53:11'
+                  nullable: true
+                pref_in_app:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+                pref_email:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+                pref_sms:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+                pref_whatsapp:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+              required:
+                - name
+                - email
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiV1ClientsClient_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: client_id
+        description: 'The ID of the client.'
+        example: 9
+        required: true
+        schema:
+          type: integer
+  /api/v1/services/manage:
+    get:
+      summary: ''
+      operationId: getApiV1ServicesManage
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: ''
+      operationId: postApiV1ServicesManage
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: validation.max.
+                  example: b
+                categoria:
+                  type: string
+                  description: validation.max.
+                  example: 'n'
+                precio:
+                  type: number
+                  description: validation.min.
+                  example: 84
+                duracion_min:
+                  type: integer
+                  description: 'validation.min validation.max.'
+                  example: 16
+                imagen:
+                  type: string
+                  description: validation.max.
+                  example: m
+                  nullable: true
+                descripcion:
+                  type: string
+                  description: validation.max.
+                  example: i
+                  nullable: true
+                activo:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+              required:
+                - nombre
+                - categoria
+                - precio
+                - duracion_min
+      security: []
+  '/api/v1/services/manage/{service_id}':
+    put:
+      summary: ''
+      operationId: putApiV1ServicesManageService_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: validation.max.
+                  example: b
+                categoria:
+                  type: string
+                  description: validation.max.
+                  example: 'n'
+                precio:
+                  type: number
+                  description: validation.min.
+                  example: 84
+                duracion_min:
+                  type: integer
+                  description: 'validation.min validation.max.'
+                  example: 16
+                imagen:
+                  type: string
+                  description: validation.max.
+                  example: m
+                  nullable: true
+                descripcion:
+                  type: string
+                  description: validation.max.
+                  example: i
+                  nullable: true
+                activo:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+              required:
+                - nombre
+                - categoria
+                - precio
+                - duracion_min
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiV1ServicesManageService_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: service_id
+        description: 'The ID of the service.'
+        example: 9
+        required: true
+        schema:
+          type: integer
+  /api/v1/barbers/manage:
+    get:
+      summary: ''
+      operationId: getApiV1BarbersManage
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  '/api/v1/barbers/manage/{barber_id}':
+    put:
+      summary: ''
+      operationId: putApiV1BarbersManageBarber_id
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: validation.max.
+                  example: b
+                email:
+                  type: string
+                  description: 'validation.email validation.max.'
+                  example: zbailey@example.net
+                especialidades:
+                  type: string
+                  description: validation.max.
+                  example: i
+                  nullable: true
+                descripcion:
+                  type: string
+                  description: validation.max.
+                  example: 'y'
+                  nullable: true
+                foto:
+                  type: string
+                  description: validation.max.
+                  example: v
+                  nullable: true
+                activo:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+              required:
+                - name
+                - email
+      security: []
+    parameters:
+      -
+        in: path
+        name: barber_id
+        description: 'The ID of the barber.'
+        example: 9
         required: true
         schema:
           type: integer
@@ -896,312 +1709,7 @@ paths:
         in: path
         name: user_id
         description: 'The ID of the user.'
-        example: 16
-        required: true
-        schema:
-          type: integer
-  /api/v1/clients:
-    get:
-      summary: ''
-      operationId: getApiV1Clients
-      description: ''
-      parameters: []
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: 'No autorizado.'
-                properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
-      tags:
-        - Endpoints
-      security: []
-    post:
-      summary: ''
-      operationId: postApiV1Clients
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: validation.max.
-                  example: b
-                email:
-                  type: string
-                  description: 'validation.email validation.max.'
-                  example: zbailey@example.net
-                password:
-                  type: string
-                  description: validation.min.
-                  example: '-0pBNvYgxw'
-                  nullable: true
-                telefono:
-                  type: string
-                  description: validation.max.
-                  example: a
-                  nullable: true
-                fecha_nacimiento:
-                  type: string
-                  description: validation.date.
-                  example: '2026-04-10T23:00:17'
-                  nullable: true
-                pref_in_app:
-                  type: boolean
-                  description: ''
-                  example: true
-                  nullable: true
-                pref_email:
-                  type: boolean
-                  description: ''
-                  example: false
-                  nullable: true
-                pref_sms:
-                  type: boolean
-                  description: ''
-                  example: false
-                  nullable: true
-                pref_whatsapp:
-                  type: boolean
-                  description: ''
-                  example: false
-                  nullable: true
-              required:
-                - name
-                - email
-      security: []
-  '/api/v1/clients/{client_id}':
-    put:
-      summary: ''
-      operationId: putApiV1ClientsClient_id
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: validation.max.
-                  example: b
-                email:
-                  type: string
-                  description: 'validation.email validation.max.'
-                  example: zbailey@example.net
-                telefono:
-                  type: string
-                  description: validation.max.
-                  example: i
-                  nullable: true
-                fecha_nacimiento:
-                  type: string
-                  description: validation.date.
-                  example: '2026-04-10T23:00:17'
-                  nullable: true
-                pref_in_app:
-                  type: boolean
-                  description: ''
-                  example: true
-                  nullable: true
-                pref_email:
-                  type: boolean
-                  description: ''
-                  example: false
-                  nullable: true
-                pref_sms:
-                  type: boolean
-                  description: ''
-                  example: false
-                  nullable: true
-                pref_whatsapp:
-                  type: boolean
-                  description: ''
-                  example: false
-                  nullable: true
-              required:
-                - name
-                - email
-      security: []
-    delete:
-      summary: ''
-      operationId: deleteApiV1ClientsClient_id
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      security: []
-    parameters:
-      -
-        in: path
-        name: client_id
-        description: 'The ID of the client.'
-        example: 16
-        required: true
-        schema:
-          type: integer
-  /api/v1/services/manage:
-    get:
-      summary: ''
-      operationId: getApiV1ServicesManage
-      description: ''
-      parameters: []
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: 'No autorizado.'
-                properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
-      tags:
-        - Endpoints
-      security: []
-    post:
-      summary: ''
-      operationId: postApiV1ServicesManage
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                nombre:
-                  type: string
-                  description: validation.max.
-                  example: b
-                categoria:
-                  type: string
-                  description: validation.max.
-                  example: 'n'
-                precio:
-                  type: number
-                  description: validation.min.
-                  example: 84
-                duracion_min:
-                  type: integer
-                  description: 'validation.min validation.max.'
-                  example: 16
-                imagen:
-                  type: string
-                  description: validation.max.
-                  example: m
-                  nullable: true
-                descripcion:
-                  type: string
-                  description: validation.max.
-                  example: i
-                  nullable: true
-                activo:
-                  type: boolean
-                  description: ''
-                  example: true
-                  nullable: true
-              required:
-                - nombre
-                - categoria
-                - precio
-                - duracion_min
-      security: []
-  '/api/v1/services/manage/{service_id}':
-    put:
-      summary: ''
-      operationId: putApiV1ServicesManageService_id
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                nombre:
-                  type: string
-                  description: validation.max.
-                  example: b
-                categoria:
-                  type: string
-                  description: validation.max.
-                  example: 'n'
-                precio:
-                  type: number
-                  description: validation.min.
-                  example: 84
-                duracion_min:
-                  type: integer
-                  description: 'validation.min validation.max.'
-                  example: 16
-                imagen:
-                  type: string
-                  description: validation.max.
-                  example: m
-                  nullable: true
-                descripcion:
-                  type: string
-                  description: validation.max.
-                  example: i
-                  nullable: true
-                activo:
-                  type: boolean
-                  description: ''
-                  example: true
-                  nullable: true
-              required:
-                - nombre
-                - categoria
-                - precio
-                - duracion_min
-      security: []
-    delete:
-      summary: ''
-      operationId: deleteApiV1ServicesManageService_id
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      security: []
-    parameters:
-      -
-        in: path
-        name: service_id
-        description: 'The ID of the service.'
-        example: 16
+        example: 27
         required: true
         schema:
           type: integer
@@ -1319,7 +1827,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 imagen:
                   type: string
@@ -1345,315 +1853,6 @@ paths:
         required: true
         schema:
           type: integer
-  /api/v1/payments:
-    get:
-      summary: ''
-      operationId: getApiV1Payments
-      description: ''
-      parameters: []
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: 'No autorizado.'
-                properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
-      tags:
-        - Endpoints
-      security: []
-    post:
-      summary: ''
-      operationId: postApiV1Payments
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                appointment_id:
-                  type: integer
-                  description: 'The <code>id</code> of an existing record in the appointments table.'
-                  example: 16
-                monto:
-                  type: number
-                  description: validation.min.
-                  example: 39
-                metodo_pago:
-                  type: string
-                  description: ''
-                  example: qr
-                  enum:
-                    - efectivo
-                    - tarjeta
-                    - transferencia
-                    - qr
-                propina:
-                  type: number
-                  description: validation.min.
-                  example: 84
-                  nullable: true
-              required:
-                - appointment_id
-                - monto
-                - metodo_pago
-      security: []
-  '/api/v1/payments/{payment_id}':
-    delete:
-      summary: ''
-      operationId: deleteApiV1PaymentsPayment_id
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      security: []
-    parameters:
-      -
-        in: path
-        name: payment_id
-        description: 'The ID of the payment.'
-        example: 16
-        required: true
-        schema:
-          type: integer
-  '/api/v1/payments/{payment_id}/receipt':
-    get:
-      summary: ''
-      operationId: getApiV1PaymentsPayment_idReceipt
-      description: ''
-      parameters: []
-      responses:
-        404:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: 'No query results for model [App\Models\Payment] 16'
-                properties:
-                  message:
-                    type: string
-                    example: 'No query results for model [App\Models\Payment] 16'
-      tags:
-        - Endpoints
-      security: []
-    parameters:
-      -
-        in: path
-        name: payment_id
-        description: 'The ID of the payment.'
-        example: 16
-        required: true
-        schema:
-          type: integer
-  /api/v1/logs:
-    get:
-      summary: ''
-      operationId: getApiV1Logs
-      description: ''
-      parameters: []
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: 'No autorizado.'
-                properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
-      tags:
-        - Endpoints
-      security: []
-  /api/v1/barbers/manage:
-    get:
-      summary: ''
-      operationId: getApiV1BarbersManage
-      description: ''
-      parameters: []
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: 'No autorizado.'
-                properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
-      tags:
-        - Endpoints
-      security: []
-  '/api/v1/barbers/manage/{barber_id}':
-    put:
-      summary: ''
-      operationId: putApiV1BarbersManageBarber_id
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: validation.max.
-                  example: b
-                email:
-                  type: string
-                  description: 'validation.email validation.max.'
-                  example: zbailey@example.net
-                especialidades:
-                  type: string
-                  description: validation.max.
-                  example: i
-                  nullable: true
-                descripcion:
-                  type: string
-                  description: validation.max.
-                  example: 'y'
-                  nullable: true
-                foto:
-                  type: string
-                  description: validation.max.
-                  example: v
-                  nullable: true
-                activo:
-                  type: boolean
-                  description: ''
-                  example: true
-                  nullable: true
-              required:
-                - name
-                - email
-      security: []
-    parameters:
-      -
-        in: path
-        name: barber_id
-        description: 'The ID of the barber.'
-        example: 16
-        required: true
-        schema:
-          type: integer
-  /api/v1/settings:
-    get:
-      summary: ''
-      operationId: getApiV1Settings
-      description: ''
-      parameters: []
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: 'No autorizado.'
-                properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
-      tags:
-        - Endpoints
-      security: []
-    put:
-      summary: ''
-      operationId: putApiV1Settings
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                nombre:
-                  type: string
-                  description: validation.max.
-                  example: b
-                direccion:
-                  type: string
-                  description: validation.max.
-                  example: 'n'
-                  nullable: true
-                telefono:
-                  type: string
-                  description: validation.max.
-                  example: g
-                  nullable: true
-                horario_apertura:
-                  type: string
-                  description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '23:00'
-                  nullable: true
-                horario_cierre:
-                  type: string
-                  description: 'Must be a valid date in the format <code>H:i</code>. validation.after.'
-                  example: '2052-05-03'
-                  nullable: true
-                politica_cancelacion:
-                  type: integer
-                  description: 'validation.min validation.max.'
-                  example: 22
-                instagram:
-                  type: string
-                  description: validation.max.
-                  example: g
-                  nullable: true
-                facebook:
-                  type: string
-                  description: validation.max.
-                  example: z
-                  nullable: true
-                tiktok:
-                  type: string
-                  description: validation.max.
-                  example: m
-                  nullable: true
-              required:
-                - nombre
-                - politica_cancelacion
-      security: []
-  /api/v1/settings/maintenance:
-    post:
-      summary: ''
-      operationId: postApiV1SettingsMaintenance
-      description: ''
-      parameters: []
-      responses: {  }
-      tags:
-        - Endpoints
-      security: []
   /api/v1/reports:
     get:
       summary: ''
@@ -1715,10 +1914,10 @@ paths:
         required: true
         schema:
           type: string
-  /api/v1/chatbot/history:
+  /api/v1/settings:
     get:
-      summary: 'Endpoint para obtener historial de conversación'
-      operationId: endpointParaObtenerHistorialDeConversacin
+      summary: ''
+      operationId: getApiV1Settings
       description: ''
       parameters: []
       responses:
@@ -1737,10 +1936,82 @@ paths:
       tags:
         - Endpoints
       security: []
-  /api/v1/chatbot/profile:
+    put:
+      summary: ''
+      operationId: putApiV1Settings
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: validation.max.
+                  example: b
+                direccion:
+                  type: string
+                  description: validation.max.
+                  example: 'n'
+                  nullable: true
+                telefono:
+                  type: string
+                  description: validation.max.
+                  example: g
+                  nullable: true
+                horario_apertura:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>.'
+                  example: '22:53'
+                  nullable: true
+                horario_cierre:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>. validation.after.'
+                  example: '2052-05-31'
+                  nullable: true
+                politica_cancelacion:
+                  type: integer
+                  description: 'validation.min validation.max.'
+                  example: 22
+                instagram:
+                  type: string
+                  description: validation.max.
+                  example: g
+                  nullable: true
+                facebook:
+                  type: string
+                  description: validation.max.
+                  example: z
+                  nullable: true
+                tiktok:
+                  type: string
+                  description: validation.max.
+                  example: m
+                  nullable: true
+              required:
+                - nombre
+                - politica_cancelacion
+      security: []
+  /api/v1/settings/maintenance:
+    post:
+      summary: ''
+      operationId: postApiV1SettingsMaintenance
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/logs:
     get:
-      summary: 'Endpoint para obtener perfil del usuario'
-      operationId: endpointParaObtenerPerfilDelUsuario
+      summary: ''
+      operationId: getApiV1Logs
       description: ''
       parameters: []
       responses:
@@ -1758,22 +2029,146 @@ paths:
                     example: 'No autorizado.'
       tags:
         - Endpoints
+      security: []
+  /api/v1/notifications:
+    get:
+      summary: ''
+      operationId: getApiV1Notifications
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/notifications/read-all:
+    post:
+      summary: ''
+      operationId: postApiV1NotificationsReadAll
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  '/api/v1/social/work/{work_id}/react':
+    post:
+      summary: ''
+      operationId: postApiV1SocialWorkWork_idReact
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: work_id
+        description: 'The ID of the work.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/social/work/{work_id}/save':
+    post:
+      summary: ''
+      operationId: postApiV1SocialWorkWork_idSave
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: work_id
+        description: 'The ID of the work.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/social/work/{work_id}/comment':
+    post:
+      summary: ''
+      operationId: postApiV1SocialWorkWork_idComment
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  description: validation.max.
+                  example: b
+              required:
+                - comment
+      security: []
+    parameters:
+      -
+        in: path
+        name: work_id
+        description: 'The ID of the work.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/chatbot/history:
+    get:
+      summary: 'Historial de Conversaciones (API)'
+      operationId: historialDeConversacionesAPI
+      description: 'Devuelve el historial de conversaciones del usuario con el chatbot.'
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - 'Gestión de Chatbot'
       security: []
   /api/v1/chatbot/clear-history:
     post:
-      summary: 'Endpoint para limpiar historial'
-      operationId: endpointParaLimpiarHistorial
-      description: ''
+      summary: 'Limpiar Historial (API)'
+      operationId: limpiarHistorialAPI
+      description: 'Elimina todo el historial de conversaciones del usuario.'
       parameters: []
       responses: {  }
       tags:
-        - Endpoints
+        - 'Gestión de Chatbot'
       security: []
-  /api/v1/chatbot/learning-stats:
+  /api/v1/chatbot/profile:
     get:
-      summary: 'Busca múltiples palabras clave en el mensaje'
-      operationId: buscaMltiplesPalabrasClaveEnElMensaje
-      description: ''
+      summary: 'Perfil del Usuario en Chatbot (API)'
+      operationId: perfilDelUsuarioEnChatbotAPI
+      description: 'Devuelve el perfil del usuario basado en las interacciones con el chatbot.'
       parameters: []
       responses:
         401:
@@ -1789,27 +2184,341 @@ paths:
                     type: string
                     example: 'No autorizado.'
       tags:
-        - Endpoints
+        - 'Gestión de Chatbot'
+      security: []
+  /api/v1/chatbot/learning-stats:
+    get:
+      summary: 'Estadísticas de Aprendizaje (API)'
+      operationId: estadsticasDeAprendizajeAPI
+      description: 'Devuelve las estadísticas de aprendizaje del chatbot del usuario.'
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - 'Gestión de Chatbot'
       security: []
   /api/v1/chatbot/train-history:
     post:
-      summary: ''
-      operationId: postApiV1ChatbotTrainHistory
-      description: ''
+      summary: 'Entrenar desde Historial (API - Solo Admin)'
+      operationId: entrenarDesdeHistorialAPISoloAdmin
+      description: 'Entrena el sistema de aprendizaje desde el historial de conversaciones.'
       parameters: []
       responses: {  }
       tags:
-        - Endpoints
+        - 'Gestión de Chatbot'
       security: []
-  /api/v1/chatbot/query:
-    post:
-      summary: ''
-      operationId: postApiV1ChatbotQuery
-      description: ''
+  /api/v1/profile:
+    get:
+      summary: 'Obtener Perfil'
+      operationId: obtenerPerfil
+      description: 'Devuelve la información del perfil del usuario autenticado.'
       parameters: []
-      responses: {  }
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  user:
+                    id: 1
+                    name: 'Juan Pérez'
+                    email: juan@example.com
+                    email_verified_at: '2026-04-01T10:00:00.000000Z'
+                    created_at: '2026-04-01T10:00:00.000000Z'
+                    roles:
+                      - cliente
+                    client_id: 1
+                    barber_id: null
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: 'Juan Pérez'
+                      email:
+                        type: string
+                        example: juan@example.com
+                      email_verified_at:
+                        type: string
+                        example: '2026-04-01T10:00:00.000000Z'
+                      created_at:
+                        type: string
+                        example: '2026-04-01T10:00:00.000000Z'
+                      roles:
+                        type: array
+                        example:
+                          - cliente
+                        items:
+                          type: string
+                      client_id:
+                        type: integer
+                        example: 1
+                      barber_id:
+                        type: string
+                        example: null
+                        nullable: true
       tags:
-        - Endpoints
+        - 'Gestión de Perfil'
+      security: []
+    put:
+      summary: 'Actualizar Perfil'
+      operationId: actualizarPerfil
+      description: 'Actualiza la información del perfil del usuario autenticado.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Perfil actualizado exitosamente'
+                  user:
+                    id: 1
+                    name: 'Juan Pérez Actualizado'
+                    email: nuevo@example.com
+                properties:
+                  message:
+                    type: string
+                    example: 'Perfil actualizado exitosamente'
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: 'Juan Pérez Actualizado'
+                      email:
+                        type: string
+                        example: nuevo@example.com
+      tags:
+        - 'Gestión de Perfil'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Nombre completo.'
+                  example: 'Juan Pérez Actualizado'
+                email:
+                  type: string
+                  description: 'Correo electrónico único.'
+                  example: nuevo@example.com
+      security: []
+    delete:
+      summary: 'Eliminar Cuenta'
+      operationId: eliminarCuenta
+      description: 'Elimina permanentemente la cuenta del usuario autenticado.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Cuenta eliminada exitosamente'
+                properties:
+                  message:
+                    type: string
+                    example: 'Cuenta eliminada exitosamente'
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Contraseña incorrecta.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Contraseña incorrecta.'
+      tags:
+        - 'Gestión de Perfil'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: 'Contraseña actual para confirmar eliminación.'
+                  example: password123
+              required:
+                - password
+      security: []
+  /api/v1/profile/password:
+    put:
+      summary: 'Actualizar Contraseña'
+      operationId: actualizarContrasea
+      description: 'Cambia la contraseña del usuario autenticado.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Contraseña actualizada exitosamente'
+                properties:
+                  message:
+                    type: string
+                    example: 'Contraseña actualizada exitosamente'
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'La contraseña actual es incorrecta.'
+                properties:
+                  message:
+                    type: string
+                    example: 'La contraseña actual es incorrecta.'
+      tags:
+        - 'Gestión de Perfil'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  type: string
+                  description: 'Contraseña actual.'
+                  example: password123
+                password:
+                  type: string
+                  description: 'Nueva contraseña (mínimo 8 caracteres).'
+                  example: nuevaPassword456
+                password_confirmation:
+                  type: string
+                  description: 'Confirmación de la nueva contraseña.'
+                  example: nuevaPassword456
+              required:
+                - current_password
+                - password
+                - password_confirmation
+      security: []
+  /api/v1/barber/schedule:
+    get:
+      summary: 'Obtener Horarios'
+      operationId: obtenerHorarios
+      description: 'Devuelve los horarios del barbero autenticado.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  schedules:
+                    -
+                      id: 1
+                      day_of_week: monday
+                      start_time: '09:00'
+                      end_time: '18:00'
+                      is_active: true
+                properties:
+                  schedules:
+                    type: array
+                    example:
+                      -
+                        id: 1
+                        day_of_week: monday
+                        start_time: '09:00'
+                        end_time: '18:00'
+                        is_active: true
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        day_of_week:
+                          type: string
+                          example: monday
+                        start_time:
+                          type: string
+                          example: '09:00'
+                        end_time:
+                          type: string
+                          example: '18:00'
+                        is_active:
+                          type: boolean
+                          example: true
+      tags:
+        - 'Horarios de Barbero'
+      security: []
+    put:
+      summary: 'Actualizar Horarios'
+      operationId: actualizarHorarios
+      description: 'Actualiza los horarios del barbero autenticado.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\n \"message\": \"Horarios actualizados correctamente\",\n \"schedules\": [...]\n}"
+      tags:
+        - 'Horarios de Barbero'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schedules:
+                  type: array
+                  description: 'Array de horarios.'
+                  example:
+                    -
+                      day_of_week: monday
+                      start_time: '09:00'
+                      end_time: '18:00'
+                      is_active: true
+                  items:
+                    type: string
+              required:
+                - schedules
       security: []
   /api/v1/inventory/products:
     get:
@@ -2005,7 +2714,7 @@ paths:
                 tipo:
                   type: string
                   description: ''
-                  example: insumo_trabajo
+                  example: venta_cliente
                   enum:
                     - venta_cliente
                     - insumo_trabajo
@@ -2017,7 +2726,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -2139,9 +2848,157 @@ paths:
                 fecha:
                   type: string
                   description: validation.date.
-                  example: '2026-04-10T23:00:18'
+                  example: '2026-05-08T22:53:11'
                   nullable: true
               required:
                 - product_id
                 - cantidad
       security: []
+  /api/v1/barber/portfolio:
+    get:
+      summary: 'Listar Trabajos del Barbero'
+      operationId: listarTrabajosDelBarbero
+      description: 'Devuelve todos los trabajos del barbero autenticado.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  works:
+                    -
+                      id: 1
+                      title: 'Corte Clásico'
+                      description: 'Corte de cabello clásico con degradado'
+                      images:
+                        - 'https://example.com/storage/works/image1.jpg'
+                      created_at: '2026-04-11T10:00:00.000000Z'
+                properties:
+                  works:
+                    type: array
+                    example:
+                      -
+                        id: 1
+                        title: 'Corte Clásico'
+                        description: 'Corte de cabello clásico con degradado'
+                        images:
+                          - 'https://example.com/storage/works/image1.jpg'
+                        created_at: '2026-04-11T10:00:00.000000Z'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        title:
+                          type: string
+                          example: 'Corte Clásico'
+                        description:
+                          type: string
+                          example: 'Corte de cabello clásico con degradado'
+                        images:
+                          type: array
+                          example:
+                            - 'https://example.com/storage/works/image1.jpg'
+                          items:
+                            type: string
+                        created_at:
+                          type: string
+                          example: '2026-04-11T10:00:00.000000Z'
+      tags:
+        - 'Portafolio de Barbero'
+      security: []
+  /api/v1/barber/works:
+    post:
+      summary: 'Crear Trabajo'
+      operationId: crearTrabajo
+      description: 'Crea un nuevo trabajo en el portafolio del barbero con imágenes opcionales.'
+      parameters: []
+      responses:
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Trabajo creado exitosamente'
+                  work:
+                    id: 1
+                    title: 'Corte Moderno con Degradado'
+                properties:
+                  message:
+                    type: string
+                    example: 'Trabajo creado exitosamente'
+                  work:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      title:
+                        type: string
+                        example: 'Corte Moderno con Degradado'
+      tags:
+        - 'Portafolio de Barbero'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: 'Título del trabajo.'
+                  example: 'Corte Moderno con Degradado'
+                description:
+                  type: string
+                  description: 'Descripción del trabajo.'
+                  example: 'Corte moderno con degradado lateral y textura superior'
+                  nullable: true
+                images:
+                  type: array
+                  description: 'Array de imágenes (archivos).'
+                  example:
+                    - architecto
+                  items:
+                    type: string
+                    nullable: true
+              required:
+                - title
+      security: []
+  '/api/v1/barber/works/{work_id}':
+    delete:
+      summary: 'Eliminar Trabajo'
+      operationId: eliminarTrabajo
+      description: 'Elimina un trabajo del portafolio del barbero.'
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Trabajo eliminado correctamente'
+                properties:
+                  message:
+                    type: string
+                    example: 'Trabajo eliminado correctamente'
+      tags:
+        - 'Portafolio de Barbero'
+      security: []
+    parameters:
+      -
+        in: path
+        name: work_id
+        description: 'The ID of the work.'
+        example: 1
+        required: true
+        schema:
+          type: integer

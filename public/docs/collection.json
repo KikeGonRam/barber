@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "Laravel API Documentation",
-        "_postman_id": "b86ab3ad-3fe1-4301-8059-58a2b74c6834",
+        "_postman_id": "6e009635-1a93-4172-9e00-92d03780b88b",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -102,6 +102,94 @@
                     ]
                 },
                 {
+                    "name": "Recuperar Contrase\u00f1a (Solicitar Enlace)",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/forgot-password",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/forgot-password"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"email\":\"usuario@urbanblade.com\"}"
+                        },
+                        "description": "Env\u00eda un enlace de recuperaci\u00f3n de contrase\u00f1a al correo del usuario.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"message\": \"Enlace de recuperaci\u00f3n enviado a tu correo.\"\n}",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 400,
+                            "body": "{\n \"message\": \"No se pudo enviar el enlace de recuperaci\u00f3n.\"\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Restablecer Contrase\u00f1a",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/reset-password",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/reset-password"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"token\":\"abc123\",\"email\":\"usuario@urbanblade.com\",\"password\":\"nuevaPassword123\",\"password_confirmation\":\"nuevaPassword123\"}"
+                        },
+                        "description": "Restablece la contrase\u00f1a del usuario usando el token recibido por correo.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"message\": \"Contrase\u00f1a restablecida exitosamente.\"\n}",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 400,
+                            "body": "{\n \"message\": \"Token de recuperaci\u00f3n inv\u00e1lido.\"\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
                     "name": "GET api\/v1\/auth\/me",
                     "request": {
                         "url": {
@@ -176,6 +264,41 @@
                         }
                     },
                     "response": []
+                },
+                {
+                    "name": "Renovar Token",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/refresh-token",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/refresh-token"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Revoca el token actual y emite uno nuevo con expiraci\u00f3n actualizada.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"message\": \"Token renovado exitosamente.\",\n \"token_type\": \"Bearer\",\n \"token\": \"3|newtoken...\",\n \"expires_at\": \"2026-10-11T12:00:00.000000Z\",\n \"user\": { \"id\": 1, \"name\": \"Juan P\u00e9rez\", \"email\": \"juan@example.com\" }\n}",
+                            "name": ""
+                        }
+                    ]
                 }
             ]
         },
@@ -274,7 +397,7 @@
                                 {
                                     "id": "appointment_id",
                                     "key": "appointment_id",
-                                    "value": "16",
+                                    "value": "8",
                                     "description": "The ID of the appointment."
                                 }
                             ]
@@ -292,7 +415,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-05-03\",\"hora_inicio\":\"23:00\",\"estado\":\"pendiente\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-05-31\",\"hora_inicio\":\"22:53\",\"estado\":\"confirmada\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -313,7 +436,7 @@
                                 {
                                     "id": "appointment_id",
                                     "key": "appointment_id",
-                                    "value": "16",
+                                    "value": "8",
                                     "description": "The ID of the appointment."
                                 }
                             ]
@@ -331,7 +454,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"estado\":\"cancelada\",\"notas\":\"b\"}"
+                            "raw": "{\"estado\":\"confirmada\",\"notas\":\"b\"}"
                         },
                         "description": "",
                         "auth": {
@@ -352,7 +475,7 @@
                                 {
                                     "id": "appointment_id",
                                     "key": "appointment_id",
-                                    "value": "16",
+                                    "value": "8",
                                     "description": "The ID of the appointment."
                                 }
                             ]
@@ -382,6 +505,57 @@
             "name": "Endpoints",
             "description": "",
             "item": [
+                {
+                    "name": "GET api\/availability\/slots",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/availability\/slots",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/availability\/slots"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-05-31\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 422,
+                            "body": "{\"message\":\"validation.exists (and 1 more error)\",\"errors\":{\"barber_id\":[\"validation.exists\"],\"service_id\":[\"validation.exists\"]}}",
+                            "name": ""
+                        }
+                    ]
+                },
                 {
                     "name": "GET api\/v1\/services",
                     "request": {
@@ -425,7 +599,7 @@
                                 }
                             ],
                             "code": 200,
-                            "body": "{\"data\":[]}",
+                            "body": "{\"data\":[{\"id\":9,\"nombre\":\"TEST DER SERVICE\",\"categoria\":\"BAHB\",\"precio\":\"120.00\",\"duracion_min\":159,\"imagen\":null,\"descripcion\":\"TETVSG B\"}]}",
                             "name": ""
                         }
                     ]
@@ -473,7 +647,7 @@
                                 }
                             ],
                             "code": 200,
-                            "body": "{\"data\":[]}",
+                            "body": "{\"data\":[{\"id\":9,\"name\":\"Barbero Test\",\"especialidades\":\"Fade, Barba\",\"foto\":\"barbers\\\/29\\\/15\\\/04\\\/2026\\\/cddcbff9-42ec-4209-bc8b-d724fd474b83.png\",\"descripcion\":\"Barbero de pruebas automatizadas\"},{\"id\":10,\"name\":\"Barbero Test 1\",\"especialidades\":\"Corte cl\\u00e1sico\",\"foto\":null,\"descripcion\":\"Barbero de pruebas 1\"},{\"id\":11,\"name\":\"Barbero Test 2\",\"especialidades\":\"Corte cl\\u00e1sico\",\"foto\":null,\"descripcion\":\"Barbero de pruebas 2\"}]}",
                             "name": ""
                         }
                     ]
@@ -500,7 +674,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-05-03\"}"
+                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-05-31\"}"
                         },
                         "description": "",
                         "auth": {
@@ -572,10 +746,38 @@
                                 }
                             ],
                             "code": 200,
-                            "body": "{\"data\":[],\"meta\":{\"current_page\":1,\"last_page\":1,\"total\":0}}",
+                            "body": "{\"data\":[{\"id\":1,\"title\":\"TETS\",\"description\":\"YGBGTFVGB\",\"work_date\":null,\"barber\":{\"id\":29,\"name\":\"Barbero Test\"},\"images\":[\"portfolio\\\/aY4tLlvTSMbsTWZjiKi7VwhzSqq7KVwTvmelfcST.png\"],\"reactions_count\":2,\"comments_count\":0,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false}],\"meta\":{\"current_page\":1,\"last_page\":1,\"total\":1}}",
                             "name": ""
                         }
                     ]
+                },
+                {
+                    "name": "POST api\/v1\/chatbot\/query",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/chatbot\/query",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/chatbot\/query"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
                 },
                 {
                     "name": "GET api\/v1\/dashboard",
@@ -626,13 +828,13 @@
                     ]
                 },
                 {
-                    "name": "GET api\/v1\/notifications",
+                    "name": "GET api\/v1\/payments",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
-                            "path": "api\/v1\/notifications",
+                            "path": "api\/v1\/payments",
                             "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/notifications"
+                            "raw": "{{baseUrl}}\/api\/v1\/payments"
                         },
                         "method": "GET",
                         "header": [
@@ -674,121 +876,13 @@
                     ]
                 },
                 {
-                    "name": "POST api\/v1\/notifications\/read-all",
+                    "name": "POST api\/v1\/payments",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
-                            "path": "api\/v1\/notifications\/read-all",
+                            "path": "api\/v1\/payments",
                             "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/notifications\/read-all"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "POST api\/v1\/social\/work\/{work_id}\/react",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/social\/work\/:work_id\/react",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/social\/work\/:work_id\/react",
-                            "variable": [
-                                {
-                                    "id": "work_id",
-                                    "key": "work_id",
-                                    "value": "16",
-                                    "description": "The ID of the work."
-                                }
-                            ]
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "POST api\/v1\/social\/work\/{work_id}\/save",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/social\/work\/:work_id\/save",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/social\/work\/:work_id\/save",
-                            "variable": [
-                                {
-                                    "id": "work_id",
-                                    "key": "work_id",
-                                    "value": "16",
-                                    "description": "The ID of the work."
-                                }
-                            ]
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "POST api\/v1\/social\/work\/{work_id}\/comment",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/social\/work\/:work_id\/comment",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/social\/work\/:work_id\/comment",
-                            "variable": [
-                                {
-                                    "id": "work_id",
-                                    "key": "work_id",
-                                    "value": "16",
-                                    "description": "The ID of the work."
-                                }
-                            ]
+                            "raw": "{{baseUrl}}\/api\/v1\/payments"
                         },
                         "method": "POST",
                         "header": [
@@ -803,7 +897,494 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"comment\":\"b\"}"
+                            "raw": "{\"appointment_id\":16,\"monto\":39,\"metodo_pago\":\"qr\",\"propina\":84}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "DELETE api\/v1\/payments\/{payment_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/payments\/:payment_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/payments\/:payment_id",
+                            "variable": [
+                                {
+                                    "id": "payment_id",
+                                    "key": "payment_id",
+                                    "value": "16",
+                                    "description": "The ID of the payment."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET api\/v1\/payments\/{payment_id}\/receipt",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/payments\/:payment_id\/receipt",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/payments\/:payment_id\/receipt",
+                            "variable": [
+                                {
+                                    "id": "payment_id",
+                                    "key": "payment_id",
+                                    "value": "16",
+                                    "description": "The ID of the payment."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 404,
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Payment] 16\"\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "GET api\/v1\/clients",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/clients",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/clients"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "POST api\/v1\/clients",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/clients",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/clients"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-05-08T22:53:11\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":true}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "PUT api\/v1\/clients\/{client_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/clients\/:client_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/clients\/:client_id",
+                            "variable": [
+                                {
+                                    "id": "client_id",
+                                    "key": "client_id",
+                                    "value": "9",
+                                    "description": "The ID of the client."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-05-08T22:53:11\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":true}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "DELETE api\/v1\/clients\/{client_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/clients\/:client_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/clients\/:client_id",
+                            "variable": [
+                                {
+                                    "id": "client_id",
+                                    "key": "client_id",
+                                    "value": "9",
+                                    "description": "The ID of the client."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET api\/v1\/services\/manage",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/services\/manage",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/services\/manage"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "POST api\/v1\/services\/manage",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/services\/manage",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/services\/manage"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":false}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "PUT api\/v1\/services\/manage\/{service_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/services\/manage\/:service_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/services\/manage\/:service_id",
+                            "variable": [
+                                {
+                                    "id": "service_id",
+                                    "key": "service_id",
+                                    "value": "9",
+                                    "description": "The ID of the service."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":false}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "DELETE api\/v1\/services\/manage\/{service_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/services\/manage\/:service_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/services\/manage\/:service_id",
+                            "variable": [
+                                {
+                                    "id": "service_id",
+                                    "key": "service_id",
+                                    "value": "9",
+                                    "description": "The ID of the service."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET api\/v1\/barbers\/manage",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/barbers\/manage",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/barbers\/manage"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "PUT api\/v1\/barbers\/manage\/{barber_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/barbers\/manage\/:barber_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/barbers\/manage\/:barber_id",
+                            "variable": [
+                                {
+                                    "id": "barber_id",
+                                    "key": "barber_id",
+                                    "value": "9",
+                                    "description": "The ID of the barber."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -903,7 +1484,7 @@
                                 {
                                     "id": "user_id",
                                     "key": "user_id",
-                                    "value": "16",
+                                    "value": "27",
                                     "description": "The ID of the user."
                                 }
                             ]
@@ -942,316 +1523,8 @@
                                 {
                                     "id": "user_id",
                                     "key": "user_id",
-                                    "value": "16",
+                                    "value": "27",
                                     "description": "The ID of the user."
-                                }
-                            ]
-                        },
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "GET api\/v1\/clients",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/clients",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/clients"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "*"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "POST api\/v1\/clients",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/clients",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/clients"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-04-10T23:00:17\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":false}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "PUT api\/v1\/clients\/{client_id}",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/clients\/:client_id",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/clients\/:client_id",
-                            "variable": [
-                                {
-                                    "id": "client_id",
-                                    "key": "client_id",
-                                    "value": "16",
-                                    "description": "The ID of the client."
-                                }
-                            ]
-                        },
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-04-10T23:00:17\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":false}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "DELETE api\/v1\/clients\/{client_id}",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/clients\/:client_id",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/clients\/:client_id",
-                            "variable": [
-                                {
-                                    "id": "client_id",
-                                    "key": "client_id",
-                                    "value": "16",
-                                    "description": "The ID of the client."
-                                }
-                            ]
-                        },
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "GET api\/v1\/services\/manage",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/services\/manage",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/services\/manage"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "*"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "POST api\/v1\/services\/manage",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/services\/manage",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/services\/manage"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":true}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "PUT api\/v1\/services\/manage\/{service_id}",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/services\/manage\/:service_id",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/services\/manage\/:service_id",
-                            "variable": [
-                                {
-                                    "id": "service_id",
-                                    "key": "service_id",
-                                    "value": "16",
-                                    "description": "The ID of the service."
-                                }
-                            ]
-                        },
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":true}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "DELETE api\/v1\/services\/manage\/{service_id}",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/services\/manage\/:service_id",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/services\/manage\/:service_id",
-                            "variable": [
-                                {
-                                    "id": "service_id",
-                                    "key": "service_id",
-                                    "value": "16",
-                                    "description": "The ID of the service."
                                 }
                             ]
                         },
@@ -1458,7 +1731,7 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -1499,419 +1772,6 @@
                             ]
                         },
                         "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "GET api\/v1\/payments",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/payments",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/payments"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "*"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "POST api\/v1\/payments",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/payments",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/payments"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"appointment_id\":16,\"monto\":39,\"metodo_pago\":\"qr\",\"propina\":84}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "DELETE api\/v1\/payments\/{payment_id}",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/payments\/:payment_id",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/payments\/:payment_id",
-                            "variable": [
-                                {
-                                    "id": "payment_id",
-                                    "key": "payment_id",
-                                    "value": "16",
-                                    "description": "The ID of the payment."
-                                }
-                            ]
-                        },
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "GET api\/v1\/payments\/{payment_id}\/receipt",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/payments\/:payment_id\/receipt",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/payments\/:payment_id\/receipt",
-                            "variable": [
-                                {
-                                    "id": "payment_id",
-                                    "key": "payment_id",
-                                    "value": "16",
-                                    "description": "The ID of the payment."
-                                }
-                            ]
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "*"
-                                }
-                            ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Payment] 16\"\n}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "GET api\/v1\/logs",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/logs",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/logs"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "*"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "GET api\/v1\/barbers\/manage",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/barbers\/manage",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/barbers\/manage"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "*"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "PUT api\/v1\/barbers\/manage\/{barber_id}",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/barbers\/manage\/:barber_id",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/barbers\/manage\/:barber_id",
-                            "variable": [
-                                {
-                                    "id": "barber_id",
-                                    "key": "barber_id",
-                                    "value": "16",
-                                    "description": "The ID of the barber."
-                                }
-                            ]
-                        },
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":true}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "GET api\/v1\/settings",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/settings",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/settings"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "*"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "PUT api\/v1\/settings",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/settings",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/settings"
-                        },
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"23:00\",\"horario_cierre\":\"2052-05-03\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\"}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "POST api\/v1\/settings\/maintenance",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/settings\/maintenance",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/settings\/maintenance"
-                        },
-                        "method": "POST",
                         "header": [
                             {
                                 "key": "Content-Type",
@@ -2041,7 +1901,355 @@
                     ]
                 },
                 {
-                    "name": "Endpoint para obtener historial de conversaci\u00f3n",
+                    "name": "GET api\/v1\/settings",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/settings",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/settings"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "PUT api\/v1\/settings",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/settings",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/settings"
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"22:53\",\"horario_cierre\":\"2052-05-31\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "POST api\/v1\/settings\/maintenance",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/settings\/maintenance",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/settings\/maintenance"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET api\/v1\/logs",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/logs",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/logs"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "GET api\/v1\/notifications",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/notifications",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/notifications"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "POST api\/v1\/notifications\/read-all",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/notifications\/read-all",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/notifications\/read-all"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "POST api\/v1\/social\/work\/{work_id}\/react",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/social\/work\/:work_id\/react",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/social\/work\/:work_id\/react",
+                            "variable": [
+                                {
+                                    "id": "work_id",
+                                    "key": "work_id",
+                                    "value": "1",
+                                    "description": "The ID of the work."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "POST api\/v1\/social\/work\/{work_id}\/save",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/social\/work\/:work_id\/save",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/social\/work\/:work_id\/save",
+                            "variable": [
+                                {
+                                    "id": "work_id",
+                                    "key": "work_id",
+                                    "value": "1",
+                                    "description": "The ID of the work."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "POST api\/v1\/social\/work\/{work_id}\/comment",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/social\/work\/:work_id\/comment",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/social\/work\/:work_id\/comment",
+                            "variable": [
+                                {
+                                    "id": "work_id",
+                                    "key": "work_id",
+                                    "value": "1",
+                                    "description": "The ID of the work."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"comment\":\"b\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Gesti\u00f3n de Chatbot",
+            "description": "\nEndpoints para gestionar el chatbot (historial, perfil, estad\u00edsticas).",
+            "item": [
+                {
+                    "name": "Historial de Conversaciones (API)",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
@@ -2061,7 +2269,7 @@
                             }
                         ],
                         "body": null,
-                        "description": "",
+                        "description": "Devuelve el historial de conversaciones del usuario con el chatbot.",
                         "auth": {
                             "type": "noauth"
                         }
@@ -2089,55 +2297,7 @@
                     ]
                 },
                 {
-                    "name": "Endpoint para obtener perfil del usuario",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/chatbot\/profile",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/chatbot\/profile"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "*"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "Endpoint para limpiar historial",
+                    "name": "Limpiar Historial (API)",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
@@ -2157,7 +2317,7 @@
                             }
                         ],
                         "body": null,
-                        "description": "",
+                        "description": "Elimina todo el historial de conversaciones del usuario.",
                         "auth": {
                             "type": "noauth"
                         }
@@ -2165,13 +2325,13 @@
                     "response": []
                 },
                 {
-                    "name": "Busca m\u00faltiples palabras clave en el mensaje",
+                    "name": "Perfil del Usuario en Chatbot (API)",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
-                            "path": "api\/v1\/chatbot\/learning-stats",
+                            "path": "api\/v1\/chatbot\/profile",
                             "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/chatbot\/learning-stats"
+                            "raw": "{{baseUrl}}\/api\/v1\/chatbot\/profile"
                         },
                         "method": "GET",
                         "header": [
@@ -2185,7 +2345,7 @@
                             }
                         ],
                         "body": null,
-                        "description": "",
+                        "description": "Devuelve el perfil del usuario basado en las interacciones con el chatbot.",
                         "auth": {
                             "type": "noauth"
                         }
@@ -2213,7 +2373,55 @@
                     ]
                 },
                 {
-                    "name": "POST api\/v1\/chatbot\/train-history",
+                    "name": "Estad\u00edsticas de Aprendizaje (API)",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/chatbot\/learning-stats",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/chatbot\/learning-stats"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Devuelve las estad\u00edsticas de aprendizaje del chatbot del usuario.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Entrenar desde Historial (API - Solo Admin)",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
@@ -2233,23 +2441,29 @@
                             }
                         ],
                         "body": null,
-                        "description": "",
+                        "description": "Entrena el sistema de aprendizaje desde el historial de conversaciones.",
                         "auth": {
                             "type": "noauth"
                         }
                     },
                     "response": []
-                },
+                }
+            ]
+        },
+        {
+            "name": "Gesti\u00f3n de Perfil",
+            "description": "\nEndpoints para gestionar el perfil del usuario autenticado.",
+            "item": [
                 {
-                    "name": "POST api\/v1\/chatbot\/query",
+                    "name": "Obtener Perfil",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
-                            "path": "api\/v1\/chatbot\/query",
+                            "path": "api\/v1\/profile",
                             "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/chatbot\/query"
+                            "raw": "{{baseUrl}}\/api\/v1\/profile"
                         },
-                        "method": "POST",
+                        "method": "GET",
                         "header": [
                             {
                                 "key": "Content-Type",
@@ -2261,12 +2475,224 @@
                             }
                         ],
                         "body": null,
-                        "description": "",
+                        "description": "Devuelve la informaci\u00f3n del perfil del usuario autenticado.",
                         "auth": {
                             "type": "noauth"
                         }
                     },
-                    "response": []
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"user\": {\n   \"id\": 1,\n   \"name\": \"Juan P\u00e9rez\",\n   \"email\": \"juan@example.com\",\n   \"email_verified_at\": \"2026-04-01T10:00:00.000000Z\",\n   \"created_at\": \"2026-04-01T10:00:00.000000Z\",\n   \"roles\": [\"cliente\"],\n   \"client_id\": 1,\n   \"barber_id\": null\n }\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Actualizar Perfil",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/profile",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/profile"
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"Juan P\u00e9rez Actualizado\",\"email\":\"nuevo@example.com\"}"
+                        },
+                        "description": "Actualiza la informaci\u00f3n del perfil del usuario autenticado.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"message\": \"Perfil actualizado exitosamente\",\n \"user\": { \"id\": 1, \"name\": \"Juan P\u00e9rez Actualizado\", \"email\": \"nuevo@example.com\" }\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Actualizar Contrase\u00f1a",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/profile\/password",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/profile\/password"
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"current_password\":\"password123\",\"password\":\"nuevaPassword456\",\"password_confirmation\":\"nuevaPassword456\"}"
+                        },
+                        "description": "Cambia la contrase\u00f1a del usuario autenticado.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"message\": \"Contrase\u00f1a actualizada exitosamente\"\n}",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 422,
+                            "body": "{\n \"message\": \"La contrase\u00f1a actual es incorrecta.\"\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Eliminar Cuenta",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/profile",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/profile"
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"password\":\"password123\"}"
+                        },
+                        "description": "Elimina permanentemente la cuenta del usuario autenticado.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"message\": \"Cuenta eliminada exitosamente\"\n}",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 422,
+                            "body": "{\n \"message\": \"Contrase\u00f1a incorrecta.\"\n}",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Horarios de Barbero",
+            "description": "\nEndpoints para gestionar los horarios del barbero.",
+            "item": [
+                {
+                    "name": "Obtener Horarios",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/barber\/schedule",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/barber\/schedule"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Devuelve los horarios del barbero autenticado.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"schedules\": [\n   {\n     \"id\": 1,\n     \"day_of_week\": \"monday\",\n     \"start_time\": \"09:00\",\n     \"end_time\": \"18:00\",\n     \"is_active\": true\n   }\n ]\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Actualizar Horarios",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/barber\/schedule",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/barber\/schedule"
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"schedules\":[{\"day_of_week\":\"monday\",\"start_time\":\"09:00\",\"end_time\":\"18:00\",\"is_active\":true}]}"
+                        },
+                        "description": "Actualiza los horarios del barbero autenticado.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"message\": \"Horarios actualizados correctamente\",\n \"schedules\": [...]\n}",
+                            "name": ""
+                        }
+                    ]
                 }
             ]
         },
@@ -2485,13 +2911,13 @@
                                 },
                                 {
                                     "key": "tipo",
-                                    "value": "insumo_trabajo",
+                                    "value": "venta_cliente",
                                     "type": "text",
                                     "description": ""
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -2604,7 +3030,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":16,\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":16,\"fecha\":\"2026-04-10T23:00:18\"}"
+                            "raw": "{\"product_id\":16,\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":16,\"fecha\":\"2026-05-08T22:53:11\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2612,6 +3038,128 @@
                         }
                     },
                     "response": []
+                }
+            ]
+        },
+        {
+            "name": "Portafolio de Barbero",
+            "description": "\nEndpoints para gestionar el portafolio de trabajos del barbero.",
+            "item": [
+                {
+                    "name": "Listar Trabajos del Barbero",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/barber\/portfolio",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/barber\/portfolio"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Devuelve todos los trabajos del barbero autenticado.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"works\": [\n   {\n     \"id\": 1,\n     \"title\": \"Corte Cl\u00e1sico\",\n     \"description\": \"Corte de cabello cl\u00e1sico con degradado\",\n     \"images\": [\"https:\/\/example.com\/storage\/works\/image1.jpg\"],\n     \"created_at\": \"2026-04-11T10:00:00.000000Z\"\n   }\n ]\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Crear Trabajo",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/barber\/works",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/barber\/works"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"title\":\"Corte Moderno con Degradado\",\"description\":\"Corte moderno con degradado lateral y textura superior\",\"images\":[\"architecto\"]}"
+                        },
+                        "description": "Crea un nuevo trabajo en el portafolio del barbero con im\u00e1genes opcionales.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 201,
+                            "body": "{\n \"message\": \"Trabajo creado exitosamente\",\n \"work\": { \"id\": 1, \"title\": \"Corte Moderno con Degradado\" }\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Eliminar Trabajo",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/barber\/works\/:work_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/barber\/works\/:work_id",
+                            "variable": [
+                                {
+                                    "id": "work_id",
+                                    "key": "work_id",
+                                    "value": "1",
+                                    "description": "The ID of the work."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Elimina un trabajo del portafolio del barbero.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"message\": \"Trabajo eliminado correctamente\"\n}",
+                            "name": ""
+                        }
+                    ]
                 }
             ]
         }

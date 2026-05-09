@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────
 # STAGE 1: Frontend (Vite + Node)
 # ─────────────────────────────────────────────
-FROM node:22-alpine AS node_builder
+FROM node:24-alpine AS node_builder
 
 WORKDIR /app
 
@@ -100,6 +100,13 @@ RUN mkdir -p \
 RUN chown -R laravel:laravel /var/www/html && \
     chmod -R 775 storage bootstrap/cache
 
+# Instala supervisor (como root)
+USER root
+RUN apk add --no-cache supervisor
+
+# Copia el archivo de configuración de supervisord
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Cambiar a usuario seguro
 USER laravel
 
@@ -109,4 +116,5 @@ USER laravel
 EXPOSE 9000
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["php-fpm"]
+# Ejecuta supervisord para correr php-fpm y el scheduler
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

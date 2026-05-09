@@ -1,56 +1,32 @@
-name: Inventario
+name: 'Gestión de Perfil'
 description: |-
 
-  Gestión de productos, stock y movimientos de almacén.
+  Endpoints para gestionar el perfil del usuario autenticado.
 endpoints:
   -
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/inventory/products
+    uri: api/v1/profile
     metadata:
       custom: []
-      groupName: Inventario
+      groupName: 'Gestión de Perfil'
       groupDescription: |-
 
-        Gestión de productos, stock y movimientos de almacén.
+        Endpoints para gestionar el perfil del usuario autenticado.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Listar Productos'
-      description: 'Obtiene el catálogo de productos con su stock actual y alertas de stock bajo.'
-      authenticated: true
+      title: 'Obtener Perfil'
+      description: 'Devuelve la información del perfil del usuario autenticado.'
+      authenticated: false
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
     urlParameters: []
     cleanUrlParameters: []
-    queryParameters:
-      categoria:
-        custom: []
-        name: categoria
-        description: 'Filtrar por categoría.'
-        required: false
-        example: Barbería
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: 'Filtrar por tipo (insumo, venta).'
-        required: false
-        example: venta
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanQueryParameters:
-      categoria: Barbería
-      tipo: venta
+    queryParameters: []
+    cleanQueryParameters: []
     bodyParameters: []
     cleanBodyParameters: []
     fileParameters: []
@@ -60,174 +36,19 @@ endpoints:
         status: 200
         content: |-
           {
-           "data": [
-             {
-               "id": 1,
-               "nombre": "Pomada Mate",
-               "categoria": "Fijación",
-               "stock_actual": 15,
-               "low_stock": false,
-               "precio_venta": 25.00
-             }
-           ]
+           "user": {
+             "id": 1,
+             "name": "Juan Pérez",
+             "email": "juan@example.com",
+             "email_verified_at": "2026-04-01T10:00:00.000000Z",
+             "created_at": "2026-04-01T10:00:00.000000Z",
+             "roles": ["cliente"],
+             "client_id": 1,
+             "barber_id": null
+           }
           }
         headers: []
         description: ''
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: api/v1/inventory/products
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: multipart/form-data
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      nombre:
-        custom: []
-        name: nombre
-        description: validation.max.
-        required: true
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      categoria:
-        custom: []
-        name: categoria
-        description: validation.max.
-        required: true
-        example: 'n'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      descripcion:
-        custom: []
-        name: descripcion
-        description: validation.max.
-        required: false
-        example: g
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      precio_compra:
-        custom: []
-        name: precio_compra
-        description: validation.min.
-        required: true
-        example: 12
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      precio_venta:
-        custom: []
-        name: precio_venta
-        description: validation.min.
-        required: true
-        example: 77
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_actual:
-        custom: []
-        name: stock_actual
-        description: validation.min.
-        required: true
-        example: 8
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_minimo:
-        custom: []
-        name: stock_minimo
-        description: validation.min.
-        required: true
-        example: 76
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: ''
-        required: true
-        example: venta_cliente
-        type: string
-        enumValues:
-          - venta_cliente
-          - insumo_trabajo
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      imagen:
-        custom: []
-        name: imagen
-        description: 'validation.image validation.max.'
-        required: false
-        example: null
-        type: file
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      active:
-        custom: []
-        name: active
-        description: ''
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      nombre: b
-      categoria: 'n'
-      descripcion: g
-      precio_compra: 12
-      precio_venta: 77
-      stock_actual: 8
-      stock_minimo: 76
-      tipo: venta_cliente
-      active: true
-    fileParameters:
-      imagen: null
-    responses: []
     responseFields: []
     auth: []
     controller: null
@@ -237,230 +58,18 @@ endpoints:
     custom: []
     httpMethods:
       - PUT
-    uri: 'api/v1/inventory/products/{product_id}'
+    uri: api/v1/profile
     metadata:
       custom: []
-      groupName: Inventario
+      groupName: 'Gestión de Perfil'
       groupDescription: |-
 
-        Gestión de productos, stock y movimientos de almacén.
+        Endpoints para gestionar el perfil del usuario autenticado.
       subgroup: ''
       subgroupDescription: ''
-      title: ''
-      description: ''
+      title: 'Actualizar Perfil'
+      description: 'Actualiza la información del perfil del usuario autenticado.'
       authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: multipart/form-data
-      Accept: application/json
-    urlParameters:
-      product_id:
-        custom: []
-        name: product_id
-        description: 'The ID of the product.'
-        required: true
-        example: 16
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      product_id: 16
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      nombre:
-        custom: []
-        name: nombre
-        description: validation.max.
-        required: false
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      categoria:
-        custom: []
-        name: categoria
-        description: validation.max.
-        required: false
-        example: 'n'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      descripcion:
-        custom: []
-        name: descripcion
-        description: validation.max.
-        required: false
-        example: g
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      precio_compra:
-        custom: []
-        name: precio_compra
-        description: validation.min.
-        required: false
-        example: 12
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      precio_venta:
-        custom: []
-        name: precio_venta
-        description: validation.min.
-        required: false
-        example: 77
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_actual:
-        custom: []
-        name: stock_actual
-        description: validation.min.
-        required: false
-        example: 8
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_minimo:
-        custom: []
-        name: stock_minimo
-        description: validation.min.
-        required: false
-        example: 76
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: ''
-        required: false
-        example: insumo_trabajo
-        type: string
-        enumValues:
-          - venta_cliente
-          - insumo_trabajo
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      imagen:
-        custom: []
-        name: imagen
-        description: 'validation.image validation.max.'
-        required: false
-        example: null
-        type: file
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      active:
-        custom: []
-        name: active
-        description: ''
-        required: false
-        example: false
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      nombre: b
-      categoria: 'n'
-      descripcion: g
-      precio_compra: 12
-      precio_venta: 77
-      stock_actual: 8
-      stock_minimo: 76
-      tipo: insumo_trabajo
-      active: false
-    fileParameters:
-      imagen: null
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - DELETE
-    uri: 'api/v1/inventory/products/{product_id}'
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      product_id:
-        custom: []
-        name: product_id
-        description: 'The ID of the product.'
-        required: true
-        example: 16
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      product_id: 16
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - GET
-    uri: api/v1/inventory/movements
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Historial de Movimientos'
-      description: 'Obtiene el registro de entradas y salidas de productos del almacén.'
-      authenticated: true
       deprecated: false
     headers:
       Content-Type: application/json
@@ -469,8 +78,32 @@ endpoints:
     cleanUrlParameters: []
     queryParameters: []
     cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'Nombre completo.'
+        required: false
+        example: 'Juan Pérez Actualizado'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: 'Correo electrónico único.'
+        required: false
+        example: nuevo@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      name: 'Juan Pérez Actualizado'
+      email: nuevo@example.com
     fileParameters: []
     responses:
       -
@@ -478,17 +111,8 @@ endpoints:
         status: 200
         content: |-
           {
-           "data": [
-             {
-               "id": 10,
-               "producto": "Shampoo Anti-caspa",
-               "tipo": "entrada",
-               "cantidad": 12,
-               "motivo": "Reposición de stock",
-               "responsable": "Admin",
-               "fecha": "2026-04-10T10:30:00Z"
-             }
-           ]
+           "message": "Perfil actualizado exitosamente",
+           "user": { "id": 1, "name": "Juan Pérez Actualizado", "email": "nuevo@example.com" }
           }
         headers: []
         description: ''
@@ -500,18 +124,18 @@ endpoints:
   -
     custom: []
     httpMethods:
-      - POST
-    uri: api/v1/inventory/movements
+      - PUT
+    uri: api/v1/profile/password
     metadata:
       custom: []
-      groupName: Inventario
+      groupName: 'Gestión de Perfil'
       groupDescription: |-
 
-        Gestión de productos, stock y movimientos de almacén.
+        Endpoints para gestionar el perfil del usuario autenticado.
       subgroup: ''
       subgroupDescription: ''
-      title: ''
-      description: ''
+      title: 'Actualizar Contraseña'
+      description: 'Cambia la contraseña del usuario autenticado.'
       authenticated: false
       deprecated: false
     headers:
@@ -522,80 +146,126 @@ endpoints:
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
-      product_id:
+      current_password:
         custom: []
-        name: product_id
-        description: 'The <code>id</code> of an existing record in the products table.'
+        name: current_password
+        description: 'Contraseña actual.'
         required: true
-        example: 16
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: ''
-        required: false
-        example: null
+        example: password123
         type: string
         enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: false
         deprecated: false
-      cantidad:
+      password:
         custom: []
-        name: cantidad
-        description: validation.min.
+        name: password
+        description: 'Nueva contraseña (mínimo 8 caracteres).'
         required: true
-        example: 22
-        type: integer
+        example: nuevaPassword456
+        type: string
         enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: false
         deprecated: false
-      motivo:
+      password_confirmation:
         custom: []
-        name: motivo
-        description: validation.max.
-        required: false
-        example: g
+        name: password_confirmation
+        description: 'Confirmación de la nueva contraseña.'
+        required: true
+        example: nuevaPassword456
         type: string
         enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      appointment_id:
-        custom: []
-        name: appointment_id
-        description: 'The <code>id</code> of an existing record in the appointments table.'
-        required: false
-        example: 16
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      fecha:
-        custom: []
-        name: fecha
-        description: validation.date.
-        required: false
-        example: '2026-04-10T23:00:18'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
+        exampleWasSpecified: true
+        nullable: false
         deprecated: false
     cleanBodyParameters:
-      product_id: 16
-      cantidad: 22
-      motivo: g
-      appointment_id: 16
-      fecha: '2026-04-10T23:00:18'
+      current_password: password123
+      password: nuevaPassword456
+      password_confirmation: nuevaPassword456
     fileParameters: []
-    responses: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+           "message": "Contraseña actualizada exitosamente"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+           "message": "La contraseña actual es incorrecta."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: api/v1/profile
+    metadata:
+      custom: []
+      groupName: 'Gestión de Perfil'
+      groupDescription: |-
+
+        Endpoints para gestionar el perfil del usuario autenticado.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Eliminar Cuenta'
+      description: 'Elimina permanentemente la cuenta del usuario autenticado.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      password:
+        custom: []
+        name: password
+        description: 'Contraseña actual para confirmar eliminación.'
+        required: true
+        example: password123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      password: password123
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+           "message": "Cuenta eliminada exitosamente"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+           "message": "Contraseña incorrecta."
+          }
+        headers: []
+        description: ''
     responseFields: []
     auth: []
     controller: null
