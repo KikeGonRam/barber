@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\Admin\BarberAdminController;
 use App\Http\Controllers\Api\Admin\ClientAdminController;
 use App\Http\Controllers\Api\Admin\InventoryAdminController;
 use App\Http\Controllers\Api\Admin\ReportAdminController;
+use App\Http\Controllers\Api\PredictionController;
 use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
@@ -199,6 +200,13 @@ Route::prefix('v1')->group(function (): void {
             Route::post('reports/custom', [ReportAdminController::class, 'generateCustomReport']);
             Route::get('reports/list', [ReportAdminController::class, 'listReports']);
             Route::get('reports/export', [ReportAdminController::class, 'exportReport']);
+
+            // Predicciones e Insights (IA)
+            Route::get('predictions/income/{days?}', [PredictionController::class, 'incomeForecasting']);
+            Route::get('predictions/appointments/{days?}', [PredictionController::class, 'appointmentForecast']);
+            Route::get('predictions/services', [PredictionController::class, 'serviceAnalysis']);
+            Route::get('predictions/peak-hours', [PredictionController::class, 'peakHoursAnalysis']);
+            Route::get('predictions/insights', [PredictionController::class, 'insights']);
         });
     });
 });

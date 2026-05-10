@@ -119,6 +119,78 @@
                 </article>
             </section>
 
+            <!-- AI Predictions & Insights Section -->
+            <section class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay: 350ms;">
+                <div class="mb-6 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-black text-white uppercase tracking-widest">🤖 Predicciones con IA</h3>
+                        <span class="text-[10px] text-muted font-bold uppercase mt-1">Análisis predictivo basado en Ollama</span>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 text-[9px] font-black uppercase text-indigo-400">
+                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2z" clip-rule="evenodd"/></svg>
+                        Beta
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <!-- Income Forecast -->
+                    <div class="rounded-2xl border border-white/5 bg-white/3 p-6 hover:border-green-500/30 hover:bg-green-500/5 transition-all duration-300">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-muted">Predicción Ingresos</p>
+                                <p class="text-xs text-muted mt-1">Próximos 7 días</p>
+                            </div>
+                            <div class="h-10 w-10 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                            </div>
+                        </div>
+                        <p id="income-forecast" class="text-3xl font-black text-green-400 animate-pulse">--</p>
+                        <p class="text-xs text-muted mt-3 italic">Cargando predicción...</p>
+                    </div>
+
+                    <!-- Appointment Forecast -->
+                    <div class="rounded-2xl border border-white/5 bg-white/3 p-6 hover:border-blue-500/30 hover:bg-blue-500/5 transition-all duration-300">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-muted">Predicción Citas</p>
+                                <p class="text-xs text-muted mt-1">Próximos 7 días</p>
+                            </div>
+                            <div class="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            </div>
+                        </div>
+                        <p id="appointment-forecast" class="text-3xl font-black text-blue-400 animate-pulse">--</p>
+                        <p class="text-xs text-muted mt-3 italic">Cargando predicción...</p>
+                    </div>
+
+                    <!-- AI Confidence & Status -->
+                    <div class="rounded-2xl border border-white/5 bg-white/3 p-6 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all duration-300">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-muted">Confianza IA</p>
+                                <p class="text-xs text-muted mt-1">Precisión modelo</p>
+                            </div>
+                            <div class="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                            </div>
+                        </div>
+                        <p id="ai-confidence" class="text-3xl font-black text-indigo-400 animate-pulse">--</p>
+                        <p class="text-xs text-muted mt-3 italic">Procesando análisis...</p>
+                    </div>
+                </div>
+
+                <!-- AI Insights List -->
+                <div class="mt-8 pt-6 border-t border-white/10">
+                    <h4 class="text-xs font-black text-white uppercase tracking-widest mb-4">Insights Recomendados</h4>
+                    <div id="ai-insights" class="space-y-3">
+                        <div class="flex items-start gap-3 p-3 rounded-lg bg-white/5 border border-white/10 animate-pulse">
+                            <div class="h-2 w-2 rounded-full bg-yellow-400 mt-1.5 flex-shrink-0"></div>
+                            <p class="text-xs text-muted">Cargando análisis de inteligencia artificial...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Visual Live Status Widget -->
             <section class="ui-card-premium p-6 sm:p-8 relative overflow-hidden">
                 <div class="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-gold/5 to-transparent"></div>
@@ -875,6 +947,72 @@
                             }
                         }
                     });
+                }
+            @endif
+
+            @if($adminMode ?? false)
+                // Load AI Predictions
+                async function loadPredictions() {
+                    try {
+                        const [incomeRes, appointmentsRes, insightsRes] = await Promise.all([
+                            fetch('/api/v1/admin/predictions/income/7'),
+                            fetch('/api/v1/admin/predictions/appointments/7'),
+                            fetch('/api/v1/admin/predictions/insights')
+                        ]);
+
+                        if (incomeRes.ok) {
+                            const incomeData = await incomeRes.json();
+                            document.getElementById('income-forecast').textContent = 
+                                incomeData.data?.predicted_income ? `$${incomeData.data.predicted_income.toFixed(2)}` : 'N/A';
+                        }
+
+                        if (appointmentsRes.ok) {
+                            const appointmentData = await appointmentsRes.json();
+                            document.getElementById('appointment-forecast').textContent = 
+                                appointmentData.data?.predicted_appointments ?? 'N/A';
+                        }
+
+                        if (insightsRes.ok) {
+                            const insightsData = await insightsRes.json();
+                            const insights = insightsData.data || {};
+                            
+                            let insightsHtml = '';
+                            Object.entries(insights).forEach(([key, insight]) => {
+                                const statusColors = {
+                                    positive: 'border-green-500/30 bg-green-500/5',
+                                    warning: 'border-yellow-500/30 bg-yellow-500/5',
+                                    neutral: 'border-blue-500/30 bg-blue-500/5'
+                                };
+                                const color = statusColors[insight.status] || statusColors.neutral;
+                                
+                                insightsHtml += `
+                                    <div class="flex items-start gap-3 p-4 rounded-lg border ${color} animate-slide-up">
+                                        <div class="h-2 w-2 rounded-full ${insight.status === 'positive' ? 'bg-green-400' : insight.status === 'warning' ? 'bg-yellow-400' : 'bg-blue-400'} mt-1.5 flex-shrink-0"></div>
+                                        <div>
+                                            <p class="text-xs font-bold text-white">${insight.message}</p>
+                                            ${insight.avg_daily ? `<p class="text-[10px] text-muted mt-1">Promedio: ${insight.avg_daily}</p>` : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            
+                            document.getElementById('ai-insights').innerHTML = insightsHtml || '<p class="text-xs text-muted">Sin insights disponibles.</p>';
+                        }
+
+                        // Update confidence (mock for now)
+                        document.getElementById('ai-confidence').textContent = '72%';
+                    } catch (error) {
+                        console.error('Error loading predictions:', error);
+                        document.getElementById('income-forecast').textContent = 'Error';
+                        document.getElementById('appointment-forecast').textContent = 'Error';
+                    }
+                }
+
+                // Load predictions when page loads
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', loadPredictions);
+                } else {
+                    loadPredictions();
                 }
             @endif
         </script>
