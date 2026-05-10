@@ -39,11 +39,9 @@ Route::prefix('v1')->group(function (): void {
     Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:6,1');
     Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
-
-    // Web-authenticated user routes (require session authentication)
-    Route::middleware('auth:web')->group(function (): void {
-        Route::post('auth/get-api-token', [AuthController::class, 'getWebApiToken']);
-    });
+    
+    // Get API token for dashboard (checks auth internally, returns JSON)
+    Route::post('auth/get-api-token', [AuthController::class, 'getWebApiToken']);
 
     // Catálogo público
     Route::get('services', [CatalogController::class, 'services']);

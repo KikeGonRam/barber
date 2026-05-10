@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\MobileApiToken;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
@@ -174,22 +175,26 @@ class AuthController extends Controller
      * @authenticated
      *
      * @response {
+     *  "ok": true,
      *  "message": "Token generado exitosamente.",
      *  "token_type": "Bearer",
      *  "token": "1|abc123def456...",
      *  "expires_at": "2026-11-10T12:00:00.000000Z"
      * }
      * @response 401 {
+     *  "ok": false,
      *  "message": "No autenticado."
      * }
      */
     public function getWebApiToken(Request $request): JsonResponse
     {
-        $user = $request->user();
+        // Try to get user from web session first (dashboard context)
+        $user = Auth::guard('web')->user();
 
         if (!$user) {
             return response()->json([
-                'message' => 'No autenticado.',
+                'ok' => false,
+                'message' => 'No autenticado. Por favor inicia sesión en el dashboard.',
             ], 401);
         }
 
@@ -217,6 +222,7 @@ class AuthController extends Controller
         );
 
         return response()->json([
+            'ok' => true,
             'message' => 'Token generado exitosamente.',
             'token_type' => 'Bearer',
             'token' => $issued['token'],
@@ -384,3 +390,4 @@ class AuthController extends Controller
         ];
     }
 }
+
