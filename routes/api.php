@@ -34,11 +34,16 @@ use Illuminate\Support\Facades\Route;
 Route::get('availability/slots', [AvailabilityController::class, 'slots']);
 
 Route::prefix('v1')->group(function (): void {
-    // Rutas públicas (sin autenticación)
+    // Public routes
     Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
     Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:6,1');
     Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
+
+    // Web-authenticated user routes (require session authentication)
+    Route::middleware('auth:web')->group(function (): void {
+        Route::post('auth/get-api-token', [AuthController::class, 'getWebApiToken']);
+    });
 
     // Catálogo público
     Route::get('services', [CatalogController::class, 'services']);

@@ -165,6 +165,65 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Obtener Token para Dashboard Web
+     *
+     * Genera un token API para usuarios autenticados en el dashboard web.
+     * Permite que la interfaz web acceda a endpoints que requieren Bearer token.
+     *
+     * @authenticated
+     *
+     * @response {
+     *  "message": "Token generado exitosamente.",
+     *  "token_type": "Bearer",
+     *  "token": "1|abc123def456...",
+     *  "expires_at": "2026-11-10T12:00:00.000000Z"
+     * }
+     * @response 401 {
+     *  "message": "No autenticado."
+     * }
+     */
+    public function getWebApiToken(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'No autenticado.',
+            ], 401);
+        }
+
+        // Check if user has an existing valid token
+        $existingToken = MobileApiToken::where('user_id', $user->id)
+            ->where('name', 'Dashboard Web')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
+            ->first();
+
+        // Use existing token or create a new one
+        if ($existingToken) {
+            // Return the token model but we can't get the plain token back
+            // So we'll create a new one instead
+            $existingToken->delete();
+        }
+
+        // Create new token that expires in 30 days
+        $issued = $user->issueMobileApiToken(
+            'Dashboard Web',
+            ['*'],
+            now()->addDays(30)
+        );
+
+        return response()->json([
+            'message' => 'Token generado exitosamente.',
+            'token_type' => 'Bearer',
+            'token' => $issued['token'],
+            'expires_at' => $issued['token_model']->expires_at?->toISOString(),
+        ]);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         $token = $request->attributes->get('mobile_token');

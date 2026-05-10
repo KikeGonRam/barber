@@ -951,13 +951,54 @@
             @endif
 
             @if($adminMode ?? false)
+                // Load API Token for Dashboard
+                let apiToken = null;
+
+                async function getApiToken() {
+                    try {
+                        const response = await fetch('/api/v1/auth/get-api-token', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                            }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            apiToken = data.token;
+                            return true;
+                        }
+                    } catch (error) {
+                        console.error('Error getting API token:', error);
+                    }
+                    return false;
+                }
+
                 // Load AI Predictions
                 async function loadPredictions() {
+                    // Get API token first if we don't have one
+                    if (!apiToken) {
+                        const hasToken = await getApiToken();
+                        if (!hasToken) {
+                            console.error('Failed to obtain API token');
+                            document.getElementById('income-forecast').textContent = 'Error';
+                            document.getElementById('appointment-forecast').textContent = 'Error';
+                            return;
+                        }
+                    }
+
                     try {
+                        const headers = {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiToken}`,
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        };
+
                         const [incomeRes, appointmentsRes, insightsRes] = await Promise.all([
-                            fetch('/api/v1/admin/predictions/income/7'),
-                            fetch('/api/v1/admin/predictions/appointments/7'),
-                            fetch('/api/v1/admin/predictions/insights')
+                            fetch('/api/v1/admin/predictions/income/7', { headers }),
+                            fetch('/api/v1/admin/predictions/appointments/7', { headers }),
+                            fetch('/api/v1/admin/predictions/insights', { headers })
                         ]);
 
                         if (incomeRes.ok) {
