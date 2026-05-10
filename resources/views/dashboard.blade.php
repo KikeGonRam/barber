@@ -45,7 +45,7 @@
             <!-- ADMIN DASHBOARD                            -->
             <!-- ========================================== -->
             
-            <!-- KPIs -->
+            <!-- KPIs Row 1 -->
             <section class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <article class="ui-kpi-card group animate-slide-up" style="animation-delay: 0ms;">
                     <div class="flex items-start justify-between">
@@ -61,6 +61,11 @@
                         <span class="bg-white/5 px-1.5 py-0.5 rounded border border-white/10 uppercase transition-all duration-300 group-hover:bg-blue-500/10 group-hover:border-blue-500/30">Sem: {{ $kpis['appointments_week'] }}</span>
                         <span class="bg-white/5 px-1.5 py-0.5 rounded border border-white/10 uppercase transition-all duration-300 group-hover:bg-blue-500/10 group-hover:border-blue-500/30">Mes: {{ $kpis['appointments_month'] }}</span>
                     </div>
+                    @if($kpis['appointment_growth'] !== 0)
+                    <div class="mt-3 text-xs font-bold {{ $kpis['appointment_growth'] >= 0 ? 'text-green-400' : 'text-red-400' }}">
+                        {{ $kpis['appointment_growth'] >= 0 ? '↑' : '↓' }} {{ abs($kpis['appointment_growth']) }}% vs mes anterior
+                    </div>
+                    @endif
                 </article>
 
                 <a href="{{ route('payments.index') }}" class="ui-kpi-card group cursor-pointer hover:border-green-500/50 animate-slide-up" style="animation-delay: 100ms;">
@@ -76,35 +81,40 @@
                     <div class="mt-4 flex items-center gap-2 text-[10px] text-muted font-bold">
                         <span class="bg-green-500/10 px-1.5 py-0.5 rounded text-green-400 border border-green-500/20 uppercase transition-all duration-300 group-hover:bg-green-500/20">Sem: ${{ number_format($kpis['income_week'], 2) }}</span>
                     </div>
+                    @if($kpis['income_growth'] !== 0)
+                    <div class="mt-3 text-xs font-bold {{ $kpis['income_growth'] >= 0 ? 'text-green-400' : 'text-red-400' }}">
+                        {{ $kpis['income_growth'] >= 0 ? '↑' : '↓' }} {{ abs($kpis['income_growth']) }}% vs mes anterior
+                    </div>
+                    @endif
                 </a>
 
                 <article class="ui-kpi-card group animate-slide-up" style="animation-delay: 200ms;">
                     <div class="flex items-start justify-between">
                         <div>
-                            <p class="ui-kpi-label">Clientes Nuevos</p>
-                            <p class="ui-kpi-value mt-1">{{ $kpis['new_clients'] }}</p>
+                            <p class="ui-kpi-label">Clientes Activos</p>
+                            <p class="ui-kpi-value mt-1">{{ $kpis['active_clients'] }}</p>
                         </div>
-                        <div class="h-10 w-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+                        <div class="h-10 w-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 12H9m6 0a6 6 0 11-12 0 6 6 0 0112 0z" /></svg>
                         </div>
                     </div>
                     <div class="mt-4 flex items-center gap-2 text-[10px] text-muted font-bold uppercase">
-                        <span class="bg-orange-500/10 px-1.5 py-0.5 rounded text-orange-400 border border-orange-500/20 transition-all duration-300 group-hover:bg-orange-500/20">Recurrentes: {{ $kpis['recurring_clients'] }}</span>
+                        <span class="bg-cyan-500/10 px-1.5 py-0.5 rounded text-cyan-400 border border-cyan-500/20 transition-all duration-300 group-hover:bg-cyan-500/20">Total: {{ $kpis['total_clients'] }}</span>
                     </div>
                 </article>
 
                 <article class="ui-kpi-card group animate-slide-up" style="animation-delay: 300ms;">
                     <div class="flex items-start justify-between">
                         <div>
-                            <p class="ui-kpi-label">Servicio Top</p>
-                            <p class="mt-1 text-lg font-bold text-white truncate max-w-[120px]">{{ $kpis['top_barber_name'] ?? 'Sin datos' }}</p>
+                            <p class="ui-kpi-label">Tasa Retención</p>
+                            <p class="ui-kpi-value mt-1 text-purple-400">{{ number_format($kpis['retention_rate'], 1) }}%</p>
                         </div>
                         <div class="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" /></svg>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                         </div>
                     </div>
                     <div class="mt-4 flex items-center gap-2 text-[10px] text-muted font-bold uppercase">
-                        <span class="bg-red-500/10 px-1.5 py-0.5 rounded text-red-400 border border-red-500/20 transition-all duration-300 group-hover:bg-red-500/20">Stock Bajo: {{ $kpis['low_stock_count'] }}</span>
+                        <span class="bg-purple-500/10 px-1.5 py-0.5 rounded text-purple-400 border border-purple-500/20 transition-all duration-300 group-hover:bg-purple-500/20">Recurrentes: {{ $kpis['recurring_clients'] }}</span>
                     </div>
                 </article>
             </section>
@@ -203,6 +213,109 @@
                         </div>
                     @endif
                 </article>
+            </section>
+
+            <!-- Advanced Analytics Row -->
+            <section class="grid grid-cols-1 gap-6 lg:grid-cols-2 animate-slide-up" style="animation-delay: 500ms;">
+                <!-- Barber Performance Chart -->
+                <article class="ui-card-premium p-6 sm:p-8">
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-black text-white uppercase tracking-widest">Desempeño de Barberos</h3>
+                            <span class="text-[10px] text-muted font-bold uppercase">Citas completadas este mes</span>
+                        </div>
+                    </div>
+                    @php
+                        $hasBarberData = ! empty(array_filter($barberPerformance['appointments'] ?? []));
+                    @endphp
+                    @if($hasBarberData)
+                        <div class="h-[320px]">
+                            <canvas id="barberPerformanceChart"></canvas>
+                        </div>
+                    @else
+                        <div class="h-[320px] ui-empty-state">
+                            <p class="ui-empty-state-copy">Sin datos de desempeño disponibles.</p>
+                        </div>
+                    @endif
+                </article>
+
+                <!-- Client Trends Chart -->
+                <article class="ui-card-premium p-6 sm:p-8">
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-black text-white uppercase tracking-widest">Tendencias de Clientes</h3>
+                            <span class="text-[10px] text-muted font-bold uppercase">Citas completadas últimas 4 semanas</span>
+                        </div>
+                    </div>
+                    @php
+                        $hasClientTrends = ! empty(array_filter($clientTrends['values'] ?? []));
+                    @endphp
+                    @if($hasClientTrends)
+                        <div class="h-[320px]">
+                            <canvas id="clientTrendsChart"></canvas>
+                        </div>
+                    @else
+                        <div class="h-[320px] ui-empty-state">
+                            <p class="ui-empty-state-copy">Sin datos de tendencias disponibles.</p>
+                        </div>
+                    @endif
+                </article>
+            </section>
+
+            <!-- Quick Reports Section -->
+            <section class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay: 550ms;">
+                <div class="mb-6 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-black text-white uppercase tracking-widest">Reportes Rápidos</h3>
+                        <span class="text-[10px] text-muted font-bold uppercase mt-1">Exporta tus datos</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <a href="#" class="group rounded-2xl border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:border-blue-500/50 hover:bg-blue-500/10 hover:shadow-lg cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-bold text-white">Reporte Mensual</p>
+                                <p class="text-xs text-muted mt-1">PDF con KPIs completos</p>
+                            </div>
+                            <div class="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#" class="group rounded-2xl border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:border-green-500/50 hover:bg-green-500/10 hover:shadow-lg cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-bold text-white">Reporte Ingresos</p>
+                                <p class="text-xs text-muted mt-1">CSV de ventas y propinas</p>
+                            </div>
+                            <div class="h-10 w-10 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#" class="group rounded-2xl border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:border-purple-500/50 hover:bg-purple-500/10 hover:shadow-lg cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-bold text-white">Reporte Clientes</p>
+                                <p class="text-xs text-muted mt-1">Análisis de retención y CRM</p>
+                            </div>
+                            <div class="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#" class="group rounded-2xl border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:border-orange-500/50 hover:bg-orange-500/10 hover:shadow-lg cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-bold text-white">Reporte Inventory</p>
+                                <p class="text-xs text-muted mt-1">Stock y alertas de compra</p>
+                            </div>
+                            <div class="h-10 w-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.325 15.582l-3.819-5.209a2.25 2.25 0 00-3.612 0l-3.819 5.209m0 0a6 6 0 016-10.385m0 10.385l3.75 5.209a2.25 2.25 0 003.612 0l3.638-4.958" /></svg>
+                            </div>
+                        </div>
+                    </a>
+                </div>
             </section>
 
             <section class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay: 600ms;">
@@ -688,6 +801,82 @@
                     }
                 });
             }
+
+            @if($adminMode ?? false)
+                // Barber Performance Chart
+                const barberPerfCtx = document.getElementById('barberPerformanceChart');
+                if (barberPerfCtx) {
+                    new Chart(barberPerfCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: @json($barberPerformance['labels'] ?? []),
+                            datasets: [
+                                {
+                                    label: 'Citas Completadas',
+                                    data: @json($barberPerformance['appointments'] ?? []),
+                                    backgroundColor: '#3b82f6',
+                                    borderRadius: 8,
+                                    barThickness: 30,
+                                    order: 2
+                                },
+                                {
+                                    label: 'Ingresos ($)',
+                                    data: @json($barberPerformance['revenue'] ?? []),
+                                    backgroundColor: '#10b981',
+                                    borderRadius: 8,
+                                    barThickness: 30,
+                                    order: 2
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { 
+                                legend: { 
+                                    display: true,
+                                    labels: { color: '#b0b0b0', usePointStyle: true, padding: 15, font: { size: 11, weight: 'bold' } }
+                                } 
+                            },
+                            scales: { 
+                                y: chartScale, 
+                                x: chartScale 
+                            }
+                        }
+                    });
+                }
+
+                // Client Trends Chart
+                const clientTrendsCtx = document.getElementById('clientTrendsChart');
+                if (clientTrendsCtx) {
+                    new Chart(clientTrendsCtx, {
+                        type: 'line',
+                        data: {
+                            labels: @json($clientTrends['labels'] ?? []),
+                            datasets: [{
+                                label: 'Citas Completadas',
+                                data: @json($clientTrends['values'] ?? []),
+                                borderColor: '#a78bfa',
+                                backgroundColor: 'rgba(167, 139, 250, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#a78bfa',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: { 
+                                y: { ...chartScale, beginAtZero: true, ticks: { ...chartScale.ticks, stepSize: Math.ceil(Math.max(...(@json($clientTrends['values'] ?? []) || [0])) / 5) || 1 } }, 
+                                x: chartScale 
+                            }
+                        }
+                    });
+                }
+            @endif
         </script>
     @endif
 </x-app-layout>

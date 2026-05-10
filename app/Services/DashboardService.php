@@ -21,14 +21,22 @@ class DashboardService
         $weekEnd = Carbon::now()->endOfWeek();
         $monthStart = Carbon::now()->startOfMonth();
         $monthEnd = Carbon::now()->endOfMonth();
+        $lastMonthStart = (clone $monthStart)->subMonth();
+        $lastMonthEnd = (clone $monthEnd)->subMonth();
 
         $appointmentsToday = Appointment::query()->whereDate('fecha', $today)->count();
         $appointmentsWeek = Appointment::query()->whereBetween('fecha', [$weekStart->toDateString(), $weekEnd->toDateString()])->count();
         $appointmentsMonth = Appointment::query()->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])->count();
+        $appointmentsLastMonth = Appointment::query()->whereBetween('fecha', [$lastMonthStart->toDateString(), $lastMonthEnd->toDateString()])->count();
 
         $incomeToday = (float) Payment::query()->whereDate('created_at', $today)->sum(DB::raw('monto + propina'));
         $incomeWeek = (float) Payment::query()->whereBetween('created_at', [$weekStart, $weekEnd])->sum(DB::raw('monto + propina'));
         $incomeMonth = (float) Payment::query()->whereBetween('created_at', [$monthStart, $monthEnd])->sum(DB::raw('monto + propina'));
+        $incomeLastMonth = (float) Payment::query()->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->sum(DB::raw('monto + propina'));
+
+        // Growth metrics
+        $appointmentGrowth = $appointmentsLastMonth > 0 ? (($appointmentsMonth - $appointmentsLastMonth) / $appointmentsLastMonth) * 100 : 0;
+        $incomeGrowth = $incomeLastMonth > 0 ? (($incomeMonth - $incomeLastMonth) / $incomeLastMonth) * 100 : 0;
 
         $topBarber = Appointment::query()
             ->selectRaw('barber_id, COUNT(*) as total')
@@ -53,7 +61,12 @@ class DashboardService
 
         $newClients = $clientStats->where('total', 1)->count();
         $recurringClients = $clientStats->where('total', '>', 1)->count();
-
+        $totalClients = Client::count();
+        $activeClients = Client::whereHas('appointments', function($q) {
+            $q->whereDate('fecha', '>=', Carbon::now()->subDays(30)->toDateString());
+        })->count();
+        $retentionRate = $totalClients > 0 ? ($recurringClients / $totalClients) * 100 : 0;
+        
         $lowStockCount = Product::query()->whereColumn('stock_actual', '<=', 'stock_minimo')->count();
 
         // New: Barber Status Logic
@@ -104,13 +117,18 @@ class DashboardService
                 'appointments_today' => $appointmentsToday,
                 'appointments_week' => $appointmentsWeek,
                 'appointments_month' => $appointmentsMonth,
+                'appointment_growth' => round($appointmentGrowth, 1),
                 'income_today' => $incomeToday,
                 'income_week' => $incomeWeek,
                 'income_month' => $incomeMonth,
+                'income_growth' => round($incomeGrowth, 1),
                 'top_barber_name' => $topBarber?->barber?->user?->name,
                 'top_barber_total' => $topBarber?->total ?? 0,
                 'new_clients' => $newClients,
                 'recurring_clients' => $recurringClients,
+                'total_clients' => $totalClients,
+                'active_clients' => $activeClients,
+                'retention_rate' => round($retentionRate, 1),
                 'low_stock_count' => $lowStockCount,
                 'barbers_status' => $barbersStatus,
             ],
@@ -122,7 +140,50 @@ class DashboardService
                 'labels' => $topServices->map(fn ($row) => $row->service?->nombre ?? 'Sin servicio')->all(),
                 'values' => $topServices->pluck('total')->all(),
             ],
+            'barber_performance' => $this->getBarberPerformanceChart($monthStart, $monthEnd),
+            'client_trends' => $this->getClientTrendsChart($monthStart, $monthEnd),
             'chatbot_telemetry' => $chatbotTelemetry,
+        ];
+    }
+
+    private function getBarberPerformanceChart(Carbon $monthStart, Carbon $monthEnd): array
+    {
+        $barberStats = Appointment::query()
+            ->selectRaw('barber_id, COUNT(*) as appointments, SUM(precio_cobrado) as revenue')
+            ->with('barber.user')
+            ->where('estado', 'completada')
+            ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->groupBy('barber_id')
+            ->orderByDesc('appointments')
+            ->limit(8)
+            ->get();
+
+        return [
+            'labels' => $barberStats->map(fn ($row) => $row->barber?->user?->name ?? 'Sin nombre')->all(),
+            'appointments' => $barberStats->pluck('appointments')->all(),
+            'revenue' => $barberStats->pluck('revenue')->map(fn ($v) => (float) ($v ?? 0))->all(),
+        ];
+    }
+
+    private function getClientTrendsChart(Carbon $monthStart, Carbon $monthEnd): array
+    {
+        $clientTrends = collect(range(0, 11))->map(function (int $offset) use ($monthStart) {
+            $date = (clone $monthStart)->addDays(($offset * 3));
+            $count = Appointment::query()
+                ->where('estado', 'completada')
+                ->whereDate('fecha', '>=', $date->toDateString())
+                ->whereDate('fecha', '<', $date->addDays(3)->toDateString())
+                ->count();
+
+            return [
+                'label' => $date->format('d M'),
+                'count' => $count,
+            ];
+        });
+
+        return [
+            'labels' => $clientTrends->pluck('label')->all(),
+            'values' => $clientTrends->pluck('count')->all(),
         ];
     }
 
