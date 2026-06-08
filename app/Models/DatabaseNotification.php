@@ -48,6 +48,16 @@ class DatabaseNotification extends Model
         return is_null($this->read_at);
     }
 
+    public function scopeRead($query)
+    {
+        return $query->whereNotNull('read_at');
+    }
+
+    public function scopeUnread($query)
+    {
+        return $query->whereNull('read_at');
+    }
+
     public function newCollection(array $models = []): DatabaseNotificationCollection
     {
         return new DatabaseNotificationCollection($models);
