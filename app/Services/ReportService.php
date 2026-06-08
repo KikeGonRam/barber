@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Appointment;
+use App\Models\InventoryMovement;
 use App\Models\Payment;
 use App\Models\Product;
 use Carbon\Carbon;
@@ -86,7 +87,7 @@ class ReportService
 
     public function inventoryReport(array $filters): array
     {
-        $query = Product::query()->withCount('movements');
+        $query = Product::query();
 
         if (! empty($filters['categoria'])) {
             $query->where('categoria', $filters['categoria']);
@@ -96,7 +97,13 @@ class ReportService
             $query->where('tipo', $filters['tipo']);
         }
 
-        $rows = $query->get()->map(function (Product $product) {
+        $products = $query->get();
+        $productIds = $products->pluck('id')->toArray();
+        $movementCounts = !empty($productIds)
+            ? InventoryMovement::whereIn('product_id', $productIds)->get(['product_id'])->groupBy('product_id')->map->count()
+            : collect();
+
+        $rows = $products->map(function (Product $product) use ($movementCounts) {
             return [
                 'producto' => $product->nombre,
                 'categoria' => $product->categoria,
@@ -104,7 +111,7 @@ class ReportService
                 'stock_actual' => (int) $product->stock_actual,
                 'stock_minimo' => (int) $product->stock_minimo,
                 'bajo_minimo' => $product->stock_actual <= $product->stock_minimo ? 'Sí' : 'No',
-                'movimientos' => (int) $product->movements_count,
+                'movimientos' => (int) ($movementCounts->get($product->id, 0)),
             ];
         });
 

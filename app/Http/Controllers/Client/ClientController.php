@@ -23,7 +23,6 @@ class ClientController extends Controller
 
         $clients = Client::query()
             ->with('user:id,name,email')
-            ->withCount('appointments')
             ->when($search !== '', fn($query) => $query->whereHas('user', fn($u) =>
                 $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")
             ))
@@ -33,6 +32,16 @@ class ClientController extends Controller
             ->latest('id')
             ->paginate(20)
             ->withQueryString();
+
+        // withCount not supported by MongoDB — compute PHP-side after pagination
+        $ids = $clients->pluck('id')->toArray();
+        if (!empty($ids)) {
+            $apptCounts = \App\Models\Appointment::whereIn('client_id', $ids)
+                ->get(['client_id'])
+                ->groupBy('client_id')
+                ->map->count();
+            $clients->each(fn($c) => $c->appointments_count = $apptCounts->get($c->id, 0));
+        }
 
         $stats = [
             'total'       => Client::count(),

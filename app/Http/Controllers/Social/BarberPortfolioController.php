@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Social;
 
 use App\Http\Controllers\Controller;
+use App\Models\Comment;
+use App\Models\Reaction;
+use App\Models\SavedWork;
 use App\Models\User;
 use App\Models\Work;
 use Illuminate\Http\RedirectResponse;
@@ -19,15 +22,12 @@ class BarberPortfolioController extends Controller
             ->latest()
             ->paginate(12);
 
-        $totals = Work::where('barbero_id', auth()->id())
-            ->withCount(['reactions', 'comments', 'saves'])
-            ->get();
-
+        $workIds = Work::where('barbero_id', auth()->id())->pluck('_id')->toArray();
         $stats = [
-            'total_works'    => $totals->count(),
-            'total_reactions'=> $totals->sum('reactions_count'),
-            'total_comments' => $totals->sum('comments_count'),
-            'total_saves'    => $totals->sum('saves_count'),
+            'total_works'    => count($workIds),
+            'total_reactions'=> Reaction::whereIn('work_id', $workIds)->count(),
+            'total_comments' => Comment::whereIn('work_id', $workIds)->count(),
+            'total_saves'    => SavedWork::whereIn('work_id', $workIds)->count(),
         ];
 
         return view('barber.portfolio.index', compact('works', 'barber', 'stats'));

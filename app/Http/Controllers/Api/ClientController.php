@@ -23,7 +23,6 @@ class ClientController extends Controller
 
         $clients = Client::query()
             ->with('user:id,name,email')
-            ->withCount('appointments')
             ->when($search !== '', function ($query) use ($search): void {
                 $query->whereHas('user', function ($userQuery) use ($search): void {
                     $userQuery->where('name', 'like', "%{$search}%")
@@ -33,6 +32,15 @@ class ClientController extends Controller
             ->latest('id')
             ->paginate(15)
             ->withQueryString();
+
+        $ids = $clients->pluck('id')->toArray();
+        if (!empty($ids)) {
+            $counts = \App\Models\Appointment::whereIn('client_id', $ids)
+                ->get(['client_id'])
+                ->groupBy('client_id')
+                ->map->count();
+            $clients->each(fn($c) => $c->appointments_count = $counts->get($c->id, 0));
+        }
 
         return response()->json([
             'data' => $clients->getCollection()->map(fn (Client $client) => [

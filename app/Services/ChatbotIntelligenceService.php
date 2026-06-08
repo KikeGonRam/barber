@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\Comment;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Reaction;
 use App\Models\Service;
 use App\Models\User;
 use App\Models\Work;
@@ -39,28 +40,30 @@ class ChatbotIntelligenceService
      */
     private function getTrendingBarbers(): array
     {
-        $barbers = Barber::with('user')
-            ->where('activo', true)
-            ->withCount([
-                'works' => fn ($q) => $q->where('created_at', '>=', now()->subMonths(3)),
-                'appointments' => fn ($q) => $q->where('estado', 'completada')->where('fecha', '>=', now()->subMonths(3)),
-            ])
-            ->withAvg('comments', 'rating')
-            ->orderByDesc('works_count')
-            ->limit(5)
-            ->get()
-            ->map(function ($barber) {
-                return [
-                    'name' => $barber->user->name,
-                    'works' => $barber->works_count ?? 0,
-                    'appointments' => $barber->appointments_count ?? 0,
-                    'rating' => round($barber->comments_avg_rating ?? 0, 1),
-                    'specialty' => $barber->especialidad ?? 'Barbería general',
-                ];
-            })
-            ->toArray();
+        $cutoff = now()->subMonths(3);
+        $barbers = Barber::with('user')->where('activo', true)->get();
+        $ids = $barbers->pluck('id')->toArray();
 
-        return $barbers;
+        $workCounts = Work::whereIn('barbero_id', $ids)->where('created_at', '>=', $cutoff)
+            ->get(['barbero_id'])->groupBy('barbero_id')->map->count();
+
+        $apptCounts = Appointment::whereIn('barber_id', $ids)->where('estado', 'completada')
+            ->where('fecha', '>=', $cutoff)->get(['barber_id'])->groupBy('barber_id')->map->count();
+
+        $worksByBarber = Work::whereIn('barbero_id', $ids)->get(['_id', 'barbero_id']);
+        $workIds = $worksByBarber->pluck('_id')->toArray();
+        $workToBarber = $worksByBarber->pluck('barbero_id', '_id');
+        $avgRatings = Comment::whereIn('work_id', $workIds)->get(['work_id', 'rating'])
+            ->groupBy(fn($c) => $workToBarber->get($c->work_id))
+            ->map(fn($g) => round($g->avg('rating') ?? 0, 1));
+
+        return $barbers->map(fn($b) => [
+            'name' => $b->user->name,
+            'works' => $workCounts->get($b->id, 0),
+            'appointments' => $apptCounts->get($b->id, 0),
+            'rating' => $avgRatings->get($b->id, 0.0),
+            'specialty' => $b->especialidad ?? 'Barbería general',
+        ])->sortByDesc('works')->take(5)->values()->toArray();
     }
 
     /**
@@ -68,27 +71,21 @@ class ChatbotIntelligenceService
      */
     private function getTrendingWorks(): array
     {
-        $works = Work::with('barber.user', 'workImages')
-            ->where('created_at', '>=', now()->subMonths(3))
-            ->withCount([
-                'reactions' => fn ($q) => $q->where('tipo', 'like'),
-                'comments',
-            ])
-            ->orderByDesc('reactions_count')
-            ->limit(5)
-            ->get()
-            ->map(function ($work) {
-                return [
-                    'title' => $work->titulo,
-                    'barber' => $work->barber?->user?->name,
-                    'likes' => $work->reactions_count ?? 0,
-                    'comments' => $work->comments_count ?? 0,
-                    'description' => $work->descripcion,
-                ];
-            })
-            ->toArray();
+        $works = Work::with('barberUser')->where('created_at', '>=', now()->subMonths(3))->get();
+        $workIds = $works->pluck('_id')->toArray();
 
-        return $works;
+        $reactionCounts = Reaction::whereIn('work_id', $workIds)->where('tipo', 'like')
+            ->get(['work_id'])->groupBy('work_id')->map->count();
+        $commentCounts = Comment::whereIn('work_id', $workIds)
+            ->get(['work_id'])->groupBy('work_id')->map->count();
+
+        return $works->map(fn($work) => [
+            'title' => $work->title ?? $work->titulo,
+            'barber' => $work->barberUser?->name,
+            'likes' => $reactionCounts->get($work->_id, 0),
+            'comments' => $commentCounts->get($work->_id, 0),
+            'description' => $work->description ?? $work->descripcion,
+        ])->sortByDesc('likes')->take(5)->values()->toArray();
     }
 
     /**
@@ -96,25 +93,20 @@ class ChatbotIntelligenceService
      */
     private function getPopularServices(): array
     {
-        $services = Service::where('activo', true)
-            ->withCount([
-                'appointments' => fn ($q) => $q->where('estado', 'completada')->where('created_at', '>=', now()->subMonths(3)),
-            ])
-            ->orderByDesc('appointments_count')
-            ->limit(5)
-            ->get()
-            ->map(function ($service) {
-                return [
-                    'name' => $service->nombre,
-                    'price' => $service->precio,
-                    'duration' => $service->duracion_minutos ?? 30,
-                    'bookings' => $service->appointments_count ?? 0,
-                    'description' => $service->descripcion,
-                ];
-            })
-            ->toArray();
+        $services = Service::where('activo', true)->get();
+        $ids = $services->pluck('id')->toArray();
+        $cutoff = now()->subMonths(3);
 
-        return $services;
+        $apptCounts = Appointment::whereIn('service_id', $ids)->where('estado', 'completada')
+            ->where('created_at', '>=', $cutoff)->get(['service_id'])->groupBy('service_id')->map->count();
+
+        return $services->map(fn($s) => [
+            'name' => $s->nombre,
+            'price' => $s->precio,
+            'duration' => $s->duracion_minutos ?? 30,
+            'bookings' => $apptCounts->get($s->id, 0),
+            'description' => $s->descripcion,
+        ])->sortByDesc('bookings')->take(5)->values()->toArray();
     }
 
     /**

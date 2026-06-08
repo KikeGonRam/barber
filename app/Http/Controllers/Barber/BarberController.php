@@ -21,9 +21,6 @@ class BarberController extends Controller
 
         $barbers = Barber::query()
             ->with(['user:id,name,email'])
-            ->withCount(['appointments as citas_mes' => fn($q) => $q
-                ->where('estado', 'completada')
-                ->whereMonth('fecha', now()->month)])
             ->when($search !== '', fn($q) => $q->whereHas('user', fn($u) =>
                 $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")))
             ->when($status !== '', fn($q) => $q->where('activo', $status === '1'))
@@ -31,6 +28,18 @@ class BarberController extends Controller
             ->latest('id')
             ->paginate(15)
             ->withQueryString();
+
+        // withCount not supported by MongoDB — compute PHP-side after pagination
+        $barberIds = $barbers->pluck('id')->toArray();
+        if (!empty($barberIds)) {
+            $citasCounts = \App\Models\Appointment::whereIn('barber_id', $barberIds)
+                ->where('estado', 'completada')
+                ->whereBetween('fecha', [now()->startOfMonth(), now()->endOfMonth()])
+                ->get(['barber_id'])
+                ->groupBy('barber_id')
+                ->map->count();
+            $barbers->each(fn($b) => $b->citas_mes = $citasCounts->get($b->id, 0));
+        }
 
         $stats = [
             'total'    => Barber::count(),
