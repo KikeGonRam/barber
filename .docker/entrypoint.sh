@@ -15,17 +15,17 @@ if [ "$1" = "php-fpm" ]; then
     echo "🔗 Verificando enlace público de storage..."
     php artisan storage:link --no-interaction || true
 
-    echo "🔍 Esperando a que MongoDB esté lista..."
-    for i in {1..60}; do
-        if php artisan migrate --force --no-interaction > /dev/null 2>&1; then
-            echo "✅ MongoDB conectada y migraciones aplicadas."
+    echo "🔍 Conectando a MongoDB Atlas y aplicando migraciones..."
+    for i in {1..20}; do
+        if php artisan migrate --force --no-interaction; then
+            echo "✅ MongoDB Atlas conectada y migraciones aplicadas."
             break
         fi
-        if [ $i -eq 60 ]; then
-            echo "⚠️  No se pudo conectar a MongoDB después de 60 intentos, continuando..."
+        if [ $i -eq 20 ]; then
+            echo "⚠️  No se pudo conectar a MongoDB Atlas después de 20 intentos, continuando..."
         fi
-        echo "⏳ Intentando conectar... ($i/60)"
-        sleep 2
+        echo "⏳ Reintentando conexión a Atlas... ($i/20)"
+        sleep 3
     done
 
     echo "🚀 Optimizando aplicación..."

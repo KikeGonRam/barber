@@ -32,14 +32,9 @@ return [
     'connections' => [
 
         'mongodb' => [
-            'driver'       => 'mongodb',
-            'host'         => env('MONGO_HOST', '127.0.0.1'),
-            'port'         => (int) env('MONGO_PORT', 27017),
-            'database'     => env('MONGO_DATABASE', 'barber_db'),
-            'username'     => env('MONGO_USERNAME', ''),
-            'password'     => env('MONGO_PASSWORD', ''),
-            'authDatabase' => env('MONGO_AUTH_DATABASE', 'admin'),
-            'options'      => [],
+            'driver'   => 'mongodb',
+            'dsn'      => env('MONGODB_URI'),
+            'database' => env('MONGO_DATABASE', 'barber_db'),
         ],
 
         'sqlite' => [
