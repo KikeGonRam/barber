@@ -8,7 +8,7 @@ use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\Service;
 use App\Notifications\AppointmentNotification;
-use App\Services\AppointmentService;
+use App\Services\Appointment\AppointmentService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

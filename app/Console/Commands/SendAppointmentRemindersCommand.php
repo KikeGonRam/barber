@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Appointment;
 use App\Notifications\AppointmentNotification;
-use App\Services\MessagingService;
+use App\Services\Messaging\MessagingService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 

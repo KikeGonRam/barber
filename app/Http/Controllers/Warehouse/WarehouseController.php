@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Warehouse\WarehouseStoreRequest;
 use App\Http\Requests\Warehouse\WarehouseUpdateRequest;
 use App\Models\Inventory;
-use App\Services\BusinessEventService;
+use App\Services\Business\BusinessEventService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class WarehouseController extends Controller

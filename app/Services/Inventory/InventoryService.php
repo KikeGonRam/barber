@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Inventory;
 
 use App\Exceptions\Domain\InsufficientStockException;
 use App\Models\Product;

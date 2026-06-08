@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Appointment;
 
 use App\Exceptions\Domain\AppointmentConflictException;
 use App\Models\Appointment;
@@ -128,7 +128,6 @@ class AppointmentService
 
     private function ensureNoOverlap(array $payload, ?int $ignoreAppointmentId = null): void
     {
-        // Limpiar tiempos de entrada
         $start = Carbon::parse($payload['hora_inicio'])->format('H:i:00');
         $end = Carbon::parse($payload['hora_fin'])->format('H:i:00');
 

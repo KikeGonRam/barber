@@ -14,7 +14,7 @@ use App\Http\Controllers\Warehouse\WarehouseController;
 use App\Http\Controllers\Log\ActivityLogController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Payment\PaymentController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Service\ServiceController;
 use App\Http\Controllers\Setting\BarbershopSettingController;

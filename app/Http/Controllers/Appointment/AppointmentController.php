@@ -11,7 +11,7 @@ use App\Models\Barber;
 use App\Models\Client;
 use App\Models\Service;
 use App\Notifications\AppointmentNotification;
-use App\Services\AppointmentService;
+use App\Services\Appointment\AppointmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 

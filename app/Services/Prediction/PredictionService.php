@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Prediction;
 
 use App\Models\Appointment;
 use App\Models\Payment;
@@ -142,7 +142,6 @@ class PredictionService
     {
         $insights = [];
 
-        // Revenue Insight
         $incomeData = array_values($this->historicalData['daily_income']);
         if (!empty($incomeData)) {
             $avgIncome = array_sum($incomeData) / count($incomeData);
@@ -154,13 +153,12 @@ class PredictionService
             ];
         }
 
-        // Appointment Volume Insight
         $appointmentData = array_values($this->historicalData['daily_appointments']);
         if (!empty($appointmentData)) {
             $avgAppointments = array_sum($appointmentData) / count($appointmentData);
             $lastWeekAvg = array_sum(array_slice($appointmentData, -7)) / 7;
             $change = (($lastWeekAvg - $avgAppointments) / $avgAppointments) * 100;
-            
+
             $status = $change > 5 ? 'positive' : ($change < -5 ? 'warning' : 'neutral');
             $insights['appointments'] = [
                 'status' => $status,
@@ -170,13 +168,12 @@ class PredictionService
             ];
         }
 
-        // Service Concentration
         $services = $this->historicalData['service_distribution'];
         if (!empty($services)) {
             $topService = $services[0];
             $totalCount = array_sum(array_column($services, 'count'));
             $concentration = ($topService['count'] / $totalCount) * 100;
-            
+
             $insights['service_concentration'] = [
                 'status' => $concentration > 40 ? 'warning' : 'positive',
                 'message' => "Servicio top ({$topService['service']}) representa " . round($concentration, 1) . "% de citas",
@@ -194,7 +191,7 @@ class PredictionService
         $avgIncome = !empty($recentIncome) ? array_sum($recentIncome) / count($recentIncome) : 0;
 
         return "Analiza los datos históricos de ingresos diarios de una peluquería:
-        
+
 Promedio diario último mes: \$$avgIncome
 Ingresos últimos 7 días: " . implode(", \$", array_slice($recentIncome, -7)) . "
 
@@ -208,7 +205,7 @@ Responde solo con un número aproximado en dólares, sin explicación adicional.
         $avgAppointments = !empty($recentAppointments) ? array_sum($recentAppointments) / count($recentAppointments) : 0;
 
         return "Analiza los datos históricos de citas de una peluquería:
-        
+
 Promedio diario último mes: " . round($avgAppointments, 1) . " citas
 Citas últimos 7 días: " . implode(", ", array_slice($recentAppointments, -7)) . "
 
@@ -333,11 +330,11 @@ Responde brevemente para optimizar el horario.";
         if (empty($text) || strpos($text, 'no disponible') !== false) {
             return 0;
         }
-        
+
         $length = strlen($text);
         $hasNumbers = preg_match('/\d+/', $text) ? 20 : 0;
         $hasReasons = (preg_match_all('/porque|debido|razón|trend|tendency/i', $text) * 5);
-        
+
         return min(100, 60 + $hasNumbers + $hasReasons);
     }
 
@@ -345,10 +342,10 @@ Responde brevemente para optimizar el horario.";
     {
         $last30 = array_slice($this->historicalData['daily_appointments'], -30);
         $last60 = array_slice($this->historicalData['daily_appointments'], -60, 30);
-        
+
         $recent = !empty($last30) ? array_sum($last30) / count($last30) : 0;
         $older = !empty($last60) ? array_sum($last60) / count($last60) : 0;
-        
+
         if ($recent > $older * 1.1) {
             return array_slice(array_column($this->historicalData['service_distribution'], 'service'), 0, 3);
         }
@@ -359,10 +356,10 @@ Responde brevemente para optimizar el horario.";
     {
         $last30 = array_slice($this->historicalData['daily_appointments'], -30);
         $last60 = array_slice($this->historicalData['daily_appointments'], -60, 30);
-        
+
         $recent = !empty($last30) ? array_sum($last30) / count($last30) : 0;
         $older = !empty($last60) ? array_sum($last60) / count($last60) : 0;
-        
+
         if ($recent < $older * 0.9) {
             return array_slice(array_column($this->historicalData['service_distribution'], 'service'), -3);
         }

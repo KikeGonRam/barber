@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Exports\GenericReportExport;
 use App\Http\Controllers\Controller;
-use App\Services\ReportService;
+use App\Services\Report\ReportService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

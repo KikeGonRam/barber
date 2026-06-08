@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Services\PredictionService;
+use App\Services\Prediction\PredictionService;
 use Illuminate\Http\JsonResponse;
 
 class PredictionController

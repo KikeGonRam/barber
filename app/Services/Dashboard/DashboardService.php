@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Dashboard;
 
 use App\Models\Activity;
 use App\Models\Appointment;
@@ -45,7 +45,6 @@ class DashboardService
         $incomeGrowth = $incomeLastMonth > 0
             ? (($incomeMonth - $incomeLastMonth) / $incomeLastMonth) * 100 : 0;
 
-        // Top barber: group in PHP (MongoDB doesn't support selectRaw+groupBy)
         $barberGroups = Appointment::whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->get(['barber_id'])
             ->groupBy('barber_id')
@@ -55,7 +54,6 @@ class DashboardService
         $topBarber      = $topBarberId ? Barber::with('user')->find($topBarberId) : null;
         $topBarberTotal = $barberGroups->first() ?? 0;
 
-        // Top services: group in PHP
         $serviceGroups = Appointment::get(['service_id'])
             ->groupBy('service_id')
             ->map(fn($g) => $g->count())
@@ -68,7 +66,6 @@ class DashboardService
             ];
         })->values();
 
-        // Client stats: group in PHP
         $clientGroups   = Appointment::get(['client_id'])->groupBy('client_id')->map(fn($g) => $g->count());
         $newClients     = $clientGroups->filter(fn($t) => $t === 1)->count();
         $recurringClients = $clientGroups->filter(fn($t) => $t > 1)->count();
@@ -78,10 +75,8 @@ class DashboardService
         })->count();
         $retentionRate  = $totalClients > 0 ? ($recurringClients / $totalClients) * 100 : 0;
 
-        // Low stock: MongoDB $expr for field-to-field comparison
         $lowStockCount = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->count();
 
-        // Barber status
         $barbers = Barber::with('user')->where('activo', true)->get();
         $now     = Carbon::now();
         $barbersStatus = $barbers->map(function ($barber) use ($now) {
@@ -103,7 +98,6 @@ class DashboardService
             return ['name' => $barber->user?->name ?? 'Barbero', 'is_busy' => $isBusy, 'progress' => $progress];
         });
 
-        // Income by week chart
         $incomeByWeek = collect(range(0, 7))->map(function (int $offset) {
             $start = Carbon::now()->startOfWeek()->subWeeks(7 - $offset);
             $end   = (clone $start)->endOfWeek();
@@ -211,7 +205,6 @@ class DashboardService
             ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->sum('precio_cobrado');
 
-        // Top services for this barber
         $serviceGroups = Appointment::where('barber_id', $barberId)
             ->get(['service_id'])
             ->groupBy('service_id')
@@ -259,7 +252,6 @@ class DashboardService
             ->count();
         $newClientsToday = Client::whereDate('created_at', $today)->count();
 
-        // Low stock: MongoDB $expr for field-to-field comparison
         $lowStockCount = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->count();
 
         $nextAppointments = Appointment::with(['client.user', 'barber.user', 'service'])

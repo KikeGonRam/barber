@@ -8,7 +8,7 @@ use App\Http\Requests\Inventory\StoreInventoryMovementRequest;
 use App\Models\Appointment;
 use App\Models\InventoryMovement;
 use App\Models\Product;
-use App\Services\InventoryService;
+use App\Services\Inventory\InventoryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

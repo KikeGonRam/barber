@@ -10,7 +10,7 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarbershopSetting;
 use App\Models\Service;
-use App\Services\AppointmentService;
+use App\Services\Appointment\AppointmentService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;

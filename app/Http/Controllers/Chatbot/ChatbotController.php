@@ -7,7 +7,7 @@ use App\Models\Barber;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Service;
-use App\Services\BusinessEventService;
+use App\Services\Business\BusinessEventService;
 use App\Services\Chatbot\ChatbotContextService;
 use App\Services\Chatbot\ChatbotExternalDataService;
 use App\Services\Chatbot\ChatbotIntelligenceService;

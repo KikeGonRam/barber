@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Barber;
 use App\Models\Service;
-use App\Services\AppointmentService;
+use App\Services\Appointment\AppointmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

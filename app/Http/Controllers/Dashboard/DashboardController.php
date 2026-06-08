@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\BarbershopSetting;
-use App\Services\DashboardService;
+use App\Services\Dashboard\DashboardService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\Domain\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Services\InventoryService;
+use App\Services\Inventory\InventoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Report;
 use App\Exports\GenericReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Barber;
-use App\Services\ReportService;
+use App\Services\Report\ReportService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;

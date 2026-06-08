@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Report;
 
 use App\Models\Appointment;
 use App\Models\InventoryMovement;
