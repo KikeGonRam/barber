@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use MongoDB\Laravel\Eloquent\Model;
 use Spatie\Activitylog\Contracts\Activity as ActivityContract;
 
@@ -33,9 +34,18 @@ class Activity extends Model implements ActivityContract
         return $this->morphTo();
     }
 
+    public function getProperty(string $propertyName, mixed $defaultValue = null): mixed
+    {
+        $props = $this->properties instanceof Collection
+            ? $this->properties->toArray()
+            : (array) ($this->properties ?? []);
+
+        return Arr::get($props, $propertyName, $defaultValue);
+    }
+
     public function getExtraProperty(string $propertyName, mixed $defaultValue = null): mixed
     {
-        return Arr::get($this->properties->toArray(), $propertyName, $defaultValue);
+        return $this->getProperty($propertyName, $defaultValue);
     }
 
     public function changes(): Collection
@@ -56,21 +66,21 @@ class Activity extends Model implements ActivityContract
         return $query->whereIn('log_name', $logNames);
     }
 
-    public function scopeForSubject(Builder $query, Model $subject): Builder
+    public function scopeForSubject(Builder $query, EloquentModel $subject): Builder
     {
         return $query
             ->where('subject_type', $subject->getMorphClass())
             ->where('subject_id', $subject->getKey());
     }
 
-    public function scopeForCauser(Builder $query, Model $causer): Builder
+    public function scopeForCauser(Builder $query, EloquentModel $causer): Builder
     {
         return $query
             ->where('causer_type', $causer->getMorphClass())
             ->where('causer_id', $causer->getKey());
     }
 
-    public function scopeCausedBy(Builder $query, Model $causer): Builder
+    public function scopeCausedBy(Builder $query, EloquentModel $causer): Builder
     {
         return $this->scopeForCauser($query, $causer);
     }
