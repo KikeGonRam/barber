@@ -17,7 +17,6 @@ use App\Services\GeminiService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -304,7 +303,7 @@ class ChatbotController extends Controller
                     $extraContext = 'El usuario NO tiene citas futuras.';
                 }
             } elseif ($user->hasRole('administrador')) {
-                $total = Payment::whereDate('created_at', now())->sum(DB::raw('monto + propina'));
+                $total = Payment::whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->get(['monto', 'propina'])->sum(fn($p) => (float)$p->monto + (float)$p->propina);
                 $extraContext = 'El usuario es ADMIN. La caja de hoy es: $'.number_format($total, 2);
             }
         }

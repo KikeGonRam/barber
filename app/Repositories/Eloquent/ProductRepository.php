@@ -29,7 +29,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     public function lowStockCount(): int
     {
         return $this->model->newQuery()
-            ->whereColumn('stock_actual', '<=', 'stock_minimo')
+            ->whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])
             ->count();
     }
 }

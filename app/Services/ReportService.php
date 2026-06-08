@@ -118,23 +118,27 @@ class ReportService
 
     public function clientsReport(array $filters): array
     {
-        $query = Appointment::query()->selectRaw('client_id, COUNT(*) as visitas, COALESCE(SUM(precio_cobrado), 0) as gasto_total')->groupBy('client_id')->with('client.user');
+        $query = Appointment::query()->with('client.user');
 
         if (! empty($filters['start_date'])) {
-            $query->whereDate('fecha', '>=', $filters['start_date']);
+            $query->where('fecha', '>=', $filters['start_date']);
         }
 
         if (! empty($filters['end_date'])) {
-            $query->whereDate('fecha', '<=', $filters['end_date']);
+            $query->where('fecha', '<=', $filters['end_date']);
         }
 
-        $rows = $query->get()->map(function (Appointment $row) {
-            return [
-                'cliente' => $row->client?->user?->name,
-                'visitas' => (int) $row->visitas,
-                'gasto_total' => (float) $row->gasto_total,
-            ];
-        });
+        $rows = $query->get(['client_id', 'precio_cobrado'])
+            ->groupBy('client_id')
+            ->map(function ($group) {
+                return [
+                    'cliente' => $group->first()->client?->user?->name,
+                    'visitas' => $group->count(),
+                    'gasto_total' => (float) $group->sum(fn($a) => (float)($a->precio_cobrado ?? 0)),
+                ];
+            })
+            ->sortByDesc('visitas')
+            ->values();
 
         return [
             'title' => 'Reporte de Clientes',

@@ -295,14 +295,15 @@ class ClientAdminController extends Controller
      */
     private function getPreferredBarber($clientId)
     {
-        $preferredBarber = Appointment::where('client_id', $clientId)
-            ->select('barber_id')
-            ->groupBy('barber_id')
-            ->orderByRaw('COUNT(*) DESC')
+        $top = Appointment::where('client_id', $clientId)
             ->with('barber')
+            ->get(['barber_id'])
+            ->groupBy('barber_id')
+            ->map(fn($g) => ['barber' => $g->first()->barber, 'count' => $g->count()])
+            ->sortByDesc('count')
             ->first();
 
-        return $preferredBarber?->barber?->name ?? 'N/A';
+        return $top?['barber']?->name ?? 'N/A';
     }
 
     /**
@@ -311,10 +312,12 @@ class ClientAdminController extends Controller
     private function getPreferredTime($clientId)
     {
         return Appointment::where('client_id', $clientId)
-            ->select('time')
-            ->groupBy('time')
-            ->orderByRaw('COUNT(*) DESC')
-            ->first()?->time ?? 'Flexible';
+            ->get(['hora_inicio'])
+            ->groupBy('hora_inicio')
+            ->map->count()
+            ->sortDesc()
+            ->keys()
+            ->first() ?? 'Flexible';
     }
 
     /**

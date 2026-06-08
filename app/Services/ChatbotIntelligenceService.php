@@ -166,13 +166,13 @@ class ChatbotIntelligenceService
 
         $favoriteBarbers = Appointment::where('client_id', $client->id)
             ->where('estado', 'completada')
-            ->groupBy('barber_id')
-            ->selectRaw('barber_id, COUNT(*) as count')
-            ->orderByDesc('count')
-            ->limit(3)
             ->with('barber.user')
-            ->get()
-            ->pluck('barber.user.name')
+            ->get(['barber_id'])
+            ->groupBy('barber_id')
+            ->map(fn($g) => ['name' => $g->first()->barber?->user?->name, 'count' => $g->count()])
+            ->sortByDesc('count')
+            ->take(3)
+            ->pluck('name')
             ->toArray();
 
         return [
@@ -194,21 +194,24 @@ class ChatbotIntelligenceService
         }
 
         // Servicio más usado
-        $favoriteService = Appointment::where('client_id', $client->id)
+        $favoriteServiceName = Appointment::where('client_id', $client->id)
             ->where('estado', 'completada')
+            ->with('service:id,nombre')
+            ->get(['service_id'])
             ->groupBy('service_id')
-            ->selectRaw('service_id, COUNT(*) as count')
-            ->orderByDesc('count')
-            ->first();
+            ->map(fn($g) => ['count' => $g->count(), 'name' => $g->first()->service?->nombre])
+            ->sortByDesc('count')
+            ->first()['name'] ?? null;
 
         // Barbero más visitado
         $favoriteBarber = Appointment::where('client_id', $client->id)
             ->where('estado', 'completada')
+            ->with('barber.user')
+            ->get(['barber_id'])
             ->groupBy('barber_id')
-            ->selectRaw('barber_id, COUNT(*) as count')
-            ->orderByDesc('count')
-            ->first()
-            ?->barber?->user?->name;
+            ->map(fn($g) => ['count' => $g->count(), 'name' => $g->first()->barber?->user?->name])
+            ->sortByDesc('count')
+            ->first()['name'] ?? null;
 
         // Promedio de gasto
         $avgSpent = Payment::whereHas('appointment', fn ($q) => $q->where('client_id', $client->id))
@@ -216,7 +219,7 @@ class ChatbotIntelligenceService
             ->average('monto') ?? 0;
 
         return [
-            'favorite_service' => $favoriteService?->service?->nombre,
+            'favorite_service' => $favoriteServiceName,
             'favorite_barber' => $favoriteBarber,
             'average_spending' => round($avgSpent, 2),
             'loyalty_level' => $this->getUserLoyaltyLevel($client),
@@ -252,12 +255,12 @@ class ChatbotIntelligenceService
     {
         $busy = Appointment::where('fecha', '>=', now()->toDateString())
             ->where('estado', '!=', 'cancelada')
+            ->get(['hora_inicio'])
             ->groupBy('hora_inicio')
-            ->selectRaw('hora_inicio, COUNT(*) as count')
-            ->orderByDesc('count')
-            ->limit(3)
-            ->get()
-            ->map(fn ($apt) => $apt->hora_inicio)
+            ->map(fn($group) => ['hora' => $group->first()->hora_inicio, 'count' => $group->count()])
+            ->sortByDesc('count')
+            ->take(3)
+            ->pluck('hora')
             ->toArray();
 
         return $busy;

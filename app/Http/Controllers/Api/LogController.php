@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Spatie\Activitylog\Models\Activity;
+use App\Models\Activity;
 
 class LogController extends Controller
 {

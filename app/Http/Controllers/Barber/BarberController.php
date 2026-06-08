@@ -51,7 +51,7 @@ class BarberController extends Controller
         $stats = [
             'citas_hoy'    => \App\Models\Appointment::where('barber_id', $barber->id)->whereDate('fecha', $today)->count(),
             'citas_mes'    => \App\Models\Appointment::where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd])->where('estado', 'completada')->count(),
-            'ingresos_mes' => \App\Models\Payment::whereHas('appointment', fn($q) => $q->where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd]))->sum(\Illuminate\Support\Facades\DB::raw('monto + propina')),
+            'ingresos_mes' => (float) \App\Models\Payment::whereHas('appointment', fn($q) => $q->where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd]))->get(['monto', 'propina'])->sum(fn($p) => (float)$p->monto + (float)$p->propina),
             'canceladas_mes' => \App\Models\Appointment::where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd])->where('estado', 'cancelada')->count(),
             'total_historico' => \App\Models\Appointment::where('barber_id', $barber->id)->where('estado', 'completada')->count(),
         ];
@@ -59,12 +59,13 @@ class BarberController extends Controller
         // Top 5 servicios del barbero
         $topServices = \App\Models\Appointment::where('barber_id', $barber->id)
             ->where('estado', 'completada')
-            ->selectRaw('service_id, COUNT(*) as total')
             ->with('service:id,nombre')
+            ->get(['service_id'])
             ->groupBy('service_id')
-            ->orderByDesc('total')
-            ->limit(5)
-            ->get();
+            ->map(fn($group) => (object)['service' => $group->first()->service, 'total' => $group->count()])
+            ->sortByDesc('total')
+            ->take(5)
+            ->values();
 
         // Últimas 10 citas
         $recentAppointments = \App\Models\Appointment::where('barber_id', $barber->id)

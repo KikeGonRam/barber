@@ -137,11 +137,9 @@ class DashboardAdminController
             ];
         }
 
-        // Inventario bajo (si existe tabla inventory)
+        // Inventario bajo
         try {
-            $lowStock = \DB::table('inventory')
-                ->whereRaw('quantity < minimum_quantity')
-                ->count();
+            $lowStock = \App\Models\Inventory::whereRaw(['$expr' => ['$lt' => ['$quantity', '$min_stock']]])->count();
 
             if ($lowStock > 0) {
                 $alerts[] = [
@@ -152,7 +150,7 @@ class DashboardAdminController
                 ];
             }
         } catch (\Exception $e) {
-            // Tabla de inventory no existe, ignorar
+            // Ignorar si falla
         }
 
         // Barberos con baja ocupación

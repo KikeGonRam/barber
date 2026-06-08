@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Appointment;
 use App\Models\Payment;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class PredictionService
@@ -34,55 +33,50 @@ class PredictionService
 
     private function getAppointmentTrend(Carbon $from): array
     {
-        return Appointment::query()
-            ->selectRaw('DATE(fecha) as date, COUNT(*) as count')
-            ->where('estado', 'completada')
+        return Appointment::where('estado', 'completada')
             ->where('fecha', '>=', $from)
-            ->groupBy('date')
-            ->orderBy('date')
-            ->pluck('count', 'date')
+            ->get(['fecha'])
+            ->groupBy(fn($a) => Carbon::parse($a->fecha)->format('Y-m-d'))
+            ->map->count()
+            ->sortKeys()
             ->toArray();
     }
 
     private function getIncomeTrend(Carbon $from): array
     {
-        return Payment::query()
-            ->selectRaw('DATE(created_at) as date, SUM(monto + propina) as total')
-            ->where('created_at', '>=', $from)
-            ->groupBy('date')
-            ->orderBy('date')
-            ->pluck('total', 'date')
-            ->map(fn($v) => (float)$v)
+        return Payment::where('created_at', '>=', $from)
+            ->get(['created_at', 'monto', 'propina'])
+            ->groupBy(fn($p) => Carbon::parse($p->created_at)->format('Y-m-d'))
+            ->map(fn($group) => (float) $group->sum(fn($p) => (float)$p->monto + (float)$p->propina))
+            ->sortKeys()
             ->toArray();
     }
 
     private function getServiceDistribution(): array
     {
-        return Appointment::query()
-            ->selectRaw('service_id, COUNT(*) as count')
-            ->where('estado', 'completada')
+        return Appointment::where('estado', 'completada')
             ->whereBetween('fecha', [Carbon::now()->subMonths(3), Carbon::now()])
-            ->groupBy('service_id')
             ->with('service:id,nombre')
-            ->orderByDesc('count')
-            ->limit(10)
-            ->get()
-            ->map(fn($row) => [
-                'service' => $row->service?->nombre ?? 'Sin servicio',
-                'count' => $row->count
+            ->get(['service_id'])
+            ->groupBy('service_id')
+            ->map(fn($group) => [
+                'service' => $group->first()->service?->nombre ?? 'Sin servicio',
+                'count' => $group->count(),
             ])
+            ->sortByDesc('count')
+            ->take(10)
+            ->values()
             ->toArray();
     }
 
     private function getHourlyDistribution(): array
     {
-        return Appointment::query()
-            ->selectRaw('HOUR(hora_inicio) as hour, COUNT(*) as count')
-            ->where('estado', 'completada')
+        return Appointment::where('estado', 'completada')
             ->whereBetween('fecha', [Carbon::now()->subMonths(1), Carbon::now()])
-            ->groupBy('hour')
-            ->orderBy('hour')
-            ->pluck('count', 'hour')
+            ->get(['hora_inicio'])
+            ->groupBy(fn($a) => (int) substr((string)$a->hora_inicio, 0, 2))
+            ->map->count()
+            ->sortKeys()
             ->toArray();
     }
 

@@ -25,7 +25,7 @@ class ProductController extends Controller
                 ->orWhere('descripcion', 'like', '%'.$filters['q'].'%'))
             ->when(!empty($filters['categoria']), fn($q) => $q->where('categoria', $filters['categoria']))
             ->when(!empty($filters['tipo']),      fn($q) => $q->where('tipo', $filters['tipo']))
-            ->when(!empty($filters['bajo_stock']), fn($q) => $q->whereColumn('stock_actual', '<=', 'stock_minimo'))
+            ->when(!empty($filters['bajo_stock']), fn($q) => $q->whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]]))
             ->orderBy('nombre')
             ->paginate(20)
             ->withQueryString();
@@ -38,7 +38,7 @@ class ProductController extends Controller
         $stats = [
             'total'      => Product::count(),
             'bajo_stock' => $lowStockCount,
-            'valor_total'=> Product::sum(\Illuminate\Support\Facades\DB::raw('stock_actual * precio_compra')),
+            'valor_total'=> Product::get(['stock_actual', 'precio_compra'])->sum(fn($p) => (float)$p->stock_actual * (float)$p->precio_compra),
         ];
 
         return view('inventory.products.index', compact('products', 'filters', 'lowStockCount', 'categorias', 'tipos', 'stats'));

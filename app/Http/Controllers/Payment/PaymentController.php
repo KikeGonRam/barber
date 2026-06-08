@@ -38,10 +38,10 @@ class PaymentController extends Controller
 
         $barbers = \App\Models\Barber::with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
         $stats = [
-            'total_hoy'    => Payment::whereDate('created_at', today())->sum(\Illuminate\Support\Facades\DB::raw('monto + propina')),
-            'total_mes'    => Payment::whereMonth('created_at', now()->month)->sum(\Illuminate\Support\Facades\DB::raw('monto + propina')),
+            'total_hoy'    => (float) Payment::whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->get(['monto', 'propina'])->sum(fn($p) => (float)$p->monto + (float)$p->propina),
+            'total_mes'    => (float) Payment::whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])->get(['monto', 'propina'])->sum(fn($p) => (float)$p->monto + (float)$p->propina),
             'count'        => Payment::count(),
-            'metodos'      => Payment::select('metodo_pago', \Illuminate\Support\Facades\DB::raw('count(*) as total'))->groupBy('metodo_pago')->pluck('total', 'metodo_pago'),
+            'metodos'      => Payment::get(['metodo_pago'])->groupBy('metodo_pago')->map->count(),
         ];
 
         return view('payments.index', compact('payments', 'filters', 'barbers', 'stats'));

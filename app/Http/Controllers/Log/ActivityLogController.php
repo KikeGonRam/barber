@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Spatie\Activitylog\Models\Activity;
+use App\Models\Activity;
 
 class ActivityLogController extends Controller
 {
