@@ -14,8 +14,6 @@ services:
       - vendor_data:/var/www/html/vendor
       - ./.docker/php/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
     depends_on:
-      mysql:
-        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
@@ -86,28 +84,6 @@ services:
     networks:
       - internal
 
-  # 🗄️ MySQL
-  mysql:
-    image: mysql:8.0
-    container_name: barber-mysql
-    restart: unless-stopped
-    ports:
-      - "3307:3306"
-    environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - internal
-
   # ⚡ Redis
   redis:
     image: redis:alpine
@@ -121,22 +97,9 @@ services:
     networks:
       - internal
 
-  # 🛠️ Adminer
-  adminer:
-    image: adminer
-    container_name: barber-adminer
-    ports:
-      - "8081:8080"
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - internal
-
 networks:
   internal:
     driver: bridge
 
 volumes:
-  mysql_data:
   vendor_data:
