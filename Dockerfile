@@ -41,8 +41,8 @@ WORKDIR /var/www/html
 # Copy existing application directory
 COPY . .
 
-# Install dependencies
-RUN composer install --no-interaction --no-progress --no-suggest 2>&1 || true
+# Install / update dependencies (composer update ensures new packages like mongodb are resolved)
+RUN composer update --no-interaction --no-progress --optimize-autoloader 2>&1 || true
 
 # Copy PHP configuration
 COPY .docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf

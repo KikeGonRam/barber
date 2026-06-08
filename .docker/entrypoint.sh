@@ -5,9 +5,9 @@ set -e
 git config --global --add safe.directory /var/www/html || true
 
 # Instalar dependencias si el volumen vendor está vacío o incompleto.
-if [ ! -f /var/www/html/vendor/autoload.php ]; then
-    echo "📦 vendor/autoload.php no existe, instalando dependencias..."
-    composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress
+if [ ! -f /var/www/html/vendor/autoload.php ] || [ ! -d /var/www/html/vendor/mongodb ]; then
+    echo "📦 Instalando/actualizando dependencias (incluye mongodb)..."
+    composer update --no-interaction --prefer-dist --optimize-autoloader --no-progress
 fi
 
 # Solo corremos migraciones y optimizaciones si somos el contenedor "app"
