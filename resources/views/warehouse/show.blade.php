@@ -6,8 +6,8 @@
                 <p class="ui-subtitle">Ficha técnica y estado actual en el almacén central.</p>
             </div>
             <div class="flex gap-3">
-                <a href="{{ route('almacen.edit', $inventory) }}" class="ui-btn px-8">Editar Ficha</a>
-                <a href="{{ route('almacen.index') }}" class="ui-btn-secondary">Volver</a>
+                <a href="{{ route('warehouse.edit', $inventory) }}" class="ui-btn px-8">Editar Ficha</a>
+                <a href="{{ route('warehouse.index') }}" class="ui-btn-secondary">Volver</a>
             </div>
         </div>
     </x-slot>

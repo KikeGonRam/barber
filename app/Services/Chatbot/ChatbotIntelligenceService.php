@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Chatbot;
 
 use App\Models\Appointment;
 use App\Models\Barber;

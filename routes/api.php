@@ -27,7 +27,7 @@ use App\Http\Controllers\Api\Admin\ClientAdminController;
 use App\Http\Controllers\Api\Admin\InventoryAdminController;
 use App\Http\Controllers\Api\Admin\ReportAdminController;
 use App\Http\Controllers\Api\PredictionController;
-use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\Chatbot\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
 // Backward compatibility for older frontend cache that still calls /api/availability/slots

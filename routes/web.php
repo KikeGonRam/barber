@@ -3,14 +3,14 @@
 use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Barber\BarberController;
 use App\Http\Controllers\Barber\BarberDashboardController;
-use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\Chatbot\ChatbotController;
 use App\Http\Controllers\Client\ClientAppointmentController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\DatabaseBackupController;
 use App\Http\Controllers\Inventory\InventoryMovementController;
 use App\Http\Controllers\Inventory\ProductController;
-use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\Warehouse\WarehouseController;
 use App\Http\Controllers\Log\ActivityLogController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Payment\PaymentController;
@@ -179,9 +179,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('auth')->group(function () {
-        Route::resource('almacen', InventoryController::class)
-            ->parameters(['almacen' => 'inventory'])
-            ->names('almacen');
+        Route::resource('warehouse', WarehouseController::class)
+            ->parameters(['warehouse' => 'inventory'])
+            ->names('warehouse');
     });
 });
 

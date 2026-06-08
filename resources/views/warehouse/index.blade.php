@@ -9,7 +9,7 @@
                 <h2 class="ui-title">Almacén <span class="text-gold">Central</span></h2>
                 <p class="ui-subtitle">Control de suministros y stock operativo.</p>
             </div>
-            <a href="{{ route('almacen.create') }}" class="ui-btn">
+            <a href="{{ route('warehouse.create') }}" class="ui-btn">
                 <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -31,7 +31,7 @@
                     <p class="text-sm font-black text-amber-300">{{ $stats['bajo_stock'] }} suministro{{ $stats['bajo_stock'] !== 1 ? 's' : '' }} con stock bajo</p>
                     <p class="text-[10px] text-amber-400/70 mt-0.5">Usa el filtro "Stock bajo" para verlos todos</p>
                 </div>
-                <a href="{{ route('almacen.index', ['bajo_stock' => '1']) }}"
+                <a href="{{ route('warehouse.index', ['bajo_stock' => '1']) }}"
                    class="text-[10px] font-black uppercase tracking-widest text-amber-300 hover:text-white border border-amber-500/30 rounded-lg px-3 py-1.5 hover:bg-amber-500/10 transition-all shrink-0">
                     Ver ahora
                 </a>
@@ -76,7 +76,7 @@
             </div>
 
             <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="px-6 py-5">
-                <form method="GET" action="{{ route('almacen.index') }}">
+                <form method="GET" action="{{ route('warehouse.index') }}">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <div class="sm:col-span-1">
                             <label class="ui-label">Búsqueda</label>
@@ -108,7 +108,7 @@
                     <div class="mt-5 flex items-center gap-3">
                         <button type="submit" class="ui-btn py-2.5 px-6 text-[11px] tracking-widest">Aplicar Filtros</button>
                         @if(count($activeFilters) > 0)
-                            <a href="{{ route('almacen.index') }}" class="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition-all">
+                            <a href="{{ route('warehouse.index') }}" class="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition-all">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                 Limpiar
                             </a>
@@ -203,18 +203,18 @@
                                 </td>
                                 <td class="text-right">
                                     <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <a href="{{ route('almacen.show', $inventory) }}"
+                                        <a href="{{ route('warehouse.show', $inventory) }}"
                                            class="h-8 w-8 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-white hover:border-white/20 transition-all">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
                                         @can('update', $inventory)
-                                            <a href="{{ route('almacen.edit', $inventory) }}"
+                                            <a href="{{ route('warehouse.edit', $inventory) }}"
                                                class="h-8 w-8 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all">
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                             </a>
                                         @endcan
                                         @can('delete', $inventory)
-                                            <form action="{{ route('almacen.destroy', $inventory) }}" method="POST"
+                                            <form action="{{ route('warehouse.destroy', $inventory) }}" method="POST"
                                                   onsubmit="return confirm('¿Eliminar suministro permanentemente?');" class="inline">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="h-8 w-8 rounded-lg border border-red-500/20 bg-red-500/5 flex items-center justify-center text-red-500/70 hover:text-red-400 hover:bg-red-500/10 transition-all">
@@ -264,7 +264,7 @@
                             </div>
                             <div class="flex gap-3">
                                 @can('update', $inventory)
-                                    <a href="{{ route('almacen.edit', $inventory) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Editar</a>
+                                    <a href="{{ route('warehouse.edit', $inventory) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Editar</a>
                                 @endcan
                             </div>
                         </div>

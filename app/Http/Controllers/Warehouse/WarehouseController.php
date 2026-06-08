@@ -1,22 +1,20 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Warehouse;
 
-use App\Http\Requests\InventoryStoreRequest;
-use App\Http\Requests\InventoryUpdateRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Warehouse\WarehouseStoreRequest;
+use App\Http\Requests\Warehouse\WarehouseUpdateRequest;
 use App\Models\Inventory;
 use App\Services\BusinessEventService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
-class InventoryController extends Controller
+class WarehouseController extends Controller
 {
     use AuthorizesRequests;
 
     public function __construct(private readonly BusinessEventService $businessEventService) {}
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(\Illuminate\Http\Request $request)
     {
         $this->authorize('viewAny', Inventory::class);
@@ -38,7 +36,7 @@ class InventoryController extends Controller
         if ($lowStockCount > 0) {
             $this->businessEventService->record('alerts', 'low_stock_detected', [
                 'low_stock_count' => $lowStockCount,
-                'page_items' => $inventories->count(),
+                'page_items'      => $inventories->count(),
             ]);
         }
 
@@ -50,23 +48,17 @@ class InventoryController extends Controller
             'valor_total'=> (float) Inventory::get(['quantity', 'price'])->sum(fn($i) => (float)$i->quantity * (float)$i->price),
         ];
 
-        return view('almacen.index', compact('inventories', 'lowStockCount', 'filters', 'stats'));
+        return view('warehouse.index', compact('inventories', 'lowStockCount', 'filters', 'stats'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $this->authorize('create', Inventory::class);
 
-        return view('almacen.create');
+        return view('warehouse.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(InventoryStoreRequest $request)
+    public function store(WarehouseStoreRequest $request)
     {
         $this->authorize('create', Inventory::class);
         $data = $request->validated();
@@ -75,35 +67,26 @@ class InventoryController extends Controller
             $data['imagen'] = $request->file('imagen')->store('inventory', 'public');
         }
 
-        $inventory = Inventory::create($data);
+        Inventory::create($data);
 
-        return redirect()->route('almacen.index')->with('success', 'Inventario creado correctamente.');
+        return redirect()->route('warehouse.index')->with('success', 'Inventario creado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Inventory $inventory)
     {
         $this->authorize('view', $inventory);
 
-        return view('almacen.show', compact('inventory'));
+        return view('warehouse.show', compact('inventory'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Inventory $inventory)
     {
         $this->authorize('update', $inventory);
 
-        return view('almacen.edit', compact('inventory'));
+        return view('warehouse.edit', compact('inventory'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(InventoryUpdateRequest $request, Inventory $inventory)
+    public function update(WarehouseUpdateRequest $request, Inventory $inventory)
     {
         $this->authorize('update', $inventory);
         $data = $request->validated();
@@ -114,17 +97,14 @@ class InventoryController extends Controller
 
         $inventory->update($data);
 
-        return redirect()->route('almacen.index')->with('success', 'Inventario actualizado correctamente.');
+        return redirect()->route('warehouse.index')->with('success', 'Inventario actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Inventory $inventory)
     {
         $this->authorize('delete', $inventory);
         $inventory->delete();
 
-        return redirect()->route('almacen.index')->with('success', 'Inventario eliminado correctamente.');
+        return redirect()->route('warehouse.index')->with('success', 'Inventario eliminado correctamente.');
     }
 }

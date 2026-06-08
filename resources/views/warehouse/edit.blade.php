@@ -5,7 +5,7 @@
                 <h2 class="ui-title">Refinar <span class="text-gold">Suministro</span></h2>
                 <p class="ui-subtitle">Actualiza las especificaciones técnicas y existencias del artículo.</p>
             </div>
-            <a href="{{ route('almacen.index') }}" class="text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition">
+            <a href="{{ route('warehouse.index') }}" class="text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition">
                 &larr; Volver al almacén
             </a>
         </div>
@@ -14,7 +14,7 @@
     <div class="py-8">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <section class="ui-surface">
-                <form method="POST" action="{{ route('almacen.update', $inventory) }}" enctype="multipart/form-data" class="space-y-10">
+                <form method="POST" action="{{ route('warehouse.update', $inventory) }}" enctype="multipart/form-data" class="space-y-10">
                     @csrf
                     @method('PUT')
 

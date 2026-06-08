@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Chatbot;
 
 use App\Models\Appointment;
 use App\Models\Barber;
@@ -8,12 +8,12 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Service;
 use App\Services\BusinessEventService;
-use App\Services\ChatbotContextService;
-use App\Services\ChatbotExternalDataService;
-use App\Services\ChatbotIntelligenceService;
-use App\Services\ChatbotLearningService;
-use App\Services\ChatbotUserProfileService;
-use App\Services\GeminiService;
+use App\Services\Chatbot\ChatbotContextService;
+use App\Services\Chatbot\ChatbotExternalDataService;
+use App\Services\Chatbot\ChatbotIntelligenceService;
+use App\Services\Chatbot\ChatbotLearningService;
+use App\Services\Chatbot\ChatbotUserProfileService;
+use App\Services\Chatbot\GeminiService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

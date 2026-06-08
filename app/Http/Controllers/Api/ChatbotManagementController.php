@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\ChatbotContextService;
-use App\Services\ChatbotUserProfileService;
+use App\Services\Chatbot\ChatbotContextService;
+use App\Services\Chatbot\ChatbotUserProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

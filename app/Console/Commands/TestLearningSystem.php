@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\ChatbotLearningService;
+use App\Services\Chatbot\ChatbotLearningService;
 use Illuminate\Console\Command;
 
 class TestLearningSystem extends Command
