@@ -1,147 +1,205 @@
+@php
+    $activeFilters = array_filter($filters ?? [], fn($v) => $v !== '' && $v !== null);
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="ui-title">Equipo de Barberos</h2>
+                <h2 class="ui-title">Equipo de <span class="text-gold">Barberos</span></h2>
                 <p class="ui-subtitle">Gestiona el personal, especialidades y disponibilidad.</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="ui-badge">
-                    {{ $barbers->total() }} Barberos registrados
-                </span>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="space-y-5 py-4">
+        <x-auth-session-status :status="session('status')" />
 
-            <section class="space-y-6">
-                <!-- Filters -->
-                <div class="ui-card-premium p-4">
-                    <form method="GET" action="{{ route('barbers.index') }}" class="flex flex-wrap items-end gap-4">
-                        <div class="w-full sm:w-64">
-                            <label class="ui-label mb-1 block" for="q">Buscar</label>
-                            <input id="q" name="q" value="{{ $search }}" class="ui-input" placeholder="Nombre o email">
+        {{-- ── STATS ──────────────────────────────────── --}}
+        <section class="grid grid-cols-3 gap-4">
+            <div class="rounded-2xl border border-white/8 bg-[#111] p-4 text-center">
+                <p class="text-3xl font-black text-white">{{ $stats['total'] }}</p>
+                <p class="text-[10px] font-black uppercase tracking-wider text-muted mt-1">Total</p>
+            </div>
+            <div class="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-center">
+                <p class="text-3xl font-black text-emerald-400">{{ $stats['activos'] }}</p>
+                <p class="text-[10px] font-black uppercase tracking-wider text-emerald-400/70 mt-1">Activos</p>
+            </div>
+            <div class="rounded-2xl border border-white/8 bg-[#111] p-4 text-center">
+                <p class="text-3xl font-black text-muted">{{ $stats['inactivos'] }}</p>
+                <p class="text-[10px] font-black uppercase tracking-wider text-muted mt-1">Inactivos</p>
+            </div>
+        </section>
+
+        {{-- ── FILTROS ─────────────────────────────────── --}}
+        <section x-data="{ open: {{ count($activeFilters) > 0 ? 'true' : 'false' }} }" class="ui-card-premium overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-white/6" @click="open = !open">
+                <div class="flex items-center gap-3">
+                    <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    <span class="text-sm font-black text-white uppercase tracking-widest">Filtros</span>
+                    @if(count($activeFilters) > 0)
+                        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[9px] font-black text-black">{{ count($activeFilters) }}</span>
+                    @endif
+                </div>
+                <svg :class="open ? 'rotate-180' : ''" class="h-4 w-4 text-muted transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="px-6 py-5">
+                <form method="GET" action="{{ route('barbers.index') }}">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <div>
+                            <label class="ui-label">Búsqueda</label>
+                            <div class="relative mt-1">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="h-4 w-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </div>
+                                <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" class="ui-input pl-10" placeholder="Nombre o email...">
+                            </div>
                         </div>
-                        <div class="w-full sm:w-48">
-                            <label class="ui-label mb-1 block" for="activo">Estado</label>
-                            <select id="activo" name="activo" class="ui-input">
-                                <option value="">Todos los estados</option>
-                                <option value="1" @selected($status === '1')>Activos</option>
-                                <option value="0" @selected($status === '0')>Inactivos</option>
+                        <div>
+                            <label class="ui-label">Especialidad</label>
+                            <input type="text" name="especialidad" value="{{ $filters['especialidad'] ?? '' }}" class="ui-input mt-1" placeholder="ej: fade, barba...">
+                        </div>
+                        <div>
+                            <label class="ui-label">Estado</label>
+                            <select name="activo" class="ui-input mt-1">
+                                <option value="">Todos</option>
+                                <option value="1" @selected(($filters['activo'] ?? '') === '1')>Activos</option>
+                                <option value="0" @selected(($filters['activo'] ?? '') === '0')>Inactivos</option>
                             </select>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button type="submit" class="ui-btn-secondary">
-                                Filtrar
-                            </button>
-                            <a href="{{ route('barbers.index') }}" class="text-sm text-gray-500 hover:text-gray-700 underline">
+                    </div>
+                    <div class="mt-5 flex items-center gap-3">
+                        <button type="submit" class="ui-btn py-2.5 px-6 text-[11px] tracking-widest">Aplicar Filtros</button>
+                        @if(count($activeFilters) > 0)
+                            <a href="{{ route('barbers.index') }}" class="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition-all">
+                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                 Limpiar
                             </a>
-                        </div>
-                    </form>
+                        @endif
+                    </div>
+                </form>
+            </div>
+            @if(count($activeFilters) > 0)
+                <div class="flex flex-wrap gap-2 px-6 pb-4">
+                    @foreach($activeFilters as $key => $val)
+                        @php $labels = ['q'=>'Búsqueda','activo'=>'Estado','especialidad'=>'Especialidad']; @endphp
+                        <span class="inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-gold/8 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-gold">
+                            {{ $labels[$key] ?? $key }}: {{ $key === 'activo' ? ($val === '1' ? 'Activo' : 'Inactivo') : $val }}
+                        </span>
+                    @endforeach
                 </div>
+            @endif
+        </section>
 
-                <!-- Desktop Table -->
-                <div class="hidden md:block ui-table-container">
-                    <table class="ui-table">
-                        <thead>
-                            <tr>
-                                <th>Barbero</th>
-                                <th>Especialidades</th>
-                                <th>Email</th>
-                                <th>Estado</th>
-                                <th class="text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($barbers as $barber)
-                                <tr>
-                                    <td class="font-medium">
-                                        <div class="flex items-center gap-3">
-                                            <div class="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold">
-                                                {{ substr($barber->user?->name ?? 'BB', 0, 2) }}
-                                            </div>
-                                            {{ $barber->user?->name ?? 'Sin usuario' }}
-                                        </div>
-                                    </td>
-                                    <td class="text-xs italic">
-                                        {{ $barber->especialidades ?: 'General' }}
-                                    </td>
-                                    <td>
-                                        {{ $barber->user?->email ?: '-' }}
-                                    </td>
-                                    <td>
-                                        @if($barber->activo)
-                                            <span class="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-400/20">
-                                                <span class="h-1 w-1 rounded-full bg-green-500"></span> Activo
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1 rounded-full bg-white/5 px-2 py-1 text-xs font-medium text-muted ring-1 ring-inset ring-white/10">
-                                                Inactivo
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="text-right">
-                                        <div class="flex justify-end gap-2">
-                                            <a href="{{ route('barbers.edit', $barber) }}" class="text-muted hover:text-blue-600 transition-colors" title="Editar">
-                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-10 text-center">
-                                        No se encontraron barberos con los filtros seleccionados.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+        {{-- ── GRID DE BARBEROS ─────────────────────────── --}}
+        <section>
+            <div class="mb-3 px-1">
+                <p class="text-[11px] font-bold text-muted uppercase tracking-wider">{{ $barbers->total() }} barbero{{ $barbers->total() !== 1 ? 's' : '' }}</p>
+            </div>
 
-                <!-- Mobile Cards -->
-                <div class="space-y-4 md:hidden">
-                    @forelse($barbers as $barber)
-                        <div class="ui-card p-4">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold">
-                                        {{ substr($barber->user?->name ?? 'BB', 0, 2) }}
-                                    </div>
-                                    <div>
-                                        <h3 class="text-sm font-bold">{{ $barber->user?->name ?? 'Sin usuario' }}</h3>
-                                        <p class="text-[10px] text-muted uppercase tracking-wider">{{ $barber->user?->email ?: '-' }}</p>
+            {{-- Desktop: Cards en grid ─────────────────── --}}
+            <div class="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                @forelse($barbers as $barber)
+                    <div class="group rounded-2xl border border-white/8 bg-[#111] overflow-hidden hover:border-gold/30 hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)] transition-all duration-400">
+                        {{-- Foto --}}
+                        <div class="relative h-40 bg-[#181818] overflow-hidden">
+                            @if($barber->foto)
+                                <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
+                                     class="h-full w-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-600"
+                                     loading="lazy">
+                            @else
+                                <div class="h-full w-full flex items-center justify-center">
+                                    <div class="h-20 w-20 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/15 flex items-center justify-center text-3xl font-black text-gold">
+                                        {{ strtoupper(substr($barber->user?->name ?? 'B', 0, 2)) }}
                                     </div>
                                 </div>
-                                @if($barber->activo)
-                                    <span class="text-[10px] font-bold text-green-500 uppercase">Activo</span>
-                                @else
-                                    <span class="text-[10px] font-bold text-muted uppercase">Inactivo</span>
-                                @endif
-                            </div>
-                            <div class="text-xs italic mb-4">
-                                <span class="text-muted not-italic mr-1">Especialidades:</span>
-                                {{ $barber->especialidades ?: 'General' }}
-                            </div>
-                            <div class="flex justify-end pt-3 border-t border-white/5">
-                                <a href="{{ route('barbers.edit', $barber) }}" class="text-sm font-medium text-blue-600">Gestionar Perfil</a>
+                            @endif
+                            {{-- Estado badge --}}
+                            <div class="absolute top-3 right-3">
+                                <span class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-wider backdrop-blur-sm
+                                    {{ $barber->activo ? 'border-emerald-500/30 bg-emerald-500/20 text-emerald-300' : 'border-white/10 bg-black/40 text-muted' }}">
+                                    <span class="h-1.5 w-1.5 rounded-full {{ $barber->activo ? 'bg-emerald-400 animate-pulse' : 'bg-white/30' }}"></span>
+                                    {{ $barber->activo ? 'Activo' : 'Inactivo' }}
+                                </span>
                             </div>
                         </div>
-                    @empty
-                        <div class="text-center py-8">No hay barberos.</div>
-                    @endforelse
-                </div>
 
-                <div class="mt-4">
-                    {{ $barbers->links() }}
-                </div>
-            </section>
-        </div>
+                        {{-- Info --}}
+                        <div class="p-5">
+                            <h3 class="font-black text-white text-base">{{ $barber->user?->name ?? 'Sin usuario' }}</h3>
+                            <p class="text-[10px] text-muted mt-0.5">{{ $barber->user?->email ?: '—' }}</p>
+
+                            @if($barber->especialidades)
+                                <div class="flex flex-wrap gap-1.5 mt-3">
+                                    @foreach(explode(',', $barber->especialidades) as $esp)
+                                        <span class="text-[9px] font-black border border-gold/20 bg-gold/8 text-gold rounded-full px-2 py-0.5 uppercase tracking-wider">
+                                            {{ trim($esp) }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @else
+                                <p class="text-[10px] text-muted/50 italic mt-3">Sin especialidades</p>
+                            @endif
+
+                            {{-- Citas del mes --}}
+                            <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                                <div>
+                                    <p class="text-[9px] font-bold text-muted uppercase tracking-wider">Citas este mes</p>
+                                    <p class="text-xl font-black text-white">{{ $barber->citas_mes ?? 0 }}</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <a href="{{ route('barbers.performance', $barber) }}"
+                                       class="flex items-center gap-1 rounded-xl border border-gold/20 bg-gold/8 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all">
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                        Stats
+                                    </a>
+                                    <a href="{{ route('barbers.edit', $barber) }}"
+                                       class="flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-muted hover:text-gold hover:border-gold/30 transition-all">
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        Editar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-4 rounded-2xl border border-dashed border-white/10 py-20 text-center">
+                        <svg class="h-12 w-12 text-white/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <p class="text-sm font-bold text-muted uppercase tracking-widest">Sin barberos registrados</p>
+                    </div>
+                @endforelse
+            </div>
+
+            {{-- Mobile --}}
+            <div class="space-y-3 md:hidden">
+                @forelse($barbers as $barber)
+                    <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/15 flex items-center justify-center text-base font-black text-gold shrink-0">
+                                {{ strtoupper(substr($barber->user?->name ?? 'B', 0, 2)) }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-black text-white text-sm">{{ $barber->user?->name }}</p>
+                                <p class="text-[10px] text-muted">{{ $barber->user?->email ?: '—' }}</p>
+                            </div>
+                            <span class="text-[9px] font-black border rounded-full px-2 py-0.5 {{ $barber->activo ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' : 'border-white/10 text-muted' }}">
+                                {{ $barber->activo ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-white/5 pt-3">
+                            <div>
+                                <p class="text-[9px] text-muted uppercase tracking-wider">Especialidades</p>
+                                <p class="text-xs text-white mt-0.5">{{ $barber->especialidades ?: 'General' }}</p>
+                            </div>
+                            <a href="{{ route('barbers.edit', $barber) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Gestionar</a>
+                        </div>
+                    </div>
+                @empty
+                    <div class="rounded-2xl border border-dashed border-white/10 p-10 text-center"><p class="text-sm text-muted">Sin barberos.</p></div>
+                @endforelse
+            </div>
+
+            <div class="mt-6">{{ $barbers->links() }}</div>
+        </section>
     </div>
 </x-app-layout>

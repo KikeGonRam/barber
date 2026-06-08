@@ -18,21 +18,57 @@ class ClientController extends Controller
 {
     public function index(Request $request): View
     {
-        $search = trim((string) $request->query('q', ''));
+        $filters = $request->only(['q', 'sin_citas', 'fecha_desde', 'fecha_hasta']);
+        $search  = trim((string) ($filters['q'] ?? ''));
 
         $clients = Client::query()
             ->with('user:id,name,email')
-            ->when($search !== '', function ($query) use ($search): void {
-                $query->whereHas('user', function ($userQuery) use ($search): void {
-                    $userQuery->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                });
-            })
+            ->withCount('appointments')
+            ->when($search !== '', fn($query) => $query->whereHas('user', fn($u) =>
+                $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")
+            ))
+            ->when(!empty($filters['sin_citas']), fn($q) => $q->doesntHave('appointments'))
+            ->when(!empty($filters['fecha_desde']), fn($q) => $q->whereHas('user', fn($u) => $u->whereDate('created_at', '>=', $filters['fecha_desde'])))
+            ->when(!empty($filters['fecha_hasta']), fn($q) => $q->whereHas('user', fn($u) => $u->whereDate('created_at', '<=', $filters['fecha_hasta'])))
             ->latest('id')
-            ->paginate(15)
+            ->paginate(20)
             ->withQueryString();
 
-        return view('clients.index', compact('clients', 'search'));
+        $stats = [
+            'total'       => Client::count(),
+            'con_citas'   => Client::has('appointments')->count(),
+            'sin_citas'   => Client::doesntHave('appointments')->count(),
+            'este_mes'    => Client::whereHas('user', fn($u) => $u->whereMonth('created_at', now()->month))->count(),
+        ];
+
+        return view('clients.index', compact('clients', 'filters', 'search', 'stats'));
+    }
+
+    public function show(\App\Models\Client $client): View
+    {
+        $client->load(['user', 'appointments.service', 'appointments.barber.user', 'appointments.payment']);
+
+        $stats = [
+            'total_citas'      => $client->appointments->count(),
+            'completadas'      => $client->appointments->where('estado', 'completada')->count(),
+            'canceladas'       => $client->appointments->where('estado', 'cancelada')->count(),
+            'total_gastado'    => $client->appointments->flatMap->payment->sum(fn($p) => ($p->monto ?? 0) + ($p->propina ?? 0)),
+            'barbero_favorito' => $client->appointments
+                ->where('estado', 'completada')
+                ->groupBy('barber_id')
+                ->sortByDesc(fn($g) => $g->count())
+                ->first()?->first()?->barber?->user?->name ?? '—',
+            'servicio_favorito' => $client->appointments
+                ->where('estado', 'completada')
+                ->groupBy('service_id')
+                ->sortByDesc(fn($g) => $g->count())
+                ->first()?->first()?->service?->nombre ?? '—',
+            'ultima_visita'    => $client->appointments->where('estado', 'completada')->sortByDesc('fecha')->first()?->fecha,
+        ];
+
+        $recentAppointments = $client->appointments->sortByDesc('fecha')->take(10);
+
+        return view('clients.show', compact('client', 'stats', 'recentAppointments'));
     }
 
     public function create(): View

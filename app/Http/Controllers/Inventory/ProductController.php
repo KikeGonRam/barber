@@ -17,12 +17,31 @@ class ProductController extends Controller
 
     public function index(Request $request): View
     {
-        $filters = $request->only(['categoria', 'tipo']);
+        $filters = $request->only(['q', 'categoria', 'tipo', 'bajo_stock']);
 
-        $products = $this->inventoryService->listProducts($filters);
+        $products = Product::query()
+            ->when(!empty($filters['q']), fn($q) => $q
+                ->where('nombre', 'like', '%'.$filters['q'].'%')
+                ->orWhere('descripcion', 'like', '%'.$filters['q'].'%'))
+            ->when(!empty($filters['categoria']), fn($q) => $q->where('categoria', $filters['categoria']))
+            ->when(!empty($filters['tipo']),      fn($q) => $q->where('tipo', $filters['tipo']))
+            ->when(!empty($filters['bajo_stock']), fn($q) => $q->whereColumn('stock_actual', '<=', 'stock_minimo'))
+            ->orderBy('nombre')
+            ->paginate(20)
+            ->withQueryString();
+
         $lowStockCount = $this->inventoryService->lowStockCount();
 
-        return view('inventory.products.index', compact('products', 'filters', 'lowStockCount'));
+        $categorias = Product::distinct()->pluck('categoria')->filter()->sort()->values();
+        $tipos      = Product::distinct()->pluck('tipo')->filter()->sort()->values();
+
+        $stats = [
+            'total'      => Product::count(),
+            'bajo_stock' => $lowStockCount,
+            'valor_total'=> Product::sum(\Illuminate\Support\Facades\DB::raw('stock_actual * precio_compra')),
+        ];
+
+        return view('inventory.products.index', compact('products', 'filters', 'lowStockCount', 'categorias', 'tipos', 'stats'));
     }
 
     public function create(): View

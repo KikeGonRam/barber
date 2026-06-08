@@ -188,46 +188,51 @@ class AuthController extends Controller
      */
     public function getWebApiToken(Request $request): JsonResponse
     {
-        // Try to get user from web session first (dashboard context)
-        $user = Auth::guard('web')->user();
+        try {
+            // Try to get user from web session first (dashboard context)
+            $user = Auth::guard('web')->user();
 
-        if (!$user) {
+            if (!$user) {
+                \Illuminate\Support\Facades\Log::warning('Intento de obtener Web API Token sin sesión activa.', [
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'No autenticado. Por favor inicia sesión en el dashboard.',
+                ], 401);
+            }
+
+            // Check if user has an existing valid token
+            MobileApiToken::where('user_id', $user->id)
+                ->where('name', 'Dashboard Web')
+                ->delete();
+
+            // Create new token that expires in 30 days
+            $issued = $user->issueMobileApiToken(
+                'Dashboard Web',
+                ['*'],
+                now()->addDays(30)
+            );
+
+            return response()->json([
+                'ok' => true,
+                'message' => 'Token generado exitosamente.',
+                'token_type' => 'Bearer',
+                'token' => $issued['token'],
+                'expires_at' => $issued['token_model']->expires_at?->toISOString(),
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error en getWebApiToken: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => Auth::id()
+            ]);
             return response()->json([
                 'ok' => false,
-                'message' => 'No autenticado. Por favor inicia sesión en el dashboard.',
-            ], 401);
+                'message' => 'Error interno del servidor al generar el token.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        // Check if user has an existing valid token
-        $existingToken = MobileApiToken::where('user_id', $user->id)
-            ->where('name', 'Dashboard Web')
-            ->where(function ($query) {
-                $query->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            })
-            ->first();
-
-        // Use existing token or create a new one
-        if ($existingToken) {
-            // Return the token model but we can't get the plain token back
-            // So we'll create a new one instead
-            $existingToken->delete();
-        }
-
-        // Create new token that expires in 30 days
-        $issued = $user->issueMobileApiToken(
-            'Dashboard Web',
-            ['*'],
-            now()->addDays(30)
-        );
-
-        return response()->json([
-            'ok' => true,
-            'message' => 'Token generado exitosamente.',
-            'token_type' => 'Bearer',
-            'token' => $issued['token'],
-            'expires_at' => $issued['token_model']->expires_at?->toISOString(),
-        ]);
     }
 
     public function logout(Request $request): JsonResponse

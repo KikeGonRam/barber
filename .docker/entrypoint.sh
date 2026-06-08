@@ -15,19 +15,20 @@ if [ "$1" = "php-fpm" ]; then
     echo "🔗 Verificando enlace público de storage..."
     php artisan storage:link --no-interaction || true
 
-    echo "🔍 Esperando a que la base de datos esté lista..."
-    # Usamos un comando de artisan en lugar de nc para ser más nativos de Laravel
+    echo "🔍 Esperando a que MongoDB esté lista..."
     for i in {1..60}; do
-        if php artisan db:show > /dev/null 2>&1; then
-            echo "✅ Base de datos conectada."
+        if php artisan migrate --force --no-interaction > /dev/null 2>&1; then
+            echo "✅ MongoDB conectada y migraciones aplicadas."
             break
+        fi
+        if [ $i -eq 60 ]; then
+            echo "⚠️  No se pudo conectar a MongoDB después de 60 intentos, continuando..."
         fi
         echo "⏳ Intentando conectar... ($i/60)"
         sleep 2
     done
 
     echo "🚀 Optimizando aplicación..."
-    php artisan migrate --force --no-interaction
     php artisan optimize
 fi
 

@@ -2,148 +2,243 @@
     <x-slot name="header">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="ui-title">Mi <span class="text-gold">Agenda Maestra</span></h2>
-                <p class="ui-subtitle">Visualiza y gestiona tus servicios asignados para hoy.</p>
+                <h2 class="ui-title">Mi <span class="text-gold">Agenda</span></h2>
+                <p class="ui-subtitle">{{ $period === 'week' ? 'Semana del '.$baseDate->copy()->startOfWeek()->format('d M').' al '.$baseDate->copy()->endOfWeek()->format('d M, Y') : $baseDate->translatedFormat('l, d \d\e F Y') }}</p>
             </div>
+            {{-- Period + Nav --}}
             <div class="flex items-center gap-3">
-                <div class="flex h-10 items-center rounded-xl bg-bg-accent border border-line p-1">
-                    <a href="{{ route('barber.agenda', ['period' => 'day']) }}" class="px-4 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg {{ $period === 'day' ? 'bg-gold text-black' : 'text-muted hover:text-white' }}">Hoy</a>
-                    <a href="{{ route('barber.agenda', ['period' => 'week']) }}" class="px-4 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg {{ $period === 'week' ? 'bg-gold text-black' : 'text-muted hover:text-white' }}">Semana</a>
+                {{-- Prev --}}
+                <a href="{{ route('barber.agenda', ['period'=>$period,'estado'=>$estadoFilter,'offset'=>$dateOffset-($period==='week'?7:1)]) }}"
+                   class="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-white hover:border-white/20 transition-all">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                </a>
+                {{-- Period toggle --}}
+                <div class="flex h-9 items-center rounded-xl bg-white/5 border border-white/10 p-0.5">
+                    <a href="{{ route('barber.agenda', ['period'=>'day','estado'=>$estadoFilter,'offset'=>0]) }}"
+                       class="px-4 h-full flex items-center text-[10px] font-black uppercase tracking-widest transition-all rounded-lg {{ $period==='day' ? 'bg-gold text-black' : 'text-muted hover:text-white' }}">Hoy</a>
+                    <a href="{{ route('barber.agenda', ['period'=>'week','estado'=>$estadoFilter,'offset'=>0]) }}"
+                       class="px-4 h-full flex items-center text-[10px] font-black uppercase tracking-widest transition-all rounded-lg {{ $period==='week' ? 'bg-gold text-black' : 'text-muted hover:text-white' }}">Semana</a>
                 </div>
+                {{-- Next --}}
+                <a href="{{ route('barber.agenda', ['period'=>$period,'estado'=>$estadoFilter,'offset'=>$dateOffset+($period==='week'?7:1)]) }}"
+                   class="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-white hover:border-white/20 transition-all">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                @if($dateOffset !== 0)
+                    <a href="{{ route('barber.agenda', ['period'=>$period,'estado'=>$estadoFilter,'offset'=>0]) }}"
+                       class="px-3 h-9 rounded-xl border border-gold/30 bg-gold/8 flex items-center text-[10px] font-black uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all">Hoy</a>
+                @endif
             </div>
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
-            
-            @php
-                $nextAppt = $agenda->where('estado', 'pendiente')->first();
-            @endphp
+    <div class="space-y-5 py-4">
+        <x-auth-session-status :status="session('status')" />
 
-            @if($nextAppt)
-                <!-- Next Client Spotlight (Surprise) -->
-                <section class="ui-card-premium p-0 overflow-hidden border-gold/30 gold-glow">
-                    <div class="flex flex-col md:flex-row">
-                        <div class="bg-gradient-to-br from-gold to-gold-dim p-8 md:w-72 flex flex-col justify-center items-center text-black">
-                            <p class="text-[10px] font-black uppercase tracking-[0.2em] mb-2 opacity-70">Siguiente Cita</p>
-                            <p class="text-4xl font-black">{{ substr($nextAppt->hora_inicio, 0, 5) }}</p>
-                            <div class="mt-4 h-1 w-12 bg-black/20 rounded-full"></div>
-                        </div>
-                        <div class="p-8 flex-1 flex flex-col sm:flex-row justify-between items-center gap-6 bg-white/5 backdrop-blur-md">
-                            <div>
-                                <h3 class="text-2xl font-black text-white uppercase tracking-tight">{{ $nextAppt->client?->user?->name }}</h3>
-                                <p class="text-gold font-bold uppercase tracking-widest text-xs mt-1">{{ $nextAppt->service?->nombre }}</p>
-                                <div class="mt-4 flex gap-4">
-                                    <div class="flex items-center gap-2 text-[10px] font-bold text-muted uppercase">
-                                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"/></svg>
-                                        {{ $nextAppt->service?->duracion_min }} Minutos
-                                    </div>
-                                </div>
-                            </div>
-                            <form method="POST" action="{{ route('barber.appointments.status', $nextAppt) }}">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="estado" value="en_proceso">
-                                <button type="submit" class="ui-btn px-10 py-4 shadow-[0_0_30px_rgba(212,175,55,0.2)]">
-                                    Iniciar Servicio &rarr;
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </section>
-            @endif
-
-            <!-- Stats Bar -->
-            <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <article class="ui-card-premium p-6 flex items-center justify-between border-l-4 border-l-gold">
-                    <div>
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-muted">Servicios Completados</p>
-                        <p class="text-2xl font-black text-white mt-1">{{ $stats['completed_count'] }}</p>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-gold/10 flex items-center justify-center text-gold">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                    </div>
-                </article>
-
-                <article class="ui-card-premium p-6 flex items-center justify-between border-l-4 border-l-green-600">
-                    <div>
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-muted">Ingresos del Periodo</p>
-                        <p class="text-2xl font-black text-white mt-1">${{ number_format($stats['income_total'], 2) }}</p>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-green-600/10 flex items-center justify-center text-green-500">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
-                </article>
-
-                <article class="ui-card-premium p-6 flex items-center justify-between border-l-4 border-l-blue-600">
-                    <div>
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-muted">Productividad</p>
-                        <p class="text-2xl font-black text-white mt-1">92%</p>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-500">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                    </div>
-                </article>
-            </section>
-
-            <!-- Agenda List -->
-            <section class="space-y-6">
-                <div class="flex items-center gap-3">
-                    <div class="h-px flex-1 bg-line"></div>
-                    <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-gold">Listado de Citas</h3>
-                    <div class="h-px flex-1 bg-line"></div>
+        {{-- ── STATS ROW ──────────────────────────────────── --}}
+        <section class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+            {{-- Total período --}}
+            <div class="rounded-2xl border border-white/8 bg-[#111] p-4 text-center">
+                <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-1">{{ $period==='day' ? 'Hoy' : 'Semana' }}</p>
+                <p class="text-3xl font-black text-white">{{ $stats['total_period'] }}</p>
+                <p class="text-[9px] text-muted mt-0.5">citas</p>
+            </div>
+            {{-- Pendientes --}}
+            <div class="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-center">
+                <p class="text-[9px] font-black uppercase tracking-widest text-amber-400/70 mb-1">Pendientes</p>
+                <p class="text-3xl font-black text-amber-300">{{ $stats['pending_period'] }}</p>
+                <p class="text-[9px] text-amber-400/50 mt-0.5">en espera</p>
+            </div>
+            {{-- En proceso --}}
+            <div class="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-4 text-center">
+                <p class="text-[9px] font-black uppercase tracking-widest text-blue-400/70 mb-1">En proceso</p>
+                <p class="text-3xl font-black text-blue-300">{{ $stats['in_process_period'] }}</p>
+                <p class="text-[9px] text-blue-400/50 mt-0.5">activas</p>
+            </div>
+            {{-- Completadas --}}
+            <div class="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-center">
+                <p class="text-[9px] font-black uppercase tracking-widest text-emerald-400/70 mb-1">Completadas</p>
+                <p class="text-3xl font-black text-emerald-300">{{ $stats['completed_period'] }}</p>
+                <p class="text-[9px] text-emerald-400/50 mt-0.5">listas</p>
+            </div>
+            {{-- Productividad --}}
+            <div class="col-span-2 sm:col-span-4 lg:col-span-1 rounded-2xl border border-gold/20 bg-gold/5 p-4 flex items-center gap-4 lg:flex-col lg:text-center lg:items-center lg:justify-center">
+                <div class="relative h-14 w-14 shrink-0">
+                    <svg class="h-14 w-14 -rotate-90" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="3"/>
+                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#d4af37" stroke-width="3"
+                                stroke-dasharray="{{ $stats['productivity'] }},100"
+                                stroke-linecap="round"/>
+                    </svg>
+                    <span class="absolute inset-0 flex items-center justify-center text-xs font-black text-gold">{{ $stats['productivity'] }}%</span>
                 </div>
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-widest text-gold/70">Productividad</p>
+                    <p class="text-[10px] text-gold/50 mt-0.5">{{ $stats['completed_count'] }} completadas en total</p>
+                </div>
+            </div>
+        </section>
 
-                <div class="space-y-4">
-                    @forelse($agenda as $appointment)
-                        <article class="ui-card-premium group">
-                            <div class="flex flex-col lg:flex-row lg:items-center">
-                                <!-- Time & Status -->
-                                <div class="bg-panel/50 lg:w-48 p-6 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-line">
-                                    <p class="text-xs font-bold uppercase tracking-widest text-muted">{{ \Carbon\Carbon::parse($appointment->fecha)->translatedFormat('d M') }}</p>
-                                    <p class="text-xl font-black text-white mt-1">{{ substr($appointment->hora_inicio, 0, 5) }}</p>
-                                    <span class="mt-4 inline-flex items-center rounded-full border border-gold/30 bg-gold/5 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-gold w-fit">
-                                        {{ $appointment->estado }}
+        {{-- ── PRÓXIMA CITA ────────────────────────────────── --}}
+        @php $nextAppt = $agenda->where('estado', 'pendiente')->first(); @endphp
+        @if($nextAppt && $estadoFilter === '')
+            <section class="ui-card-premium p-0 overflow-hidden border-gold/30" style="box-shadow:0 0 40px rgba(212,175,55,0.12)">
+                <div class="flex flex-col sm:flex-row">
+                    <div class="bg-gradient-to-br from-gold to-gold-dim p-6 sm:w-60 flex flex-col justify-center items-center text-black">
+                        <p class="text-[9px] font-black uppercase tracking-[0.2em] mb-1 opacity-70">Siguiente Cita</p>
+                        <p class="text-5xl font-black leading-none">{{ substr($nextAppt->hora_inicio,0,5) }}</p>
+                        <p class="text-[9px] font-bold opacity-60 mt-2 uppercase tracking-wider">{{ \Carbon\Carbon::parse($nextAppt->fecha)->translatedFormat('d M') }}</p>
+                    </div>
+                    <div class="flex-1 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 bg-gradient-to-r from-white/[0.03] to-transparent">
+                        <div>
+                            <h3 class="text-xl font-black text-white uppercase tracking-tight">{{ $nextAppt->client?->user?->name ?? '—' }}</h3>
+                            <p class="text-gold font-bold uppercase tracking-widest text-[11px] mt-1">{{ $nextAppt->service?->nombre ?? '—' }}</p>
+                            <div class="mt-3 flex flex-wrap gap-4 text-[10px] font-bold text-muted uppercase tracking-wider">
+                                @if($nextAppt->service?->duracion_min)
+                                    <span class="flex items-center gap-1.5">
+                                        <svg class="h-3 w-3 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"/></svg>
+                                        {{ $nextAppt->service->duracion_min }} min
                                     </span>
-                                </div>
-
-                                <!-- Client Info -->
-                                <div class="flex-1 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                                    <div class="flex items-center gap-4">
-                                        <div class="h-12 w-12 rounded-2xl bg-bg-accent border border-line flex items-center justify-center text-sm font-bold text-ink">
-                                            {{ substr($appointment->client?->user?->name, 0, 2) }}
-                                        </div>
-                                        <div>
-                                            <p class="text-lg font-black text-white">{{ $appointment->client?->user?->name }}</p>
-                                            <p class="text-xs text-muted font-bold uppercase tracking-widest">{{ $appointment->service?->nombre }}</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Quick Actions -->
-                                    <form method="POST" action="{{ route('barber.appointments.status', $appointment) }}" class="flex flex-wrap items-end gap-3">
-                                        @csrf
-                                        @method('PATCH')
-                                        <div class="w-40">
-                                            <label class="ui-label">Actualizar Estado</label>
-                                            <select name="estado" class="ui-input !py-1.5 !text-[11px] !bg-panel">
-                                                @foreach(['pendiente','en_proceso','completada'] as $estado)
-                                                    <option value="{{ $estado }}" @selected($appointment->estado === $estado)>{{ ucfirst($estado) }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <button type="submit" class="ui-btn py-2 text-[10px] uppercase tracking-widest px-4 shadow-none">Actualizar</button>
-                                    </form>
-                                </div>
+                                @endif
+                                @if($nextAppt->service?->precio)
+                                    <span class="flex items-center gap-1.5">
+                                        <svg class="h-3 w-3 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/></svg>
+                                        ${{ number_format($nextAppt->service->precio, 0) }}
+                                    </span>
+                                @endif
                             </div>
-                        </article>
-                    @empty
-                        <div class="ui-empty py-20 border-line bg-panel/30">
-                            <p class="text-muted italic">Sin servicios programados para este periodo.</p>
                         </div>
-                    @endforelse
+                        <form method="POST" action="{{ route('barber.appointments.status', $nextAppt) }}">
+                            @csrf @method('PATCH')
+                            <input type="hidden" name="estado" value="en_proceso">
+                            <button type="submit" class="ui-btn px-8 py-3.5 shadow-[0_0_30px_rgba(212,175,55,0.25)]">
+                                Iniciar Servicio &rarr;
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </section>
-        </div>
+        @endif
+
+        {{-- ── FILTRO POR ESTADO ───────────────────────────── --}}
+        <section class="flex flex-wrap items-center gap-2">
+            <span class="text-[9px] font-black uppercase tracking-widest text-muted mr-1">Filtrar:</span>
+            @php
+                $estadoOpts = [
+                    ''           => ['label'=>'Todas',      'cls'=>'border-white/15 text-muted hover:text-white'],
+                    'pendiente'  => ['label'=>'Pendiente',  'cls'=>'border-amber-500/30 text-amber-300 bg-amber-500/8'],
+                    'en_proceso' => ['label'=>'En proceso', 'cls'=>'border-blue-500/30 text-blue-300 bg-blue-500/8'],
+                    'completada' => ['label'=>'Completada', 'cls'=>'border-emerald-500/30 text-emerald-300 bg-emerald-500/8'],
+                    'cancelada'  => ['label'=>'Cancelada',  'cls'=>'border-red-500/30 text-red-400 bg-red-500/8'],
+                ];
+            @endphp
+            @foreach($estadoOpts as $val => $opt)
+                <a href="{{ route('barber.agenda', ['period'=>$period,'estado'=>$val,'offset'=>$dateOffset]) }}"
+                   class="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all
+                       {{ $estadoFilter === $val ? 'bg-gold border-gold text-black' : $opt['cls'] }}">
+                    {{ $opt['label'] }}
+                    @if($val !== '')
+                        @php $count = match($val){
+                            'pendiente'  => $stats['pending_period'],
+                            'en_proceso' => $stats['in_process_period'],
+                            'completada' => $stats['completed_period'],
+                            'cancelada'  => $stats['cancelled_period'],
+                            default      => 0,
+                        }; @endphp
+                        @if($count > 0)
+                            <span class="flex h-4 w-4 items-center justify-center rounded-full {{ $estadoFilter === $val ? 'bg-black/20 text-black' : 'bg-white/10 text-white' }} text-[8px] font-black">{{ $count }}</span>
+                        @endif
+                    @else
+                        <span class="flex h-4 w-4 items-center justify-center rounded-full {{ $estadoFilter === '' ? 'bg-black/20 text-black' : 'bg-white/10 text-white' }} text-[8px] font-black">{{ $stats['total_period'] }}</span>
+                    @endif
+                </a>
+            @endforeach
+        </section>
+
+        {{-- ── LISTA DE CITAS ──────────────────────────────── --}}
+        <section class="space-y-3">
+            <div class="px-1 flex items-center justify-between">
+                <p class="text-[11px] font-bold text-muted uppercase tracking-wider">{{ $agenda->count() }} cita{{ $agenda->count() !== 1 ? 's' : '' }}{{ $estadoFilter ? ' · '.ucfirst(str_replace('_',' ',$estadoFilter)) : '' }}</p>
+            </div>
+
+            @forelse($agenda as $appointment)
+                @php
+                    $stCfg = [
+                        'pendiente'  => ['pill'=>'border-amber-500/30 bg-amber-500/10 text-amber-300',  'dot'=>'bg-amber-400 animate-pulse', 'bar'=>'bg-amber-400'],
+                        'en_proceso' => ['pill'=>'border-blue-500/30 bg-blue-500/10 text-blue-300',     'dot'=>'bg-blue-400 animate-pulse',  'bar'=>'bg-blue-400'],
+                        'completada' => ['pill'=>'border-emerald-500/30 bg-emerald-500/10 text-emerald-300','dot'=>'bg-emerald-400',         'bar'=>'bg-emerald-400'],
+                        'cancelada'  => ['pill'=>'border-red-500/30 bg-red-500/10 text-red-400',         'dot'=>'bg-red-400',               'bar'=>'bg-red-400'],
+                    ];
+                    $sc = $stCfg[$appointment->estado] ?? ['pill'=>'border-white/10 bg-white/5 text-muted','dot'=>'bg-white/30','bar'=>'bg-white/20'];
+                @endphp
+                <article class="group rounded-2xl border border-white/8 bg-[#111] overflow-hidden hover:border-white/15 transition-all duration-300">
+                    {{-- Estado accent bar --}}
+                    <div class="h-0.5 w-full {{ $sc['bar'] }} opacity-50"></div>
+                    <div class="flex flex-col lg:flex-row">
+                        {{-- Time block --}}
+                        <div class="flex flex-row lg:flex-col justify-between lg:justify-center items-center lg:w-40 px-5 py-4 lg:py-6 border-b lg:border-b-0 lg:border-r border-white/5 bg-black/20 shrink-0">
+                            <div class="lg:text-center">
+                                <p class="text-[9px] font-bold text-muted uppercase tracking-wider">{{ \Carbon\Carbon::parse($appointment->fecha)->translatedFormat('d M') }}</p>
+                                <p class="text-2xl font-black text-white mt-0.5">{{ substr($appointment->hora_inicio,0,5) }}</p>
+                                @if($appointment->service?->duracion_min)
+                                    <p class="text-[9px] text-muted mt-1 uppercase tracking-wider">{{ $appointment->service->duracion_min }} min</p>
+                                @endif
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest {{ $sc['pill'] }}">
+                                <span class="h-1.5 w-1.5 rounded-full {{ $sc['dot'] }}"></span>
+                                {{ str_replace('_',' ',$appointment->estado) }}
+                            </span>
+                        </div>
+
+                        {{-- Client + Service --}}
+                        <div class="flex-1 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                            <div class="flex items-center gap-4">
+                                <div class="h-11 w-11 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 border border-gold/15 flex items-center justify-center text-sm font-black text-gold shrink-0">
+                                    {{ strtoupper(substr($appointment->client?->user?->name ?? 'C', 0, 2)) }}
+                                </div>
+                                <div>
+                                    <p class="font-black text-white text-base">{{ $appointment->client?->user?->name ?? '—' }}</p>
+                                    <p class="text-[11px] font-bold text-gold uppercase tracking-wider mt-0.5">{{ $appointment->service?->nombre ?? '—' }}</p>
+                                    @if($appointment->service?->precio)
+                                        <p class="text-[10px] text-muted mt-0.5">${{ number_format($appointment->service->precio, 0) }}</p>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Quick status update --}}
+                            @if($appointment->estado !== 'completada' && $appointment->estado !== 'cancelada')
+                                <form method="POST" action="{{ route('barber.appointments.status', $appointment) }}"
+                                      class="flex items-center gap-2 shrink-0">
+                                    @csrf @method('PATCH')
+                                    <select name="estado"
+                                            class="h-9 rounded-xl border border-white/10 bg-black/40 px-3 text-[11px] font-black uppercase tracking-wider text-white focus:border-gold/50 focus:outline-none transition-all">
+                                        @foreach(['pendiente','en_proceso','completada','cancelada'] as $est)
+                                            <option value="{{ $est }}" @selected($appointment->estado === $est)>
+                                                {{ ucfirst(str_replace('_',' ',$est)) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit"
+                                            class="h-9 px-4 rounded-xl bg-gold/10 border border-gold/25 text-[10px] font-black uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all">
+                                        OK
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-[9px] font-bold text-muted uppercase tracking-wider shrink-0">Sin acciones</span>
+                            @endif
+                        </div>
+                    </div>
+                </article>
+            @empty
+                <div class="rounded-2xl border border-dashed border-white/10 py-20 text-center">
+                    <svg class="h-12 w-12 text-white/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <p class="text-sm font-bold text-muted uppercase tracking-widest">Sin citas para este período</p>
+                    @if($estadoFilter)
+                        <a href="{{ route('barber.agenda', ['period'=>$period,'offset'=>$dateOffset]) }}"
+                           class="mt-3 inline-block text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Ver todas</a>
+                    @endif
+                </div>
+            @endforelse
+        </section>
     </div>
 </x-app-layout>

@@ -26,9 +26,17 @@ use App\Models\Service;
 
 Route::get('/', function () {
     $services = Service::where('activo', true)->limit(6)->get();
-    $barbers = Barber::with('user')->where('activo', true)->limit(4)->get();
+    $barbers  = Barber::with('user')->where('activo', true)->limit(4)->get();
 
-    return view('welcome', compact('services', 'barbers'));
+    $statsGlobales = [
+        'clientes'  => \App\Models\Client::count(),
+        'servicios' => \App\Models\Service::where('activo', true)->count(),
+        'citas'     => \App\Models\Appointment::where('estado', 'completada')->count(),
+        'rating'    => number_format((float) (\App\Models\Comment::whereNotNull('rating')->avg('rating') ?? 4.9), 1),
+        'resenas'   => \App\Models\Comment::whereNotNull('rating')->count(),
+    ];
+
+    return view('welcome', compact('services', 'barbers', 'statsGlobales'));
 });
 
 Route::get('/mantenimiento', function () {
@@ -65,6 +73,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+// Web-session based API token retrieval for the dashboard
+Route::post('/api/v1/auth/get-api-token', [App\Http\Controllers\Api\AuthController::class, 'getWebApiToken'])
+    ->middleware(['web', 'auth'])
+    ->name('api.get-token');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -75,6 +88,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['verified', 'role.custom:administrador,recepcionista'])->group(function () {
         Route::middleware('permission.custom:citas.gestionar')->group(function () {
             Route::resource('appointments', AppointmentController::class)->except('show');
+            Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
+            Route::get('appointments-calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
+            Route::get('appointments-calendar/data', [AppointmentController::class, 'calendarData'])->name('appointments.calendar.data');
         });
 
         Route::middleware('permission.custom:pagos.gestionar')->group(function () {
@@ -91,6 +107,7 @@ Route::middleware('auth')->group(function () {
         Route::middleware('permission.custom:clientes.gestionar')->group(function () {
             Route::resource('clients', ClientController::class)
                 ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+            Route::get('clients/{client}/profile', [\App\Http\Controllers\Client\ClientController::class, 'show'])->name('clients.show');
         });
 
     });
@@ -123,6 +140,7 @@ Route::middleware('auth')->group(function () {
         Route::middleware('permission.custom:barberos.gestionar')->group(function () {
             Route::resource('barbers', BarberController::class)
                 ->only(['index', 'edit', 'update']);
+            Route::get('barbers/{barber}/performance', [\App\Http\Controllers\Barber\BarberController::class, 'performance'])->name('barbers.performance');
         });
 
         Route::middleware('permission.custom:configuracion.gestionar')->group(function () {

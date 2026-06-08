@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->validateCsrfTokens(except: [
+            'api/v1/auth/get-api-token',
+            '_boost/browser-logs',
+        ]);
         $middleware->web(append: [
             CheckMaintenanceMode::class,
         ]);

@@ -14,9 +14,23 @@ class BarberPortfolioController extends Controller
     public function index(): View
     {
         $barber = auth()->user()->barberProfile;
-        $works = Work::where('barbero_id', auth()->id())->latest()->paginate(12);
+        $works  = Work::where('barbero_id', auth()->id())
+            ->with(['images', 'reactions', 'comments', 'saves'])
+            ->latest()
+            ->paginate(12);
 
-        return view('barber.portfolio.index', compact('works'));
+        $totals = Work::where('barbero_id', auth()->id())
+            ->withCount(['reactions', 'comments', 'saves'])
+            ->get();
+
+        $stats = [
+            'total_works'    => $totals->count(),
+            'total_reactions'=> $totals->sum('reactions_count'),
+            'total_comments' => $totals->sum('comments_count'),
+            'total_saves'    => $totals->sum('saves_count'),
+        ];
+
+        return view('barber.portfolio.index', compact('works', 'barber', 'stats'));
     }
 
     public function create(): View

@@ -6,6 +6,7 @@ use App\Exceptions\Domain\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Inventory\StoreInventoryMovementRequest;
 use App\Models\Appointment;
+use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Services\InventoryService;
 use Illuminate\Http\RedirectResponse;
@@ -18,12 +19,30 @@ class InventoryMovementController extends Controller
 
     public function index(Request $request): View
     {
-        $filters = $request->only(['tipo', 'product_id']);
+        $filters = $request->only(['tipo', 'product_id', 'fecha_desde', 'fecha_hasta', 'q']);
 
-        $movements = $this->inventoryService->listMovements($filters);
+        $movements = InventoryMovement::with(['product:id,nombre', 'user:id,name'])
+            ->when(!empty($filters['q']), fn($q) => $q->whereHas('product', fn($p) => $p->where('nombre', 'like', '%'.$filters['q'].'%'))
+                ->orWhere('motivo', 'like', '%'.$filters['q'].'%'))
+            ->when(!empty($filters['tipo']),       fn($q) => $q->where('tipo', $filters['tipo']))
+            ->when(!empty($filters['product_id']), fn($q) => $q->where('product_id', $filters['product_id']))
+            ->when(!empty($filters['fecha_desde']),fn($q) => $q->whereDate('fecha', '>=', $filters['fecha_desde']))
+            ->when(!empty($filters['fecha_hasta']),fn($q) => $q->whereDate('fecha', '<=', $filters['fecha_hasta']))
+            ->latest('fecha')
+            ->latest('id')
+            ->paginate(20)
+            ->withQueryString();
+
         $products = Product::query()->orderBy('nombre')->get(['id', 'nombre']);
 
-        return view('inventory.movements.index', compact('movements', 'products', 'filters'));
+        $stats = [
+            'total'    => InventoryMovement::count(),
+            'entradas' => InventoryMovement::where('tipo', 'entrada')->count(),
+            'salidas'  => InventoryMovement::where('tipo', 'salida')->count(),
+            'hoy'      => InventoryMovement::whereDate('fecha', today())->count(),
+        ];
+
+        return view('inventory.movements.index', compact('movements', 'products', 'filters', 'stats'));
     }
 
     public function create(): View

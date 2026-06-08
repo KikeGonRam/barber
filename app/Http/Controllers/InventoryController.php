@@ -17,11 +17,23 @@ class InventoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
         $this->authorize('viewAny', Inventory::class);
-        $inventories = Inventory::paginate(15);
-        $lowStockCount = $inventories->filter(fn ($inv) => $inv->quantity <= $inv->min_stock)->count();
+
+        $filters = $request->only(['q', 'active', 'bajo_stock']);
+        $search  = trim((string) ($filters['q'] ?? ''));
+        $active  = (string) ($filters['active'] ?? '');
+
+        $query = Inventory::query()
+            ->when($search !== '', fn($q) => $q->where('name', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%"))
+            ->when($active !== '', fn($q) => $q->where('active', $active === '1'))
+            ->when(!empty($filters['bajo_stock']), fn($q) => $q->whereRaw('quantity <= min_stock'))
+            ->orderBy('name');
+
+        $inventories   = $query->paginate(15)->withQueryString();
+        $lowStockCount = Inventory::whereRaw('quantity <= min_stock')->count();
 
         if ($lowStockCount > 0) {
             $this->businessEventService->record('alerts', 'low_stock_detected', [
@@ -30,7 +42,15 @@ class InventoryController extends Controller
             ]);
         }
 
-        return view('almacen.index', compact('inventories', 'lowStockCount'));
+        $stats = [
+            'total'      => Inventory::count(),
+            'activos'    => Inventory::where('active', true)->count(),
+            'inactivos'  => Inventory::where('active', false)->count(),
+            'bajo_stock' => $lowStockCount,
+            'valor_total'=> (float) Inventory::sum(\Illuminate\Support\Facades\DB::raw('quantity * price')),
+        ];
+
+        return view('almacen.index', compact('inventories', 'lowStockCount', 'filters', 'stats'));
     }
 
     /**

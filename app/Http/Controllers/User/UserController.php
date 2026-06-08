@@ -19,29 +19,23 @@ class UserController extends Controller
 {
     public function index(Request $request): View
     {
-        $search = trim((string) $request->query('q', ''));
+        $search     = trim((string) $request->query('q', ''));
         $roleFilter = (string) $request->query('role', '');
+        $verified   = $request->query('verified', '');
 
         $users = User::query()
             ->with('roles:id,name')
-            ->when($search !== '', function ($query) use ($search): void {
-                $query->where(function ($subQuery) use ($search): void {
-                    $subQuery
-                        ->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                });
-            })
-            ->when($roleFilter !== '', function ($query) use ($roleFilter): void {
-                $query->role($roleFilter);
-            })
+            ->when($search !== '', fn($q) => $q->where(fn($s) => $s
+                ->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")))
+            ->when($roleFilter !== '', fn($q) => $q->role($roleFilter))
+            ->when($verified === '1', fn($q) => $q->whereNotNull('email_verified_at'))
+            ->when($verified === '0', fn($q) => $q->whereNull('email_verified_at'))
             ->latest('id')
-            ->paginate(15)
+            ->paginate(20)
             ->withQueryString();
 
-        $roles = Role::query()
-            ->where('guard_name', 'web')
-            ->orderBy('name')
-            ->pluck('name');
+        $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->pluck('name');
 
         return view('users.index', compact('users', 'roles', 'search', 'roleFilter'));
     }

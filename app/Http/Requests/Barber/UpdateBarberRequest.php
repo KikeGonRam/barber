@@ -22,7 +22,7 @@ class UpdateBarberRequest extends FormRequest
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'especialidades' => ['nullable', 'string', 'max:1000'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
-            'foto' => ['nullable', 'string', 'max:255'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'activo' => ['nullable', 'boolean'],
         ];
     }

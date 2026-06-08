@@ -19,28 +19,58 @@ class BarberDashboardController extends Controller
         $barber = $request->user()?->barberProfile;
         abort_if(! $barber, 403);
 
-        $period = $request->string('period')->toString() ?: 'day';
+        $period      = $request->string('period')->toString() ?: 'day';
+        $estadoFilter = $request->string('estado')->toString() ?: '';
+        $dateOffset  = (int) $request->input('offset', 0);
 
+        $baseDate = now()->addDays($dateOffset);
+
+        $periodStart = $period === 'week'
+            ? $baseDate->copy()->startOfWeek()->toDateString()
+            : $baseDate->toDateString();
+        $periodEnd = $period === 'week'
+            ? $baseDate->copy()->endOfWeek()->toDateString()
+            : $baseDate->toDateString();
+
+        // All appointments in the period (unfiltered) for stats
+        $allPeriod = Appointment::query()
+            ->where('barber_id', $barber->id)
+            ->whereBetween('fecha', [$periodStart, $periodEnd])
+            ->get();
+
+        $totalPeriod     = $allPeriod->count();
+        $completedPeriod = $allPeriod->where('estado', 'completada')->count();
+        $pendingPeriod   = $allPeriod->where('estado', 'pendiente')->count();
+        $inProcessPeriod = $allPeriod->where('estado', 'en_proceso')->count();
+        $cancelledPeriod = $allPeriod->where('estado', 'cancelada')->count();
+        $productivity    = $totalPeriod > 0 ? round($completedPeriod / $totalPeriod * 100) : 0;
+
+        // Filtered agenda list
         $query = Appointment::query()
             ->where('barber_id', $barber->id)
             ->with(['client.user', 'service'])
+            ->whereBetween('fecha', [$periodStart, $periodEnd])
             ->orderBy('fecha')
             ->orderBy('hora_inicio');
 
-        if ($period === 'week') {
-            $query->whereBetween('fecha', [now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString()]);
-        } else {
-            $query->whereDate('fecha', now()->toDateString());
+        if ($estadoFilter !== '') {
+            $query->where('estado', $estadoFilter);
         }
 
         $agenda = $query->get();
 
         $stats = [
-            'completed_count' => Appointment::query()->where('barber_id', $barber->id)->where('estado', 'completada')->count(),
-            'income_total' => (float) Appointment::query()->where('barber_id', $barber->id)->where('estado', 'completada')->sum('precio_cobrado'),
+            'completed_count'  => Appointment::query()->where('barber_id', $barber->id)->where('estado', 'completada')->count(),
+            'income_total'     => (float) Appointment::query()->where('barber_id', $barber->id)->where('estado', 'completada')->sum('precio_cobrado'),
+            'productivity'     => $productivity,
+            'total_period'     => $totalPeriod,
+            'pending_period'   => $pendingPeriod,
+            'in_process_period'=> $inProcessPeriod,
+            'completed_period' => $completedPeriod,
+            'cancelled_period' => $cancelledPeriod,
         ];
 
-        return view('barber.agenda', compact('agenda', 'stats', 'period'));
+        return view('barber.agenda', compact('agenda', 'stats', 'period', 'estadoFilter', 'baseDate', 'dateOffset'));
     }
 
     public function updateAppointmentStatus(UpdateBarberAppointmentStatusRequest $request, Appointment $appointment): RedirectResponse
@@ -61,7 +91,40 @@ class BarberDashboardController extends Controller
         $barber = $request->user()?->barberProfile;
         abort_if(! $barber, 403);
 
-        return view('barber.profile', compact('barber'));
+        $userId = $request->user()->id;
+
+        // Real stats
+        $citasTotal     = \App\Models\Appointment::where('barber_id', $barber->id)->where('estado', 'completada')->count();
+        $citasMes       = \App\Models\Appointment::where('barber_id', $barber->id)
+            ->where('estado', 'completada')
+            ->whereMonth('fecha', now()->month)->count();
+        $memberSince    = $request->user()->created_at;
+        $yearsExp       = max(1, (int) $memberSince->diffInYears(now()));
+
+        // Rating promedio desde comentarios de trabajos
+        $avgRating = \App\Models\Comment::whereHas('work', fn($q) => $q->where('barbero_id', $userId))
+            ->whereNotNull('rating')
+            ->avg('rating');
+        $avgRating = $avgRating ? round((float) $avgRating, 1) : null;
+
+        // Últimos 6 trabajos del portfolio
+        $portfolioWorks = \App\Models\Work::where('barbero_id', $userId)
+            ->with(['images', 'reactions', 'comments'])
+            ->latest()
+            ->limit(6)
+            ->get();
+
+        $portfolioTotal = \App\Models\Work::where('barbero_id', $userId)->count();
+
+        return view('barber.profile', compact(
+            'barber',
+            'citasTotal',
+            'citasMes',
+            'yearsExp',
+            'avgRating',
+            'portfolioWorks',
+            'portfolioTotal',
+        ));
     }
 
     public function editSchedule(Request $request): View

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Database\Factories\WorkImageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 
 class WorkImage extends Model
 {

@@ -1,6 +1,6 @@
 <?php
 
-use Spatie\Activitylog\Models\Activity;
+use App\Models\Activity;
 
 return [
     'enabled' => env('ACTIVITY_LOGGER_ENABLED', true),
@@ -13,7 +13,7 @@ return [
 
     'table_name' => env('ACTIVITY_LOGGER_TABLE_NAME', 'activity_log'),
 
-    'database_connection' => env('ACTIVITY_LOGGER_DB_CONNECTION'),
+    'database_connection' => env('ACTIVITY_LOGGER_DB_CONNECTION', 'mongodb'),
 
     'subject_returns_soft_deleted_models' => false,
 

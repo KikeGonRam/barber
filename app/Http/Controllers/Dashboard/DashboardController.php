@@ -26,16 +26,30 @@ class DashboardController extends Controller
                 ['nombre' => config('app.name'), 'politica_cancelacion' => 24]
             );
 
+            $todayAppointments = \App\Models\Appointment::with(['client.user', 'barber.user', 'service'])
+                ->whereDate('fecha', \Carbon\Carbon::today())
+                ->orderBy('hora_inicio')
+                ->get();
+
+            $recentAppointments = \App\Models\Appointment::with(['client.user', 'barber.user', 'service'])
+                ->orderByDesc('fecha')->orderByDesc('hora_inicio')
+                ->limit(8)
+                ->get();
+
             return view('dashboard', [
-                'adminMode' => true,
-                'isBarberMode' => false,
-                'isReceptionMode' => false,
-                'isClientMode' => false,
-                'kpis' => $data['kpis'],
-                'incomeChart' => $data['income_chart'],
-                'servicesChart' => $data['services_chart'],
-                'chatbotTelemetry' => $data['chatbot_telemetry'] ?? [],
-                'maintenanceMode' => $setting?->maintenance_mode ?? false,
+                'adminMode'          => true,
+                'isBarberMode'       => false,
+                'isReceptionMode'    => false,
+                'isClientMode'       => false,
+                'kpis'               => $data['kpis'],
+                'incomeChart'        => $data['income_chart'],
+                'servicesChart'      => $data['services_chart'],
+                'barberPerformance'  => $data['barber_performance'],
+                'clientTrends'       => $data['client_trends'],
+                'chatbotTelemetry'   => $data['chatbot_telemetry'] ?? [],
+                'maintenanceMode'    => $setting?->maintenance_mode ?? false,
+                'todayAppointments'  => $todayAppointments,
+                'recentAppointments' => $recentAppointments,
             ]);
         }
 

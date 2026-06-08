@@ -17,9 +17,17 @@ class ServiceController extends Controller
 
     public function index(Request $request): View
     {
-        $filters = $request->only(['categoria', 'activo']);
+        $filters = $request->only(['q', 'categoria', 'activo']);
 
-        $services = $this->serviceService->list($filters);
+        $services = Service::query()
+            ->when(!empty($filters['q']), fn($query) => $query->where('nombre', 'like', '%'.$filters['q'].'%')
+                ->orWhere('descripcion', 'like', '%'.$filters['q'].'%'))
+            ->when(isset($filters['categoria']) && $filters['categoria'] !== '', fn($q) => $q->where('categoria', $filters['categoria']))
+            ->when(isset($filters['activo']) && $filters['activo'] !== '', fn($q) => $q->where('activo', (bool) $filters['activo']))
+            ->orderBy('nombre')
+            ->paginate(20)
+            ->withQueryString();
+
         $categories = $this->serviceService->categories();
 
         return view('services.index', compact('services', 'categories', 'filters'));

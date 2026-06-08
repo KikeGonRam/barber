@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     ca-certificates \
-    mariadb-client-compat \
-    libmariadb-dev \
+    libssl-dev \
+    pkg-config \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
@@ -26,10 +26,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql mysqli zip exif pcntl gd intl
+RUN docker-php-ext-install pdo zip exif pcntl gd intl
 
-# Install Redis extension
-RUN pecl install redis && docker-php-ext-enable redis
+# Install MongoDB and Redis extensions
+RUN pecl install mongodb redis \
+    && docker-php-ext-enable mongodb redis
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

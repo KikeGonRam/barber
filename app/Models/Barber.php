@@ -3,10 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Barber extends Model
 {
@@ -42,9 +41,11 @@ class Barber extends Model
         return $this->hasMany(Work::class, 'barbero_id');
     }
 
-    public function comments(): HasManyThrough
+    public function comments()
     {
-        return $this->hasManyThrough(Comment::class, Work::class, 'barbero_id', 'work_id');
+        $workIds = $this->works()->pluck('_id')->toArray();
+
+        return Comment::whereIn('work_id', $workIds);
     }
 
     public function schedules(): HasMany
