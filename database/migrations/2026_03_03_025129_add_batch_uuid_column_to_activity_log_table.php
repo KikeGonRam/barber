@@ -12,7 +12,7 @@ class AddBatchUuidColumnToActivityLogTable extends Migration
         $tableName = config('activitylog.table_name') ?: 'activity_log';
 
         Schema::connection($connection)->table($tableName, function (Blueprint $table) {
-            $table->uuid('batch_uuid')->nullable()->after('properties');
+            $table->uuid('batch_uuid')->nullable();
         });
     }
 

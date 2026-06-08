@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use BackedEnum;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use MongoDB\Laravel\Eloquent\Model;
@@ -62,25 +61,6 @@ class Permission extends Model implements PermissionContract
         }
 
         return $permission;
-    }
-
-    public function hasPermissionTo(string|BackedEnum $permission, string|null $guardName = null): bool
-    {
-        if ($this->getWildcardClass()) {
-            return $this->getWildcardClass()::check($this, $permission, $guardName);
-        }
-
-        $permissionClass = $this->getPermissionClass();
-
-        if (is_string($permission)) {
-            $permission = $permissionClass::findByName($permission, $guardName ?? $this->getDefaultGuardName());
-        }
-
-        if ($permission instanceof BackedEnum) {
-            $permission = $permissionClass::findByName($permission->value, $guardName ?? $this->getDefaultGuardName());
-        }
-
-        return $this->permissions->contains($permission->getKeyName(), $permission->getKey());
     }
 
     public function roles(): BelongsToMany

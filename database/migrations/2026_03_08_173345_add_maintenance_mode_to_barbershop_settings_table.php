@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('barbershop_settings', function (Blueprint $table) {
-            $table->boolean('maintenance_mode')->default(false)->after('redes_sociales');
+            $table->boolean('maintenance_mode')->default(false);
         });
     }
 

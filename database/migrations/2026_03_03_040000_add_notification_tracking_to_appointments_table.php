@@ -9,10 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->timestamp('confirmation_sent_at')->nullable()->after('cancelada_en');
-            $table->timestamp('reminder_24h_sent_at')->nullable()->after('confirmation_sent_at');
-            $table->timestamp('reminder_2h_sent_at')->nullable()->after('reminder_24h_sent_at');
-            $table->timestamp('cancellation_notified_at')->nullable()->after('reminder_2h_sent_at');
+            $table->timestamp('confirmation_sent_at')->nullable();
+            $table->timestamp('reminder_24h_sent_at')->nullable();
+            $table->timestamp('reminder_2h_sent_at')->nullable();
+            $table->timestamp('cancellation_notified_at')->nullable();
         });
     }
 

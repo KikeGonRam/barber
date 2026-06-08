@@ -15,6 +15,9 @@ if [ "$1" = "php-fpm" ]; then
     echo "🔗 Verificando enlace público de storage..."
     php artisan storage:link --no-interaction || true
 
+    echo "📋 Registrando proveedores de paquetes..."
+    php artisan package:discover --ansi || true
+
     echo "🔍 Conectando a MongoDB Atlas y aplicando migraciones..."
     for i in {1..20}; do
         if php artisan migrate --force --no-interaction; then

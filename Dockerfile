@@ -41,15 +41,21 @@ WORKDIR /var/www/html
 # Copy existing application directory
 COPY . .
 
-# Install / update dependencies (composer update ensures new packages like mongodb are resolved)
-RUN composer update --no-interaction --no-progress --optimize-autoloader 2>&1 || true
+# Create necessary directories
+RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framework/sessions \
+        storage/logs bootstrap/cache \
+    && chmod -R 777 storage bootstrap/cache
+
+# Install / update dependencies.
+# --no-scripts skips post-install artisan commands (package:discover, etc.)
+# that require DB env vars unavailable at build time. Entrypoint runs them instead.
+RUN composer update --no-interaction --no-progress --optimize-autoloader --no-scripts 2>&1
 
 # Copy PHP configuration
 COPY .docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
-# Create necessary directories with proper permissions
-RUN mkdir -p storage/framework/views storage/framework/cache storage/logs \
-    && chmod -R 777 storage bootstrap/cache
+# Ensure permissions remain correct after composer creates vendor files
+RUN chmod -R 777 storage bootstrap/cache
 
 # Set ownership
 RUN chown -R www-data:www-data /var/www/html
