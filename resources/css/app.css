@@ -17,6 +17,44 @@
     --panel: #111111;
 }
 
+/* Force white text on all form inputs across the dark theme */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+input[type="time"],
+textarea,
+select {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #d4af37;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.4) !important;
+    opacity: 1;
+}
+
+/* Autofill fix — prevents Chrome yellow/blue background from hiding white text */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #111111 inset !important;
+    box-shadow: 0 0 0px 1000px #111111 inset !important;
+    caret-color: #d4af37;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
 @layer base {
     body {
         color: var(--ink);
@@ -178,13 +216,30 @@
 
     .ui-input {
         @apply mt-1 w-full rounded-xl px-4 py-3 text-sm transition-all;
-        @apply border border-line bg-black/40 text-ink;
-        color: var(--ink);
+        @apply border border-line bg-black/40;
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+        caret-color: var(--gold);
     }
 
     .ui-input:focus {
         @apply border-gold ring-2 ring-gold/20;
         outline: none;
+    }
+
+    .ui-input::placeholder {
+        color: rgba(255, 255, 255, 0.35);
+    }
+
+    .ui-input:-webkit-autofill,
+    .ui-input:-webkit-autofill:hover,
+    .ui-input:-webkit-autofill:focus,
+    .ui-input:-webkit-autofill:active {
+        -webkit-text-fill-color: var(--ink) !important;
+        -webkit-box-shadow: 0 0 0px 1000px rgba(10, 10, 10, 0.95) inset !important;
+        box-shadow: 0 0 0px 1000px rgba(10, 10, 10, 0.95) inset !important;
+        caret-color: var(--gold);
+        transition: background-color 9999s ease-in-out 0s;
     }
 
     .ui-label {
