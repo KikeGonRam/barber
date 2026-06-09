@@ -9,15 +9,18 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $this->call([
-            RolePermissionSeeder::class,
-            AdminUserSeeder::class,
-            TestUsersSeeder::class,
+            RolePermissionSeeder::class,  // Roles y permisos primero
+            AdminUserSeeder::class,        // Usuario administrador
+            TestUsersSeeder::class,        // Usuarios de prueba por rol
+            InventorySeeder::class,        // Productos del inventario
+            DemoDataSeeder::class,         // Barberos, clientes, citas, pagos
+            WorkSeeder::class,             // Portfolio de trabajos de barberos
+            WorkImageSeeder::class,        // Imágenes de portfolio
+            CommentSeeder::class,          // Comentarios y ratings
+            ReactionSeeder::class,         // Reacciones (likes)
         ]);
     }
 }

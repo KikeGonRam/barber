@@ -21,6 +21,7 @@ abstract class TestCase extends BaseTestCase
             ValidateCsrfToken::class,
             VerifyCsrfToken::class,
             'verified',
+            \Illuminate\Routing\Middleware\ThrottleRequests::class,
         ]);
 
         Config::set('mail.default', 'array');
@@ -38,8 +39,16 @@ abstract class TestCase extends BaseTestCase
     protected function truncateMongoCollections(): void
     {
         $db = DB::connection('mongodb')->getMongoDB();
+
+        // Roles and permissions are config data seeded once; protecting them from
+        // truncation eliminates ~17 Atlas M0 writes per test setUp (850 total for
+        // AdminApiTest alone), which is the root cause of read-after-write failures.
+        $preserved = ['roles', 'permissions', 'model_has_permissions'];
+
         foreach ($db->listCollections() as $collectionInfo) {
-            $db->selectCollection($collectionInfo->getName())->deleteMany([]);
+            if (! in_array($collectionInfo->getName(), $preserved)) {
+                $db->selectCollection($collectionInfo->getName())->deleteMany([]);
+            }
         }
     }
 }

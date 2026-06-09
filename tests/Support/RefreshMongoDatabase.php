@@ -26,8 +26,15 @@ trait RefreshMongoDatabase
     {
         $db = DB::connection('mongodb')->getMongoDB();
 
+        // Roles and permissions are config data — preserve them so the seeder
+        // doesn't re-insert 17 documents per test (850 total for AdminApiTest),
+        // which floods Atlas M0 and widens secondary-replica lag windows.
+        $preserved = ['roles', 'permissions', 'model_has_permissions'];
+
         foreach ($db->listCollections() as $collectionInfo) {
-            $db->selectCollection($collectionInfo->getName())->deleteMany([]);
+            if (! in_array($collectionInfo->getName(), $preserved)) {
+                $db->selectCollection($collectionInfo->getName())->deleteMany([]);
+            }
         }
     }
 }

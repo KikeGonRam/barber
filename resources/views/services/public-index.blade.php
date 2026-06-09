@@ -5,21 +5,23 @@
      * Detectar el tipo REAL del servicio por su nombre,
      * ignorando la categoría de la BD (datos de demo mal asignados).
      */
-    function detectServiceType(string $nombre): string {
-        $n = Str::lower($nombre);
-        if (Str::contains($n, ['fade','degradado','clasico','clásico','corte','haircut','pelo','cabello','pompadour','undercut','tapado','mohicano'])) {
-            return 'corte';
+    if (!function_exists('detectServiceType')) {
+        function detectServiceType(string $nombre): string {
+            $n = Str::lower($nombre);
+            if (Str::contains($n, ['fade','degradado','clasico','clásico','corte','haircut','pelo','cabello','pompadour','undercut','tapado','mohicano'])) {
+                return 'corte';
+            }
+            if (Str::contains($n, ['barba','beard','afeitado','shave','bigote'])) {
+                return 'barba';
+            }
+            if (Str::contains($n, ['combo','pack','full','completo'])) {
+                return 'combo';
+            }
+            if (Str::contains($n, ['tratamiento','capilar','hidrat','keratina','color','tinte','nutrici'])) {
+                return 'tratamiento';
+            }
+            return 'general';
         }
-        if (Str::contains($n, ['barba','beard','afeitado','shave','bigote'])) {
-            return 'barba';
-        }
-        if (Str::contains($n, ['combo','pack','full','completo'])) {
-            return 'combo';
-        }
-        if (Str::contains($n, ['tratamiento','capilar','hidrat','keratina','color','tinte','nutrici'])) {
-            return 'tratamiento';
-        }
-        return 'general';
     }
 
     /**
@@ -327,7 +329,7 @@
                 @foreach($tipoServices as $idx => $service)
                     @php
                         $pool   = $imgPools[$tipo] ?? $imgPools['general'];
-                        $imgUrl = "https://images.unsplash.com/{$pool[$service->id % count($pool)]}";
+                        $imgUrl = "https://images.unsplash.com/{$pool[$idx % count($pool)]}";
                         $isFeatured = ($idx === 0); // Primer card de cada sección = destacada
                         $isPopular  = ($idx < 2);   // Primeras 2 con badge popular
                     @endphp
