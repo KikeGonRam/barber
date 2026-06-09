@@ -55,7 +55,7 @@ class AppointmentService
         $current = $start->copy();
 
         // Citas existentes para este barbero
-        $existing = Appointment::where('barber_id', $barber->id)
+        $existing = Appointment::where('barber_id', (string) $barber->id)
             ->whereDate('fecha', $date)
             ->where('estado', '!=', 'cancelada')
             ->get(['hora_inicio', 'hora_fin']);

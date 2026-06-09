@@ -291,7 +291,7 @@ class ChatbotController extends Controller
         $extraContext = '';
         if ($user) {
             if ($user->hasRole('cliente') && $user->clientProfile) {
-                $nextAppt = Appointment::where('client_id', $user->clientProfile->id)
+                $nextAppt = Appointment::where('client_id', (string) $user->clientProfile->id)
                     ->where('fecha', '>=', now()->toDateString())
                     ->where('estado', '!=', 'cancelada')
                     ->orderBy('fecha')->first();

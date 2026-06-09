@@ -34,7 +34,7 @@ class BarberDashboardController extends Controller
 
         // All appointments in the period (unfiltered) for stats
         $allPeriod = Appointment::query()
-            ->where('barber_id', $barber->id)
+            ->where('barber_id', (string) $barber->id)
             ->whereBetween('fecha', [$periodStart, $periodEnd])
             ->get();
 
@@ -47,7 +47,7 @@ class BarberDashboardController extends Controller
 
         // Filtered agenda list
         $query = Appointment::query()
-            ->where('barber_id', $barber->id)
+            ->where('barber_id', (string) $barber->id)
             ->with(['client.user', 'service'])
             ->whereBetween('fecha', [$periodStart, $periodEnd])
             ->orderBy('fecha')
@@ -60,8 +60,8 @@ class BarberDashboardController extends Controller
         $agenda = $query->get();
 
         $stats = [
-            'completed_count'  => Appointment::query()->where('barber_id', $barber->id)->where('estado', 'completada')->count(),
-            'income_total'     => (float) Appointment::query()->where('barber_id', $barber->id)->where('estado', 'completada')->sum('precio_cobrado'),
+            'completed_count'  => Appointment::query()->where('barber_id', (string) $barber->id)->where('estado', 'completada')->count(),
+            'income_total'     => (float) Appointment::query()->where('barber_id', (string) $barber->id)->where('estado', 'completada')->sum('precio_cobrado'),
             'productivity'     => $productivity,
             'total_period'     => $totalPeriod,
             'pending_period'   => $pendingPeriod,
@@ -76,7 +76,7 @@ class BarberDashboardController extends Controller
     public function updateAppointmentStatus(UpdateBarberAppointmentStatusRequest $request, Appointment $appointment): RedirectResponse
     {
         $barber = $request->user()?->barberProfile;
-        abort_if(! $barber || $appointment->barber_id !== $barber->id, 403);
+        abort_if(! $barber || (string) $appointment->barber_id !== (string) $barber->id, 403);
 
         $appointment->update([
             'estado' => $request->validated()['estado'],
@@ -94,8 +94,8 @@ class BarberDashboardController extends Controller
         $userId = $request->user()->id;
 
         // Real stats
-        $citasTotal     = \App\Models\Appointment::where('barber_id', $barber->id)->where('estado', 'completada')->count();
-        $citasMes       = \App\Models\Appointment::where('barber_id', $barber->id)
+        $citasTotal     = \App\Models\Appointment::where('barber_id', (string) $barber->id)->where('estado', 'completada')->count();
+        $citasMes       = \App\Models\Appointment::where('barber_id', (string) $barber->id)
             ->where('estado', 'completada')
             ->whereMonth('fecha', now()->month)->count();
         $memberSince    = $request->user()->created_at;

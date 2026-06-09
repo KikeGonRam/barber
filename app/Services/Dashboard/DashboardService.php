@@ -80,7 +80,7 @@ class DashboardService
         $barbers = Barber::with('user')->where('activo', true)->get();
         $now     = Carbon::now();
         $barbersStatus = $barbers->map(function ($barber) use ($now) {
-            $currentAppt = Appointment::where('barber_id', $barber->id)
+            $currentAppt = Appointment::where('barber_id', (string) $barber->id)
                 ->whereDate('fecha', $now->toDateString())
                 ->where('hora_inicio', '<=', $now->format('H:i:s'))
                 ->where('hora_fin', '>=', $now->format('H:i:s'))

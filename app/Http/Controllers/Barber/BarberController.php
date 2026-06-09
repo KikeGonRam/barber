@@ -60,7 +60,7 @@ class BarberController extends Controller
         $stats = [
             'citas_hoy'    => \App\Models\Appointment::where('barber_id', $barber->id)->whereDate('fecha', $today)->count(),
             'citas_mes'    => \App\Models\Appointment::where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd])->where('estado', 'completada')->count(),
-            'ingresos_mes' => (float) \App\Models\Payment::whereHas('appointment', fn($q) => $q->where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd]))->get(['monto', 'propina'])->sum(fn($p) => (float)$p->monto + (float)$p->propina),
+            'ingresos_mes' => (float) \App\Models\Payment::whereHas('appointment', fn($q) => $q->where('barber_id', (string) $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd]))->get(['monto', 'propina'])->sum(fn($p) => (float)$p->monto + (float)$p->propina),
             'canceladas_mes' => \App\Models\Appointment::where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd])->where('estado', 'cancelada')->count(),
             'total_historico' => \App\Models\Appointment::where('barber_id', $barber->id)->where('estado', 'completada')->count(),
         ];

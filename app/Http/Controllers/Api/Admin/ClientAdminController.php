@@ -180,7 +180,7 @@ class ClientAdminController
             fputcsv($handle, ['ID', 'Nombre', 'Email', 'Teléfono', 'Total Citas']);
 
             foreach ($clients as $client) {
-                $count = Appointment::where('client_id', $client->id)->count();
+                $count = Appointment::where('client_id', (string) $client->id)->count();
                 fputcsv($handle, [
                     $client->id,
                     $client->user?->name,
@@ -199,7 +199,7 @@ class ClientAdminController
 
     private function enrichClientData(Client $client): array
     {
-        $appointments = Appointment::where('client_id', $client->id)->get(['estado', 'precio_cobrado', 'fecha']);
+        $appointments = Appointment::where('client_id', (string) $client->id)->get(['estado', 'precio_cobrado', 'fecha']);
         $totalSpent   = (float) $appointments->where('estado', 'completada')->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
 
         return [
@@ -217,13 +217,13 @@ class ClientAdminController
 
     private function getClientSegment(Client $client): string
     {
-        $count       = Appointment::where('client_id', $client->id)->count();
+        $count       = Appointment::where('client_id', (string) $client->id)->count();
         $daysSinceJoin = (int) optional($client->created_at)->diffInDays(Carbon::now());
 
         if ($count > 10) return 'vip';
         if ($daysSinceJoin <= 14) return 'new';
 
-        $lastFecha = Appointment::where('client_id', $client->id)
+        $lastFecha = Appointment::where('client_id', (string) $client->id)
             ->orderBy('fecha', 'desc')
             ->value('fecha');
 

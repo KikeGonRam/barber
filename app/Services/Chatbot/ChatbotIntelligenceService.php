@@ -143,7 +143,7 @@ class ChatbotIntelligenceService
             return [];
         }
 
-        $appointments = Appointment::where('client_id', $client->id)
+        $appointments = Appointment::where('client_id', (string) $client->id)
             ->where('estado', 'completada')
             ->orderByDesc('fecha')
             ->limit(10)
@@ -156,7 +156,7 @@ class ChatbotIntelligenceService
             ])
             ->toArray();
 
-        $favoriteBarbers = Appointment::where('client_id', $client->id)
+        $favoriteBarbers = Appointment::where('client_id', (string) $client->id)
             ->where('estado', 'completada')
             ->with('barber.user')
             ->get(['barber_id'])
@@ -170,7 +170,7 @@ class ChatbotIntelligenceService
         return [
             'past_appointments' => $appointments,
             'favorite_barbers' => $favoriteBarbers,
-            'total_citas' => Appointment::where('client_id', $client->id)->where('estado', 'completada')->count(),
+            'total_citas' => Appointment::where('client_id', (string) $client->id)->where('estado', 'completada')->count(),
         ];
     }
 
@@ -186,7 +186,7 @@ class ChatbotIntelligenceService
         }
 
         // Servicio más usado
-        $favoriteServiceName = Appointment::where('client_id', $client->id)
+        $favoriteServiceName = Appointment::where('client_id', (string) $client->id)
             ->where('estado', 'completada')
             ->with('service:id,nombre')
             ->get(['service_id'])
@@ -196,7 +196,7 @@ class ChatbotIntelligenceService
             ->first()['name'] ?? null;
 
         // Barbero más visitado
-        $favoriteBarber = Appointment::where('client_id', $client->id)
+        $favoriteBarber = Appointment::where('client_id', (string) $client->id)
             ->where('estado', 'completada')
             ->with('barber.user')
             ->get(['barber_id'])
@@ -206,7 +206,7 @@ class ChatbotIntelligenceService
             ->first()['name'] ?? null;
 
         // Promedio de gasto
-        $avgSpent = Payment::whereHas('appointment', fn ($q) => $q->where('client_id', $client->id))
+        $avgSpent = Payment::whereHas('appointment', fn ($q) => $q->where('client_id', (string) $client->id))
             ->recent()
             ->average('monto') ?? 0;
 
@@ -223,7 +223,7 @@ class ChatbotIntelligenceService
      */
     private function getUserLoyaltyLevel($client): string
     {
-        $appointmentCount = Appointment::where('client_id', $client->id)
+        $appointmentCount = Appointment::where('client_id', (string) $client->id)
             ->where('estado', 'completada')
             ->count();
 

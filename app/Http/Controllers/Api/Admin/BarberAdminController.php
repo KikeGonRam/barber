@@ -19,10 +19,10 @@ class BarberAdminController
             ->get()
             ->map(function (Barber $barber) {
                 $today = Carbon::today()->toDateString();
-                $appointmentsToday = Appointment::where('barber_id', $barber->id)
+                $appointmentsToday = Appointment::where('barber_id', (string) $barber->id)
                     ->whereDate('fecha', $today)
                     ->count();
-                $revenueToday = (float) Appointment::where('barber_id', $barber->id)
+                $revenueToday = (float) Appointment::where('barber_id', (string) $barber->id)
                     ->whereDate('fecha', $today)
                     ->where('estado', 'completada')
                     ->sum('precio_cobrado');

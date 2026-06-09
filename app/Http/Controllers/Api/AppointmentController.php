@@ -58,9 +58,9 @@ class AppointmentController extends Controller
         $query = Appointment::query()->with(['client.user', 'barber.user', 'service'])->latest('fecha')->latest('hora_inicio');
 
         if ($user?->hasRole('cliente') && $user->clientProfile) {
-            $query->where('client_id', $user->clientProfile->id);
+            $query->where('client_id', (string) $user->clientProfile->id);
         } elseif ($user?->hasRole('barbero') && $user->barberProfile) {
-            $query->where('barber_id', $user->barberProfile->id);
+            $query->where('barber_id', (string) $user->barberProfile->id);
         }
 
         $appointments = $query->limit(50)->get()->map(fn (Appointment $appointment) => $this->appointmentPayload($appointment))->values();
@@ -195,7 +195,7 @@ class AppointmentController extends Controller
     public function updateStatus(Request $request, Appointment $appointment): JsonResponse
     {
         $user = $request->user();
-        abort_if(! $user || ! $user->hasRole('barbero') || ! $user->barberProfile || $appointment->barber_id !== $user->barberProfile->id, 403);
+        abort_if(! $user || ! $user->hasRole('barbero') || ! $user->barberProfile || (string) $appointment->barber_id !== (string) $user->barberProfile->id, 403);
 
         $validated = $request->validate([
             'estado' => ['required', 'in:pendiente,confirmada,en_proceso,completada,cancelada,no_asistio'],

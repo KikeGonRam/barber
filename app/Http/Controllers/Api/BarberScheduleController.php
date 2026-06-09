@@ -42,7 +42,7 @@ class BarberScheduleController extends Controller
             ], 403);
         }
 
-        $schedules = BarberSchedule::where('barber_id', $barber->id)
+        $schedules = BarberSchedule::where('barber_id', (string) $barber->id)
             ->orderBy('day_of_week')
             ->get();
 
@@ -87,13 +87,13 @@ class BarberScheduleController extends Controller
         ]);
 
         // Eliminar horarios existentes
-        BarberSchedule::where('barber_id', $barber->id)->delete();
+        BarberSchedule::where('barber_id', (string) $barber->id)->delete();
 
         // Crear nuevos horarios
         $schedules = [];
         foreach ($validated['schedules'] as $scheduleData) {
             $schedule = BarberSchedule::create([
-                'barber_id' => $barber->id,
+                'barber_id' => (string) $barber->id,
                 'day_of_week' => $scheduleData['day_of_week'],
                 'start_time' => $scheduleData['start_time'],
                 'end_time' => $scheduleData['end_time'],

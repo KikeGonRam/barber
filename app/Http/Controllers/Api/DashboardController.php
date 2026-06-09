@@ -29,7 +29,7 @@ class DashboardController extends Controller
         if ($user->hasRole('barbero') && $user->barberProfile) {
             return response()->json([
                 'role' => 'barbero',
-                'data' => $this->dashboardService->barberMetrics($user->barberProfile->id),
+                'data' => $this->dashboardService->barberMetrics((string) $user->barberProfile->id),
             ]);
         }
 

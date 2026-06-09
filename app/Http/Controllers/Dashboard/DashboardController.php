@@ -52,7 +52,7 @@ class DashboardController extends Controller
         }
 
         if ($user->hasRole('barbero') && $user->barberProfile) {
-            $data = $this->dashboardService->barberMetrics($user->barberProfile->id);
+            $data = $this->dashboardService->barberMetrics((string) $user->barberProfile->id);
 
             return view('dashboard', [
                 'adminMode' => false,
@@ -87,7 +87,7 @@ class DashboardController extends Controller
                 $client = $user->clientProfile()->create();
             }
 
-            $data = $this->dashboardService->clientMetrics($client->id);
+            $data = $this->dashboardService->clientMetrics((string) $client->id);
 
             return view('dashboard', [
                 'adminMode' => false,

@@ -31,7 +31,7 @@ class ClientAppointmentController extends Controller
         abort_if(! $client, 403);
 
         $appointments = Appointment::query()
-            ->where('client_id', $client->id)
+            ->where('client_id', (string) $client->id)
             ->with(['barber.user', 'service'])
             ->latest('fecha')
             ->latest('hora_inicio')

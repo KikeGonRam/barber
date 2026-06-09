@@ -132,7 +132,7 @@ class DashboardAdminController
             ->get()
             ->filter(function ($barber) {
                 $appointments = Appointment::whereDate('fecha', now()->toDateString())
-                    ->where('barber_id', $barber->id)
+                    ->where('barber_id', (string) $barber->id)
                     ->count();
                 return $appointments < 2;
             })
