@@ -3,7 +3,6 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Client;
-use App\Models\Inventory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\DatabaseNotification;
@@ -201,53 +200,13 @@ class MobileApiParityAccessTest extends TestCase
             ->assertJsonStructure(['title', 'headings', 'keys', 'rows', 'filters']);
     }
 
-    public function test_non_admin_cannot_access_admin_reports_settings_or_warehouse(): void
+    public function test_non_admin_cannot_access_admin_reports_or_settings(): void
     {
         $recepcionista = $this->makeUserWithRole('recepcionista');
         $token = $this->tokenFor($recepcionista);
 
         $this->withBearerToken($token)->getJson('/api/v1/reports')->assertForbidden();
         $this->withBearerToken($token)->getJson('/api/v1/settings')->assertForbidden();
-        $this->withBearerToken($token)->getJson('/api/v1/warehouse')->assertForbidden();
-    }
-
-    public function test_admin_can_manage_warehouse_items_from_mobile_api(): void
-    {
-        $admin = $this->makeUserWithRole('administrador');
-        $token = $this->tokenFor($admin);
-
-        $warehouseItemId = $this->withBearerToken($token)
-            ->postJson('/api/v1/warehouse', [
-                'name' => 'Cera Mate',
-                'quantity' => 20,
-                'min_stock' => 5,
-                'price' => 18.5,
-                'description' => 'Producto de prueba API',
-                'active' => true,
-            ])
-            ->assertCreated()
-            ->assertJsonPath('message', 'Inventario creado correctamente.')
-            ->json('data.id');
-
-        $this->withBearerToken($token)
-            ->getJson('/api/v1/warehouse')
-            ->assertOk()
-            ->assertJsonPath('data.0.id', $warehouseItemId);
-
-        $this->withBearerToken($token)
-            ->putJson('/api/v1/warehouse/'.$warehouseItemId, [
-                'quantity' => 25,
-                'price' => 20,
-            ])
-            ->assertOk()
-            ->assertJsonPath('data.quantity', 25);
-
-        $this->withBearerToken($token)
-            ->deleteJson('/api/v1/warehouse/'.$warehouseItemId)
-            ->assertOk()
-            ->assertJsonPath('message', 'Inventario eliminado correctamente.');
-
-        $this->assertNull(Inventory::query()->find($warehouseItemId));
     }
 
     public function test_authenticated_user_can_list_and_mark_notifications_as_read(): void

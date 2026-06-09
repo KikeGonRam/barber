@@ -20,7 +20,6 @@ use App\Http\Controllers\Api\ServiceManagementController as ApiServiceManagement
 use App\Http\Controllers\Api\SettingController as ApiSettingController;
 use App\Http\Controllers\Api\SocialController as ApiSocialController;
 use App\Http\Controllers\Api\UserController as ApiUserController;
-use App\Http\Controllers\Api\WarehouseController as ApiWarehouseController;
 use App\Http\Controllers\Api\Admin\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\BarberAdminController;
 use App\Http\Controllers\Api\Admin\ClientAdminController;
@@ -109,12 +108,6 @@ Route::prefix('v1')->group(function (): void {
         // Inventario - Movimientos
         Route::get('inventory/movements', [ApiInventoryController::class, 'movements']);
         Route::post('inventory/movements', [ApiInventoryController::class, 'storeMovement']);
-
-        // Warehouse (Legacy)
-        Route::get('warehouse', [ApiWarehouseController::class, 'index']);
-        Route::post('warehouse', [ApiWarehouseController::class, 'store']);
-        Route::put('warehouse/{inventory}', [ApiWarehouseController::class, 'update']);
-        Route::delete('warehouse/{inventory}', [ApiWarehouseController::class, 'destroy']);
 
         // Reportes (Admin/Recepcionista)
         Route::get('reports', [ApiReportController::class, 'index']);

@@ -10,7 +10,6 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\DatabaseBackupController;
 use App\Http\Controllers\Inventory\InventoryMovementController;
 use App\Http\Controllers\Inventory\ProductController;
-use App\Http\Controllers\Warehouse\WarehouseController;
 use App\Http\Controllers\Log\ActivityLogController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Payment\PaymentController;
@@ -178,11 +177,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/barbero/{barber}/works', [BarberPortfolioController::class, 'store'])->name('barbers.works.store');
     });
 
-    Route::middleware('auth')->group(function () {
-        Route::resource('warehouse', WarehouseController::class)
-            ->parameters(['warehouse' => 'inventory'])
-            ->names('warehouse');
-    });
 });
 
 require __DIR__.'/auth.php';

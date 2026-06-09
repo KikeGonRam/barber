@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
-use App\Models\Inventory;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -114,7 +114,7 @@ class DashboardAdminController
         }
 
         try {
-            $lowStock = Inventory::whereRaw(['$expr' => ['$lt' => ['$quantity', '$min_stock']]])->count();
+            $lowStock = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->count();
 
             if ($lowStock > 0) {
                 $alerts[] = [

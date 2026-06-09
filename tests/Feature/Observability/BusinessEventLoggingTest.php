@@ -3,7 +3,6 @@
 namespace Tests\Feature\Observability;
 
 use App\Http\Controllers\ChatbotController;
-use App\Models\Inventory;
 use App\Models\User;
 use App\Services\BusinessEventService;
 use App\Services\ChatbotContextService;
@@ -20,62 +19,6 @@ use Tests\TestCase;
 class BusinessEventLoggingTest extends TestCase
 {
     use RefreshDatabase;
-
-    public function test_inventory_index_logs_low_stock_alert(): void
-    {
-        $admin = $this->createVerifiedUserWithRole('administrador');
-
-        Inventory::query()->create([
-            'name' => 'Cera Premium',
-            'quantity' => 1,
-            'min_stock' => 2,
-            'price' => 99.99,
-            'description' => 'Producto de prueba',
-            'active' => true,
-        ]);
-
-        $this->actingAs($admin)
-            ->get(route('almacen.index'))
-            ->assertOk()
-            ->assertSee('Alerta de Stock Crítico');
-
-        $this->assertDatabaseHas('activity_log', [
-            'log_name' => 'alerts',
-            'description' => 'low_stock_detected',
-        ]);
-    }
-
-    public function test_inventory_updates_are_recorded_in_activity_log(): void
-    {
-        $admin = $this->createVerifiedUserWithRole('administrador');
-
-        $inventory = Inventory::query()->create([
-            'name' => 'Shampoo Premium',
-            'quantity' => 5,
-            'min_stock' => 2,
-            'price' => 120,
-            'description' => 'Producto inicial',
-            'active' => true,
-        ]);
-
-        $this->actingAs($admin)
-            ->put(route('almacen.update', $inventory), [
-                'name' => 'Shampoo Premium Plus',
-                'quantity' => 8,
-                'min_stock' => 3,
-                'price' => 140,
-                'description' => 'Actualizado',
-                'active' => true,
-            ])
-            ->assertRedirect(route('almacen.index'));
-
-        $this->assertDatabaseHas('activity_log', [
-            'log_name' => 'inventory_items',
-            'subject_type' => Inventory::class,
-            'subject_id' => $inventory->id,
-            'description' => 'updated',
-        ]);
-    }
 
     public function test_chatbot_fallback_is_logged_when_response_is_manual(): void
     {
