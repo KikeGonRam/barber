@@ -2,213 +2,166 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Models\User;
 use App\Models\Appointment;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Models\Barber;
+use App\Models\Client;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
-class ClientAdminController extends Controller
+class ClientAdminController
 {
-    /**
-     * Obtener lista de clientes con segmentación
-     */
-    public function getClients(Request $request)
+    public function getClients(Request $request): JsonResponse
     {
-        $segment = $request->query('segment', null);
-        $search = $request->query('search', '');
+        $search  = $request->query('search', '');
+        $segment = $request->query('segment');
 
-        $query = User::whereHas('roles', function ($q) {
-            $q->where('name', 'cliente');
-        });
+        $query = Client::with('user');
 
-        // Aplicar filtro de búsqueda
         if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%");
-            });
+            $query->whereHas('user', fn ($q) => $q
+                ->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+            );
         }
 
-        $clients = $query->get()->map(function ($client) {
-            return $this->enrichClientData($client);
-        });
+        $clients = $query->get()->map(fn ($c) => $this->enrichClientData($c));
 
-        // Aplicar filtro de segmento
         if ($segment) {
-            $clients = $clients->filter(function ($client) use ($segment) {
-                return $client['segment'] === $segment;
-            });
+            $clients = $clients->filter(fn ($c) => $c['segment'] === $segment)->values();
         }
 
         return response()->json([
             'success' => true,
-            'data' => $clients,
-            'total' => $clients->count(),
+            'data'    => $clients,
+            'total'   => $clients->count(),
         ]);
     }
 
-    /**
-     * Obtener detalles completos de un cliente
-     */
-    public function show($clientId)
+    public function show($clientId): JsonResponse
     {
-        $client = User::findOrFail($clientId);
+        $client = Client::with('user')->findOrFail($clientId);
 
         $appointments = Appointment::where('client_id', $clientId)
-            ->with('barber')
-            ->orderBy('date', 'desc')
+            ->with(['barber.user', 'service'])
+            ->orderBy('fecha', 'desc')
             ->get();
 
-        $segment = $this->getClientSegment($client);
+        $totalSpent = (float) $appointments->where('estado', 'completada')->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'id' => $client->id,
-                'name' => $client->name,
-                'email' => $client->email,
-                'phone' => $client->phone,
-                'photo' => $client->photo_url,
-                'segment' => $segment,
-                'joinedAt' => $client->created_at,
-                'totalAppointments' => $appointments->count(),
-                'totalSpent' => $appointments->sum('price'),
-                'averageSpent' => $appointments->count() > 0 ? $appointments->sum('price') / $appointments->count() : 0,
-                'lastAppointment' => $appointments->first()?->date,
-                'daysSinceLastAppointment' => $appointments->first() ? $appointments->first()->date->diffInDays(Carbon::now()) : null,
-                'preferredBarber' => $this->getPreferredBarber($clientId),
-                'appointments' => $appointments->map(function ($apt) {
-                    return [
-                        'id' => $apt->id,
-                        'date' => $apt->date,
-                        'time' => $apt->time,
-                        'barber' => $apt->barber?->name,
-                        'service' => $apt->service_id,
-                        'price' => $apt->price,
-                        'status' => $apt->status,
-                    ];
-                }),
-                'preferences' => [
-                    'preferredTime' => $this->getPreferredTime($clientId),
-                    'preferredService' => 'Corte + Barba',
-                    'notes' => 'Cliente VIP - Requiere atención especial',
-                ],
+            'data'    => [
+                'id'                        => $client->id,
+                'name'                      => $client->user?->name,
+                'email'                     => $client->user?->email,
+                'telefono'                  => $client->telefono,
+                'segment'                   => $this->getClientSegment($client),
+                'joinedAt'                  => optional($client->created_at)->toIso8601String(),
+                'totalAppointments'         => $appointments->count(),
+                'totalSpent'                => $totalSpent,
+                'averageSpent'              => $appointments->count() > 0 ? round($totalSpent / $appointments->count(), 2) : 0,
+                'lastAppointment'           => optional($appointments->first()?->fecha)->toDateString(),
+                'daysSinceLastAppointment'  => $appointments->isNotEmpty()
+                    ? optional($appointments->first()->fecha)->diffInDays(Carbon::now())
+                    : null,
+                'preferredBarber'           => $this->getPreferredBarber((string) $client->id),
+                'appointments'              => $appointments->map(fn ($a) => [
+                    'id'          => $a->id,
+                    'fecha'       => optional($a->fecha)->toDateString(),
+                    'hora_inicio' => $a->hora_inicio,
+                    'barber'      => $a->barber?->user?->name,
+                    'service'     => $a->service?->nombre,
+                    'precio'      => $a->precio_cobrado,
+                    'estado'      => $a->estado,
+                ]),
             ],
         ]);
     }
 
-    /**
-     * Obtener segmentación de clientes
-     */
-    public function getSegmentation()
+    public function getSegmentation(): JsonResponse
     {
-        $allClients = User::whereHas('roles', function ($q) {
-            $q->where('name', 'cliente');
-        })->get();
+        $clients = Client::with('user')->get();
 
-        $segments = [
-            'vip' => ['count' => 0, 'clients' => []],
-            'new' => ['count' => 0, 'clients' => []],
-            'inactive' => ['count' => 0, 'clients' => []],
-            'debtors' => ['count' => 0, 'clients' => []],
-        ];
-
-        foreach ($allClients as $client) {
-            $segment = $this->getClientSegment($client);
-            $segments[$segment]['count']++;
-            $segments[$segment]['clients'][] = $client->id;
+        $segments = ['vip' => 0, 'new' => 0, 'inactive' => 0, 'active' => 0];
+        foreach ($clients as $c) {
+            $seg = $this->getClientSegment($c);
+            $segments[$seg] = ($segments[$seg] ?? 0) + 1;
         }
 
+        $total = $clients->count();
+
         return response()->json([
             'success' => true,
-            'data' => [
-                'vip' => [
-                    'count' => $segments['vip']['count'],
-                    'percentage' => $allClients->count() > 0 ? $segments['vip']['count'] / $allClients->count() : 0,
-                    'avgSpent' => $this->getSegmentAvgSpent('vip'),
-                    'rating' => 4.8,
-                ],
-                'new' => [
-                    'count' => $segments['new']['count'],
-                    'percentage' => $allClients->count() > 0 ? $segments['new']['count'] / $allClients->count() : 0,
-                    'avgSpent' => $this->getSegmentAvgSpent('new'),
-                    'avgAppointments' => 2,
-                ],
-                'inactive' => [
-                    'count' => $segments['inactive']['count'],
-                    'percentage' => $allClients->count() > 0 ? $segments['inactive']['count'] / $allClients->count() : 0,
-                    'avgDaysSinceAppointment' => 45,
-                    'totalSpent' => $this->getSegmentTotalSpent('inactive'),
-                ],
-                'debtors' => [
-                    'count' => $segments['debtors']['count'],
-                    'percentage' => $allClients->count() > 0 ? $segments['debtors']['count'] / $allClients->count() : 0,
-                    'totalDebt' => 450,
-                    'avgDebt' => 90,
-                ],
-            ],
+            'data'    => collect($segments)->map(fn ($count, $key) => [
+                'count'      => $count,
+                'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
+            ]),
         ]);
     }
 
-    /**
-     * Crear nuevo cliente
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:20',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'telefono' => 'nullable|string|max:20',
             'password' => 'required|string|min:8',
         ]);
 
-        $client = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
-            'password' => bcrypt($validated['password']),
+        $user = User::create([
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
 
-        $client->assignRole('cliente');
+        $user->assignRole('cliente');
+
+        $client = $user->clientProfile()->create([
+            'telefono' => $validated['telefono'] ?? null,
+        ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Cliente creado correctamente',
-            'data' => $this->enrichClientData($client),
+            'data'    => $this->enrichClientData($client->load('user')),
         ], 201);
     }
 
-    /**
-     * Actualizar cliente
-     */
-    public function update($clientId, Request $request)
+    public function update($clientId, Request $request): JsonResponse
     {
-        $client = User::findOrFail($clientId);
+        $client = Client::with('user')->findOrFail($clientId);
 
         $validated = $request->validate([
-            'name' => 'string|max:255',
-            'email' => 'email|unique:users,email,' . $clientId,
-            'phone' => 'string|max:20',
-            'preferences' => 'array|nullable',
+            'name'     => 'nullable|string|max:255',
+            'email'    => 'nullable|email',
+            'telefono' => 'nullable|string|max:20',
         ]);
 
-        $client->update($validated);
+        if (! empty($validated['name']) || ! empty($validated['email'])) {
+            $client->user?->update(array_filter([
+                'name'  => $validated['name'] ?? null,
+                'email' => $validated['email'] ?? null,
+            ]));
+        }
+
+        if (isset($validated['telefono'])) {
+            $client->update(['telefono' => $validated['telefono']]);
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Cliente actualizado correctamente',
-            'data' => $this->enrichClientData($client),
+            'data'    => $this->enrichClientData($client->fresh('user')),
         ]);
     }
 
-    /**
-     * Eliminar cliente
-     */
-    public function destroy($clientId)
+    public function destroy($clientId): JsonResponse
     {
-        $client = User::findOrFail($clientId);
+        $client = Client::with('user')->findOrFail($clientId);
+        $client->user?->delete();
         $client->delete();
 
         return response()->json([
@@ -217,168 +170,84 @@ class ClientAdminController extends Controller
         ]);
     }
 
-    /**
-     * Exportar clientes a CSV
-     */
     public function export(Request $request)
     {
-        $format = $request->query('format', 'csv');
-        $segment = $request->query('segment', null);
-
-        $clients = User::whereHas('roles', function ($q) {
-            $q->where('name', 'cliente');
-        })->get();
-
-        if ($format === 'csv') {
-            return $this->exportCSV($clients);
-        } elseif ($format === 'pdf') {
-            return $this->exportPDF($clients);
-        }
-
-        return response()->json(['error' => 'Formato no soportado'], 400);
-    }
-
-    /**
-     * Enriquecer datos del cliente con información de citas
-     */
-    private function enrichClientData($client)
-    {
-        $appointments = Appointment::where('client_id', $client->id)->get();
-        $segment = $this->getClientSegment($client);
-
-        return [
-            'id' => $client->id,
-            'name' => $client->name,
-            'email' => $client->email,
-            'phone' => $client->phone,
-            'segment' => $segment,
-            'totalAppointments' => $appointments->count(),
-            'totalSpent' => $appointments->sum('price'),
-            'lastAppointment' => $appointments->sortByDesc('date')->first()?->date,
-            'joinedAt' => $client->created_at,
-        ];
-    }
-
-    /**
-     * Determinar segmento del cliente
-     */
-    private function getClientSegment($client)
-    {
-        $appointmentCount = Appointment::where('client_id', $client->id)->count();
-        $daysSinceJoin = $client->created_at->diffInDays(Carbon::now());
-        $daysSinceLastAppointment = Appointment::where('client_id', $client->id)
-            ->orderBy('date', 'desc')
-            ->first()?->date?->diffInDays(Carbon::now()) ?? 999;
-
-        // VIP: Más de 10 citas
-        if ($appointmentCount > 10) {
-            return 'vip';
-        }
-
-        // Nuevos: Registrados hace menos de 2 semanas
-        if ($daysSinceJoin <= 14) {
-            return 'new';
-        }
-
-        // Inactivos: Sin citas hace más de 30 días
-        if ($daysSinceLastAppointment > 30) {
-            return 'inactive';
-        }
-
-        // Deudores: Tienen pagos pendientes (requiere tabla payments)
-        // Por ahora: default activo
-        return 'active';
-    }
-
-    /**
-     * Obtener barbero preferido del cliente
-     */
-    private function getPreferredBarber($clientId)
-    {
-        $top = Appointment::where('client_id', $clientId)
-            ->with('barber')
-            ->get(['barber_id'])
-            ->groupBy('barber_id')
-            ->map(fn($g) => ['barber' => $g->first()->barber, 'count' => $g->count()])
-            ->sortByDesc('count')
-            ->first();
-
-        return $top?['barber']?->name ?? 'N/A';
-    }
-
-    /**
-     * Obtener hora preferida del cliente
-     */
-    private function getPreferredTime($clientId)
-    {
-        return Appointment::where('client_id', $clientId)
-            ->get(['hora_inicio'])
-            ->groupBy('hora_inicio')
-            ->map->count()
-            ->sortDesc()
-            ->keys()
-            ->first() ?? 'Flexible';
-    }
-
-    /**
-     * Obtener gasto promedio por segmento
-     */
-    private function getSegmentAvgSpent($segment)
-    {
-        // Demo
-        return match ($segment) {
-            'vip' => 450,
-            'new' => 90,
-            default => 200,
-        };
-    }
-
-    /**
-     * Obtener gasto total por segmento
-     */
-    private function getSegmentTotalSpent($segment)
-    {
-        // Demo
-        return 1200;
-    }
-
-    /**
-     * Exportar a CSV
-     */
-    private function exportCSV($clients)
-    {
+        $clients  = Client::with('user')->get();
         $filename = 'clients_' . date('Y-m-d') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
 
         return response()->stream(function () use ($clients) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['ID', 'Nombre', 'Email', 'Teléfono', 'Total Citas', 'Total Gastado']);
+            fputcsv($handle, ['ID', 'Nombre', 'Email', 'Teléfono', 'Total Citas']);
 
             foreach ($clients as $client) {
-                $appointments = Appointment::where('client_id', $client->id)->get();
+                $count = Appointment::where('client_id', $client->id)->count();
                 fputcsv($handle, [
                     $client->id,
-                    $client->name,
-                    $client->email,
-                    $client->phone,
-                    $appointments->count(),
-                    $appointments->sum('price'),
+                    $client->user?->name,
+                    $client->user?->email,
+                    $client->telefono,
+                    $count,
                 ]);
             }
 
             fclose($handle);
-        }, 200);
+        }, 200, [
+            'Content-Type'        => 'text/csv; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
     }
 
-    /**
-     * Exportar a PDF
-     */
-    private function exportPDF($clients)
+    private function enrichClientData(Client $client): array
     {
-        // Implementar con DomPDF o mPDF
-        return response()->json(['message' => 'PDF export coming soon']);
+        $appointments = Appointment::where('client_id', $client->id)->get(['estado', 'precio_cobrado', 'fecha']);
+        $totalSpent   = (float) $appointments->where('estado', 'completada')->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
+
+        return [
+            'id'                => $client->id,
+            'name'              => $client->user?->name,
+            'email'             => $client->user?->email,
+            'telefono'          => $client->telefono,
+            'segment'           => $this->getClientSegment($client),
+            'totalAppointments' => $appointments->count(),
+            'totalSpent'        => $totalSpent,
+            'lastAppointment'   => optional($appointments->sortByDesc('fecha')->first()?->fecha)->toDateString(),
+            'joinedAt'          => optional($client->created_at)->toIso8601String(),
+        ];
+    }
+
+    private function getClientSegment(Client $client): string
+    {
+        $count       = Appointment::where('client_id', $client->id)->count();
+        $daysSinceJoin = (int) optional($client->created_at)->diffInDays(Carbon::now());
+
+        if ($count > 10) return 'vip';
+        if ($daysSinceJoin <= 14) return 'new';
+
+        $lastFecha = Appointment::where('client_id', $client->id)
+            ->orderBy('fecha', 'desc')
+            ->value('fecha');
+
+        $daysSinceLast = $lastFecha
+            ? (int) Carbon::parse($lastFecha)->diffInDays(Carbon::now())
+            : 999;
+
+        if ($daysSinceLast > 30) return 'inactive';
+
+        return 'active';
+    }
+
+    private function getPreferredBarber(string $clientId): string
+    {
+        $grouped = Appointment::where('client_id', $clientId)
+            ->get(['barber_id'])
+            ->groupBy('barber_id')
+            ->map->count()
+            ->sortDesc();
+
+        $barberId = $grouped->keys()->first();
+        if (! $barberId) return 'N/A';
+
+        $barber = Barber::with('user')->find($barberId);
+        return $barber?->user?->name ?? 'N/A';
     }
 }

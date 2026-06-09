@@ -20,7 +20,7 @@ class PaymentService
         return $this->payments->paginateWithFilters($filters, $perPage);
     }
 
-    public function create(array $payload, int $createdBy): Payment
+    public function create(array $payload, string $createdBy): Payment
     {
         $appointment = Appointment::query()->with(['client.user', 'barber.user', 'service'])->findOrFail($payload['appointment_id']);
 
@@ -28,7 +28,7 @@ class PaymentService
             throw new PaymentException('No se puede registrar un pago para una cita cancelada o no asistida.');
         }
 
-        if ($this->payments->existsForAppointment((int) $appointment->id)) {
+        if ($this->payments->existsForAppointment((string) $appointment->id)) {
             throw new PaymentException('La cita ya tiene un pago registrado.');
         }
 

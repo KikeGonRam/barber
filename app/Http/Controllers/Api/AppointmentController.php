@@ -116,7 +116,7 @@ class AppointmentController extends Controller
 
         $client = $user->hasRole('cliente')
             ? ($user->clientProfile ?? $user->clientProfile()->create())
-            : Client::findOrFail((int) $validated['client_id']);
+            : Client::findOrFail($validated['client_id']);
 
         $service = Service::findOrFail($validated['service_id']);
 
@@ -125,8 +125,8 @@ class AppointmentController extends Controller
 
         $payload = [
             'client_id' => $client->id,
-            'barber_id' => (int) $validated['barber_id'],
-            'service_id' => (int) $validated['service_id'],
+            'barber_id' => $validated['barber_id'],
+            'service_id' => $validated['service_id'],
             'fecha' => $validated['fecha'],
             'hora_inicio' => $start->format('H:i:00'),
             'hora_fin' => $end->format('H:i:00'),
@@ -163,14 +163,14 @@ class AppointmentController extends Controller
             'notas' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $service = Service::findOrFail((int) $validated['service_id']);
+        $service = Service::findOrFail($validated['service_id']);
         $start = Carbon::parse($validated['fecha'].' '.$validated['hora_inicio']);
         $end = $start->copy()->addMinutes((int) $service->duracion_min);
 
         $payload = [
-            'client_id' => (int) $validated['client_id'],
-            'barber_id' => (int) $validated['barber_id'],
-            'service_id' => (int) $validated['service_id'],
+            'client_id' => $validated['client_id'],
+            'barber_id' => $validated['barber_id'],
+            'service_id' => $validated['service_id'],
             'fecha' => $validated['fecha'],
             'hora_inicio' => $start->format('H:i:00'),
             'hora_fin' => $end->format('H:i:00'),
@@ -179,7 +179,7 @@ class AppointmentController extends Controller
         ];
 
         try {
-            $this->appointmentService->updateAppointment((int) $appointment->id, $payload);
+            $this->appointmentService->updateAppointment((string) $appointment->id, $payload);
         } catch (AppointmentConflictException $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),

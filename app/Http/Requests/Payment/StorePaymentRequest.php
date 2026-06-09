@@ -15,7 +15,7 @@ class StorePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'appointment_id' => ['required', 'integer', 'exists:appointments,id'],
+            'appointment_id' => ['required', 'string', 'exists:appointments,id'],
             'monto' => ['required', 'numeric', 'min:0.01'],
             'metodo_pago' => ['required', Rule::in(['efectivo', 'tarjeta', 'transferencia', 'qr'])],
             'propina' => ['nullable', 'numeric', 'min:0'],

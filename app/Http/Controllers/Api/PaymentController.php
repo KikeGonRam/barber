@@ -55,13 +55,13 @@ class PaymentController extends Controller
         $this->authorizeStaff($request);
 
         $validated = $request->validate([
-            'appointment_id' => ['required', 'integer', 'exists:appointments,id'],
+            'appointment_id' => ['required', 'string', 'exists:appointments,id'],
             'monto' => ['required', 'numeric', 'min:0.01'],
             'metodo_pago' => ['required', 'in:efectivo,tarjeta,transferencia,qr'],
             'propina' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $payment = $this->paymentService->create($validated, (int) $request->user()->id);
+        $payment = $this->paymentService->create($validated, (string) $request->user()->id);
 
         return response()->json([
             'message' => 'Pago registrado correctamente.',

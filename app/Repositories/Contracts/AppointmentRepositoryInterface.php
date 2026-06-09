@@ -4,7 +4,7 @@ namespace App\Repositories\Contracts;
 
 interface AppointmentRepositoryInterface extends BaseRepositoryInterface
 {
-    public function getByBarberAndDate(int $barberId, string $date);
+    public function getByBarberAndDate(string $barberId, string $date);
 
-    public function hasOverlap(int $barberId, string $date, string $startTime, string $endTime, ?int $ignoreAppointmentId = null): bool;
+    public function hasOverlap(string $barberId, string $date, string $startTime, string $endTime, ?string $ignoreAppointmentId = null): bool;
 }

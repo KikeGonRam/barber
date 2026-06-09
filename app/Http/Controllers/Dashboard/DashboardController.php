@@ -21,10 +21,8 @@ class DashboardController extends Controller
 
         if ($user->hasRole('administrador')) {
             $data = $this->dashboardService->adminMetrics();
-            $setting = BarbershopSetting::firstOrCreate(
-                ['id' => 1],
-                ['nombre' => config('app.name'), 'politica_cancelacion' => 24]
-            );
+            $setting = BarbershopSetting::first()
+                ?? BarbershopSetting::create(['nombre' => config('app.name'), 'politica_cancelacion' => 24]);
 
             $todayAppointments = \App\Models\Appointment::with(['client.user', 'barber.user', 'service'])
                 ->whereDate('fecha', \Carbon\Carbon::today())

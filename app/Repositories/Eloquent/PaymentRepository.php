@@ -24,7 +24,7 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
             ->withQueryString();
     }
 
-    public function existsForAppointment(int $appointmentId): bool
+    public function existsForAppointment(string $appointmentId): bool
     {
         return $this->model->newQuery()
             ->where('appointment_id', $appointmentId)

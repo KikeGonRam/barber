@@ -231,18 +231,18 @@ class InventoryController extends Controller
         }
 
         $data = $request->validate([
-            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'product_id' => ['required', 'string', 'exists:products,id'],
             'tipo' => $typeRules,
             'cantidad' => ['required', 'integer', 'min:1'],
             'motivo' => ['nullable', 'string', 'max:255'],
-            'appointment_id' => ['nullable', 'integer', 'exists:appointments,id'],
+            'appointment_id' => ['nullable', 'string', 'exists:appointments,id'],
             'fecha' => ['nullable', 'date'],
         ], [
             'tipo.in' => 'No tienes permisos para registrar ese tipo de movimiento.',
         ]);
 
         try {
-            $movement = $this->inventoryService->registerMovement($data, (int) $request->user()->id);
+            $movement = $this->inventoryService->registerMovement($data, (string) $request->user()->id);
         } catch (InsufficientStockException $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),

@@ -20,7 +20,7 @@ class InventoryMovementRepository extends BaseRepository implements InventoryMov
                 $query->where('tipo', $filters['tipo']);
             })
             ->when(isset($filters['product_id']) && $filters['product_id'] !== '', function ($query) use ($filters) {
-                $query->where('product_id', (int) $filters['product_id']);
+                $query->where('product_id', (string) $filters['product_id']);
             })
             ->latest('fecha')
             ->paginate($perPage)

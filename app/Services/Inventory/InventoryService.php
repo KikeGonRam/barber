@@ -45,7 +45,7 @@ class InventoryService
         return $this->products->delete($product->id);
     }
 
-    public function registerMovement(array $payload, int $userId)
+    public function registerMovement(array $payload, string $userId)
     {
         return DB::transaction(function () use ($payload, $userId) {
             /** @var Product $product */

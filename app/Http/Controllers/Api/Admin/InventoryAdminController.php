@@ -2,68 +2,46 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Models\Product;
 use App\Models\InventoryMovement;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-class InventoryAdminController extends Controller
+class InventoryAdminController
 {
-    /**
-     * Obtener lista de productos con estado de stock
-     */
-    public function getProducts(Request $request)
+    public function getProducts(Request $request): JsonResponse
     {
-        $search = $request->query('search', '');
-        $category = $request->query('category', null);
-        $status = $request->query('status', null);
+        $search   = $request->query('search', '');
+        $category = $request->query('category');
+        $status   = $request->query('status');
 
         $query = Product::query();
 
         if ($search) {
-            $query->where('name', 'like', "%{$search}%");
+            $query->where('nombre', 'like', "%{$search}%");
         }
 
         if ($category) {
-            $query->where('category', $category);
+            $query->where('categoria', $category);
         }
 
-        $products = $query->get()->map(function ($product) {
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'category' => $product->category,
-                'quantity' => $product->quantity,
-                'minStock' => $product->min_stock,
-                'price' => $product->price,
-                'supplier' => $product->supplier,
-                'totalValue' => $product->quantity * $product->price,
-                'status' => $this->getStockStatus($product),
-                'updatedAt' => $product->updated_at,
-            ];
-        });
+        $products = $query->get()->map(fn ($p) => $this->productPayload($p));
 
         if ($status) {
-            $products = $products->filter(function ($product) use ($status) {
-                return $product['status'] === $status;
-            });
+            $products = $products->filter(fn ($p) => $p['status'] === $status)->values();
         }
 
         return response()->json([
             'success' => true,
-            'data' => $products,
-            'total' => $products->count(),
+            'data'    => $products,
+            'total'   => $products->count(),
         ]);
     }
 
-    /**
-     * Obtener detalles de un producto
-     */
-    public function show($productId)
+    public function show($productId): JsonResponse
     {
-        $product = Product::findOrFail($productId);
-
+        $product   = Product::findOrFail($productId);
         $movements = InventoryMovement::where('product_id', $productId)
             ->orderBy('created_at', 'desc')
             ->limit(20)
@@ -71,83 +49,54 @@ class InventoryAdminController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'id' => $product->id,
-                'name' => $product->name,
-                'category' => $product->category,
-                'quantity' => $product->quantity,
-                'minStock' => $product->min_stock,
-                'price' => $product->price,
-                'cost' => $product->cost,
-                'supplier' => $product->supplier,
-                'supplierContact' => $product->supplier_contact,
-                'status' => $this->getStockStatus($product),
-                'totalValue' => $product->quantity * $product->price,
+            'data'    => array_merge($this->productPayload($product), [
                 'monthlyConsumption' => $this->getMonthlyConsumption($productId),
-                'daysUntilStockOut' => $this->calculateDaysUntilStockOut($product),
-                'movements' => $movements->map(function ($m) {
-                    return [
-                        'id' => $m->id,
-                        'type' => $m->type,
-                        'quantity' => $m->quantity,
-                        'reason' => $m->reason,
-                        'date' => $m->created_at,
-                    ];
-                }),
-            ],
+                'daysUntilStockOut'  => $this->calculateDaysUntilStockOut($product),
+                'movements'          => $movements->map(fn ($m) => [
+                    'id'       => $m->id,
+                    'tipo'     => $m->tipo,
+                    'cantidad' => $m->cantidad,
+                    'motivo'   => $m->motivo,
+                    'fecha'    => optional($m->fecha)->toIso8601String() ?? optional($m->created_at)->toIso8601String(),
+                ]),
+            ]),
         ]);
     }
 
-    /**
-     * Crear nuevo producto
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'required|string',
-            'quantity' => 'required|integer|min:0',
-            'minStock' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0',
-            'cost' => 'nullable|numeric|min:0',
-            'supplier' => 'nullable|string',
-            'supplierContact' => 'nullable|string',
+            'nombre'       => 'required|string|max:255',
+            'categoria'    => 'required|string',
+            'stock_actual' => 'required|integer|min:0',
+            'stock_minimo' => 'required|integer|min:0',
+            'precio_venta' => 'required|numeric|min:0',
+            'precio_compra'=> 'nullable|numeric|min:0',
+            'descripcion'  => 'nullable|string',
+            'tipo'         => 'nullable|string',
         ]);
 
-        $product = Product::create([
-            'name' => $validated['name'],
-            'category' => $validated['category'],
-            'quantity' => $validated['quantity'],
-            'min_stock' => $validated['minStock'],
-            'price' => $validated['price'],
-            'cost' => $validated['cost'] ?? 0,
-            'supplier' => $validated['supplier'],
-            'supplier_contact' => $validated['supplierContact'],
-        ]);
+        $product = Product::create($validated);
 
         return response()->json([
             'success' => true,
             'message' => 'Producto creado correctamente',
-            'data' => $product,
+            'data'    => $product,
         ], 201);
     }
 
-    /**
-     * Actualizar producto
-     */
-    public function update($productId, Request $request)
+    public function update($productId, Request $request): JsonResponse
     {
-        $product = Product::findOrFail($productId);
-
+        $product   = Product::findOrFail($productId);
         $validated = $request->validate([
-            'name' => 'string|max:255',
-            'category' => 'string',
-            'quantity' => 'integer|min:0',
-            'minStock' => 'integer|min:0',
-            'price' => 'numeric|min:0',
-            'cost' => 'nullable|numeric|min:0',
-            'supplier' => 'nullable|string',
-            'supplierContact' => 'nullable|string',
+            'nombre'       => 'string|max:255',
+            'categoria'    => 'string',
+            'stock_actual' => 'integer|min:0',
+            'stock_minimo' => 'integer|min:0',
+            'precio_venta' => 'numeric|min:0',
+            'precio_compra'=> 'nullable|numeric|min:0',
+            'descripcion'  => 'nullable|string',
+            'tipo'         => 'nullable|string',
         ]);
 
         $product->update($validated);
@@ -155,17 +104,13 @@ class InventoryAdminController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Producto actualizado correctamente',
-            'data' => $product,
+            'data'    => $product,
         ]);
     }
 
-    /**
-     * Eliminar producto
-     */
-    public function destroy($productId)
+    public function destroy($productId): JsonResponse
     {
-        $product = Product::findOrFail($productId);
-        $product->delete();
+        Product::findOrFail($productId)->delete();
 
         return response()->json([
             'success' => true,
@@ -173,175 +118,148 @@ class InventoryAdminController extends Controller
         ]);
     }
 
-    /**
-     * Registrar movimiento de inventario
-     */
-    public function recordMovement($productId, Request $request)
+    public function recordMovement($productId, Request $request): JsonResponse
     {
-        $product = Product::findOrFail($productId);
-
+        $product   = Product::findOrFail($productId);
         $validated = $request->validate([
-            'type' => 'required|in:entrada,salida,ajuste',
-            'quantity' => 'required|integer|min:1',
-            'reason' => 'required|string',
-            'reference' => 'nullable|string',
+            'tipo'    => 'required|in:entrada,salida',
+            'cantidad'=> 'required|integer|min:1',
+            'motivo'  => 'required|string',
         ]);
 
-        // Actualizar cantidad del producto
-        if ($validated['type'] === 'entrada' || $validated['type'] === 'ajuste') {
-            $product->quantity += $validated['quantity'];
+        if ($validated['tipo'] === 'entrada') {
+            $product->increment('stock_actual', $validated['cantidad']);
         } else {
-            $product->quantity = max(0, $product->quantity - $validated['quantity']);
+            $product->decrement('stock_actual', $validated['cantidad']);
         }
 
-        $product->save();
-
-        // Registrar movimiento
         $movement = InventoryMovement::create([
             'product_id' => $productId,
-            'type' => $validated['type'],
-            'quantity' => $validated['quantity'],
-            'reason' => $validated['reason'],
-            'reference' => $validated['reference'],
-            'created_by' => auth()->id(),
+            'tipo'       => $validated['tipo'],
+            'cantidad'   => $validated['cantidad'],
+            'motivo'     => $validated['motivo'],
+            'user_id'    => (string) auth()->id(),
+            'fecha'      => now(),
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Movimiento registrado correctamente',
-            'data' => [
-                'movement' => $movement,
-                'newQuantity' => $product->quantity,
+            'data'    => [
+                'movement'    => $movement,
+                'stock_actual'=> $product->fresh()->stock_actual,
             ],
         ]);
     }
 
-    /**
-     * Obtener movimientos de inventario
-     */
-    public function getMovements(Request $request)
+    public function getMovements(Request $request): JsonResponse
     {
-        $startDate = $request->query('startDate', Carbon::now()->subMonth());
-        $endDate = $request->query('endDate', Carbon::now());
+        $startDate = $request->query('startDate', Carbon::now()->subMonth()->toDateTimeString());
+        $endDate   = $request->query('endDate', Carbon::now()->toDateTimeString());
 
         $movements = InventoryMovement::whereBetween('created_at', [$startDate, $endDate])
-            ->with('product')
+            ->with('product:id,nombre')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($movement) {
-                return [
-                    'id' => $movement->id,
-                    'product' => $movement->product?->name,
-                    'type' => $movement->type,
-                    'quantity' => $movement->quantity,
-                    'reason' => $movement->reason,
-                    'date' => $movement->created_at,
-                ];
-            });
+            ->map(fn ($m) => [
+                'id'      => $m->id,
+                'product' => $m->product?->nombre,
+                'tipo'    => $m->tipo,
+                'cantidad'=> $m->cantidad,
+                'motivo'  => $m->motivo,
+                'fecha'   => optional($m->created_at)->toIso8601String(),
+            ]);
 
         return response()->json([
             'success' => true,
-            'data' => $movements,
-            'total' => $movements->count(),
+            'data'    => $movements,
+            'total'   => $movements->count(),
         ]);
     }
 
-    /**
-     * Obtener resumen de inventario
-     */
-    public function getSummary()
+    public function getSummary(): JsonResponse
     {
-        $products = Product::all();
+        $products = Product::all(['nombre', 'categoria', 'stock_actual', 'stock_minimo', 'precio_venta', 'precio_compra']);
 
         return response()->json([
             'success' => true,
-            'data' => [
+            'data'    => [
                 'totalProducts' => $products->count(),
-                'totalValue' => $products->sum(function ($p) {
-                    return $p->quantity * $p->price;
-                }),
-                'lowStockCount' => $products->filter(function ($p) {
-                    return $p->quantity <= $p->min_stock;
-                })->count(),
-                'criticalCount' => $products->filter(function ($p) {
-                    return $p->quantity < ($p->min_stock / 2);
-                })->count(),
-                'categories' => $products->groupBy('category')->keys(),
-                'byCategory' => $products->groupBy('category')->map(function ($group) {
-                    return [
-                        'count' => $group->count(),
-                        'totalValue' => $group->sum(function ($p) {
-                            return $p->quantity * $p->price;
-                        }),
-                    ];
-                }),
+                'totalValue'    => $products->sum(fn ($p) => (float) ($p->stock_actual ?? 0) * (float) ($p->precio_venta ?? 0)),
+                'lowStockCount' => $products->filter(fn ($p) => ($p->stock_actual ?? 0) <= ($p->stock_minimo ?? 0))->count(),
+                'criticalCount' => $products->filter(fn ($p) => ($p->stock_actual ?? 0) < (($p->stock_minimo ?? 0) / 2))->count(),
+                'categories'    => $products->pluck('categoria')->unique()->values(),
+                'byCategory'    => $products->groupBy('categoria')->map(fn ($g) => [
+                    'count'      => $g->count(),
+                    'totalValue' => $g->sum(fn ($p) => (float) ($p->stock_actual ?? 0) * (float) ($p->precio_venta ?? 0)),
+                ]),
             ],
         ]);
     }
 
-    /**
-     * Obtener productos con stock bajo
-     */
-    public function getLowStockProducts()
+    public function getLowStockProducts(): JsonResponse
     {
-        $products = Product::whereRaw('quantity <= min_stock')
-            ->orWhereRaw('quantity < (min_stock / 2)')
+        $products = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])
             ->get()
-            ->map(function ($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'category' => $product->category,
-                    'quantity' => $product->quantity,
-                    'minStock' => $product->min_stock,
-                    'status' => $this->getStockStatus($product),
-                    'daysUntilStockOut' => $this->calculateDaysUntilStockOut($product),
-                ];
-            });
+            ->map(fn ($p) => [
+                'id'               => $p->id,
+                'nombre'           => $p->nombre,
+                'categoria'        => $p->categoria,
+                'stock_actual'     => $p->stock_actual,
+                'stock_minimo'     => $p->stock_minimo,
+                'status'           => $this->getStockStatus($p),
+                'daysUntilStockOut'=> $this->calculateDaysUntilStockOut($p),
+            ]);
 
         return response()->json([
             'success' => true,
-            'data' => $products,
-            'count' => $products->count(),
+            'data'    => $products,
+            'count'   => $products->count(),
         ]);
     }
 
-    /**
-     * Helper: Obtener estado del stock
-     */
-    private function getStockStatus($product)
+    private function productPayload(Product $product): array
     {
-        if ($product->quantity === 0) return 'empty';
-        if ($product->quantity < $product->min_stock / 2) return 'critical';
-        if ($product->quantity <= $product->min_stock) return 'low';
+        return [
+            'id'          => $product->id,
+            'nombre'      => $product->nombre,
+            'categoria'   => $product->categoria,
+            'stock_actual'=> $product->stock_actual,
+            'stock_minimo'=> $product->stock_minimo,
+            'precio_venta'=> $product->precio_venta,
+            'precio_compra'=> $product->precio_compra,
+            'tipo'        => $product->tipo,
+            'status'      => $this->getStockStatus($product),
+            'totalValue'  => (float) ($product->stock_actual ?? 0) * (float) ($product->precio_venta ?? 0),
+            'updatedAt'   => optional($product->updated_at)->toIso8601String(),
+        ];
+    }
+
+    private function getStockStatus(Product $product): string
+    {
+        $stock = (int) ($product->stock_actual ?? 0);
+        $min   = (int) ($product->stock_minimo ?? 0);
+
+        if ($stock === 0) return 'empty';
+        if ($stock < ($min / 2)) return 'critical';
+        if ($stock <= $min) return 'low';
         return 'ok';
     }
 
-    /**
-     * Helper: Calcular consumo mensual promedio
-     */
-    private function getMonthlyConsumption($productId)
+    private function getMonthlyConsumption(string $productId): int
     {
-        $movements = InventoryMovement::where('product_id', $productId)
-            ->where('type', 'salida')
+        return (int) InventoryMovement::where('product_id', $productId)
+            ->where('tipo', 'salida')
             ->where('created_at', '>=', Carbon::now()->subMonth())
-            ->sum('quantity');
-
-        return $movements;
+            ->sum('cantidad');
     }
 
-    /**
-     * Helper: Calcular días hasta agotar stock
-     */
-    private function calculateDaysUntilStockOut($product)
+    private function calculateDaysUntilStockOut(Product $product): ?int
     {
-        $monthlyConsumption = $this->getMonthlyConsumption($product->id);
-
+        $monthlyConsumption = $this->getMonthlyConsumption((string) $product->id);
         if ($monthlyConsumption === 0) return null;
 
-        $daysPerMonth = 30;
-        $dailyConsumption = $monthlyConsumption / $daysPerMonth;
-
-        return intval($product->quantity / max($dailyConsumption, 0.1));
+        $dailyConsumption = $monthlyConsumption / 30;
+        return (int) (((int) ($product->stock_actual ?? 0)) / max($dailyConsumption, 0.1));
     }
 }

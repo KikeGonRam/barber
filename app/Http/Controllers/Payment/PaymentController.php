@@ -63,7 +63,7 @@ class PaymentController extends Controller
     public function store(StorePaymentRequest $request): RedirectResponse
     {
         try {
-            $this->paymentService->create($request->validated(), (int) $request->user()->id);
+            $this->paymentService->create($request->validated(), (string) $request->user()->id);
         } catch (PaymentException $exception) {
             return back()->withInput()->withErrors(['appointment_id' => $exception->getMessage()]);
         }

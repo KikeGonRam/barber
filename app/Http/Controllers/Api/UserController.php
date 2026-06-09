@@ -145,7 +145,7 @@ class UserController extends Controller
     {
         $this->authorizeAdmin($request);
 
-        if ((int) $request->user()->id === (int) $user->id) {
+        if ((string) $request->user()->id === (string) $user->id) {
             return response()->json([
                 'message' => 'No puedes eliminar tu propio usuario.',
             ], 422);

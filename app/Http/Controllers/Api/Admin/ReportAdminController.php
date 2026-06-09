@@ -3,286 +3,226 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Models\Appointment;
-use App\Models\User;
-use App\Models\Product;
+use App\Models\Client;
 use App\Models\InventoryMovement;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-class ReportAdminController extends Controller
+class ReportAdminController
 {
-    /**
-     * Generar reporte de ingresos
-     */
-    public function generateRevenueReport(Request $request)
+    public function generateRevenueReport(Request $request): JsonResponse
     {
-        $period = $request->query('period', 'month');
+        $period    = $request->query('period', 'mes');
         $startDate = $this->getStartDate($period);
-        $endDate = Carbon::now();
+        $endDate   = Carbon::now();
 
-        $appointments = Appointment::whereBetween('date', [$startDate, $endDate])
-            ->where('status', 'completed')
-            ->with('barber')
-            ->get();
+        $appointments = Appointment::whereBetween('fecha', [$startDate->toDateString(), $endDate->toDateString()])
+            ->where('estado', 'completada')
+            ->with('barber.user')
+            ->get(['fecha', 'barber_id', 'precio_cobrado', 'service_id']);
 
         $dailyRevenue = [];
-        $currentDate = $startDate->copy();
-
-        while ($currentDate <= $endDate) {
-            $dayRevenue = $appointments
-                ->filter(function ($a) use ($currentDate) {
-                    return $a->date->format('Y-m-d') === $currentDate->format('Y-m-d');
-                })
-                ->sum('price');
-
-            $dailyRevenue[$currentDate->format('Y-m-d')] = $dayRevenue;
-            $currentDate->addDay();
+        $current = $startDate->copy();
+        while ($current->lte($endDate)) {
+            $key = $current->format('Y-m-d');
+            $dailyRevenue[$key] = (float) $appointments
+                ->filter(fn ($a) => optional($a->fecha)->format('Y-m-d') === $key)
+                ->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
+            $current->addDay();
         }
 
-        $revenueByBarber = $appointments->groupBy('barber_id')->map(function ($group) {
-            return [
-                'barber' => $group->first()->barber?->name,
-                'total' => $group->sum('price'),
-                'count' => $group->count(),
-                'average' => $group->avg('price'),
-            ];
-        });
+        $revenueByBarber = $appointments->groupBy('barber_id')->map(fn ($g) => [
+            'barber'  => $g->first()->barber?->user?->name,
+            'total'   => (float) $g->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0)),
+            'count'   => $g->count(),
+            'average' => $g->count() > 0
+                ? round($g->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0)) / $g->count(), 2)
+                : 0,
+        ]);
+
+        $totalRevenue = (float) $appointments->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'period' => $period,
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-                'totalRevenue' => $appointments->sum('price'),
+            'data'    => [
+                'period'            => $period,
+                'startDate'         => $startDate->toDateString(),
+                'endDate'           => $endDate->toDateString(),
+                'totalRevenue'      => $totalRevenue,
                 'totalAppointments' => $appointments->count(),
-                'averageRevenue' => $appointments->avg('price'),
-                'dailyRevenue' => $dailyRevenue,
-                'revenueByBarber' => $revenueByBarber,
-                'topService' => $this->getTopService($appointments),
+                'averageRevenue'    => $appointments->count() > 0
+                    ? round($totalRevenue / $appointments->count(), 2)
+                    : 0,
+                'dailyRevenue'      => $dailyRevenue,
+                'revenueByBarber'   => $revenueByBarber,
             ],
         ]);
     }
 
-    /**
-     * Generar reporte de citas
-     */
-    public function generateAppointmentsReport(Request $request)
+    public function generateAppointmentsReport(Request $request): JsonResponse
     {
-        $period = $request->query('period', 'month');
+        $period    = $request->query('period', 'mes');
         $startDate = $this->getStartDate($period);
-        $endDate = Carbon::now();
+        $endDate   = Carbon::now();
 
-        $appointments = Appointment::whereBetween('date', [$startDate, $endDate])->get();
+        $appointments = Appointment::whereBetween('fecha', [$startDate->toDateString(), $endDate->toDateString()])
+            ->with('barber.user')
+            ->get(['fecha', 'barber_id', 'estado']);
 
-        $appointmentsByStatus = [
-            'completed' => $appointments->filter(fn($a) => $a->status === 'completed')->count(),
-            'pending' => $appointments->filter(fn($a) => $a->status === 'pending')->count(),
-            'cancelled' => $appointments->filter(fn($a) => $a->status === 'cancelled')->count(),
-            'no_show' => $appointments->filter(fn($a) => $a->status === 'no_show')->count(),
+        $byStatus = [
+            'completada' => $appointments->where('estado', 'completada')->count(),
+            'pendiente'  => $appointments->where('estado', 'pendiente')->count(),
+            'cancelada'  => $appointments->where('estado', 'cancelada')->count(),
+            'no_asistio' => $appointments->where('estado', 'no_asistio')->count(),
         ];
 
-        $appointmentsByBarber = $appointments->groupBy('barber_id')->map(function ($group) {
-            return [
-                'barber' => $group->first()->barber?->name,
-                'total' => $group->count(),
-                'completed' => $group->filter(fn($a) => $a->status === 'completed')->count(),
-                'cancelled' => $group->filter(fn($a) => $a->status === 'cancelled')->count(),
-                'occupancyRate' => round(($group->filter(fn($a) => $a->status === 'completed')->count() / max($group->count(), 1)) * 100),
-            ];
-        });
+        $byBarber = $appointments->groupBy('barber_id')->map(fn ($g) => [
+            'barber'        => $g->first()->barber?->user?->name,
+            'total'         => $g->count(),
+            'completadas'   => $g->where('estado', 'completada')->count(),
+            'canceladas'    => $g->where('estado', 'cancelada')->count(),
+            'occupancyRate' => round(($g->where('estado', 'completada')->count() / max($g->count(), 1)) * 100),
+        ]);
+
+        $diffDays = max($startDate->diffInDays($endDate), 1);
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'period' => $period,
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-                'totalAppointments' => $appointments->count(),
-                'appointmentsByStatus' => $appointmentsByStatus,
-                'completionRate' => round(($appointmentsByStatus['completed'] / max($appointments->count(), 1)) * 100),
-                'appointmentsByBarber' => $appointmentsByBarber,
-                'averageAppointmentsPerDay' => round($appointments->count() / $startDate->diffInDays($endDate)),
+            'data'    => [
+                'period'                       => $period,
+                'startDate'                    => $startDate->toDateString(),
+                'endDate'                      => $endDate->toDateString(),
+                'totalAppointments'            => $appointments->count(),
+                'appointmentsByStatus'         => $byStatus,
+                'completionRate'               => round(($byStatus['completada'] / max($appointments->count(), 1)) * 100),
+                'appointmentsByBarber'         => $byBarber,
+                'averageAppointmentsPerDay'    => round($appointments->count() / $diffDays, 1),
             ],
         ]);
     }
 
-    /**
-     * Generar reporte de inventario
-     */
-    public function generateInventoryReport(Request $request)
+    public function generateInventoryReport(Request $request): JsonResponse
     {
-        $products = Product::all();
+        $products  = Product::all(['nombre', 'categoria', 'stock_actual', 'stock_minimo', 'precio_venta', 'precio_compra']);
+        $movements = InventoryMovement::where('created_at', '>=', Carbon::now()->subMonth())
+            ->with('product:id,nombre')
+            ->get(['tipo', 'cantidad', 'product_id', 'created_at']);
 
-        $movements = InventoryMovement::where('created_at', '>=', Carbon::now()->subMonth())->get();
-
-        $movementsByType = [
-            'entrada' => $movements->filter(fn($m) => $m->type === 'entrada')->count(),
-            'salida' => $movements->filter(fn($m) => $m->type === 'salida')->count(),
-            'ajuste' => $movements->filter(fn($m) => $m->type === 'ajuste')->count(),
+        $byType = [
+            'entrada' => $movements->where('tipo', 'entrada')->count(),
+            'salida'  => $movements->where('tipo', 'salida')->count(),
         ];
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'totalProducts' => $products->count(),
-                'totalValue' => $products->sum(fn($p) => $p->quantity * $p->price),
-                'lowStockCount' => $products->filter(fn($p) => $p->quantity <= $p->min_stock)->count(),
-                'criticalCount' => $products->filter(fn($p) => $p->quantity < ($p->min_stock / 2))->count(),
-                'productsByCategory' => $products->groupBy('category')->map(function ($group) {
-                    return [
-                        'count' => $group->count(),
-                        'totalValue' => $group->sum(fn($p) => $p->quantity * $p->price),
-                    ];
-                }),
-                'recentMovements' => $movements->take(10)->map(function ($m) {
-                    return [
-                        'product' => $m->product?->name,
-                        'type' => $m->type,
-                        'quantity' => $m->quantity,
-                        'date' => $m->created_at,
-                    ];
-                }),
-                'movementsByType' => $movementsByType,
+            'data'    => [
+                'totalProducts'    => $products->count(),
+                'totalValue'       => (float) $products->sum(fn ($p) => (float) ($p->stock_actual ?? 0) * (float) ($p->precio_venta ?? 0)),
+                'lowStockCount'    => $products->filter(fn ($p) => ($p->stock_actual ?? 0) <= ($p->stock_minimo ?? 0))->count(),
+                'criticalCount'    => $products->filter(fn ($p) => ($p->stock_actual ?? 0) < (($p->stock_minimo ?? 0) / 2))->count(),
+                'productsByCategory' => $products->groupBy('categoria')->map(fn ($g) => [
+                    'count'      => $g->count(),
+                    'totalValue' => (float) $g->sum(fn ($p) => (float) ($p->stock_actual ?? 0) * (float) ($p->precio_venta ?? 0)),
+                ]),
+                'recentMovements'  => $movements->take(10)->map(fn ($m) => [
+                    'product'  => $m->product?->nombre,
+                    'tipo'     => $m->tipo,
+                    'cantidad' => $m->cantidad,
+                    'fecha'    => optional($m->created_at)->toIso8601String(),
+                ]),
+                'movementsByType'  => $byType,
             ],
         ]);
     }
 
-    /**
-     * Generar reporte de clientes
-     */
-    public function generateClientsReport(Request $request)
+    public function generateClientsReport(Request $request): JsonResponse
     {
-        $period = $request->query('period', 'month');
+        $period    = $request->query('period', 'mes');
         $startDate = $this->getStartDate($period);
-        $endDate = Carbon::now();
 
-        $clients = User::whereHas('roles', function ($q) {
-            $q->where('name', 'cliente');
-        })->with('appointments')->get();
+        $totalClients = Client::count();
+        $newClients   = Client::where('created_at', '>=', $startDate)->count();
 
-        $newClients = $clients->filter(function ($c) {
-            return $c->created_at >= $startDate;
+        $activeClients = Client::whereHas('appointments', function ($q) use ($startDate) {
+            $q->where('fecha', '>=', $startDate->toDateString());
         })->count();
 
-        $activeClients = $clients->filter(function ($c) {
-            return $c->appointments->filter(function ($a) {
-                return $a->date >= $startDate;
-            })->count() > 0;
+        $inactiveClients = Client::whereDoesntHave('appointments', function ($q) {
+            $q->where('fecha', '>=', Carbon::now()->subMonths(3)->toDateString());
         })->count();
 
-        $inactiveClients = $clients->filter(function ($c) {
-            $lastAppointment = $c->appointments->sortByDesc('date')->first();
-            return !$lastAppointment || $lastAppointment->date < Carbon::now()->subMonths(3);
-        })->count();
+        $loyalClients = Client::whereHas('appointments', function ($q) {
+            $q->where('estado', 'completada');
+        }, '>', 10)->count();
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'period' => $period,
-                'totalClients' => $clients->count(),
-                'newClients' => $newClients,
-                'activeClients' => $activeClients,
+            'data'    => [
+                'period'          => $period,
+                'totalClients'    => $totalClients,
+                'newClients'      => $newClients,
+                'activeClients'   => $activeClients,
                 'inactiveClients' => $inactiveClients,
-                'loyaltyClients' => $clients->filter(fn($c) => $c->appointments->count() > 10)->count(),
-                'averageAppointmentsPerClient' => round($clients->sum(fn($c) => $c->appointments->count()) / max($clients->count(), 1)),
-                'clientRetention' => round(($activeClients / max($clients->count(), 1)) * 100),
+                'loyaltyClients'  => $loyalClients,
+                'clientRetention' => round(($activeClients / max($totalClients, 1)) * 100),
             ],
         ]);
     }
 
-    /**
-     * Generar reporte personalizado
-     */
-    public function generateCustomReport(Request $request)
+    public function generateCustomReport(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'type' => 'required|in:ingresos,citas,inventario,clientes,desempeño',
-            'period' => 'required|in:dia,semana,mes,trimestre,año,personalizado',
+            'type'     => 'required|in:ingresos,citas,inventario,clientes',
+            'period'   => 'required|in:dia,semana,mes,trimestre,año,personalizado',
             'dateFrom' => 'nullable|date',
-            'dateTo' => 'nullable|date',
-            'detail' => 'required|in:resumen,detallado,muy-detallado',
+            'dateTo'   => 'nullable|date',
+            'detail'   => 'required|in:resumen,detallado,muy-detallado',
         ]);
-
-        $startDate = $validated['dateFrom'] ? Carbon::parse($validated['dateFrom']) : $this->getStartDate($validated['period']);
-        $endDate = $validated['dateTo'] ? Carbon::parse($validated['dateTo']) : Carbon::now();
-
-        $reportData = [
-            'id' => uniqid('report-'),
-            'name' => 'Reporte ' . ucfirst($validated['type']),
-            'type' => $validated['type'],
-            'period' => $validated['period'],
-            'detail' => $validated['detail'],
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'generatedAt' => Carbon::now(),
-        ];
 
         return response()->json([
             'success' => true,
-            'data' => $reportData,
+            'data'    => [
+                'id'          => uniqid('report-'),
+                'name'        => 'Reporte ' . ucfirst($validated['type']),
+                'type'        => $validated['type'],
+                'period'      => $validated['period'],
+                'detail'      => $validated['detail'],
+                'startDate'   => $validated['dateFrom'] ?? $this->getStartDate($validated['period'])->toDateString(),
+                'endDate'     => $validated['dateTo'] ?? Carbon::now()->toDateString(),
+                'generatedAt' => Carbon::now()->toIso8601String(),
+            ],
         ]);
     }
 
-    /**
-     * Exportar reporte
-     */
-    public function exportReport(Request $request)
+    public function exportReport(Request $request): JsonResponse
     {
         $format = $request->query('format', 'pdf');
-        $type = $request->query('type', 'ingresos');
+        $type   = $request->query('type', 'ingresos');
 
-        // La exportación real se implementaría con DomPDF o PhpSpreadsheet
         return response()->json([
             'success' => true,
             'message' => "Reporte de {$type} exportado en formato {$format}",
         ]);
     }
 
-    /**
-     * Obtener lista de reportes guardados
-     */
-    public function listReports(Request $request)
+    public function listReports(Request $request): JsonResponse
     {
-        // Simulación - en implementación real, consultar tabla de reportes guardados
-        $reports = [
-            ['id' => 1, 'name' => 'Ingresos Abril 2026', 'type' => 'ingresos', 'date' => '2026-05-01', 'format' => 'pdf'],
-            ['id' => 2, 'name' => 'Análisis de Citas Abril', 'type' => 'citas', 'date' => '2026-04-30', 'format' => 'pdf'],
-            ['id' => 3, 'name' => 'Estado Inventario Marzo', 'type' => 'inventario', 'date' => '2026-03-31', 'format' => 'excel'],
-        ];
-
         return response()->json([
             'success' => true,
-            'data' => $reports,
+            'data'    => [],
         ]);
     }
 
-    /**
-     * Helper: Obtener fecha de inicio según período
-     */
-    private function getStartDate($period)
+    private function getStartDate(string $period): Carbon
     {
         return match ($period) {
-            'dia' => Carbon::now()->startOfDay(),
-            'semana' => Carbon::now()->startOfWeek(),
-            'mes' => Carbon::now()->startOfMonth(),
-            'trimestre' => Carbon::now()->startOfQuarter(),
-            'año' => Carbon::now()->startOfYear(),
-            default => Carbon::now()->startOfMonth(),
+            'dia'        => Carbon::now()->startOfDay(),
+            'semana'     => Carbon::now()->startOfWeek(),
+            'trimestre'  => Carbon::now()->startOfQuarter(),
+            'año'        => Carbon::now()->startOfYear(),
+            default      => Carbon::now()->startOfMonth(),
         };
-    }
-
-    /**
-     * Helper: Obtener servicio más popular
-     */
-    private function getTopService($appointments)
-    {
-        // Implementar con tabla de servicios real
-        return [
-            'name' => 'Corte + Barba',
-            'count' => $appointments->count(),
-            'revenue' => $appointments->sum('price'),
-        ];
     }
 }

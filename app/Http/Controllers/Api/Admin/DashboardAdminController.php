@@ -3,63 +3,50 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Models\Appointment;
-use App\Models\User;
 use App\Models\Barber;
 use App\Models\Client;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class DashboardAdminController
 {
-    /**
-     * Obtener estadísticas del dashboard
-     */
     public function getStats(Request $request): JsonResponse
     {
-        $today = now()->format('Y-m-d');
+        $today = now()->toDateString();
 
-        // Ingresos de hoy
-        $revenueToday = Appointment::whereDate('start_time', $today)
-            ->where('status', 'completada')
-            ->with('service')
-            ->get()
-            ->sum(function ($appointment) {
-                return $appointment->service->precio ?? 0;
-            });
+        $revenueToday = Appointment::whereDate('fecha', $today)
+            ->where('estado', 'completada')
+            ->sum('precio_cobrado');
 
-        // Citas completadas hoy
-        $appointmentsCompleted = Appointment::whereDate('start_time', $today)
-            ->where('status', 'completada')
+        $appointmentsCompleted = Appointment::whereDate('fecha', $today)
+            ->where('estado', 'completada')
             ->count();
 
-        // Ocupación promedio
         $totalBarbers = Barber::where('activo', true)->count();
-        $appointmentsTotal = Appointment::whereDate('start_time', $today)->count();
+        $appointmentsTotal = Appointment::whereDate('fecha', $today)->count();
         $occupancyRate = $totalBarbers > 0 ? round(($appointmentsTotal / ($totalBarbers * 8)) * 100) : 0;
 
-        // Clientes nuevos hoy
-        $newClients = User::whereDate('created_at', $today)
-            ->where('role', 'cliente')
-            ->count();
+        $newClients = Client::whereDate('created_at', $today)->count();
 
         return response()->json([
             'stats' => [
-                'revenueToday' => $revenueToday,
+                'revenueToday'          => (float) $revenueToday,
                 'appointmentsCompleted' => $appointmentsCompleted,
-                'occupancyRate' => min($occupancyRate, 100),
-                'newClients' => $newClients,
+                'occupancyRate'         => min($occupancyRate, 100),
+                'newClients'            => $newClients,
             ],
         ]);
     }
 
-    /**
-     * Obtener citas próximas
-     */
     public function getUpcomingAppointments(Request $request): JsonResponse
     {
-        $appointments = Appointment::where('start_time', '>=', now())
-            ->orderBy('start_time', 'asc')
-            ->with('client.user', 'barber.user', 'service')
+        $appointments = Appointment::where('fecha', '>=', now()->toDateString())
+            ->where('hora_inicio', '>=', now()->format('H:i:s'))
+            ->where('estado', 'pendiente')
+            ->orderBy('fecha')
+            ->orderBy('hora_inicio')
+            ->with(['client.user', 'barber.user', 'service'])
             ->limit(10)
             ->get();
 
@@ -68,154 +55,125 @@ class DashboardAdminController
         ]);
     }
 
-    /**
-     * Obtener ingresos por rango de fechas
-     */
     public function getRevenue(Request $request): JsonResponse
     {
-        $period = $request->get('period', 'week'); // week, month, year
+        $period = $request->get('period', 'week');
 
-        $query = Appointment::where('status', 'completada')
-            ->with('service');
+        $query = Appointment::where('estado', 'completada');
 
         if ($period === 'week') {
-            $query->whereBetween('start_time', [
-                now()->startOfWeek(),
-                now()->endOfWeek(),
+            $query->whereBetween('fecha', [
+                now()->startOfWeek()->toDateString(),
+                now()->endOfWeek()->toDateString(),
             ]);
         } elseif ($period === 'month') {
-            $query->whereBetween('start_time', [
-                now()->startOfMonth(),
-                now()->endOfMonth(),
+            $query->whereBetween('fecha', [
+                now()->startOfMonth()->toDateString(),
+                now()->endOfMonth()->toDateString(),
             ]);
         } elseif ($period === 'year') {
-            $query->whereBetween('start_time', [
-                now()->startOfYear(),
-                now()->endOfYear(),
+            $query->whereBetween('fecha', [
+                now()->startOfYear()->toDateString(),
+                now()->endOfYear()->toDateString(),
             ]);
         }
 
-        $appointments = $query->get();
+        $appointments = $query->get(['fecha', 'precio_cobrado']);
 
-        // Agrupar por fecha
         $revenue = [];
         foreach ($appointments as $appointment) {
-            $date = $appointment->start_time->format('Y-m-d');
-            if (!isset($revenue[$date])) {
-                $revenue[$date] = 0;
-            }
-            $revenue[$date] += $appointment->service->precio ?? 0;
+            $date = $appointment->fecha instanceof \Carbon\Carbon
+                ? $appointment->fecha->toDateString()
+                : (string) $appointment->fecha;
+            $revenue[$date] = ($revenue[$date] ?? 0) + (float) ($appointment->precio_cobrado ?? 0);
         }
 
         return response()->json([
             'revenue' => $revenue,
-            'total' => array_sum($revenue),
+            'total'   => array_sum($revenue),
         ]);
     }
 
-    /**
-     * Obtener alertas del sistema
-     */
     public function getAlerts(Request $request): JsonResponse
     {
         $alerts = [];
 
-        // Citas próximas en 2 horas
-        $upcomingAppointments = Appointment::whereBetween('start_time', [
-            now(),
-            now()->addHours(2),
-        ])
-            ->where('status', 'pendiente')
+        $upcomingAppointments = Appointment::whereDate('fecha', now()->toDateString())
+            ->where('hora_inicio', '>=', now()->format('H:i:s'))
+            ->where('hora_inicio', '<=', now()->addHours(2)->format('H:i:s'))
+            ->where('estado', 'pendiente')
             ->count();
 
         if ($upcomingAppointments > 0) {
             $alerts[] = [
-                'id' => 1,
-                'type' => 'warning',
-                'title' => '⏰ Citas Próximas',
+                'id'      => 1,
+                'type'    => 'warning',
+                'title'   => '⏰ Citas Próximas',
                 'message' => "$upcomingAppointments citas en las próximas 2 horas",
             ];
         }
 
-        // Inventario bajo
         try {
-            $lowStock = \App\Models\Inventory::whereRaw(['$expr' => ['$lt' => ['$quantity', '$min_stock']]])->count();
+            $lowStock = Inventory::whereRaw(['$expr' => ['$lt' => ['$quantity', '$min_stock']]])->count();
 
             if ($lowStock > 0) {
                 $alerts[] = [
-                    'id' => 2,
-                    'type' => 'error',
-                    'title' => '📦 Inventario Bajo',
+                    'id'      => 2,
+                    'type'    => 'error',
+                    'title'   => '📦 Inventario Bajo',
                     'message' => "$lowStock productos con stock bajo",
                 ];
             }
         } catch (\Exception $e) {
-            // Ignorar si falla
+            // Ignorar si la colección no tiene los campos esperados
         }
 
-        // Barberos con baja ocupación
-        $lowOccupancy = Barber::where('activo', true)
+        $lowOccupancyCount = Barber::where('activo', true)
             ->get()
             ->filter(function ($barber) {
-                $today = now()->format('Y-m-d');
-                $appointments = Appointment::whereDate('start_time', $today)
+                $appointments = Appointment::whereDate('fecha', now()->toDateString())
                     ->where('barber_id', $barber->id)
                     ->count();
-
-                // Si tiene menos de 2 citas, es baja ocupación
                 return $appointments < 2;
-            });
+            })
+            ->count();
 
-        if ($lowOccupancy->count() > 0) {
+        if ($lowOccupancyCount > 0) {
             $alerts[] = [
-                'id' => 3,
-                'type' => 'info',
-                'title' => '📊 Ocupación Baja',
-                'message' => "{$lowOccupancy->count()} barbero(s) con baja ocupación hoy",
+                'id'      => 3,
+                'type'    => 'info',
+                'title'   => '📊 Ocupación Baja',
+                'message' => "{$lowOccupancyCount} barbero(s) con baja ocupación hoy",
             ];
         }
 
-        return response()->json([
-            'alerts' => $alerts,
-        ]);
+        return response()->json(['alerts' => $alerts]);
     }
 
-    /**
-     * Obtener métricas de performance
-     */
     public function getMetrics(Request $request): JsonResponse
     {
-        $today = now()->format('Y-m-d');
+        $totalClients   = Client::count();
+        $activeBarbers  = Barber::where('activo', true)->count();
 
-        // Total de clientes
-        $totalClients = User::where('role', 'cliente')->count();
+        $totalAppointments     = Appointment::count();
+        $cancelledAppointments = Appointment::where('estado', 'cancelada')->count();
+        $cancellationRate      = $totalAppointments > 0
+            ? round(($cancelledAppointments / $totalAppointments) * 100, 2)
+            : 0;
 
-        // Total de barberos activos
-        $activeBarbers = Barber::where('activo', true)->count();
-
-        // Tasa de cancelación
-        $totalAppointments = Appointment::count();
-        $cancelledAppointments = Appointment::where('status', 'cancelada')->count();
-        $cancellationRate = $totalAppointments > 0 ? round(($cancelledAppointments / $totalAppointments) * 100, 2) : 0;
-
-        // Ingreso promedio por cita
-        $totalRevenue = Appointment::where('status', 'completada')
-            ->with('service')
-            ->get()
-            ->sum(function ($appointment) {
-                return $appointment->service->precio ?? 0;
-            });
-
-        $completedAppointments = Appointment::where('status', 'completada')->count();
-        $averageRevenue = $completedAppointments > 0 ? round($totalRevenue / $completedAppointments, 2) : 0;
+        $completedAppointments = Appointment::where('estado', 'completada')->count();
+        $totalRevenue          = (float) Appointment::where('estado', 'completada')->sum('precio_cobrado');
+        $averageRevenue        = $completedAppointments > 0
+            ? round($totalRevenue / $completedAppointments, 2)
+            : 0;
 
         return response()->json([
             'metrics' => [
-                'totalClients' => $totalClients,
-                'activeBarbers' => $activeBarbers,
-                'cancellationRate' => $cancellationRate,
-                'averageRevenuePerAppointment' => $averageRevenue,
-                'totalRevenue' => $totalRevenue,
+                'totalClients'                   => $totalClients,
+                'activeBarbers'                  => $activeBarbers,
+                'cancellationRate'               => $cancellationRate,
+                'averageRevenuePerAppointment'   => $averageRevenue,
+                'totalRevenue'                   => $totalRevenue,
             ],
         ]);
     }

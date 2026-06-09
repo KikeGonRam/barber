@@ -23,11 +23,11 @@ class StoreInventoryMovementRequest extends FormRequest
         }
 
         return [
-            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'product_id' => ['required', 'string', 'exists:products,id'],
             'tipo' => $typeRules,
             'cantidad' => ['required', 'integer', 'min:1'],
             'motivo' => ['nullable', 'string', 'max:255'],
-            'appointment_id' => ['nullable', 'integer', 'exists:appointments,id'],
+            'appointment_id' => ['nullable', 'string', 'exists:appointments,id'],
             'fecha' => ['nullable', 'date'],
         ];
     }

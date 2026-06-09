@@ -60,7 +60,7 @@ class InventoryMovementController extends Controller
     public function store(StoreInventoryMovementRequest $request): RedirectResponse
     {
         try {
-            $this->inventoryService->registerMovement($request->validated(), (int) $request->user()->id);
+            $this->inventoryService->registerMovement($request->validated(), (string) $request->user()->id);
         } catch (InsufficientStockException $exception) {
             return back()->withInput()->withErrors(['cantidad' => $exception->getMessage()]);
         }

@@ -186,7 +186,7 @@ class DashboardService
         ];
     }
 
-    public function barberMetrics(int $barberId): array
+    public function barberMetrics(string $barberId): array
     {
         $today      = Carbon::today();
         $monthStart = Carbon::now()->startOfMonth();
@@ -274,7 +274,7 @@ class DashboardService
         ];
     }
 
-    public function clientMetrics(int $clientId): array
+    public function clientMetrics(string $clientId): array
     {
         $totalAppointments     = Appointment::where('client_id', $clientId)->count();
         $completedAppointments = Appointment::where('client_id', $clientId)->where('estado', 'completada')->count();

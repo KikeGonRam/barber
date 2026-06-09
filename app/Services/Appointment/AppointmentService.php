@@ -119,20 +119,20 @@ class AppointmentService
         return $appointment;
     }
 
-    public function updateAppointment(int $appointmentId, array $payload): bool
+    public function updateAppointment(string $appointmentId, array $payload): bool
     {
         $this->ensureNoOverlap($payload, $appointmentId);
 
         return $this->appointments->update($appointmentId, $payload);
     }
 
-    private function ensureNoOverlap(array $payload, ?int $ignoreAppointmentId = null): void
+    private function ensureNoOverlap(array $payload, ?string $ignoreAppointmentId = null): void
     {
         $start = Carbon::parse($payload['hora_inicio'])->format('H:i:00');
         $end = Carbon::parse($payload['hora_fin'])->format('H:i:00');
 
         $hasOverlap = $this->appointments->hasOverlap(
-            barberId: (int) $payload['barber_id'],
+            barberId: (string) $payload['barber_id'],
             date: (string) $payload['fecha'],
             startTime: $start,
             endTime: $end,

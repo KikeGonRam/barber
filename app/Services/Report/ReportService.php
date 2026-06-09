@@ -17,7 +17,7 @@ class ReportService
         $this->applyDateRange($query, $filters);
 
         if (! empty($filters['barber_id'])) {
-            $query->whereHas('appointment', fn ($q) => $q->where('barber_id', (int) $filters['barber_id']));
+            $query->whereHas('appointment', fn ($q) => $q->where('barber_id', (string) $filters['barber_id']));
         }
 
         if (! empty($filters['metodo_pago'])) {
@@ -57,7 +57,7 @@ class ReportService
         }
 
         if (! empty($filters['barber_id'])) {
-            $query->where('barber_id', (int) $filters['barber_id']);
+            $query->where('barber_id', (string) $filters['barber_id']);
         }
 
         if (! empty($filters['estado'])) {
