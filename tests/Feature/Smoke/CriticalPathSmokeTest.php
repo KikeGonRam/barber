@@ -11,13 +11,13 @@ use App\Models\Barber;
 use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class CriticalPathSmokeTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     protected function setUp(): void
     {

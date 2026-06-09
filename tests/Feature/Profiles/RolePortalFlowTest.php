@@ -7,7 +7,7 @@ use App\Models\Barber;
 use App\Models\Client;
 use App\Models\Service;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 class RolePortalFlowTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_registration_assigns_cliente_role_and_profile(): void
     {

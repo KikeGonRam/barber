@@ -10,12 +10,12 @@ use App\Models\Client;
 use App\Models\Service;
 use App\Services\AppointmentService;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Tests\TestCase;
 
 class AppointmentServiceSlotsTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     private AppointmentService $appointmentService;
 

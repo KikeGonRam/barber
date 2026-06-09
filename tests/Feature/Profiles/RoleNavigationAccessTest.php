@@ -5,14 +5,14 @@ namespace Tests\Feature\Profiles;
 use App\Models\Barber;
 use App\Models\Client;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Notifications\DatabaseNotification;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class RoleNavigationAccessTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_administrador_sees_admin_navigation_and_can_access_admin_sections(): void
     {

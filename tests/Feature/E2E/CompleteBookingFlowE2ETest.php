@@ -17,14 +17,14 @@ use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class CompleteBookingFlowE2ETest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     protected function setUp(): void
     {

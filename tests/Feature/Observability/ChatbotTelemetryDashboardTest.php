@@ -5,13 +5,13 @@ namespace Tests\Feature\Observability;
 use App\Models\BarbershopSetting;
 use App\Models\User;
 use App\Services\DashboardService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ChatbotTelemetryDashboardTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     protected function setUp(): void
     {

@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Services\ChatbotExternalDataService;
 use App\Services\ChatbotIntelligenceService;
 use App\Services\GeminiService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Spatie\Permission\Models\Role;
@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 class ChatbotProductionHardeningTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     protected function setUp(): void
     {

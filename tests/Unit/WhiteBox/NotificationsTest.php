@@ -10,12 +10,12 @@ use App\Models\Service;
 use App\Models\User;
 use App\Notifications\AppointmentNotification;
 use App\Notifications\PaymentReceiptNotification;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Tests\TestCase;
 
 class NotificationsTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     private function makeAppointmentNotification(Appointment $appointment): AppointmentNotification
     {

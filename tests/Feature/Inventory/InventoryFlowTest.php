@@ -5,13 +5,13 @@ namespace Tests\Feature\Inventory;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class InventoryFlowTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_admin_can_create_product(): void
     {

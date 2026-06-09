@@ -24,7 +24,7 @@ class Service extends Model
     protected function casts(): array
     {
         return [
-            'precio' => 'decimal:2',
+            'precio' => 'float',
             'activo' => 'boolean',
         ];
     }

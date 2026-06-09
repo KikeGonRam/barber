@@ -3,13 +3,13 @@
 namespace Tests\Feature\Users;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_admin_can_open_users_index(): void
     {

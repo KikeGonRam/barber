@@ -4,14 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Work;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class WorkUploadTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_barber_can_upload_work_with_multiple_images()
     {

@@ -16,13 +16,13 @@ use App\Models\Service;
 use App\Models\User;
 use App\Repositories\Eloquent\AppointmentRepository;
 use App\Services\InventoryService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class AppointmentOverlapLogicTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_range_1000_1030_does_not_overlap_with_1030_1100(): void
     {

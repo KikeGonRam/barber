@@ -8,14 +8,14 @@ use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class PaymentStoreTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_recepcionista_can_register_payment_and_generate_receipt(): void
     {

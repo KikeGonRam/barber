@@ -9,7 +9,7 @@ use App\Models\Service;
 use App\Models\User;
 use App\Notifications\AppointmentNotification;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Role;
@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 class NotificationFlowTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_appointment_creation_sends_confirmation_notification(): void
     {

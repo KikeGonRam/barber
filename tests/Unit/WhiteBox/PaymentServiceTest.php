@@ -10,13 +10,13 @@ use App\Models\Payment;
 use App\Models\Service;
 use App\Models\User;
 use App\Services\PaymentService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PaymentServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     private PaymentService $paymentService;
 

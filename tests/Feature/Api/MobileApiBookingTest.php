@@ -6,12 +6,12 @@ use App\Models\Barber;
 use App\Models\Client;
 use App\Models\Service;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Tests\TestCase;
 
 class MobileApiBookingTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_client_can_create_and_list_appointments_through_api(): void
     {

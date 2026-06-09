@@ -36,7 +36,7 @@ class Appointment extends Model
     {
         return [
             'fecha' => 'date',
-            'precio_cobrado' => 'decimal:2',
+            'precio_cobrado' => 'float',
             'cancelada_en' => 'datetime',
             'confirmation_sent_at' => 'datetime',
             'reminder_24h_sent_at' => 'datetime',

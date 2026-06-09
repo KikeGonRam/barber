@@ -5,12 +5,12 @@ namespace Tests\Unit\WhiteBox;
 use App\Models\Client;
 use App\Models\MobileApiToken;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Tests\TestCase;
 
 class UserModelTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_notification_preferences_returns_defaults_when_no_client_profile(): void
     {

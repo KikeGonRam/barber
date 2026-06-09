@@ -4,12 +4,12 @@ namespace Tests\Unit\WhiteBox;
 
 use App\Models\Service;
 use App\Services\ServiceService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Tests\TestCase;
 
 class ServiceServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     private ServiceService $serviceService;
 

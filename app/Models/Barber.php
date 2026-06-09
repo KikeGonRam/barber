@@ -13,7 +13,10 @@ class Barber extends Model
 
     protected $fillable = [
         'user_id',
+        'nombre',
+        'especialidad',
         'especialidades',
+        'telefono',
         'foto',
         'descripcion',
         'activo',

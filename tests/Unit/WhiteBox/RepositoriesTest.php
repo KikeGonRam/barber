@@ -12,12 +12,12 @@ use App\Repositories\Eloquent\AppointmentRepository;
 use App\Repositories\Eloquent\PaymentRepository;
 use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\ServiceRepository;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Tests\TestCase;
 
 class RepositoriesTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     // ── BaseRepository via ProductRepository ───────────────────────────────
 

@@ -4,13 +4,13 @@ namespace Tests\Feature\Api;
 
 use App\Models\Client;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Notifications\DatabaseNotification;
 use Tests\TestCase;
 
 class MobileApiParityAccessTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_admin_can_manage_services_crud_from_mobile_api(): void
     {

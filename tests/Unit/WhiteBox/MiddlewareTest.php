@@ -7,7 +7,7 @@ use App\Http\Middleware\Role\EnsureUserHasRole;
 use App\Models\MobileApiToken;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 class MiddlewareTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     // ── AuthenticateMobileApiToken ─────────────────────────────────────────
 

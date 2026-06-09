@@ -11,14 +11,14 @@ use App\Services\ChatbotIntelligenceService;
 use App\Services\ChatbotLearningService;
 use App\Services\ChatbotUserProfileService;
 use App\Services\GeminiService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class BusinessEventLoggingTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_chatbot_fallback_is_logged_when_response_is_manual(): void
     {

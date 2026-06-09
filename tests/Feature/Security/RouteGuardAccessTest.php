@@ -3,13 +3,13 @@
 namespace Tests\Feature\Security;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshMongoDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class RouteGuardAccessTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshMongoDatabase;
 
     public function test_guest_is_redirected_to_login_for_protected_routes(): void
     {
