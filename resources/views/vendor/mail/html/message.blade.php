@@ -3,7 +3,7 @@
     @slot('header')
         @component('mail::header', ['url' => config('app.url')])
             <div style="color: #d4af37; font-weight: 900; text-transform: uppercase;">
-                Barber<span style="color: #ffffff;">Pro</span>
+                Urban<span style="color: #ffffff;">Blade</span>
             </div>
         @endcomponent
     @endslot

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>403 - Acceso Restringido | BarberPro</title>
+    <title>403 - Acceso Restringido | UrbanBlade</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,900&display=swap" rel="stylesheet" />
     @safeVite(['resources/css/app.css', 'resources/js/app.js'])

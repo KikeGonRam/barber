@@ -17,7 +17,7 @@
                 </svg>
             </div>
             <div class="hidden lg:block">
-                <span class="block text-lg font-black uppercase tracking-tighter leading-tight">Barber<span class="text-gold">Pro</span></span>
+                <span class="block text-lg font-black uppercase tracking-tighter leading-tight">Urban<span class="text-gold">Blade</span></span>
                 <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-muted">Management System</span>
             </div>
         </a>

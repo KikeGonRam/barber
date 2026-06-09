@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>404 - Estilo no encontrado | BarberPro</title>
+    <title>404 - Estilo no encontrado | UrbanBlade</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,900&display=swap" rel="stylesheet" />
     @safeVite(['resources/css/app.css', 'resources/js/app.js'])
@@ -23,7 +23,7 @@
                 <p class="text-muted max-w-md mx-auto mb-10 font-medium">La página que buscas no existe o ha sido movida a otra estación. Regresemos al inicio para un ajuste.</p>
                 
                 <a href="/" class="ui-btn px-12 py-4 text-xs shadow-gold/20 animate-float">
-                    Volver a BarberPro Elite
+                    Volver a UrbanBlade
                 </a>
             </div>
         </div>

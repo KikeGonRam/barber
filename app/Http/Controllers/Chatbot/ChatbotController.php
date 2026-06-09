@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Chatbot;
 
+use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Payment;

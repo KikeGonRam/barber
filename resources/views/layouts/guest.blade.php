@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'BarberPro') }} - Acceso Premium</title>
+    <title>{{ config('app.name') }} - Acceso Premium</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -46,7 +46,7 @@
                         </svg>
                     </div>
                     <div>
-                        <span class="block text-xl font-black uppercase tracking-tighter text-white">Barber<span class="text-gold">Pro</span></span>
+                        <span class="block text-xl font-black uppercase tracking-tighter text-white">Urban<span class="text-gold">Blade</span></span>
                         <span class="block text-[9px] font-bold uppercase tracking-[0.3em] text-muted -mt-0.5">Elite Grooming Studio</span>
                     </div>
                 </a>
@@ -129,7 +129,7 @@
                             </svg>
                         </div>
                     </a>
-                    <h1 class="mt-4 text-2xl font-black uppercase tracking-tighter text-white">Barber<span class="text-gold">Pro</span></h1>
+                    <h1 class="mt-4 text-2xl font-black uppercase tracking-tighter text-white">Urban<span class="text-gold">Blade</span></h1>
                     <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-muted">Acceso Exclusivo</p>
                 </div>
 
@@ -143,7 +143,7 @@
                 <!-- Footer -->
                 <div class="mt-8 text-center">
                     <p class="text-[10px] font-bold uppercase tracking-widest text-white/20">
-                        &copy; {{ date('Y') }} BarberPro Elite &nbsp;·&nbsp; Todos los derechos reservados
+                        &copy; {{ date('Y') }} UrbanBlade &nbsp;·&nbsp; Todos los derechos reservados
                     </p>
                 </div>
             </div>

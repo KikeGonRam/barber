@@ -96,7 +96,7 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="header-title">Barber<span>Pro</span></h1>
+        <h1 class="header-title">Urban<span>Blade</span></h1>
         <div class="report-info">
             <p>Reporte: <span>{{ strtoupper($title) }}</span></p>
             <p>Fecha Generación: <span>{{ now()->format('d/m/Y H:i') }}</span></p>
@@ -141,7 +141,7 @@
     </div>
 
     <div class="footer">
-        Documento Generado Automáticamente por BarberPro Management System &bull; Inteligencia de Negocio
+        Documento Generado Automáticamente por UrbanBlade &bull; Inteligencia de Negocio
     </div>
 </body>
 </html>

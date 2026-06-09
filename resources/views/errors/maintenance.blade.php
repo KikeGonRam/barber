@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Actualización de Sistema | BarberPro Suite</title>
+    <title>Actualización de Sistema | UrbanBlade</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,900&display=swap" rel="stylesheet" />
     @safeVite(['resources/css/app.css', 'resources/js/app.js'])
@@ -23,7 +23,7 @@
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
-                <span class="text-2xl font-black uppercase tracking-tighter">Barber<span class="text-gold">Pro</span> <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded ml-2 text-muted">v2.0</span></span>
+                <span class="text-2xl font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span> <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded ml-2 text-muted">v2.0</span></span>
             </div>
 
             <span class="ui-badge border-gold/40 bg-gold/10 text-gold mb-8 px-6 py-2">Deployment en Progreso</span>

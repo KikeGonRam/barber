@@ -2,7 +2,7 @@
     x-data="{ 
         open: false, 
         messages: [
-            { role: 'bot', text: '¡Hola! Soy tu asistente de BarberPro. ¿En qué puedo ayudarte hoy?' }
+            { role: 'bot', text: '¡Hola! Soy tu asistente de UrbanBlade. ¿En qué puedo ayudarte hoy?' }
         ],
         userInput: '',
         isTyping: false,
@@ -79,7 +79,7 @@
                     <h3 class="text-sm font-black text-white uppercase tracking-widest">Concierge Digital</h3>
                     <div class="flex items-center gap-1.5 mt-0.5">
                         <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                        <span class="text-[9px] font-bold text-muted uppercase tracking-tighter">Soporte BarberPro</span>
+                        <span class="text-[9px] font-bold text-muted uppercase tracking-tighter">Soporte UrbanBlade</span>
                     </div>
                 </div>
             </div>

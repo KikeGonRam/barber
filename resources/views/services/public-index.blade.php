@@ -99,7 +99,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Servicios Elite — BarberPro</title>
+    <title>Servicios Elite — UrbanBlade</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,900&display=swap" rel="stylesheet"/>
     @safeVite(['resources/css/app.css', 'resources/js/app.js'])
@@ -232,7 +232,7 @@
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
-                <span class="text-xl font-black uppercase tracking-tighter">Barber<span class="text-gold">Pro</span></span>
+                <span class="text-xl font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span></span>
             </a>
 
             <div class="flex items-center gap-5">
@@ -466,7 +466,7 @@
 <!-- FOOTER -->
 <footer class="border-t border-white/[0.05] py-10 text-center bg-[#030303]">
     <p class="text-[9px] font-black uppercase tracking-[.3em] text-white/15">
-        &copy; {{ date('Y') }} BarberPro Elite Grooming &bull; Todos los derechos reservados
+        &copy; {{ date('Y') }} UrbanBlade Grooming &bull; Todos los derechos reservados
     </p>
 </footer>
 

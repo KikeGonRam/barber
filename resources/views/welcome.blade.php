@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'BarberPro') }} - Premium Grooming Studio</title>
+    <title>{{ config('app.name') }} - Premium Grooming Studio</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,900&display=swap" rel="stylesheet" />
@@ -103,7 +103,7 @@
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
-                    <a href="/" class="text-xl font-black uppercase tracking-tighter">Barber<span class="text-gold">Pro</span></a>
+                    <a href="/" class="text-xl font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span></a>
                 </div>
 
                 <div class="hidden md:flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-muted">
@@ -312,7 +312,7 @@
                     <span class="h-px w-8 bg-gold inline-block"></span>
                 </p>
                 <h2 class="text-4xl font-black tracking-tight uppercase">¿Cómo <span class="text-gold">Funciona</span>?</h2>
-                <p class="mt-4 text-muted text-sm max-w-sm mx-auto leading-relaxed">Tres pasos simples para vivir la experiencia BarberPro.</p>
+                <p class="mt-4 text-muted text-sm max-w-sm mx-auto leading-relaxed">Tres pasos simples para vivir la experiencia UrbanBlade.</p>
             </div>
 
             <div class="grid grid-cols-1 gap-10 md:grid-cols-3 relative">
@@ -418,7 +418,7 @@
                         Testimonios
                     </p>
                     <h2 class="text-4xl font-black tracking-tight uppercase leading-[1.1]">Lo que dicen <br>nuestros <span class="text-gradient-gold">Caballeros</span></h2>
-                    <p class="mt-6 text-muted leading-relaxed max-w-sm text-sm">Nuestra reputación se ha forjado con precisión y satisfacción. Más de 500 clientes confían en BarberPro.</p>
+                    <p class="mt-6 text-muted leading-relaxed max-w-sm text-sm">Nuestra reputación se ha forjado con precisión y satisfacción. Más de 500 clientes confían en UrbanBlade.</p>
 
                     <div class="mt-10 inline-flex items-center gap-5 border border-white/8 rounded-2xl px-6 py-4 bg-white/[0.02]">
                         <div class="text-center">
@@ -486,7 +486,7 @@
                         <div class="space-y-7 relative z-10">
                             @foreach([
                                 ['icon'=>'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z','label'=>'Ubicación','text'=>'Av. de la Reforma 123,<br>Suite 405, CDMX'],
-                                ['icon'=>'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z','label'=>'Contacto','text'=>'+52 55 1234 5678<br>hola@barberpro.com'],
+                                ['icon'=>'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z','label'=>'Contacto','text'=>'+52 55 1234 5678<br>hola@urbanblade.com'],
                                 ['icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z','label'=>'Horario','text'=>'Lun – Sáb: 9:00 – 21:00<br><span class="text-muted/60">Dom: Cerrado</span>'],
                             ] as $info)
                                 <div class="flex gap-4">
@@ -552,7 +552,7 @@
                 ¿Listo para tu <br>
                 <span class="text-gradient-gold italic font-serif lowercase normal-case" style="font-size: clamp(3rem, 8vw, 5.5rem);">mejor versión?</span>
             </h2>
-            <p class="text-muted text-base mb-12 leading-relaxed">Únete a cientos de caballeros que ya confían en BarberPro para lucir siempre impecables.</p>
+            <p class="text-muted text-base mb-12 leading-relaxed">Únete a cientos de caballeros que ya confían en UrbanBlade para lucir siempre impecables.</p>
             <a href="{{ route('register') }}" class="ui-btn px-16 py-6 text-[13px] uppercase tracking-[0.25em] gold-glow-hover animate-float shadow-[0_0_60px_rgba(212,175,55,0.18)]">
                 Reserva tu Turno Ahora
             </a>
@@ -574,7 +574,7 @@
                                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </div>
-                        <span class="text-lg font-black uppercase tracking-tighter text-white">Barber<span class="text-gold">Pro</span></span>
+                        <span class="text-lg font-black uppercase tracking-tighter text-white">Urban<span class="text-gold">Blade</span></span>
                     </div>
                     <p class="text-xs text-muted leading-relaxed">
                         Líderes en el arte del grooming masculino. Unimos tradición y tecnología para una experiencia inigualable.
@@ -595,7 +595,7 @@
                         <h5 class="text-[10px] font-black uppercase tracking-widest text-white mb-5">Contacto</h5>
                         <ul class="space-y-3 text-[11px] font-bold text-muted tracking-wider">
                             <li>+52 55 1234 5678</li>
-                            <li>hola@barberpro.com</li>
+                            <li>hola@urbanblade.com</li>
                             <li class="text-muted/50">Lun – Sáb: 9 – 21h</li>
                         </ul>
                     </div>
@@ -615,7 +615,7 @@
 
             <div class="mt-14 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/20">
-                    &copy; {{ date('Y') }} BarberPro Elite Grooming Studio. Todos los derechos reservados.
+                    &copy; {{ date('Y') }} UrbanBlade. Todos los derechos reservados.
                 </p>
                 <div class="flex gap-6 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
                     <a href="#" class="hover:text-white/40 transition">Privacidad</a>

@@ -110,7 +110,7 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="header-title">Barber<span>Pro</span></h1>
+        <h1 class="header-title">Urban<span>Blade</span></h1>
         <div class="invoice-info">
             <p>Factura No: <span>#{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}</span></p>
             <p>Fecha: <span>{{ $payment->created_at?->format('d/m/Y') }}</span></p>
@@ -196,12 +196,12 @@
         <div class="clear"></div>
 
         <div style="margin-top: 60px; padding: 20px; background-color: #f9f9f9; border-radius: 10px; font-size: 11px; color: #777;">
-            <strong>Nota:</strong> Este documento es un comprobante oficial de pago por los servicios prestados en BarberPro. Gracias por elegir nuestra excelencia.
+            <strong>Nota:</strong> Este documento es un comprobante oficial de pago por los servicios prestados en UrbanBlade. Gracias por elegir nuestra excelencia.
         </div>
     </div>
 
     <div class="footer">
-        BarberPro Premium Grooming &bull; www.barberpro.com &bull; +52 123 456 7890
+        UrbanBlade &bull; www.urbanblade.com &bull; +52 123 456 7890
     </div>
 </body>
 </html>

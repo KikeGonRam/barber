@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $barber->user?->name }} — BarberPro Elite</title>
+    <title>{{ $barber->user?->name }} — UrbanBlade</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,900&display=swap" rel="stylesheet" />
     @safeVite(['resources/css/app.css', 'resources/js/app.js'])
@@ -21,7 +21,7 @@
                                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </div>
-                        <span class="text-lg font-black uppercase tracking-tighter">Barber<span class="text-gold">Pro</span></span>
+                        <span class="text-lg font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span></span>
                     </a>
                     <a href="/" class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted hover:text-gold transition">
                         <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
@@ -203,7 +203,7 @@
 
         <footer class="border-t border-white/5 py-10 text-center">
             <p class="text-[10px] font-black uppercase tracking-[0.3em] text-muted">
-                BarberPro Elite Grooming Studio &bull; {{ date('Y') }}
+                UrbanBlade Grooming Studio &bull; {{ date('Y') }}
             </p>
         </footer>
     </div>

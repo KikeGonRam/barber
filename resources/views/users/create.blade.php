@@ -38,7 +38,7 @@
                                 <label class="ui-label" for="email">Correo Electrónico</label>
                                 <input id="email" type="email" name="email" value="{{ old('email') }}" 
                                        class="ui-input !bg-panel border-white/10 text-white" 
-                                       placeholder="staff@barberpro.com" required>
+                                       placeholder="staff@urbanblade.com" required>
                                 @error('email') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                             </div>
                         </div>
