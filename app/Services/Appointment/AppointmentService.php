@@ -85,8 +85,10 @@ class AppointmentService
 
             if ($isAvailable) {
                 $slots[] = [
-                    'time' => $current->format('H:i'),
-                    'label' => $current->format('g:i A'),
+                    'time'      => $current->format('H:i'),
+                    'label'     => $current->format('g:i A'),
+                    'end_time'  => $current->copy()->addMinutes($duration)->format('H:i'),
+                    'end_label' => $current->copy()->addMinutes($duration)->format('g:i A'),
                 ];
             }
 
@@ -106,14 +108,22 @@ class AppointmentService
         $user = $appointment->client?->user;
 
         if ($user) {
-            $user->notify(new AppointmentNotification(
-                appointment: $appointment,
-                subject: 'Confirmación de cita',
-                title: 'Tu cita fue registrada',
-                message: 'Tu cita fue confirmada en el sistema.',
-            ));
+            try {
+                $user->notify(new AppointmentNotification(
+                    appointment: $appointment,
+                    subject: 'Confirmación de cita',
+                    title: 'Tu cita fue registrada',
+                    message: 'Tu cita fue confirmada. Te esperamos el día indicado.',
+                ));
 
-            $appointment->update(['confirmation_sent_at' => now()]);
+                $appointment->update(['confirmation_sent_at' => now()]);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Fallo notificación confirmación de cita', [
+                    'appointment_id' => $appointment->id,
+                    'user_id'        => $user->id,
+                    'error'          => $e->getMessage(),
+                ]);
+            }
         }
 
         return $appointment;

@@ -37,7 +37,45 @@ class NotificationController extends Controller
 
         return response()->json([
             'message' => 'Notificaciones marcadas como leidas.',
-            'unread' => 0,
+            'unread'  => 0,
+        ]);
+    }
+
+    public function markOneRead(Request $request, string $id): JsonResponse
+    {
+        $notification = $request->user()
+            ->notifications()
+            ->where('_id', $id)
+            ->first();
+
+        if (! $notification) {
+            return response()->json(['message' => 'Notificación no encontrada.'], 404);
+        }
+
+        $notification->markAsRead();
+
+        return response()->json([
+            'message' => 'Notificación marcada como leída.',
+            'unread'  => $request->user()->unreadNotifications()->count(),
+        ]);
+    }
+
+    public function destroy(Request $request, string $id): JsonResponse
+    {
+        $notification = $request->user()
+            ->notifications()
+            ->where('_id', $id)
+            ->first();
+
+        if (! $notification) {
+            return response()->json(['message' => 'Notificación no encontrada.'], 404);
+        }
+
+        $notification->delete();
+
+        return response()->json([
+            'message' => 'Notificación eliminada.',
+            'unread'  => $request->user()->unreadNotifications()->count(),
         ]);
     }
 }

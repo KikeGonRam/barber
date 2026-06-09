@@ -36,15 +36,19 @@ class AppointmentNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        $hora = $this->appointment->hora_inicio
+            ? substr($this->appointment->hora_inicio, 0, 5).' — '.substr($this->appointment->hora_fin ?? '', 0, 5)
+            : 'N/D';
+
         return (new MailMessage)
             ->subject($this->subject)
             ->greeting('Hola '.$notifiable->name.',')
             ->line($this->title)
             ->line($this->message)
-            ->line('Fecha: '.optional($this->appointment->fecha)->format('d/m/Y'))
-            ->line('Horario: '.$this->appointment->hora_inicio.' - '.$this->appointment->hora_fin)
-            ->line('Servicio: '.($this->appointment->service?->nombre ?? 'N/D'))
-            ->action('Ver panel', url('/dashboard'));
+            ->line('**Fecha:** '.optional($this->appointment->fecha)->format('d/m/Y'))
+            ->line('**Horario:** '.$hora)
+            ->line('**Servicio:** '.($this->appointment->service?->nombre ?? 'N/D'))
+            ->action('Ver mis citas', route('client.appointments.index'));
     }
 
     public function toArray(object $notifiable): array

@@ -31,16 +31,26 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $url = $this->payment->id ? route('payments.receipt.download', $this->payment) : url('/dashboard');
+        // Use the client-accessible download route so the client can open it directly.
+        $url = $this->payment->id
+            ? route('client.facturas.download', $this->payment)
+            : route('client.facturas.index');
+
+        $appt    = $this->payment->appointment;
+        $service = $appt?->service?->nombre ?? 'Servicio';
+        $fecha   = optional($appt?->fecha)->format('d/m/Y') ?? '';
 
         return (new MailMessage)
-            ->subject('Comprobante de pago #'.$this->payment->id)
+            ->subject('Tu comprobante de pago — '.$service)
             ->greeting('Hola '.$notifiable->name.',')
-            ->line('Se registró correctamente tu pago.')
-            ->line('Monto: $'.number_format((float) $this->payment->monto, 2))
-            ->line('Propina: $'.number_format((float) $this->payment->propina, 2))
-            ->line('Método: '.$this->payment->metodo_pago)
-            ->action('Descargar comprobante', $url);
+            ->line('Tu pago ha sido registrado correctamente. Gracias por tu visita.')
+            ->line('**Servicio:** '.$service.($fecha ? ' · '.$fecha : ''))
+            ->line('**Monto:** $'.number_format((float) $this->payment->monto, 2))
+            ->when((float) $this->payment->propina > 0, fn($m) =>
+                $m->line('**Propina:** $'.number_format((float) $this->payment->propina, 2))
+            )
+            ->line('**Método de pago:** '.ucfirst($this->payment->metodo_pago ?? '—'))
+            ->action('Ver mis facturas', $url);
     }
 
     public function toArray(object $notifiable): array

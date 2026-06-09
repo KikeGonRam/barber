@@ -39,6 +39,7 @@
     <div class="fixed bottom-6 right-6 z-50">
         <x-chatbot />
     </div>
+    <x-notification-toaster />
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>

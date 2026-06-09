@@ -9,10 +9,12 @@ use App\Http\Requests\Client\UpdateClientAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarbershopSetting;
+use App\Models\Product;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ClientAppointmentController extends Controller
@@ -30,22 +32,53 @@ class ClientAppointmentController extends Controller
 
         abort_if(! $client, 403);
 
+        $clientId = (string) $client->id;
+        $today    = now()->startOfDay();
+
+        $stats = [
+            'total'       => Appointment::where('client_id', $clientId)->count(),
+            'proximas'    => Appointment::where('client_id', $clientId)
+                                ->whereNotIn('estado', ['cancelada', 'completada'])
+                                ->where('fecha', '>=', $today)->count(),
+            'completadas' => Appointment::where('client_id', $clientId)->where('estado', 'completada')->count(),
+            'canceladas'  => Appointment::where('client_id', $clientId)->where('estado', 'cancelada')->count(),
+        ];
+
+        $nextAppointment = Appointment::where('client_id', $clientId)
+            ->whereNotIn('estado', ['cancelada', 'completada'])
+            ->where('fecha', '>=', $today)
+            ->with(['barber.user', 'service'])
+            ->orderBy('fecha', 'asc')
+            ->orderBy('hora_inicio', 'asc')
+            ->first();
+
         $appointments = Appointment::query()
-            ->where('client_id', (string) $client->id)
+            ->where('client_id', $clientId)
             ->with(['barber.user', 'service'])
             ->latest('fecha')
             ->latest('hora_inicio')
-            ->paginate(15);
+            ->paginate(12);
 
-        return view('client.appointments.index', compact('appointments'));
+        return view('client.appointments.index', compact('appointments', 'stats', 'nextAppointment'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        $barbers = Barber::query()->with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
+        $barbers  = Barber::query()->with('user:id,name')->where('activo', true)->get();
         $services = Service::query()->where('activo', true)->orderBy('nombre')->get();
+        $products = Product::query()
+            ->where('stock_actual', '>', 0)
+            ->orderBy('nombre')
+            ->get(['id', 'nombre', 'categoria', 'precio_venta', 'imagen', 'descripcion']);
 
-        return view('client.appointments.create', compact('barbers', 'services'));
+        $preselectedBarber = null;
+        if ($request->filled('barber_id')) {
+            $preselectedBarber = $barbers->first(fn($b) => (string) $b->id === (string) $request->barber_id);
+        }
+
+        $settings = BarbershopSetting::query()->first();
+
+        return view('client.appointments.create', compact('barbers', 'services', 'products', 'preselectedBarber', 'settings'));
     }
 
     public function store(StoreClientAppointmentRequest $request): RedirectResponse

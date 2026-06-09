@@ -18,7 +18,7 @@ class StoreServiceRequest extends FormRequest
             'categoria' => ['required', 'string', 'max:100'],
             'precio' => ['required', 'numeric', 'min:0'],
             'duracion_min' => ['required', 'integer', 'min:5', 'max:600'],
-            'imagen' => ['nullable', 'string', 'max:255'],
+            'imagen' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'descripcion' => ['nullable', 'string', 'max:2000'],
             'activo' => ['nullable', 'boolean'],
         ];

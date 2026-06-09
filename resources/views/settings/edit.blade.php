@@ -99,6 +99,55 @@
                         </div>
                     </div>
 
+                    <!-- Bank Transfer Details -->
+                    <div class="pt-8 border-t border-white/5">
+                        @php $db = $setting->datos_bancarios ?? []; @endphp
+                        <div class="mb-6 flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-lg bg-gold/10 flex items-center justify-center text-gold">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-black text-white uppercase tracking-widest">Datos Bancarios (Transferencia)</h3>
+                                <p class="text-[10px] text-muted mt-0.5">Estos datos se muestran al cliente cuando elige pagar por transferencia al reservar.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            <div class="md:col-span-2">
+                                <label class="ui-label" for="clabe">CLABE Interbancaria (18 dígitos)</label>
+                                <input id="clabe" name="clabe" maxlength="18"
+                                       value="{{ old('clabe', $db['clabe'] ?? '') }}"
+                                       class="ui-input !bg-panel border-white/10 text-white font-mono"
+                                       placeholder="000000000000000000">
+                                @error('clabe') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="ui-label" for="banco">Banco</label>
+                                <input id="banco" name="banco"
+                                       value="{{ old('banco', $db['banco'] ?? '') }}"
+                                       class="ui-input !bg-panel border-white/10 text-white"
+                                       placeholder="Ej: BBVA, Banorte, HSBC…">
+                                @error('banco') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="ui-label" for="beneficiario">Beneficiario (nombre)</label>
+                                <input id="beneficiario" name="beneficiario"
+                                       value="{{ old('beneficiario', $db['beneficiario'] ?? '') }}"
+                                       class="ui-input !bg-panel border-white/10 text-white"
+                                       placeholder="Nombre del titular de la cuenta">
+                                @error('beneficiario') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="ui-label" for="concepto">Concepto / Referencia <span class="text-muted/50">(opcional)</span></label>
+                                <input id="concepto" name="concepto"
+                                       value="{{ old('concepto', $db['concepto'] ?? '') }}"
+                                       class="ui-input !bg-panel border-white/10 text-white"
+                                       placeholder="Ej: Pago cita UrbanBlade">
+                                @error('concepto') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="pt-10 border-t border-white/5 flex justify-end">
                         <button type="submit" class="ui-btn px-16 py-4 text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-gold/20">
                             Actualizar Configuración Maestro

@@ -9,6 +9,7 @@ use App\Models\Service;
 use App\Services\Service\ServiceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ServiceController extends Controller
@@ -47,7 +48,11 @@ class ServiceController extends Controller
 
     public function store(StoreServiceRequest $request): RedirectResponse
     {
-        $this->serviceService->create($request->validated());
+        $data = $request->validated();
+        if ($request->hasFile('imagen')) {
+            $data['imagen'] = $request->file('imagen')->store('services', 'public');
+        }
+        $this->serviceService->create($data);
 
         return redirect()->route('services.index')->with('status', 'Servicio creado correctamente.');
     }
@@ -59,7 +64,16 @@ class ServiceController extends Controller
 
     public function update(UpdateServiceRequest $request, Service $service): RedirectResponse
     {
-        $this->serviceService->update($service, $request->validated());
+        $data = $request->validated();
+        if ($request->hasFile('imagen')) {
+            if ($service->imagen) {
+                Storage::disk('public')->delete($service->imagen);
+            }
+            $data['imagen'] = $request->file('imagen')->store('services', 'public');
+        } else {
+            unset($data['imagen']);
+        }
+        $this->serviceService->update($service, $data);
 
         return redirect()->route('services.index')->with('status', 'Servicio actualizado correctamente.');
     }

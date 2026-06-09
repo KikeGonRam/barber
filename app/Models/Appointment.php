@@ -23,7 +23,9 @@ class Appointment extends Model
         'hora_fin',
         'estado',
         'notas',
+        'metodo_pago',
         'precio_cobrado',
+        'productos',
         'motivo_reagendamiento',
         'cancelada_en',
         'confirmation_sent_at',
@@ -36,6 +38,7 @@ class Appointment extends Model
     {
         return [
             'fecha' => 'date',
+            'productos' => 'array',
             'precio_cobrado' => 'float',
             'cancelada_en' => 'datetime',
             'confirmation_sent_at' => 'datetime',

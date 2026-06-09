@@ -126,6 +126,8 @@ Route::prefix('v1')->group(function (): void {
         // Notificaciones
         Route::get('notifications', [ApiNotificationController::class, 'index']);
         Route::post('notifications/read-all', [ApiNotificationController::class, 'markAllRead']);
+        Route::post('notifications/{id}/read', [ApiNotificationController::class, 'markOneRead']);
+        Route::delete('notifications/{id}', [ApiNotificationController::class, 'destroy']);
 
         // Social
         Route::post('social/work/{work}/react', [ApiSocialController::class, 'react']);

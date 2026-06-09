@@ -14,7 +14,7 @@
     <div class="py-8">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <section class="ui-surface">
-                <form method="POST" action="{{ route('services.update', $service) }}" class="space-y-10">
+                <form method="POST" action="{{ route('services.update', $service) }}" enctype="multipart/form-data" class="space-y-10">
                     @csrf
                     @method('PUT')
 
@@ -99,6 +99,32 @@
                                 <div class="absolute left-1 top-1 h-4 w-4 rounded-full bg-muted peer-checked:bg-gold peer-checked:translate-x-5 transition-all"></div>
                                 <span class="ms-3 text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-white transition-colors">Servicio Activo en el Catálogo</span>
                             </label>
+                        </div>
+                    </div>
+
+                    <!-- Section: Image -->
+                    <div class="pt-8 border-t border-white/5">
+                        <div class="mb-6 flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-lg bg-gold/10 flex items-center justify-center text-gold">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            </div>
+                            <h3 class="text-sm font-black text-white uppercase tracking-widest">Imagen del Servicio</h3>
+                        </div>
+
+                        <div class="space-y-4">
+                            @if($service->imagen)
+                                <div class="flex items-center gap-4">
+                                    <img src="{{ Storage::url($service->imagen) }}" alt="{{ $service->nombre }}"
+                                         class="h-24 w-24 rounded-xl object-cover border border-white/10">
+                                    <p class="text-[10px] font-bold text-muted uppercase">Imagen actual — sube una nueva para reemplazarla</p>
+                                </div>
+                            @endif
+                            <div>
+                                <label class="ui-label" for="imagen">{{ $service->imagen ? 'Reemplazar Imagen' : 'Subir Imagen' }} <span class="text-muted">(opcional, máx. 2 MB)</span></label>
+                                <input id="imagen" type="file" name="imagen" accept="image/jpeg,image/png,image/jpg,image/webp"
+                                       class="ui-input !bg-panel border-white/10 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-gold/10 file:text-gold hover:file:bg-gold/20 cursor-pointer">
+                                @error('imagen') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                            </div>
                         </div>
                     </div>
 

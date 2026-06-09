@@ -5,6 +5,8 @@ use App\Http\Controllers\Barber\BarberController;
 use App\Http\Controllers\Barber\BarberDashboardController;
 use App\Http\Controllers\Chatbot\ChatbotController;
 use App\Http\Controllers\Client\ClientAppointmentController;
+use App\Http\Controllers\Client\ClientBarberController;
+use App\Http\Controllers\Client\ClientInvoiceController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\DatabaseBackupController;
@@ -82,7 +84,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/poll', [NotificationController::class, 'poll'])->name('notifications.poll');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markOneRead'])->name('notifications.read-one');
 
     Route::middleware(['verified', 'role.custom:administrador,recepcionista'])->group(function () {
         Route::middleware('permission.custom:citas.gestionar')->group(function () {
@@ -154,6 +158,10 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware(['verified', 'role.custom:cliente'])->prefix('cliente')->name('client.')->group(function () {
         Route::resource('appointments', ClientAppointmentController::class)->except('show');
+        Route::get('barberos', [ClientBarberController::class, 'index'])->name('barberos.index');
+        Route::get('barberos/{barber}', [ClientBarberController::class, 'show'])->name('barberos.show');
+        Route::get('facturas', [ClientInvoiceController::class, 'index'])->name('facturas.index');
+        Route::get('facturas/{payment}/download', [ClientInvoiceController::class, 'download'])->name('facturas.download');
     });
 
     Route::middleware(['verified', 'role.custom:barbero'])->prefix('barbero')->name('barber.')->group(function () {

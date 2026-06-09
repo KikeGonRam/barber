@@ -20,33 +20,73 @@
 
             <section class="space-y-4">
                 @forelse($notifications as $notification)
-                    <article class="ui-card-premium p-6 group {{ $notification->read_at ? 'opacity-60' : 'border-gold/30' }}">
-                        <div class="flex items-start gap-6">
-                            <div class="h-12 w-12 rounded-2xl flex items-center justify-center flex-shrink-0 {{ $notification->read_at ? 'bg-white/5 text-muted' : 'bg-gold/10 text-gold shadow-[0_0_20px_rgba(212,175,55,0.1)]' }}">
-                                @php
-                                    $icon = match($notification->type) {
-                                        'App\Notifications\AppointmentNotification' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
-                                        'App\Notifications\PaymentReceiptNotification' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2',
-                                        default => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-                                    };
-                                @endphp
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $icon }}" /></svg>
+                    @php
+                        $isUnread = is_null($notification->read_at);
+                        $type = $notification->data['type'] ?? '';
+                        $icon = match(true) {
+                            str_contains($notification->type, 'AppointmentNotification') => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+                            str_contains($notification->type, 'PaymentReceipt')          => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+                            default                                                       => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                        };
+                    @endphp
+                    <article class="ui-card-premium p-5 group {{ $isUnread ? 'border-gold/20' : 'opacity-55' }}">
+                        <div class="flex items-start gap-5">
+                            <!-- Icon -->
+                            <div class="h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0
+                                {{ $isUnread ? 'bg-gold/10 text-gold shadow-[0_0_16px_rgba(212,175,55,0.1)]' : 'bg-white/5 text-muted' }}">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $icon }}"/>
+                                </svg>
                             </div>
+
+                            <!-- Content -->
                             <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between mb-1">
-                                    <h3 class="text-base font-black text-white uppercase tracking-tight truncate">
+                                <div class="flex items-start justify-between gap-3 mb-1">
+                                    <h3 class="text-sm font-black text-white uppercase tracking-tight leading-tight">
                                         {{ $notification->data['title'] ?? $notification->data['subject'] ?? 'Actualización del Sistema' }}
                                     </h3>
-                                    <span class="text-[9px] font-black uppercase tracking-[0.2em] text-muted">{{ $notification->created_at->diffForHumans() }}</span>
+                                    <span class="text-[9px] font-black uppercase tracking-[0.2em] text-muted flex-shrink-0">
+                                        {{ $notification->created_at->diffForHumans() }}
+                                    </span>
                                 </div>
-                                <p class="text-sm text-muted leading-relaxed">{{ $notification->data['message'] ?? '' }}</p>
-                                
-                                @if(!$notification->read_at)
-                                    <div class="mt-4 flex items-center gap-2">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-gold animate-pulse"></span>
-                                        <span class="text-[9px] font-black text-gold uppercase tracking-widest">Nuevo Mensaje</span>
-                                    </div>
+
+                                <p class="text-xs text-muted/80 leading-relaxed">
+                                    {{ $notification->data['message'] ?? '' }}
+                                </p>
+
+                                @if($type === 'appointment' && !empty($notification->data['fecha']))
+                                    <p class="mt-1.5 text-[10px] text-muted font-bold">
+                                        {{ \Carbon\Carbon::parse($notification->data['fecha'])->format('d/m/Y') }}
+                                        @if(!empty($notification->data['hora_inicio']))
+                                            · {{ substr($notification->data['hora_inicio'], 0, 5) }}
+                                        @endif
+                                    </p>
                                 @endif
+
+                                @if($type === 'payment' && !empty($notification->data['monto']))
+                                    <p class="mt-1.5 text-[10px] text-gold font-black">
+                                        ${{ number_format((float) $notification->data['monto'], 2) }}
+                                        @if(!empty($notification->data['metodo_pago']))
+                                            · {{ ucfirst($notification->data['metodo_pago']) }}
+                                        @endif
+                                    </p>
+                                @endif
+
+                                <div class="mt-3 flex items-center gap-3">
+                                    @if($isUnread)
+                                        <span class="flex items-center gap-1.5 text-[9px] font-black text-gold uppercase tracking-widest">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-gold animate-pulse"></span>
+                                            Nuevo
+                                        </span>
+                                        <form method="POST" action="{{ route('notifications.read-one', $notification->id) }}">
+                                            @csrf
+                                            <button type="submit"
+                                                class="text-[9px] font-black uppercase tracking-widest text-muted hover:text-white transition">
+                                                Marcar como leída
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </article>

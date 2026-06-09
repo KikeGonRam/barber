@@ -60,7 +60,15 @@ class PaymentService
             $user = $payment->appointment?->client?->user;
 
             if ($user) {
-                $user->notify(new PaymentReceiptNotification($payment));
+                try {
+                    $user->notify(new PaymentReceiptNotification($payment));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Fallo notificación comprobante de pago', [
+                        'payment_id' => $payment->id,
+                        'user_id'    => $user->id,
+                        'error'      => $e->getMessage(),
+                    ]);
+                }
             }
 
             return $payment;

@@ -20,9 +20,13 @@ class UpdateBarbershopSettingRequest extends FormRequest
             'horario_apertura' => ['nullable', 'date_format:H:i'],
             'horario_cierre' => ['nullable', 'date_format:H:i', 'after:horario_apertura'],
             'politica_cancelacion' => ['required', 'integer', 'min:1', 'max:168'],
-            'instagram' => ['nullable', 'string', 'max:255'],
-            'facebook' => ['nullable', 'string', 'max:255'],
-            'tiktok' => ['nullable', 'string', 'max:255'],
+            'instagram'    => ['nullable', 'string', 'max:255'],
+            'facebook'     => ['nullable', 'string', 'max:255'],
+            'tiktok'       => ['nullable', 'string', 'max:255'],
+            'clabe'        => ['nullable', 'string', 'max:18'],
+            'banco'        => ['nullable', 'string', 'max:100'],
+            'beneficiario' => ['nullable', 'string', 'max:150'],
+            'concepto'     => ['nullable', 'string', 'max:100'],
         ];
     }
 }

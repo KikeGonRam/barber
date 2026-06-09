@@ -142,9 +142,17 @@
         @if($isClient)
             <div class="space-y-1">
                 <p class="px-3 text-[10px] uppercase tracking-widest text-gold font-black mb-2 opacity-80">Mi Cuenta</p>
-                <x-nav-link :href="route('client.appointments.index')" :active="request()->routeIs('client.*')">
+                <x-nav-link :href="route('client.appointments.index')" :active="request()->routeIs('client.appointments.*')">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     <span>Mis Citas</span>
+                </x-nav-link>
+                <x-nav-link :href="route('client.barberos.index')" :active="request()->routeIs('client.barberos.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758L5 19m0-14l4.121 4.121"/><circle cx="17" cy="7" r="3"/></svg>
+                    <span>Nuestros Barberos</span>
+                </x-nav-link>
+                <x-nav-link :href="route('client.facturas.index')" :active="request()->routeIs('client.facturas.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>Mis Facturas</span>
                 </x-nav-link>
             </div>
         @endif
@@ -174,12 +182,17 @@
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="flex items-center gap-2 w-full justify-between">
                 Notificaciones
-                @if($unread > 0)
-                    <span class="relative flex h-4 w-4">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span class="relative inline-flex items-center justify-center rounded-full bg-red-500 h-4 w-4 text-[10px] font-black text-white leading-none">{{ $unread }}</span>
-                    </span>
-                @endif
+                {{-- Badge: SSR inline style ensures initial visibility; Alpine store drives real-time updates --}}
+                <span
+                    x-data
+                    x-show="($store.notif?.unread ?? {{ $unread }}) > 0"
+                    class="relative flex h-4 w-4"
+                    style="{{ $unread > 0 ? '' : 'display:none' }}"
+                >
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold/40 opacity-75"></span>
+                    <span class="relative inline-flex items-center justify-center rounded-full bg-gold h-4 w-4 text-[10px] font-black text-black leading-none"
+                          x-text="($store.notif?.unread ?? {{ $unread }}) > 99 ? '99+' : ($store.notif?.unread ?? {{ $unread }})">{{ min($unread, 99) }}</span>
+                </span>
             </span>
         </x-nav-link>
 
