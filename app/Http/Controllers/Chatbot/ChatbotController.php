@@ -478,7 +478,7 @@ class ChatbotController extends Controller
             || str_contains($normalizedResponse, 'no estoy completamente seguro');
     }
 
-    private function recordProviderTelemetry(?int $userId, string $source, string $status, int $requestStartedAt, array $extraProperties = []): void
+    private function recordProviderTelemetry(mixed $userId, string $source, string $status, int $requestStartedAt, array $extraProperties = []): void
     {
         if (! (bool) config('chatbot.telemetry.enabled', true)) {
             return;
