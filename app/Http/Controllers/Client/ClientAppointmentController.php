@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Client;
 
 use App\Exceptions\Domain\AppointmentConflictException;
+use App\Exceptions\Domain\ClientAlreadyBookedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StoreClientAppointmentRequest;
 use App\Http\Requests\Client\UpdateClientAppointmentRequest;
@@ -35,13 +36,16 @@ class ClientAppointmentController extends Controller
         $clientId = (string) $client->id;
         $today    = now()->startOfDay();
 
+        // Single query — group by estado in PHP to avoid 4 separate count() calls
+        $allEstados = Appointment::where('client_id', $clientId)
+            ->get(['estado', 'fecha']);
+        $todayStr = $today->toDateString();
         $stats = [
-            'total'       => Appointment::where('client_id', $clientId)->count(),
-            'proximas'    => Appointment::where('client_id', $clientId)
-                                ->whereNotIn('estado', ['cancelada', 'completada'])
-                                ->where('fecha', '>=', $today)->count(),
-            'completadas' => Appointment::where('client_id', $clientId)->where('estado', 'completada')->count(),
-            'canceladas'  => Appointment::where('client_id', $clientId)->where('estado', 'cancelada')->count(),
+            'total'       => $allEstados->count(),
+            'proximas'    => $allEstados->filter(fn ($a) => ! in_array($a->estado, ['cancelada', 'completada'], true)
+                                && substr((string) $a->fecha, 0, 10) >= $todayStr)->count(),
+            'completadas' => $allEstados->where('estado', 'completada')->count(),
+            'canceladas'  => $allEstados->where('estado', 'cancelada')->count(),
         ];
 
         $nextAppointment = Appointment::where('client_id', $clientId)
@@ -101,6 +105,8 @@ class ClientAppointmentController extends Controller
 
         try {
             $this->appointmentService->createAppointment($payload);
+        } catch (ClientAlreadyBookedException $exception) {
+            return back()->withInput()->withErrors(['fecha' => $exception->getMessage()]);
         } catch (AppointmentConflictException $exception) {
             return back()->withInput()->withErrors(['hora_inicio' => $exception->getMessage()]);
         }
@@ -140,6 +146,8 @@ class ClientAppointmentController extends Controller
 
         try {
             $this->appointmentService->updateAppointment($appointment->id, $payload);
+        } catch (ClientAlreadyBookedException $exception) {
+            return back()->withInput()->withErrors(['fecha' => $exception->getMessage()]);
         } catch (AppointmentConflictException $exception) {
             return back()->withInput()->withErrors(['hora_inicio' => $exception->getMessage()]);
         }

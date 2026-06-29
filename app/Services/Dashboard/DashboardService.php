@@ -6,88 +6,128 @@ use App\Models\Activity;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
+use App\Models\LoyaltyTransaction;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\RaffleResult;
 use App\Models\Service;
+use App\Services\Loyalty\LoyaltyService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardService
 {
     private function sumPayments($query): float
     {
         return $query->get(['monto', 'propina'])
-            ->sum(fn($p) => (float) ($p->monto ?? 0) + (float) ($p->propina ?? 0));
+            ->sum(fn ($p) => (float) ($p->monto ?? 0) + (float) ($p->propina ?? 0));
+    }
+
+    private function sumPaymentCollection(Collection $payments): float
+    {
+        return $payments->sum(fn ($p) => (float) ($p->monto ?? 0) + (float) ($p->propina ?? 0));
     }
 
     public function adminMetrics(): array
     {
-        $today = Carbon::today();
-        $weekStart = Carbon::now()->startOfWeek();
-        $weekEnd = Carbon::now()->endOfWeek();
-        $monthStart = Carbon::now()->startOfMonth();
-        $monthEnd = Carbon::now()->endOfMonth();
+        return Cache::remember('dashboard.admin.metrics', 120, fn () => $this->buildAdminMetrics());
+    }
+
+    private function buildAdminMetrics(): array
+    {
+        $today         = Carbon::today();
+        $weekStart     = Carbon::now()->startOfWeek();
+        $weekEnd       = Carbon::now()->endOfWeek();
+        $monthStart    = Carbon::now()->startOfMonth();
+        $monthEnd      = Carbon::now()->endOfMonth();
         $lastMonthStart = (clone $monthStart)->subMonth();
-        $lastMonthEnd = (clone $monthEnd)->subMonth();
+        $lastMonthEnd   = (clone $monthEnd)->subMonth();
 
-        $appointmentsToday   = Appointment::whereDate('fecha', $today)->count();
-        $appointmentsWeek    = Appointment::whereBetween('fecha', [$weekStart->toDateString(), $weekEnd->toDateString()])->count();
-        $appointmentsMonth   = Appointment::whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])->count();
-        $appointmentsLastMonth = Appointment::whereBetween('fecha', [$lastMonthStart->toDateString(), $lastMonthEnd->toDateString()])->count();
-
-        $incomeToday      = $this->sumPayments(Payment::whereDate('created_at', $today));
-        $incomeWeek       = $this->sumPayments(Payment::whereBetween('created_at', [$weekStart, $weekEnd]));
-        $incomeMonth      = $this->sumPayments(Payment::whereBetween('created_at', [$monthStart, $monthEnd]));
-        $incomeLastMonth  = $this->sumPayments(Payment::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd]));
+        // --- Appointment counts (4 indexed queries, fast) ---
+        $appointmentsToday      = Appointment::whereDate('fecha', $today)->count();
+        $appointmentsWeek       = Appointment::whereBetween('fecha', [$weekStart->toDateString(), $weekEnd->toDateString()])->count();
+        $appointmentsMonth      = Appointment::whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])->count();
+        $appointmentsLastMonth  = Appointment::whereBetween('fecha', [$lastMonthStart->toDateString(), $lastMonthEnd->toDateString()])->count();
 
         $appointmentGrowth = $appointmentsLastMonth > 0
             ? (($appointmentsMonth - $appointmentsLastMonth) / $appointmentsLastMonth) * 100 : 0;
+
+        // --- Income KPIs — 1 query for the full range, grouped in PHP ---
+        $allPayments = Payment::where('created_at', '>=', $lastMonthStart->copy()->startOfDay())
+            ->get(['created_at', 'monto', 'propina']);
+
+        $incomeToday     = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->isToday()));
+        $incomeWeek      = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($weekStart, $weekEnd)));
+        $incomeMonth     = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($monthStart, $monthEnd)));
+        $incomeLastMonth = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($lastMonthStart, $lastMonthEnd)));
+
         $incomeGrowth = $incomeLastMonth > 0
             ? (($incomeMonth - $incomeLastMonth) / $incomeLastMonth) * 100 : 0;
 
+        // --- Top barber this month ---
         $barberGroups = Appointment::whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->get(['barber_id'])
             ->groupBy('barber_id')
-            ->map(fn($g) => $g->count())
+            ->map(fn ($g) => $g->count())
             ->sortDesc();
         $topBarberId    = $barberGroups->keys()->first();
         $topBarber      = $topBarberId ? Barber::with('user')->find($topBarberId) : null;
         $topBarberTotal = $barberGroups->first() ?? 0;
 
-        $serviceGroups = Appointment::get(['service_id'])
+        // --- Top services — date-limited to last year, batch Service lookup ---
+        $serviceGroups = Appointment::where('fecha', '>=', Carbon::now()->subYear()->toDateString())
+            ->get(['service_id'])
             ->groupBy('service_id')
-            ->map(fn($g) => $g->count())
+            ->map(fn ($g) => $g->count())
             ->sortDesc()
             ->take(5);
-        $topServices = $serviceGroups->map(function ($total, $serviceId) {
+        $serviceIds = $serviceGroups->keys()->filter()->all();
+        $servicesMap = Service::find($serviceIds)->keyBy(fn ($s) => (string) $s->id);
+        $topServices = $serviceGroups->map(function ($total, $serviceId) use ($servicesMap) {
             return (object) [
                 'total'   => $total,
-                'service' => Service::find($serviceId),
+                'service' => $servicesMap->get((string) $serviceId),
             ];
         })->values();
 
-        $clientGroups   = Appointment::get(['client_id'])->groupBy('client_id')->map(fn($g) => $g->count());
-        $newClients     = $clientGroups->filter(fn($t) => $t === 1)->count();
-        $recurringClients = $clientGroups->filter(fn($t) => $t > 1)->count();
-        $totalClients   = Client::count();
-        $activeClients  = Client::whereHas('appointments', function ($q) {
-            $q->whereDate('fecha', '>=', Carbon::now()->subDays(30)->toDateString());
-        })->count();
-        $retentionRate  = $totalClients > 0 ? ($recurringClients / $totalClients) * 100 : 0;
+        // --- Client stats — date-limited to last year ---
+        $clientGroups     = Appointment::where('fecha', '>=', Carbon::now()->subYear()->toDateString())
+            ->get(['client_id'])
+            ->groupBy('client_id')
+            ->map(fn ($g) => $g->count());
+        $newClients       = $clientGroups->filter(fn ($t) => $t === 1)->count();
+        $recurringClients = $clientGroups->filter(fn ($t) => $t > 1)->count();
+        $totalClients     = Client::count();
+        $recentClientIds  = Appointment::where('fecha', '>=', Carbon::now()->subDays(30)->toDateString())
+            ->distinct('client_id')
+            ->pluck('client_id')
+            ->map(fn ($id) => (string) $id)
+            ->unique()
+            ->values();
+        $activeClients    = $recentClientIds->count();
+        $retentionRate = $totalClients > 0 ? ($recurringClients / $totalClients) * 100 : 0;
 
         $lowStockCount = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->count();
 
-        $barbers = Barber::with('user')->where('activo', true)->get();
-        $now     = Carbon::now();
-        $barbersStatus = $barbers->map(function ($barber) use ($now) {
-            $currentAppt = Appointment::where('barber_id', (string) $barber->id)
-                ->whereDate('fecha', $now->toDateString())
-                ->where('hora_inicio', '<=', $now->format('H:i:s'))
-                ->where('hora_fin', '>=', $now->format('H:i:s'))
-                ->where('estado', '!=', 'cancelada')
-                ->first();
-            $isBusy   = (bool) $currentAppt;
-            $progress = 0;
+        // --- Barbers status — 1 batch query instead of N+1 ---
+        $barbers    = Barber::with('user')->where('activo', true)->get();
+        $now        = Carbon::now();
+        $barberIds  = $barbers->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $currentTime = $now->format('H:i:s');
+
+        $currentAppointments = Appointment::whereIn('barber_id', $barberIds)
+            ->whereDate('fecha', $now->toDateString())
+            ->where('hora_inicio', '<=', $currentTime)
+            ->where('hora_fin', '>=', $currentTime)
+            ->where('estado', '!=', 'cancelada')
+            ->get()
+            ->keyBy('barber_id');
+
+        $barbersStatus = $barbers->map(function ($barber) use ($now, $currentAppointments) {
+            $currentAppt = $currentAppointments->get((string) $barber->id);
+            $isBusy      = (bool) $currentAppt;
+            $progress    = 0;
             if ($isBusy) {
                 $start    = Carbon::parse($currentAppt->fecha)->setTimeFromTimeString($currentAppt->hora_inicio);
                 $end      = Carbon::parse($currentAppt->fecha)->setTimeFromTimeString($currentAppt->hora_fin);
@@ -98,13 +138,19 @@ class DashboardService
             return ['name' => $barber->user?->name ?? 'Barbero', 'is_busy' => $isBusy, 'progress' => $progress];
         });
 
-        $incomeByWeek = collect(range(0, 7))->map(function (int $offset) {
+        // --- Income by week — 1 query for 8-week range, grouped in PHP ---
+        $weekRangeStart = Carbon::now()->startOfWeek()->subWeeks(7);
+        $weekRangeEnd   = Carbon::now()->endOfWeek();
+        $weeklyPayments = Payment::whereBetween('created_at', [$weekRangeStart, $weekRangeEnd])
+            ->get(['created_at', 'monto', 'propina']);
+
+        $incomeByWeek = collect(range(0, 7))->map(function (int $offset) use ($weeklyPayments) {
             $start = Carbon::now()->startOfWeek()->subWeeks(7 - $offset);
             $end   = (clone $start)->endOfWeek();
-            return [
-                'label' => $start->format('d M'),
-                'total' => $this->sumPayments(Payment::whereBetween('created_at', [$start, $end])),
-            ];
+            $total = $this->sumPaymentCollection(
+                $weeklyPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($start, $end))
+            );
+            return ['label' => $start->format('d M'), 'total' => $total];
         });
 
         $chatbotTelemetry = $this->chatbotTelemetrySummary(7);
@@ -134,7 +180,7 @@ class DashboardService
                 'values' => $incomeByWeek->pluck('total')->all(),
             ],
             'services_chart' => [
-                'labels' => $topServices->map(fn($row) => $row->service?->nombre ?? 'Sin servicio')->all(),
+                'labels' => $topServices->map(fn ($row) => $row->service?->nombre ?? 'Sin servicio')->all(),
                 'values' => $topServices->pluck('total')->all(),
             ],
             'barber_performance' => $this->getBarberPerformanceChart($monthStart, $monthEnd),
@@ -150,33 +196,39 @@ class DashboardService
             ->get(['barber_id', 'precio_cobrado']);
 
         $barberStats = $appointments->groupBy('barber_id')
-            ->map(fn($g, $id) => [
+            ->map(fn ($g, $id) => [
                 'barber_id'    => $id,
                 'appointments' => $g->count(),
-                'revenue'      => $g->sum(fn($a) => (float) ($a->precio_cobrado ?? 0)),
+                'revenue'      => $g->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0)),
             ])
             ->sortByDesc('appointments')
             ->take(8)
             ->values();
 
         $barberIds = $barberStats->pluck('barber_id')->filter()->all();
-        $barbers   = Barber::with('user')->find($barberIds)->keyBy(fn($b) => (string) $b->id);
+        $barbers   = Barber::with('user')->find($barberIds)->keyBy(fn ($b) => (string) $b->id);
 
         return [
-            'labels'       => $barberStats->map(fn($row) => $barbers->get((string) $row['barber_id'])?->user?->name ?? 'Sin nombre')->all(),
+            'labels'       => $barberStats->map(fn ($row) => $barbers->get((string) $row['barber_id'])?->user?->name ?? 'Sin nombre')->all(),
             'appointments' => $barberStats->pluck('appointments')->all(),
-            'revenue'      => $barberStats->pluck('revenue')->map(fn($v) => (float) ($v ?? 0))->all(),
+            'revenue'      => $barberStats->pluck('revenue')->map(fn ($v) => (float) ($v ?? 0))->all(),
         ];
     }
 
     private function getClientTrendsChart(Carbon $monthStart, Carbon $monthEnd): array
     {
-        $clientTrends = collect(range(0, 11))->map(function (int $offset) use ($monthStart) {
-            $date  = (clone $monthStart)->addDays($offset * 3);
-            $count = Appointment::where('estado', 'completada')
-                ->whereDate('fecha', '>=', $date->toDateString())
-                ->whereDate('fecha', '<', (clone $date)->addDays(3)->toDateString())
-                ->count();
+        // 1 query for the whole month, grouped in PHP (was 12 queries)
+        $apptDates = Appointment::where('estado', 'completada')
+            ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->get(['fecha'])
+            ->map(fn ($a) => substr((string) $a->fecha, 0, 10));
+
+        $clientTrends = collect(range(0, 11))->map(function (int $offset) use ($monthStart, $apptDates) {
+            $date    = (clone $monthStart)->addDays($offset * 3);
+            $dateEnd = (clone $date)->addDays(3);
+            $ds      = $date->toDateString();
+            $de      = $dateEnd->toDateString();
+            $count   = $apptDates->filter(fn ($d) => $d >= $ds && $d < $de)->count();
             return ['label' => $date->format('d M'), 'count' => $count];
         });
 
@@ -187,6 +239,11 @@ class DashboardService
     }
 
     public function barberMetrics(string $barberId): array
+    {
+        return Cache::remember("dashboard.barber.{$barberId}", 60, fn () => $this->buildBarberMetrics($barberId));
+    }
+
+    private function buildBarberMetrics(string $barberId): array
     {
         $today      = Carbon::today();
         $monthStart = Carbon::now()->startOfMonth();
@@ -205,22 +262,33 @@ class DashboardService
             ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->sum('precio_cobrado');
 
-        $serviceGroups = Appointment::where('barber_id', $barberId)
+        // Top services — date-limited to last year, batch Service lookup
+        $yearAgo     = Carbon::now()->subYear()->toDateString();
+        $svcGroups   = Appointment::where('barber_id', $barberId)
+            ->where('fecha', '>=', $yearAgo)
             ->get(['service_id'])
             ->groupBy('service_id')
-            ->map(fn($g) => $g->count())
+            ->map(fn ($g) => $g->count())
             ->sortDesc()
             ->take(5);
-        $topServices = $serviceGroups->map(function ($total, $serviceId) {
-            return (object) ['total' => $total, 'service' => Service::find($serviceId)];
+        $svcIds      = $svcGroups->keys()->filter()->all();
+        $svcMap      = Service::find($svcIds)->keyBy(fn ($s) => (string) $s->id);
+        $topServices = $svcGroups->map(function ($total, $serviceId) use ($svcMap) {
+            return (object) ['total' => $total, 'service' => $svcMap->get((string) $serviceId)];
         })->values();
 
-        $performanceByDay = collect(range(0, 6))->map(function (int $offset) use ($barberId) {
-            $date  = Carbon::now()->subDays(6 - $offset);
-            $count = Appointment::where('barber_id', $barberId)
-                ->whereDate('fecha', $date->toDateString())
-                ->count();
-            return ['label' => $date->format('D'), 'total' => $count];
+        // Performance by day — 1 query for last 7 days, grouped in PHP (was 7 queries)
+        $weekStart = Carbon::now()->subDays(6)->toDateString();
+        $weekEnd   = Carbon::now()->toDateString();
+        $weeklyAppts = Appointment::where('barber_id', $barberId)
+            ->whereBetween('fecha', [$weekStart, $weekEnd])
+            ->get(['fecha'])
+            ->map(fn ($a) => substr((string) $a->fecha, 0, 10));
+
+        $performanceByDay = collect(range(0, 6))->map(function (int $offset) use ($weeklyAppts) {
+            $date  = Carbon::now()->subDays(6 - $offset)->toDateString();
+            $count = $weeklyAppts->filter(fn ($d) => $d === $date)->count();
+            return ['label' => Carbon::parse($date)->format('D'), 'total' => $count];
         });
 
         return [
@@ -235,13 +303,18 @@ class DashboardService
                 'values' => $performanceByDay->pluck('total')->all(),
             ],
             'services_chart' => [
-                'labels' => $topServices->map(fn($row) => $row->service?->nombre ?? 'Sin servicio')->all(),
+                'labels' => $topServices->map(fn ($row) => $row->service?->nombre ?? 'Sin servicio')->all(),
                 'values' => $topServices->pluck('total')->all(),
             ],
         ];
     }
 
     public function receptionistMetrics(): array
+    {
+        return Cache::remember('dashboard.receptionist.metrics', 60, fn () => $this->buildReceptionistMetrics());
+    }
+
+    private function buildReceptionistMetrics(): array
     {
         $today = Carbon::today();
 
@@ -276,8 +349,10 @@ class DashboardService
 
     public function clientMetrics(string $clientId): array
     {
+        $client = Client::find($clientId);
+
         $totalAppointments     = Appointment::where('client_id', $clientId)->count();
-        $completedAppointments = Appointment::where('client_id', $clientId)->where('estado', 'completada')->count();
+        $completedAppointments = $client?->total_citas ?? Appointment::where('client_id', $clientId)->where('estado', 'completada')->count();
 
         $nextAppt = Appointment::with(['barber.user', 'service'])
             ->where('client_id', $clientId)
@@ -290,25 +365,43 @@ class DashboardService
         $favoriteBarberData = Appointment::where('client_id', $clientId)
             ->get(['barber_id'])
             ->groupBy('barber_id')
-            ->map(fn($g) => $g->count())
+            ->map(fn ($g) => $g->count())
             ->sortDesc();
         $favoriteBarberId = $favoriteBarberData->keys()->first();
         $favoriteBarber   = $favoriteBarberId ? Barber::with('user')->find($favoriteBarberId) : null;
 
-        $status = 'Caballero';
-        if ($completedAppointments >= 10) {
-            $status = 'Leyenda';
-        } elseif ($completedAppointments >= 5) {
-            $status = 'V.I.P';
-        }
+        // Datos de lealtad desde el modelo (campo persistido)
+        $nivel   = $client?->nivel ?? LoyaltyService::nivelFromCitas($completedAppointments);
+        $puntos  = $client?->puntos ?? 0;
+        $discount = LoyaltyService::discountPct($nivel);
 
-        $visitData = collect(range(0, 5))->map(function ($offset) use ($clientId) {
+        $nextNivel      = LoyaltyService::nextLevel($nivel);
+        $citasNextNivel = $nextNivel ? LoyaltyService::citasForLevel($nextNivel) : null;
+        $citasFaltan    = $citasNextNivel ? max(0, $citasNextNivel - $completedAppointments) : 0;
+
+        // Últimas transacciones de puntos
+        $recentTransactions = LoyaltyTransaction::where('client_id', $clientId)
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        // Ganador último sorteo
+        $lastRaffle = RaffleResult::where('client_id', $clientId)
+            ->latest()
+            ->first();
+
+        // 1 query for 6-month range, grouped by month in PHP (replaces 6 slow whereMonth queries)
+        $sixMonthStart = Carbon::now()->subMonths(5)->startOfMonth()->toDateString();
+        $clientVisitDates = Appointment::where('client_id', $clientId)
+            ->where('estado', 'completada')
+            ->where('fecha', '>=', $sixMonthStart)
+            ->pluck('fecha')
+            ->map(fn ($f) => substr((string) $f, 0, 7)); // "YYYY-MM"
+
+        $visitData = collect(range(0, 5))->map(function ($offset) use ($clientVisitDates) {
             $date  = Carbon::now()->subMonths(5 - $offset);
-            $count = Appointment::where('client_id', $clientId)
-                ->where('estado', 'completada')
-                ->whereMonth('fecha', $date->month)
-                ->whereYear('fecha', $date->year)
-                ->count();
+            $key   = $date->format('Y-m');
+            $count = $clientVisitDates->filter(fn ($d) => $d === $key)->count();
             return ['label' => $date->translatedFormat('M'), 'total' => $count];
         });
 
@@ -317,9 +410,33 @@ class DashboardService
                 'total_appointments'     => $totalAppointments,
                 'completed_appointments' => $completedAppointments,
                 'favorite_barber'        => $favoriteBarber?->user?->name ?? 'Por descubrir',
-                'membership_status'      => $status,
+                'membership_status'      => LoyaltyService::LEVEL_LABELS[$nivel] ?? strtoupper($nivel),
             ],
-            'next_appointment' => $nextAppt,
+            'loyalty' => [
+                'nivel'               => $nivel,
+                'puntos'              => $puntos,
+                'discount_pct'        => $discount,
+                'next_nivel'          => $nextNivel,
+                'citas_faltan'        => $citasFaltan,
+                'citas_next_nivel'    => $citasNextNivel,
+                'progress_pct'        => $citasNextNivel ? min(100, ($completedAppointments / $citasNextNivel) * 100) : 100,
+                'recent_transactions' => $recentTransactions,
+                'won_raffle'          => $lastRaffle,
+            ],
+            'next_appointment' => $nextAppt ? [
+                'id'          => $nextAppt->id,
+                'code'        => $nextAppt->code,
+                'fecha'       => optional($nextAppt->fecha)->toDateString(),
+                'hora_inicio' => $nextAppt->hora_inicio,
+                'hora_fin'    => $nextAppt->hora_fin,
+                'estado'      => $nextAppt->estado,
+                'service'     => $nextAppt->service ? ['id' => $nextAppt->service->id, 'nombre' => $nextAppt->service->nombre, 'precio' => $nextAppt->service->precio] : null,
+                'barber'      => $nextAppt->barber ? [
+                    'id'   => $nextAppt->barber->id,
+                    'slug' => $nextAppt->barber->slug,
+                    'user' => $nextAppt->barber->user ? ['name' => $nextAppt->barber->user->name] : null,
+                ] : null,
+            ] : null,
             'visit_chart' => [
                 'labels' => $visitData->pluck('label')->all(),
                 'values' => $visitData->pluck('total')->all(),
@@ -329,15 +446,17 @@ class DashboardService
 
     private function getReceptionistFlowData(): array
     {
-        $hours  = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
-        $counts = [];
+        $hours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
 
-        foreach ($hours as $hour) {
-            $counts[] = Appointment::whereDate('fecha', Carbon::today())
-                ->where('hora_inicio', '>=', $hour)
-                ->where('hora_inicio', '<', Carbon::parse($hour)->addHour()->format('H:i:s'))
-                ->count();
-        }
+        // 1 query for the whole day, grouped in PHP (was 12 queries)
+        $startTimes = Appointment::whereDate('fecha', Carbon::today())
+            ->get(['hora_inicio'])
+            ->map(fn ($a) => substr((string) $a->hora_inicio, 0, 5));
+
+        $counts = array_map(function (string $hour) use ($startTimes) {
+            $nextHour = Carbon::parse($hour)->addHour()->format('H:i');
+            return $startTimes->filter(fn ($h) => $h >= $hour && $h < $nextHour)->count();
+        }, $hours);
 
         return ['labels' => $hours, 'values' => $counts];
     }
@@ -345,10 +464,11 @@ class DashboardService
     private function chatbotTelemetrySummary(int $days): array
     {
         $start = Carbon::now()->subDays(max(0, $days - 1))->startOfDay();
+        // Load created_at too so we can reuse events for the trend chart (no extra queries)
         $telemetryEvents = Activity::where('log_name', 'chatbot')
             ->where('description', 'chatbot_provider_telemetry')
             ->where('created_at', '>=', $start)
-            ->get(['properties']);
+            ->get(['created_at', 'properties']);
 
         $total = $errors = $latencyTotal = 0;
         $costTotal = 0.0;
@@ -386,26 +506,24 @@ class DashboardService
             'avg_latency_ms'     => $total > 0 ? (int) round($latencyTotal / $total) : 0,
             'estimated_cost_usd' => round($costTotal, 6),
             'top_sources'        => collect($bySource)->take(4)->all(),
-            'trend_chart'        => $this->chatbotTelemetryTrend(7),
+            // Pass already-loaded events to avoid 7 redundant queries
+            'trend_chart'        => $this->chatbotTelemetryTrend($days, $telemetryEvents),
         ];
     }
 
-    private function chatbotTelemetryTrend(int $days): array
+    private function chatbotTelemetryTrend(int $days, Collection $events): array
     {
-        $data = collect(range(0, $days - 1))->map(function (int $offset) use ($days) {
-            $date  = Carbon::now()->subDays($days - 1 - $offset)->toDateString();
-            $start = Carbon::parse($date)->startOfDay();
-            $end   = Carbon::parse($date)->endOfDay();
+        // Group events by date in PHP — no extra DB queries (was 7 queries)
+        $byDate = $events->groupBy(fn ($e) => Carbon::parse($e->created_at)->toDateString());
 
-            $events = Activity::where('log_name', 'chatbot')
-                ->where('description', 'chatbot_provider_telemetry')
-                ->whereBetween('created_at', [$start, $end])
-                ->get(['properties']);
+        $data = collect(range(0, $days - 1))->map(function (int $offset) use ($days, $byDate) {
+            $date      = Carbon::now()->subDays($days - 1 - $offset)->toDateString();
+            $dayEvents = $byDate->get($date, collect());
+            $count     = $dayEvents->count();
+            $errors    = 0;
+            $latencyTotal = 0;
 
-            $count = $events->count();
-            $errors = $latencyTotal = 0;
-
-            foreach ($events as $event) {
+            foreach ($dayEvents as $event) {
                 $rawProps = $event->properties;
                 if ($rawProps instanceof Collection) {
                     $rawProps = $rawProps->toArray();
