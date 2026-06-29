@@ -1,10 +1,7 @@
 @php
     use Illuminate\Support\Str;
+    use App\Helpers\SmartImageHelper;
 
-    /**
-     * Detectar el tipo REAL del servicio por su nombre,
-     * ignorando la categoría de la BD (datos de demo mal asignados).
-     */
     if (!function_exists('detectServiceType')) {
         function detectServiceType(string $nombre): string {
             $n = Str::lower($nombre);
@@ -23,44 +20,6 @@
             return 'general';
         }
     }
-
-    /**
-     * Pool de foto IDs de Unsplash verificados por tipo.
-     * Todos son fotos reales de barbería bien documentadas.
-     */
-    $imgPools = [
-        'corte' => [
-            // Hombre recibiendo corte / fade en silla de barbería
-            'photo-1503951914875-452162b0f3f1?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1599351431202-1e0f0137899a?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1622286342621-4bd786c2447c?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1534297635766-a262cdcb8ee4?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1605497787928-40e1c74e4e74?q=85&w=800&h=600&auto=format&fit=crop',
-        ],
-        'barba' => [
-            // Arreglo / afeitado de barba
-            'photo-1621605815971-fbc98d665033?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1583863788434-e58a36330cf0?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1617450365226-9bf28c04e130?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1580618672591-eb180b1a973f?q=85&w=800&h=600&auto=format&fit=crop',
-        ],
-        'combo' => [
-            // Servicio completo / barbería premium
-            'photo-1585747860715-2ba37e788b70?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1517832606539-4a5bae9f7090?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1503951914875-452162b0f3f1?q=85&w=800&h=600&auto=format&fit=crop',
-        ],
-        'tratamiento' => [
-            // Tratamientos capilares / spa capilar
-            'photo-1519823551278-64ac92734fb1?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1570172619644-dfd03ed5d881?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1552642762-f55d06580641?q=85&w=800&h=600&auto=format&fit=crop',
-        ],
-        'general' => [
-            'photo-1585747860715-2ba37e788b70?q=85&w=800&h=600&auto=format&fit=crop',
-            'photo-1503951914875-452162b0f3f1?q=85&w=800&h=600&auto=format&fit=crop',
-        ],
-    ];
 
     // Labels para los filtros por tipo REAL (no la categoría BD)
     $typeLabels = [
@@ -328,10 +287,10 @@
 
                 @foreach($tipoServices as $idx => $service)
                     @php
-                        $pool   = $imgPools[$tipo] ?? $imgPools['general'];
-                        $imgUrl = "https://images.unsplash.com/{$pool[$idx % count($pool)]}";
-                        $isFeatured = ($idx === 0); // Primer card de cada sección = destacada
-                        $isPopular  = ($idx < 2);   // Primeras 2 con badge popular
+                        // Imagen inteligente por nombre exacto del servicio
+                        $imgUrl     = SmartImageHelper::forService($service->nombre, 'lg');
+                        $isFeatured = ($idx === 0);
+                        $isPopular  = ($idx < 2);
                     @endphp
 
                     <article

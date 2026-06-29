@@ -1,4 +1,5 @@
 @php
+    use App\Helpers\SmartImageHelper;
     $activeFilters = array_filter($filters ?? [], fn($v) => $v !== '' && $v !== null);
     $catColors = ['corte'=>'sky','barba'=>'amber','combo'=>'purple','tratamiento'=>'emerald'];
 @endphp
@@ -108,14 +109,28 @@
                     </thead>
                     <tbody>
                         @forelse($services as $service)
-                            @php $catColor = $catColors[$service->categoria] ?? 'white'; @endphp
+                            @php
+                                $catColor  = $catColors[$service->categoria] ?? 'white';
+                                $svcImgUrl = $service->imagen
+                                    ? \Illuminate\Support\Facades\Storage::url($service->imagen)
+                                    : SmartImageHelper::forService($service->nombre, 'sm');
+                            @endphp
                             <tr class="group">
                                 <td>
-                                    <div>
-                                        <p class="font-bold text-white text-sm">{{ $service->nombre }}</p>
-                                        @if($service->descripcion)
-                                            <p class="text-[10px] text-muted truncate max-w-xs">{{ $service->descripcion }}</p>
-                                        @endif
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-12 w-12 rounded-xl overflow-hidden shrink-0 border border-white/8">
+                                            <img src="{{ $svcImgUrl }}"
+                                                 alt="{{ $service->nombre }}"
+                                                 class="h-full w-full object-cover"
+                                                 loading="lazy"
+                                                 onerror="this.src='https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=120&h=120&auto=format&fit=crop&q=70'">
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-white text-sm">{{ $service->nombre }}</p>
+                                            @if($service->descripcion)
+                                                <p class="text-[10px] text-muted truncate max-w-xs">{{ $service->descripcion }}</p>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
                                 <td>
@@ -145,7 +160,7 @@
                                     @endif
                                 </td>
                                 <td class="text-right">
-                                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         <a href="{{ route('services.edit', $service) }}"
                                            class="h-8 w-8 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>

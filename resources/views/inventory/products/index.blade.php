@@ -1,4 +1,5 @@
 @php
+    use App\Helpers\SmartImageHelper;
     $activeFilters = array_filter($filters ?? [], fn($v) => $v !== '' && $v !== null);
 @endphp
 
@@ -160,16 +161,21 @@
                     </thead>
                     <tbody>
                         @forelse($products as $product)
-                            @php $isLow = $product->stock_actual <= $product->stock_minimo; @endphp
+                            @php
+                                $isLow    = $product->stock_actual <= $product->stock_minimo;
+                                $prodImg  = $product->imagen
+                                    ? \Illuminate\Support\Facades\Storage::url($product->imagen)
+                                    : SmartImageHelper::forProduct($product->nombre, $product->categoria ?? '', 'sm');
+                            @endphp
                             <tr class="group">
                                 <td>
                                     <div class="flex items-center gap-3">
-                                        <div class="h-10 w-10 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden shrink-0">
-                                            @if($product->imagen)
-                                                <img src="{{ \Illuminate\Support\Facades\Storage::url($product->imagen) }}" class="h-full w-full object-cover" loading="lazy">
-                                            @else
-                                                <svg class="h-5 w-5 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                                            @endif
+                                        <div class="h-12 w-12 rounded-xl overflow-hidden shrink-0 border border-white/8">
+                                            <img src="{{ $prodImg }}"
+                                                 alt="{{ $product->nombre }}"
+                                                 class="h-full w-full object-cover"
+                                                 loading="lazy"
+                                                 onerror="this.src='https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?w=120&h=120&auto=format&fit=crop&q=70'">
                                         </div>
                                         <div>
                                             <p class="font-bold text-white text-sm">{{ $product->nombre }}</p>
@@ -203,7 +209,7 @@
                                 <td class="text-muted text-sm">${{ number_format($product->precio_compra, 2) }}</td>
                                 <td class="font-black text-emerald-400 text-base">${{ number_format($product->precio_venta, 2) }}</td>
                                 <td class="text-right">
-                                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         <a href="{{ route('inventory.products.edit', $product) }}"
                                            class="h-8 w-8 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -232,15 +238,20 @@
             {{-- Mobile --}}
             <div class="space-y-3 md:hidden">
                 @forelse($products as $product)
-                    @php $isLow = $product->stock_actual <= $product->stock_minimo; @endphp
+                    @php
+                        $isLow   = $product->stock_actual <= $product->stock_minimo;
+                        $mProdImg = $product->imagen
+                            ? \Illuminate\Support\Facades\Storage::url($product->imagen)
+                            : SmartImageHelper::forProduct($product->nombre, $product->categoria ?? '', 'sm');
+                    @endphp
                     <div class="rounded-2xl border {{ $isLow ? 'border-amber-500/20' : 'border-white/8' }} bg-[#111] p-4">
                         <div class="flex items-start gap-4 mb-3">
-                            <div class="h-12 w-12 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden shrink-0">
-                                @if($product->imagen)
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($product->imagen) }}" class="h-full w-full object-cover">
-                                @else
-                                    <svg class="h-6 w-6 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                                @endif
+                            <div class="h-16 w-16 rounded-xl overflow-hidden shrink-0 border border-white/8">
+                                <img src="{{ $mProdImg }}"
+                                     alt="{{ $product->nombre }}"
+                                     class="h-full w-full object-cover"
+                                     loading="lazy"
+                                     onerror="this.src='https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?w=120&h=120&auto=format&fit=crop&q=70'">
                             </div>
                             <div class="flex-1">
                                 <p class="font-bold text-white text-sm">{{ $product->nombre }}</p>
@@ -254,8 +265,13 @@
                                 <span class="text-muted">/ {{ $product->stock_minimo }} mín</span>
                                 @if($isLow)<span class="text-[9px] font-black text-amber-400 border border-amber-500/25 rounded-full px-1.5">bajo</span>@endif
                             </div>
-                            <div class="flex gap-3">
+                            <div class="flex items-center gap-4">
                                 <a href="{{ route('inventory.products.edit', $product) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Editar</a>
+                                <form action="{{ route('inventory.products.destroy', $product) }}" method="POST"
+                                      onsubmit="return confirm('¿Eliminar {{ addslashes($product->nombre) }}?');">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition">Eliminar</button>
+                                </form>
                             </div>
                         </div>
                     </div>
