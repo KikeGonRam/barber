@@ -41,16 +41,24 @@
                         {{-- Foto hero --}}
                         <div class="ui-card-premium p-0 overflow-hidden border-gold/20" style="box-shadow:0 0 60px rgba(212,175,55,0.08)">
                             <div class="aspect-[4/5] relative bg-[#0d0d0d]">
+                                @php
+                                    $defaultBarberImages = [
+                                        'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600&q=80&fit=crop',
+                                        'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=600&q=80&fit=crop',
+                                        'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=600&q=80&fit=crop',
+                                        'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&q=80&fit=crop',
+                                    ];
+                                    $barberImgSeed = abs(crc32($barber->id ?? 'default')) % count($defaultBarberImages);
+                                @endphp
                                 @if($barber->foto)
                                     <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
                                          class="h-full w-full object-cover"
                                          alt="{{ $barber->user?->name }}">
                                 @else
-                                    <div class="h-full w-full flex items-center justify-center bg-gradient-to-br from-gold/10 to-transparent">
-                                        <div class="text-8xl font-black text-gold/20">
-                                            {{ strtoupper(substr($barber->user?->name ?? 'B', 0, 2)) }}
-                                        </div>
-                                    </div>
+                                    <img src="{{ $defaultBarberImages[$barberImgSeed] }}"
+                                         class="h-full w-full object-cover opacity-80"
+                                         alt="{{ $barber->user?->name }}"
+                                         loading="lazy">
                                 @endif
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
                                 <div class="absolute bottom-6 left-6 right-6">

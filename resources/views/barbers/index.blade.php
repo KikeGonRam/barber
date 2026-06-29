@@ -99,20 +99,30 @@
 
             {{-- Desktop: Cards en grid ─────────────────── --}}
             <div class="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                @php
+                    $barberPhotos = [
+                        'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&q=80&fit=crop',
+                        'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=400&q=80&fit=crop',
+                        'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&q=80&fit=crop',
+                        'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&q=80&fit=crop',
+                        'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80&fit=crop',
+                        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&fit=crop',
+                    ];
+                @endphp
                 @forelse($barbers as $barber)
+                    @php $fallbackImg = $barberPhotos[abs(crc32($barber->id ?? 'x')) % count($barberPhotos)]; @endphp
                     <div class="group rounded-2xl border border-white/8 bg-[#111] overflow-hidden hover:border-gold/30 hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)] transition-all duration-400">
                         {{-- Foto --}}
-                        <div class="relative h-40 bg-[#181818] overflow-hidden">
+                        <div class="relative h-48 bg-[#181818] overflow-hidden">
                             @if($barber->foto)
                                 <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
                                      class="h-full w-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-600"
                                      loading="lazy">
                             @else
-                                <div class="h-full w-full flex items-center justify-center">
-                                    <div class="h-20 w-20 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/15 flex items-center justify-center text-3xl font-black text-gold">
-                                        {{ strtoupper(substr($barber->user?->name ?? 'B', 0, 2)) }}
-                                    </div>
-                                </div>
+                                <img src="{{ $fallbackImg }}"
+                                     class="h-full w-full object-cover object-top grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-600"
+                                     loading="lazy"
+                                     alt="{{ $barber->user?->name }}">
                             @endif
                             {{-- Estado badge --}}
                             <div class="absolute top-3 right-3">

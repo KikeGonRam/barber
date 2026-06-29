@@ -59,6 +59,7 @@ Route::prefix('v1')->group(function (): void {
         Route::get('profile', [ProfileController::class, 'show']);
         Route::put('profile', [ProfileController::class, 'update']);
         Route::put('profile/password', [ProfileController::class, 'updatePassword']);
+        Route::post('profile/push-token', [ProfileController::class, 'savePushToken']);
         Route::delete('profile', [ProfileController::class, 'destroy']);
 
         // Dashboard
@@ -74,6 +75,7 @@ Route::prefix('v1')->group(function (): void {
         // Pagos (Admin/Recepcionista)
         Route::get('payments', [ApiPaymentController::class, 'index']);
         Route::post('payments', [ApiPaymentController::class, 'store']);
+        Route::post('payments/stripe-intent', [ApiPaymentController::class, 'stripeIntent'])->name('api.payments.stripe-intent');
         Route::delete('payments/{payment}', [ApiPaymentController::class, 'destroy']);
         Route::get('payments/{payment}/receipt', [ApiPaymentController::class, 'receipt']);
 
@@ -142,6 +144,11 @@ Route::prefix('v1')->group(function (): void {
         Route::post('chatbot/train-history', [ChatbotManagementController::class, 'trainFromHistory'])
             ->middleware('role.custom:administrador');
 
+        // Bio/perfil propio del Barbero
+        Route::get('barber/me', [ProfileController::class, 'showBarberProfile']);
+        Route::get('barber/bio', [ProfileController::class, 'showBarberBio']);
+        Route::put('barber/bio', [ProfileController::class, 'updateBarberBio']);
+
         // Portafolio de Barbero
         Route::get('barber/portfolio', [BarberPortfolioController::class, 'index']);
         Route::post('barber/works', [BarberPortfolioController::class, 'store']);
@@ -161,20 +168,20 @@ Route::prefix('v1')->group(function (): void {
 
             // Barberos (Phase 2)
             Route::get('barbers', [BarberAdminController::class, 'getBarbers']);
-            Route::get('barbers/{barberId}', [BarberAdminController::class, 'show']);
-            Route::get('barbers/{barberId}/schedule', [BarberAdminController::class, 'getSchedule']);
-            Route::get('barbers/{barberId}/clients', [BarberAdminController::class, 'getRegularClients']);
-            Route::get('barbers/{barberId}/performance', [BarberAdminController::class, 'getPerformanceStats']);
-            Route::put('barbers/{barberId}', [BarberAdminController::class, 'update']);
+            Route::get('barbers/{barber}', [BarberAdminController::class, 'show']);
+            Route::get('barbers/{barber}/schedule', [BarberAdminController::class, 'getSchedule']);
+            Route::get('barbers/{barber}/clients', [BarberAdminController::class, 'getRegularClients']);
+            Route::get('barbers/{barber}/performance', [BarberAdminController::class, 'getPerformanceStats']);
+            Route::put('barbers/{barber}', [BarberAdminController::class, 'update']);
 
             // Clientes (Phase 2)
             Route::get('clients', [ClientAdminController::class, 'getClients']);
-            Route::get('clients/{clientId}', [ClientAdminController::class, 'show']);
-            Route::post('clients', [ClientAdminController::class, 'store']);
-            Route::put('clients/{clientId}', [ClientAdminController::class, 'update']);
-            Route::delete('clients/{clientId}', [ClientAdminController::class, 'destroy']);
             Route::get('clients/segmentation/data', [ClientAdminController::class, 'getSegmentation']);
             Route::get('clients/export', [ClientAdminController::class, 'export']);
+            Route::get('clients/{client}', [ClientAdminController::class, 'show']);
+            Route::post('clients', [ClientAdminController::class, 'store']);
+            Route::put('clients/{client}', [ClientAdminController::class, 'update']);
+            Route::delete('clients/{client}', [ClientAdminController::class, 'destroy']);
 
             // Inventario (Phase 3)
             Route::get('inventory/products', [InventoryAdminController::class, 'getProducts']);
@@ -203,5 +210,9 @@ Route::prefix('v1')->group(function (): void {
             Route::get('predictions/peak-hours', [PredictionController::class, 'peakHoursAnalysis']);
             Route::get('predictions/insights', [PredictionController::class, 'insights']);
         });
+
+        // Detalle de barbero y reseñas (van después de barbers/manage para no chocar con el wildcard)
+        Route::get('barbers/{barber}', [CatalogController::class, 'showBarber']);
+        Route::post('barbers/{barber}/review', [CatalogController::class, 'storeReview']);
     });
 });

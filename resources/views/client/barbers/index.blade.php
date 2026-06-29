@@ -23,11 +23,22 @@
                 </div>
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @php
+                        $clientBarberPhotos = [
+                            'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=500&q=80&fit=crop',
+                            'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=500&q=80&fit=crop',
+                            'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=500&q=80&fit=crop',
+                            'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80&fit=crop',
+                            'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=500&q=80&fit=crop',
+                            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80&fit=crop',
+                        ];
+                    @endphp
                     @foreach($barbers as $barber)
                         @php
+                            $fallback = $clientBarberPhotos[abs(crc32($barber->id ?? 'x')) % count($clientBarberPhotos)];
                             $foto = $barber->foto
                                 ? (str_starts_with($barber->foto, 'http') ? $barber->foto : Storage::url($barber->foto))
-                                : null;
+                                : $fallback;
                             $initials = mb_strtoupper(mb_substr($barber->user?->name ?? '?', 0, 2));
                             $especialidades = array_filter(array_map('trim', explode(',', $barber->especialidades ?? $barber->especialidad ?? '')));
                         @endphp
@@ -36,18 +47,10 @@
                            class="group block rounded-3xl border border-white/5 bg-white/[0.02] overflow-hidden transition-all hover:border-gold/30 hover:shadow-xl hover:shadow-gold/5 hover:-translate-y-1">
 
                             <!-- Photo / Avatar -->
-                            <div class="relative h-56 overflow-hidden">
-                                @if($foto)
-                                    <img src="{{ $foto }}" alt="{{ $barber->user?->name }}"
-                                         class="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105">
-                                @else
-                                    <div class="w-full h-full bg-gradient-to-b from-gold/[0.08] to-black/60 flex items-center justify-center relative">
-                                        <span class="absolute text-[8rem] font-black text-white/[0.03] select-none leading-none">{{ $initials }}</span>
-                                        <div class="relative h-24 w-24 rounded-3xl bg-black/40 border border-gold/20 backdrop-blur-sm flex items-center justify-center text-3xl font-black text-gold group-hover:bg-gold group-hover:text-black transition-all duration-300">
-                                            {{ $initials }}
-                                        </div>
-                                    </div>
-                                @endif
+                            <div class="relative h-52 sm:h-56 overflow-hidden bg-black">
+                                <img src="{{ $foto }}" alt="{{ $barber->user?->name }}"
+                                     class="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                                     loading="lazy">
 
                                 <!-- Overlay gradient -->
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>

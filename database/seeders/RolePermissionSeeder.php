@@ -14,19 +14,46 @@ class RolePermissionSeeder extends Seeder
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $permissionNames = [
+            // Dashboard
             'dashboard.ver',
+            // Usuarios
             'usuarios.gestionar',
+            'usuarios.ver',
+            // Barberos
             'barberos.gestionar',
+            'barberos.ver',
+            // Clientes
             'clientes.gestionar',
+            'clientes.ver',
+            // Servicios
             'servicios.gestionar',
+            'servicios.ver',
+            // Citas
             'citas.gestionar',
+            'citas.ver',
             'citas.ver_propias',
+            'citas.crear',
+            'citas.cancelar',
+            // Pagos
             'pagos.gestionar',
+            'pagos.ver',
+            'pagos.stripe',
+            // Inventario
             'inventario.ver',
             'inventario.gestionar',
+            // Reportes
             'reportes.ver',
+            'reportes.gestionar',
+            // Configuración
             'configuracion.gestionar',
+            // Logs
             'logs.ver',
+            // Portfolio
+            'portfolio.gestionar',
+            'portfolio.ver',
+            // Notificaciones
+            'notificaciones.ver',
+            'notificaciones.gestionar',
         ];
 
         foreach ($permissionNames as $name) {
@@ -55,23 +82,57 @@ class RolePermissionSeeder extends Seeder
             }
         }
 
-        // Attach permissions to administrador so the middleware can check
-        // role-based access without needing all 13 permissions every run.
-        // Using direct model attachment to avoid findByName issues on Atlas M0.
         $allPermissions = Permission::where('guard_name', 'web')->get();
-        if ($allPermissions->isNotEmpty() && $roles['administrador']->exists) {
-            $currentIds = $roles['administrador']
+        $byName = $allPermissions->keyBy('name');
+
+        $rolePermissions = [
+            'administrador' => $allPermissions->pluck('_id')->map(fn($id) => (string) $id)->toArray(),
+
+            'recepcionista' => collect([
+                'dashboard.ver',
+                'clientes.gestionar', 'clientes.ver',
+                'citas.gestionar', 'citas.ver', 'citas.crear', 'citas.cancelar',
+                'pagos.gestionar', 'pagos.ver', 'pagos.stripe',
+                'barberos.ver',
+                'servicios.ver',
+                'inventario.ver',
+                'reportes.ver',
+                'notificaciones.ver',
+            ])->map(fn($n) => isset($byName[$n]) ? (string) $byName[$n]->_id : null)->filter()->values()->toArray(),
+
+            'barbero' => collect([
+                'dashboard.ver',
+                'citas.ver_propias', 'citas.ver',
+                'portfolio.gestionar', 'portfolio.ver',
+                'clientes.ver',
+                'servicios.ver',
+                'reportes.ver',
+                'notificaciones.ver',
+            ])->map(fn($n) => isset($byName[$n]) ? (string) $byName[$n]->_id : null)->filter()->values()->toArray(),
+
+            'cliente' => collect([
+                'citas.crear', 'citas.ver_propias', 'citas.cancelar',
+                'barberos.ver',
+                'servicios.ver',
+                'portfolio.ver',
+                'notificaciones.ver',
+            ])->map(fn($n) => isset($byName[$n]) ? (string) $byName[$n]->_id : null)->filter()->values()->toArray(),
+        ];
+
+        foreach ($rolePermissions as $roleName => $permIds) {
+            if (empty($permIds) || ! isset($roles[$roleName])) {
+                continue;
+            }
+            $currentIds = $roles[$roleName]
                 ->permissions()
                 ->pluck('_id')
                 ->map(fn($id) => (string) $id)
                 ->toArray();
 
-            $toAttach = $allPermissions->filter(
-                fn($p) => ! in_array((string) $p->_id, $currentIds)
-            )->pluck('_id')->map(fn($id) => (string) $id)->toArray();
+            $toAttach = array_values(array_diff($permIds, $currentIds));
 
             if (! empty($toAttach)) {
-                $roles['administrador']->permissions()->attach($toAttach);
+                $roles[$roleName]->permissions()->attach($toAttach);
             }
         }
     }
