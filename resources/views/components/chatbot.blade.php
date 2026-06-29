@@ -31,13 +31,13 @@
     <div
         x-show="open"
         x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-6 scale-95"
+        x-transition:enter-start="opacity-0 translate-y-4 scale-95"
         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-        x-transition:leave-end="opacity-0 translate-y-6 scale-95"
-        class="absolute bottom-[72px] left-0 w-[340px] sm:w-[380px] rounded-2xl border border-white/[0.08] bg-[#0d0d0d] shadow-[0_20px_60px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col"
-        style="display:none; height: min(560px, calc(100dvh - 100px));"
+        x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+        class="fixed bottom-24 left-6 w-[340px] sm:w-[390px] rounded-2xl border border-white/[0.08] bg-[#0d0d0d] shadow-[0_20px_60px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col z-[149]"
+        style="display:none; height: min(540px, calc(100dvh - 112px));"
     >
         {{-- Header --}}
         <div class="px-5 py-4 border-b border-white/[0.06] bg-white/[0.03] flex items-center justify-between shrink-0">
