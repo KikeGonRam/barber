@@ -1,3 +1,4 @@
+@php use App\Helpers\SmartImageHelper; @endphp
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -79,45 +80,32 @@
                             @php
                                 $serviceImg = $service->imagen
                                     ? (str_starts_with($service->imagen, 'http') ? $service->imagen : Storage::url($service->imagen))
-                                    : null;
+                                    : SmartImageHelper::forService($service->nombre, 'md');
                             @endphp
                             <article
                                 @click="selectService({ id: '{{ $service->id }}', name: '{{ addslashes($service->nombre) }}', duration: {{ $service->duracion_min }}, precio: {{ (float) $service->precio }} })"
                                 :class="selectedService?.id === '{{ $service->id }}' ? 'border-gold bg-gold/5 gold-glow' : 'border-white/5 bg-white/5'"
                                 class="ui-card-premium cursor-pointer transition-all hover:border-gold/30 group overflow-hidden"
                             >
-                                @if($serviceImg)
-                                    <div class="relative h-36 overflow-hidden">
-                                        <img src="{{ $serviceImg }}" alt="{{ $service->nombre }}"
-                                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                                        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70"></div>
-                                        <span class="absolute bottom-2 left-3 text-[8px] font-black uppercase text-gold/80 border border-gold/20 bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm">{{ $service->categoria }}</span>
-                                    </div>
-                                @else
-                                    @php
-                                        $catGrad = match(true) {
-                                            str_contains(strtolower($service->categoria ?? ''), 'combo')      => 'from-purple-900/30 to-indigo-900/10',
-                                            str_contains(strtolower($service->categoria ?? ''), 'barba')      => 'from-amber-900/30 to-yellow-900/10',
-                                            str_contains(strtolower($service->categoria ?? ''), 'trat')       => 'from-emerald-900/30 to-green-900/10',
-                                            str_contains(strtolower($service->categoria ?? ''), 'fade')       => 'from-cyan-900/30 to-teal-900/10',
-                                            default                                                           => 'from-gold/10 to-gold/[0.02]',
-                                        };
-                                        $catInitial = mb_strtoupper(mb_substr($service->nombre, 0, 2));
-                                    @endphp
-                                    <div class="h-36 bg-gradient-to-br {{ $catGrad }} flex items-center justify-center border-b border-white/5 relative overflow-hidden">
-                                        <span class="absolute text-[5rem] font-black text-white/[0.04] select-none leading-none">{{ $catInitial }}</span>
-                                        <svg class="h-10 w-10 text-gold/20 relative" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758L5 19m0-14l4.121 4.121" />
+                                <div class="relative h-36 overflow-hidden">
+                                    <img src="{{ $serviceImg }}"
+                                         alt="{{ $service->nombre }}"
+                                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                         loading="lazy"
+                                         onerror="this.src='https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=500&h=400&auto=format&fit=crop&q=75'">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/75"></div>
+                                    <span class="absolute bottom-2 left-3 text-[8px] font-black uppercase text-gold/80 border border-gold/20 bg-black/50 px-2 py-0.5 rounded backdrop-blur-sm">{{ $service->categoria }}</span>
+                                    {{-- Checkmark when selected --}}
+                                    <div x-show="selectedService?.id === '{{ $service->id }}'"
+                                         class="absolute top-2 right-2 h-6 w-6 rounded-full bg-gold flex items-center justify-center shadow-lg">
+                                        <svg class="h-3.5 w-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                         </svg>
                                     </div>
-                                @endif
+                                </div>
                                 <div class="p-6">
                                     <div class="flex justify-between items-start mb-3">
-                                        @if(!$serviceImg)
-                                            <span class="text-[9px] font-black uppercase text-gold/60 border border-gold/20 px-2 py-0.5 rounded">{{ $service->categoria }}</span>
-                                        @else
-                                            <span></span>
-                                        @endif
+                                        <span></span>
                                         <span class="text-xl font-black text-white">${{ number_format($service->precio, 2) }}</span>
                                     </div>
                                     <h4 class="text-lg font-black text-white uppercase group-hover:text-gold transition-colors">{{ $service->nombre }}</h4>
@@ -143,36 +131,42 @@
                         <p class="text-muted mt-2">Cada barbero tiene un estilo único. Elige a tu favorito.</p>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        @php
+                            $barberFallbacks = [
+                                'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&h=480&auto=format&fit=crop&q=85',
+                                'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=400&h=480&auto=format&fit=crop&q=85',
+                                'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=480&auto=format&fit=crop&q=85',
+                                'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&h=480&auto=format&fit=crop&q=85',
+                                'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=480&auto=format&fit=crop&q=85',
+                                'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=480&auto=format&fit=crop&q=85',
+                            ];
+                        @endphp
                         @foreach($barbers as $barber)
                             @php
-                                $barberFoto = null;
-                                if ($barber->foto) {
-                                    $barberFoto = str_starts_with($barber->foto, 'http')
-                                        ? $barber->foto
-                                        : Storage::url($barber->foto);
-                                }
+                                $barberFoto = $barber->foto
+                                    ? (str_starts_with($barber->foto, 'http') ? $barber->foto : Storage::url($barber->foto))
+                                    : $barberFallbacks[abs(crc32($barber->id ?? 'x')) % count($barberFallbacks)];
                                 $barberName = $barber->user?->name ?? '';
-                                $initials   = mb_strtoupper(mb_substr($barberName, 0, 2));
                             @endphp
                             <article
                                 @click="selectBarber({ id: '{{ $barber->id }}', name: '{{ addslashes($barberName) }}', foto: '{{ $barberFoto }}' })"
                                 :class="selectedBarber?.id === '{{ $barber->id }}' ? 'border-gold bg-gold/5 gold-glow' : 'border-white/5 bg-white/5'"
                                 class="ui-card-premium cursor-pointer text-center group overflow-hidden transition-all"
                             >
-                                @if($barberFoto)
-                                    <div class="relative h-40 overflow-hidden">
-                                        <img src="{{ $barberFoto }}" alt="{{ $barberName }}"
-                                             class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105">
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                <div class="relative h-44 overflow-hidden">
+                                    <img src="{{ $barberFoto }}"
+                                         alt="{{ $barberName }}"
+                                         class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                                         loading="lazy"
+                                         onerror="this.src='https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&h=480&auto=format&fit=crop&q=75'">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                                    <div x-show="selectedBarber?.id === '{{ $barber->id }}'"
+                                         class="absolute top-2 right-2 h-6 w-6 rounded-full bg-gold flex items-center justify-center shadow-lg">
+                                        <svg class="h-3.5 w-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                        </svg>
                                     </div>
-                                @else
-                                    <div class="relative h-40 bg-gradient-to-b from-gold/[0.08] to-black/40 flex items-center justify-center overflow-hidden">
-                                        <span class="absolute text-[6rem] font-black text-white/[0.04] select-none leading-none">{{ $initials }}</span>
-                                        <div class="relative h-20 w-20 rounded-2xl bg-black/30 border border-gold/20 flex items-center justify-center text-2xl font-black text-gold group-hover:bg-gold group-hover:text-black group-hover:border-gold transition-all backdrop-blur-sm">
-                                            {{ $initials }}
-                                        </div>
-                                    </div>
-                                @endif
+                                </div>
                                 <div class="p-5">
                                     <h4 class="text-sm font-black text-white uppercase tracking-tight">{{ $barberName }}</h4>
                                     @if($barber->especialidad)
@@ -328,24 +322,26 @@
                                 @php
                                     $prodImg = $product->imagen
                                         ? (str_starts_with($product->imagen, 'http') ? $product->imagen : Storage::url($product->imagen))
-                                        : null;
+                                        : SmartImageHelper::forProduct($product->nombre, $product->categoria ?? '', 'sm');
                                 @endphp
                                 <div
                                     :class="isSelected('{{ $product->id }}') ? 'border-gold/40 bg-gold/[0.04]' : 'border-white/5 bg-white/[0.02]'"
                                     class="rounded-2xl border overflow-hidden transition-all"
                                 >
-                                    @if($prodImg)
-                                        <div class="h-28 overflow-hidden">
-                                            <img src="{{ $prodImg }}" alt="{{ $product->nombre }}"
-                                                 class="w-full h-full object-cover">
-                                        </div>
-                                    @else
-                                        <div class="h-28 bg-white/[0.03] flex items-center justify-center">
-                                            <svg class="h-10 w-10 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                    <div class="h-28 overflow-hidden relative">
+                                        <img src="{{ $prodImg }}"
+                                             alt="{{ $product->nombre }}"
+                                             class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                                             loading="lazy"
+                                             onerror="this.src='https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?w=200&h=200&auto=format&fit=crop&q=70'">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                        <div x-show="isSelected('{{ $product->id }}')"
+                                             class="absolute top-1.5 right-1.5 h-5 w-5 rounded-full bg-gold flex items-center justify-center">
+                                            <svg class="h-3 w-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                             </svg>
                                         </div>
-                                    @endif
+                                    </div>
 
                                     <div class="p-3">
                                         <p class="text-xs font-black text-white uppercase leading-tight line-clamp-1">{{ $product->nombre }}</p>
