@@ -40,45 +40,62 @@ class BarberPortfolioController extends Controller
 
     public function store(Request $request, ?User $barber = null): RedirectResponse
     {
-        // If barber is passed as route parameter, use it; otherwise use authenticated user
         $barberId = $barber?->id ?? auth()->id();
-
-        // Ensure the authenticated user is uploading for themselves
         abort_if($barberId !== auth()->id(), 403);
 
         $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'images' => 'required|array|min:1|max:5',
-            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string|max:2000',
+            'media'       => 'required|array|min:1|max:10',
+            'media.*'     => [
+                'file',
+                'max:102400', // 100 MB max per file
+                function ($attribute, $value, $fail) {
+                    $mime = $value->getMimeType();
+                    $allowed = [
+                        'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
+                        'video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo',
+                        'video/mpeg', 'video/ogg',
+                    ];
+                    if (! in_array($mime, $allowed, true)) {
+                        $fail('Solo se permiten imágenes (JPG, PNG, WEBP) y videos (MP4, WEBM, MOV).');
+                    }
+                },
+            ],
         ]);
 
         $work = Work::create([
-            'barbero_id' => $barberId,
-            'title' => $request->title,
+            'barbero_id'  => $barberId,
+            'title'       => $request->title,
             'description' => $request->description,
-            'work_date' => now(),
+            'work_date'   => now(),
         ]);
 
-        foreach ($request->file('images') as $image) {
-            $path = $image->store('portfolio', 'public');
-            $work->images()->create(['image' => $path]);
+        foreach ($request->file('media') as $file) {
+            $mime     = $file->getMimeType();
+            $isVideo  = str_starts_with($mime, 'video/');
+            $folder   = $isVideo ? 'portfolio/videos' : 'portfolio';
+            $path     = $file->store($folder, 'public');
+
+            $work->images()->create([
+                'image'     => $path,
+                'type'      => $isVideo ? 'video' : 'image',
+                'mime_type' => $mime,
+            ]);
         }
 
-        // Redirect to barbers.show if passing barber as param, otherwise to barber.portfolio.index
         if ($barber) {
-            return redirect()->route('barbers.show', $barber)->with('status', 'Trabajo publicado exitosamente en tu portafolio.');
+            return redirect()->route('barbers.show', $barber)->with('status', 'Trabajo publicado exitosamente.');
         }
 
-        return redirect()->route('barber.portfolio.index')->with('status', 'Trabajo publicado exitosamente en tu portafolio.');
+        return redirect()->route('barber.portfolio.index')->with('status', 'Trabajo publicado exitosamente.');
     }
 
     public function destroy(Work $work): RedirectResponse
     {
         abort_if($work->barbero_id !== auth()->id(), 403);
+        $work->delete();
 
-        $work->delete(); // This should delete images if using boot or cascade
-
-        return back()->with('status', 'Trabajo eliminado de tu portafolio.');
+        return back()->with('status', 'Trabajo eliminado.');
     }
 }

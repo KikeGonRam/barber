@@ -52,12 +52,28 @@
                 @foreach($works as $work)
                     <article class="group rounded-2xl border border-white/8 bg-[#111] overflow-hidden hover:border-white/15 transition-all duration-300">
                         {{-- Image --}}
+                        @php
+                            $firstMedia  = $work->images->first();
+                            $isFirstVideo = $firstMedia && ($firstMedia->type ?? 'image') === 'video';
+                            $hasVideo    = $work->images->contains(fn($i) => ($i->type ?? 'image') === 'video');
+                            $mediaCount  = $work->images->count();
+                        @endphp
                         <div class="aspect-square relative overflow-hidden bg-[#0d0d0d]">
-                            @if($work->images->first())
-                                <img src="{{ \Illuminate\Support\Facades\Storage::url($work->images->first()->image) }}"
-                                     class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 grayscale-[20%] group-hover:grayscale-0"
-                                     loading="lazy"
-                                     alt="{{ $work->title }}">
+                            @if($firstMedia)
+                                @if($isFirstVideo)
+                                    <video src="{{ \Illuminate\Support\Facades\Storage::url($firstMedia->image) }}"
+                                           class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                           muted preload="metadata" playsinline></video>
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
+                                        <div class="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                            <svg class="h-5 w-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        </div>
+                                    </div>
+                                @else
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($firstMedia->image) }}"
+                                         class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 grayscale-[20%] group-hover:grayscale-0"
+                                         loading="lazy" alt="{{ $work->title }}">
+                                @endif
                             @else
                                 <div class="h-full w-full flex items-center justify-center">
                                     <svg class="h-12 w-12 text-white/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -69,16 +85,24 @@
                             {{-- Gradient overlay --}}
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                            {{-- Multi-image badge --}}
-                            @if($work->images->count() > 1)
-                                <div class="absolute top-3 left-3 flex items-center gap-1 rounded-lg bg-black/60 backdrop-blur-sm px-2 py-1">
-                                    <svg class="h-3 w-3 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
-                                    <span class="text-[9px] font-black text-white/70">{{ $work->images->count() }}</span>
-                                </div>
-                            @endif
+                            {{-- Top badges --}}
+                            <div class="absolute top-3 left-3 flex items-center gap-1.5">
+                                @if($hasVideo)
+                                    <div class="flex items-center gap-1 rounded-lg bg-black/70 backdrop-blur-sm px-1.5 py-1 border border-white/10">
+                                        <svg class="h-3 w-3 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        <span class="text-[8px] font-black text-purple-300">Video</span>
+                                    </div>
+                                @endif
+                                @if($mediaCount > 1)
+                                    <div class="flex items-center gap-1 rounded-lg bg-black/70 backdrop-blur-sm px-1.5 py-1 border border-white/10">
+                                        <svg class="h-3 w-3 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                                        <span class="text-[8px] font-black text-white/60">{{ $mediaCount }}</span>
+                                    </div>
+                                @endif
+                            </div>
 
-                            {{-- Delete button --}}
-                            <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            {{-- Delete button (desktop hover) --}}
+                            <div class="absolute top-3 right-3 hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                 <form action="{{ route('barber.portfolio.destroy', $work) }}" method="POST"
                                       onsubmit="return confirm('¿Eliminar este trabajo del portafolio?');">
                                     @csrf @method('DELETE')
@@ -117,6 +141,15 @@
                                 </div>
                                 <span class="text-[9px] text-muted/50">{{ $work->created_at->format('d/m/Y') }}</span>
                             </div>
+                            {{-- Delete button (mobile only) --}}
+                            <form action="{{ route('barber.portfolio.destroy', $work) }}" method="POST"
+                                  onsubmit="return confirm('¿Eliminar este trabajo?');" class="sm:hidden mt-3">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="w-full flex items-center justify-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/5 py-2 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-all">
+                                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    Eliminar trabajo
+                                </button>
+                            </form>
                         </div>
                     </article>
                 @endforeach

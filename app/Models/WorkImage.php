@@ -13,7 +13,14 @@ class WorkImage extends Model
 
     protected $fillable = [
         'image',
+        'type',      // 'image' | 'video'
+        'mime_type',
     ];
+
+    public function isVideo(): bool
+    {
+        return ($this->type ?? 'image') === 'video';
+    }
 
     public function work()
     {
