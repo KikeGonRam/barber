@@ -1,1174 +1,997 @@
 <x-app-layout>
     <x-slot name="header">
         @php
-            $dashboardMode = ($adminMode ?? false) ? 'admin' : (($isBarberMode ?? false) ? 'barber' : (($isReceptionMode ?? false) ? 'reception' : 'client'));
-            $dashboardTitleClass = match ($dashboardMode) {
-                'admin' => 'ui-profile-title ui-profile-title-admin',
-                'barber' => 'ui-profile-title ui-profile-title-barber',
-                'reception' => 'ui-profile-title ui-profile-title-reception',
-                default => 'ui-profile-title ui-profile-title-client',
-            };
+            $mode = ($adminMode ?? false) ? 'admin' : (($isBarberMode ?? false) ? 'barber' : (($isReceptionMode ?? false) ? 'reception' : 'client'));
+            $modeLabels  = ['admin'=>'Administrativo','barber'=>'Profesional','reception'=>'Operativo','client'=>'Personal'];
+            $modeColors  = ['admin'=>'text-gold','barber'=>'text-amber-400','reception'=>'text-indigo-400','client'=>'text-gold'];
         @endphp
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="{{ $dashboardTitleClass }}">Dashboard <span class="text-gold">{{ ($adminMode ?? false) ? 'Administrativo' : (($isBarberMode ?? false) ? 'Profesional' : (($isReceptionMode ?? false) ? 'Operativo' : 'Cliente')) }}</span></h2>
-                <p class="ui-profile-subtitle mt-2">Vista ejecutiva del rendimiento y agenda de la barbería.</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 mb-1">UrbanBlade · Dashboard</p>
+                <h2 class="text-xl font-black text-white uppercase tracking-tight">
+                    Panel <span class="{{ $modeColors[$mode] }}">{{ $modeLabels[$mode] }}</span>
+                </h2>
+                <p class="text-[10px] text-white/30 font-bold mt-0.5 uppercase tracking-wider">{{ now()->translatedFormat('l d \d\e F, Y') }}</p>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 flex-wrap">
                 @if($adminMode ?? false)
-                <form method="POST" action="{{ route('settings.maintenance.toggle') }}">
-                    @csrf
-                    <button type="submit" 
-                            class="flex items-center gap-2 px-4 py-2 rounded-xl border {{ ($maintenanceMode ?? false) ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-white/5 border-white/10 text-muted hover:text-white' }} transition-all text-[10px] font-black uppercase tracking-widest">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                        <span>{{ ($maintenanceMode ?? false) ? 'Sistema en Mantenimiento' : 'Modo Mantenimiento' }}</span>
-                    </button>
-                </form>
-                <a href="{{ route('backups.database.download') }}"
-                   class="flex items-center gap-2 px-4 py-2 rounded-xl border bg-green-500/10 border-green-500/30 text-green-300 hover:text-white hover:bg-green-500/20 transition-all text-[10px] font-black uppercase tracking-widest">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.105.895-2 2-2h4a2 2 0 012 2v4a2 2 0 01-2 2h-4a2 2 0 01-2-2m0-4H8a2 2 0 00-2 2v4a2 2 0 002 2h4m0-8V7a2 2 0 00-2-2H6a2 2 0 00-2 2v4m8 0v4" /></svg>
-                    <span>Backup BD</span>
-                </a>
+                    <form method="POST" action="{{ route('settings.maintenance.toggle') }}">
+                        @csrf
+                        <button type="submit"
+                            class="flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all
+                                {{ ($maintenanceMode ?? false) ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-white/[0.03] border-white/8 text-white/40 hover:text-white hover:border-white/20' }}">
+                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            {{ ($maintenanceMode ?? false) ? 'Mantenimiento ON' : 'Mantenimiento' }}
+                        </button>
+                    </form>
+                    <a href="{{ route('backups.database.download') }}"
+                        class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] text-emerald-400 text-[9px] font-black uppercase tracking-widest hover:bg-emerald-500/10 transition-all">
+                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Backup
+                    </a>
                 @endif
-                <span class="ui-badge bg-white shadow-sm ring-1 ring-white/10 border-white/5">
-                    <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
+                <span class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/8 bg-white/[0.03] text-[9px] font-black uppercase tracking-widest text-white/40">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     Sistema Activo
                 </span>
             </div>
-
         </div>
     </x-slot>
 
-    <div class="space-y-6 py-4 sm:space-y-8 sm:py-6">
-        @if ($adminMode ?? false)
+    <div class="space-y-5 py-4">
 
-@php
-    /* ── Sparkline SVG helper (closure para evitar redeclaración) ── */
-    $adminSparkline = function(array $values, int $w = 96, int $h = 28): string {
-        $vals = array_values(array_filter($values, fn($v) => $v !== null));
-        if (count($vals) < 2) return '';
-        $max  = max($vals) ?: 1;
-        $min  = min($vals);
-        $rng  = ($max - $min) ?: 1;
-        $step = $w / (count($vals) - 1);
-        $pts  = [];
-        foreach ($vals as $i => $v) {
-            $x = round($i * $step, 2);
-            $y = round($h - (($v - $min) / $rng) * $h, 2);
-            $pts[] = "$x,$y";
-        }
-        return 'M ' . implode(' L ', $pts);
-    };
-    $incomeSpark = $adminSparkline($incomeChart['values'] ?? []);
-    $barberStatuses = $kpis['barbers_status'] ?? [];
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    {{-- ADMIN DASHBOARD                                           --}}
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    @if($adminMode ?? false)
+    @php
+        $statusMap = [
+            'completada' => ['cls'=>'border-emerald-500/25 bg-emerald-500/10 text-emerald-300','dot'=>'bg-emerald-400','label'=>'Completada'],
+            'pendiente'  => ['cls'=>'border-amber-500/25  bg-amber-500/10  text-amber-300', 'dot'=>'bg-amber-400', 'label'=>'Pendiente'],
+            'en_proceso' => ['cls'=>'border-blue-500/25   bg-blue-500/10   text-blue-300',  'dot'=>'bg-blue-400',  'label'=>'En proceso'],
+            'cancelada'  => ['cls'=>'border-red-500/25    bg-red-500/10    text-red-400',   'dot'=>'bg-red-400',   'label'=>'Cancelada'],
+        ];
+        $barberStatuses = $kpis['barbers_status'] ?? [];
+        $adminSparkline = function(array $values, int $w = 80, int $h = 22): string {
+            $vals = array_values(array_filter($values, fn($v) => $v !== null));
+            if (count($vals) < 2) return '';
+            $max = max($vals) ?: 1; $min = min($vals); $rng = ($max - $min) ?: 1;
+            $step = $w / (count($vals) - 1); $pts = [];
+            foreach ($vals as $i => $v) {
+                $pts[] = round($i * $step, 2).','.round($h - (($v - $min) / $rng) * $h, 2);
+            }
+            return 'M '.implode(' L ', $pts);
+        };
+        $incomeSpark = $adminSparkline($incomeChart['values'] ?? []);
+    @endphp
 
-    /* ── Estado badge helper ──────────────────────────── */
-    $statusMap = [
-        'completada' => ['bg-emerald-500/15 text-emerald-300 border-emerald-500/25', 'Completada'],
-        'pendiente'  => ['bg-amber-500/15 text-amber-300 border-amber-500/25',       'Pendiente'],
-        'en_proceso' => ['bg-blue-500/15 text-blue-300 border-blue-500/25',           'En proceso'],
-        'cancelada'  => ['bg-red-500/15 text-red-400 border-red-500/25',              'Cancelada'],
-    ];
-@endphp
+    {{-- ── ACCIONES RÁPIDAS ──────────────────────────────────── --}}
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        @foreach([
+            ['href'=>route('appointments.create'), 'label'=>'Nueva Cita',    'color'=>'blue',   'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
+            ['href'=>route('clients.create'),      'label'=>'Nuevo Cliente', 'color'=>'cyan',   'icon'=>'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'],
+            ['href'=>route('payments.create'),     'label'=>'Cobrar',        'color'=>'emerald','icon'=>'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
+            ['href'=>route('reports.index'),       'label'=>'Reportes',      'color'=>'purple', 'icon'=>'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+        ] as $a)
+            <a href="{{ $a['href'] }}"
+               class="group flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-[#111] px-4 py-3.5 hover:border-{{ $a['color'] }}-500/30 hover:bg-{{ $a['color'] }}-500/[0.04] transition-all">
+                <div class="h-8 w-8 rounded-xl bg-{{ $a['color'] }}-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <svg class="h-4 w-4 text-{{ $a['color'] }}-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $a['icon'] }}"/></svg>
+                </div>
+                <span class="text-[11px] font-black text-white uppercase tracking-wide">{{ $a['label'] }}</span>
+            </a>
+        @endforeach
+    </section>
 
-<!-- ══════════════════════════════════════════════════════════ -->
-<!-- ADMIN DASHBOARD                                           -->
-<!-- ══════════════════════════════════════════════════════════ -->
+    {{-- ── KPIs ──────────────────────────────────────────────── --}}
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-{{-- ── 1. ACCIONES RÁPIDAS ─────────────────────────────── --}}
-<section class="grid grid-cols-2 gap-3 sm:grid-cols-4 animate-slide-up">
-    @foreach([
-        ['href'=> route('appointments.create'),        'label'=>'Nueva Cita',     'sub'=>'Agendar servicio',    'color'=>'blue',   'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
-        ['href'=> route('clients.create'),             'label'=>'Nuevo Cliente',  'sub'=>'Alta en sistema',     'color'=>'cyan',   'icon'=>'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'],
-        ['href'=> route('payments.create'),            'label'=>'Cobrar',         'sub'=>'Registrar pago',      'color'=>'green',  'icon'=>'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
-        ['href'=> route('reports.index'),              'label'=>'Reportes',       'sub'=>'Ver análisis',        'color'=>'purple', 'icon'=>'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
-    ] as $action)
-        <a href="{{ $action['href'] }}"
-           class="group flex items-center gap-3 rounded-2xl border border-white/8 bg-[#111] p-4 hover:border-{{ $action['color'] }}-500/40 hover:bg-{{ $action['color'] }}-500/5 transition-all duration-300">
-            <div class="h-10 w-10 rounded-xl bg-{{ $action['color'] }}-500/10 text-{{ $action['color'] }}-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $action['icon'] }}"/></svg>
+        {{-- Citas --}}
+        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden">
+            <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-blue-500/60 to-transparent"></div>
+            <div class="flex items-start justify-between mb-4">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/35">Citas Hoy</p>
+                <div class="h-7 w-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <svg class="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
             </div>
-            <div class="min-w-0">
-                <p class="text-sm font-black text-white truncate">{{ $action['label'] }}</p>
-                <p class="text-[10px] font-bold text-muted uppercase tracking-wider truncate">{{ $action['sub'] }}</p>
+            <p class="text-3xl font-black text-white leading-none">{{ $kpis['appointments_today'] }}</p>
+            <div class="mt-3 flex items-center gap-2 text-[9px] font-black text-white/30">
+                <span class="text-blue-400/80">Sem {{ $kpis['appointments_week'] }}</span>
+                <span>·</span>
+                <span>Mes {{ $kpis['appointments_month'] }}</span>
+                @if($kpis['appointment_growth'] != 0)
+                    <span class="{{ $kpis['appointment_growth'] >= 0 ? 'text-emerald-400' : 'text-red-400' }} ml-auto">
+                        {{ $kpis['appointment_growth'] >= 0 ? '▲' : '▼' }}{{ abs($kpis['appointment_growth']) }}%
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        {{-- Ingresos --}}
+        <a href="{{ route('payments.index') }}" class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden hover:border-emerald-500/25 transition-all group">
+            <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-emerald-500/60 to-transparent"></div>
+            <div class="flex items-start justify-between mb-4">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/35">Ingresos Hoy</p>
+                <div class="h-7 w-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                    <svg class="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+            <p class="text-3xl font-black text-emerald-400 leading-none">${{ number_format($kpis['income_today'], 0) }}</p>
+            @if($incomeSpark)
+                <svg viewBox="0 0 80 22" class="w-full h-5 my-2" preserveAspectRatio="none">
+                    <path d="{{ $incomeSpark }}" fill="none" stroke="rgba(52,211,153,0.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            @else <div class="h-5 my-2"></div>
+            @endif
+            <div class="flex items-center gap-2 text-[9px] font-black text-white/30">
+                <span class="text-emerald-400/80">Sem ${{ number_format($kpis['income_week'],0) }}</span>
+                <span>·</span>
+                <span>Mes ${{ number_format($kpis['income_month'],0) }}</span>
+                @if($kpis['income_growth'] != 0)
+                    <span class="{{ $kpis['income_growth'] >= 0 ? 'text-emerald-400' : 'text-red-400' }} ml-auto">
+                        {{ $kpis['income_growth'] >= 0 ? '▲' : '▼' }}{{ abs($kpis['income_growth']) }}%
+                    </span>
+                @endif
             </div>
         </a>
-    @endforeach
-</section>
 
-{{-- ── 2. KPI CARDS ─────────────────────────────────────── --}}
-<section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {{-- Clientes --}}
+        <a href="{{ route('clients.index') }}" class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden hover:border-cyan-500/25 transition-all">
+            <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-cyan-500/60 to-transparent"></div>
+            <div class="flex items-start justify-between mb-4">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/35">Clientes</p>
+                <div class="h-7 w-7 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+                    <svg class="h-3.5 w-3.5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+            </div>
+            <p class="text-3xl font-black text-white leading-none">{{ $kpis['active_clients'] }}</p>
+            @php $ratio = $kpis['total_clients'] > 0 ? round(($kpis['active_clients']/$kpis['total_clients'])*100) : 0; @endphp
+            <div class="mt-3 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                <div class="h-full bg-cyan-400 rounded-full" style="width:{{ $ratio }}%"></div>
+            </div>
+            <div class="mt-2 flex items-center gap-2 text-[9px] font-black text-white/30">
+                <span class="text-cyan-400/80">{{ $ratio }}% activos</span>
+                <span>de {{ $kpis['total_clients'] }} totales</span>
+            </div>
+        </a>
 
-    {{-- Citas Hoy --}}
-    <article class="ui-kpi-card group relative overflow-hidden animate-slide-up border-blue-500/0 hover:border-blue-500/30" style="animation-delay:0ms">
-        <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-blue-500/60 via-blue-400/30 to-transparent"></div>
-        <div class="flex items-start justify-between mb-3">
-            <p class="text-[10px] font-black uppercase tracking-widest text-muted">Citas Hoy</p>
-            <div class="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        {{-- Retención --}}
+        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden">
+            <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-purple-500/60 to-transparent"></div>
+            <div class="flex items-start justify-between mb-4">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/35">Retención</p>
+                <div class="h-7 w-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <svg class="h-3.5 w-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
             </div>
-        </div>
-        <p class="text-4xl font-black text-white leading-none mb-2">{{ $kpis['appointments_today'] }}</p>
-        <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-[10px] font-bold bg-blue-500/10 text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded-full">Sem: {{ $kpis['appointments_week'] }}</span>
-            <span class="text-[10px] font-bold bg-white/5 text-muted border border-white/10 px-2 py-0.5 rounded-full">Mes: {{ $kpis['appointments_month'] }}</span>
-        </div>
-        @if($kpis['appointment_growth'] != 0)
-            <div class="mt-3 flex items-center gap-1 text-xs font-black {{ $kpis['appointment_growth'] >= 0 ? 'text-emerald-400' : 'text-red-400' }}">
-                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="{{ $kpis['appointment_growth'] >= 0 ? 'M5 10l7-7 7 7' : 'M19 14l-7 7-7-7' }}"/></svg>
-                {{ abs($kpis['appointment_growth']) }}% vs mes anterior
-            </div>
-        @endif
-    </article>
-
-    {{-- Ingresos Hoy --}}
-    <a href="{{ route('payments.index') }}" class="ui-kpi-card group relative overflow-hidden animate-slide-up hover:border-emerald-500/30 cursor-pointer" style="animation-delay:80ms">
-        <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-emerald-500/60 via-emerald-400/30 to-transparent"></div>
-        <div class="flex items-start justify-between mb-3">
-            <p class="text-[10px] font-black uppercase tracking-widest text-muted">Ingresos Hoy</p>
-            <div class="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-        </div>
-        <p class="text-4xl font-black text-emerald-400 leading-none mb-2">${{ number_format($kpis['income_today'], 0) }}</p>
-        {{-- Sparkline mini --}}
-        @if($incomeSpark)
-            <svg viewBox="0 0 96 28" class="w-full h-7 mb-2" preserveAspectRatio="none">
-                <path d="{{ $incomeSpark }}" fill="none" stroke="rgba(52,211,153,0.5)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="{{ $incomeSpark }} L 96,28 L 0,28 Z" fill="rgba(52,211,153,0.06)"/>
-            </svg>
-        @endif
-        <div class="flex items-center gap-2">
-            <span class="text-[10px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-2 py-0.5 rounded-full">Sem: ${{ number_format($kpis['income_week'], 0) }}</span>
-            @if($kpis['income_growth'] != 0)
-                <span class="text-[10px] font-black {{ $kpis['income_growth'] >= 0 ? 'text-emerald-400' : 'text-red-400' }}">
-                    {{ $kpis['income_growth'] >= 0 ? '↑' : '↓' }}{{ abs($kpis['income_growth']) }}%
-                </span>
-            @endif
-        </div>
-    </a>
-
-    {{-- Clientes Activos --}}
-    <a href="{{ route('clients.index') }}" class="ui-kpi-card group relative overflow-hidden animate-slide-up hover:border-cyan-500/30 cursor-pointer" style="animation-delay:160ms">
-        <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-cyan-500/60 via-cyan-400/30 to-transparent"></div>
-        <div class="flex items-start justify-between mb-3">
-            <p class="text-[10px] font-black uppercase tracking-widest text-muted">Clientes Activos</p>
-            <div class="h-9 w-9 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            </div>
-        </div>
-        <p class="text-4xl font-black text-white leading-none mb-2">{{ $kpis['active_clients'] }}</p>
-        {{-- Barra de ratio activos/total --}}
-        @php $ratio = $kpis['total_clients'] > 0 ? round(($kpis['active_clients']/$kpis['total_clients'])*100) : 0; @endphp
-        <div class="mb-2">
-            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                <div class="h-full bg-cyan-400 rounded-full transition-all duration-700" style="width:{{ $ratio }}%"></div>
-            </div>
-        </div>
-        <div class="flex items-center gap-2">
-            <span class="text-[10px] font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-2 py-0.5 rounded-full">{{ $ratio }}% activos</span>
-            <span class="text-[10px] font-bold text-muted">de {{ $kpis['total_clients'] }} totales</span>
-        </div>
-    </a>
-
-    {{-- Stock & Retención --}}
-    <article class="ui-kpi-card group relative overflow-hidden animate-slide-up hover:border-purple-500/30" style="animation-delay:240ms">
-        <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-purple-500/60 via-purple-400/30 to-transparent"></div>
-        <div class="flex items-start justify-between mb-3">
-            <p class="text-[10px] font-black uppercase tracking-widest text-muted">Retención</p>
-            <div class="h-9 w-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            </div>
-        </div>
-        <p class="text-4xl font-black text-purple-400 leading-none mb-2">{{ number_format($kpis['retention_rate'], 1) }}<span class="text-2xl">%</span></p>
-        <div class="mb-2">
-            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+            <p class="text-3xl font-black text-purple-400 leading-none">{{ number_format($kpis['retention_rate'],1) }}<span class="text-lg text-white/40">%</span></p>
+            <div class="mt-3 h-1 w-full bg-white/5 rounded-full overflow-hidden">
                 <div class="h-full bg-purple-400 rounded-full" style="width:{{ min(100,$kpis['retention_rate']) }}%"></div>
             </div>
+            <div class="mt-2 flex items-center gap-2 text-[9px] font-black text-white/30">
+                <span class="text-purple-400/80">{{ $kpis['recurring_clients'] }} recurrentes</span>
+                @if(($kpis['low_stock_count'] ?? 0) > 0)
+                    <a href="{{ route('inventory.products.index') }}" class="ml-auto text-amber-400/80 hover:text-amber-400 transition-colors">⚠ {{ $kpis['low_stock_count'] }} stock bajo</a>
+                @endif
+            </div>
         </div>
-        <span class="text-[10px] font-bold bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-0.5 rounded-full">
-            {{ $kpis['recurring_clients'] }} recurrentes
-        </span>
-        @if(($kpis['low_stock_count'] ?? 0) > 0)
-            <div class="mt-3 flex items-center gap-1.5 text-[10px] font-black text-amber-400">
-                <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-                {{ $kpis['low_stock_count'] }} productos con stock bajo
+    </section>
+
+    {{-- ── CUERPO PRINCIPAL ──────────────────────────────────── --}}
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        {{-- Agenda de hoy --}}
+        <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Agenda</p>
+                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Citas de Hoy</h3>
+                </div>
+                <a href="{{ route('appointments.index') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/30 hover:text-gold transition-colors">
+                    Ver todo <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </a>
             </div>
-        @endif
-    </article>
-</section>
 
-{{-- ── 3. CUERPO PRINCIPAL: agenda + actividad reciente ─── --}}
-<section class="grid grid-cols-1 gap-5 lg:grid-cols-12">
-
-    {{-- Citas de hoy: timeline --}}
-    <div class="lg:col-span-7 ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay:200ms">
-        <div class="flex items-center justify-between mb-7">
-            <div>
-                <h3 class="text-sm font-black text-white uppercase tracking-widest">Agenda de Hoy</h3>
-                <p class="text-[10px] text-muted font-bold uppercase mt-0.5">{{ now()->format('d \d\e F, Y') }}</p>
-            </div>
-            <a href="{{ route('appointments.index') }}" class="text-[9px] font-black uppercase tracking-widest text-muted hover:text-gold transition flex items-center gap-1">
-                Ver todo <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-            </a>
-        </div>
-
-        @if($todayAppointments->isEmpty())
-            <div class="flex flex-col items-center justify-center py-14 border border-dashed border-white/8 rounded-2xl">
-                <svg class="h-10 w-10 text-white/10 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                <p class="text-sm font-bold text-muted">Sin citas programadas para hoy</p>
-                <a href="{{ route('appointments.create') }}" class="mt-4 text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">+ Crear cita</a>
-            </div>
-        @else
-            <div class="space-y-2.5">
-                @foreach($todayAppointments as $appt)
-                    @php [$pill,$label] = $statusMap[$appt->estado] ?? ['bg-white/8 text-white/50 border-white/10','Desconocido']; @endphp
-                    <div class="group flex items-center gap-4 p-3.5 rounded-2xl border border-white/5 hover:border-gold/20 hover:bg-white/[0.02] transition-all">
-                        {{-- Hora --}}
-                        <div class="shrink-0 w-12 text-center">
-                            <p class="text-[11px] font-black text-white">{{ substr($appt->hora_inicio ?? '--:--', 0, 5) }}</p>
-                        </div>
-                        {{-- Divider --}}
-                        <div class="w-px h-8 bg-white/8 shrink-0"></div>
-                        {{-- Info --}}
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-black text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
-                            <p class="text-[10px] font-bold text-muted truncate">
-                                {{ $appt->service?->nombre ?? '—' }} &bull; {{ $appt->barber?->user?->name ?? '—' }}
-                            </p>
-                        </div>
-                        {{-- Estado badge --}}
-                        <span class="shrink-0 text-[9px] font-black uppercase tracking-wider border rounded-full px-2.5 py-1 {{ $pill }}">
-                            {{ $label }}
-                        </span>
-                    </div>
-                @endforeach
-            </div>
-        @endif
-    </div>
-
-    {{-- Panel derecho: top barbero + actividad reciente --}}
-    <div class="lg:col-span-5 flex flex-col gap-5">
-
-        {{-- Top barbero del mes --}}
-        <div class="ui-card-premium p-6 relative overflow-hidden animate-slide-up" style="animation-delay:280ms">
-            <div class="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-gold/5 to-transparent pointer-events-none"></div>
-            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-gold mb-4">⭐ Top Barbero del Mes</p>
-            @if($kpis['top_barber_name'])
-                <div class="flex items-center gap-4">
-                    <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-gold/30 to-gold/10 border border-gold/20 flex items-center justify-center text-xl font-black text-gold shrink-0">
-                        {{ strtoupper(substr($kpis['top_barber_name'], 0, 2)) }}
-                    </div>
-                    <div>
-                        <p class="text-base font-black text-white">{{ $kpis['top_barber_name'] }}</p>
-                        <p class="text-[10px] font-bold text-muted uppercase tracking-wider">{{ $kpis['top_barber_total'] }} citas este mes</p>
-                        <div class="flex gap-0.5 mt-1">
-                            @for($s=0;$s<5;$s++)<svg class="h-3 w-3 text-gold" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>@endfor
-                        </div>
-                    </div>
+            @if($todayAppointments->isEmpty())
+                <div class="flex flex-col items-center justify-center py-12 border border-dashed border-white/[0.06] rounded-xl">
+                    <svg class="h-8 w-8 text-white/10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <p class="text-xs font-bold text-white/25 uppercase tracking-widest">Sin citas hoy</p>
+                    <a href="{{ route('appointments.create') }}" class="mt-3 text-[9px] font-black uppercase tracking-widest text-gold/60 hover:text-gold transition-colors">+ Crear cita</a>
                 </div>
             @else
-                <p class="text-sm text-muted italic">Sin datos disponibles</p>
-            @endif
-        </div>
-
-        {{-- Actividad reciente --}}
-        <div class="ui-card-premium p-6 flex-1 animate-slide-up" style="animation-delay:340ms">
-            <div class="flex items-center justify-between mb-5">
-                <h3 class="text-[11px] font-black uppercase tracking-widest text-white">Actividad Reciente</h3>
-                <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
-            </div>
-            <div class="space-y-3">
-                @forelse($recentAppointments->take(5) as $appt)
-                    @php [$pill,$label] = $statusMap[$appt->estado] ?? ['bg-white/8 text-white/50 border-white/10','—']; @endphp
-                    <div class="flex items-center gap-3">
-                        <div class="h-8 w-8 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-[10px] font-black text-gold shrink-0">
-                            {{ strtoupper(substr($appt->barber?->user?->name ?? 'B', 0, 1)) }}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-xs font-bold text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
-                            <p class="text-[9px] text-muted truncate">{{ \Carbon\Carbon::parse($appt->fecha)->format('d M') }} · {{ substr($appt->hora_inicio,0,5) }}</p>
-                        </div>
-                        <span class="text-[8px] font-black uppercase border rounded-full px-2 py-0.5 shrink-0 {{ $pill }}">{{ $label }}</span>
-                    </div>
-                @empty
-                    <p class="text-xs text-muted italic">Sin actividad reciente</p>
-                @endforelse
-            </div>
-        </div>
-    </div>
-</section>
-
-{{-- ── 4. ESTACIONES EN VIVO ────────────────────────────── --}}
-<section class="ui-card-premium p-6 sm:p-8 relative overflow-hidden animate-slide-up" style="animation-delay:300ms">
-    <div class="absolute right-0 top-0 h-full w-64 bg-gradient-to-l from-gold/4 to-transparent pointer-events-none"></div>
-    <div class="flex items-center justify-between mb-7 relative z-10">
-        <div>
-            <h3 class="text-sm font-black text-white uppercase tracking-widest">Estaciones en Vivo</h3>
-            <p class="text-[10px] text-muted font-bold uppercase mt-0.5">Ocupación en tiempo real</p>
-        </div>
-        <span class="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-[9px] font-black uppercase text-green-400">
-            <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span> Live
-        </span>
-    </div>
-
-    @if(! empty($barberStatuses))
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 relative z-10">
-            @foreach($barberStatuses as $i => $st)
-                <div class="group rounded-2xl border {{ $st['is_busy'] ? 'border-red-500/25 bg-red-500/5' : 'border-emerald-500/20 bg-emerald-500/5' }} p-4 text-center hover:scale-105 transition-transform duration-300">
-                    {{-- Avatar --}}
-                    <div class="relative inline-flex mb-3">
-                        <div class="h-12 w-12 rounded-2xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gold font-black">
-                            {{ strtoupper(substr($st['name'], 0, 2)) }}
-                        </div>
-                        <span class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-[#141414] {{ $st['is_busy'] ? 'bg-red-500 animate-pulse' : 'bg-emerald-500' }}"></span>
-                    </div>
-                    <p class="text-[11px] font-black text-white truncate leading-tight">{{ explode(' ', $st['name'])[0] }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-wider mt-0.5 {{ $st['is_busy'] ? 'text-red-400' : 'text-emerald-400' }}">
-                        {{ $st['is_busy'] ? 'Ocupado' : 'Libre' }}
-                    </p>
-                    @if($st['is_busy'])
-                        <div class="mt-2.5">
-                            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-gold to-gold-dim rounded-full transition-all duration-700" style="width:{{ $st['progress'] }}%"></div>
+                <div class="space-y-2">
+                    @foreach($todayAppointments as $appt)
+                        @php $st = $statusMap[$appt->estado] ?? ['cls'=>'border-white/10 bg-white/5 text-white/40','dot'=>'bg-white/30','label'=>'—']; @endphp
+                        <div class="flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] hover:border-white/10 hover:bg-white/[0.02] transition-all">
+                            <div class="w-10 text-center shrink-0">
+                                <p class="text-[11px] font-black text-white">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
+                                <p class="text-[8px] text-white/25 font-bold">{{ substr($appt->hora_fin ?? '',0,5) }}</p>
                             </div>
-                            <p class="text-[9px] text-muted mt-1">{{ $st['progress'] }}%</p>
-                        </div>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-    @else
-        <div class="relative z-10 ui-empty-state py-12">
-            <p class="ui-empty-state-copy">Sin barberos activos en este momento</p>
-        </div>
-    @endif
-</section>
-
-{{-- ── 5. PREDICCIONES IA ───────────────────────────────── --}}
-<section class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay:350ms">
-    <div class="flex items-center justify-between mb-7">
-        <div>
-            <h3 class="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
-                <span class="h-5 w-5 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[10px]">AI</span>
-                Predicciones con IA
-            </h3>
-            <p class="text-[10px] text-muted font-bold uppercase mt-0.5">Análisis predictivo — próximos 7 días</p>
-        </div>
-        <span class="inline-flex items-center gap-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-[9px] font-black uppercase text-indigo-400">Beta</span>
-    </div>
-
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        @foreach([
-            ['id'=>'income-forecast',      'label'=>'Ingresos Estimados',  'sub'=>'Próximos 7 días', 'color'=>'emerald', 'icon'=>'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'],
-            ['id'=>'appointment-forecast', 'label'=>'Citas Estimadas',     'sub'=>'Próximos 7 días', 'color'=>'blue',    'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
-            ['id'=>'ai-confidence',        'label'=>'Confianza del Modelo','sub'=>'Precisión IA',    'color'=>'indigo',  'icon'=>'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'],
-        ] as $ai)
-            <div class="rounded-2xl border border-white/6 bg-white/[0.02] p-6 hover:border-{{ $ai['color'] }}-500/30 hover:bg-{{ $ai['color'] }}-500/5 transition-all">
-                <div class="flex items-start justify-between mb-5">
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-muted">{{ $ai['label'] }}</p>
-                        <p class="text-[10px] text-muted mt-0.5">{{ $ai['sub'] }}</p>
-                    </div>
-                    <div class="h-9 w-9 rounded-xl bg-{{ $ai['color'] }}-500/10 text-{{ $ai['color'] }}-400 flex items-center justify-center shrink-0">
-                        <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $ai['icon'] }}"/></svg>
-                    </div>
-                </div>
-                <p id="{{ $ai['id'] }}" class="text-3xl font-black text-{{ $ai['color'] }}-400">
-                    <span class="inline-block w-8 h-1.5 bg-{{ $ai['color'] }}-500/30 rounded animate-pulse"></span>
-                </p>
-                <p class="text-[10px] text-muted mt-3 italic ai-sub-{{ $ai['id'] }}">Cargando...</p>
-            </div>
-        @endforeach
-    </div>
-
-    <div class="mt-6 pt-6 border-t border-white/6">
-        <h4 class="text-[11px] font-black uppercase tracking-widest text-white mb-4">Insights Recomendados</h4>
-        <div id="ai-insights" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="flex items-start gap-3 p-4 rounded-xl border border-white/6 bg-white/[0.02] animate-pulse">
-                <div class="h-2 w-2 rounded-full bg-amber-400 mt-1.5 shrink-0"></div>
-                <p class="text-xs text-muted">Cargando análisis de inteligencia artificial...</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-{{-- ── 6. GRÁFICAS 2×2 ─────────────────────────────────── --}}
-<section class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-
-    {{-- Ingresos semanales --}}
-    <article class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay:380ms">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h3 class="text-sm font-black text-white uppercase tracking-widest">Tendencia de Ingresos</h3>
-                <p class="text-[10px] text-muted font-bold uppercase mt-0.5">Últimas 8 semanas</p>
-            </div>
-            <div class="h-2 w-2 rounded-full bg-emerald-400"></div>
-        </div>
-        @if(!empty(array_filter($incomeChart['values'] ?? [])))
-            <div class="h-[260px]"><canvas id="incomeChart"></canvas></div>
-        @else
-            <div class="h-[260px] ui-empty-state"><p class="ui-empty-state-copy">Sin ingresos registrados aún.</p></div>
-        @endif
-    </article>
-
-    {{-- Demanda de servicios --}}
-    <article class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay:440ms">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h3 class="text-sm font-black text-white uppercase tracking-widest">Demanda de Servicios</h3>
-                <p class="text-[10px] text-muted font-bold uppercase mt-0.5">Distribución por tipo</p>
-            </div>
-            <div class="h-2 w-2 rounded-full bg-gold"></div>
-        </div>
-        @if(!empty(array_filter($servicesChart['values'] ?? [])))
-            <div class="h-[260px]"><canvas id="servicesChart"></canvas></div>
-        @else
-            <div class="h-[260px] ui-empty-state"><p class="ui-empty-state-copy">Sin servicios registrados.</p></div>
-        @endif
-    </article>
-
-    {{-- Desempeño de barberos --}}
-    <article class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay:480ms">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h3 class="text-sm font-black text-white uppercase tracking-widest">Desempeño Barberos</h3>
-                <p class="text-[10px] text-muted font-bold uppercase mt-0.5">Citas + ingresos este mes</p>
-            </div>
-            <div class="flex gap-3 text-[9px] font-black uppercase text-muted">
-                <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-blue-500"></span>Citas</span>
-                <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-emerald-500"></span>Ingresos</span>
-            </div>
-        </div>
-        @if(!empty(array_filter($barberPerformance['appointments'] ?? [])))
-            <div class="h-[260px]"><canvas id="barberPerformanceChart"></canvas></div>
-        @else
-            <div class="h-[260px] ui-empty-state"><p class="ui-empty-state-copy">Sin datos de desempeño.</p></div>
-        @endif
-    </article>
-
-    {{-- Tendencias de clientes --}}
-    <article class="ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay:520ms">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h3 class="text-sm font-black text-white uppercase tracking-widest">Tendencia de Clientes</h3>
-                <p class="text-[10px] text-muted font-bold uppercase mt-0.5">Citas completadas · mes actual</p>
-            </div>
-            <div class="h-2 w-2 rounded-full bg-purple-400"></div>
-        </div>
-        @if(!empty(array_filter($clientTrends['values'] ?? [])))
-            <div class="h-[260px]"><canvas id="clientTrendsChart"></canvas></div>
-        @else
-            <div class="h-[260px] ui-empty-state"><p class="ui-empty-state-copy">Sin datos de tendencias.</p></div>
-        @endif
-    </article>
-</section>
-
-{{-- ── 7. FILA INFERIOR: REPORTES + CHATBOT ─────────────── --}}
-<section class="grid grid-cols-1 gap-5 lg:grid-cols-12">
-
-    {{-- Reportes rápidos --}}
-    <div class="lg:col-span-5 ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay:540ms">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-sm font-black text-white uppercase tracking-widest">Reportes Rápidos</h3>
-            <a href="{{ route('reports.index') }}" class="text-[9px] font-black uppercase tracking-widest text-muted hover:text-gold transition">Ver todos &rarr;</a>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-            @foreach([
-                ['href'=> route('reports.index'), 'label'=>'Mensual',    'sub'=>'PDF KPIs',         'color'=>'blue',   'icon'=>'M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z'],
-                ['href'=> route('reports.index'), 'label'=>'Ingresos',   'sub'=>'CSV ventas',       'color'=>'emerald','icon'=>'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
-                ['href'=> route('clients.index'), 'label'=>'Clientes',   'sub'=>'CRM & retención',  'color'=>'purple', 'icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
-                ['href'=> route('inventory.products.index'), 'label'=>'Inventario','sub'=>'Stock y alertas','color'=>'amber','icon'=>'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
-            ] as $rep)
-                <a href="{{ $rep['href'] }}"
-                   class="group flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4 hover:border-{{ $rep['color'] }}-500/35 hover:bg-{{ $rep['color'] }}-500/5 transition-all">
-                    <div class="h-9 w-9 rounded-xl bg-{{ $rep['color'] }}-500/10 text-{{ $rep['color'] }}-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $rep['icon'] }}"/></svg>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-xs font-black text-white">{{ $rep['label'] }}</p>
-                        <p class="text-[9px] text-muted font-bold uppercase tracking-wider">{{ $rep['sub'] }}</p>
-                    </div>
-                </a>
-            @endforeach
-        </div>
-
-        {{-- Backup BD --}}
-        <div class="mt-4 pt-4 border-t border-white/6">
-            <a href="{{ route('backups.database.download') }}"
-               class="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-emerald-300 hover:bg-emerald-500/10 transition-all text-[10px] font-black uppercase tracking-widest group">
-                <div class="flex items-center gap-2">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    Descargar Backup BD
-                </div>
-                <svg class="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-            </a>
-        </div>
-    </div>
-
-    {{-- Telemetría Chatbot --}}
-    <div class="lg:col-span-7 ui-card-premium p-6 sm:p-8 animate-slide-up" style="animation-delay:580ms">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h3 class="text-sm font-black text-white uppercase tracking-widest">Telemetría Chatbot</h3>
-                <p class="text-[10px] text-muted font-bold uppercase mt-0.5">Últimos {{ $chatbotTelemetry['window_days'] ?? 7 }} días</p>
-            </div>
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[9px] font-black uppercase text-muted">
-                <span class="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse"></span> Operational
-            </span>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-            @foreach([
-                ['label'=>'Eventos',         'val'=> $chatbotTelemetry['total_requests'] ?? 0,                        'fmt'=>'%s',        'color'=>'blue'],
-                ['label'=>'Error Rate',      'val'=> number_format($chatbotTelemetry['error_rate_pct'] ?? 0, 2).'%',  'fmt'=>'%s',        'color'=>'red'],
-                ['label'=>'Latencia Prom.',  'val'=> ($chatbotTelemetry['avg_latency_ms'] ?? 0).'ms',                 'fmt'=>'%s',        'color'=>'sky'],
-                ['label'=>'Costo Est.',      'val'=> '$'.number_format($chatbotTelemetry['estimated_cost_usd'] ?? 0, 4),'fmt'=>'%s',      'color'=>'emerald'],
-            ] as $tel)
-                <div class="rounded-2xl border border-white/6 bg-white/[0.02] p-4 hover:border-{{ $tel['color'] }}-500/25 transition-colors">
-                    <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-1.5">{{ $tel['label'] }}</p>
-                    <p class="text-xl font-black text-{{ $tel['color'] }}-400">{{ $tel['val'] }}</p>
-                </div>
-            @endforeach
-        </div>
-
-        @if(!empty($chatbotTelemetry['top_sources']))
-            <div class="rounded-2xl border border-white/6 bg-white/[0.015] p-4">
-                <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-3">Top Fuentes</p>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    @foreach($chatbotTelemetry['top_sources'] as $source => $count)
-                        <div class="rounded-xl border border-white/6 bg-white/[0.02] px-3 py-2 flex items-center justify-between hover:border-gold/20 transition-colors">
-                            <span class="text-[10px] font-bold text-white uppercase truncate">{{ str_replace('_', ' ', $source) }}</span>
-                            <span class="text-[10px] font-black text-gold ml-2 shrink-0">{{ $count }}</span>
+                            <div class="w-px h-7 bg-white/[0.06] shrink-0"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-black text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
+                                <p class="text-[9px] text-white/35 font-bold truncate">{{ $appt->service?->nombre ?? '—' }} · {{ $appt->barber?->user?->name ?? '—' }}</p>
+                            </div>
+                            <span class="shrink-0 flex items-center gap-1 text-[8px] font-black uppercase tracking-wider border rounded-full px-2 py-0.5 {{ $st['cls'] }}">
+                                <span class="h-1.5 w-1.5 rounded-full {{ $st['dot'] }}"></span>
+                                {{ $st['label'] }}
+                            </span>
                         </div>
                     @endforeach
                 </div>
-            </div>
-        @endif
-    </div>
-</section>
+            @endif
+        </div>
 
-        @elseif ($isBarberMode ?? false)
-            <!-- ========================================== -->
-            <!-- BARBER DASHBOARD                           -->
-            <!-- ========================================== -->
-            
-            <!-- Welcome -->
-            <section class="ui-card-premium p-6 sm:p-8 lg:p-10 relative overflow-hidden group">
-                <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gold/5 blur-3xl"></div>
-                <div class="relative z-10 flex flex-col sm:flex-row items-center gap-8">
-                    <div class="h-24 w-24 rounded-3xl bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-black shadow-lg animate-float flex-shrink-0">
-                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
-                    <div>
-                        <h3 class="ui-profile-title ui-profile-title-barber uppercase">¡Hola, Maestro <span class="text-gradient-gold">{{ explode(' ', auth()->user()->name)[0] }}</span>!</h3>
-                        <p class="mt-2 text-muted max-w-xl text-lg leading-relaxed">Tu maestría define nuestro estándar. Tienes {{ $kpis['appointments_today'] }} servicios programados para hoy.</p>
-                    </div>
+        {{-- Panel derecho con tabs --}}
+        <div class="lg:col-span-5" x-data="{ tab: 'activity' }">
+            <div class="rounded-2xl border border-white/[0.06] bg-[#111] overflow-hidden h-full flex flex-col">
+
+                {{-- Tab headers --}}
+                <div class="flex border-b border-white/[0.06]">
+                    @foreach([['id'=>'activity','label'=>'Actividad'],['id'=>'stations','label'=>'Estaciones'],['id'=>'topbarber','label'=>'Top Mes']] as $tab)
+                        <button type="button" @click="tab='{{ $tab['id'] }}'"
+                            class="flex-1 py-3 text-[9px] font-black uppercase tracking-[0.2em] transition-all"
+                            :class="tab==='{{ $tab['id'] }}' ? 'text-gold border-b-2 border-gold -mb-px' : 'text-white/30 hover:text-white/60'">
+                            {{ $tab['label'] }}
+                        </button>
+                    @endforeach
                 </div>
-            </section>
 
-            <!-- KPIs -->
-            <section class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <article class="ui-kpi-card text-center border-white/5">
-                    <p class="ui-kpi-label">Citas Hoy</p>
-                    <p class="ui-kpi-value mt-1">{{ $kpis['appointments_today'] }}</p>
-                </article>
-                <article class="ui-kpi-card text-center border-white/5">
-                    <p class="ui-kpi-label">Citas del Mes</p>
-                    <p class="ui-kpi-value mt-1">{{ $kpis['appointments_month'] }}</p>
-                </article>
-                <article class="ui-kpi-card text-center border-white/5">
-                    <p class="ui-kpi-label">Ingresos Mes</p>
-                    <p class="ui-kpi-value mt-1 text-green-400">${{ number_format($kpis['income_month'], 2) }}</p>
-                </article>
-                <article class="ui-kpi-card text-center border-white/5">
-                    <p class="ui-kpi-label">Rating</p>
-                    <p class="ui-kpi-value mt-1 text-gold">{{ $kpis['rating'] }} <span class="text-xs">★</span></p>
-                </article>
-            </section>
+                <div class="flex-1 p-5">
 
-            <!-- Charts -->
-            <section class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                <article class="ui-card-premium p-6 sm:p-8">
-                    <h3 class="text-sm font-black text-white uppercase tracking-widest mb-6">Productividad Semanal</h3>
-                    @php
-                        $hasPerformanceSeries = ! empty(array_filter($performanceChart['values'] ?? []));
-                    @endphp
-                    @if($hasPerformanceSeries)
-                        <div class="h-[280px]">
-                            <canvas id="performanceChart"></canvas>
-                        </div>
-                    @else
-                        <div class="h-[280px] ui-empty-state">
-                            <p class="ui-empty-state-copy">Sin citas suficientes para mostrar productividad.</p>
-                        </div>
-                    @endif
-                </article>
-                <article class="ui-card-premium p-6 sm:p-8">
-                    <h3 class="text-sm font-black text-white uppercase tracking-widest mb-6">Top de Especialidades</h3>
-                    @php
-                        $hasBarberServicesSeries = ! empty(array_filter($servicesChart['values'] ?? []));
-                    @endphp
-                    @if($hasBarberServicesSeries)
-                        <div class="h-[280px]">
-                            <canvas id="servicesChart"></canvas>
-                        </div>
-                    @else
-                        <div class="h-[280px] ui-empty-state">
-                            <p class="ui-empty-state-copy">Aún no hay especialidades suficientes para graficar.</p>
-                        </div>
-                    @endif
-                </article>
-            </section>
-
-            <!-- Actions -->
-            <section class="flex flex-wrap gap-4 pt-4">
-                <a href="{{ route('barber.agenda') }}" class="ui-btn px-12 py-4">Gestionar Mi Agenda</a>
-                <a href="{{ route('barber.profile.edit') }}" class="ui-btn-secondary px-12 py-4">Ver Mi Perfil</a>
-            </section>
-
-        @elseif ($isReceptionMode ?? false)
-            <!-- ========================================== -->
-            <!-- RECEPTIONIST DASHBOARD                     -->
-            <!-- ========================================== -->
-            
-            <!-- Welcome & Highlights -->
-            <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 ui-card-premium p-6 sm:p-8 lg:p-10 relative overflow-hidden group">
-                    <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/5 blur-3xl"></div>
-                    <div class="relative z-10 flex flex-col sm:flex-row items-center gap-8">
-                        <div class="h-20 w-20 rounded-3xl bg-indigo-600 flex items-center justify-center text-white shadow-lg animate-float flex-shrink-0">
-                            <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                        </div>
-                        <div>
-                            <h3 class="ui-profile-title ui-profile-title-reception uppercase">¡Hola, {{ explode(' ', auth()->user()->name)[0] }}!</h3>
-                            <p class="mt-2 ui-profile-subtitle">Centro de mando activo. Gestiona el flujo de excelencia hoy.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="ui-card-premium p-6 sm:p-8 lg:p-10 flex flex-col justify-center text-center">
-                    <p class="text-[10px] font-black uppercase text-gold tracking-widest mb-2">Cobros Pendientes</p>
-                    <p class="text-4xl sm:text-5xl font-black text-white">{{ $kpis['pending_payments'] }}</p>
-                    <a href="{{ route('payments.create') }}" class="mt-4 text-[9px] font-black text-gold hover:text-white transition uppercase tracking-widest">Resolver Ahora &rarr;</a>
-                </div>
-            </section>
-
-            <!-- KPIs -->
-            <section class="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                <article class="ui-kpi-card border-l-4 border-indigo-500">
-                    <p class="ui-kpi-label">Citas Hoy</p>
-                    <p class="ui-kpi-value mt-1">{{ $kpis['appointments_today'] }}</p>
-                </article>
-                <article class="ui-kpi-card border-l-4 border-green-500">
-                    <p class="ui-kpi-label">Nuevos Clientes</p>
-                    <p class="ui-kpi-value mt-1 text-green-400">{{ $kpis['new_clients_today'] }}</p>
-                </article>
-                <article class="ui-kpi-card border-l-4 border-red-500">
-                    <p class="ui-kpi-label">Suministros Críticos</p>
-                    <p class="ui-kpi-value mt-1 text-red-400">{{ $kpis['low_stock_count'] }}</p>
-                </article>
-            </section>
-
-            <!-- Main Content Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <!-- Next Appointments -->
-                <section class="lg:col-span-7 ui-card-premium p-6 sm:p-8">
-                    <div class="mb-8 flex items-center justify-between">
-                        <h3 class="text-sm font-black text-white uppercase tracking-widest">Próximas Llegadas</h3>
-                        <a href="{{ route('appointments.index') }}" class="text-[9px] font-black text-muted hover:text-gold transition uppercase tracking-widest">Agenda Full &rarr;</a>
-                    </div>
-                    <div class="space-y-4">
-                        @forelse($nextAppointments as $appt)
-                            <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-10 w-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-black text-xs">{{ substr($appt->hora_inicio, 0, 2) }}</div>
-                                    <div>
-                                        <p class="text-sm font-black text-white uppercase">{{ $appt->client?->user?->name }}</p>
-                                        <p class="text-[9px] uppercase font-bold text-muted">{{ $appt->service?->nombre }} • Con {{ $appt->barber?->user?->name }}</p>
+                    {{-- Actividad reciente --}}
+                    <div x-show="tab==='activity'" x-transition>
+                        <div class="space-y-3">
+                            @forelse($recentAppointments->take(6) as $appt)
+                                @php $st = $statusMap[$appt->estado] ?? ['cls'=>'border-white/10 bg-white/5 text-white/40','dot'=>'bg-white/30','label'=>'—']; @endphp
+                                <div class="flex items-center gap-3">
+                                    <div class="h-8 w-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-[10px] font-black text-gold shrink-0">
+                                        {{ strtoupper(substr($appt->barber?->user?->name ?? 'B',0,1)) }}
                                     </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-[11px] font-bold text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
+                                        <p class="text-[9px] text-white/30 truncate">{{ \Carbon\Carbon::parse($appt->fecha)->format('d M') }} · {{ substr($appt->hora_inicio,0,5) }}</p>
+                                    </div>
+                                    <span class="shrink-0 text-[8px] font-black uppercase border rounded-full px-2 py-0.5 {{ $st['cls'] }}">{{ $st['label'] }}</span>
                                 </div>
-                                <div class="text-right flex-shrink-0">
-                                    <p class="text-xs font-black text-white">{{ substr($appt->hora_inicio, 0, 5) }}</p>
+                            @empty
+                                <p class="text-xs text-white/25 italic text-center py-8">Sin actividad reciente</p>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    {{-- Estaciones en vivo --}}
+                    <div x-show="tab==='stations'" x-transition>
+                        <div class="flex items-center justify-between mb-4">
+                            <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Ocupación en tiempo real</p>
+                            <span class="flex items-center gap-1 text-[8px] font-black uppercase text-emerald-400">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Live
+                            </span>
+                        </div>
+                        @if(!empty($barberStatuses))
+                            <div class="grid grid-cols-2 gap-3">
+                                @foreach($barberStatuses as $st)
+                                    <div class="rounded-xl border {{ $st['is_busy'] ? 'border-red-500/20 bg-red-500/[0.04]' : 'border-emerald-500/15 bg-emerald-500/[0.04]' }} p-3 text-center">
+                                        <div class="relative inline-flex mb-2">
+                                            <div class="h-9 w-9 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[11px] font-black text-gold">
+                                                {{ strtoupper(substr($st['name'],0,2)) }}
+                                            </div>
+                                            <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#111] {{ $st['is_busy'] ? 'bg-red-500' : 'bg-emerald-500' }}"></span>
+                                        </div>
+                                        <p class="text-[10px] font-black text-white truncate">{{ explode(' ',$st['name'])[0] }}</p>
+                                        <p class="text-[8px] font-black uppercase {{ $st['is_busy'] ? 'text-red-400' : 'text-emerald-400' }}">{{ $st['is_busy'] ? 'Ocupado' : 'Libre' }}</p>
+                                        @if($st['is_busy'])
+                                            <div class="mt-1.5 h-0.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                                <div class="h-full bg-gold rounded-full" style="width:{{ $st['progress'] }}%"></div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-xs text-white/25 italic text-center py-8">Sin barberos activos</p>
+                        @endif
+                    </div>
+
+                    {{-- Top barbero del mes --}}
+                    <div x-show="tab==='topbarber'" x-transition>
+                        @if($kpis['top_barber_name'])
+                            <div class="flex flex-col items-center text-center py-4">
+                                <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center text-2xl font-black text-gold mb-3">
+                                    {{ strtoupper(substr($kpis['top_barber_name'],0,2)) }}
+                                </div>
+                                <p class="text-base font-black text-white uppercase">{{ $kpis['top_barber_name'] }}</p>
+                                <p class="text-[9px] text-white/30 font-bold uppercase tracking-widest mt-0.5">Mejor del mes</p>
+                                <div class="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gold/15 bg-gold/[0.06]">
+                                    <svg class="h-3.5 w-3.5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <p class="text-sm font-black text-gold">{{ $kpis['top_barber_total'] }}</p>
+                                    <p class="text-[9px] text-white/30 font-bold uppercase tracking-wider">citas</p>
+                                </div>
+                                <div class="flex gap-0.5 mt-3">
+                                    @for($s=0;$s<5;$s++)<svg class="h-3.5 w-3.5 text-gold" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>@endfor
                                 </div>
                             </div>
-                        @empty
-                            <p class="text-center py-10 text-muted italic text-sm border border-dashed border-white/5 rounded-2xl">Sin llegadas próximas.</p>
-                        @endforelse
+                        @else
+                            <p class="text-xs text-white/25 italic text-center py-8">Sin datos este mes</p>
+                        @endif
                     </div>
-                </section>
 
-                <!-- Flow Chart -->
-                <section class="lg:col-span-5 ui-card-premium p-6 sm:p-8">
-                    <h3 class="text-sm font-black text-white uppercase tracking-widest mb-8">Flujo Operativo (Horas)</h3>
-                    @php
-                        $hasFlowSeries = ! empty(array_filter($flow_chart['values'] ?? []));
-                    @endphp
-                    @if($hasFlowSeries)
-                        <div class="h-[300px]">
-                            <canvas id="flowChart"></canvas>
-                        </div>
-                    @else
-                        <div class="h-[300px] ui-empty-state">
-                            <p class="ui-empty-state-copy">Todavía no hay flujo operativo para este día.</p>
-                        </div>
-                    @endif
-                </section>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ── GRÁFICAS ──────────────────────────────────────────── --}}
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Últimas 8 semanas</p>
+                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Tendencia de Ingresos</h3>
+                </div>
+                <div class="h-2 w-2 rounded-full bg-emerald-400"></div>
+            </div>
+            @if(!empty(array_filter($incomeChart['values'] ?? [])))
+                <div class="h-52"><canvas id="incomeChart"></canvas></div>
+            @else
+                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
+                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin ingresos aún</p>
+                </div>
+            @endif
+        </div>
+
+        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Distribución</p>
+                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Demanda de Servicios</h3>
+                </div>
+                <div class="h-2 w-2 rounded-full bg-gold"></div>
+            </div>
+            @if(!empty(array_filter($servicesChart['values'] ?? [])))
+                <div class="h-52"><canvas id="servicesChart"></canvas></div>
+            @else
+                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
+                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin servicios registrados</p>
+                </div>
+            @endif
+        </div>
+
+        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Este mes</p>
+                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Desempeño Barberos</h3>
+                </div>
+                <div class="flex gap-3 text-[8px] font-black uppercase text-white/25">
+                    <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-blue-500"></span>Citas</span>
+                    <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-emerald-500"></span>Ingresos</span>
+                </div>
+            </div>
+            @if(!empty(array_filter($barberPerformance['appointments'] ?? [])))
+                <div class="h-52"><canvas id="barberPerformanceChart"></canvas></div>
+            @else
+                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
+                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin datos de desempeño</p>
+                </div>
+            @endif
+        </div>
+
+        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Mes actual</p>
+                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Tendencia de Clientes</h3>
+                </div>
+                <div class="h-2 w-2 rounded-full bg-purple-400"></div>
+            </div>
+            @if(!empty(array_filter($clientTrends['values'] ?? [])))
+                <div class="h-52"><canvas id="clientTrendsChart"></canvas></div>
+            @else
+                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
+                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin datos de tendencias</p>
+                </div>
+            @endif
+        </div>
+    </section>
+
+    {{-- ── FILA INFERIOR: IA + CHATBOT ──────────────────────── --}}
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        {{-- Predicciones IA --}}
+        <div class="lg:col-span-5 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Próximos 7 días</p>
+                    <h3 class="text-sm font-black text-white uppercase mt-0.5 flex items-center gap-2">
+                        Predicciones IA
+                        <span class="text-[8px] font-black uppercase tracking-widest border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded-full">Beta</span>
+                    </h3>
+                </div>
             </div>
 
-            <!-- Global Actions -->
-            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
-                <a href="{{ route('appointments.create') }}" class="ui-btn py-4">Nueva Cita</a>
-                <a href="{{ route('clients.create') }}" class="ui-btn-secondary py-4">Alta Cliente</a>
-                <a href="{{ route('payments.create') }}" class="ui-btn-secondary py-4">Cobrar Servicio</a>
-            </section>
-
-        @elseif ($isClientMode ?? false)
-            <!-- ========================================== -->
-            <!-- CUSTOMER DASHBOARD                         -->
-            <!-- ========================================== -->
-            
-            <!-- Welcome Elite -->
-            <section class="ui-card-premium p-6 sm:p-8 lg:p-10 relative overflow-hidden group">
-                <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gold/5 blur-3xl group-hover:bg-gold/10 transition-all duration-700"></div>
-                <div class="relative z-10 flex flex-col sm:flex-row items-center gap-8">
-                    <div class="h-24 w-24 rounded-3xl bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-black shadow-lg animate-float flex-shrink-0">
-                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <div class="grid grid-cols-3 gap-3 mb-5">
+                @foreach([
+                    ['id'=>'income-forecast',      'label'=>'Ingresos Est.',  'color'=>'emerald'],
+                    ['id'=>'appointment-forecast', 'label'=>'Citas Est.',     'color'=>'blue'],
+                    ['id'=>'ai-confidence',        'label'=>'Confianza',      'color'=>'indigo'],
+                ] as $ai)
+                    <div class="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3 text-center">
+                        <p class="text-[8px] font-black uppercase tracking-wider text-white/30 mb-2">{{ $ai['label'] }}</p>
+                        <p id="{{ $ai['id'] }}" class="text-lg font-black text-{{ $ai['color'] }}-400">
+                            <span class="inline-block w-8 h-1 bg-{{ $ai['color'] }}-500/25 rounded animate-pulse"></span>
+                        </p>
                     </div>
-                    <div>
-                        <h3 class="ui-profile-title ui-profile-title-client uppercase leading-none">¡Bienvenido, <span class="text-gradient-gold">{{ explode(' ', auth()->user()->name)[0] }}</span>!</h3>
-                        <p class="mt-2 ui-profile-subtitle max-w-xl">Tu estilo es nuestra prioridad. Hoy tienes el estatus de <span class="text-white font-black uppercase">{{ $kpis['membership_status'] }}</span> en UrbanBlade.</p>
+                @endforeach
+            </div>
+
+            <div>
+                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/25 mb-3">Insights</p>
+                <div id="ai-insights" class="space-y-2">
+                    <div class="flex items-start gap-2 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02] animate-pulse">
+                        <div class="h-1.5 w-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></div>
+                        <p class="text-[10px] text-white/25">Cargando análisis...</p>
                     </div>
                 </div>
-            </section>
+            </div>
+        </div>
 
-            <!-- Style Metrics -->
-            <section class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <article class="ui-kpi-card text-center group hover:border-gold/30 transition-all">
-                    <p class="text-[10px] font-black uppercase text-gold tracking-widest mb-2">Visitas Totales</p>
-                    <p class="text-4xl font-black text-white">{{ $kpis['total_appointments'] }}</p>
-                </article>
-                <article class="ui-kpi-card text-center group hover:border-gold/30 transition-all">
-                    <p class="text-[10px] font-black uppercase text-gold tracking-widest mb-2">Estatus Elite</p>
-                    <p class="text-2xl font-black text-white uppercase">{{ $kpis['membership_status'] }}</p>
-                </article>
-                <article class="ui-kpi-card text-center group hover:border-gold/30 transition-all">
-                    <p class="text-[10px] font-black uppercase text-gold tracking-widest mb-2">Experto Favorito</p>
-                    <p class="text-base font-black text-white truncate px-2">{{ $kpis['favorite_barber'] }}</p>
-                </article>
-                <article class="ui-kpi-card text-center group hover:border-gold/30 transition-all">
-                    <p class="text-[10px] font-black uppercase text-gold tracking-widest mb-2">Puntos Acumulados</p>
-                    <p class="text-4xl font-black text-white">{{ $kpis['completed_appointments'] * 10 }}</p>
-                </article>
-            </section>
-
-            <!-- Spotlight: Next Appointment -->
-            @if($nextAppointment)
-                <section class="ui-card-premium p-0 overflow-hidden border-gold/30 gold-glow">
-                    <div class="flex flex-col md:flex-row">
-                        <div class="bg-gradient-to-br from-gold to-gold-dim p-8 md:w-72 flex flex-col justify-center items-center text-black">
-                            <p class="text-[10px] font-black uppercase tracking-[0.2em] mb-2 opacity-70">Tu Cita de Oro</p>
-                            <p class="text-4xl font-black">{{ \Carbon\Carbon::parse($nextAppointment->fecha)->format('d M') }}</p>
-                            <p class="text-xl font-bold mt-1">{{ substr($nextAppointment->hora_inicio, 0, 5) }}</p>
-                        </div>
-                        <div class="p-6 sm:p-8 lg:p-10 flex-1 flex flex-col sm:flex-row justify-between items-center gap-8 bg-white/5 backdrop-blur-xl">
-                            <div>
-                                <h3 class="text-2xl font-black text-white uppercase tracking-tight">{{ $nextAppointment->service?->nombre }}</h3>
-                                <p class="text-gold font-bold uppercase tracking-widest text-xs mt-1">Con el Maestro {{ $nextAppointment->barber?->user?->name }}</p>
-                            </div>
-                            <a href="{{ route('client.appointments.index') }}" class="ui-btn px-12 py-4">Ver Detalles</a>
-                        </div>
-                    </div>
-                </section>
-            @endif
-
-            <!-- Progress & Activity -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <section class="lg:col-span-7 ui-card-premium p-6 sm:p-8">
-                    <h3 class="text-sm font-black text-white uppercase tracking-widest mb-8">Frecuencia de Cuidado Personal</h3>
-                    @php
-                        $hasVisitSeries = ! empty(array_filter($visit_chart['values'] ?? []));
-                    @endphp
-                    @if($hasVisitSeries)
-                        <div class="h-[280px]">
-                            <canvas id="visitChart"></canvas>
-                        </div>
-                    @else
-                        <div class="h-[280px] ui-empty-state">
-                            <p class="ui-empty-state-copy">Aún no hay historial suficiente para graficar visitas.</p>
-                        </div>
-                    @endif
-                </section>
-                
-                <section class="lg:col-span-5 ui-card-premium p-8 flex flex-col items-center justify-center relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-gold/5 scale-0 group-hover:scale-150 transition-transform duration-1000 rounded-full"></div>
-                    <div class="text-center relative z-10 w-full">
-                        <p class="text-[10px] font-black text-gold uppercase tracking-[0.3em] mb-6">Camino a la Leyenda</p>
-                        @php
-                            $target = $kpis['completed_appointments'] < 5 ? 5 : 10;
-                            $needed = max(0, $target - $kpis['completed_appointments']);
-                            $progress = min(100, ($kpis['completed_appointments'] / $target) * 100);
-                        @endphp
-                        <p class="text-lg font-bold text-white mb-4 leading-tight">Faltan <span class="text-3xl font-black text-gradient-gold px-1">{{ $needed }}</span> citas <br> para ser {{ $target == 5 ? 'V.I.P' : 'Leyenda' }}</p>
-                        <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/10">
-                            <div class="h-full bg-gold shadow-[0_0_10px_rgba(212,175,55,0.5)] transition-all duration-1000" style="width: {{ $progress }}%"></div>
-                        </div>
-                    </div>
-                </section>
+        {{-- Telemetría Chatbot --}}
+        <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Últimos {{ $chatbotTelemetry['window_days'] ?? 7 }} días</p>
+                    <h3 class="text-sm font-black text-white uppercase mt-0.5 flex items-center gap-2">
+                        Telemetría Chatbot
+                        <span class="flex items-center gap-1 text-[8px] font-black uppercase text-emerald-400">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>OK
+                        </span>
+                    </h3>
+                </div>
             </div>
 
-            <!-- Quick Access -->
-            <section class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
-                <a href="{{ route('client.appointments.create') }}" class="ui-card-premium p-8 flex items-center justify-between group hover:border-gold/50">
-                    <div><h4 class="text-xl font-black text-white uppercase">Agendar Cita</h4><p class="text-xs text-muted mt-1 uppercase tracking-widest">Elige tu ritual</p></div>
-                    <div class="h-12 w-12 rounded-2xl bg-gold/10 text-gold flex items-center justify-center group-hover:bg-gold group-hover:text-black transition-all"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></div>
-                </a>
-                <a href="{{ route('client.appointments.index') }}" class="ui-card-premium p-8 flex items-center justify-between group hover:border-white/30">
-                    <div><h4 class="text-xl font-black text-white uppercase">Mis Citas</h4><p class="text-xs text-muted mt-1 uppercase tracking-widest">Historial Premium</p></div>
-                    <div class="h-12 w-12 rounded-2xl bg-white/10 text-white flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
-                </a>
-            </section>
-        @else
-            <section class="ui-card-premium p-8">
-                <h3 class="text-lg font-black text-white uppercase tracking-widest">Panel no disponible</h3>
-                <p class="mt-2 text-sm text-muted">
-                    Tu perfil no tiene un modo de dashboard configurado todavia. Contacta a un administrador para completar la configuracion de rol/perfil.
-                </p>
-            </section>
-        @endif
-    </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                @foreach([
+                    ['label'=>'Eventos',        'val'=> $chatbotTelemetry['total_requests'] ?? 0,                          'color'=>'blue'],
+                    ['label'=>'Error Rate',     'val'=> number_format($chatbotTelemetry['error_rate_pct'] ?? 0,1).'%',     'color'=>'red'],
+                    ['label'=>'Latencia Prom.', 'val'=> ($chatbotTelemetry['avg_latency_ms'] ?? 0).'ms',                   'color'=>'sky'],
+                    ['label'=>'Costo Est.',     'val'=> '$'.number_format($chatbotTelemetry['estimated_cost_usd'] ?? 0,4), 'color'=>'emerald'],
+                ] as $tel)
+                    <div class="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3">
+                        <p class="text-[8px] font-black uppercase tracking-wider text-white/30 mb-1.5">{{ $tel['label'] }}</p>
+                        <p class="text-lg font-black text-{{ $tel['color'] }}-400">{{ $tel['val'] }}</p>
+                    </div>
+                @endforeach
+            </div>
 
-    @if(($adminMode ?? false) || ($isBarberMode ?? false) || ($isReceptionMode ?? false) || ($isClientMode ?? false))
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            Chart.defaults.font.family = "'Figtree', sans-serif";
-            Chart.defaults.color = '#737373';
-            Chart.defaults.font.weight = 'bold';
-            
-            const chartScale = {
-                ticks: { color: '#737373', font: { size: 10 } },
-                grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }
-            };
-
-            @if($adminMode ?? false)
-                const incomeCtx = document.getElementById('incomeChart');
-                if (incomeCtx) {
-                    new Chart(incomeCtx, {
-                        type: 'line',
-                        data: {
-                            labels: @json($incomeChart['labels'] ?? []),
-                            datasets: [{
-                                label: 'Ingresos ($)',
-                                data: @json($incomeChart['values'] ?? []),
-                                borderColor: '#d4af37',
-                                backgroundColor: 'rgba(212, 175, 55, 0.1)',
-                                borderWidth: 3,
-                                fill: true,
-                                tension: 0.4,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#000',
-                                pointBorderColor: '#d4af37'
-                            }]
-                        },
-                        options: {
-                            responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: { y: chartScale, x: chartScale }
-                        }
-                    });
-                }
-
-                // Chatbot telemetry trend charts
-                // (Preparado para UI/UX - datos calculados en backend en $chatbotTelemetry['trend_chart'])
+            @if(!empty($chatbotTelemetry['top_sources']))
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/25 mb-3">Top Fuentes</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        @foreach($chatbotTelemetry['top_sources'] as $source => $count)
+                            <div class="rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2 flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-white uppercase truncate">{{ str_replace('_',' ',$source) }}</span>
+                                <span class="text-[9px] font-black text-gold ml-2 shrink-0">{{ $count }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             @endif
+        </div>
+    </section>
 
-            @if($isBarberMode ?? false)
-                const perfCtx = document.getElementById('performanceChart');
-                if (perfCtx) {
-                    new Chart(perfCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: @json($performanceChart['labels'] ?? []),
-                            datasets: [{
-                                label: 'Citas',
-                                data: @json($performanceChart['values'] ?? []),
-                                backgroundColor: '#d4af37',
-                                borderRadius: 8,
-                                barThickness: 20
-                            }]
-                        },
-                        options: {
-                            responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: { y: chartScale, x: chartScale }
-                        }
-                    });
-                }
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    {{-- BARBER DASHBOARD                                          --}}
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    @elseif($isBarberMode ?? false)
+
+    {{-- Bienvenida --}}
+    <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-6 relative overflow-hidden">
+        <div class="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/5 blur-3xl pointer-events-none"></div>
+        <div class="relative flex flex-col sm:flex-row items-center gap-6">
+            <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-gold to-amber-600 flex items-center justify-center text-black shrink-0">
+                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">Bienvenido de vuelta</p>
+                <h3 class="text-xl font-black text-white uppercase mt-0.5">Maestro <span class="text-gold">{{ explode(' ', auth()->user()->name)[0] }}</span></h3>
+                <p class="text-xs text-white/40 mt-1">Tienes <strong class="text-white">{{ $kpis['appointments_today'] }}</strong> servicio{{ $kpis['appointments_today'] !== 1 ? 's' : '' }} programado{{ $kpis['appointments_today'] !== 1 ? 's' : '' }} para hoy.</p>
+            </div>
+            <div class="sm:ml-auto flex gap-3">
+                <a href="{{ route('barber.agenda') }}" class="ui-btn px-6 py-3 text-[10px]">Mi Agenda</a>
+                <a href="{{ route('barber.profile.edit') }}" class="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white hover:border-white/20 transition-all">Mi Perfil</a>
+            </div>
+        </div>
+    </section>
+
+    {{-- KPIs --}}
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        @foreach([
+            ['label'=>'Citas Hoy',    'val'=>$kpis['appointments_today'], 'color'=>'gold',    'fmt'=>'%s'],
+            ['label'=>'Citas del Mes','val'=>$kpis['appointments_month'], 'color'=>'white',   'fmt'=>'%s'],
+            ['label'=>'Ingresos Mes', 'val'=>'$'.number_format($kpis['income_month'],0), 'color'=>'emerald', 'fmt'=>'%s'],
+            ['label'=>'Rating',       'val'=>$kpis['rating'].' ★',        'color'=>'gold',    'fmt'=>'%s'],
+        ] as $kpi)
+            <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 text-center">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30 mb-3">{{ $kpi['label'] }}</p>
+                <p class="text-2xl font-black text-{{ $kpi['color'] === 'gold' ? 'gold' : ($kpi['color'] === 'emerald' ? 'emerald-400' : 'white') }}">{{ $kpi['val'] }}</p>
+            </div>
+        @endforeach
+    </section>
+
+    {{-- Gráficas --}}
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="mb-5">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Últimos 7 días</p>
+                <h3 class="text-sm font-black text-white uppercase mt-0.5">Productividad Semanal</h3>
+            </div>
+            @if(!empty(array_filter($performanceChart['values'] ?? [])))
+                <div class="h-52"><canvas id="performanceChart"></canvas></div>
+            @else
+                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
+                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin datos suficientes</p>
+                </div>
             @endif
-
-            @if($isReceptionMode ?? false)
-                const flowCtx = document.getElementById('flowChart');
-                if (flowCtx) {
-                    new Chart(flowCtx, {
-                        type: 'line',
-                        data: {
-                            labels: @json($flow_chart['labels'] ?? []),
-                            datasets: [{
-                                label: 'Citas',
-                                data: @json($flow_chart['values'] ?? []),
-                                borderColor: '#6366f1',
-                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                                borderWidth: 3,
-                                fill: true,
-                                tension: 0.4,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#fff'
-                            }]
-                        },
-                        options: {
-                            responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: { y: { ...chartScale, beginAtZero: true, ticks: { ...chartScale.ticks, stepSize: 1 } }, x: chartScale }
-                        }
-                    });
-                }
+        </div>
+        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="mb-5">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Último año</p>
+                <h3 class="text-sm font-black text-white uppercase mt-0.5">Top Especialidades</h3>
+            </div>
+            @if(!empty(array_filter($servicesChart['values'] ?? [])))
+                <div class="h-52"><canvas id="servicesChart"></canvas></div>
+            @else
+                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
+                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin especialidades aún</p>
+                </div>
             @endif
+        </div>
+    </section>
 
-            @if($isClientMode ?? false)
-                const visitCtx = document.getElementById('visitChart');
-                if (visitCtx) {
-                    new Chart(visitCtx, {
-                        type: 'line',
-                        data: {
-                            labels: @json($visit_chart['labels'] ?? []),
-                            datasets: [{
-                                label: 'Visitas',
-                                data: @json($visit_chart['values'] ?? []),
-                                borderColor: '#d4af37',
-                                backgroundColor: 'rgba(212, 175, 55, 0.1)',
-                                borderWidth: 3,
-                                fill: true,
-                                tension: 0.4,
-                                pointRadius: 5,
-                                pointBackgroundColor: '#d4af37'
-                            }]
-                        },
-                        options: {
-                            responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: { y: { ...chartScale, beginAtZero: true, ticks: { ...chartScale.ticks, stepSize: 1 } }, x: chartScale }
-                        }
-                    });
-                }
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    {{-- RECEPTIONIST DASHBOARD                                    --}}
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    @elseif($isReceptionMode ?? false)
+
+    {{-- Bienvenida + KPIs --}}
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {{-- Bienvenida --}}
+        <div class="sm:col-span-2 lg:col-span-1 rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden">
+            <div class="absolute -right-8 -bottom-8 h-24 w-24 rounded-full bg-indigo-500/5 blur-2xl"></div>
+            <div class="relative">
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">Recepción</p>
+                <h3 class="text-base font-black text-white uppercase mt-0.5">Hola, <span class="text-indigo-400">{{ explode(' ',auth()->user()->name)[0] }}</span></h3>
+                <p class="text-[10px] text-white/30 mt-1">Centro de mando activo.</p>
+                <div class="flex gap-2 mt-4">
+                    <a href="{{ route('appointments.create') }}" class="ui-btn px-4 py-2 text-[9px]">+ Cita</a>
+                    <a href="{{ route('payments.create') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Cobrar</a>
+                </div>
+            </div>
+        </div>
+
+        {{-- KPIs --}}
+        @foreach([
+            ['label'=>'Citas Hoy',       'val'=>$kpis['appointments_today'], 'color'=>'indigo', 'href'=>route('appointments.index')],
+            ['label'=>'Cobros Pendientes','val'=>$kpis['pending_payments'],   'color'=>'amber',  'href'=>route('payments.create')],
+            ['label'=>'Nuevos Clientes', 'val'=>$kpis['new_clients_today'],  'color'=>'emerald','href'=>route('clients.index')],
+            ['label'=>'Stock Crítico',   'val'=>$kpis['low_stock_count'],    'color'=>'red',    'href'=>route('inventory.products.index')],
+        ] as $kpi)
+            <a href="{{ $kpi['href'] }}" class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden hover:border-{{ $kpi['color'] }}-500/25 transition-all group">
+                <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-{{ $kpi['color'] }}-500/60 to-transparent"></div>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30 mb-3">{{ $kpi['label'] }}</p>
+                <p class="text-3xl font-black text-{{ $kpi['color'] }}-400">{{ $kpi['val'] }}</p>
+            </a>
+        @endforeach
+    </section>
+
+    {{-- Próximas llegadas + Flujo --}}
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Hoy</p>
+                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Próximas Llegadas</h3>
+                </div>
+                <a href="{{ route('appointments.index') }}" class="text-[9px] font-black uppercase tracking-widest text-white/30 hover:text-gold transition-colors">Agenda completa →</a>
+            </div>
+            <div class="space-y-2">
+                @forelse($nextAppointments as $appt)
+                    <div class="flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] hover:border-indigo-500/20 hover:bg-indigo-500/[0.03] transition-all">
+                        <div class="h-9 w-9 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-black text-xs shrink-0">
+                            {{ substr($appt->hora_inicio,0,2) }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-black text-white truncate uppercase">{{ $appt->client?->user?->name }}</p>
+                            <p class="text-[9px] text-white/30 truncate">{{ $appt->service?->nombre }} · {{ $appt->barber?->user?->name }}</p>
+                        </div>
+                        <p class="text-xs font-black text-white shrink-0">{{ substr($appt->hora_inicio,0,5) }}</p>
+                    </div>
+                @empty
+                    <div class="py-12 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
+                        <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin llegadas próximas</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <div class="lg:col-span-5 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="mb-5">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Distribución horaria</p>
+                <h3 class="text-sm font-black text-white uppercase mt-0.5">Flujo Operativo</h3>
+            </div>
+            @if(!empty(array_filter($flow_chart['values'] ?? [])))
+                <div class="h-52"><canvas id="flowChart"></canvas></div>
+            @else
+                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
+                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin flujo registrado hoy</p>
+                </div>
             @endif
+        </div>
+    </section>
 
-            const servicesCtx = document.getElementById('servicesChart');
-            if (servicesCtx) {
-                new Chart(servicesCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: @json($servicesChart['labels'] ?? []),
-                        datasets: [{
-                            data: @json($servicesChart['values'] ?? []),
-                            backgroundColor: ['#d4af37', '#ffffff', '#444444', '#888888', '#222222'],
-                            borderWidth: 0,
-                            hoverOffset: 15
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        cutout: '80%',
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { color: '#b0b0b0', usePointStyle: true, padding: 20, font: { size: 11, weight: 'bold' } }
-                            }
-                        }
-                    }
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    {{-- CLIENT DASHBOARD                                          --}}
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    @elseif($isClientMode ?? false)
+    @php
+        $loy      = $loyalty ?? [];
+        $lvl      = $loy['nivel'] ?? 'nuevo';
+        $pts      = $loy['puntos'] ?? 0;
+        $disc     = $loy['discount_pct'] ?? 0;
+        $faltan   = $loy['citas_faltan'] ?? 0;
+        $nextLvl  = $loy['next_nivel'] ?? null;
+        $progPct  = $loy['progress_pct'] ?? 0;
+        $lvlLabels= ['nuevo'=>'Caballero','regular'=>'Regular','vip'=>'V.I.P','leyenda'=>'Leyenda'];
+        $lvlLabel = $lvlLabels[$lvl] ?? strtoupper($lvl);
+        $nextLabel= $nextLvl ? ($lvlLabels[$nextLvl] ?? '') : null;
+        $wonRaffle= $loy['won_raffle'] ?? null;
+        $recentTx = $loy['recent_transactions'] ?? collect();
+        $lvlColor = ['nuevo'=>'rgba(255,255,255,0.5)','regular'=>'#60a5fa','vip'=>'#d4af37','leyenda'=>'#e879f9'][$lvl] ?? '#d4af37';
+    @endphp
+
+    {{-- Bienvenida --}}
+    <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-6 relative overflow-hidden">
+        <div class="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/5 blur-3xl pointer-events-none"></div>
+        <div class="relative flex flex-col sm:flex-row items-center gap-6">
+            <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-gold to-amber-600 flex items-center justify-center text-black shrink-0">
+                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">Bienvenido</p>
+                <h3 class="text-xl font-black text-white uppercase mt-0.5"><span class="text-gold">{{ explode(' ',auth()->user()->name)[0] }}</span></h3>
+                <p class="text-xs text-white/40 mt-1">Estatus actual: <span class="text-white font-black uppercase">{{ $kpis['membership_status'] }}</span></p>
+            </div>
+            <div class="sm:ml-auto flex gap-3">
+                <a href="{{ route('client.appointments.create') }}" class="ui-btn px-6 py-3 text-[10px]">Reservar Cita</a>
+                <a href="{{ route('client.appointments.index') }}" class="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Mis Citas</a>
+            </div>
+        </div>
+    </section>
+
+    {{-- KPIs --}}
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        @foreach([
+            ['label'=>'Visitas Totales',   'val'=>$kpis['total_appointments'],     'color'=>'gold'],
+            ['label'=>'Completadas',        'val'=>$kpis['completed_appointments'], 'color'=>'white'],
+            ['label'=>'Barbero Favorito',  'val'=>$kpis['favorite_barber'],         'color'=>'white', 'sm'=>true],
+            ['label'=>'Puntos Acumulados', 'val'=>$kpis['completed_appointments']*10,'color'=>'gold'],
+        ] as $kpi)
+            <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 text-center hover:border-gold/20 transition-all">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-gold/60 mb-3">{{ $kpi['label'] }}</p>
+                <p class="font-black {{ ($kpi['sm'] ?? false) ? 'text-base' : 'text-2xl' }} text-{{ $kpi['color'] === 'gold' ? 'gold' : 'white' }} truncate px-1">{{ $kpi['val'] }}</p>
+            </div>
+        @endforeach
+    </section>
+
+    {{-- Próxima cita spotlight --}}
+    @if($nextAppointment)
+        <section class="rounded-2xl border border-gold/25 overflow-hidden" style="background:#0d0d0d;">
+            <div class="flex flex-col md:flex-row">
+                <div class="bg-gradient-to-br from-gold to-amber-600 p-6 md:w-56 flex flex-col justify-center items-center text-black shrink-0">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">Tu Próxima Cita</p>
+                    <p class="text-3xl font-black leading-none">{{ \Carbon\Carbon::parse($nextAppointment['fecha'])->format('d') }}</p>
+                    <p class="text-sm font-bold opacity-80">{{ \Carbon\Carbon::parse($nextAppointment['fecha'])->translatedFormat('M Y') }}</p>
+                    <p class="text-xl font-black mt-2">{{ substr($nextAppointment['hora_inicio'],0,5) }}</p>
+                </div>
+                <div class="p-6 flex-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30 mb-1">Servicio</p>
+                        <h3 class="text-lg font-black text-white uppercase">{{ $nextAppointment['service']['nombre'] ?? 'Servicio' }}</h3>
+                        <p class="text-xs text-gold/70 font-bold uppercase tracking-widest mt-0.5">Con Maestro {{ $nextAppointment['barber']['user']['name'] ?? '—' }}</p>
+                    </div>
+                    <a href="{{ route('client.appointments.index') }}" class="shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/[0.05] text-[10px] font-black uppercase tracking-widest text-white hover:border-gold/30 hover:bg-gold/[0.06] transition-all">
+                        Ver detalles →
+                    </a>
+                </div>
+            </div>
+        </section>
+    @else
+        <section class="rounded-2xl border border-dashed border-gold/15 bg-gold/[0.02] p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <p class="text-sm font-black text-white uppercase">Sin citas próximas</p>
+                <p class="text-xs text-white/30 mt-0.5">Reserva tu siguiente visita y mantén tu estilo impecable.</p>
+            </div>
+            <a href="{{ route('client.appointments.create') }}" class="ui-btn px-8 py-3 shrink-0">Reservar ahora →</a>
+        </section>
+    @endif
+
+    {{-- Gráfica + Lealtad --}}
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        {{-- Gráfica de visitas --}}
+        <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+            <div class="mb-5">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Últimos 6 meses</p>
+                <h3 class="text-sm font-black text-white uppercase mt-0.5">Frecuencia de Visitas</h3>
+            </div>
+            @if(!empty(array_filter($visit_chart['values'] ?? [])))
+                <div class="h-52"><canvas id="visitChart"></canvas></div>
+            @else
+                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
+                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin historial aún</p>
+                </div>
+            @endif
+        </div>
+
+        {{-- Panel de lealtad --}}
+        <div class="lg:col-span-5 rounded-2xl border border-white/[0.06] bg-[#0d0d0d] overflow-hidden">
+
+            {{-- Header nivel --}}
+            <div class="p-5 flex items-center justify-between border-b border-white/[0.05]">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl border flex items-center justify-center" style="background:rgba(212,175,55,0.07);border-color:rgba(212,175,55,0.18);">
+                        @if($lvl==='leyenda') <svg style="width:18px;height:18px;fill:{{ $lvlColor }};" viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2 3a1 1 0 000 2h10a1 1 0 000-2H7z"/></svg>
+                        @elseif($lvl==='vip') <svg style="width:18px;height:18px;fill:{{ $lvlColor }};" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        @elseif($lvl==='regular') <svg style="width:18px;height:18px;fill:none;stroke:{{ $lvlColor }};stroke-width:2;" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        @else <svg style="width:18px;height:18px;fill:none;stroke:{{ $lvlColor }};stroke-width:2;" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path stroke-linecap="round" d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>
+                        @endif
+                    </div>
+                    <div>
+                        <p class="text-[8px] font-black uppercase tracking-[0.28em] text-white/25">Mi Nivel</p>
+                        <p class="text-sm font-black uppercase" style="color:{{ $lvlColor }};">{{ $lvlLabel }}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-black text-gold leading-none">{{ $pts }}</p>
+                    <p class="text-[8px] font-bold uppercase tracking-[0.2em] text-white/25">puntos</p>
+                </div>
+            </div>
+
+            <div class="p-5 space-y-4">
+
+                {{-- Progreso --}}
+                @if($nextLvl)
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <p class="text-[8px] font-black uppercase tracking-[0.2em] text-white/25">Próximo: <span style="color:#d4af37;">{{ $nextLabel }}</span></p>
+                            <p class="text-[9px] font-black text-gold">{{ $faltan > 0 ? "Faltan {$faltan} cita".($faltan!==1?'s':'') : '¡Listo!' }}</p>
+                        </div>
+                        <div class="h-1.5 w-full rounded-full bg-white/[0.05] overflow-hidden">
+                            <div class="h-full rounded-full" style="width:{{ round($progPct) }}%;background:linear-gradient(90deg,#d4af37,#f5d87a);box-shadow:0 0 6px rgba(212,175,55,0.35);transition:width 1s;"></div>
+                        </div>
+                    </div>
+                @else
+                    <div class="flex items-center gap-2 py-1">
+                        <svg class="h-3 w-3" style="fill:rgba(232,121,249,0.7);" viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2 3a1 1 0 000 2h10a1 1 0 000-2H7z"/></svg>
+                        <p class="text-[9px] font-black uppercase tracking-[0.2em]" style="color:rgba(232,121,249,0.7);">Nivel máximo alcanzado</p>
+                    </div>
+                @endif
+
+                {{-- Beneficios --}}
+                <div class="grid grid-cols-2 gap-2">
+                    @foreach([
+                        ['active'=>$disc>0, 'label'=>$disc>0 ? "{$disc}% descuento" : 'Sin descuento', 'icon'=>'M7 7h.01M17 17h.01M19 5l-14 14M9.5 7a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm10 10a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z'],
+                        ['active'=>in_array($lvl,['vip','leyenda']), 'label'=>in_array($lvl,['vip','leyenda'])?'Sorteo mensual':'Requiere VIP', 'icon'=>'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4 2 2 0 010 4zm14 0a2 2 0 110-4 2 2 0 010 4z'],
+                        ['active'=>in_array($lvl,['regular','vip','leyenda']), 'label'=>in_array($lvl,['regular','vip','leyenda'])?'Reserva prio.':'Requiere Regular', 'icon'=>'M13 10V3L4 14h7v7l9-11h-7z'],
+                        ['active'=>$lvl==='leyenda', 'label'=>$lvl==='leyenda'?'Prod. gratis/mes':'Requiere Leyenda', 'icon'=>'M20 12v10H4V12M22 7H2v5h20V7zM12 22V7m0 0a2 2 0 10-4 0m4 0a2 2 0 114 0'],
+                    ] as $ben)
+                        <div class="flex items-center gap-1.5 p-2 rounded-lg" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);">
+                            <svg class="h-3 w-3 shrink-0 flex-shrink-0" fill="none" stroke="{{ $ben['active'] ? '#d4af37' : 'rgba(255,255,255,0.18)' }}" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $ben['icon'] }}"/></svg>
+                            <span class="text-[8px] font-bold leading-tight" style="color:{{ $ben['active'] ? '#d4af37' : 'rgba(255,255,255,0.22)' }};">{{ $ben['label'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Últimas transacciones --}}
+                @if($recentTx->isNotEmpty())
+                    <div>
+                        <p class="text-[8px] font-black uppercase tracking-[0.22em] text-white/20 mb-2">Últimos movimientos</p>
+                        <div class="space-y-1.5">
+                            @foreach($recentTx->take(4) as $tx)
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="h-2.5 w-2.5 shrink-0" fill="none" stroke="{{ $tx->puntos > 0 ? '#4ade80' : '#f87171' }}" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="{{ $tx->puntos > 0 ? 'M12 19V5m0 0l-7 7m7-7l7 7' : 'M12 5v14m0 0l7-7m-7 7l-7-7' }}"/>
+                                        </svg>
+                                        <span class="text-[9px] text-white/30">{{ $tx->descripcion }}</span>
+                                    </div>
+                                    <span class="text-[9px] font-black shrink-0" style="color:{{ $tx->puntos > 0 ? '#4ade80' : '#f87171' }};">{{ $tx->puntos > 0 ? '+' : '' }}{{ $tx->puntos }} pts</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Sorteo ganado --}}
+                @if($wonRaffle)
+                    <div class="flex items-center gap-2 p-2.5 rounded-lg" style="background:rgba(232,121,249,0.05);border:1px solid rgba(232,121,249,0.15);">
+                        <svg class="h-3.5 w-3.5 shrink-0" style="fill:rgba(232,121,249,0.8);" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                        <div>
+                            <p class="text-[9px] font-black" style="color:rgba(232,121,249,0.8);">Ganaste el sorteo de {{ $wonRaffle->mes }}</p>
+                            <p class="text-[8px] text-white/30">{{ $wonRaffle->premio }}</p>
+                        </div>
+                    </div>
+                @endif
+
+            </div>
+        </div>
+    </section>
+
+    @else
+        <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-8">
+            <h3 class="text-sm font-black text-white uppercase tracking-widest">Panel no disponible</h3>
+            <p class="mt-2 text-xs text-white/30">Tu perfil no tiene un rol configurado. Contacta a un administrador.</p>
+        </section>
+    @endif
+
+    </div>{{-- /space-y-5 --}}
+
+    {{-- CHARTS JS --}}
+    @if(($adminMode??false)||($isBarberMode??false)||($isReceptionMode??false)||($isClientMode??false))
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        Chart.defaults.font.family = "'Figtree', sans-serif";
+        Chart.defaults.color = 'rgba(255,255,255,0.3)';
+        Chart.defaults.font.weight = 'bold';
+
+        const scale = {
+            ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 10 } },
+            grid:  { color: 'rgba(255,255,255,0.04)', drawBorder: false }
+        };
+
+        function makeChart(id, config) {
+            const el = document.getElementById(id);
+            if (el) new Chart(el, config);
+        }
+
+        @if($adminMode ?? false)
+        makeChart('incomeChart', {
+            type: 'line',
+            data: {
+                labels: @json($incomeChart['labels'] ?? []),
+                datasets: [{ label: 'Ingresos ($)', data: @json($incomeChart['values'] ?? []),
+                    borderColor: '#d4af37', backgroundColor: 'rgba(212,175,55,0.08)',
+                    borderWidth: 2.5, fill: true, tension: 0.4,
+                    pointRadius: 3, pointBackgroundColor: '#0d0d0d', pointBorderColor: '#d4af37', pointBorderWidth: 2 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:scale,x:scale} }
+        });
+
+        makeChart('servicesChart', {
+            type: 'doughnut',
+            data: {
+                labels: @json($servicesChart['labels'] ?? []),
+                datasets: [{ data: @json($servicesChart['values'] ?? []),
+                    backgroundColor: ['#d4af37','rgba(255,255,255,0.7)','#555','#888','#333'],
+                    borderWidth: 0, hoverOffset: 10 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, cutout:'78%',
+                plugins:{ legend:{ position:'bottom', labels:{ color:'rgba(255,255,255,0.35)', usePointStyle:true, padding:16, font:{size:10,weight:'bold'} } } } }
+        });
+
+        makeChart('barberPerformanceChart', {
+            type: 'bar',
+            data: {
+                labels: @json($barberPerformance['labels'] ?? []),
+                datasets: [
+                    { label:'Citas', data: @json($barberPerformance['appointments'] ?? []),
+                        backgroundColor: 'rgba(59,130,246,0.7)', borderRadius:6, barThickness:20 },
+                    { label:'Ingresos ($)', data: @json($barberPerformance['revenue'] ?? []),
+                        backgroundColor: 'rgba(16,185,129,0.7)', borderRadius:6, barThickness:20 }
+                ]
+            },
+            options: { responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ display:true, labels:{ color:'rgba(255,255,255,0.35)', usePointStyle:true, padding:12, font:{size:10} } } },
+                scales:{y:scale,x:scale} }
+        });
+
+        makeChart('clientTrendsChart', {
+            type: 'line',
+            data: {
+                labels: @json($clientTrends['labels'] ?? []),
+                datasets: [{ label:'Citas Completadas', data: @json($clientTrends['values'] ?? []),
+                    borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,0.08)',
+                    borderWidth:2.5, fill:true, tension:0.4,
+                    pointRadius:3, pointBackgroundColor:'#0d0d0d', pointBorderColor:'#a78bfa', pointBorderWidth:2 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+                scales:{ y:{...scale, beginAtZero:true}, x:scale } }
+        });
+
+        // AI Predictions
+        (async () => {
+            try {
+                const tokenRes = await fetch('/api/v1/auth/get-api-token', {
+                    method:'POST', headers:{ 'Content-Type':'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content||'' }
+                });
+                if (!tokenRes.ok) return;
+                const { token } = await tokenRes.json();
+                const h = { 'Content-Type':'application/json', 'Authorization':`Bearer ${token}`,
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content||'' };
+
+                const [ir,ar,insr] = await Promise.all([
+                    fetch('/api/v1/admin/predictions/income/7',{headers:h}),
+                    fetch('/api/v1/admin/predictions/appointments/7',{headers:h}),
+                    fetch('/api/v1/admin/predictions/insights',{headers:h})
+                ]);
+                if (ir.ok) { const d=await ir.json(); document.getElementById('income-forecast').textContent=d.data?.predicted_income?`$${d.data.predicted_income.toFixed(0)}`:'N/A'; }
+                if (ar.ok) { const d=await ar.json(); document.getElementById('appointment-forecast').textContent=d.data?.predicted_appointments??'N/A'; }
+                document.getElementById('ai-confidence').textContent='72%';
+                if (insr.ok) {
+                    const {data:ins={}} = await insr.json();
+                    const colors={'positive':'border-emerald-500/20 bg-emerald-500/[0.04]','warning':'border-amber-500/20 bg-amber-500/[0.04]','neutral':'border-blue-500/20 bg-blue-500/[0.04]'};
+                    const dots ={'positive':'bg-emerald-400','warning':'bg-amber-400','neutral':'bg-blue-400'};
+                    document.getElementById('ai-insights').innerHTML = Object.values(ins).map(i=>`
+                        <div class="flex items-start gap-2 p-3 rounded-xl border ${colors[i.status]||colors.neutral}">
+                            <div class="h-1.5 w-1.5 rounded-full ${dots[i.status]||dots.neutral} mt-1.5 shrink-0"></div>
+                            <p class="text-[10px] text-white/60">${i.message}</p>
+                        </div>`).join('') || '<p class="text-[10px] text-white/20 italic">Sin insights disponibles.</p>';
+                }
+            } catch(e) {
+                ['income-forecast','appointment-forecast','ai-confidence'].forEach(id => {
+                    const el = document.getElementById(id); if(el) el.textContent='—';
                 });
             }
+        })();
+        @endif
 
-            @if($adminMode ?? false)
-                // Barber Performance Chart
-                const barberPerfCtx = document.getElementById('barberPerformanceChart');
-                if (barberPerfCtx) {
-                    new Chart(barberPerfCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: @json($barberPerformance['labels'] ?? []),
-                            datasets: [
-                                {
-                                    label: 'Citas Completadas',
-                                    data: @json($barberPerformance['appointments'] ?? []),
-                                    backgroundColor: '#3b82f6',
-                                    borderRadius: 8,
-                                    barThickness: 30,
-                                    order: 2
-                                },
-                                {
-                                    label: 'Ingresos ($)',
-                                    data: @json($barberPerformance['revenue'] ?? []),
-                                    backgroundColor: '#10b981',
-                                    borderRadius: 8,
-                                    barThickness: 30,
-                                    order: 2
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true, maintainAspectRatio: false,
-                            plugins: { 
-                                legend: { 
-                                    display: true,
-                                    labels: { color: '#b0b0b0', usePointStyle: true, padding: 15, font: { size: 11, weight: 'bold' } }
-                                } 
-                            },
-                            scales: { 
-                                y: chartScale, 
-                                x: chartScale 
-                            }
-                        }
-                    });
-                }
+        @if($isBarberMode ?? false)
+        makeChart('performanceChart', {
+            type:'bar',
+            data:{ labels:@json($performanceChart['labels']??[]),
+                datasets:[{label:'Citas', data:@json($performanceChart['values']??[]),
+                    backgroundColor:'#d4af37', borderRadius:8, barThickness:18}] },
+            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{...scale,beginAtZero:true},x:scale}}
+        });
+        makeChart('servicesChart', {
+            type:'doughnut',
+            data:{ labels:@json($servicesChart['labels']??[]),
+                datasets:[{data:@json($servicesChart['values']??[]),
+                    backgroundColor:['#d4af37','rgba(255,255,255,0.6)','#555','#888','#333'],
+                    borderWidth:0, hoverOffset:8}] },
+            options:{responsive:true,maintainAspectRatio:false,cutout:'78%',
+                plugins:{legend:{position:'bottom',labels:{color:'rgba(255,255,255,0.35)',usePointStyle:true,padding:14,font:{size:10}}}}}
+        });
+        @endif
 
-                // Client Trends Chart
-                const clientTrendsCtx = document.getElementById('clientTrendsChart');
-                if (clientTrendsCtx) {
-                    new Chart(clientTrendsCtx, {
-                        type: 'line',
-                        data: {
-                            labels: @json($clientTrends['labels'] ?? []),
-                            datasets: [{
-                                label: 'Citas Completadas',
-                                data: @json($clientTrends['values'] ?? []),
-                                borderColor: '#a78bfa',
-                                backgroundColor: 'rgba(167, 139, 250, 0.1)',
-                                borderWidth: 3,
-                                fill: true,
-                                tension: 0.4,
-                                pointRadius: 5,
-                                pointBackgroundColor: '#a78bfa',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2
-                            }]
-                        },
-                        options: {
-                            responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: { 
-                                y: { ...chartScale, beginAtZero: true, ticks: { ...chartScale.ticks, stepSize: Math.ceil(Math.max(...(@json($clientTrends['values'] ?? []) || [0])) / 5) || 1 } }, 
-                                x: chartScale 
-                            }
-                        }
-                    });
-                }
-            @endif
+        @if($isReceptionMode ?? false)
+        makeChart('flowChart', {
+            type:'line',
+            data:{ labels:@json($flow_chart['labels']??[]),
+                datasets:[{label:'Citas',data:@json($flow_chart['values']??[]),
+                    borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,0.08)',
+                    borderWidth:2.5,fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#0d0d0d',pointBorderColor:'#6366f1',pointBorderWidth:2}] },
+            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+                scales:{y:{...scale,beginAtZero:true,ticks:{...scale.ticks,stepSize:1}},x:scale}}
+        });
+        @endif
 
-            @if($adminMode ?? false)
-                // Load API Token for Dashboard
-                let apiToken = null;
-
-                async function getApiToken() {
-                    try {
-                        const response = await fetch('/api/v1/auth/get-api-token', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                            }
-                        });
-
-                        if (response.ok) {
-                            const data = await response.json();
-                            apiToken = data.token;
-                            return true;
-                        }
-                    } catch (error) {
-                        console.error('Error getting API token:', error);
-                    }
-                    return false;
-                }
-
-                // Load AI Predictions
-                async function loadPredictions() {
-                    // Get API token first if we don't have one
-                    if (!apiToken) {
-                        const hasToken = await getApiToken();
-                        if (!hasToken) {
-                            console.error('Failed to obtain API token');
-                            document.getElementById('income-forecast').textContent = 'Error';
-                            document.getElementById('appointment-forecast').textContent = 'Error';
-                            return;
-                        }
-                    }
-
-                    try {
-                        const headers = {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${apiToken}`,
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        };
-
-                        const [incomeRes, appointmentsRes, insightsRes] = await Promise.all([
-                            fetch('/api/v1/admin/predictions/income/7', { headers }),
-                            fetch('/api/v1/admin/predictions/appointments/7', { headers }),
-                            fetch('/api/v1/admin/predictions/insights', { headers })
-                        ]);
-
-                        if (incomeRes.ok) {
-                            const incomeData = await incomeRes.json();
-                            document.getElementById('income-forecast').textContent = 
-                                incomeData.data?.predicted_income ? `$${incomeData.data.predicted_income.toFixed(2)}` : 'N/A';
-                        }
-
-                        if (appointmentsRes.ok) {
-                            const appointmentData = await appointmentsRes.json();
-                            document.getElementById('appointment-forecast').textContent = 
-                                appointmentData.data?.predicted_appointments ?? 'N/A';
-                        }
-
-                        if (insightsRes.ok) {
-                            const insightsData = await insightsRes.json();
-                            const insights = insightsData.data || {};
-                            
-                            let insightsHtml = '';
-                            Object.entries(insights).forEach(([key, insight]) => {
-                                const statusColors = {
-                                    positive: 'border-green-500/30 bg-green-500/5',
-                                    warning: 'border-yellow-500/30 bg-yellow-500/5',
-                                    neutral: 'border-blue-500/30 bg-blue-500/5'
-                                };
-                                const color = statusColors[insight.status] || statusColors.neutral;
-                                
-                                insightsHtml += `
-                                    <div class="flex items-start gap-3 p-4 rounded-lg border ${color} animate-slide-up">
-                                        <div class="h-2 w-2 rounded-full ${insight.status === 'positive' ? 'bg-green-400' : insight.status === 'warning' ? 'bg-yellow-400' : 'bg-blue-400'} mt-1.5 flex-shrink-0"></div>
-                                        <div>
-                                            <p class="text-xs font-bold text-white">${insight.message}</p>
-                                            ${insight.avg_daily ? `<p class="text-[10px] text-muted mt-1">Promedio: ${insight.avg_daily}</p>` : ''}
-                                        </div>
-                                    </div>
-                                `;
-                            });
-                            
-                            document.getElementById('ai-insights').innerHTML = insightsHtml || '<p class="text-xs text-muted">Sin insights disponibles.</p>';
-                        }
-
-                        // Update confidence (mock for now)
-                        document.getElementById('ai-confidence').textContent = '72%';
-                    } catch (error) {
-                        console.error('Error loading predictions:', error);
-                        document.getElementById('income-forecast').textContent = 'Error';
-                        document.getElementById('appointment-forecast').textContent = 'Error';
-                    }
-                }
-
-                // Load predictions when page loads
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', loadPredictions);
-                } else {
-                    loadPredictions();
-                }
-            @endif
-        </script>
+        @if($isClientMode ?? false)
+        makeChart('visitChart', {
+            type:'line',
+            data:{ labels:@json($visit_chart['labels']??[]),
+                datasets:[{label:'Visitas',data:@json($visit_chart['values']??[]),
+                    borderColor:'#d4af37',backgroundColor:'rgba(212,175,55,0.08)',
+                    borderWidth:2.5,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#d4af37'}] },
+            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+                scales:{y:{...scale,beginAtZero:true,ticks:{...scale.ticks,stepSize:1}},x:scale}}
+        });
+        @endif
+    </script>
     @endif
+
 </x-app-layout>
