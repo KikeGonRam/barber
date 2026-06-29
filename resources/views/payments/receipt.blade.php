@@ -112,7 +112,7 @@
     <div class="header">
         <h1 class="header-title">Urban<span>Blade</span></h1>
         <div class="invoice-info">
-            <p>Factura No: <span>#{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}</span></p>
+            <p>Factura No: <span>#{{ strtoupper(substr((string) $payment->id, -8)) }}</span></p>
             <p>Fecha: <span>{{ $payment->created_at?->format('d/m/Y') }}</span></p>
             <p>Hora: <span>{{ $payment->created_at?->format('H:i') }}</span></p>
         </div>
@@ -130,7 +130,11 @@
                 <td>
                     <div class="section-title">Atendido por</div>
                     <h4>Maestro {{ $payment->appointment?->barber?->user?->name }}</h4>
-                    <p>{{ $payment->appointment?->barber?->especialidades }}</p>
+                    @php
+                        $esp = $payment->appointment?->barber?->especialidades;
+                        $espText = is_array($esp) ? implode(', ', $esp) : ($esp ?? '');
+                    @endphp
+                    <p>{{ $espText }}</p>
                 </td>
             </tr>
         </table>
@@ -155,6 +159,18 @@
                     <td class="price">${{ number_format((float) $payment->monto, 2) }}</td>
                     <td class="price">${{ number_format((float) $payment->monto, 2) }}</td>
                 </tr>
+                @foreach($payment->appointment?->productos ?? [] as $prod)
+                @php $prodPrecio = (float)($prod['precio'] ?? 0); $prodQty = (int)($prod['cantidad'] ?? 1); @endphp
+                <tr>
+                    <td>
+                        <strong>{{ $prod['nombre'] ?? 'Producto' }}</strong><br>
+                        <span style="font-size: 11px; color: #888;">Producto adicional</span>
+                    </td>
+                    <td class="price">{{ $prodQty }}</td>
+                    <td class="price">${{ number_format($prodPrecio, 2) }}</td>
+                    <td class="price">${{ number_format($prodPrecio * $prodQty, 2) }}</td>
+                </tr>
+                @endforeach
                 @if($payment->propina > 0)
                 <tr>
                     <td>

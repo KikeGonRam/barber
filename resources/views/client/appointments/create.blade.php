@@ -454,7 +454,7 @@
                     x-transition:leave="transition ease-in duration-150"
                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    class="relative w-full sm:max-w-lg rounded-3xl border border-white/10 bg-[#0d0d0d] shadow-2xl shadow-black/60 overflow-hidden"
+                    class="relative w-full sm:max-w-lg rounded-3xl border border-white/10 bg-[#0d0d0d] shadow-2xl shadow-black/60 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]"
                 >
                     <!-- Header -->
                     <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5">
@@ -488,7 +488,7 @@
                     </div>
 
                     <!-- Body -->
-                    <div class="px-6 py-5 space-y-4 max-h-[60vh] overflow-y-auto">
+                    <div class="px-6 py-5 space-y-4 flex-1 overflow-y-auto overscroll-contain">
 
                         <!-- Method buttons -->
                         <div class="grid grid-cols-3 gap-3">
@@ -535,7 +535,7 @@
                     </div>
 
                     <!-- Footer -->
-                    <div class="px-6 pb-6 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div class="px-6 pb-6 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0">
                         <button type="button" @click="paymentModal = false"
                             class="flex-1 py-3.5 rounded-xl border border-white/10 bg-white/5 text-[10px] font-black uppercase tracking-widest text-muted hover:text-white hover:border-white/20 transition-all">
                             Cancelar

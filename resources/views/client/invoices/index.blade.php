@@ -34,6 +34,10 @@
                     </svg>
                     <p class="text-sm font-black text-muted/50 uppercase tracking-widest">No tienes facturas aún</p>
                     <p class="text-xs text-muted/30 mt-2">Las facturas se generan una vez que el equipo registra tu pago tras la sesión.</p>
+                    <a href="{{ route('client.appointments.create') }}"
+                       class="mt-6 inline-flex items-center gap-2 px-8 py-3 rounded-xl border border-gold/30 bg-gold/10 text-[10px] font-black uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all">
+                        Reservar una cita &rarr;
+                    </a>
                 </div>
             @else
                 <div class="space-y-4">
@@ -51,6 +55,7 @@
                                 'tarjeta'       => ['label' => 'Tarjeta',       'cls' => 'border-blue-500/20 bg-blue-950/20 text-blue-400'],
                                 'transferencia' => ['label' => 'Transferencia', 'cls' => 'border-violet-500/20 bg-violet-950/20 text-violet-400'],
                                 'qr'            => ['label' => 'QR',            'cls' => 'border-orange-500/20 bg-orange-950/20 text-orange-400'],
+                                'stripe'        => ['label' => 'Stripe',        'cls' => 'border-indigo-500/20 bg-indigo-950/20 text-indigo-400'],
                                 default         => ['label' => ucfirst($payment->metodo_pago ?? '—'), 'cls' => 'border-white/10 bg-white/5 text-muted'],
                             };
                         @endphp
@@ -114,7 +119,7 @@
                                     </div>
 
                                     <a href="{{ route('client.facturas.download', $payment) }}"
-                                       class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-[9px] font-black uppercase text-muted hover:border-gold/30 hover:text-gold hover:bg-gold/[0.04] transition-all group/dl">
+                                       class="flex items-center gap-1.5 px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-[9px] font-black uppercase text-muted hover:border-gold/30 hover:text-gold hover:bg-gold/[0.04] transition-all group/dl min-h-[44px]">
                                         <svg class="h-3.5 w-3.5 group-hover/dl:translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                         </svg>
