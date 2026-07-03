@@ -77,12 +77,16 @@ Explaination of important folders and files inside `app/` and other key areas.
 - Model factories used by seeders and tests to generate realistic data.
 
 **database/seeders/**
-- Seeders available include:
-  - `RolePermissionSeeder` — creates roles and permissions (Spatie package)
-  - `AdminUserSeeder` — creates the documented admin user
-  - `TestUsersSeeder` — creates sample receptionist, barbers and clients
-  - `DemoDataSeeder` — populates services, products, appointments and payments for a realistic demo
-  - `MassiveDataSeeder` — (optional) generates very large datasets for load testing (100k appointments). Use with caution.
+- `DatabaseSeeder` runs the official chain in order: `RolePermissionSeeder` → `AdminUserSeeder` →
+  `BarbershopSettingSeeder` → `ServiceSeeder` (20 services) → `ProductSeeder` (30 products) →
+  `ProductionSeeder` (1 receptionist + 25 barbers + 1000 clients, all with roles assigned) →
+  `HistoricalDataSeeder` (+10,000 historical appointments/payments/loyalty points) →
+  `WorkSeeder` + `WorkImageSeeder` (portfolio).
+- `TestUsersSeeder` — (optional, not in the default chain) creates sample accounts with fixed
+  credentials (`recepcionista@test.com`, `barbero@test.com`, `cliente@test.com`) for manual QA.
+- `MassiveDataSeeder` — (optional, not in the default chain) generates very large datasets for load
+  testing (100k appointments). **Requires existing barbers/clients/services** — run only after the
+  official `DatabaseSeeder` chain. Use with caution: it does not assign roles to existing users.
 
 ## Authentication, Roles & Permissions
 - Project uses Spatie `laravel-permission` to manage roles and permissions.
@@ -115,7 +119,7 @@ docker compose ps
 
 # run artisan commands inside app container
 docker compose exec barber-app php artisan migrate --force
-docker compose exec barber-app php artisan db:seed --class=DemoDataSeeder --force
+docker compose exec barber-app php artisan db:seed --force
 
 # build frontend assets inside web (or node container if present)
 docker compose exec barber-web npm install
@@ -129,15 +133,18 @@ Notes:
 - On Windows ensure Docker Desktop is running and port mappings don't conflict.
 
 ## Database Seeding & Filling Data
-- Recommended seeders for a populated demo: `php artisan db:seed --class=DemoDataSeeder` which creates barbers, clients, services, products, appointments (30 days) and inventory movements.
-- For heavy load tests, `MassiveDataSeeder` can generate tens of thousands of records but requires higher memory and long runtime.
+- Recommended for a fully populated environment: `php artisan migrate:fresh --seed` which runs the
+  official `DatabaseSeeder` chain (roles, admin, 25 barbers, 1000 clients, 20 services, 30 products,
+  +10,000 historical appointments/payments, portfolio). This is also what correctly assigns roles
+  to every created user — running individual seeders out of order can leave users without a role.
+- For heavy load tests on top of an already-seeded database, `MassiveDataSeeder` can add tens of
+  thousands of extra appointment records, but requires higher memory/runtime and does **not**
+  assign roles — only run it after `migrate:fresh --seed` has completed.
 
 Example from container:
 
 ```bash
 docker compose exec barber-app php artisan migrate:fresh --seed --force
-# or selective seeder
-docker compose exec barber-app php artisan db:seed --class=DemoDataSeeder --force
 ```
 
 ## Testing
@@ -154,7 +161,7 @@ docker compose exec barber-app vendor/bin/phpunit --testsuite=Feature
 - Stop containers: `docker compose down`
 - Exec into app container: `docker compose exec barber-app bash` (or sh)
 - Run migrations: `php artisan migrate --force`
-- Run seeders: `php artisan db:seed --class=DemoDataSeeder --force`
+- Run seeders: `php artisan db:seed --force` (or `migrate:fresh --seed --force` for a clean reset)
 - Rebuild assets: `npm run build` or `npm run dev`
 
 ## Environment Variables
@@ -174,13 +181,6 @@ docker compose exec barber-app vendor/bin/phpunit --testsuite=Feature
 - [resources/css/app.css](resources/css/app.css) — shared UI component classes
 - [database/seeders/DatabaseSeeder.php](database/seeders/DatabaseSeeder.php) — entry point for seeders
 - [docker-compose.yml](docker-compose.yml) — container orchestration
-
----
-
-If you want, puedo:
-- Añadir secciones más detalladas por controlador/servicio (ej. `AppointmentController`, `PaymentService`).
-- Generar un README reducido con pasos rápidos de setup.
-- Ejecutar los seeders dentro del entorno Docker ahora para poblar la base (indica si deseas el Seeder `DemoDataSeeder` o también `MassiveDataSeeder`).
 
 ---
 
