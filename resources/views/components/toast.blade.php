@@ -21,6 +21,8 @@
     x-transition:leave-end="opacity-0 transform translate-y-4"
     class="fixed bottom-6 right-6 z-[100] max-w-sm w-full"
     style="display: none;"
+    role="status"
+    aria-live="polite"
 >
     <div class="ui-card-premium p-4 flex items-center gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border-white/10 glass-dark">
         <div :class="{
@@ -42,7 +44,7 @@
             <p class="text-[10px] font-black uppercase tracking-widest text-gold mb-0.5" x-text="type === 'success' ? 'Éxito' : (type === 'error' ? 'Error' : 'Notificación')"></p>
             <p class="text-sm font-bold text-white leading-tight" x-text="message"></p>
         </div>
-        <button @click="show = false" class="text-muted hover:text-white transition">
+        <button @click="show = false" class="text-muted hover:text-white transition" aria-label="Cerrar notificación">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
     </div>

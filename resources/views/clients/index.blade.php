@@ -57,7 +57,7 @@
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                     <svg class="h-4 w-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                 </div>
-                                <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" class="ui-input pl-10" placeholder="Nombre o email...">
+                                <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" class="ui-input pl-10" placeholder="Nombre o email..." aria-label="Buscar clientes por nombre o email">
                             </div>
                         </div>
                         <div>
@@ -145,7 +145,7 @@
                                 <td class="text-muted text-sm">{{ $client->fecha_nacimiento?->format('d M, Y') ?: '—' }}</td>
                                 <td class="text-muted text-xs">{{ $client->created_at?->format('d/m/Y') }}</td>
                                 <td class="text-right">
-                                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         <a href="{{ route('clients.show', $client) }}"
                                            class="h-8 px-3 rounded-lg border border-white/10 bg-white/5 flex items-center text-[9px] font-black uppercase tracking-widest text-muted hover:text-gold hover:border-gold/30 transition-all" title="Ver Perfil">
                                             Perfil
@@ -157,7 +157,7 @@
                                         <form action="{{ route('clients.destroy', $client) }}" method="POST"
                                               onsubmit="return confirm('¿Eliminar cliente {{ addslashes($client->user?->name ?? '') }}?');" class="inline">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="h-8 w-8 rounded-lg border border-red-500/20 bg-red-500/5 flex items-center justify-center text-red-500/70 hover:text-red-400 hover:bg-red-500/10 transition-all">
+                                            <button type="submit" aria-label="Eliminar cliente" class="h-8 w-8 rounded-lg border border-red-500/20 bg-red-500/5 flex items-center justify-center text-red-500/70 hover:text-red-400 hover:bg-red-500/10 transition-all">
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </form>

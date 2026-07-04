@@ -83,7 +83,7 @@
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                     <svg class="h-4 w-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                 </div>
-                                <input type="text" name="q" value="{{ $filters['q'] ?? '' }}"
+                                <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" aria-label="Buscar citas por cliente, servicio o barbero"
                                        class="ui-input pl-10" placeholder="Cliente, servicio, barbero...">
                             </div>
                         </div>
@@ -218,7 +218,7 @@
                                         @csrf @method('PATCH')
                                         <select name="estado" onchange="this.form.submit()"
                                                 class="rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest bg-transparent cursor-pointer transition-all hover:opacity-80 {{ $sc['pill'] }}"
-                                                title="Cambiar estado">
+                                                title="Cambiar estado" aria-label="Cambiar estado de la cita">
                                             @foreach(['pendiente'=>'Pendiente','confirmada'=>'Confirmada','en_proceso'=>'En Proceso','completada'=>'Completada','cancelada'=>'Cancelada','no_asistio'=>'No Asistió'] as $val => $lbl)
                                                 <option value="{{ $val }}" @selected($appt->estado === $val)
                                                         class="bg-[#111] text-white normal-case tracking-normal font-bold">
