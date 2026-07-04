@@ -32,7 +32,7 @@
         </div>
     </x-slot>
 
-    <div class="space-y-5 py-4">
+    <div class="space-y-5 py-4" x-data="{ vista: 'lista' }">
         <x-auth-session-status :status="session('status')" />
 
         {{-- ── STATS ROW ──────────────────────────────────── --}}
@@ -167,12 +167,70 @@
             @endforeach
         </section>
 
+        {{-- ── VISTA TIMELINE DEL DÍA ──────────────────────────
+             Columna de horas 09:00–21:00 (1px = 1min) con bloques
+             proporcionales a la duración: comunica huecos y empalmes de
+             un vistazo, cosa que la lista no puede. Solo en período día
+             (en semana las citas de días distintos se encimarían). --}}
+        @if($period === 'day')
+        <section x-show="vista === 'timeline'" x-cloak class="rounded-2xl border border-white/8 bg-[#111] p-5">
+            <div class="relative" style="height: 720px;">
+                {{-- Líneas y etiquetas de hora --}}
+                @for($h = 9; $h <= 21; $h++)
+                    <div class="absolute left-0 right-0 border-t border-white/5" style="top: {{ ($h - 9) * 60 }}px;">
+                        <span class="absolute -top-2.5 left-0 w-12 text-[9px] font-black text-muted">{{ sprintf('%02d:00', $h) }}</span>
+                    </div>
+                @endfor
+                {{-- Bloques de citas --}}
+                @foreach($agenda as $appt)
+                    @php
+                        $ini = (int) substr($appt->hora_inicio, 0, 2) * 60 + (int) substr($appt->hora_inicio, 3, 2);
+                        $dur = max(20, (int) ($appt->service?->duracion_min ?? 30)); // mínimo 20px para legibilidad
+                        $top = max(0, $ini - 540); // 540 = 09:00
+                        $tlCfg = [
+                            'pendiente'  => 'border-amber-500/40 bg-amber-500/15 text-amber-200',
+                            'confirmada' => 'border-cyan-500/40 bg-cyan-500/15 text-cyan-200',
+                            'en_proceso' => 'border-blue-500/40 bg-blue-500/15 text-blue-200',
+                            'completada' => 'border-emerald-500/40 bg-emerald-500/15 text-emerald-200',
+                            'cancelada'  => 'border-red-500/30 bg-red-500/10 text-red-300 opacity-50',
+                            'no_asistio' => 'border-white/20 bg-white/5 text-white/50 opacity-50',
+                        ][$appt->estado] ?? 'border-white/15 bg-white/5 text-white';
+                    @endphp
+                    <div class="absolute left-14 right-2 rounded-lg border px-3 py-1 overflow-hidden {{ $tlCfg }}"
+                         style="top: {{ $top }}px; height: {{ min($dur, 720 - $top) }}px;"
+                         title="{{ substr($appt->hora_inicio,0,5) }}–{{ substr($appt->hora_fin,0,5) }} · {{ $appt->client?->user?->name }} · {{ $appt->service?->nombre }}">
+                        <p class="text-[10px] font-black truncate leading-tight">
+                            {{ substr($appt->hora_inicio, 0, 5) }} · {{ $appt->client?->user?->name ?? '—' }}
+                        </p>
+                        @if($dur >= 35)
+                            <p class="text-[9px] opacity-70 truncate leading-tight">{{ $appt->service?->nombre ?? '—' }}</p>
+                        @endif
+                    </div>
+                @endforeach
+                @if($agenda->isEmpty())
+                    <p class="absolute inset-0 flex items-center justify-center text-xs font-bold text-muted uppercase tracking-widest">Sin citas para hoy</p>
+                @endif
+            </div>
+        </section>
+        @endif
+
         {{-- ── LISTA DE CITAS ──────────────────────────────── --}}
         <section class="space-y-3">
             <div class="px-1 flex items-center justify-between">
                 <p class="text-[11px] font-bold text-muted uppercase tracking-wider">{{ $agenda->count() }} cita{{ $agenda->count() !== 1 ? 's' : '' }}{{ $estadoFilter ? ' · '.ucfirst(str_replace('_',' ',$estadoFilter)) : '' }}</p>
+                @if($period === 'day')
+                    <div class="flex h-8 items-center rounded-lg bg-white/5 border border-white/10 p-0.5">
+                        <button type="button" @click="vista = 'lista'"
+                                :class="vista === 'lista' ? 'bg-gold text-black' : 'text-muted hover:text-white'"
+                                class="px-3 h-full flex items-center text-[9px] font-black uppercase tracking-widest rounded-md transition-all">Lista</button>
+                        <button type="button" @click="vista = 'timeline'"
+                                :class="vista === 'timeline' ? 'bg-gold text-black' : 'text-muted hover:text-white'"
+                                class="px-3 h-full flex items-center text-[9px] font-black uppercase tracking-widest rounded-md transition-all">Timeline</button>
+                    </div>
+                @endif
             </div>
 
+            <div class="space-y-3" x-show="vista === 'lista' || {{ $period !== 'day' ? 'true' : 'false' }}">
             @forelse($agenda as $appointment)
                 @php
                     $stCfg = [
@@ -257,6 +315,7 @@
                     @endif
                 </div>
             @endforelse
+            </div>
         </section>
     </div>
 </x-app-layout>
