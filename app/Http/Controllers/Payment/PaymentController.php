@@ -68,6 +68,12 @@ class PaymentController extends Controller
             return back()->withInput()->withErrors(['appointment_id' => $exception->getMessage()]);
         }
 
+        // stay=1: el pago se registró desde el modal "Cobrar" de la lista de
+        // citas — regresar ahí en vez de saltar a la lista de pagos.
+        if ($request->boolean('stay')) {
+            return back()->with('status', 'Pago registrado y cita completada.');
+        }
+
         return redirect()->route('payments.index')->with('status', 'Pago registrado correctamente.');
     }
 

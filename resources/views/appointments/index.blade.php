@@ -230,6 +230,20 @@
                                 </td>
                                 <td class="text-right">
                                     <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                        @if(!in_array($appt->estado, ['completada', 'cancelada', 'no_asistio']))
+                                            {{-- Cobrar y completar en un paso: PaymentService::create ya
+                                                 marca la cita como completada y genera el recibo PDF --}}
+                                            <button type="button"
+                                                    onclick='window.dispatchEvent(new CustomEvent("open-cobro", { detail: {
+                                                        id: @json((string) $appt->id),
+                                                        cliente: @json($appt->client?->user?->name ?? "Cliente"),
+                                                        servicio: @json($appt->service?->nombre ?? "—"),
+                                                        monto: @json((float) ($appt->precio_cobrado ?? $appt->service?->precio ?? 0))
+                                                    }}))'
+                                                    class="h-8 w-8 rounded-lg border border-emerald-500/25 bg-emerald-500/5 flex items-center justify-center text-emerald-400/80 hover:text-emerald-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all" title="Cobrar y completar">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/></svg>
+                                            </button>
+                                        @endif
                                         <a href="{{ route('appointments.edit', $appt) }}"
                                            class="h-8 w-8 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all" title="Editar">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -431,7 +445,83 @@
         </div>
     </div>
 
+    {{-- ══════════════════════════════════════════════════════════════════
+         MODAL COBRAR — registra el pago de una cita y la marca completada
+         en un solo paso (PaymentService genera además el recibo PDF).
+    ══════════════════════════════════════════════════════════════════ --}}
+    <div x-data="cobroModal()"
+         x-show="open"
+         x-cloak
+         @open-cobro.window="show($event.detail)"
+         @keydown.escape.window="open = false"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="open = false"></div>
+
+        <div class="relative w-full max-w-md rounded-3xl border border-white/10 bg-[#141414] p-6 shadow-2xl"
+             x-show="open" x-transition>
+            <div class="mb-5 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-black text-white uppercase tracking-tight">Cobrar y completar</h3>
+                    <p class="text-[11px] text-muted mt-0.5">
+                        <span class="text-white font-bold" x-text="appt.cliente"></span>
+                        · <span x-text="appt.servicio"></span>
+                    </p>
+                </div>
+                <button type="button" @click="open = false"
+                        class="h-8 w-8 rounded-lg border border-white/10 text-muted hover:text-white transition flex items-center justify-center">&times;</button>
+            </div>
+
+            <form method="POST" action="{{ route('payments.store') }}" class="space-y-4">
+                @csrf
+                <input type="hidden" name="appointment_id" :value="appt.id">
+                <input type="hidden" name="stay" value="1">
+
+                <div>
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">Monto</label>
+                    <input type="number" name="monto" step="0.01" min="0.01" required x-model="appt.monto"
+                           class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-4 text-sm text-white focus:border-gold/50 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">Método</label>
+                        <select name="metodo_pago" required
+                                class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-3 text-sm text-white focus:border-gold/50 focus:outline-none">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="qr">QR</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">Propina (opcional)</label>
+                        <input type="number" name="propina" step="0.01" min="0" placeholder="0"
+                               class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-4 text-sm text-white placeholder-white/25 focus:border-gold/50 focus:outline-none">
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="w-full h-12 rounded-xl border border-emerald-500/40 bg-emerald-500/15 text-[11px] font-black uppercase tracking-widest text-emerald-300 hover:bg-emerald-400 hover:text-black transition-all">
+                    Registrar pago y completar &rarr;
+                </button>
+                <p class="text-center text-[10px] text-muted">Se generará el recibo PDF automáticamente.</p>
+            </form>
+        </div>
+    </div>
+
     <script>
+        function cobroModal() {
+            return {
+                open: false,
+                appt: { id: null, cliente: '', servicio: '', monto: 0 },
+                show(detail) {
+                    this.appt = detail;
+                    this.open = true;
+                },
+            };
+        }
+
         function walkinModal() {
             return {
                 open: {{ $errors->has('walkin') ? 'true' : 'false' }},
