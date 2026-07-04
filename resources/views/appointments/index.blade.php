@@ -16,10 +16,18 @@
                 <h2 class="ui-title">Citas & Reservas</h2>
                 <p class="ui-subtitle">Gestiona la agenda completa de la barbería.</p>
             </div>
-            <a href="{{ route('appointments.create') }}" class="ui-btn">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Nueva Cita
-            </a>
+            <div class="flex items-center gap-3">
+                <button type="button"
+                        onclick="window.dispatchEvent(new CustomEvent('open-walkin'))"
+                        class="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest text-emerald-300 hover:bg-emerald-400 hover:text-black transition-all">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Walk-in
+                </button>
+                <a href="{{ route('appointments.create') }}" class="ui-btn">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Nueva Cita
+                </a>
+            </div>
         </div>
     </x-slot>
 
@@ -221,7 +229,7 @@
                                     </form>
                                 </td>
                                 <td class="text-right">
-                                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         <a href="{{ route('appointments.edit', $appt) }}"
                                            class="h-8 w-8 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all" title="Editar">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -229,7 +237,7 @@
                                         <form action="{{ route('appointments.destroy', $appt) }}" method="POST"
                                               onsubmit="return confirm('¿Cancelar esta cita?');" class="inline">
                                             @csrf @method('DELETE')
-                                            <button type="submit"
+                                            <button type="submit" aria-label="Cancelar cita"
                                                     class="h-8 w-8 rounded-lg border border-red-500/20 bg-red-500/5 flex items-center justify-center text-red-500/70 hover:text-red-400 hover:border-red-500/40 hover:bg-red-500/10 transition-all" title="Cancelar">
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 18L18 6M6 6l12 12"/></svg>
                                             </button>
@@ -283,11 +291,25 @@
                                 <p class="font-bold text-white">{{ $appt->barber?->user?->name ?? 'Sin asignar' }}</p>
                             </div>
                         </div>
+                        {{-- Estado inline (mobile) --}}
+                        @if(!in_array($appt->estado, ['completada', 'cancelada']))
+                        <form method="POST" action="{{ route('appointments.update-status', $appt) }}" class="mt-3">
+                            @csrf @method('PATCH')
+                            <div class="flex gap-2">
+                                <select name="estado" class="flex-1 h-9 rounded-xl border border-white/10 bg-black/40 px-3 text-[10px] font-black uppercase tracking-wider text-white focus:border-gold/50 focus:outline-none transition-all">
+                                    @foreach(['pendiente'=>'Pendiente','confirmada'=>'Confirmada','en_proceso'=>'En Proceso','completada'=>'Completada','cancelada'=>'Cancelada'] as $val => $lbl)
+                                        <option value="{{ $val }}" @selected($appt->estado === $val) class="bg-[#111] normal-case font-bold">{{ $lbl }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="h-9 px-3 rounded-xl border border-gold/30 bg-gold/10 text-[10px] font-black uppercase text-gold hover:bg-gold hover:text-black transition-all shrink-0">OK</button>
+                            </div>
+                        </form>
+                        @endif
                         <div class="mt-3 flex justify-end gap-3 border-t border-white/5 pt-3">
                             <a href="{{ route('appointments.edit', $appt) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Editar</a>
                             <form action="{{ route('appointments.destroy', $appt) }}" method="POST" onsubmit="return confirm('¿Cancelar?');">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition">Cancelar</button>
+                                <button type="submit" class="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition">Anular</button>
                             </form>
                         </div>
                     </div>
@@ -302,4 +324,139 @@
             <div class="mt-6">{{ $appointments->links() }}</div>
         </section>
     </div>
+
+    {{-- ══════════════════════════════════════════════════════════════════
+         MODAL WALK-IN — registro rápido de cliente sin cita previa.
+         3 campos: cliente (búsqueda por teléfono/nombre), servicio, barbero.
+         Crea la cita para AHORA en estado en_proceso.
+    ══════════════════════════════════════════════════════════════════ --}}
+    <div x-data="walkinModal()"
+         x-show="open"
+         x-cloak
+         @open-walkin.window="open = true; $nextTick(() => $refs.searchInput.focus())"
+         @keydown.escape.window="open = false"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        {{-- Backdrop --}}
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="open = false"></div>
+
+        <div class="relative w-full max-w-lg rounded-3xl border border-white/10 bg-[#141414] p-6 shadow-2xl"
+             x-show="open" x-transition>
+            <div class="mb-5 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-black text-white uppercase tracking-tight">Walk-in</h3>
+                    <p class="text-[11px] text-muted mt-0.5">Cliente en recepción — el servicio inicia ahora mismo.</p>
+                </div>
+                <button type="button" @click="open = false"
+                        class="h-8 w-8 rounded-lg border border-white/10 text-muted hover:text-white transition flex items-center justify-center">&times;</button>
+            </div>
+
+            @if($errors->has('walkin'))
+                <div class="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs font-bold text-red-300">
+                    {{ $errors->first('walkin') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('appointments.walk-in') }}" class="space-y-4">
+                @csrf
+                <input type="hidden" name="client_id" :value="selectedClient?.id">
+
+                {{-- 1. Cliente: búsqueda por teléfono o nombre --}}
+                <div>
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">1 · Cliente (teléfono o nombre)</label>
+                    <template x-if="!selectedClient">
+                        <div class="relative">
+                            <input type="text" x-ref="searchInput" x-model="query"
+                                   @input.debounce.300ms="search()"
+                                   placeholder="Ej. 5512345678 o Juan..."
+                                   class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-4 text-sm text-white placeholder-white/25 focus:border-gold/50 focus:outline-none">
+                            <div x-show="results.length > 0"
+                                 class="absolute z-10 mt-1 w-full rounded-xl border border-white/10 bg-[#1b1b1b] shadow-xl overflow-hidden">
+                                <template x-for="c in results" :key="c.id">
+                                    <button type="button" @click="selectedClient = c; results = []; query = ''"
+                                            class="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-gold/10 transition">
+                                        <span class="text-sm font-bold text-white" x-text="c.name"></span>
+                                        <span class="text-[10px] text-muted" x-text="c.telefono"></span>
+                                    </button>
+                                </template>
+                            </div>
+                            <p x-show="searched && results.length === 0 && query.length >= 2"
+                               class="mt-1.5 text-[10px] text-muted italic">Sin resultados — verifica el teléfono o registra al cliente primero.</p>
+                        </div>
+                    </template>
+                    <template x-if="selectedClient">
+                        <div class="flex items-center justify-between rounded-xl border border-emerald-500/25 bg-emerald-500/8 px-4 py-2.5">
+                            <div>
+                                <span class="text-sm font-black text-emerald-300" x-text="selectedClient.name"></span>
+                                <span class="ml-2 text-[10px] text-muted" x-text="selectedClient.telefono"></span>
+                            </div>
+                            <button type="button" @click="selectedClient = null"
+                                    class="text-[10px] font-black uppercase text-muted hover:text-white transition">Cambiar</button>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- 2. Servicio --}}
+                <div>
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">2 · Servicio</label>
+                    <select name="service_id" required
+                            class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-3 text-sm text-white focus:border-gold/50 focus:outline-none">
+                        <option value="">Selecciona…</option>
+                        @foreach($services as $service)
+                            <option value="{{ $service->id }}">
+                                {{ $service->nombre }} — ${{ number_format((float) $service->precio, 0) }} · {{ $service->duracion_min }} min
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- 3. Barbero --}}
+                <div>
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">3 · Barbero</label>
+                    <select name="barber_id" required
+                            class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-3 text-sm text-white focus:border-gold/50 focus:outline-none">
+                        <option value="">Selecciona…</option>
+                        @foreach($barbers as $barber)
+                            <option value="{{ $barber->id }}">{{ $barber->user?->name ?? 'Barbero' }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <button type="submit" :disabled="!selectedClient"
+                        :class="selectedClient ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-400 hover:text-black' : 'bg-white/5 border-white/10 text-muted cursor-not-allowed'"
+                        class="w-full h-12 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all">
+                    Iniciar servicio ahora &rarr;
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function walkinModal() {
+            return {
+                open: {{ $errors->has('walkin') ? 'true' : 'false' }},
+                query: '',
+                results: [],
+                searched: false,
+                selectedClient: null,
+
+                async search() {
+                    this.searched = false;
+                    if (this.query.trim().length < 2) { this.results = []; return; }
+                    try {
+                        const res = await fetch(`{{ route('appointments.walk-in.clients') }}?q=${encodeURIComponent(this.query.trim())}`, {
+                            headers: { 'Accept': 'application/json' },
+                        });
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const data = await res.json();
+                        this.results = data.clients;
+                    } catch (e) {
+                        this.results = [];
+                    } finally {
+                        this.searched = true;
+                    }
+                },
+            };
+        }
+    </script>
 </x-app-layout>

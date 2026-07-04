@@ -36,7 +36,7 @@
         <x-auth-session-status :status="session('status')" />
 
         {{-- ── STATS ROW ──────────────────────────────────── --}}
-        <section class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+        <section class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {{-- Total período --}}
             <div class="rounded-2xl border border-white/8 bg-[#111] p-4 text-center">
                 <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-1">{{ $period==='day' ? 'Hoy' : 'Semana' }}</p>
@@ -48,6 +48,12 @@
                 <p class="text-[9px] font-black uppercase tracking-widest text-amber-400/70 mb-1">Pendientes</p>
                 <p class="text-3xl font-black text-amber-300">{{ $stats['pending_period'] }}</p>
                 <p class="text-[9px] text-amber-400/50 mt-0.5">en espera</p>
+            </div>
+            {{-- Confirmadas --}}
+            <div class="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-4 text-center">
+                <p class="text-[9px] font-black uppercase tracking-widest text-cyan-400/70 mb-1">Confirmadas</p>
+                <p class="text-3xl font-black text-cyan-300">{{ $stats['confirmed_period'] }}</p>
+                <p class="text-[9px] text-cyan-400/50 mt-0.5">por atender</p>
             </div>
             {{-- En proceso --}}
             <div class="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-4 text-center">
@@ -62,7 +68,7 @@
                 <p class="text-[9px] text-emerald-400/50 mt-0.5">listas</p>
             </div>
             {{-- Productividad --}}
-            <div class="col-span-2 sm:col-span-4 lg:col-span-1 rounded-2xl border border-gold/20 bg-gold/5 p-4 flex items-center gap-4 lg:flex-col lg:text-center lg:items-center lg:justify-center">
+            <div class="col-span-2 sm:col-span-3 lg:col-span-1 rounded-2xl border border-gold/20 bg-gold/5 p-4 flex items-center gap-4 lg:flex-col lg:text-center lg:items-center lg:justify-center">
                 <div class="relative h-14 w-14 shrink-0">
                     <svg class="h-14 w-14 -rotate-90" viewBox="0 0 36 36">
                         <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="3"/>
@@ -80,7 +86,9 @@
         </section>
 
         {{-- ── PRÓXIMA CITA ────────────────────────────────── --}}
-        @php $nextAppt = $agenda->where('estado', 'pendiente')->first(); @endphp
+        {{-- La siguiente cita real es la más próxima aún no atendida: pendiente O confirmada
+             ($agenda ya viene ordenada por fecha y hora_inicio) --}}
+        @php $nextAppt = $agenda->whereIn('estado', ['pendiente', 'confirmada'])->first(); @endphp
         @if($nextAppt && $estadoFilter === '')
             <section class="ui-card-premium p-0 overflow-hidden border-gold/30" style="box-shadow:0 0 40px rgba(212,175,55,0.12)">
                 <div class="flex flex-col sm:flex-row">
@@ -125,11 +133,13 @@
             <span class="text-[9px] font-black uppercase tracking-widest text-muted mr-1">Filtrar:</span>
             @php
                 $estadoOpts = [
-                    ''           => ['label'=>'Todas',      'cls'=>'border-white/15 text-muted hover:text-white'],
-                    'pendiente'  => ['label'=>'Pendiente',  'cls'=>'border-amber-500/30 text-amber-300 bg-amber-500/8'],
-                    'en_proceso' => ['label'=>'En proceso', 'cls'=>'border-blue-500/30 text-blue-300 bg-blue-500/8'],
-                    'completada' => ['label'=>'Completada', 'cls'=>'border-emerald-500/30 text-emerald-300 bg-emerald-500/8'],
-                    'cancelada'  => ['label'=>'Cancelada',  'cls'=>'border-red-500/30 text-red-400 bg-red-500/8'],
+                    ''           => ['label'=>'Todas',       'cls'=>'border-white/15 text-muted hover:text-white'],
+                    'pendiente'  => ['label'=>'Pendiente',   'cls'=>'border-amber-500/30 text-amber-300 bg-amber-500/8'],
+                    'confirmada' => ['label'=>'Confirmada',  'cls'=>'border-cyan-500/30 text-cyan-300 bg-cyan-500/8'],
+                    'en_proceso' => ['label'=>'En proceso',  'cls'=>'border-blue-500/30 text-blue-300 bg-blue-500/8'],
+                    'completada' => ['label'=>'Completada',  'cls'=>'border-emerald-500/30 text-emerald-300 bg-emerald-500/8'],
+                    'cancelada'  => ['label'=>'Cancelada',   'cls'=>'border-red-500/30 text-red-400 bg-red-500/8'],
+                    'no_asistio' => ['label'=>'No asistió',  'cls'=>'border-white/20 text-white/60 bg-white/5'],
                 ];
             @endphp
             @foreach($estadoOpts as $val => $opt)
@@ -140,9 +150,11 @@
                     @if($val !== '')
                         @php $count = match($val){
                             'pendiente'  => $stats['pending_period'],
+                            'confirmada' => $stats['confirmed_period'],
                             'en_proceso' => $stats['in_process_period'],
                             'completada' => $stats['completed_period'],
                             'cancelada'  => $stats['cancelled_period'],
+                            'no_asistio' => $stats['no_show_period'],
                             default      => 0,
                         }; @endphp
                         @if($count > 0)
@@ -165,9 +177,11 @@
                 @php
                     $stCfg = [
                         'pendiente'  => ['pill'=>'border-amber-500/30 bg-amber-500/10 text-amber-300',  'dot'=>'bg-amber-400 animate-pulse', 'bar'=>'bg-amber-400'],
+                        'confirmada' => ['pill'=>'border-cyan-500/30 bg-cyan-500/10 text-cyan-300',      'dot'=>'bg-cyan-400 animate-pulse',  'bar'=>'bg-cyan-400'],
                         'en_proceso' => ['pill'=>'border-blue-500/30 bg-blue-500/10 text-blue-300',     'dot'=>'bg-blue-400 animate-pulse',  'bar'=>'bg-blue-400'],
                         'completada' => ['pill'=>'border-emerald-500/30 bg-emerald-500/10 text-emerald-300','dot'=>'bg-emerald-400',         'bar'=>'bg-emerald-400'],
                         'cancelada'  => ['pill'=>'border-red-500/30 bg-red-500/10 text-red-400',         'dot'=>'bg-red-400',               'bar'=>'bg-red-400'],
+                        'no_asistio' => ['pill'=>'border-white/20 bg-white/10 text-white/60',            'dot'=>'bg-white/40',               'bar'=>'bg-white/30'],
                     ];
                     $sc = $stCfg[$appointment->estado] ?? ['pill'=>'border-white/10 bg-white/5 text-muted','dot'=>'bg-white/30','bar'=>'bg-white/20'];
                 @endphp
@@ -205,22 +219,26 @@
                                 </div>
                             </div>
 
-                            {{-- Quick status update --}}
-                            @if($appointment->estado !== 'completada' && $appointment->estado !== 'cancelada')
+                            {{-- Acción contextual de un toque: el flujo de una cita es lineal
+                                 (pendiente → confirmada → en_proceso → completada), así que se
+                                 muestra un solo botón grande con el siguiente paso — pensado
+                                 para uso en móvil junto a la silla, sin dropdowns. --}}
+                            @php
+                                $nextAction = match($appointment->estado) {
+                                    'pendiente'  => ['estado' => 'confirmada', 'label' => 'Confirmar',        'cls' => 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300 hover:bg-cyan-400 hover:text-black'],
+                                    'confirmada' => ['estado' => 'en_proceso', 'label' => 'Iniciar Servicio', 'cls' => 'bg-gold/10 border-gold/25 text-gold hover:bg-gold hover:text-black'],
+                                    'en_proceso' => ['estado' => 'completada', 'label' => 'Completar',        'cls' => 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-400 hover:text-black'],
+                                    default      => null,
+                                };
+                            @endphp
+                            @if($nextAction)
                                 <form method="POST" action="{{ route('barber.appointments.status', $appointment) }}"
-                                      class="flex items-center gap-2 shrink-0">
+                                      class="shrink-0">
                                     @csrf @method('PATCH')
-                                    <select name="estado"
-                                            class="h-9 rounded-xl border border-white/10 bg-black/40 px-3 text-[11px] font-black uppercase tracking-wider text-white focus:border-gold/50 focus:outline-none transition-all">
-                                        @foreach(['pendiente','en_proceso','completada','cancelada'] as $est)
-                                            <option value="{{ $est }}" @selected($appointment->estado === $est)>
-                                                {{ ucfirst(str_replace('_',' ',$est)) }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <input type="hidden" name="estado" value="{{ $nextAction['estado'] }}">
                                     <button type="submit"
-                                            class="h-9 px-4 rounded-xl bg-gold/10 border border-gold/25 text-[10px] font-black uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all">
-                                        OK
+                                            class="h-11 px-6 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all {{ $nextAction['cls'] }}">
+                                        {{ $nextAction['label'] }} &rarr;
                                     </button>
                                 </form>
                             @else

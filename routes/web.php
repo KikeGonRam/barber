@@ -24,28 +24,32 @@ use App\Http\Controllers\Social\SocialController;
 use App\Http\Controllers\User\UserController;
 use App\Models\Barber;
 use App\Models\Service;
+use Illuminate\Support\Facades\Cache;
 
 Route::get('/', function () {
-    $services = Service::where('activo', true)->limit(6)->get();
-    $barbers  = Barber::with('user')->where('activo', true)->limit(4)->get();
-
-    $statsGlobales = [
+    // Cache landing page data for 5 minutes — 7 queries → 0 on cache hit
+    $services = Cache::remember('landing_services', 300, fn () =>
+        Service::where('activo', true)->limit(6)->get()
+    );
+    $barbers = Cache::remember('landing_barbers', 300, fn () =>
+        Barber::with('user')->where('activo', true)->limit(4)->get()
+    );
+    $statsGlobales = Cache::remember('landing_stats', 300, fn () => [
         'clientes'  => \App\Models\Client::count(),
         'servicios' => \App\Models\Service::where('activo', true)->count(),
         'citas'     => \App\Models\Appointment::where('estado', 'completada')->count(),
         'rating'    => number_format((float) (\App\Models\Comment::whereNotNull('rating')->avg('rating') ?? 4.9), 1),
         'resenas'   => \App\Models\Comment::whereNotNull('rating')->count(),
-    ];
+    ]);
 
     return view('welcome', compact('services', 'barbers', 'statsGlobales'));
-});
+})->name('home');
 
 Route::get('/mantenimiento', function () {
     return view('errors.maintenance');
 })->name('maintenance');
 
 Route::get('/equipo/{barber}', [BarberController::class, 'show'])->name('barbers.public.show');
-Route::get('/barbero/{barber}', [BarberController::class, 'show'])->name('barbers.show')->where('barber', '[0-9a-fA-F]{24}');
 Route::get('/servicios', [ServiceController::class, 'publicIndex'])->name('services.public.index');
 Route::post('/chatbot/query', [ChatbotController::class, 'query'])->name('chatbot.query');
 Route::middleware(['auth'])->group(function () {
@@ -90,6 +94,9 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware(['verified', 'role.custom:administrador,recepcionista'])->group(function () {
         Route::middleware('permission.custom:citas.gestionar')->group(function () {
+            // Walk-in ANTES del resource para que 'walk-in' no se capture como {appointment}
+            Route::post('appointments/walk-in', [AppointmentController::class, 'walkIn'])->name('appointments.walk-in');
+            Route::get('appointments/walk-in/clients', [AppointmentController::class, 'searchClients'])->name('appointments.walk-in.clients');
             Route::resource('appointments', AppointmentController::class)->except('show');
             Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
             Route::get('appointments-calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
@@ -122,7 +129,7 @@ Route::middleware('auth')->group(function () {
             Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
             Route::get('reports/{type}/{format}', [ReportController::class, 'export'])
                 ->whereIn('type', ['ingresos', 'citas', 'inventario', 'clientes'])
-                ->whereIn('format', ['pdf', 'excel'])
+                ->whereIn('format', ['pdf', 'excel', 'csv'])
                 ->name('reports.export');
         });
 
@@ -160,6 +167,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('appointments', ClientAppointmentController::class)->except('show');
         Route::get('barberos', [ClientBarberController::class, 'index'])->name('barberos.index');
         Route::get('barberos/{barber}', [ClientBarberController::class, 'show'])->name('barberos.show');
+        Route::post('barberos/{barber}/review', [ClientBarberController::class, 'storeReview'])->name('barberos.review');
         Route::get('facturas', [ClientInvoiceController::class, 'index'])->name('facturas.index');
         Route::get('facturas/{payment}/download', [ClientInvoiceController::class, 'download'])->name('facturas.download');
     });

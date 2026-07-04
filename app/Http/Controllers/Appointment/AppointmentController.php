@@ -12,6 +12,7 @@ use App\Models\Client;
 use App\Models\Service;
 use App\Notifications\AppointmentNotification;
 use App\Services\Appointment\AppointmentService;
+use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -41,6 +42,7 @@ class AppointmentController extends Controller
             ->withQueryString();
 
         $barbers = Barber::with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
+        $services = Service::query()->where('activo', true)->orderBy('nombre')->get(['id', 'nombre', 'duracion_min', 'precio']);
         $stats = [
             'total'      => Appointment::count(),
             'today'      => Appointment::whereDate('fecha', today())->count(),
@@ -48,7 +50,89 @@ class AppointmentController extends Controller
             'completada' => Appointment::where('estado', 'completada')->count(),
         ];
 
-        return view('appointments.index', compact('appointments', 'filters', 'barbers', 'stats'));
+        return view('appointments.index', compact('appointments', 'filters', 'barbers', 'services', 'stats'));
+    }
+
+    /**
+     * Búsqueda de clientes para el modal walk-in: por nombre o teléfono,
+     * máximo 10 resultados. El cliente parado en recepción normalmente da
+     * su teléfono, por eso se busca en ambos campos.
+     */
+    public function searchClients(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $q = trim((string) $request->query('q', ''));
+
+        if (mb_strlen($q) < 2) {
+            return response()->json(['clients' => []]);
+        }
+
+        $byPhone = Client::query()
+            ->where('telefono', 'like', "%{$q}%")
+            ->with('user:id,name')
+            ->limit(10)
+            ->get(['id', 'user_id', 'telefono']);
+
+        $byName = Client::query()
+            ->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$q}%"))
+            ->with('user:id,name')
+            ->limit(10)
+            ->get(['id', 'user_id', 'telefono']);
+
+        $clients = $byPhone->concat($byName)
+            ->unique(fn ($c) => (string) $c->id)
+            ->take(10)
+            ->map(fn ($c) => [
+                'id'       => (string) $c->id,
+                'name'     => $c->user?->name ?? 'Cliente',
+                'telefono' => $c->telefono,
+            ])
+            ->values();
+
+        return response()->json(['clients' => $clients]);
+    }
+
+    /**
+     * Registro rápido de walk-in: cliente parado en recepción, sin cita previa.
+     * Crea la cita para AHORA MISMO en estado en_proceso, con la hora de fin
+     * calculada a partir de la duración del servicio. Reutiliza
+     * createAppointment(), que valida solapamientos con la agenda del barbero.
+     */
+    public function walkIn(\Illuminate\Http\Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'client_id'  => ['required', 'string', 'exists:clients,id'],
+            'barber_id'  => ['required', 'string', 'exists:barbers,id'],
+            'service_id' => ['required', 'string', 'exists:services,id'],
+        ], [
+            'client_id.required'  => 'Selecciona el cliente.',
+            'barber_id.required'  => 'Selecciona el barbero.',
+            'service_id.required' => 'Selecciona el servicio.',
+        ]);
+
+        $service = Service::findOrFail($data['service_id']);
+        $inicio  = now();
+        $fin     = $inicio->copy()->addMinutes((int) $service->duracion_min);
+
+        try {
+            $this->appointmentService->createAppointment([
+                'client_id'      => $data['client_id'],
+                'barber_id'      => $data['barber_id'],
+                'service_id'     => $data['service_id'],
+                'fecha'          => $inicio->format('Y-m-d'),
+                'hora_inicio'    => $inicio->format('H:i'),
+                'hora_fin'       => $fin->format('H:i'),
+                'estado'         => 'en_proceso',
+                'precio_cobrado' => (float) $service->precio,
+                'metodo_pago'    => 'efectivo',
+                'notas'          => 'Walk-in registrado en recepción.',
+            ]);
+        } catch (AppointmentConflictException $exception) {
+            return back()->withErrors(['walkin' => $exception->getMessage()]);
+        }
+
+        return redirect()
+            ->route('appointments.index')
+            ->with('status', 'Walk-in registrado: el servicio ya está en proceso.');
     }
 
     public function create(): View
@@ -157,7 +241,15 @@ class AppointmentController extends Controller
             return back()->withErrors(['estado' => 'Estado no válido.']);
         }
 
+        $wasCompletada = $appointment->estado === 'completada';
         $appointment->update(['estado' => $estado]);
+
+        if ($estado === 'completada' && !$wasCompletada) {
+            $client = $appointment->client ?? Client::find($appointment->client_id);
+            if ($client) {
+                app(LoyaltyService::class)->awardCitaPoints($client, (string) $appointment->id);
+            }
+        }
 
         return back()->with('status', "Cita actualizada a: {$estado}.");
     }

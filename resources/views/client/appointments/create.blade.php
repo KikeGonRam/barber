@@ -42,19 +42,60 @@
             </div>
             @endif
 
-            <!-- Progress Bar -->
-            <div class="mb-12">
+            <!-- Progress Bar (pasos anteriores clicables para regresar) -->
+            <div class="mb-6">
                 <div class="flex justify-between mb-2">
                     <template x-for="step in [1,2,3,4,5]">
-                        <span class="text-[10px] font-black uppercase tracking-[0.2em]"
-                              :class="currentStep >= step ? 'text-gold' : 'text-muted'"
-                              x-text="'Paso 0' + step"></span>
+                        <button type="button"
+                              @click="goToStep(step)"
+                              :disabled="step >= currentStep"
+                              class="text-[10px] font-black uppercase tracking-[0.2em] transition-colors"
+                              :class="{
+                                  'text-gold': currentStep >= step,
+                                  'text-muted': currentStep < step,
+                                  'cursor-pointer hover:text-white underline decoration-gold/40 underline-offset-4': step < currentStep,
+                                  'cursor-default': step >= currentStep
+                              }"
+                              x-text="'Paso 0' + step"></button>
                     </template>
                 </div>
                 <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
                     <div class="h-full bg-gold transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.5)]"
                          :style="'width: ' + ((currentStep - 1) / 4 * 100) + '%'"></div>
                 </div>
+            </div>
+
+            <!-- Resumen persistente de la reserva: siempre visible desde que hay una
+                 selección, para que el cliente nunca pierda de vista qué lleva elegido.
+                 Cada chip regresa al paso correspondiente. -->
+            <div x-show="selectedService || selectedBarber" x-transition
+                 class="mb-10 flex flex-wrap items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+                <span class="text-[9px] font-black uppercase tracking-widest text-muted mr-1">Tu reserva:</span>
+                <template x-if="selectedService">
+                    <button type="button" @click="goToStep(1)"
+                            class="inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-gold/8 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-gold hover:bg-gold hover:text-black transition-all">
+                        <span x-text="selectedService.name"></span>
+                        <span class="opacity-70" x-text="'· $' + selectedService.precio"></span>
+                    </button>
+                </template>
+                <template x-if="selectedBarber">
+                    <button type="button" @click="goToStep(2)"
+                            class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white hover:border-gold/40 transition-all">
+                        <span x-text="selectedBarber.name"></span>
+                    </button>
+                </template>
+                <template x-if="selectedDate">
+                    <button type="button" @click="goToStep(3)"
+                            class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white hover:border-gold/40 transition-all">
+                        <span x-text="formattedDate"></span>
+                    </button>
+                </template>
+                <template x-if="selectedSlot">
+                    <button type="button" @click="goToStep(4)"
+                            class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white hover:border-gold/40 transition-all">
+                        <span x-text="selectedSlot"></span>
+                    </button>
+                </template>
             </div>
 
             <form method="POST" action="{{ route('client.appointments.store') }}" id="booking-form" x-ref="bookingForm">
@@ -462,7 +503,7 @@
                             <p class="text-[9px] font-black uppercase tracking-[0.3em] text-gold">Último paso</p>
                             <h3 class="text-lg font-black text-white uppercase mt-0.5">¿Cómo deseas pagar?</h3>
                         </div>
-                        <button type="button" @click="paymentModal = false"
+                        <button type="button" @click="paymentModal = false" aria-label="Cerrar"
                             class="h-8 w-8 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-white hover:border-white/20 transition-all">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -604,6 +645,15 @@
                         });
                     }
                     this.availableDays = days;
+                },
+
+                // Regresar a un paso anterior desde el indicador o los chips del
+                // resumen. Solo hacia atrás — avanzar sigue exigiendo completar el
+                // paso actual. Si hay barbero preseleccionado, el paso 2 no existe.
+                goToStep(step) {
+                    if (step >= this.currentStep) return;
+                    if (step === 2 && this.preselectedBarberId) step = 1;
+                    this.currentStep = step;
                 },
 
                 selectService(service) {
