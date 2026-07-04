@@ -15,7 +15,7 @@ class CommentSeeder extends Seeder
         $clients = Client::with('user')->get();
 
         if ($works->isEmpty() || $clients->isEmpty()) {
-            $this->command->warn('CommentSeeder: se necesitan works y clientes. Ejecuta WorkSeeder y ProductionSeeder primero.');
+            $this->command->warn('CommentSeeder: se necesitan works y clientes. Ejecuta WorkSeeder y ClientSeeder primero.');
             return;
         }
 

@@ -77,11 +77,31 @@ Explaination of important folders and files inside `app/` and other key areas.
 - Model factories used by seeders and tests to generate realistic data.
 
 **database/seeders/**
-- `DatabaseSeeder` runs the official chain in order: `RolePermissionSeeder` → `AdminUserSeeder` →
-  `BarbershopSettingSeeder` → `ServiceSeeder` (20 services) → `ProductSeeder` (30 products) →
-  `ProductionSeeder` (1 receptionist + 25 barbers + 1000 clients, all with roles assigned) →
-  `HistoricalDataSeeder` (+10,000 historical appointments/payments/loyalty points) →
-  `WorkSeeder` + `WorkImageSeeder` (portfolio).
+
+Each seeder populates exactly **one** MongoDB collection (except `RolePermissionSeeder`,
+which seeds the tightly-coupled `roles` + `permissions`). `DatabaseSeeder` runs them in
+this order — each step depends on the previous one already existing:
+
+1. `RolePermissionSeeder` — roles, permissions
+2. `AdminUserSeeder` — users (the one admin account)
+3. `BarbershopSettingSeeder` — barbershop_settings
+4. `ServiceSeeder` — services (20 real services)
+5. `ProductSeeder` — products (15 sale + 15 work supplies)
+6. `UserSeeder` — users (1 receptionist + 25 barbero users + 1000 cliente users, roles assigned)
+7. `BarberSeeder` — barbers (professional profile per barbero user)
+8. `BarberScheduleSeeder` — barber_schedules (weekly schedule per barber)
+9. `ClientSeeder` — clients (profile per cliente user)
+10. `AppointmentSeeder` — appointments (~12,500 historical appointments)
+11. `PaymentSeeder` — payments (one per completed appointment)
+12. `LoyaltyTransactionSeeder` — loyalty_transactions (+ recalculates client points/level/total_citas)
+13. `WorkSeeder` — works (portfolio)
+14. `WorkImageSeeder` — work_images
+15. `CommentSeeder` — comments (portfolio)
+16. `ReactionSeeder` — reactions (portfolio)
+
+All of these use `updateOrCreate`/`firstOrCreate` (or check for existing records before
+inserting), so re-running the full chain is safe and won't duplicate data.
+
 - `TestUsersSeeder` — (optional, not in the default chain) creates sample accounts with fixed
   credentials (`recepcionista@test.com`, `barbero@test.com`, `cliente@test.com`) for manual QA.
 - `MassiveDataSeeder` — (optional, not in the default chain) generates very large datasets for load

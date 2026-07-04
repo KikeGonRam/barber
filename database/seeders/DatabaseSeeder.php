@@ -11,18 +11,26 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        // Cada seeder siembra UNA sola colección (o un par estrechamente
+        // acoplado, como roles+permisos). El orden importa: cada uno depende
+        // de que el/los anterior(es) ya hayan creado sus datos.
         $this->call([
-            RolePermissionSeeder::class,    // 1 — roles y permisos (prerequisito de todo)
-            AdminUserSeeder::class,          // 2 — administrador principal
-            BarbershopSettingSeeder::class,  // 3 — configuración de la barbería
-            ServiceSeeder::class,            // 4 — catálogo de 20 servicios reales
-            ProductSeeder::class,            // 5 — 30 productos de barbería (15 venta + 15 insumo)
-            ProductionSeeder::class,         // 6 — recepcionista + 25 barberos + 1000 clientes
-            HistoricalDataSeeder::class,     // 7 — +10,000 citas/pagos/puntos históricos
-            WorkSeeder::class,               // 8 — trabajos del portafolio
-            WorkImageSeeder::class,          // 9 — imágenes reales del portafolio
-            CommentSeeder::class,            // 10 — comentarios de clientes en el portafolio
-            ReactionSeeder::class,           // 11 — likes de clientes en el portafolio
+            RolePermissionSeeder::class,      // 1  — roles, permissions
+            AdminUserSeeder::class,           // 2  — users (administrador)
+            BarbershopSettingSeeder::class,   // 3  — barbershop_settings
+            ServiceSeeder::class,             // 4  — services (20 reales)
+            ProductSeeder::class,             // 5  — products (15 venta + 15 insumo)
+            UserSeeder::class,                // 6  — users (recepcionista + 25 barbero + 1000 cliente)
+            BarberSeeder::class,              // 7  — barbers (perfil profesional)
+            BarberScheduleSeeder::class,      // 8  — barber_schedules (horario semanal)
+            ClientSeeder::class,              // 9  — clients (perfil de cliente)
+            AppointmentSeeder::class,         // 10 — appointments (~12,500 citas históricas)
+            PaymentSeeder::class,             // 11 — payments (1 por cita completada)
+            LoyaltyTransactionSeeder::class,  // 12 — loyalty_transactions (+ stats de clients)
+            WorkSeeder::class,                // 13 — works (portafolio)
+            WorkImageSeeder::class,           // 14 — work_images
+            CommentSeeder::class,             // 15 — comments (portafolio)
+            ReactionSeeder::class,            // 16 — reactions (portafolio)
         ]);
     }
 }
