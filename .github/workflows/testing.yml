@@ -11,88 +11,129 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      
+
       - run: npm ci
-      
+
       - name: ESLint
         run: npm run lint || true
-      
+
       - name: Prettier
         run: npm run format || true
 
-  frontend-e2e-tests:
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: barber_test
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-      
-      - run: npm ci
-      - run: composer install
-      
-      - run: cp .env.testing .env
-      - run: php artisan key:generate
-      - run: php artisan migrate --env=testing
-      
-      - name: Run Cypress Tests
-        run: npx cypress run --headless
+
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Pint (style check)
+        run: ./vendor/bin/pint --test
 
   backend-tests:
     runs-on: ubuntu-latest
     services:
-      mysql:
-        image: mysql:8
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: barber_test
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
         options: >-
-          --health-cmd="mysqladmin ping"
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=3
-    
+          --health-retries=5
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-      
-      - run: composer install --no-interaction
-      
+          extensions: mbstring, dom, fileinfo, curl, mongodb
+
+      - run: composer install --no-interaction --prefer-dist --no-progress
+
       - run: cp .env.testing .env
       - run: php artisan key:generate
-      - run: php artisan migrate --env=testing
-      
+
+      - name: Run migrations against MongoDB service
+        env:
+          DB_CONNECTION: mongodb
+          MONGODB_URI: mongodb://127.0.0.1:27017
+          MONGO_DATABASE: barber_db_test
+        run: php artisan migrate --force
+
       - name: Run PHPUnit
-        run: php artisan test --coverage
+        env:
+          DB_CONNECTION: mongodb
+          MONGODB_URI: mongodb://127.0.0.1:27017
+          MONGO_DATABASE: barber_db_test
+        run: php artisan test --compact
+
+  frontend-e2e-tests:
+    runs-on: ubuntu-latest
+    needs: backend-tests
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, fileinfo, curl, mongodb
+
+      - run: npm ci
+      - run: composer install --no-interaction --prefer-dist --no-progress
+
+      - run: cp .env.testing .env
+      - run: php artisan key:generate
+
+      - name: Seed a MongoDB database for the E2E run
+        env:
+          DB_CONNECTION: mongodb
+          MONGODB_URI: mongodb://127.0.0.1:27017
+          MONGO_DATABASE: barber_db_e2e
+        run: php artisan migrate --seed --force
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Start Laravel server
+        env:
+          DB_CONNECTION: mongodb
+          MONGODB_URI: mongodb://127.0.0.1:27017
+          MONGO_DATABASE: barber_db_e2e
+        run: php artisan serve --port=8000 &
+
+      - name: Run Cypress Tests
+        run: npx cypress run --headless
 
   security-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      
+
       - run: npm ci
       - run: npm audit --audit-level=moderate || true
-
