@@ -9,8 +9,6 @@
 
 ```
 Frontend:    http://localhost:8000
-Adminer:     http://localhost:8081
-PHPMyAdmin:  http://localhost:8082
 Mailpit:     http://localhost:8025
 ```
 
@@ -143,23 +141,11 @@ Mailpit:     http://localhost:8025
 
 | Campo | Valor |
 |-------|-------|
-| **Host** | mysql (puerto 3306) |
-| **Usuario** | barber |
-| **Contraseña** | barber |
-| **Base de Datos** | barber_db |
+| **Motor** | MongoDB (Atlas) |
+| **Conexión** | `MONGODB_URI` en `.env` |
+| **Base de Datos** | `barber_db` (producción/desarrollo), `barber_db_test` (tests) |
 
-### Acceso desde PHPMyAdmin
-- URL: http://localhost:8082
-- Usuario: `barber`
-- Contraseña: `barber`
-
-### Acceso desde Adminer
-- URL: http://localhost:8081
-- Sistema: MySQL
-- Servidor: mysql
-- Usuario: `barber`
-- Contraseña: `barber`
-- Base de datos: `barber_db`
+No hay Adminer/PHPMyAdmin — para inspeccionar datos usa MongoDB Compass con la misma `MONGODB_URI`, o `php artisan tinker` dentro del contenedor (`docker exec -it barber-app php artisan tinker`).
 
 ---
 

@@ -26,7 +26,7 @@ This documentation explains the main folders, modules and how to run, test and e
 ## Tech Stack
 - Backend: PHP 8.4, Laravel 12
 - Frontend: Tailwind CSS v3, Vite, Alpine.js (minimal), Node.js (for assets)
-- Database: MySQL (containerized)
+- Database: MongoDB (Atlas, via `mongodb/laravel-mongodb`)
 - Queue / Cache: Redis
 - Testing: PHPUnit
 - Env / Orchestration: Docker Compose
@@ -126,7 +126,7 @@ inserting), so re-running the full chain is safe and won't duplicate data.
 
 ## Docker & Local Development
 The project ships with `docker-compose.yml` to run the whole stack locally. Key services:
-- `mysql` (DB), `redis`, `app` (PHP-FPM), `web` (Nginx), `mailpit`, `adminer`, `worker`, `scheduler`.
+- `redis`, `app` (PHP-FPM), `web` (Nginx), `mailpit`, `worker`, `scheduler`. MongoDB runs externally on Atlas — connection string via `MONGODB_URI` in `.env`, not a local container.
 
 Typical local workflow:
 

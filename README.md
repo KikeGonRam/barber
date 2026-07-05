@@ -45,7 +45,7 @@
 - **Backend:** Laravel 12 (PHP 8.4)
 - **Frontend:** TailwindCSS 4, Alpine.js, Blade Components
 - **Asset Manager:** Vite
-- **Base de Datos:** MySQL / MariaDB
+- **Base de Datos:** MongoDB (Atlas), vía `mongodb/laravel-mongodb`
 - **IA:** Google Gemini API
 - **Documentos:** DomPDF & Maatwebsite Excel
 - **Auditoría:** Spatie Activity Log & Laravel Permissions
@@ -71,6 +71,7 @@
    ```
 
 4. **Base de Datos:**
+   Configura `MONGODB_URI` en `.env` apuntando a tu cluster de MongoDB Atlas (o instancia local), luego:
    ```bash
    php artisan migrate --seed
    ```
