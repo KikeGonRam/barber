@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
 
 /**
  * Siembra ÚNICAMENTE la colección `payments` — un pago en efectivo por cada
@@ -46,17 +47,26 @@ class PaymentSeeder extends Seeder
         $total = 0;
         foreach ($pendientes->chunk(1000) as $batch) {
             DB::reconnect();
-            $docs = $batch->map(fn ($apt) => [
-                '_id'             => new ObjectId(),
-                'appointment_id'  => (string) $apt->_id,
-                'monto'           => (float) $apt->precio_cobrado,
-                'metodo_pago'     => 'efectivo',
-                'propina'         => 0.0,
-                'comprobante_pdf' => null,
-                'created_by'      => $adminId,
-                'created_at'      => $apt->created_at,
-                'updated_at'      => $apt->created_at,
-            ])->values()->all();
+            $docs = $batch->map(function ($apt) use ($adminId) {
+                // Insertar el Carbon crudo de $apt->created_at (en vez de convertirlo
+                // a UTCDateTime) hace que el driver de Mongo lo serialice como un
+                // sub-documento con sus propiedades internas, no como una fecha real.
+                // Eso rompe cualquier ->created_at?->format(...) en las vistas con
+                // "preg_match(): Argument #2 ($subject) must be of type string, array given".
+                $ts = new UTCDateTime($apt->created_at->getTimestamp() * 1000);
+
+                return [
+                    '_id'             => new ObjectId(),
+                    'appointment_id'  => (string) $apt->_id,
+                    'monto'           => (float) $apt->precio_cobrado,
+                    'metodo_pago'     => 'efectivo',
+                    'propina'         => 0.0,
+                    'comprobante_pdf' => null,
+                    'created_by'      => $adminId,
+                    'created_at'      => $ts,
+                    'updated_at'      => $ts,
+                ];
+            })->values()->all();
 
             Payment::raw(fn ($col) => $col->insertMany($docs));
             $total += count($docs);

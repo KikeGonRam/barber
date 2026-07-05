@@ -8,6 +8,7 @@ use App\Models\LoyaltyTransaction;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
 
 /**
  * Siembra ÚNICAMENTE la colección `loyalty_transactions` — 10 puntos por cada
@@ -46,16 +47,24 @@ class LoyaltyTransactionSeeder extends Seeder
         $total = 0;
         foreach ($pendientes->chunk(1000) as $batch) {
             DB::reconnect();
-            $docs = $batch->map(fn ($apt) => [
-                '_id'           => new ObjectId(),
-                'client_id'     => $apt->client_id,
-                'tipo'          => 'ganado',
-                'puntos'        => self::PUNTOS_POR_CITA,
-                'descripcion'   => 'Cita completada',
-                'referencia_id' => (string) $apt->_id,
-                'created_at'    => $apt->created_at,
-                'updated_at'    => $apt->created_at,
-            ])->values()->all();
+            $docs = $batch->map(function ($apt) {
+                // Insertar el Carbon crudo de $apt->created_at (en vez de un
+                // UTCDateTime) hace que el driver de Mongo lo serialice como un
+                // sub-documento con sus propiedades internas, no como una fecha
+                // real — rompe cualquier ->created_at?->format(...) en las vistas.
+                $ts = new UTCDateTime($apt->created_at->getTimestamp() * 1000);
+
+                return [
+                    '_id'           => new ObjectId(),
+                    'client_id'     => $apt->client_id,
+                    'tipo'          => 'ganado',
+                    'puntos'        => self::PUNTOS_POR_CITA,
+                    'descripcion'   => 'Cita completada',
+                    'referencia_id' => (string) $apt->_id,
+                    'created_at'    => $ts,
+                    'updated_at'    => $ts,
+                ];
+            })->values()->all();
 
             if ($docs) {
                 LoyaltyTransaction::raw(fn ($col) => $col->insertMany($docs));
