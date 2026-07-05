@@ -55,14 +55,14 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button @click="clearConversation()" title="Nueva conversación"
+                    <button @click="clearConversation()" title="Nueva conversación" aria-label="Nueva conversación"
                             class="h-7 w-7 rounded-lg flex items-center justify-center text-white/20 hover:text-white/60 hover:bg-white/5 transition-all">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
                     </button>
-                    <button @click="toggle()"
+                    <button @click="toggle()" aria-label="Cerrar chat"
                             class="h-7 w-7 rounded-lg flex items-center justify-center text-white/20 hover:text-white/60 hover:bg-white/5 transition-all">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -147,7 +147,8 @@
                         @click="send()"
                         :disabled="!input.trim() || typing"
                         :class="!input.trim() || typing ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gold/90'"
-                        class="h-10 w-10 rounded-xl bg-gold flex items-center justify-center text-black transition-all shrink-0">
+                        class="h-10 w-10 rounded-xl bg-gold flex items-center justify-center text-black transition-all shrink-0"
+                        aria-label="Enviar mensaje">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                         </svg>
@@ -187,7 +188,7 @@ function chatbotWidget() {
     return {
         open: false,
         messages: [
-            { role: 'bot', text: '¡Hola! Soy el Concierge de UrbanBlade ✨\n¿En qué puedo ayudarte hoy?' }
+            { role: 'bot', text: '¡Hola! Soy el Concierge de UrbanBlade.\n¿En qué puedo ayudarte hoy?' }
         ],
         input: '',
         typing: false,
@@ -244,14 +245,14 @@ function chatbotWidget() {
 
                 if (res.status === 429) {
                     const secs = data.retry_after ? ` Espera ${data.retry_after}s.` : '';
-                    this.messages.push({ role: 'bot', text: '⚠️ Demasiadas consultas seguidas.' + secs });
+                    this.messages.push({ role: 'bot', text: 'Demasiadas consultas seguidas.' + secs });
                 } else if (res.status === 422) {
-                    this.messages.push({ role: 'bot', text: '✏️ Escribe tu consulta primero.' });
+                    this.messages.push({ role: 'bot', text: 'Escribe tu consulta primero.' });
                 } else {
                     this.messages.push({ role: 'bot', text: data.response ?? '🤔 Sin respuesta disponible.' });
                 }
             } catch {
-                this.messages.push({ role: 'bot', text: '⚡ Sin conexión. Intenta de nuevo.' });
+                this.messages.push({ role: 'bot', text: 'Sin conexión. Intenta de nuevo.' });
             } finally {
                 this.typing = false;
                 if (!this.open) this.unread++;
@@ -260,7 +261,7 @@ function chatbotWidget() {
         },
 
         clearConversation() {
-            this.messages = [{ role: 'bot', text: 'Conversación reiniciada ✨ ¿En qué puedo ayudarte?' }];
+            this.messages = [{ role: 'bot', text: 'Conversación reiniciada. ¿En qué puedo ayudarte?' }];
             @auth
             fetch('{{ route('chatbot.clear-history') }}', {
                 method: 'POST',

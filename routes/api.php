@@ -26,8 +26,13 @@ use App\Http\Controllers\Api\Admin\ClientAdminController;
 use App\Http\Controllers\Api\Admin\InventoryAdminController;
 use App\Http\Controllers\Api\Admin\ReportAdminController;
 use App\Http\Controllers\Api\PredictionController;
+use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Chatbot\ChatbotController;
 use Illuminate\Support\Facades\Route;
+
+// Stripe webhook — sin auth ni CSRF; Stripe valida con firma HMAC
+Route::post('stripe/webhook', [StripeWebhookController::class, 'handle'])
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
 // Backward compatibility for older frontend cache that still calls /api/availability/slots
 Route::get('availability/slots', [AvailabilityController::class, 'slots']);

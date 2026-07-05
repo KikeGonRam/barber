@@ -15,7 +15,7 @@ class UpdateBarberAppointmentStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'estado' => ['required', Rule::in(['pendiente', 'en_proceso', 'completada'])],
+            'estado' => ['required', Rule::in(['pendiente', 'confirmada', 'en_proceso', 'completada'])],
             'notas' => ['nullable', 'string', 'max:1000'],
         ];
     }

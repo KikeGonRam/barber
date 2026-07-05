@@ -368,16 +368,16 @@ class ChatbotIntelligenceService
             if (! empty($extended['trending_works'])) {
                 $works = array_map(fn ($w) => "{$w['title']} ({$w['likes']} likes)", $extended['trending_works']);
 
-                return "📈 TRABAJOS TRENDING:\n• ".implode("\n• ", $works);
+                return "TRABAJOS TRENDING:\n• ".implode("\n• ", $works);
             }
         }
 
         // BEST BARBERS
         if (str_contains($message, 'mejor barbero') || str_contains($message, 'maestro') || str_contains($message, 'top barber')) {
             if (! empty($extended['trending_barbers'])) {
-                $barbers = array_map(fn ($b) => "{$b['name']} ({$b['rating']}⭐)", $extended['trending_barbers']);
+                $barbers = array_map(fn ($b) => "{$b['name']} ({$b['rating']} pts)", $extended['trending_barbers']);
 
-                return "🏆 MAESTROS TOP:\n• ".implode("\n• ", $barbers);
+                return "MAESTROS TOP:\n• ".implode("\n• ", $barbers);
             }
         }
 
@@ -385,7 +385,7 @@ class ChatbotIntelligenceService
         if (str_contains($message, 'cuándo disponible') || str_contains($message, 'horario libre')) {
             $slowTimes = $extended['slow_times'];
             if (! empty($slowTimes)) {
-                return "✅ HORARIOS DISPONIBLES:\n• ".implode("\n• ", $slowTimes)."\n\nReserva en estos horarios sin esperar.";
+                return "HORARIOS DISPONIBLES:\n• ".implode("\n• ", $slowTimes)."\n\nReserva en estos horarios sin esperar.";
             }
         }
 
@@ -404,7 +404,7 @@ class ChatbotIntelligenceService
                     $level = $extended['user_preferences']['loyalty_level'] ?? 'Nuevo';
                     $favBarber = $history['favorite_barbers'][0] ?? 'N/A';
 
-                    return "📋 TU PERFIL:\nNivel: {$level}\nCitas realizadas: {$history['total_citas']}\nBarbero favorito: {$favBarber}";
+                    return "TU PERFIL:\nNivel: {$level}\nCitas realizadas: {$history['total_citas']}\nBarbero favorito: {$favBarber}";
                 }
             }
         }
@@ -414,7 +414,7 @@ class ChatbotIntelligenceService
             if (str_contains($message, 'estadística') || str_contains($message, 'métricas hoy')) {
                 $stats = $extended['stats'];
 
-                return "📊 MÉTRICAS HOY:\n💵 Ingresos: \${$stats['today_revenue']}\n📅 Citas: {$stats['today_appointments']}\n👥 Total de clientes: {$stats['total_clients']}\n💈 Barberos activos: {$stats['active_barbers']}";
+                return "MÉTRICAS HOY:\nIngresos: \${$stats['today_revenue']}\nCitas: {$stats['today_appointments']}\nTotal clientes: {$stats['total_clients']}\nBarberos activos: {$stats['active_barbers']}";
             }
         }
 

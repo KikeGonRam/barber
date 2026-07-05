@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +10,7 @@ use MongoDB\Laravel\Eloquent\Model;
 
 class Service extends Model
 {
-    use HasFactory;
+    use HasFactory, HasSlug;
 
     protected $fillable = [
         'nombre',
@@ -19,7 +20,13 @@ class Service extends Model
         'imagen',
         'descripcion',
         'activo',
+        'slug',
     ];
+
+    protected function slugSource(): string
+    {
+        return $this->nombre ?? 'servicio';
+    }
 
     protected function casts(): array
     {

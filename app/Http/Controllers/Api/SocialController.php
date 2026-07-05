@@ -32,7 +32,7 @@ class SocialController extends Controller
                         'id' => $work->barberUser?->id,
                         'name' => $work->barberUser?->name,
                     ],
-                    'images' => $work->images->pluck('image')->values(),
+                    'images' => $work->images->map(fn ($img) => asset('storage/' . $img->image))->values(),
                     'reactions_count' => $work->reactions->count(),
                     'comments_count' => $work->comments->count(),
                     'saved_count' => $work->saves->count(),

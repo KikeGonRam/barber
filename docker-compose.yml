@@ -7,6 +7,9 @@ services:
     container_name: barber-app
     restart: unless-stopped
     env_file: .env
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     volumes:
       - .:/var/www/html
       - vendor_data:/var/www/html/vendor
@@ -45,6 +48,9 @@ services:
     container_name: barber-worker
     restart: unless-stopped
     env_file: .env
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     volumes:
       - .:/var/www/html
       - vendor_data:/var/www/html/vendor
@@ -61,6 +67,9 @@ services:
     container_name: barber-scheduler
     restart: unless-stopped
     env_file: .env
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     volumes:
       - .:/var/www/html
       - vendor_data:/var/www/html/vendor

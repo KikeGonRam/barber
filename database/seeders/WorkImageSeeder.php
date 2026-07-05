@@ -4,9 +4,12 @@ namespace Database\Seeders;
 
 use App\Models\Work;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 class WorkImageSeeder extends Seeder
 {
+    private const TARGET_IMAGES_PER_WORK = 2;
+
     public function run(): void
     {
         $works = Work::all();
@@ -16,23 +19,43 @@ class WorkImageSeeder extends Seeder
             return;
         }
 
-        $placeholders = [
-            'https://placehold.co/800x600/1a1a1a/d4af37?text=Corte+1',
-            'https://placehold.co/800x600/1a1a1a/d4af37?text=Corte+2',
-            'https://placehold.co/800x600/1a1a1a/d4af37?text=Barba+1',
-            'https://placehold.co/800x600/1a1a1a/d4af37?text=Fade+1',
-            'https://placehold.co/800x600/1a1a1a/d4af37?text=Estilo+1',
-        ];
+        $imagePool = collect(Storage::disk('public')->files('portfolio'))
+            ->filter(static function (string $path): bool {
+                $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+                return in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true);
+            })
+            ->values();
+
+        if ($imagePool->isEmpty()) {
+            $this->command->warn('WorkImageSeeder: no hay imágenes locales en storage/app/public/portfolio.');
+            return;
+        }
+
+        $createdImages = 0;
 
         foreach ($works as $work) {
-            $numImages = rand(1, 3);
-            for ($i = 0; $i < $numImages; $i++) {
+            $existingImages = $work->images()->count();
+            $neededImages = self::TARGET_IMAGES_PER_WORK - $existingImages;
+
+            if ($neededImages <= 0) {
+                continue;
+            }
+
+            for ($i = 0; $i < $neededImages; $i++) {
+                $index = crc32((string) $work->id.'|'.$i) % $imagePool->count();
+                $imagePath = $imagePool[$index];
+
                 $work->images()->create([
-                    'image' => fake()->randomElement($placeholders),
+                    'image' => $imagePath,
+                    'type' => 'image',
+                    'mime_type' => Storage::disk('public')->mimeType($imagePath) ?: 'image/jpeg',
                 ]);
+
+                $createdImages++;
             }
         }
 
-        $this->command->info('WorkImageSeeder: imágenes creadas para '.count($works).' works.');
+        $this->command->info('WorkImageSeeder: '.$createdImages.' imágenes locales asignadas a '.count($works).' works.');
     }
 }

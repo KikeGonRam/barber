@@ -29,7 +29,7 @@
                             default                                                       => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
                         };
                     @endphp
-                    <article class="ui-card-premium p-5 group {{ $isUnread ? 'border-gold/20' : 'opacity-55' }}">
+                    <article class="ui-card-premium p-5 group {{ $isUnread ? 'border-gold/20' : 'border-white/5 bg-white/[0.01]' }}">
                         <div class="flex items-start gap-5">
                             <!-- Icon -->
                             <div class="h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0
@@ -81,7 +81,7 @@
                                         <form method="POST" action="{{ route('notifications.read-one', $notification->id) }}">
                                             @csrf
                                             <button type="submit"
-                                                class="text-[9px] font-black uppercase tracking-widest text-muted hover:text-white transition">
+                                                class="px-4 py-2 rounded-lg border border-white/10 text-[9px] font-black uppercase tracking-widest text-muted hover:text-white hover:border-white/20 transition-all">
                                                 Marcar como leída
                                             </button>
                                         </form>
@@ -95,7 +95,8 @@
                         <svg class="h-12 w-12 text-white/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                         </svg>
-                        <p class="text-muted italic">Bandeja de entrada vacía por ahora.</p>
+                        <p class="text-sm font-black text-muted/50 uppercase tracking-widest">Bandeja vacía</p>
+                        <p class="text-xs text-muted/30 mt-2 max-w-xs mx-auto">Recibirás notificaciones cuando cambien el estado de tus citas o se registren pagos.</p>
                     </div>
                 @endforelse
 

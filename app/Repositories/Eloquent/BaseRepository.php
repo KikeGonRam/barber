@@ -14,7 +14,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model->newQuery()->get($columns);
     }
 
-    public function find(int $id, array $columns = ['*'])
+    public function find(int|string $id, array $columns = ['*'])
     {
         return $this->model->newQuery()->find($id, $columns);
     }
@@ -24,14 +24,14 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model->newQuery()->create($data);
     }
 
-    public function update(int $id, array $data): bool
+    public function update(int|string $id, array $data): bool
     {
         $entity = $this->model->newQuery()->findOrFail($id);
 
         return $entity->update($data);
     }
 
-    public function delete(int $id): bool
+    public function delete(int|string $id): bool
     {
         $entity = $this->model->newQuery()->findOrFail($id);
 

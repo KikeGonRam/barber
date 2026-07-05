@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Http\Resources\ProductResource;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use Carbon\Carbon;
@@ -26,7 +27,7 @@ class InventoryAdminController
             $query->where('categoria', $category);
         }
 
-        $products = $query->get()->map(fn ($p) => $this->productPayload($p));
+        $products = $query->get()->map(fn ($p) => (new ProductResource($p))->resolve());
 
         if ($status) {
             $products = $products->filter(fn ($p) => $p['status'] === $status)->values();
@@ -49,7 +50,7 @@ class InventoryAdminController
 
         return response()->json([
             'success' => true,
-            'data'    => array_merge($this->productPayload($product), [
+            'data'    => array_merge((new ProductResource($product))->resolve(), [
                 'monthlyConsumption' => $this->getMonthlyConsumption($productId),
                 'daysUntilStockOut'  => $this->calculateDaysUntilStockOut($product),
                 'movements'          => $movements->map(fn ($m) => [
@@ -147,7 +148,7 @@ class InventoryAdminController
             'message' => 'Movimiento registrado correctamente',
             'data'    => [
                 'movement'    => $movement,
-                'stock_actual'=> $product->fresh()->stock_actual,
+                'stock_actual'=> $product->stock_actual,
             ],
         ]);
     }
@@ -199,40 +200,39 @@ class InventoryAdminController
 
     public function getLowStockProducts(): JsonResponse
     {
-        $products = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])
-            ->get()
-            ->map(fn ($p) => [
+        $products   = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->get();
+        $productIds = $products->pluck('id')->map(fn ($id) => (string) $id)->all();
+
+        // 1 batch query for monthly consumption (was N queries via calculateDaysUntilStockOut)
+        $monthlyConsumption = InventoryMovement::where('tipo', 'salida')
+            ->where('created_at', '>=', Carbon::now()->subMonth())
+            ->whereIn('product_id', $productIds)
+            ->get(['product_id', 'cantidad'])
+            ->groupBy(fn ($m) => (string) $m->product_id)
+            ->map(fn ($g) => (int) $g->sum('cantidad'));
+
+        $data = $products->map(function ($p) use ($monthlyConsumption) {
+            $consumption    = $monthlyConsumption->get((string) $p->id, 0);
+            $dailyRate      = $consumption > 0 ? $consumption / 30 : 0;
+            $daysUntilOut   = ($dailyRate > 0)
+                ? (int) (((int) ($p->stock_actual ?? 0)) / max($dailyRate, 0.1))
+                : null;
+            return [
                 'id'               => $p->id,
                 'nombre'           => $p->nombre,
                 'categoria'        => $p->categoria,
                 'stock_actual'     => $p->stock_actual,
                 'stock_minimo'     => $p->stock_minimo,
                 'status'           => $this->getStockStatus($p),
-                'daysUntilStockOut'=> $this->calculateDaysUntilStockOut($p),
-            ]);
+                'daysUntilStockOut'=> $daysUntilOut,
+            ];
+        });
 
         return response()->json([
             'success' => true,
-            'data'    => $products,
-            'count'   => $products->count(),
+            'data'    => $data,
+            'count'   => $data->count(),
         ]);
-    }
-
-    private function productPayload(Product $product): array
-    {
-        return [
-            'id'          => $product->id,
-            'nombre'      => $product->nombre,
-            'categoria'   => $product->categoria,
-            'stock_actual'=> $product->stock_actual,
-            'stock_minimo'=> $product->stock_minimo,
-            'precio_venta'=> $product->precio_venta,
-            'precio_compra'=> $product->precio_compra,
-            'tipo'        => $product->tipo,
-            'status'      => $this->getStockStatus($product),
-            'totalValue'  => (float) ($product->stock_actual ?? 0) * (float) ($product->precio_venta ?? 0),
-            'updatedAt'   => optional($product->updated_at)->toIso8601String(),
-        ];
     }
 
     private function getStockStatus(Product $product): string

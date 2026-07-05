@@ -3,6 +3,7 @@
 namespace App\Services\Appointment;
 
 use App\Exceptions\Domain\AppointmentConflictException;
+use App\Exceptions\Domain\ClientAlreadyBookedException;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarbershopSetting;
@@ -138,8 +139,25 @@ class AppointmentService
 
     private function ensureNoOverlap(array $payload, ?string $ignoreAppointmentId = null): void
     {
+        // 1. Verificar que el cliente no tenga otra cita ese mismo día
+        if (! empty($payload['client_id'])) {
+            $fecha = substr((string) $payload['fecha'], 0, 10);
+
+            $hasClientConflict = $this->appointments->hasClientDayConflict(
+                clientId: (string) $payload['client_id'],
+                date: $fecha,
+                ignoreAppointmentId: $ignoreAppointmentId,
+            );
+
+            if ($hasClientConflict) {
+                $fechaFormatted = Carbon::parse($fecha)->translatedFormat('d \\d\\e F \\d\\e Y');
+                throw new ClientAlreadyBookedException($fechaFormatted);
+            }
+        }
+
+        // 2. Verificar que el barbero no tenga solapamiento de horario
         $start = Carbon::parse($payload['hora_inicio'])->format('H:i:00');
-        $end = Carbon::parse($payload['hora_fin'])->format('H:i:00');
+        $end   = Carbon::parse($payload['hora_fin'])->format('H:i:00');
 
         $hasOverlap = $this->appointments->hasOverlap(
             barberId: (string) $payload['barber_id'],

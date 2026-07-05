@@ -148,9 +148,12 @@
                         </div>
                     </div>
 
-                    <div class="pt-10 border-t border-white/5 flex justify-end">
+                    <div class="pt-10 border-t border-white/5 flex items-center justify-between gap-4">
+                        <a href="{{ route('dashboard') }}" class="px-8 py-4 rounded-xl border border-white/10 text-[11px] font-black uppercase tracking-[0.2em] text-muted hover:text-white hover:border-white/20 transition-all">
+                            Cancelar
+                        </a>
                         <button type="submit" class="ui-btn px-16 py-4 text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-gold/20">
-                            Actualizar Configuración Maestro
+                            Actualizar Configuración
                         </button>
                     </div>
                 </form>

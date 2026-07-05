@@ -61,7 +61,7 @@
              class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
              style="display:none !important;">
             <div class="relative w-full max-w-md rounded-3xl border border-white/10 bg-[#111] p-8 shadow-[0_30px_80px_rgba(0,0,0,0.7)]">
-                <button id="modal-close" class="absolute top-4 right-4 text-muted hover:text-white transition">
+                <button id="modal-close" aria-label="Cerrar" class="absolute top-4 right-4 text-muted hover:text-white transition">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
                 <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent rounded-t-3xl"></div>

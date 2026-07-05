@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Barber\UpdateBarberAppointmentStatusRequest;
 use App\Http\Requests\Barber\UpdateBarberProfileRequest;
 use App\Models\Appointment;
+use App\Models\Client;
+use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -25,12 +27,13 @@ class BarberDashboardController extends Controller
 
         $baseDate = now()->addDays($dateOffset);
 
+        // Carbon objects required — whereBetween with strings fails against MongoDB UTCDateTime
         $periodStart = $period === 'week'
-            ? $baseDate->copy()->startOfWeek()->toDateString()
-            : $baseDate->toDateString();
+            ? $baseDate->copy()->startOfWeek()->startOfDay()
+            : $baseDate->copy()->startOfDay();
         $periodEnd = $period === 'week'
-            ? $baseDate->copy()->endOfWeek()->toDateString()
-            : $baseDate->toDateString();
+            ? $baseDate->copy()->endOfWeek()->endOfDay()
+            : $baseDate->copy()->endOfDay();
 
         // All appointments in the period (unfiltered) for stats
         $allPeriod = Appointment::query()
@@ -41,8 +44,10 @@ class BarberDashboardController extends Controller
         $totalPeriod     = $allPeriod->count();
         $completedPeriod = $allPeriod->where('estado', 'completada')->count();
         $pendingPeriod   = $allPeriod->where('estado', 'pendiente')->count();
+        $confirmedPeriod = $allPeriod->where('estado', 'confirmada')->count();
         $inProcessPeriod = $allPeriod->where('estado', 'en_proceso')->count();
         $cancelledPeriod = $allPeriod->where('estado', 'cancelada')->count();
+        $noShowPeriod    = $allPeriod->where('estado', 'no_asistio')->count();
         $productivity    = $totalPeriod > 0 ? round($completedPeriod / $totalPeriod * 100) : 0;
 
         // Filtered agenda list
@@ -65,9 +70,11 @@ class BarberDashboardController extends Controller
             'productivity'     => $productivity,
             'total_period'     => $totalPeriod,
             'pending_period'   => $pendingPeriod,
+            'confirmed_period' => $confirmedPeriod,
             'in_process_period'=> $inProcessPeriod,
             'completed_period' => $completedPeriod,
             'cancelled_period' => $cancelledPeriod,
+            'no_show_period'   => $noShowPeriod,
         ];
 
         return view('barber.agenda', compact('agenda', 'stats', 'period', 'estadoFilter', 'baseDate', 'dateOffset'));
@@ -78,10 +85,20 @@ class BarberDashboardController extends Controller
         $barber = $request->user()?->barberProfile;
         abort_if(! $barber || (string) $appointment->barber_id !== (string) $barber->id, 403);
 
+        $wasCompletada = $appointment->estado === 'completada';
+        $nuevoEstado   = $request->validated()['estado'];
+
         $appointment->update([
-            'estado' => $request->validated()['estado'],
-            'notas' => $request->validated()['notas'] ?? $appointment->notas,
+            'estado' => $nuevoEstado,
+            'notas'  => $request->validated()['notas'] ?? $appointment->notas,
         ]);
+
+        if ($nuevoEstado === 'completada' && !$wasCompletada) {
+            $client = Client::find($appointment->client_id);
+            if ($client) {
+                app(LoyaltyService::class)->awardCitaPoints($client, (string) $appointment->id);
+            }
+        }
 
         return back()->with('status', 'Estado de cita actualizado.');
     }

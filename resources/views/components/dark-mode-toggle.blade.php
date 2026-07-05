@@ -56,19 +56,15 @@ function darkModeToggle() {
         
         initDarkMode() {
             const saved = localStorage.getItem('darkMode');
-            if (saved !== null) {
-                this.isDark = saved === 'true';
-            } else {
-                this.isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            }
-            
+            // Si nunca eligió, default oscuro (identidad de marca)
+            this.isDark = saved === null ? true : saved === 'true';
+
             if (this.isDark) {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
             }
-            
-            // Register keyboard shortcut
+
             this.registerShortcut();
         },
         

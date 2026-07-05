@@ -46,22 +46,22 @@ class TestUsersSeeder extends Seeder
         };
 
         // Recepcionista principal
-        $recep = User::firstOrCreate(
+        $recep = User::updateOrCreate(
             ['email' => 'recepcionista@test.com'],
             [
                 'name' => 'Recepcionista Test',
-                'password' => 'password',
+                'password' => 'Recep@Urban2025!',
                 'email_verified_at' => now(),
             ]
         );
         $recep->assignRole('recepcionista');
 
         // Barbero principal (perfil completo)
-        $barber = User::firstOrCreate(
+        $barber = User::updateOrCreate(
             ['email' => 'barbero@test.com'],
             [
                 'name' => 'Barbero Test',
-                'password' => 'password',
+                'password' => 'Barber@Urban2025!',
                 'email_verified_at' => now(),
             ]
         );
@@ -77,11 +77,11 @@ class TestUsersSeeder extends Seeder
         $seedSchedule($barberProfile);
 
         // Cliente principal (perfil completo)
-        $client = User::firstOrCreate(
+        $client = User::updateOrCreate(
             ['email' => 'cliente@test.com'],
             [
                 'name' => 'Cliente Test',
-                'password' => 'password',
+                'password' => 'Cliente@Urban2025!',
                 'email_verified_at' => now(),
             ]
         );
@@ -102,22 +102,22 @@ class TestUsersSeeder extends Seeder
         // Usuarios extra para pruebas CRUD
         foreach ([1, 2] as $i) {
             // Recepcionista extra
-            $r = User::firstOrCreate(
+            $r = User::updateOrCreate(
                 ['email' => "recepcionista${i}@test.com"],
                 [
                     'name' => "Recepcionista Test ${i}",
-                    'password' => 'password',
+                    'password' => 'Recep@Urban2025!',
                     'email_verified_at' => now(),
                 ]
             );
             $r->assignRole('recepcionista');
 
             // Barbero extra (perfil completo)
-            $b = User::firstOrCreate(
+            $b = User::updateOrCreate(
                 ['email' => "barbero${i}@test.com"],
                 [
                     'name' => "Barbero Test ${i}",
-                    'password' => 'password',
+                    'password' => 'Barber@Urban2025!',
                     'email_verified_at' => now(),
                 ]
             );
@@ -133,11 +133,11 @@ class TestUsersSeeder extends Seeder
             $seedSchedule($barberExtra);
 
             // Cliente extra (perfil completo)
-            $c = User::firstOrCreate(
+            $c = User::updateOrCreate(
                 ['email' => "cliente${i}@test.com"],
                 [
                     'name' => "Cliente Test ${i}",
-                    'password' => 'password',
+                    'password' => 'Cliente@Urban2025!',
                     'email_verified_at' => now(),
                 ]
             );

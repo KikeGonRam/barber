@@ -82,7 +82,8 @@
                                 {{-- Image preview --}}
                                 <img x-show="file.type === 'image'"
                                      :src="file.preview"
-                                     class="h-full w-full object-cover" />
+                                     class="h-full w-full object-cover"
+                                     alt="Vista previa de la imagen" />
 
                                 {{-- Video preview --}}
                                 <div x-show="file.type === 'video'" class="h-full w-full flex flex-col items-center justify-center bg-black/60">
@@ -111,6 +112,7 @@
                                 {{-- Remove button --}}
                                 <button type="button"
                                         @click="removeFile(index)"
+                                        aria-label="Quitar imagen"
                                         class="absolute top-1 right-1 h-5 w-5 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>

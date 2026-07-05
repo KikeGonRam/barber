@@ -18,21 +18,26 @@ if [ "$1" = "php-fpm" ]; then
     echo "📋 Registrando proveedores de paquetes..."
     php artisan package:discover --ansi || true
 
-    echo "🔍 Conectando a MongoDB Atlas y aplicando migraciones..."
-    for i in {1..20}; do
-        if php artisan migrate --force --no-interaction; then
-            echo "✅ MongoDB Atlas conectada y migraciones aplicadas."
-            break
-        fi
-        if [ $i -eq 20 ]; then
-            echo "⚠️  No se pudo conectar a MongoDB Atlas después de 20 intentos, continuando..."
-        fi
-        echo "⏳ Reintentando conexión a Atlas... ($i/20)"
-        sleep 3
-    done
+    # Las migraciones corren en background: con backfills grandes contra un
+    # cluster Atlas M0 (lento) esto puede tardar minutos, y no debe bloquear
+    # el arranque de php-fpm (nginx devuelve 502 mientras tanto).
+    (
+        echo "🔍 Conectando a MongoDB Atlas y aplicando migraciones..."
+        for i in {1..20}; do
+            if php artisan migrate --force --no-interaction; then
+                echo "✅ MongoDB Atlas conectada y migraciones aplicadas."
+                break
+            fi
+            if [ $i -eq 20 ]; then
+                echo "⚠️  No se pudo conectar a MongoDB Atlas después de 20 intentos, continuando..."
+            fi
+            echo "⏳ Reintentando conexión a Atlas... ($i/20)"
+            sleep 3
+        done
 
-    echo "🚀 Optimizando aplicación..."
-    php artisan optimize
+        echo "🚀 Optimizando aplicación..."
+        php artisan optimize
+    ) &
 fi
 
 exec "$@"

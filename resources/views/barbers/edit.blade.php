@@ -85,7 +85,7 @@
                                                reader.onload = e => {
                                                    document.getElementById('avatarImg')
                                                        ? (document.getElementById('avatarImg').src = e.target.result)
-                                                       : ($el.closest('aside').querySelector('#avatarPreview').innerHTML = '<img src=\''+e.target.result+'\' class=\'h-full w-full object-cover\' id=\'avatarImg\'>')
+                                                       : ($el.closest('aside').querySelector('#avatarPreview').innerHTML = '<img src=\''+e.target.result+'\' alt=\'Vista previa del avatar\' class=\'h-full w-full object-cover\' id=\'avatarImg\'>')
                                                };
                                                reader.readAsDataURL($event.target.files[0]);
                                            }

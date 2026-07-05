@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\Client;
 use App\Models\MobileApiToken;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 /**
  * @group Autenticación
@@ -72,7 +73,7 @@ class AuthController extends Controller
             'message' => 'Autenticación exitosa.',
             'token_type' => 'Bearer',
             'token' => $issued['token'],
-            'user' => $this->userPayload($user),
+            'user' => new UserResource($user),
         ]);
     }
 
@@ -155,14 +156,14 @@ class AuthController extends Controller
             'message' => 'Cuenta creada exitosamente.',
             'token_type' => 'Bearer',
             'token' => $issued['token'],
-            'user' => $this->userPayload($user),
+            'user' => new UserResource($user),
         ], 201);
     }
 
     public function me(Request $request): JsonResponse
     {
         return response()->json([
-            'user' => $this->userPayload($request->user()),
+            'user' => new UserResource($request->user()),
         ]);
     }
 
@@ -289,7 +290,7 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             'token' => $issued['token'],
             'expires_at' => $issued['token']->expires_at?->toISOString(),
-            'user' => $this->userPayload($user),
+            'user' => new UserResource($user),
         ]);
     }
 
@@ -379,20 +380,5 @@ class AuthController extends Controller
         ], 400);
     }
 
-    private function userPayload(?User $user): array
-    {
-        if (! $user) {
-            return [];
-        }
-
-        return [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'roles' => $user->roles->pluck('name')->values(),
-            'client_id' => $user->clientProfile?->id,
-            'barber_id' => $user->barberProfile?->id,
-        ];
-    }
 }
 

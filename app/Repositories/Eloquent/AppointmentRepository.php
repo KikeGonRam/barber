@@ -36,4 +36,18 @@ class AppointmentRepository extends BaseRepository implements AppointmentReposit
 
         return $query->exists();
     }
+
+    public function hasClientDayConflict(string $clientId, string $date, ?string $ignoreAppointmentId = null): bool
+    {
+        $query = $this->model->newQuery()
+            ->where('client_id', $clientId)
+            ->whereDate('fecha', $date)
+            ->whereNotIn('estado', ['cancelada', 'no_asistio']);
+
+        if ($ignoreAppointmentId) {
+            $query->whereKeyNot($ignoreAppointmentId);
+        }
+
+        return $query->exists();
+    }
 }

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exceptions\Domain\AppointmentConflictException;
+use App\Exceptions\Domain\ClientAlreadyBookedException;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\Service;
@@ -63,9 +65,9 @@ class AppointmentController extends Controller
             $query->where('barber_id', (string) $user->barberProfile->id);
         }
 
-        $appointments = $query->limit(50)->get()->map(fn (Appointment $appointment) => $this->appointmentPayload($appointment))->values();
+        $appointments = $query->limit(50)->get();
 
-        return response()->json(['data' => $appointments]);
+        return AppointmentResource::collection($appointments)->response();
     }
 
     /**
@@ -136,6 +138,10 @@ class AppointmentController extends Controller
 
         try {
             $appointment = $this->appointmentService->createAppointment($payload);
+        } catch (ClientAlreadyBookedException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 422);
         } catch (AppointmentConflictException $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
@@ -144,7 +150,7 @@ class AppointmentController extends Controller
 
         return response()->json([
             'message' => 'Cita creada correctamente.',
-            'data' => $this->appointmentPayload($appointment->fresh(['client.user', 'barber.user', 'service'])),
+            'data' => new AppointmentResource($appointment->fresh(['client.user', 'barber.user', 'service'])),
         ], 201);
     }
 
@@ -180,6 +186,10 @@ class AppointmentController extends Controller
 
         try {
             $this->appointmentService->updateAppointment((string) $appointment->id, $payload);
+        } catch (ClientAlreadyBookedException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 422);
         } catch (AppointmentConflictException $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
@@ -188,7 +198,7 @@ class AppointmentController extends Controller
 
         return response()->json([
             'message' => 'Cita actualizada correctamente.',
-            'data' => $this->appointmentPayload($appointment->fresh(['client.user', 'barber.user', 'service'])),
+            'data' => new AppointmentResource($appointment->fresh(['client.user', 'barber.user', 'service'])),
         ]);
     }
 
@@ -206,7 +216,7 @@ class AppointmentController extends Controller
 
         return response()->json([
             'message' => 'Estado actualizado correctamente.',
-            'data' => $this->appointmentPayload($appointment->fresh(['client.user', 'barber.user', 'service'])),
+            'data' => new AppointmentResource($appointment->fresh(['client.user', 'barber.user', 'service'])),
         ]);
     }
 
@@ -239,32 +249,5 @@ class AppointmentController extends Controller
         return response()->json([
             'message' => 'Cita cancelada correctamente.',
         ]);
-    }
-
-    private function appointmentPayload(Appointment $appointment): array
-    {
-        return [
-            'id' => $appointment->id,
-            'fecha' => optional($appointment->fecha)->toDateString(),
-            'hora_inicio' => $appointment->hora_inicio,
-            'hora_fin' => $appointment->hora_fin,
-            'estado' => $appointment->estado,
-            'notas' => $appointment->notas,
-            'precio_cobrado' => $appointment->precio_cobrado,
-            'client' => [
-                'id' => $appointment->client?->id,
-                'name' => $appointment->client?->user?->name,
-            ],
-            'barber' => [
-                'id' => $appointment->barber?->id,
-                'name' => $appointment->barber?->user?->name,
-            ],
-            'service' => [
-                'id' => $appointment->service?->id,
-                'nombre' => $appointment->service?->nombre,
-                'precio' => $appointment->service?->precio,
-                'duracion_min' => $appointment->service?->duracion_min,
-            ],
-        ];
     }
 }

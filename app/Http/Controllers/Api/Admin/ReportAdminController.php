@@ -20,27 +20,33 @@ class ReportAdminController
 
         $appointments = Appointment::whereBetween('fecha', [$startDate->toDateString(), $endDate->toDateString()])
             ->where('estado', 'completada')
-            ->with('barber.user')
             ->get(['fecha', 'barber_id', 'precio_cobrado', 'service_id']);
 
+        // O(N) single pass instead of O(N*D) while-loop
         $dailyRevenue = [];
-        $current = $startDate->copy();
-        while ($current->lte($endDate)) {
-            $key = $current->format('Y-m-d');
-            $dailyRevenue[$key] = (float) $appointments
-                ->filter(fn ($a) => optional($a->fecha)->format('Y-m-d') === $key)
-                ->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
-            $current->addDay();
+        foreach ($appointments as $a) {
+            $key = is_string($a->fecha) ? substr($a->fecha, 0, 10) : optional($a->fecha)->format('Y-m-d');
+            if ($key) {
+                $dailyRevenue[$key] = ($dailyRevenue[$key] ?? 0) + (float) ($a->precio_cobrado ?? 0);
+            }
         }
+        ksort($dailyRevenue);
 
-        $revenueByBarber = $appointments->groupBy('barber_id')->map(fn ($g) => [
-            'barber'  => $g->first()->barber?->user?->name,
-            'total'   => (float) $g->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0)),
-            'count'   => $g->count(),
-            'average' => $g->count() > 0
-                ? round($g->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0)) / $g->count(), 2)
-                : 0,
-        ]);
+        // Batch-load barber names (1 query instead of eager loading N relationships)
+        $barberIds  = $appointments->pluck('barber_id')->filter()->unique()->values()->all();
+        $barbersMap = \App\Models\Barber::with('user:id,name')
+            ->find($barberIds)
+            ->keyBy(fn ($b) => (string) $b->id);
+
+        $revenueByBarber = $appointments->groupBy('barber_id')->map(function ($g, $barberId) use ($barbersMap) {
+            $total = (float) $g->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
+            return [
+                'barber'  => $barbersMap->get((string) $barberId)?->user?->name ?? 'Sin barbero',
+                'total'   => $total,
+                'count'   => $g->count(),
+                'average' => $g->count() > 0 ? round($total / $g->count(), 2) : 0,
+            ];
+        });
 
         $totalRevenue = (float) $appointments->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
 
@@ -68,7 +74,6 @@ class ReportAdminController
         $endDate   = Carbon::now();
 
         $appointments = Appointment::whereBetween('fecha', [$startDate->toDateString(), $endDate->toDateString()])
-            ->with('barber.user')
             ->get(['fecha', 'barber_id', 'estado']);
 
         $byStatus = [
@@ -78,13 +83,22 @@ class ReportAdminController
             'no_asistio' => $appointments->where('estado', 'no_asistio')->count(),
         ];
 
-        $byBarber = $appointments->groupBy('barber_id')->map(fn ($g) => [
-            'barber'        => $g->first()->barber?->user?->name,
-            'total'         => $g->count(),
-            'completadas'   => $g->where('estado', 'completada')->count(),
-            'canceladas'    => $g->where('estado', 'cancelada')->count(),
-            'occupancyRate' => round(($g->where('estado', 'completada')->count() / max($g->count(), 1)) * 100),
-        ]);
+        // Batch-load barber names (1 query instead of eager loading N relationships)
+        $barberIds  = $appointments->pluck('barber_id')->filter()->unique()->values()->all();
+        $barbersMap = \App\Models\Barber::with('user:id,name')
+            ->find($barberIds)
+            ->keyBy(fn ($b) => (string) $b->id);
+
+        $byBarber = $appointments->groupBy('barber_id')->map(function ($g, $barberId) use ($barbersMap) {
+            $completadas = $g->where('estado', 'completada')->count();
+            return [
+                'barber'        => $barbersMap->get((string) $barberId)?->user?->name ?? 'Sin barbero',
+                'total'         => $g->count(),
+                'completadas'   => $completadas,
+                'canceladas'    => $g->where('estado', 'cancelada')->count(),
+                'occupancyRate' => round(($completadas / max($g->count(), 1)) * 100),
+            ];
+        });
 
         $diffDays = max($startDate->diffInDays($endDate), 1);
 

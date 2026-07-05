@@ -242,7 +242,7 @@ class ChatbotContextService
         $formatted = "Historial de conversación:\n";
 
         foreach (array_slice($history, -5) as $item) { // Últimos 5 mensajes
-            $type = $item['type'] === 'user' ? '👤 Cliente' : '🤖 Bot';
+            $type = $item['type'] === 'user' ? 'Cliente' : 'Bot';
             $formatted .= "\n{$type}: {$item['message']}\n";
         }
 
@@ -346,14 +346,14 @@ class ChatbotContextService
         $prompt .= $augmented['conversation_history']."\n";
 
         if ($augmented['is_followup']) {
-            $prompt .= "\n⚠️ NOTA: Esta es una pregunta de seguimiento (follow-up).\n";
+            $prompt .= "\nNOTA: Esta es una pregunta de seguimiento (follow-up).\n";
             if ($augmented['last_context']) {
                 $prompt .= 'Contexto anterior: '.json_encode($augmented['last_context'])."\n";
             }
         }
 
         if (! empty($augmented['similar_questions'])) {
-            $prompt .= "\n📌 PREGUNTAS SIMILARES PASADAS:\n";
+            $prompt .= "\nPREGUNTAS SIMILARES PASADAS:\n";
             foreach ($augmented['similar_questions'] as $sim) {
                 $prompt .= "- Q: {$sim['question']}\n  A: {$sim['answer']}\n";
             }

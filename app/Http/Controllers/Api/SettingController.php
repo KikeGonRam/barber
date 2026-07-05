@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BarbershopSettingResource;
 use App\Models\BarbershopSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class SettingController extends Controller
         $setting = $this->getSetting();
 
         return response()->json([
-            'data' => $this->payload($setting),
+            'data' => new BarbershopSettingResource($setting),
         ]);
     }
 
@@ -53,7 +54,7 @@ class SettingController extends Controller
 
         return response()->json([
             'message' => 'Configuracion actualizada correctamente.',
-            'data' => $this->payload($setting->fresh()),
+            'data' => new BarbershopSettingResource($setting->fresh()),
         ]);
     }
 
@@ -84,21 +85,6 @@ class SettingController extends Controller
             ['id' => 1],
             ['nombre' => config('app.name', 'Barbershop'), 'politica_cancelacion' => 24]
         );
-    }
-
-    private function payload(BarbershopSetting $setting): array
-    {
-        return [
-            'id' => $setting->id,
-            'nombre' => $setting->nombre,
-            'direccion' => $setting->direccion,
-            'telefono' => $setting->telefono,
-            'horario_apertura' => $setting->horario_apertura,
-            'horario_cierre' => $setting->horario_cierre,
-            'politica_cancelacion' => $setting->politica_cancelacion,
-            'maintenance_mode' => (bool) $setting->maintenance_mode,
-            'redes_sociales' => $setting->redes_sociales ?? [],
-        ];
     }
 
     private function authorizeAdmin(Request $request): void

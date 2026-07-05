@@ -6,11 +6,11 @@ interface BaseRepositoryInterface
 {
     public function all(array $columns = ['*']);
 
-    public function find(int $id, array $columns = ['*']);
+    public function find(int|string $id, array $columns = ['*']);
 
     public function create(array $data);
 
-    public function update(int $id, array $data): bool;
+    public function update(int|string $id, array $data): bool;
 
-    public function delete(int $id): bool;
+    public function delete(int|string $id): bool;
 }

@@ -133,8 +133,14 @@
 
         @if(count($rows) > 0)
             <div class="summary-box">
+                @if(!empty($trimmed) && $trimmed)
+                    <p style="margin: 0 0 6px; font-size: 10px; font-weight: bold; color: #b45309;">
+                        ⚠ Este PDF muestra los primeros {{ $pdf_limit }} registros de {{ $total }} totales.
+                        Para exportar todos los datos usa el formato Excel o CSV.
+                    </p>
+                @endif
                 <p style="margin: 0; font-size: 10px; font-weight: bold; color: #666;">
-                    Total de registros en este informe: <span style="color: #000;">{{ count($rows) }}</span>
+                    Registros en este documento: <span style="color: #000;">{{ count($rows) }}</span>
                 </p>
             </div>
         @endif

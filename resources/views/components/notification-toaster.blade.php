@@ -93,7 +93,7 @@
                         <div class="flex items-start justify-between gap-2 mb-0.5">
                             <p class="text-xs font-black text-white uppercase tracking-tight leading-tight line-clamp-1"
                                x-text="t.title"></p>
-                            <button @click.stop="dismissToast(t)"
+                            <button @click.stop="dismissToast(t)" aria-label="Descartar notificación"
                                     class="shrink-0 text-white/25 hover:text-white/60 transition mt-0.5">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path d="M6 18L18 6M6 6l12 12"/>
@@ -127,6 +127,7 @@
             <button
                 @click="settingsOpen = !settingsOpen"
                 title="Configurar notificaciones"
+                aria-label="Configurar notificaciones"
                 class="h-9 w-9 rounded-full border flex items-center justify-center transition-all duration-200 shadow-lg"
                 :class="settingsOpen
                     ? 'bg-gold/20 border-gold/50 text-gold shadow-gold/20'
@@ -194,7 +195,7 @@
                                 : 'border-white/10 text-muted hover:border-white/25 hover:text-white/80'"
                             class="flex flex-col items-center gap-0.5 px-2 py-2 rounded-xl border text-center transition"
                         >
-                            <span class="text-base leading-none" x-text="s.icon"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-current opacity-60 mb-0.5"></span>
                             <span class="text-[9px] font-black uppercase tracking-wider" x-text="s.label"></span>
                         </button>
                     </template>
@@ -242,10 +243,10 @@ function notifToaster() {
         _uidCounter:   0,
 
         soundOptions: [
-            { key: 'chime', label: 'Carillón', icon: '🎵' },
-            { key: 'bell',  label: 'Campana',  icon: '🔔' },
-            { key: 'soft',  label: 'Suave',    icon: '🎶' },
-            { key: 'ping',  label: 'Ping',     icon: '⚡' },
+            { key: 'chime', label: 'Carillón' },
+            { key: 'bell',  label: 'Campana'  },
+            { key: 'soft',  label: 'Suave'    },
+            { key: 'ping',  label: 'Ping'     },
         ],
 
         // ── Lifecycle ───────────────────────────────────────────

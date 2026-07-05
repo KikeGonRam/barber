@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasPublicCode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +13,7 @@ use Spatie\Activitylog\Support\LogOptions;
 
 class Appointment extends Model
 {
-    use HasFactory, LogsActivity, SoftDeletes;
+    use HasFactory, HasPublicCode, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'client_id',
@@ -28,6 +29,7 @@ class Appointment extends Model
         'productos',
         'motivo_reagendamiento',
         'cancelada_en',
+        'code',
         'confirmation_sent_at',
         'reminder_24h_sent_at',
         'reminder_2h_sent_at',

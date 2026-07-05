@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
+use App\Models\Barber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -133,6 +135,97 @@ class ProfileController extends Controller
      *  "message": "Contraseña incorrecta."
      * }
      */
+    /**
+     * Perfil completo del Barbero autenticado
+     *
+     * Devuelve bio, rating y estadísticas de actividad del barbero en una sola llamada.
+     */
+    public function showBarberProfile(Request $request): JsonResponse
+    {
+        $user   = $request->user();
+        $barber = $user->barberProfile;
+
+        if (! $barber) {
+            return response()->json(['message' => 'Perfil de barbero no encontrado'], 404);
+        }
+
+        $today        = now()->toDateString();
+        $startOfMonth = now()->startOfMonth()->toDateString();
+
+        $citasHoy      = Appointment::where('barber_id', (string) $barber->id)
+            ->where('fecha', $today)->count();
+        $completadasMes = Appointment::where('barber_id', (string) $barber->id)
+            ->where('estado', 'completada')
+            ->where('fecha', '>=', $startOfMonth)->count();
+        $totalCompletadas = Appointment::where('barber_id', (string) $barber->id)
+            ->where('estado', 'completada')->count();
+
+        return response()->json([
+            'id'                    => (string) $user->id,
+            'name'                  => $user->name,
+            'email'                 => $user->email,
+            'especialidades'        => $barber->especialidades ?? '',
+            'descripcion'           => $barber->descripcion ?? '',
+            'calificacion_promedio' => round((float) ($barber->calificacion_promedio ?? 0), 1),
+            'total_resenas'         => (int) ($barber->total_resenas ?? 0),
+            'activo'                => (bool) ($barber->activo ?? true),
+            'stats'                 => [
+                'citas_hoy'         => $citasHoy,
+                'completadas_mes'   => $completadasMes,
+                'total_completadas' => $totalCompletadas,
+            ],
+        ]);
+    }
+
+    public function showBarberBio(Request $request): JsonResponse
+    {
+        $barber = $request->user()->barberProfile;
+
+        if (! $barber) {
+            return response()->json(['message' => 'Perfil de barbero no encontrado'], 404);
+        }
+
+        return response()->json([
+            'especialidades' => $barber->especialidades ?? '',
+            'descripcion'    => $barber->descripcion ?? '',
+        ]);
+    }
+
+    public function updateBarberBio(Request $request): JsonResponse
+    {
+        $barber = $request->user()->barberProfile;
+
+        if (! $barber) {
+            return response()->json(['message' => 'Perfil de barbero no encontrado'], 404);
+        }
+
+        $validated = $request->validate([
+            'especialidades' => ['nullable', 'string', 'max:255'],
+            'descripcion'    => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $barber->update($validated);
+
+        return response()->json([
+            'message'        => 'Perfil actualizado',
+            'especialidades' => $barber->especialidades,
+            'descripcion'    => $barber->descripcion,
+        ]);
+    }
+
+    public function savePushToken(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'token' => ['required', 'string', 'max:255'],
+        ]);
+
+        $request->user()->update([
+            'expo_push_token' => $validated['token'],
+        ]);
+
+        return response()->json(['message' => 'Token registrado']);
+    }
+
     public function destroy(Request $request): JsonResponse
     {
         $validated = $request->validate([

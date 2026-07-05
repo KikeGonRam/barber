@@ -46,8 +46,19 @@ class BarberScheduleController extends Controller
             ->orderBy('day_of_week')
             ->get();
 
+        $dayMap = [0 => 'sunday', 1 => 'monday', 2 => 'tuesday', 3 => 'wednesday', 4 => 'thursday', 5 => 'friday', 6 => 'saturday'];
+
+        $normalized = $schedules->map(fn (BarberSchedule $s) => [
+            'day_of_week' => is_numeric($s->day_of_week)
+                ? ($dayMap[(int) $s->day_of_week] ?? $s->day_of_week)
+                : $s->day_of_week,
+            'start_time'  => $s->start_time,
+            'end_time'    => $s->end_time,
+            'is_active'   => (bool) ($s->is_active ?? $s->is_working ?? false),
+        ]);
+
         return response()->json([
-            'schedules' => $schedules,
+            'schedules' => $normalized,
         ]);
     }
 
@@ -93,11 +104,11 @@ class BarberScheduleController extends Controller
         $schedules = [];
         foreach ($validated['schedules'] as $scheduleData) {
             $schedule = BarberSchedule::create([
-                'barber_id' => (string) $barber->id,
+                'barber_id'   => (string) $barber->id,
                 'day_of_week' => $scheduleData['day_of_week'],
-                'start_time' => $scheduleData['start_time'],
-                'end_time' => $scheduleData['end_time'],
-                'is_active' => $scheduleData['is_active'] ?? true,
+                'start_time'  => $scheduleData['start_time'],
+                'end_time'    => $scheduleData['end_time'],
+                'is_working'  => $scheduleData['is_active'] ?? true,
             ]);
 
             $schedules[] = $schedule;

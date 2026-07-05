@@ -91,21 +91,25 @@ class MassiveDataSeeder extends Seeder
         }
 
         $this->command->info('Generando pagos para las citas completadas...');
-        
+
         $paymentBatches = [];
+        $existingPaymentIds = DB::table('payments')->pluck('appointment_id')->map(fn ($id) => (string) $id)->all();
+        $existingPaymentMap = array_fill_keys($existingPaymentIds, true);
+
         $query = DB::table('appointments')
             ->where('estado', 'completada')
-            ->whereNotExists(function ($query) {
-                $query->select(DB::raw(1))
-                      ->from('payments')
-                      ->whereRaw('payments.appointment_id = appointments.id');
-            })
             ->select(['id', 'precio_cobrado', 'created_at'])
             ->orderBy('id');
 
         foreach ($query->cursor() as $app) {
+            $appointmentId = (string) $app->id;
+
+            if (isset($existingPaymentMap[$appointmentId])) {
+                continue;
+            }
+
             $paymentBatches[] = [
-                'appointment_id' => $app->id,
+                'appointment_id' => $appointmentId,
                 'monto' => $app->precio_cobrado,
                 'metodo_pago' => 'efectivo',
                 'created_by' => $receptionUser->id,

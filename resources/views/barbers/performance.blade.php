@@ -28,7 +28,8 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-gold/4 to-transparent pointer-events-none"></div>
                     @if($barber->foto)
                         <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
-                             class="h-24 w-24 rounded-3xl object-cover border border-gold/20 mb-4 relative z-10" loading="lazy">
+                             class="h-24 w-24 rounded-3xl object-cover border border-gold/20 mb-4 relative z-10" loading="lazy"
+                             alt="Foto de {{ $barber->user?->name }}">
                     @else
                         <div class="h-24 w-24 rounded-3xl bg-gradient-to-br from-gold/30 to-gold/10 border border-gold/20 flex items-center justify-center text-4xl font-black text-gold mb-4 relative z-10">
                             {{ strtoupper(substr($barber->user?->name ?? 'B', 0, 2)) }}

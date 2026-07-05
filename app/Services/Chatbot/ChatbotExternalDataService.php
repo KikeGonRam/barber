@@ -97,7 +97,7 @@ class ChatbotExternalDataService
         $info = $this->getWikipediaInfo('Barbería moderna');
 
         if ($info) {
-            return "📚 TENDENCIAS EN BARBERÍA:\n{$info}";
+            return "TENDENCIAS EN BARBERÍA:\n{$info}";
         }
 
         return null;
@@ -233,14 +233,14 @@ EOQ;
         // NEARBY COMPETITION
         if (str_contains($message, 'cerca') || str_contains($message, 'competencia') || str_contains($message, 'otros barberos')) {
             // Para esto necesitaríamos coordenadas reales del negocio
-            return '🗺️ Para encontrar barbershops cercanas, ingresa tu ubicación o consulta con nuestro equipo.';
+            return 'Para encontrar barbershops cercanas, ingresa tu ubicación o consulta con nuestro equipo.';
         }
 
         // DIRECTIONS
         if (str_contains($message, 'cómo llego') || str_contains($message, 'ruta')) {
             $mapsUrl = $this->getGoogleMapsUrl('Av. Reforma 123, CDMX');
 
-            return "🗺️ CÓMO LLEGAR:\n📍 Av. Reforma 123, CDMX\n🔗 Ver en Google Maps: {$mapsUrl}";
+            return "CÓMO LLEGAR:\nAv. Reforma 123, CDMX\nVer en Google Maps: {$mapsUrl}";
         }
 
         // LOCATION DETAILS
@@ -250,7 +250,7 @@ EOQ;
             if ($location) {
                 $mapsUrl = $this->getGoogleMapsUrl($location['address']);
 
-                return "📍 UBICACIÓN EXACTA:\n{$location['address']}\n🔗 Ver en mapa: {$mapsUrl}";
+                return "UBICACIÓN EXACTA:\n{$location['address']}\nVer en mapa: {$mapsUrl}";
             }
         }
 
@@ -271,7 +271,7 @@ EOQ;
             if (str_contains($message, $style)) {
                 $info = $this->getHairstyleInfo($style);
                 if ($info) {
-                    return "✂️ {$info['style']}:\n{$info['description']}\n\n¿Te interesa este look?";
+                    return "{$info['style']}:\n{$info['description']}\n\n¿Te interesa este look?";
                 }
             }
         }
@@ -305,7 +305,7 @@ EOQ;
             if (str_contains($message, $keyword)) {
                 $info = $this->getWikipediaInfo($query);
                 if ($info) {
-                    return "🔧 TÉCNICA: {$keyword}\n{$info}";
+                    return "TÉCNICA: {$keyword}\n{$info}";
                 }
             }
         }

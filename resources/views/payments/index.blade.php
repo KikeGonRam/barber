@@ -136,7 +136,58 @@
                 </p>
             </div>
 
-            <div class="ui-table-container">
+            {{-- Mobile cards --}}
+            <div class="space-y-3 md:hidden">
+                @forelse($payments as $payment)
+                <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <p class="text-xs font-black text-white">#{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}</p>
+                            <p class="text-[10px] text-muted">{{ $payment->created_at?->format('d M, Y · H:i') }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xl font-black text-emerald-400">${{ number_format($payment->monto + $payment->propina, 2) }}</p>
+                            @if($payment->propina > 0)
+                                <p class="text-[9px] font-bold text-gold">+${{ number_format($payment->propina, 2) }} propina</p>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="h-9 w-9 rounded-xl bg-gold/10 border border-gold/15 flex items-center justify-center text-sm font-black text-gold shrink-0">
+                            {{ strtoupper(substr($payment->appointment?->client?->user?->name ?? 'C', 0, 2)) }}
+                        </div>
+                        <div class="min-w-0">
+                            <p class="font-bold text-white text-sm truncate">{{ $payment->appointment?->client?->user?->name ?? 'N/A' }}</p>
+                            <p class="text-[10px] font-bold text-gold uppercase tracking-widest truncate">{{ $payment->appointment?->service?->nombre ?? 'General' }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-white/5 pt-3 gap-3">
+                        <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-muted shrink-0">
+                            {{ $metodoPagoLabels[$payment->metodo_pago] ?? $payment->metodo_pago }}
+                        </span>
+                        <div class="flex items-center gap-4">
+                            <a href="{{ route('payments.receipt.download', $payment) }}"
+                               class="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">
+                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                PDF
+                            </a>
+                            <form action="{{ route('payments.destroy', $payment) }}" method="POST"
+                                  onsubmit="return confirm('¿Anular comprobante #{{ str_pad($payment->id,6,'0',STR_PAD_LEFT) }}?');">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition">Anular</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="rounded-2xl border border-dashed border-white/10 p-10 text-center">
+                    <p class="text-sm text-muted">Sin comprobantes.</p>
+                </div>
+                @endforelse
+            </div>
+
+            {{-- Desktop table --}}
+            <div class="hidden md:block ui-table-container">
                 <table class="ui-table">
                     <thead>
                         <tr>
@@ -189,7 +240,7 @@
                                     </div>
                                 </td>
                                 <td class="text-right">
-                                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         <a href="{{ route('payments.receipt.download', $payment) }}"
                                            class="h-8 px-3 rounded-lg border border-white/10 bg-white/5 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-muted hover:text-gold hover:border-gold/30 transition-all">
                                             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -198,7 +249,7 @@
                                         <form action="{{ route('payments.destroy', $payment) }}" method="POST"
                                               onsubmit="return confirm('¿Anular comprobante #{{ $payment->id }}?');" class="inline">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="h-8 w-8 rounded-lg border border-red-500/20 bg-red-500/5 flex items-center justify-center text-red-500/70 hover:text-red-400 hover:bg-red-500/10 transition-all">
+                                            <button type="submit" aria-label="Anular comprobante" class="h-8 w-8 rounded-lg border border-red-500/20 bg-red-500/5 flex items-center justify-center text-red-500/70 hover:text-red-400 hover:bg-red-500/10 transition-all">
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </form>
@@ -217,7 +268,7 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
+            </div>{{-- /desktop table --}}
             <div class="mt-6">{{ $payments->links() }}</div>
         </section>
     </div>

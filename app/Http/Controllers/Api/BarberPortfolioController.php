@@ -45,8 +45,8 @@ class BarberPortfolioController extends Controller
             ], 403);
         }
 
-        $works = Work::where('barber_user_id', $barber->user_id)
-            ->with(['images'])
+        $works = Work::where('barbero_id', $barber->user_id)
+            ->with(['images', 'reactions', 'comments'])
             ->latest()
             ->get();
 
@@ -56,10 +56,12 @@ class BarberPortfolioController extends Controller
                     'id' => $work->id,
                     'title' => $work->title,
                     'description' => $work->description,
-                    'images' => $work->images->map(fn($img) => asset('storage/' . $img->image_path)),
+                    'images' => $work->images->map(fn($img) => asset('storage/' . $img->image))->values(),
+                    'reactions_count' => $work->reactions->count(),
+                    'comments_count' => $work->comments->count(),
                     'created_at' => $work->created_at,
                 ];
-            }),
+            })->values(),
         ]);
     }
 
@@ -96,20 +98,18 @@ class BarberPortfolioController extends Controller
         ]);
 
         $work = Work::create([
-            'barber_user_id' => $barber->user_id,
+            'barbero_id' => $barber->user_id,
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'work_date' => now(),
         ]);
 
         // Subir imágenes si existen
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('works', 'public');
+                $path = $image->store('portfolio', 'public');
 
-                WorkImage::create([
-                    'work_id' => $work->id,
-                    'image_path' => $path,
-                ]);
+                $work->images()->create(['image' => $path]);
             }
         }
 
@@ -121,7 +121,7 @@ class BarberPortfolioController extends Controller
                 'id' => $work->id,
                 'title' => $work->title,
                 'description' => $work->description,
-                'images' => $work->images->map(fn($img) => asset('storage/' . $img->image_path)),
+                'images' => $work->images->map(fn($img) => asset('storage/' . $img->image))->values(),
             ],
         ], 201);
     }
@@ -147,7 +147,7 @@ class BarberPortfolioController extends Controller
         }
 
         // Verificar que el trabajo pertenezca al barbero
-        if ($work->barber_user_id !== $barber->user_id) {
+        if ($work->barbero_id !== $barber->user_id) {
             return response()->json([
                 'message' => 'No autorizado para eliminar este trabajo.',
             ], 403);
@@ -155,8 +155,8 @@ class BarberPortfolioController extends Controller
 
         // Eliminar imágenes del almacenamiento
         foreach ($work->images as $image) {
-            if ($image->image_path) {
-                Storage::disk('public')->delete($image->image_path);
+            if ($image->image) {
+                Storage::disk('public')->delete($image->image);
             }
         }
 

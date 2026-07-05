@@ -52,6 +52,7 @@ RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framew
 RUN composer update --no-interaction --no-progress --optimize-autoloader --no-scripts 2>&1
 
 # Copy PHP configuration
+COPY .docker/php/php.ini /usr/local/etc/php/conf.d/app-php.ini
 COPY .docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Ensure permissions remain correct after composer creates vendor files

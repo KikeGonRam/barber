@@ -129,18 +129,24 @@
                                 </div>
                             </div>
 
-                            <div class="mt-4 flex gap-3">
+                            <div class="mt-4 flex gap-2">
                                 <a href="{{ route('reports.export', ['type' => $card['type'], 'format' => 'pdf'] + $filterQuery) }}"
                                    @click="loading='pdf'"
                                    :class="loading==='pdf' ? 'opacity-50 pointer-events-none' : ''"
                                    class="flex-1 rounded-xl border border-white/[0.06] bg-white/[0.03] py-2.5 text-[9px] font-black text-white/60 uppercase tracking-widest text-center hover:bg-white/[0.07] hover:text-white transition-all">
-                                    <span x-text="loading==='pdf' ? 'Generando…' : 'PDF Executive'">PDF Executive</span>
+                                    <span x-text="loading==='pdf' ? 'Generando…' : 'PDF'">PDF</span>
                                 </a>
                                 <a href="{{ route('reports.export', ['type' => $card['type'], 'format' => 'excel'] + $filterQuery) }}"
                                    @click="loading='excel'"
                                    :class="loading==='excel' ? 'opacity-50 pointer-events-none' : ''"
                                    class="flex-1 rounded-xl border border-gold/20 bg-gold/[0.06] py-2.5 text-[9px] font-black text-gold/80 uppercase tracking-widest text-center hover:bg-gold hover:text-black transition-all">
-                                    <span x-text="loading==='excel' ? 'Generando…' : 'Excel Data'">Excel Data</span>
+                                    <span x-text="loading==='excel' ? 'Generando…' : 'Excel'">Excel</span>
+                                </a>
+                                <a href="{{ route('reports.export', ['type' => $card['type'], 'format' => 'csv'] + $filterQuery) }}"
+                                   @click="loading='csv'"
+                                   :class="loading==='csv' ? 'opacity-50 pointer-events-none' : ''"
+                                   class="flex-1 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] py-2.5 text-[9px] font-black text-emerald-400/80 uppercase tracking-widest text-center hover:bg-emerald-500 hover:text-black transition-all">
+                                    <span x-text="loading==='csv' ? 'Generando…' : 'CSV'">CSV</span>
                                 </a>
                             </div>
                         </div>

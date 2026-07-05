@@ -5,6 +5,7 @@ namespace App\Services\Prediction;
 use App\Models\Appointment;
 use App\Models\Payment;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class PredictionService
@@ -20,15 +21,16 @@ class PredictionService
 
     private function loadHistoricalData(): void
     {
-        $pastMonths = 12;
-        $startDate = Carbon::now()->subMonths($pastMonths);
-
-        $this->historicalData = [
-            'daily_appointments' => $this->getAppointmentTrend($startDate),
-            'daily_income' => $this->getIncomeTrend($startDate),
-            'service_distribution' => $this->getServiceDistribution(),
-            'hourly_distribution' => $this->getHourlyDistribution(),
-        ];
+        // Cache for 6 hours — prediction data doesn't need to be real-time
+        $this->historicalData = Cache::remember('prediction_historical_data', 360, function () {
+            $startDate = Carbon::now()->subMonths(12);
+            return [
+                'daily_appointments'   => $this->getAppointmentTrend($startDate),
+                'daily_income'         => $this->getIncomeTrend($startDate),
+                'service_distribution' => $this->getServiceDistribution(),
+                'hourly_distribution'  => $this->getHourlyDistribution(),
+            ];
+        });
     }
 
     private function getAppointmentTrend(Carbon $from): array

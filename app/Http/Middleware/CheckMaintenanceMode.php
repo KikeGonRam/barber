@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\BarbershopSetting;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckMaintenanceMode
@@ -14,7 +15,11 @@ class CheckMaintenanceMode
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $setting = BarbershopSetting::first();
+        try {
+            $setting = Cache::remember('barbershop_setting', 60, fn () => BarbershopSetting::first());
+        } catch (\Throwable) {
+            return $next($request);
+        }
 
         // 1. Si el mantenimiento está DESACTIVADO, dejar pasar normalmente
         if (! $setting || ! $setting->maintenance_mode) {

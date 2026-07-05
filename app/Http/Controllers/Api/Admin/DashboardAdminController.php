@@ -128,21 +128,23 @@ class DashboardAdminController
             // Ignorar si la colección no tiene los campos esperados
         }
 
-        $lowOccupancyCount = Barber::where('activo', true)
-            ->get()
-            ->filter(function ($barber) {
-                $appointments = Appointment::whereDate('fecha', now()->toDateString())
-                    ->where('barber_id', (string) $barber->id)
-                    ->count();
-                return $appointments < 2;
-            })
-            ->count();
+        // Batch: 1 query for all barbers' today counts instead of N+1
+        $activeBarbers     = Barber::where('activo', true)->get(['_id']);
+        $activeBarberIds   = $activeBarbers->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $todayCountsByBarber = Appointment::whereDate('fecha', now()->toDateString())
+            ->whereIn('barber_id', $activeBarberIds)
+            ->get(['barber_id'])
+            ->groupBy('barber_id')
+            ->map(fn ($g) => $g->count());
+        $lowOccupancyCount = $activeBarbers->filter(
+            fn ($b) => ($todayCountsByBarber->get((string) $b->id) ?? 0) < 2
+        )->count();
 
         if ($lowOccupancyCount > 0) {
             $alerts[] = [
                 'id'      => 3,
                 'type'    => 'info',
-                'title'   => '📊 Ocupación Baja',
+                'title'   => 'Ocupación Baja',
                 'message' => "{$lowOccupancyCount} barbero(s) con baja ocupación hoy",
             ];
         }

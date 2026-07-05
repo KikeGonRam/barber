@@ -49,7 +49,6 @@ class BarberPortfolioController extends Controller
             'media'       => 'required|array|min:1|max:10',
             'media.*'     => [
                 'file',
-                'max:102400', // 100 MB max per file
                 function ($attribute, $value, $fail) {
                     $mime = $value->getMimeType();
                     $allowed = [
@@ -85,7 +84,7 @@ class BarberPortfolioController extends Controller
         }
 
         if ($barber) {
-            return redirect()->route('barbers.show', $barber)->with('status', 'Trabajo publicado exitosamente.');
+            return redirect()->route('barbers.public.show', $barber)->with('status', 'Trabajo publicado exitosamente.');
         }
 
         return redirect()->route('barber.portfolio.index')->with('status', 'Trabajo publicado exitosamente.');

@@ -13,7 +13,7 @@ class SocialController extends Controller
 {
     public function feed()
     {
-        $works = Work::with(['barberUser', 'images', 'comments.user', 'reactions', 'saves'])
+        $works = Work::with(['barberUser.barberProfile', 'images', 'comments.user', 'reactions', 'saves'])
             ->latest()
             ->paginate(10);
 
