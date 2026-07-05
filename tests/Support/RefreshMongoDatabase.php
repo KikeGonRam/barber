@@ -24,7 +24,7 @@ trait RefreshMongoDatabase
 
     protected function truncateMongoCollections(): void
     {
-        $db = DB::connection('mongodb')->getMongoDB();
+        $db = DB::connection('mongodb')->getDatabase();
 
         // Roles and permissions are config data — preserve them so the seeder
         // doesn't re-insert 17 documents per test (850 total for AdminApiTest),

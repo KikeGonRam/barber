@@ -38,7 +38,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function truncateMongoCollections(): void
     {
-        $db = DB::connection('mongodb')->getMongoDB();
+        $db = DB::connection('mongodb')->getDatabase();
 
         // Roles and permissions are config data seeded once; protecting them from
         // truncation eliminates ~17 Atlas M0 writes per test setUp (850 total for

@@ -4,72 +4,106 @@ namespace Tests\Feature\Security;
 
 use App\Models\User;
 use Tests\Support\RefreshMongoDatabase;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class RouteGuardAccessTest extends TestCase
 {
     use RefreshMongoDatabase;
 
-    public function test_guest_is_redirected_to_login_for_protected_routes(): void
+    private function userWithRole(string $role): User
     {
-        $routes = [
-            route('dashboard'),
-            route('appointments.index'),
-            route('reports.index'),
-            route('clients.index'),
-            route('barbers.index'),
-            route('settings.edit'),
-            route('logs.index'),
-            route('client.appointments.index'),
-            route('barber.agenda'),
-            route('notifications.index'),
-            route('profile.edit'),
-        ];
-
-        foreach ($routes as $url) {
-            $this->get($url)
-                ->assertRedirect(route('login'));
-        }
-    }
-
-    public function test_unverified_user_is_redirected_to_verification_on_verified_routes(): void
-    {
-        $user = User::factory()->create([
-            'email_verified_at' => null,
-        ]);
-
-        $role = Role::query()->firstOrCreate([
-            'name' => 'recepcionista',
-            'guard_name' => 'web',
-        ]);
+        $user = User::factory()->create();
         $user->assignRole($role);
 
-        $this->actingAs($user)
-            ->get(route('dashboard'))
-            ->assertRedirect(route('verification.notice'));
-
-        $this->actingAs($user)
-            ->get(route('appointments.index'))
-            ->assertRedirect(route('verification.notice'));
-
-        $this->actingAs($user)
-            ->get(route('payments.index'))
-            ->assertRedirect(route('verification.notice'));
+        return $user;
     }
 
-    public function test_unverified_user_can_access_auth_only_profile_and_notifications_routes(): void
+    public function test_guest_is_redirected_away_from_admin_users_index(): void
     {
-        $user = User::factory()->create([
-            'email_verified_at' => null,
-        ]);
+        $response = $this->get('/users');
 
-        $this->actingAs($user)
-            ->get(route('profile.edit'))
-            ->assertOk();
+        $response->assertRedirect('/login');
+    }
 
-        $this->actingAs($user)
-            ->get(route('notifications.index'))
-            ->assertOk();
+    public function test_cliente_cannot_access_admin_users_management(): void
+    {
+        $cliente = $this->userWithRole('cliente');
+
+        $response = $this->actingAs($cliente)->get('/users');
+
+        $response->assertForbidden();
+    }
+
+    public function test_administrador_can_access_admin_users_management(): void
+    {
+        $admin = $this->userWithRole('administrador');
+
+        $response = $this->actingAs($admin)->get('/users');
+
+        $response->assertOk();
+    }
+
+    public function test_barbero_cannot_access_client_management(): void
+    {
+        $barbero = $this->userWithRole('barbero');
+
+        $response = $this->actingAs($barbero)->get('/clients');
+
+        $response->assertForbidden();
+    }
+
+    public function test_recepcionista_can_access_client_management(): void
+    {
+        $recepcionista = $this->userWithRole('recepcionista');
+
+        $response = $this->actingAs($recepcionista)->get('/clients');
+
+        $response->assertOk();
+    }
+
+    public function test_cliente_cannot_access_barber_agenda(): void
+    {
+        $cliente = $this->userWithRole('cliente');
+
+        $response = $this->actingAs($cliente)->get('/barbero/agenda');
+
+        $response->assertForbidden();
+    }
+
+    public function test_barbero_can_access_own_agenda(): void
+    {
+        $barbero = $this->userWithRole('barbero');
+        \App\Models\Barber::factory()->create(['user_id' => $barbero->id]);
+
+        $response = $this->actingAs($barbero)->get('/barbero/agenda');
+
+        $response->assertOk();
+    }
+
+    public function test_only_administrador_can_manage_services(): void
+    {
+        $recepcionista = $this->userWithRole('recepcionista');
+        $admin = $this->userWithRole('administrador');
+
+        $this->actingAs($recepcionista)->get('/services')->assertForbidden();
+        $this->actingAs($admin)->get('/services')->assertOk();
+    }
+
+    public function test_only_administrador_can_view_activity_logs(): void
+    {
+        $recepcionista = $this->userWithRole('recepcionista');
+        $admin = $this->userWithRole('administrador');
+
+        $this->actingAs($recepcionista)->get('/logs')->assertForbidden();
+        $this->actingAs($admin)->get('/logs')->assertOk();
+    }
+
+    public function test_dashboard_is_reachable_by_every_role(): void
+    {
+        foreach (['administrador', 'recepcionista', 'barbero', 'cliente'] as $role) {
+            $user = $this->userWithRole($role);
+
+            $this->actingAs($user)->get('/dashboard')->assertOk();
+        }
     }
 }

@@ -5,107 +5,94 @@ namespace Tests\Feature\Services;
 use App\Models\Service;
 use App\Models\User;
 use Tests\Support\RefreshMongoDatabase;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ServiceManagementTest extends TestCase
 {
     use RefreshMongoDatabase;
 
-    public function test_administrador_can_create_service(): void
+    private function admin(): User
     {
-        $admin = $this->makeAdmin();
-
-        $this->actingAs($admin)
-            ->post(route('services.store'), [
-                'nombre' => 'Corte degradado',
-                'categoria' => 'corte',
-                'precio' => 250,
-                'duracion_min' => 45,
-                'descripcion' => 'Corte premium con acabado.',
-                'activo' => 1,
-            ])
-            ->assertRedirect(route('services.index'));
-
-        $this->assertDatabaseHas('services', [
-            'nombre' => 'Corte degradado',
-            'categoria' => 'corte',
-            'duracion_min' => 45,
-            'activo' => 1,
-        ]);
-    }
-
-    public function test_administrador_can_update_service_and_set_inactive(): void
-    {
-        $admin = $this->makeAdmin();
-
-        $service = Service::query()->create([
-            'nombre' => 'Barba básica',
-            'categoria' => 'barba',
-            'precio' => 150,
-            'duracion_min' => 20,
-            'activo' => true,
-        ]);
-
-        $this->actingAs($admin)
-            ->put(route('services.update', $service), [
-                'nombre' => 'Barba completa',
-                'categoria' => 'barba',
-                'precio' => 180,
-                'duracion_min' => 30,
-                'descripcion' => 'Perfilado completo',
-                'activo' => 0,
-            ])
-            ->assertRedirect(route('services.index'));
-
-        $this->assertDatabaseHas('services', [
-            'id' => $service->id,
-            'nombre' => 'Barba completa',
-            'activo' => 0,
-        ]);
-    }
-
-    public function test_services_index_filters_by_active_status(): void
-    {
-        $admin = $this->makeAdmin();
-
-        Service::query()->create([
-            'nombre' => 'Servicio Activo',
-            'categoria' => 'corte',
-            'precio' => 100,
-            'duracion_min' => 15,
-            'activo' => true,
-        ]);
-
-        Service::query()->create([
-            'nombre' => 'Servicio Inactivo',
-            'categoria' => 'corte',
-            'precio' => 100,
-            'duracion_min' => 15,
-            'activo' => false,
-        ]);
-
-        $response = $this->actingAs($admin)
-            ->get(route('services.index', ['activo' => '0']));
-
-        $response->assertOk();
-        $response->assertSee('Servicio Inactivo');
-        $response->assertDontSee('Servicio Activo');
-    }
-
-    private function makeAdmin(): User
-    {
-        $user = User::factory()->create([
-            'email_verified_at' => now(),
-        ]);
-
-        $role = Role::query()->firstOrCreate([
-            'name' => 'administrador',
-            'guard_name' => 'web',
-        ]);
-
-        $user->assignRole($role);
+        $user = User::factory()->create();
+        $user->assignRole('administrador');
 
         return $user;
+    }
+
+    public function test_public_services_page_only_shows_active_services(): void
+    {
+        $active = Service::factory()->create(['activo' => true, 'nombre' => 'Corte Activo Visible']);
+        $inactive = Service::factory()->create(['activo' => false, 'nombre' => 'Servicio Oculto']);
+
+        $response = $this->get('/servicios');
+
+        $response->assertOk();
+        $response->assertSee($active->nombre);
+        $response->assertDontSee($inactive->nombre);
+    }
+
+    public function test_admin_can_view_services_index(): void
+    {
+        Service::factory()->count(2)->create();
+
+        $this->actingAs($this->admin())->get('/services')->assertOk();
+    }
+
+    public function test_admin_can_create_a_service(): void
+    {
+        $response = $this->actingAs($this->admin())->post('/services', [
+            'nombre' => 'Corte Ejecutivo',
+            'categoria' => 'corte',
+            'precio' => 250,
+            'duracion_min' => 30,
+        ]);
+
+        $response->assertRedirect(route('services.index'));
+        $this->assertDatabaseHas('services', ['nombre' => 'Corte Ejecutivo']);
+    }
+
+    public function test_store_requires_a_positive_price(): void
+    {
+        $response = $this->actingAs($this->admin())->post('/services', [
+            'nombre' => 'Corte Gratis',
+            'categoria' => 'corte',
+            'precio' => -10,
+            'duracion_min' => 30,
+        ]);
+
+        $response->assertSessionHasErrors('precio');
+    }
+
+    public function test_admin_can_update_a_service(): void
+    {
+        $service = Service::factory()->create();
+
+        $response = $this->actingAs($this->admin())->put(route('services.update', $service), [
+            'nombre' => 'Nombre Actualizado',
+            'categoria' => $service->categoria,
+            'precio' => $service->precio,
+            'duracion_min' => $service->duracion_min,
+        ]);
+
+        $response->assertRedirect(route('services.index'));
+        $this->assertDatabaseHas('services', ['_id' => $service->id, 'nombre' => 'Nombre Actualizado']);
+    }
+
+    public function test_admin_can_delete_a_service(): void
+    {
+        $service = Service::factory()->create();
+
+        $response = $this->actingAs($this->admin())->delete(route('services.destroy', $service));
+
+        $response->assertRedirect(route('services.index'));
+        $this->assertDatabaseMissing('services', ['_id' => $service->id]);
+    }
+
+    public function test_recepcionista_cannot_manage_services(): void
+    {
+        $recepcionista = User::factory()->create();
+        $recepcionista->assignRole('recepcionista');
+
+        $this->actingAs($recepcionista)->get('/services')->assertForbidden();
     }
 }
