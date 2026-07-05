@@ -93,7 +93,7 @@ class ClientController extends Controller
             $user = User::query()->create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                'password' => Hash::make($data['password'] ?: Str::password(12)),
+                'password' => Hash::make(($data['password'] ?? null) ?: Str::password(12)),
                 'email_verified_at' => now(),
             ]);
 
@@ -143,5 +143,13 @@ class ClientController extends Controller
         ]);
 
         return redirect()->route('clients.index')->with('status', 'Cliente actualizado correctamente.');
+    }
+
+    public function destroy(Client $client): RedirectResponse
+    {
+        $client->user?->delete();
+        $client->delete();
+
+        return redirect()->route('clients.index')->with('status', 'Cliente eliminado correctamente.');
     }
 }

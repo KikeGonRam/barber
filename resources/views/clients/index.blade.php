@@ -146,6 +146,7 @@
                                 <td class="text-muted text-xs">{{ $client->created_at?->format('d/m/Y') }}</td>
                                 <td class="text-right">
                                     <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                        @if($client->slug)
                                         <a href="{{ route('clients.show', $client) }}"
                                            class="h-8 px-3 rounded-lg border border-white/10 bg-white/5 flex items-center text-[9px] font-black uppercase tracking-widest text-muted hover:text-gold hover:border-gold/30 transition-all" title="Ver Perfil">
                                             Perfil
@@ -161,6 +162,7 @@
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -199,11 +201,13 @@
                             <div><p class="text-muted text-[9px] uppercase font-bold mb-0.5">Registrado</p><p class="text-white">{{ $client->created_at?->format('d/m/Y') }}</p></div>
                         </div>
                         <div class="mt-3 flex justify-end gap-3 border-t border-white/5 pt-3">
+                            @if($client->slug)
                             <a href="{{ route('clients.edit', $client) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Editar</a>
                             <form action="{{ route('clients.destroy', $client) }}" method="POST" onsubmit="return confirm('¿Eliminar cliente?');">
                                 @csrf @method('DELETE')
                                 <button class="text-[10px] font-black uppercase tracking-widest text-red-500">Eliminar</button>
                             </form>
+                            @endif
                         </div>
                     </div>
                 @empty

@@ -19,6 +19,8 @@
                     ])->values()->toArray();
                     $mediaCount = count($mediaItems);
                     $hasVideo   = collect($mediaItems)->contains('type', 'video');
+                    $barberProfile = $work->barberUser?->barberProfile;
+                    $barberProfileUrl = $barberProfile?->slug ? route('barbers.public.show', $barberProfile) : null;
                 @endphp
 
                 <article class="rounded-2xl border border-white/[0.06] bg-[#111] overflow-hidden"
@@ -60,26 +62,27 @@
 
                     {{-- ── HEADER ──────────────────────────────── --}}
                     <div class="p-4 flex items-center justify-between border-b border-white/[0.06]">
-                        <a href="{{ route('barbers.public.show', $work->barberUser->barberProfile) }}"
-                           class="flex items-center gap-3 group/author">
+                        <div @if($barberProfileUrl) onclick="window.location.href='{{ $barberProfileUrl }}'" @endif
+                           class="flex items-center gap-3 group/author {{ $barberProfileUrl ? 'cursor-pointer' : '' }}">
                             <div class="h-10 w-10 rounded-full border-2 border-gold/30 p-0.5 overflow-hidden shrink-0">
-                                @if($work->barberUser->barberProfile->foto)
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($work->barberUser->barberProfile->foto) }}"
-                                         class="h-full w-full object-cover rounded-full">
+                                @if($barberProfile?->foto)
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($barberProfile->foto) }}"
+                                         class="h-full w-full object-cover rounded-full"
+                                         alt="Foto de {{ $work->barberUser?->name ?? 'barbero' }}">
                                 @else
                                     <div class="h-full w-full bg-gold/10 flex items-center justify-center rounded-full text-xs font-black text-gold">
-                                        {{ strtoupper(substr($work->barberUser->name, 0, 2)) }}
+                                        {{ strtoupper(substr($work->barberUser?->name ?? 'UB', 0, 2)) }}
                                     </div>
                                 @endif
                             </div>
                             <div>
-                                <p class="text-sm font-black text-white uppercase tracking-tight group-hover/author:text-gold transition-colors">{{ $work->barberUser->name }}</p>
+                                <p class="text-sm font-black text-white uppercase tracking-tight group-hover/author:text-gold transition-colors">{{ $work->barberUser?->name ?? 'Barbero' }}</p>
                                 <p class="text-[9px] font-bold text-white/30 uppercase tracking-widest">Maestro Barbero · {{ $work->created_at->diffForHumans() }}</p>
                             </div>
-                        </a>
+                        </div>
 
                         <div class="relative" @click.outside="menuOpen = false">
-                            <button @click="menuOpen = !menuOpen" class="text-white/30 hover:text-white transition p-1.5 rounded-lg hover:bg-white/5">
+                            <button @click="menuOpen = !menuOpen" aria-label="Opciones de la publicación" class="text-white/30 hover:text-white transition p-1.5 rounded-lg hover:bg-white/5">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" stroke-width="2"/>
                                 </svg>
@@ -90,11 +93,13 @@
                                  x-transition:enter-end="opacity-100 scale-100"
                                  class="absolute right-0 top-9 z-20 min-w-[160px] rounded-xl border border-white/10 bg-[#0d0d0d] shadow-xl py-1"
                                  style="display:none">
-                                <a href="{{ route('barbers.public.show', $work->barberUser->barberProfile) }}"
-                                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/5 transition-colors">
-                                    <svg class="h-3.5 w-3.5 text-gold/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                    Ver perfil
-                                </a>
+                                @if($barberProfileUrl)
+                                    <a href="{{ $barberProfileUrl }}"
+                                       class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/5 transition-colors">
+                                        <svg class="h-3.5 w-3.5 text-gold/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        Ver perfil
+                                    </a>
+                                @endif
                                 <button @click="navigator.clipboard.writeText(window.location.href); menuOpen = false"
                                         class="w-full flex items-center gap-2.5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/5 transition-colors">
                                     <svg class="h-3.5 w-3.5 text-gold/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
@@ -119,7 +124,8 @@
                                 <img x-show="item.type === 'image'"
                                      :src="item.url"
                                      class="h-full w-full object-cover"
-                                     loading="lazy" />
+                                     loading="lazy"
+                                     alt="Imagen de la publicación" />
 
                                 {{-- Video --}}
                                 <video x-show="item.type === 'video'"
@@ -135,11 +141,11 @@
 
                         {{-- Prev / Next (only if multiple) --}}
                         @if($mediaCount > 1)
-                            <button @click.stop="prev()"
+                            <button @click.stop="prev()" aria-label="Imagen anterior"
                                     class="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-all z-10">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                             </button>
-                            <button @click.stop="next()"
+                            <button @click.stop="next()" aria-label="Imagen siguiente"
                                     class="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-all z-10">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                             </button>
@@ -179,7 +185,7 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-5">
                                 {{-- Like --}}
-                                <button @click="toggleLike()"
+                                <button @click="toggleLike()" aria-label="Me gusta"
                                         class="transition-transform active:scale-125"
                                         :class="liked ? 'text-red-500' : 'text-white/60 hover:text-red-400'">
                                     <svg class="h-6 w-6" :fill="liked ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
@@ -187,7 +193,7 @@
                                     </svg>
                                 </button>
                                 {{-- Comments --}}
-                                <button @click="showComments = !showComments"
+                                <button @click="showComments = !showComments" aria-label="Ver comentarios"
                                         :class="showComments ? 'text-gold' : 'text-white/60 hover:text-white'"
                                         class="transition-colors">
                                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -195,7 +201,7 @@
                                     </svg>
                                 </button>
                                 {{-- Share --}}
-                                <button @click="navigator.clipboard.writeText(window.location.href)"
+                                <button @click="navigator.clipboard.writeText(window.location.href)" aria-label="Compartir publicación"
                                         class="text-white/60 hover:text-white transition-colors">
                                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
@@ -203,7 +209,7 @@
                                 </button>
                             </div>
                             {{-- Save --}}
-                            <button @click="toggleSave()"
+                            <button @click="toggleSave()" aria-label="Guardar publicación"
                                     :class="saved ? 'text-gold' : 'text-white/60 hover:text-gold'"
                                     class="transition-colors">
                                 <svg class="h-6 w-6" :fill="saved ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
@@ -219,8 +225,13 @@
 
                         {{-- Caption --}}
                         <p class="text-sm text-white/80 leading-relaxed">
-                            <a href="{{ route('barbers.public.show', $work->barberUser->barberProfile) }}"
-                               class="font-black text-white hover:text-gold transition-colors mr-2">{{ $work->barberUser->name }}</a>{{ $work->description ?: $work->title }}
+                            @if($barberProfileUrl)
+                                <a href="{{ $barberProfileUrl }}"
+                                   class="font-black text-white hover:text-gold transition-colors mr-2">{{ $work->barberUser?->name ?? 'Barbero' }}</a>
+                            @else
+                                <span class="font-black text-white mr-2">{{ $work->barberUser?->name ?? 'Barbero' }}</span>
+                            @endif
+                            {{ $work->description ?: $work->title }}
                         </p>
 
                         {{-- Comments toggle --}}
@@ -264,7 +275,7 @@
                     </svg>
                     <p class="text-sm font-black text-white/20 uppercase tracking-widest">Sin publicaciones aún</p>
                     <p class="text-xs text-white/10 mt-2 max-w-xs mx-auto">Nuestros barberos todavía no han compartido trabajos. Vuelve pronto.</p>
-                    <a href="{{ route('barbers.public.index') }}"
+                    <a href="{{ route('home') }}"
                        class="mt-6 inline-flex items-center gap-2 px-8 py-3 rounded-xl border border-gold/30 bg-gold/10 text-[10px] font-black uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all">
                         Ver barberos &rarr;
                     </a>

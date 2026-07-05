@@ -121,7 +121,7 @@
                     @endauth
                 </div>
 
-                <button @click="open = !open" class="md:hidden text-white p-2">
+                <button @click="open = !open" class="md:hidden text-white p-2" aria-label="Abrir menú">
                     <svg x-show="!open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16" stroke-width="2" stroke-linecap="round"/></svg>
                     <svg x-show="open"  class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none;"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"/></svg>
                 </button>
@@ -370,14 +370,15 @@
 
             <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 @forelse($barbers as $k => $barber)
-                    <a href="{{ route('barbers.public.show', $barber) }}"
+                    <a href="{{ $barber->slug ? route('barbers.public.show', $barber) : '#' }}"
                        class="barber-card group relative block reveal"
                        style="transition-delay: {{ $k * 120 }}ms;">
                         <div class="aspect-[3/4] overflow-hidden rounded-3xl border border-white/5 bg-[#111] relative">
                             @if($barber->foto)
                                 <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
                                      class="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
-                                     loading="lazy">
+                                     loading="lazy"
+                                     alt="Foto de {{ $barber->user?->name }}">
                             @else
                                 <div class="h-full w-full flex items-center justify-center">
                                     <svg class="h-20 w-20 text-white/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

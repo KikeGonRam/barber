@@ -117,7 +117,8 @@
                             @if($barber->foto)
                                 <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
                                      class="h-full w-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-600"
-                                     loading="lazy">
+                                     loading="lazy"
+                                     alt="Foto de {{ $barber->user?->name }}">
                             @else
                                 <img src="{{ $fallbackImg }}"
                                      class="h-full w-full object-cover object-top grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-600"
@@ -157,6 +158,7 @@
                                     <p class="text-[9px] font-bold text-muted uppercase tracking-wider">Citas este mes</p>
                                     <p class="text-xl font-black text-white">{{ $barber->citas_mes ?? 0 }}</p>
                                 </div>
+                                @if($barber->slug)
                                 <div class="flex gap-2">
                                     <a href="{{ route('barbers.performance', $barber) }}"
                                        class="flex items-center gap-1 rounded-xl border border-gold/20 bg-gold/8 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all">
@@ -169,6 +171,7 @@
                                         Editar
                                     </a>
                                 </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -201,7 +204,9 @@
                                 <p class="text-[9px] text-muted uppercase tracking-wider">Especialidades</p>
                                 <p class="text-xs text-white mt-0.5">{{ $barber->especialidades ?: 'General' }}</p>
                             </div>
+                            @if($barber->slug)
                             <a href="{{ route('barbers.edit', $barber) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Gestionar</a>
+                            @endif
                         </div>
                     </div>
                 @empty

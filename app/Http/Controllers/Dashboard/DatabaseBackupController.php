@@ -3,52 +3,61 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\Process\Process;
+use MongoDB\BSON\Document;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use ZipArchive;
 
 class DatabaseBackupController extends Controller
 {
+    /**
+     * Exports every MongoDB collection as MongoDB Extended JSON (one file per
+     * collection, restorable with `mongoimport --jsonArray`) and ships them
+     * zipped. No external binary (mongodump) required — the container doesn't
+     * ship the MongoDB Database Tools, so this stays pure-PHP via ext-mongodb.
+     */
     public function download(): BinaryFileResponse
     {
-        $connectionName = config('database.default');
-        $databaseConfig = config("database.connections.{$connectionName}");
-
-        abort_unless(($databaseConfig['driver'] ?? null) === 'mysql', 500, 'El backup solo está soportado para MySQL.');
+        $mongoDb = DB::connection('mongodb')->getDatabase();
 
         $backupDirectory = storage_path('app/backups');
         File::ensureDirectoryExists($backupDirectory);
 
-        $fileName = sprintf('backup-%s.sql', now()->format('Y-m-d_His'));
-        $backupPath = $backupDirectory.DIRECTORY_SEPARATOR.$fileName;
+        $stamp = now()->format('Y-m-d_His');
+        $workDir = $backupDirectory.DIRECTORY_SEPARATOR."backup-{$stamp}";
+        File::ensureDirectoryExists($workDir);
 
-        $command = [
-            'mysqldump',
-            '--host='.$databaseConfig['host'],
-            '--port='.$databaseConfig['port'],
-            '--user='.$databaseConfig['username'],
-            '--password='.$databaseConfig['password'],
-            '--single-transaction',
-            '--quick',
-            '--routines',
-            '--triggers',
-            '--events',
-            '--databases',
-            $databaseConfig['database'],
-        ];
+        try {
+            foreach ($mongoDb->listCollectionNames() as $collectionName) {
+                $documents = [];
+                foreach ($mongoDb->selectCollection($collectionName)->find() as $document) {
+                    $documents[] = Document::fromPHP($document)->toRelaxedExtendedJSON();
+                }
 
-        $process = new Process($command);
-        $process->setTimeout(300);
-        $process->run();
+                File::put(
+                    $workDir.DIRECTORY_SEPARATOR."{$collectionName}.json",
+                    '['.implode(',', $documents).']'
+                );
+            }
 
-        if (! $process->isSuccessful()) {
-            throw new RuntimeException('No se pudo generar el backup de la base de datos.');
+            $zipPath = $backupDirectory.DIRECTORY_SEPARATOR."backup-{$stamp}.zip";
+            $zip = new ZipArchive();
+
+            if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+                throw new RuntimeException('No se pudo crear el archivo zip de backup.');
+            }
+
+            foreach (File::files($workDir) as $file) {
+                $zip->addFile($file->getPathname(), $file->getFilename());
+            }
+
+            $zip->close();
+        } finally {
+            File::deleteDirectory($workDir);
         }
 
-        File::put($backupPath, $process->getOutput());
-
-        return response()->download($backupPath, $fileName)->deleteFileAfterSend(true);
+        return response()->download($zipPath, "backup-{$stamp}.zip")->deleteFileAfterSend(true);
     }
 }
