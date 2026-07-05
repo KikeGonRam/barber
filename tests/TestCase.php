@@ -17,6 +17,25 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // SAFETY NET: the Docker container exports MONGODB_URI/MONGO_DATABASE
+        // as real process environment variables (from the real .env), which
+        // beat .env.testing and even <env force="true"> in phpunit.xml. That
+        // silently pointed the entire test suite at the production/dev
+        // database (barber_db) instead of barber_db_test, and truncated it
+        // on every run. Force the database name here, in PHP, where nothing
+        // can override it — then hard-abort if it still isn't a *_test db.
+        config(['database.connections.mongodb.database' => 'barber_db_test']);
+        \Illuminate\Support\Facades\DB::purge('mongodb');
+
+        $activeDatabase = config('database.connections.mongodb.database');
+        if (! str_ends_with($activeDatabase, '_test')) {
+            throw new \RuntimeException(
+                "Refusing to run tests: MongoDB connection resolved to [{$activeDatabase}], ".
+                'which does not look like an isolated test database. Aborting before any '.
+                'truncation could touch real data.'
+            );
+        }
+
         $this->withoutMiddleware([
             ValidateCsrfToken::class,
             VerifyCsrfToken::class,
