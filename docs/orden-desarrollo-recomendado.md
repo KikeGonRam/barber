@@ -3,7 +3,7 @@
 1. **Base técnica y seguridad**
    - Instalar Breeze, Spatie Permission, Activity Log, DomPDF, Laravel Excel.
    - Configurar roles iniciales, middleware y políticas.
-   - Definir layout Blade + Bootstrap responsive.
+   - Definir layout Blade + TailwindCSS responsive.
 
 2. **Módulo Auth + Perfiles**
    - Registro/login por tipo de usuario.

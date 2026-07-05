@@ -13,7 +13,7 @@ A continuación se documentan los usuarios de prueba creados para los diferentes
 | **Recepcionista** | recepcionista@test.com | password | Gestión de Inventario (products/movements). |
 | **Recepcionista** | recepcionista1@test.com | password | Gestión de Inventario (products/movements). |
 | **Recepcionista** | recepcionista2@test.com | password | Gestión de Inventario (products/movements). |
-| **Administrador** | kikeramirez160418@gmail.com | password | Acceso total, logs y pagos. |
+| **Administrador** | al222310427@gmail.com | password | Acceso total, logs y pagos. |
 
 > **Nota:** El sistema valida roles mediante middleware. El rol `staff` en el código se refiere a la capacidad de gestionar inventario (Admin o Recepcionista).
 

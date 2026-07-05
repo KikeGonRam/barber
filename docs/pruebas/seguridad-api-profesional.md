@@ -4,15 +4,14 @@ Este documento detalla la implementación de controles de seguridad sobre los 59
 
 ## 1. Protección contra Broken Object Level Authorization (BOLA/IDOR)
 - **Superficie:** `/api/v1/appointments/{id}`, `/api/v1/payments/{id}`, `/api/v1/clients/{id}`.
-- **Implementación:** Uso de **Laravel Policies**. Cada consulta de recurso verifica que el `user_id` del token coincida con el propietario del recurso o que el usuario tenga un rol administrativo.
-- **Verificación:** `test_api_prevents_idor_on_appointments`.
+- **Implementación:** No se usan Laravel Policies (el proyecto no tiene `app/Policies/`). La verificación de propiedad se hace manualmente en cada controlador con `abort_if()`, comparando el `client_id`/`user_id` del recurso contra el usuario autenticado, o permitiendo el acceso si el rol es `administrador`. Ver por ejemplo `App\Http\Controllers\Api\AppointmentController::destroy()`.
+- **Verificación:** cubierto en `tests/Feature/Appointments/ClientBookingTest.php` (`test_client_cannot_manage_another_clients_appointment`).
 
 ## 2. Autenticación y Gestión de Sesiones
-- **Tecnología:** **Laravel Sanctum** (Stateful API Tokens).
+- **Tecnología:** sistema de tokens **propio**, no Laravel Sanctum. `App\Models\User::issueMobileApiToken()` genera un token aleatorio de 32 bytes, guarda su hash SHA-256 en `App\Models\MobileApiToken` (colección `mobile_api_tokens`) y devuelve el token en texto plano una sola vez. El middleware `App\Http\Middleware\AuthenticateMobileApiToken` valida cada request contra ese hash.
 - **Hardening:**
-  - Tokens con expiración configurada.
-  - Revocación inmediata en `/logout`.
-  - Hashing de contraseñas mediante **Argon2id** (estándar moderno).
+  - Tokens con expiración opcional (`expires_at`) y revocación en `/logout` (se elimina el registro de `MobileApiToken`).
+  - Hashing de contraseñas: `Hash::make()` con el driver por defecto de Laravel (**bcrypt**) — no hay override en `config/hashing.php`, así que no usa Argon2id.
 
 ## 3. Prevención de Inyección (SQLi, XSS)
 - **SQLi:** El 100% de las consultas utilizan **Eloquent ORM** o **Query Builder** con parametrización de datos. No se concatenan strings en queries.
@@ -29,13 +28,11 @@ Este documento detalla la implementación de controles de seguridad sobre los 59
 - **Protección DoS:** 
   - Login limitado a 5 intentos por minuto por IP.
   - Chatbot limitado a ráfagas de 10 peticiones para prevenir costos excesivos de API y agotamiento de recursos del servidor.
-- **Verificación:** `test_api_enforces_rate_limiting_on_login`.
+- **Verificación:** cubierto en `tests/Feature/Auth/AuthenticationTest.php` (`test_login_is_rate_limited_after_too_many_attempts`).
 
 ## 6. Seguridad en la Capa de Transporte (Docker)
 - **Arquitectura:** Nginx actúa como **Reverse Proxy**, ocultando el motor PHP-FPM del exterior.
 - **Seguridad Alpine:** La imagen de producción utiliza Alpine Linux, eliminando binarios innecesarios y reduciendo la superficie de ataque del sistema operativo.
 
 ---
-**Resultado de Auditoría Automatizada:**
-- 100% de los endpoints protegidos por Middleware de autenticación (excepto Login/Registro).
-- Cero vulnerabilidades críticas detectadas en la suite de Pentest.
+**Nota:** los porcentajes y "cero vulnerabilidades" de una auditoría automatizada anterior se retiraron de este documento por no poder verificarse contra el código actual. Las secciones 1-6 arriba sí están verificadas contra la implementación real al momento de esta revisión.

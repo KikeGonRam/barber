@@ -22,7 +22,6 @@ Este documento compara la cobertura funcional del panel web con la API disponibl
 | Usuarios | Resource `/users` (CRUD completo sin show) | `GET/POST/PUT/DELETE /api/v1/users` | Igual |
 | Servicios | Resource `/services` (CRUD completo sin show) + `GET /servicios` público | `GET /api/v1/services` + `GET/POST/PUT/DELETE /api/v1/services/manage` | Igual |
 | Productos | Resource `/inventory/products` (CRUD completo sin show) | `GET/POST/PUT/DELETE /api/v1/inventory/products` | Igual |
-| Almacén Central | Resource `/almacen` | `GET/POST/PUT/DELETE /api/v1/warehouse` | Igual |
 | Configuración | `GET/PUT /settings` + `POST /settings/maintenance` | `GET/PUT /api/v1/settings` + `POST /api/v1/settings/maintenance` | Igual |
 | Reportes | `GET /reports` + `GET /reports/{type}/{format}` | `GET /api/v1/reports` + `GET /api/v1/reports/{type}/{format}` | Igual |
 | Logs | `GET /logs` | `GET /api/v1/logs` | Igual |

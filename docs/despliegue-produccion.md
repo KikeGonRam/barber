@@ -7,9 +7,9 @@ Configura en `.env` de producción:
 - `APP_ENV=production`
 - `APP_DEBUG=false`
 - `APP_URL=https://tu-dominio.com`
-- `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
-- `QUEUE_CONNECTION=database` (o `redis`)
-- `CACHE_STORE=database` (o `redis`)
+- `DB_CONNECTION=mongodb`, `MONGODB_URI` (cadena de conexión de Atlas o del clúster de producción), `MONGO_DATABASE`
+- `QUEUE_CONNECTION=redis`
+- `CACHE_STORE=redis`
 - `SESSION_DRIVER=database`
 - `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`
 - IA Gemini:
