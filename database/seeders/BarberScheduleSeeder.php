@@ -27,20 +27,30 @@ class BarberScheduleSeeder extends Seeder
         }
 
         foreach ($barbers as $barber) {
-            foreach (self::WORK_DAYS as $day) {
-                $barber->schedules()->updateOrCreate(
-                    ['day_of_week' => $day],
-                    ['start_time' => '09:00:00', 'end_time' => '21:00:00', 'is_working' => true]
-                );
-            }
-
-            // Domingo — descanso
-            $barber->schedules()->updateOrCreate(
-                ['day_of_week' => 0],
-                ['start_time' => null, 'end_time' => null, 'is_working' => false]
-            );
+            self::seedFor($barber);
         }
 
         $this->command->info("  ✓ Horario semanal creado para {$barbers->count()} barberos");
+    }
+
+    /**
+     * Horario semanal estándar (Lun–Sáb 09:00–21:00, Domingo descanso) para
+     * un solo Barber. Método reutilizable para otros seeders que necesiten
+     * crear un barbero con horario completo sin duplicar esta lógica.
+     */
+    public static function seedFor(Barber $barber): void
+    {
+        foreach (self::WORK_DAYS as $day) {
+            $barber->schedules()->updateOrCreate(
+                ['day_of_week' => $day],
+                ['start_time' => '09:00:00', 'end_time' => '21:00:00', 'is_working' => true]
+            );
+        }
+
+        // Domingo — descanso
+        $barber->schedules()->updateOrCreate(
+            ['day_of_week' => 0],
+            ['start_time' => null, 'end_time' => null, 'is_working' => false]
+        );
     }
 }

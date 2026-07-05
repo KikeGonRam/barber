@@ -1,7 +1,10 @@
-# 🔐 Credenciales de Acceso - BarberPro Elite
+# 🔐 Credenciales de Acceso - UrbanBlade
 
-> **⚠️ IMPORTANTE:** Estas credenciales son solo para desarrollo y testing.  
+> **⚠️ IMPORTANTE:** Estas credenciales son solo para desarrollo y testing.
 > **No usar en producción sin cambiar las contraseñas.**
+> Las contraseñas por defecto se pueden sobreescribir con las variables de
+> entorno `ADMIN_PASSWORD`, `RECEP_PASSWORD` y `BARBER_PASSWORD` (ver
+> `database/seeders/AdminUserSeeder.php` y `UserSeeder.php`).
 
 ---
 
@@ -14,130 +17,37 @@ Mailpit:     http://localhost:8025
 
 ---
 
-## 👨‍💼 ADMINISTRADOR
+## 👨‍💼 Cuentas creadas por el seed por defecto (`php artisan migrate:fresh --seed`)
 
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | Administrador Barbería |
-| **Email** | `al222310427@gmail.com` |
-| **Contraseña** | `password` |
-| **Rol** | Administrador |
-| **Permisos** | Acceso total |
+Estas SIEMPRE existen después de correr la cadena oficial de `DatabaseSeeder`.
 
----
-
-## 👨‍💼 RECEPCIONISTAS
-
-### Recepcionista Principal
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | Recepcionista Test |
-| **Email** | `recepcionista@test.com` |
-| **Contraseña** | `password` |
-| **Rol** | Recepcionista |
-| **Funciones** | Gestión de citas, clientes |
-
-### Recepcionista 1
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | Recepcionista Test 1 |
-| **Email** | `recepcionista1@test.com` |
-| **Contraseña** | `password` |
-| **Rol** | Recepcionista |
-| **Funciones** | Gestión de citas, clientes |
-
-### Recepcionista 2
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | Recepcionista Test 2 |
-| **Email** | `recepcionista2@test.com` |
-| **Contraseña** | `password` |
-| **Rol** | Recepcionista |
-| **Funciones** | Gestión de citas, clientes |
+| Rol | Email | Contraseña | Notas |
+|---|---|---|---|
+| **Administrador** | `al222310427@gmail.com` | `Admin@Urban2025!` | Único admin (`AdminUserSeeder`) |
+| **Recepcionista** | `recepcion@urbanblade.com` | `Recep@Urban2025!` | Única recepcionista (`UserSeeder`) |
+| **Barbero** | `barbero1@urbanblade.com` … `barbero25@urbanblade.com` | `Barber@Urban2025!` | 25 cuentas, nombres generados con Faker (`UserSeeder` + `BarberSeeder`) |
+| **Cliente** | `cliente1@urbanblade.com` … `cliente1000@urbanblade.com` | `Cliente@Urban2025!` | 1000 cuentas, nombres generados con Faker (`UserSeeder` + `ClientSeeder`) |
 
 ---
 
-## ✂️ BARBEROS
+## 🧪 Cuentas extra para QA manual (opcional — `TestUsersSeeder`, no corre por defecto)
 
-### Barbero Principal
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | Barbero Test |
-| **Email** | `barbero@test.com` |
-| **Contraseña** | `password` |
-| **Rol** | Barbero |
-| **Especialidades** | Fade, Barba |
-| **Horario** | Lunes-Viernes: 09:00 - 21:00 |
+Solo existen si corres explícitamente:
+```bash
+docker exec barber-app php artisan db:seed --class=TestUsersSeeder
+```
 
-### Barbero 1
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | Barbero Test 1 |
-| **Email** | `barbero1@test.com` |
-| **Contraseña** | `password` |
-| **Rol** | Barbero |
-| **Especialidades** | Corte clásico |
-| **Horario** | Lunes-Viernes: 09:00 - 21:00 |
+| Rol | Email | Contraseña |
+|---|---|---|
+| Recepcionista | `recepcionista@test.com`, `recepcionista1@test.com`, `recepcionista2@test.com` | `Recep@Urban2025!` |
+| Barbero | `barbero@test.com`, `barbero1@test.com`, `barbero2@test.com` | `Barber@Urban2025!` |
+| Cliente | `cliente@test.com`, `cliente1@test.com`, `cliente2@test.com` | `Cliente@Urban2025!` |
 
-### Barbero 2
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | Barbero Test 2 |
-| **Email** | `barbero2@test.com` |
-| **Contraseña** | `password` |
-| **Rol** | Barbero |
-| **Especialidades** | Corte clásico |
-| **Horario** | Lunes-Viernes: 09:00 - 21:00 |
+No usan una contraseña distinta a las cuentas del seed por defecto — mismo patrón `Rol@Urban2025!` por rol, solo cambia el dominio del correo (`@test.com` en vez de `@urbanblade.com`) para no chocar con las 1026 cuentas que ya crea `UserSeeder`.
 
 ---
 
-## 👤 CLIENTES
-
-### Cliente Principal
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | Cliente Test |
-| **Email** | `cliente@test.com` |
-| **Contraseña** | `password` |
-| **Rol** | Cliente |
-| **Teléfono** | +521234567890 |
-| **Fecha Nacimiento** | 1990-01-01 |
-
-### Cliente 1
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | Cliente Test 1 |
-| **Email** | `cliente1@test.com` |
-| **Contraseña** | `password` |
-| **Rol** | Cliente |
-| **Teléfono** | +521234567891 |
-| **Fecha Nacimiento** | 1991-02-01 |
-
-### Cliente 2
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | Cliente Test 2 |
-| **Email** | `cliente2@test.com` |
-| **Contraseña** | `password` |
-| **Rol** | Cliente |
-| **Teléfono** | +521234567892 |
-| **Fecha Nacimiento** | 1992-02-01 |
-
----
-
-## 📊 CONFIGURACIÓN DE LA BARBERÍA
-
-| Campo | Valor |
-|-------|-------|
-| **Nombre** | BarberPro Elite |
-| **Horario Apertura** | 09:00 |
-| **Horario Cierre** | 21:00 |
-| **Política Cancelación** | 24 horas antes |
-| **Modo Mantenimiento** | Desactivado |
-
----
-
-## 🗄️ BASE DE DATOS
+## 🗄️ Base de Datos
 
 | Campo | Valor |
 |-------|-------|
@@ -149,59 +59,15 @@ No hay Adminer/PHPMyAdmin — para inspeccionar datos usa MongoDB Compass con la
 
 ---
 
-## 🔑 Contraseña Común
-
-Todos los usuarios de prueba comparten la misma contraseña para facilitar el testing:
-
-```
-password
-```
-
----
-
 ## ✅ Procedimiento de Login
 
 1. Ir a http://localhost:8000
 2. Hacer clic en "Iniciar Sesión"
-3. Seleccionar el rol (Admin, Recepcionista, Barbero, Cliente)
-4. Ingresar email y contraseña de la tabla correspondiente
-5. ✅ Acceso garantizado
+3. Ingresar email y contraseña de alguna de las tablas de arriba
 
 ---
 
-## 🧪 Testing por Rol
-
-### Como Administrador
-```bash
-Email:    al222310427@gmail.com
-Password: password
-# Acceso: Dashboard completo, gestión de usuarios, reportes
-```
-
-### Como Recepcionista
-```bash
-Email:    recepcionista@test.com
-Password: password
-# Acceso: Citas, clientes, agenda
-```
-
-### Como Barbero
-```bash
-Email:    barbero@test.com
-Password: password
-# Acceso: Agenda personal, citas asignadas, perfil
-```
-
-### Como Cliente
-```bash
-Email:    cliente@test.com
-Password: password
-# Acceso: Reservar citas, ver perfil, historial
-```
-
----
-
-## 📱 Características por Rol
+## 📱 Permisos por Rol
 
 | Funcionalidad | Admin | Recepcionista | Barbero | Cliente |
 |---|:---:|:---:|:---:|:---:|
@@ -213,18 +79,3 @@ Password: password
 | Crear Citas | ✅ | ✅ | ❌ | ✅ |
 | Reportes | ✅ | ❌ | ❌ | ❌ |
 | Configuración | ✅ | ❌ | ❌ | ❌ |
-
----
-
-## 🚀 Próximos Pasos
-
-1. ✅ Seeders ejecutados
-2. 📋 Credenciales documentadas (este archivo)
-3. 🔨 Próximo: Ejecutar `npm run build`
-4. 📊 Luego: Configurar Sentry
-5. 🧪 Finalmente: Tests de carga
-
----
-
-**Última actualización:** 2026-05-08 23:23  
-**Estado:** ✅ Base de datos poblada con éxito

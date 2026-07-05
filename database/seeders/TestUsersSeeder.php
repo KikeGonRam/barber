@@ -12,8 +12,12 @@ class TestUsersSeeder extends Seeder
 {
     public function run(): void
     {
+        // Sin filtro: BarbershopSetting es un singleton (siempre el único
+        // registro de la coleccion). Usar ['id' => 1] aqui nunca coincide en
+        // Mongo (el _id real es un ObjectId) y crearia un duplicado cada vez
+        // que se corriera este seeder.
         BarbershopSetting::updateOrCreate(
-            ['id' => 1],
+            [],
             [
                 'nombre' => 'BarberPro Elite',
                 'horario_apertura' => '09:00',
@@ -22,28 +26,6 @@ class TestUsersSeeder extends Seeder
                 'maintenance_mode' => false,
             ]
         );
-
-        $seedSchedule = static function (Barber $barber): void {
-            for ($day = 1; $day <= 6; $day++) {
-                $barber->schedules()->updateOrCreate(
-                    ['day_of_week' => $day],
-                    [
-                        'start_time' => '09:00:00',
-                        'end_time' => '21:00:00',
-                        'is_working' => true,
-                    ]
-                );
-            }
-
-            $barber->schedules()->updateOrCreate(
-                ['day_of_week' => 0],
-                [
-                    'start_time' => null,
-                    'end_time' => null,
-                    'is_working' => false,
-                ]
-            );
-        };
 
         // Recepcionista principal
         $recep = User::updateOrCreate(
@@ -74,7 +56,7 @@ class TestUsersSeeder extends Seeder
             'descripcion' => 'Barbero de pruebas automatizadas',
             'activo' => true,
         ]);
-        $seedSchedule($barberProfile);
+        BarberScheduleSeeder::seedFor($barberProfile);
 
         // Cliente principal (perfil completo)
         $client = User::updateOrCreate(
@@ -103,9 +85,9 @@ class TestUsersSeeder extends Seeder
         foreach ([1, 2] as $i) {
             // Recepcionista extra
             $r = User::updateOrCreate(
-                ['email' => "recepcionista${i}@test.com"],
+                ['email' => "recepcionista{$i}@test.com"],
                 [
-                    'name' => "Recepcionista Test ${i}",
+                    'name' => "Recepcionista Test {$i}",
                     'password' => 'Recep@Urban2025!',
                     'email_verified_at' => now(),
                 ]
@@ -114,9 +96,9 @@ class TestUsersSeeder extends Seeder
 
             // Barbero extra (perfil completo)
             $b = User::updateOrCreate(
-                ['email' => "barbero${i}@test.com"],
+                ['email' => "barbero{$i}@test.com"],
                 [
-                    'name' => "Barbero Test ${i}",
+                    'name' => "Barbero Test {$i}",
                     'password' => 'Barber@Urban2025!',
                     'email_verified_at' => now(),
                 ]
@@ -127,16 +109,16 @@ class TestUsersSeeder extends Seeder
             ], [
                 'especialidades' => 'Corte clásico',
                 'foto' => null,
-                'descripcion' => "Barbero de pruebas ${i}",
+                'descripcion' => "Barbero de pruebas {$i}",
                 'activo' => true,
             ]);
-            $seedSchedule($barberExtra);
+            BarberScheduleSeeder::seedFor($barberExtra);
 
             // Cliente extra (perfil completo)
             $c = User::updateOrCreate(
-                ['email' => "cliente${i}@test.com"],
+                ['email' => "cliente{$i}@test.com"],
                 [
-                    'name' => "Cliente Test ${i}",
+                    'name' => "Cliente Test {$i}",
                     'password' => 'Cliente@Urban2025!',
                     'email_verified_at' => now(),
                 ]

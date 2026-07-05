@@ -2,7 +2,7 @@
 
 ## Estructura de carpetas
 
-- `app/Http/Controllers` -> Controladores por modulo (`Admin`, `Barber`, `Reception`, `Client`, `Chatbot`).
+- `app/Http/Controllers` -> Controladores por modulo (`Api`, `Appointment`, `Auth`, `Barber`, `Chatbot`, `Client`, `Dashboard`, `Inventory`, `Log`, `Notification`, `Payment`, `Profile`, `Report`, `Service`, `Setting`, `Social`, `User`).
 - `app/Http/Requests` -> Validaciones por accion y modulo.
 - `app/Http/Resources` -> Transformadores para respuestas API.
 - `app/Repositories/Contracts` -> Interfaces de acceso a datos.

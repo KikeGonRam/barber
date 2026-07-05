@@ -104,14 +104,11 @@ inserting), so re-running the full chain is safe and won't duplicate data.
 
 - `TestUsersSeeder` — (optional, not in the default chain) creates sample accounts with fixed
   credentials (`recepcionista@test.com`, `barbero@test.com`, `cliente@test.com`) for manual QA.
-- `MassiveDataSeeder` — (optional, not in the default chain) generates very large datasets for load
-  testing (100k appointments). **Requires existing barbers/clients/services** — run only after the
-  official `DatabaseSeeder` chain. Use with caution: it does not assign roles to existing users.
 
 ## Authentication, Roles & Permissions
 - Project uses Spatie `laravel-permission` to manage roles and permissions.
 - Roles present: `admin`, `recepcionista`, `barbero`, `cliente`.
-- A documented admin account exists in `docs/ACCESO.md` (email `al222310427@gmail.com`, password `password`) for development.
+- A documented admin account exists in `docs/ACCESO.md` (email `al222310427@gmail.com`) for development.
 - Login/Registration views live under `resources/views/auth` and use `x-guest-layout` Blade components.
 
 ## Frontend & Styling
@@ -155,11 +152,8 @@ Notes:
 ## Database Seeding & Filling Data
 - Recommended for a fully populated environment: `php artisan migrate:fresh --seed` which runs the
   official `DatabaseSeeder` chain (roles, admin, 25 barbers, 1000 clients, 20 services, 30 products,
-  +10,000 historical appointments/payments, portfolio). This is also what correctly assigns roles
+  ~12,500 historical appointments/payments, portfolio). This is also what correctly assigns roles
   to every created user — running individual seeders out of order can leave users without a role.
-- For heavy load tests on top of an already-seeded database, `MassiveDataSeeder` can add tens of
-  thousands of extra appointment records, but requires higher memory/runtime and does **not**
-  assign roles — only run it after `migrate:fresh --seed` has completed.
 
 Example from container:
 

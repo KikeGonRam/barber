@@ -15,7 +15,7 @@ class WorkSeeder extends Seeder
         $barbers = Barber::with('user')->where('activo', true)->get();
 
         if ($barbers->isEmpty()) {
-            $this->command->warn('WorkSeeder: no hay barberos activos. Ejecuta DemoDataSeeder primero.');
+            $this->command->warn('WorkSeeder: no hay barberos activos. Ejecuta BarberSeeder primero.');
             return;
         }
 
