@@ -3,19 +3,20 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Models\Appointment;
-use App\Models\Barber;
 use App\Models\Client;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class ClientAdminController
 {
     public function getClients(Request $request): JsonResponse
     {
-        $search  = $request->query('search', '');
+        $search = $request->query('search', '');
         $segment = $request->query('segment');
 
         $query = Client::with('user');
@@ -25,15 +26,15 @@ class ClientAdminController
                 ->orWhere('email', 'like', "%{$search}%")
             );
         }
-        $clients    = $query->get();
-        $clientIds  = $clients->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $clients = $query->get();
+        $clientIds = $clients->pluck('id')->map(fn ($id) => (string) $id)->all();
 
         // 1 batch query for all appointments of all clients (was N queries via enrichClientData)
         $allAppts = Appointment::whereIn('client_id', $clientIds)
             ->get(['client_id', 'estado', 'precio_cobrado', 'fecha'])
             ->groupBy(fn ($a) => (string) $a->client_id);
 
-        $now     = Carbon::now();
+        $now = Carbon::now();
         $enriched = $clients->map(fn ($c) => $this->enrichFromBatch($c, $allAppts, $now));
 
         if ($segment) {
@@ -42,8 +43,8 @@ class ClientAdminController
 
         return response()->json([
             'success' => true,
-            'data'    => $enriched,
-            'total'   => $enriched->count(),
+            'data' => $enriched,
+            'total' => $enriched->count(),
         ]);
     }
 
@@ -63,40 +64,40 @@ class ClientAdminController
         $segment = $this->computeSegment($client, $appointments->count(), $appointments->first()?->fecha);
 
         $preferredBarber = 'N/A';
-        $grouped     = $appointments->groupBy(fn ($a) => (string) $a->barber_id)->map->count()->sortDesc();
+        $grouped = $appointments->groupBy(fn ($a) => (string) $a->barber_id)->map->count()->sortDesc();
         $topBarberId = $grouped->keys()->first();
         if ($topBarberId) {
-            $topAppt         = $appointments->first(fn ($a) => (string) $a->barber_id === $topBarberId);
+            $topAppt = $appointments->first(fn ($a) => (string) $a->barber_id === $topBarberId);
             $preferredBarber = $topAppt?->barber?->user?->name ?? 'N/A';
         }
 
         return response()->json([
             'success' => true,
-            'data'    => [
-                'id'                        => $client->id,
-                'slug'                      => $client->slug,
-                'name'                      => $client->user?->name,
-                'email'                     => $client->user?->email,
-                'telefono'                  => $client->telefono,
-                'segment'                   => $segment,
-                'joinedAt'                  => optional($client->created_at)->toIso8601String(),
-                'totalAppointments'         => $appointments->count(),
-                'totalSpent'                => $totalSpent,
-                'averageSpent'              => $appointments->count() > 0 ? round($totalSpent / $appointments->count(), 2) : 0,
-                'lastAppointment'           => optional($appointments->first()?->fecha)->toDateString(),
-                'daysSinceLastAppointment'  => $appointments->isNotEmpty()
+            'data' => [
+                'id' => $client->id,
+                'slug' => $client->slug,
+                'name' => $client->user?->name,
+                'email' => $client->user?->email,
+                'telefono' => $client->telefono,
+                'segment' => $segment,
+                'joinedAt' => optional($client->created_at)->toIso8601String(),
+                'totalAppointments' => $appointments->count(),
+                'totalSpent' => $totalSpent,
+                'averageSpent' => $appointments->count() > 0 ? round($totalSpent / $appointments->count(), 2) : 0,
+                'lastAppointment' => optional($appointments->first()?->fecha)->toDateString(),
+                'daysSinceLastAppointment' => $appointments->isNotEmpty()
                     ? optional($appointments->first()->fecha)->diffInDays(Carbon::now())
                     : null,
-                'preferredBarber'           => $preferredBarber,
-                'appointments'              => $appointments->map(fn ($a) => [
-                    'id'          => $a->id,
-                    'code'        => $a->code,
-                    'fecha'       => optional($a->fecha)->toDateString(),
+                'preferredBarber' => $preferredBarber,
+                'appointments' => $appointments->map(fn ($a) => [
+                    'id' => $a->id,
+                    'code' => $a->code,
+                    'fecha' => optional($a->fecha)->toDateString(),
                     'hora_inicio' => $a->hora_inicio,
-                    'barber'      => $a->barber?->user?->name,
-                    'service'     => $a->service?->nombre,
-                    'precio'      => $a->precio_cobrado,
-                    'estado'      => $a->estado,
+                    'barber' => $a->barber?->user?->name,
+                    'service' => $a->service?->nombre,
+                    'precio' => $a->precio_cobrado,
+                    'estado' => $a->estado,
                 ]),
             ],
         ]);
@@ -104,7 +105,7 @@ class ClientAdminController
 
     public function getSegmentation(): JsonResponse
     {
-        $clients   = Client::with('user')->get();
+        $clients = Client::with('user')->get();
         $clientIds = $clients->pluck('id')->map(fn ($id) => (string) $id)->all();
 
         // 1 batch query instead of 2N queries
@@ -112,13 +113,13 @@ class ClientAdminController
             ->get(['client_id', 'fecha'])
             ->groupBy(fn ($a) => (string) $a->client_id);
 
-        $now      = Carbon::now();
+        $now = Carbon::now();
         $segments = ['vip' => 0, 'new' => 0, 'inactive' => 0, 'active' => 0];
 
         foreach ($clients as $client) {
-            $appts     = $allAppts->get((string) $client->id, collect());
+            $appts = $allAppts->get((string) $client->id, collect());
             $lastFecha = $appts->sortByDesc(fn ($a) => (string) $a->fecha)->first()?->fecha;
-            $seg       = $this->computeSegment($client, $appts->count(), $lastFecha);
+            $seg = $this->computeSegment($client, $appts->count(), $lastFecha);
             $segments[$seg] = ($segments[$seg] ?? 0) + 1;
         }
 
@@ -126,8 +127,8 @@ class ClientAdminController
 
         return response()->json([
             'success' => true,
-            'data'    => collect($segments)->map(fn ($count, $key) => [
-                'count'      => $count,
+            'data' => collect($segments)->map(fn ($count, $key) => [
+                'count' => $count,
                 'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
             ]),
         ]);
@@ -136,15 +137,15 @@ class ClientAdminController
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
             'telefono' => 'nullable|string|max:20',
             'password' => 'required|string|min:8',
         ]);
 
         $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
+            'name' => $validated['name'],
+            'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -160,7 +161,7 @@ class ClientAdminController
         return response()->json([
             'success' => true,
             'message' => 'Cliente creado correctamente',
-            'data'    => $enriched,
+            'data' => $enriched,
         ], 201);
     }
 
@@ -169,14 +170,14 @@ class ClientAdminController
         $client->load('user');
 
         $validated = $request->validate([
-            'name'     => 'nullable|string|max:255',
-            'email'    => 'nullable|email',
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email',
             'telefono' => 'nullable|string|max:20',
         ]);
 
         if (! empty($validated['name']) || ! empty($validated['email'])) {
             $client->user?->update(array_filter([
-                'name'  => $validated['name'] ?? null,
+                'name' => $validated['name'] ?? null,
                 'email' => $validated['email'] ?? null,
             ]));
         }
@@ -188,21 +189,31 @@ class ClientAdminController
         $client->refresh()->load('user');
         $appts = Appointment::where('client_id', (string) $client->id)
             ->get(['client_id', 'estado', 'precio_cobrado', 'fecha']);
-        $grouped  = collect([(string) $client->id => $appts]);
+        $grouped = collect([(string) $client->id => $appts]);
         $enriched = $this->enrichFromBatch($client, $grouped, Carbon::now());
 
         return response()->json([
             'success' => true,
             'message' => 'Cliente actualizado correctamente',
-            'data'    => $enriched,
+            'data' => $enriched,
         ]);
     }
 
     public function destroy(Client $client): JsonResponse
     {
-        $client->load('user');
-        $client->user?->delete();
-        $client->delete();
+        // Bloquear el borrado si el cliente tiene citas: son registros
+        // historicos/financieros que apuntan a client_id y quedarian huerfanos.
+        if ($client->appointments()->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se puede eliminar un cliente con citas registradas.',
+            ], 422);
+        }
+
+        DB::transaction(function () use ($client): void {
+            $client->user?->delete();
+            $client->delete();
+        });
 
         return response()->json([
             'success' => true,
@@ -212,7 +223,7 @@ class ClientAdminController
 
     public function export(Request $request)
     {
-        $clients   = Client::with('user')->get();
+        $clients = Client::with('user')->get();
         $clientIds = $clients->pluck('id')->map(fn ($id) => (string) $id)->all();
 
         // 1 batch query for all appointment counts (was N queries)
@@ -221,7 +232,7 @@ class ClientAdminController
             ->groupBy(fn ($a) => (string) $a->client_id)
             ->map(fn ($g) => $g->count());
 
-        $filename = 'clients_' . date('Y-m-d') . '.csv';
+        $filename = 'clients_'.date('Y-m-d').'.csv';
 
         return response()->stream(function () use ($clients, $apptCounts) {
             $handle = fopen('php://output', 'w');
@@ -239,34 +250,34 @@ class ClientAdminController
 
             fclose($handle);
         }, 200, [
-            'Content-Type'        => 'text/csv; charset=utf-8',
+            'Content-Type' => 'text/csv; charset=utf-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 
     // Enriches a client using pre-loaded batch appointments — zero extra queries
-    private function enrichFromBatch(Client $client, \Illuminate\Support\Collection $allApptsByClient, Carbon $now): array
+    private function enrichFromBatch(Client $client, Collection $allApptsByClient, Carbon $now): array
     {
-        $appts      = $allApptsByClient->get((string) $client->id, collect());
+        $appts = $allApptsByClient->get((string) $client->id, collect());
         $totalSpent = (float) $appts->where('estado', 'completada')
             ->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
-        $lastAppt   = $appts->sortByDesc(fn ($a) => (string) $a->fecha)->first();
-        $lastFecha  = $lastAppt?->fecha;
-        $lastDate   = $lastFecha
+        $lastAppt = $appts->sortByDesc(fn ($a) => (string) $a->fecha)->first();
+        $lastFecha = $lastAppt?->fecha;
+        $lastDate = $lastFecha
             ? (is_string($lastFecha) ? substr($lastFecha, 0, 10) : Carbon::parse($lastFecha)->toDateString())
             : null;
 
         return [
-            'id'                => $client->id,
-            'slug'              => $client->slug,
-            'name'              => $client->user?->name,
-            'email'             => $client->user?->email,
-            'telefono'          => $client->telefono,
-            'segment'           => $this->computeSegment($client, $appts->count(), $lastFecha),
+            'id' => $client->id,
+            'slug' => $client->slug,
+            'name' => $client->user?->name,
+            'email' => $client->user?->email,
+            'telefono' => $client->telefono,
+            'segment' => $this->computeSegment($client, $appts->count(), $lastFecha),
             'totalAppointments' => $appts->count(),
-            'totalSpent'        => $totalSpent,
-            'lastAppointment'   => $lastDate,
-            'joinedAt'          => optional($client->created_at)->toIso8601String(),
+            'totalSpent' => $totalSpent,
+            'lastAppointment' => $lastDate,
+            'joinedAt' => optional($client->created_at)->toIso8601String(),
         ];
     }
 

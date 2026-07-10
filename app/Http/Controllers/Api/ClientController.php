@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -34,12 +35,12 @@ class ClientController extends Controller
             ->withQueryString();
 
         $ids = $clients->pluck('id')->toArray();
-        if (!empty($ids)) {
-            $counts = \App\Models\Appointment::whereIn('client_id', $ids)
+        if (! empty($ids)) {
+            $counts = Appointment::whereIn('client_id', $ids)
                 ->get(['client_id'])
                 ->groupBy('client_id')
                 ->map->count();
-            $clients->each(fn($c) => $c->appointments_count = $counts->get($c->id, 0));
+            $clients->each(fn ($c) => $c->appointments_count = $counts->get($c->id, 0));
         }
 
         return response()->json([
@@ -175,6 +176,14 @@ class ClientController extends Controller
     public function destroy(Request $request, Client $client): JsonResponse
     {
         $this->authorizeStaff($request);
+
+        // Bloquear el borrado si el cliente tiene citas: son registros
+        // historicos/financieros que apuntan a client_id y quedarian huerfanos.
+        if ($client->appointments()->exists()) {
+            return response()->json([
+                'message' => 'No se puede eliminar un cliente con citas registradas.',
+            ], 422);
+        }
 
         DB::transaction(function () use ($client): void {
             $user = $client->user;

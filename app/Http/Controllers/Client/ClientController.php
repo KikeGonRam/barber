@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StoreClientProfileRequest;
 use App\Http\Requests\Client\UpdateClientProfileRequest;
+use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -19,60 +20,59 @@ class ClientController extends Controller
     public function index(Request $request): View
     {
         $filters = $request->only(['q', 'sin_citas', 'fecha_desde', 'fecha_hasta']);
-        $search  = trim((string) ($filters['q'] ?? ''));
+        $search = trim((string) ($filters['q'] ?? ''));
 
         $clients = Client::query()
             ->with('user:id,name,email')
-            ->when($search !== '', fn($query) => $query->whereHas('user', fn($u) =>
-                $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")
+            ->when($search !== '', fn ($query) => $query->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")
             ))
-            ->when(!empty($filters['sin_citas']), fn($q) => $q->doesntHave('appointments'))
-            ->when(!empty($filters['fecha_desde']), fn($q) => $q->whereHas('user', fn($u) => $u->whereDate('created_at', '>=', $filters['fecha_desde'])))
-            ->when(!empty($filters['fecha_hasta']), fn($q) => $q->whereHas('user', fn($u) => $u->whereDate('created_at', '<=', $filters['fecha_hasta'])))
+            ->when(! empty($filters['sin_citas']), fn ($q) => $q->doesntHave('appointments'))
+            ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereHas('user', fn ($u) => $u->whereDate('created_at', '>=', $filters['fecha_desde'])))
+            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereHas('user', fn ($u) => $u->whereDate('created_at', '<=', $filters['fecha_hasta'])))
             ->latest('id')
             ->paginate(20)
             ->withQueryString();
 
         // withCount not supported by MongoDB — compute PHP-side after pagination
         $ids = $clients->pluck('id')->toArray();
-        if (!empty($ids)) {
-            $apptCounts = \App\Models\Appointment::whereIn('client_id', $ids)
+        if (! empty($ids)) {
+            $apptCounts = Appointment::whereIn('client_id', $ids)
                 ->get(['client_id'])
                 ->groupBy('client_id')
                 ->map->count();
-            $clients->each(fn($c) => $c->appointments_count = $apptCounts->get($c->id, 0));
+            $clients->each(fn ($c) => $c->appointments_count = $apptCounts->get($c->id, 0));
         }
 
         $stats = [
-            'total'       => Client::count(),
-            'con_citas'   => Client::has('appointments')->count(),
-            'sin_citas'   => Client::doesntHave('appointments')->count(),
-            'este_mes'    => Client::whereHas('user', fn($u) => $u->whereMonth('created_at', now()->month))->count(),
+            'total' => Client::count(),
+            'con_citas' => Client::has('appointments')->count(),
+            'sin_citas' => Client::doesntHave('appointments')->count(),
+            'este_mes' => Client::whereHas('user', fn ($u) => $u->whereMonth('created_at', now()->month))->count(),
         ];
 
         return view('clients.index', compact('clients', 'filters', 'search', 'stats'));
     }
 
-    public function show(\App\Models\Client $client): View
+    public function show(Client $client): View
     {
         $client->load(['user', 'appointments.service', 'appointments.barber.user', 'appointments.payment']);
 
         $stats = [
-            'total_citas'      => $client->appointments->count(),
-            'completadas'      => $client->appointments->where('estado', 'completada')->count(),
-            'canceladas'       => $client->appointments->where('estado', 'cancelada')->count(),
-            'total_gastado'    => $client->appointments->flatMap->payment->sum(fn($p) => ($p->monto ?? 0) + ($p->propina ?? 0)),
+            'total_citas' => $client->appointments->count(),
+            'completadas' => $client->appointments->where('estado', 'completada')->count(),
+            'canceladas' => $client->appointments->where('estado', 'cancelada')->count(),
+            'total_gastado' => $client->appointments->flatMap->payment->sum(fn ($p) => ($p->monto ?? 0) + ($p->propina ?? 0)),
             'barbero_favorito' => $client->appointments
                 ->where('estado', 'completada')
                 ->groupBy('barber_id')
-                ->sortByDesc(fn($g) => $g->count())
+                ->sortByDesc(fn ($g) => $g->count())
                 ->first()?->first()?->barber?->user?->name ?? '—',
             'servicio_favorito' => $client->appointments
                 ->where('estado', 'completada')
                 ->groupBy('service_id')
-                ->sortByDesc(fn($g) => $g->count())
+                ->sortByDesc(fn ($g) => $g->count())
                 ->first()?->first()?->service?->nombre ?? '—',
-            'ultima_visita'    => $client->appointments->where('estado', 'completada')->sortByDesc('fecha')->first()?->fecha,
+            'ultima_visita' => $client->appointments->where('estado', 'completada')->sortByDesc('fecha')->first()?->fecha,
         ];
 
         $recentAppointments = $client->appointments->sortByDesc('fecha')->take(10);
@@ -147,8 +147,21 @@ class ClientController extends Controller
 
     public function destroy(Client $client): RedirectResponse
     {
-        $client->user?->delete();
-        $client->delete();
+        // El cliente se borra en duro (no usa SoftDeletes), pero sus citas y
+        // pagos son registros historicos/financieros que apuntan a client_id.
+        // Borrarlo con citas existentes las dejaria huerfanas en reportes y
+        // facturas. Se bloquea, igual que UserController::destroy bloquea el
+        // auto-borrado.
+        if ($client->appointments()->exists()) {
+            return redirect()->route('clients.index')->withErrors([
+                'general' => 'No se puede eliminar un cliente con citas registradas. Su historial es parte de los reportes.',
+            ]);
+        }
+
+        DB::transaction(function () use ($client): void {
+            $client->user?->delete();
+            $client->delete();
+        });
 
         return redirect()->route('clients.index')->with('status', 'Cliente eliminado correctamente.');
     }

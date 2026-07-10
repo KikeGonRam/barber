@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Clients;
 
+use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\User;
 use Tests\Support\RefreshMongoDatabase;
@@ -77,7 +78,7 @@ class ClientManagementTest extends TestCase
         $this->assertDatabaseHas('users', ['_id' => $client->user_id, 'name' => 'Nombre Editado']);
     }
 
-    public function test_admin_can_delete_a_client(): void
+    public function test_admin_can_delete_a_client_without_appointments(): void
     {
         $client = Client::factory()->create();
 
@@ -85,6 +86,19 @@ class ClientManagementTest extends TestCase
 
         $response->assertRedirect(route('clients.index'));
         $this->assertDatabaseMissing('clients', ['_id' => $client->id]);
+    }
+
+    public function test_client_with_appointments_cannot_be_deleted(): void
+    {
+        $client = Client::factory()->create();
+        Appointment::factory()->create(['client_id' => (string) $client->id]);
+
+        $response = $this->actingAs($this->admin())
+            ->from(route('clients.index'))
+            ->delete(route('clients.destroy', $client));
+
+        $response->assertSessionHasErrors('general');
+        $this->assertDatabaseHas('clients', ['_id' => $client->id]);
     }
 
     public function test_barbero_cannot_manage_clients(): void
