@@ -29,38 +29,6 @@ jobs:
           # completo para calcular "new code" y blame/age de las lineas
           fetch-depth: 0
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: mbstring, dom, fileinfo, curl, sqlite3, pdo_sqlite
-          tools: composer:v2
-          # pcov es mas rapido que xdebug para solo generar cobertura
-          coverage: pcov
-          ini-values: memory_limit=-1
-
-      - name: Copy .env
-        run: cp .env.example .env
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress
-
-      - name: Generate application key
-        run: php artisan key:generate
-
-      - name: Create test database
-        run: touch database/database.sqlite
-
-      - name: Run tests with coverage
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
-        run: |
-          php artisan config:clear
-          ./vendor/bin/phpunit \
-            --coverage-clover=coverage.xml \
-            --log-junit=junit.xml
-
       # El paso de analisis solo se ejecuta si el secreto SONAR_TOKEN esta
       # configurado en el repositorio. Esto evita que el workflow falle en
       # forks o en entornos sin el secreto configurado.

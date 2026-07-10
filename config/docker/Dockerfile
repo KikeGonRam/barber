@@ -81,7 +81,7 @@ RUN npm ci --no-audit || true
 # Copiar el resto del proyecto y assets
 COPY . .
 COPY --from=node_builder /app/public/build ./public/build
-# Renombrar .env a .env.local para que Laravel use .env.testing en tests
+# Renombrar .env a .env.local para forzar que Laravel use variables de entorno
 RUN if [ -f .env ]; then mv .env .env.local; fi
 # Eliminar cache de configuración de Laravel
 RUN rm -f bootstrap/cache/config.php

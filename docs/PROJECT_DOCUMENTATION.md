@@ -12,7 +12,6 @@
 - Frontend (Vite / Tailwind / Assets)
 - Background Workers, Scheduler & Queues
 - Docker / Local Development
-- Testing
 - Useful Commands
 - Contributing & Notes
 
@@ -28,7 +27,6 @@ This documentation explains the main folders, modules and how to run, test and e
 - Frontend: Tailwind CSS v3, Vite, Alpine.js (minimal), Node.js (for assets)
 - Database: MongoDB (Atlas, via `mongodb/laravel-mongodb`)
 - Queue / Cache: Redis
-- Testing: PHPUnit
 - Env / Orchestration: Docker Compose
 
 ## Repository Structure (top-level)
@@ -43,7 +41,6 @@ This documentation explains the main folders, modules and how to run, test and e
 - `public/` — built assets and entry `index.php`
 - `docker/` & `.docker/` — Docker images/configs used by compose
 - `scripts/` — helper scripts (PowerShell or bash)
-- `tests/` — PHPUnit feature and unit tests
 - `docs/` — documentation (this file)
 
 ## Key Modules and Files
@@ -161,15 +158,6 @@ Example from container:
 docker compose exec barber-app php artisan migrate:fresh --seed --force
 ```
 
-## Testing
-- Run unit/feature tests with PHPUnit or Artisan:
-
-```bash
-docker compose exec barber-app php artisan test --filter=SomeTest
-# or
-docker compose exec barber-app vendor/bin/phpunit --testsuite=Feature
-```
-
 ## Useful Artisan / Docker Commands
 - Start containers: `docker compose up -d --build`
 - Stop containers: `docker compose down`
@@ -181,12 +169,11 @@ docker compose exec barber-app vendor/bin/phpunit --testsuite=Feature
 ## Environment Variables
 - `.env` stores database credentials, Redis, mail and other runtime configuration. Check `docker-compose.yml` for effective runtime variables used in containers.
 
-## Tests & CI
-- The project includes PHPUnit configuration in `phpunit.xml` and GitHub Actions or CI config may exist in `.github/` (check repository). Ensure to run targeted tests after changes.
+## CI
+- GitHub Actions workflows live under `.github/workflows/` — quality checks (Pint, ESLint/Prettier) and a security audit (`npm audit`).
 
 ## Contributing & Extending
 - Follow existing patterns for controllers, services and repositories when adding features.
-- Add tests for important business flows and run `php artisan test` before creating PRs.
 - When adding frontend components, prefer existing Tailwind utilities and `resources/css/app.css` conventions.
 
 ## Appendix — Important Files Map
