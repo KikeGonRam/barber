@@ -4,22 +4,15 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite",
-    "test:load": "k6 run k6/load-test.js",
-    "test:load:realistic": "k6 run k6/realistic-test.js",
-    "test:load:quick": "k6 run --duration 10s --vus 5 k6/load-test.js",
-    "test:load:html": "k6 run --out=json=k6-results.json k6/load-test.js && echo '✅ Resultados guardados en k6-results.json'"
+    "dev": "vite"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.2",
     "@tailwindcss/vite": "^4.0.0",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/user-event": "^14.6.1",
     "alpinejs": "^3.4.2",
     "autoprefixer": "^10.4.2",
     "axios": "^1.16.0",
     "concurrently": "^9.0.1",
-    "cypress": "^15.14.2",
     "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",

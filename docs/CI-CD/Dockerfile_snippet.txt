@@ -1,6 +1,0 @@
-# ... (Mantengo los stages de construcción previos) ...
-FROM php:8.4-fpm-alpine AS final_stage
-
-# ... (Instalación de extensiones y setup de directorios igual que antes) ...
-# (Solo agrego la línea de copia de www.conf)
-# COPY .docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
