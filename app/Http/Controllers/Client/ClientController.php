@@ -55,13 +55,13 @@ class ClientController extends Controller
 
     public function show(Client $client): View
     {
-        $client->load(['user', 'appointments.service', 'appointments.barber.user', 'appointments.payment']);
+        $client->load(['user', 'appointments.service', 'appointments.barber.user', 'appointments.payments']);
 
         $stats = [
             'total_citas' => $client->appointments->count(),
             'completadas' => $client->appointments->where('estado', 'completada')->count(),
             'canceladas' => $client->appointments->where('estado', 'cancelada')->count(),
-            'total_gastado' => $client->appointments->flatMap->payment->sum(fn ($p) => ($p->monto ?? 0) + ($p->propina ?? 0)),
+            'total_gastado' => $client->appointments->flatMap->payments->sum(fn ($p) => ($p->monto ?? 0) + ($p->propina ?? 0)),
             'barbero_favorito' => $client->appointments
                 ->where('estado', 'completada')
                 ->groupBy('barber_id')

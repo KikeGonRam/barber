@@ -129,8 +129,8 @@
                             </div>
                             <div class="shrink-0 text-right">
                                 <span class="text-[9px] font-black border rounded-full px-2.5 py-1 {{ $pill }}">{{ $appt->estado }}</span>
-                                @if($appt->payment)
-                                    <p class="text-[10px] font-black text-emerald-400 mt-1">${{ number_format($appt->payment->monto + $appt->payment->propina, 2) }}</p>
+                                @if($pago = $appt->payments->first())
+                                    <p class="text-[10px] font-black text-emerald-400 mt-1">${{ number_format($pago->monto + $pago->propina, 2) }}</p>
                                 @endif
                             </div>
                         </div>
