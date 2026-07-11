@@ -35,7 +35,6 @@ seed: ## Ejecuta seeders
 setup: build up migrate ## Configuracion inicial completa
 	@echo "Proyecto listo en http://localhost:8000"
 	@echo "Mailpit listo en http://localhost:8025"
-	@echo "Adminer listo en http://localhost:8080"
 
 clean: ## Baja contenedores y elimina volumenes anonimos
 	$(DC) down --remove-orphans --volumes
