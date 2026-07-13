@@ -16,6 +16,11 @@ services:
     container_name: barber-app
     restart: unless-stopped
     <<: *app-env
+    # El chatbot llama a Ollama corriendo en el host (Ollama nativo, usa la GPU).
+    # extra_hosts garantiza que host.docker.internal resuelva aunque el dns:
+    # custom de arriba tape la resolucion automatica de Docker Desktop.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - .:/var/www/html
       - vendor_data:/var/www/html/vendor

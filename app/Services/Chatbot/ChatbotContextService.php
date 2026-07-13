@@ -335,7 +335,7 @@ class ChatbotContextService
     }
 
     /**
-     * Genera prompt mejorado para Gemini con contexto
+     * Genera prompt mejorado con contexto (agnostico del proveedor de IA)
      */
     public function generateAugmentedPrompt(string $userMessage, string $basePrompt, $userId = null): string
     {

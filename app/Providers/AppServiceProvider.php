@@ -12,6 +12,9 @@ use App\Repositories\Eloquent\InventoryMovementRepository;
 use App\Repositories\Eloquent\PaymentRepository;
 use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\ServiceRepository;
+use App\Services\Chatbot\Contracts\ChatbotAiProvider;
+use App\Services\Chatbot\GeminiService;
+use App\Services\Chatbot\OllamaService;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -32,6 +35,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PaymentRepositoryInterface::class, PaymentRepository::class);
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(ServiceRepositoryInterface::class, ServiceRepository::class);
+
+        // Proveedor de IA del chatbot segun config (ollama local | gemini nube).
+        $this->app->bind(ChatbotAiProvider::class, function ($app) {
+            return match (config('chatbot.ai.provider')) {
+                'ollama' => $app->make(OllamaService::class),
+                default => $app->make(GeminiService::class),
+            };
+        });
     }
 
     /**

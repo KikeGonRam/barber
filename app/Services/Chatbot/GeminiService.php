@@ -2,11 +2,15 @@
 
 namespace App\Services\Chatbot;
 
+use App\Services\Chatbot\Concerns\BuildsBarberSystemPrompt;
+use App\Services\Chatbot\Contracts\ChatbotAiProvider;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class GeminiService
+class GeminiService implements ChatbotAiProvider
 {
+    use BuildsBarberSystemPrompt;
+
     // gemini-1.5-pro fue deprecado — usar v1beta + gemini-2.0-flash
     private string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
@@ -15,6 +19,16 @@ class GeminiService
     public function __construct()
     {
         $this->apiKey = config('services.gemini.api_key');
+    }
+
+    public function isEnabled(): bool
+    {
+        return ! empty($this->apiKey);
+    }
+
+    public function label(): string
+    {
+        return 'gemini-2.0-flash';
     }
 
     public function generateResponse(string $userMessage, array $contextData): string
@@ -77,33 +91,5 @@ class GeminiService
 
             return 'Error de conexión con el servicio de IA.';
         }
-    }
-
-    public function buildSystemPrompt(array $data): string
-    {
-        $services = implode(', ', $data['services']);
-        $barbers = implode(', ', $data['barbers']);
-        $userContext = $data['user_name']
-            ? "El usuario se llama {$data['user_name']} y su rol es {$data['user_role']}."
-            : 'El usuario es un visitante no registrado.';
-
-        return <<<EOT
-Eres "BarberPro Concierge", el asistente de IA de una barbería de lujo y alta gama.
-Tu tono debe ser: Profesional, elegante, servicial y breve. Nunca inventes precios o servicios que no estén en la lista.
-
-DATOS DEL NEGOCIO (Contexto Real):
-- Ubicación: Av. Reforma 123, CDMX.
-- Horario: Lunes a Sábado, 9AM - 9PM.
-- Servicios Disponibles: {$services}.
-- Maestros Barberos: {$barbers}.
-- Política: Cancelaciones con 24h de antelación. Aceptamos Efectivo, Tarjeta y QR.
-
-CONTEXTO DEL USUARIO:
-{$userContext}
-{$data['extra_context']}
-
-INSTRUCCIÓN:
-Responde a la consulta del usuario basándote ESTRICTAMENTE en los datos de arriba. Si te preguntan algo que no sabes, sugiere contactar a recepción. Se amable pero directo.
-EOT;
     }
 }

@@ -14,7 +14,7 @@ use App\Services\Chatbot\ChatbotExternalDataService;
 use App\Services\Chatbot\ChatbotIntelligenceService;
 use App\Services\Chatbot\ChatbotLearningService;
 use App\Services\Chatbot\ChatbotUserProfileService;
-use App\Services\Chatbot\GeminiService;
+use App\Services\Chatbot\Contracts\ChatbotAiProvider;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -38,7 +38,7 @@ class ChatbotController extends Controller
     ];
 
     public function __construct(
-        private GeminiService $aiService,
+        private ChatbotAiProvider $aiService,
         private ChatbotIntelligenceService $intelligenceService,
         private ChatbotExternalDataService $externalDataService,
         private ChatbotContextService $contextService,
@@ -170,8 +170,9 @@ class ChatbotController extends Controller
                 return response()->json(['response' => $externalResponse]);
             }
 
-            // 5. LAST: Gemini AI con contexto aumentado
-            if (config('services.gemini.api_key')) {
+            // 5. LAST: IA (Ollama local o Gemini nube) con contexto aumentado
+            $aiProvider = config('chatbot.ai.provider', 'gemini');
+            if ($this->aiService->isEnabled()) {
                 try {
                     $basePrompt = $this->aiService->buildSystemPrompt($contextData);
                     $augmentedPrompt = $this->contextService->generateAugmentedPrompt($message, $basePrompt, $userId);
@@ -188,8 +189,8 @@ class ChatbotController extends Controller
                         $responseTokens = $this->estimateTokenCount($aiResponse);
                         $totalTokens = $promptTokens + $responseTokens;
 
-                        $this->recordProviderTelemetry($userId, 'gemini', 'success', $requestStartedAt, [
-                            'model' => 'gemini-2.0-flash',
+                        $this->recordProviderTelemetry($userId, $aiProvider, 'success', $requestStartedAt, [
+                            'model' => $this->aiService->label(),
                             'input_tokens_estimate' => $promptTokens,
                             'output_tokens_estimate' => $responseTokens,
                             'total_tokens_estimate' => $totalTokens,
@@ -205,7 +206,7 @@ class ChatbotController extends Controller
                         'error' => $e->getMessage(),
                     ]);
 
-                    $this->recordProviderTelemetry($userId, 'gemini', 'error', $requestStartedAt, [
+                    $this->recordProviderTelemetry($userId, $aiProvider, 'error', $requestStartedAt, [
                         'error' => $e->getMessage(),
                     ]);
 
