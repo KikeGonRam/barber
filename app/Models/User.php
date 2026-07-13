@@ -135,6 +135,22 @@ class User extends Authenticatable implements MustVerifyEmail
         return (bool) ($this->notificationPreferences()[$channel] ?? false);
     }
 
+    /**
+     * Filtra usuarios por nombre(s) de rol de forma nativa en MongoDB.
+     *
+     * El scope role() de Spatie usa MorphToMany y falla en Mongo
+     * ("MorphToMany is not supported for hybrid query constraints"); aqui los
+     * roles se guardan como role_id en el propio documento del usuario.
+     *
+     * @param  array<int, string>|string  $names
+     */
+    public function scopeWhereRoleName($query, array|string $names)
+    {
+        $roleIds = Role::whereIn('name', (array) $names)->pluck('id')->all();
+
+        return $query->whereIn('role_id', $roleIds);
+    }
+
     public function clientPhone(): ?string
     {
         return $this->clientProfile?->telefono;

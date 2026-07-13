@@ -28,7 +28,7 @@ class UserController extends Controller
             ->when($search !== '', fn($q) => $q->where(fn($s) => $s
                 ->where('name', 'like', "%{$search}%")
                 ->orWhere('email', 'like', "%{$search}%")))
-            ->when($roleFilter !== '', fn($q) => $q->role($roleFilter))
+            ->when($roleFilter !== '', fn($q) => $q->whereRoleName($roleFilter))
             ->when($verified === '1', fn($q) => $q->whereNotNull('email_verified_at'))
             ->when($verified === '0', fn($q) => $q->whereNull('email_verified_at'))
             ->latest('id')

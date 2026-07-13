@@ -10,7 +10,7 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
 use App\Models\Service;
-use App\Notifications\AppointmentNotification;
+use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +18,10 @@ use Illuminate\View\View;
 
 class AppointmentController extends Controller
 {
-    public function __construct(private readonly AppointmentService $appointmentService) {}
+    public function __construct(
+        private readonly AppointmentService $appointmentService,
+        private readonly AppointmentNotifier $notifier,
+    ) {}
 
     public function index(\Illuminate\Http\Request $request): View
     {
@@ -251,6 +254,8 @@ class AppointmentController extends Controller
             }
         }
 
+        $this->notifier->statusChanged($appointment, $estado);
+
         return back()->with('status', "Cita actualizada a: {$estado}.");
     }
 
@@ -261,20 +266,7 @@ class AppointmentController extends Controller
             'cancelada_en' => now(),
         ]);
 
-        $appointment->load(['client.user', 'service']);
-
-        $user = $appointment->client?->user;
-
-        if ($user) {
-            $user->notify(new AppointmentNotification(
-                appointment: $appointment,
-                subject: 'Cita cancelada',
-                title: 'Tu cita fue cancelada',
-                message: 'Tu cita fue cancelada. Si deseas, puedes reagendar desde tu panel.',
-            ));
-
-            $appointment->update(['cancellation_notified_at' => now()]);
-        }
+        $this->notifier->cancelled($appointment);
 
         return redirect()
             ->route('appointments.index')

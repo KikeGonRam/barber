@@ -8,13 +8,15 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarbershopSetting;
 use App\Models\Service;
-use App\Notifications\AppointmentNotification;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use Carbon\Carbon;
 
 class AppointmentService
 {
-    public function __construct(private readonly AppointmentRepositoryInterface $appointments) {}
+    public function __construct(
+        private readonly AppointmentRepositoryInterface $appointments,
+        private readonly AppointmentNotifier $notifier,
+    ) {}
 
     public function getAvailableSlots(Barber $barber, string $date, Service $service): array
     {
@@ -104,28 +106,9 @@ class AppointmentService
         $this->ensureNoOverlap($payload);
 
         $appointment = $this->appointments->create($payload);
-        $appointment->load(['client.user', 'service']);
 
-        $user = $appointment->client?->user;
-
-        if ($user) {
-            try {
-                $user->notify(new AppointmentNotification(
-                    appointment: $appointment,
-                    subject: 'Confirmación de cita',
-                    title: 'Tu cita fue registrada',
-                    message: 'Tu cita fue confirmada. Te esperamos el día indicado.',
-                ));
-
-                $appointment->update(['confirmation_sent_at' => now()]);
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Fallo notificación confirmación de cita', [
-                    'appointment_id' => $appointment->id,
-                    'user_id'        => $user->id,
-                    'error'          => $e->getMessage(),
-                ]);
-            }
-        }
+        // Notifica a cliente + barbero + recepcion/admin (resiliente a fallos).
+        $this->notifier->created($appointment);
 
         return $appointment;
     }

@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 Schedule::command('appointments:send-reminders')->everyTenMinutes();
 Schedule::command('tokens:clean-expired')->daily();
 Schedule::command('loyalty:draw-raffle')->monthlyOn(1, '08:00');
+Schedule::command('inventory:low-stock-alert')->dailyAt('09:00');

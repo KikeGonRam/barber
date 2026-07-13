@@ -17,6 +17,10 @@ class AppointmentNotification extends Notification implements ShouldQueue
         public readonly string $subject,
         public readonly string $title,
         public readonly string $message,
+        // Accion del correo/notificacion. Por defecto apunta al panel del
+        // cliente; barbero/recepcion pasan su propia etiqueta y ruta.
+        public readonly ?string $actionLabel = null,
+        public readonly ?string $actionUrl = null,
     ) {}
 
     public function via(object $notifiable): array
@@ -48,7 +52,10 @@ class AppointmentNotification extends Notification implements ShouldQueue
             ->line('**Fecha:** '.optional($this->appointment->fecha)->format('d/m/Y'))
             ->line('**Horario:** '.$hora)
             ->line('**Servicio:** '.($this->appointment->service?->nombre ?? 'N/D'))
-            ->action('Ver mis citas', route('client.appointments.index'));
+            ->action(
+                $this->actionLabel ?? 'Ver mis citas',
+                $this->actionUrl ?? route('client.appointments.index'),
+            );
     }
 
     public function toArray(object $notifiable): array
@@ -62,6 +69,7 @@ class AppointmentNotification extends Notification implements ShouldQueue
             'fecha' => optional($this->appointment->fecha)->toDateString(),
             'hora_inicio' => $this->appointment->hora_inicio,
             'hora_fin' => $this->appointment->hora_fin,
+            'url' => $this->actionUrl ?? route('client.appointments.index'),
         ];
     }
 }

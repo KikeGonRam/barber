@@ -9,7 +9,7 @@ use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\Service;
-use App\Notifications\AppointmentNotification;
+use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -22,7 +22,10 @@ use Illuminate\Http\Request;
  */
 class AppointmentController extends Controller
 {
-    public function __construct(private readonly AppointmentService $appointmentService) {}
+    public function __construct(
+        private readonly AppointmentService $appointmentService,
+        private readonly AppointmentNotifier $notifier,
+    ) {}
 
     /**
      * Listar Citas
@@ -214,6 +217,8 @@ class AppointmentController extends Controller
 
         $appointment->update($validated);
 
+        $this->notifier->statusChanged($appointment, $validated['estado']);
+
         return response()->json([
             'message' => 'Estado actualizado correctamente.',
             'data' => new AppointmentResource($appointment->fresh(['client.user', 'barber.user', 'service'])),
@@ -233,18 +238,7 @@ class AppointmentController extends Controller
             'cancelada_en' => now(),
         ]);
 
-        $appointment->load(['client.user', 'service']);
-
-        if ($appointment->client?->user) {
-            $appointment->client->user->notify(new AppointmentNotification(
-                appointment: $appointment,
-                subject: 'Cita cancelada',
-                title: 'Tu cita fue cancelada',
-                message: 'Tu cita fue cancelada desde la app móvil.',
-            ));
-
-            $appointment->update(['cancellation_notified_at' => now()]);
-        }
+        $this->notifier->cancelled($appointment, 'app movil');
 
         return response()->json([
             'message' => 'Cita cancelada correctamente.',
