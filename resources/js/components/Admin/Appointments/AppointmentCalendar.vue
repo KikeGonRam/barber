@@ -1,12 +1,12 @@
 <template>
   <div class="bg-white rounded-lg shadow-lg p-6">
     <div class="flex items-center justify-between mb-6">
-      <h3 class="text-2xl font-bold text-gray-900">📅 Calendario de Citas</h3>
+      <h3 class="text-2xl font-bold text-gray-900">Calendario de Citas</h3>
       <button
         @click="createNewAppointment"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
       >
-        ➕ Nueva Cita
+        Nueva Cita
       </button>
     </div>
 
@@ -100,13 +100,13 @@
                 @click="editAppointment(apt.id)"
                 class="text-blue-600 hover:text-blue-800 font-semibold"
               >
-                ✏️
+
               </button>
               <button
                 @click="deleteAppointment(apt.id)"
                 class="text-red-600 hover:text-red-800 font-semibold"
               >
-                🗑️
+
               </button>
             </td>
           </tr>
@@ -116,17 +116,17 @@
 
     <!-- Vista de Semana -->
     <div v-if="viewMode === 'week'" class="text-gray-600 text-center py-12">
-      📅 Vista de semana disponible pronto
+      Vista de semana disponible pronto
     </div>
 
     <!-- Vista de Día -->
     <div v-if="viewMode === 'day'" class="text-gray-600 text-center py-12">
-      📅 Vista de día disponible pronto
+      Vista de día disponible pronto
     </div>
 
     <!-- Sin resultados -->
     <div v-if="filteredAppointments.length === 0" class="text-center py-12 text-gray-500">
-      <p>📭 No se encontraron citas con estos filtros</p>
+      <p>No se encontraron citas con estos filtros</p>
     </div>
   </div>
 </template>

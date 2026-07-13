@@ -2,7 +2,7 @@
   <div class="bg-white rounded-lg shadow-lg p-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-      <h3 class="text-2xl font-bold text-gray-900">📦 Gestión de Inventario</h3>
+      <h3 class="text-2xl font-bold text-gray-900">Gestión de Inventario</h3>
       <div class="flex gap-3">
         <input
           v-model="searchProduct"
@@ -14,7 +14,7 @@
           @click="showAddModal = true"
           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
         >
-          ➕ Nuevo Producto
+          Nuevo Producto
         </button>
       </div>
     </div>
@@ -23,10 +23,10 @@
     <div class="flex gap-4 mb-6 pb-6 border-b">
       <select v-model="filterStatus" class="px-4 py-2 border rounded-lg">
         <option value="">Todos los estados</option>
-        <option value="ok">✅ Stock OK</option>
-        <option value="low">⚠️ Stock Bajo</option>
-        <option value="critical">🔴 Crítico</option>
-        <option value="empty">❌ Agotado</option>
+        <option value="ok">Stock OK</option>
+        <option value="low">Stock Bajo</option>
+        <option value="critical">Crítico</option>
+        <option value="empty">Agotado</option>
       </select>
       <select v-model="filterCategory" class="px-4 py-2 border rounded-lg">
         <option value="">Todas las categorías</option>
@@ -39,7 +39,7 @@
         @click="refreshInventory"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
       >
-        🔄 Actualizar
+        Actualizar
       </button>
     </div>
 
@@ -103,13 +103,13 @@
                 @click="editProduct(product.id)"
                 class="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-xs mr-2"
               >
-                ✏️
+
               </button>
               <button
                 @click="deleteProduct(product.id)"
                 class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs"
               >
-                🗑️
+
               </button>
             </td>
           </tr>
@@ -117,14 +117,14 @@
       </table>
 
       <div v-if="filteredProducts.length === 0" class="text-center py-8 text-gray-500">
-        📦 No se encontraron productos
+        No se encontraron productos
       </div>
     </div>
 
     <!-- Modal para agregar/editar producto -->
     <div v-if="showAddModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 w-full max-w-md">
-        <h4 class="text-lg font-bold mb-4">{{ editingId ? '✏️ Editar Producto' : '➕ Nuevo Producto' }}</h4>
+        <h4 class="text-lg font-bold mb-4">{{ editingId ? 'Editar Producto' : 'Nuevo Producto' }}</h4>
 
         <div class="space-y-4">
           <div>
@@ -193,13 +193,13 @@
             @click="saveProduct"
             class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold"
           >
-            ✅ Guardar
+            Guardar
           </button>
           <button
             @click="closeModal"
             class="flex-1 px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 font-semibold"
           >
-            ❌ Cancelar
+            Cancelar
           </button>
         </div>
       </div>
@@ -207,7 +207,7 @@
 
     <!-- Movimientos recientes -->
     <div class="mt-8 pt-6 border-t">
-      <h4 class="text-lg font-bold mb-4">📝 Movimientos Recientes</h4>
+      <h4 class="text-lg font-bold mb-4">Movimientos Recientes</h4>
       <div class="space-y-2 max-h-48 overflow-y-auto">
         <div v-for="movement in recentMovements" :key="movement.id" class="bg-gray-50 rounded-lg p-3 border-l-4" :class="getMovementClass(movement)">
           <div class="flex items-center justify-between">
@@ -296,10 +296,10 @@ export default {
     getStatusLabel(product) {
       const status = this.getStatus(product);
       return {
-        ok: '✅ OK',
-        low: '⚠️ Bajo',
-        critical: '🔴 Crítico',
-        empty: '❌ Agotado',
+        ok: 'OK',
+        low: 'Bajo',
+        critical: 'Crítico',
+        empty: 'Agotado',
       }[status];
     },
     getStatusClass(product) {
@@ -341,14 +341,14 @@ export default {
       }
 
       this.closeModal();
-      alert('✅ Producto guardado correctamente');
+      alert('Producto guardado correctamente');
     },
     deleteProduct(productId) {
       if (confirm('¿Eliminar este producto?')) {
         const index = this.products.findIndex(p => p.id === productId);
         if (index > -1) {
           this.products.splice(index, 1);
-          alert('✅ Producto eliminado');
+          alert('Producto eliminado');
         }
       }
     },
@@ -366,7 +366,7 @@ export default {
     },
     refreshInventory() {
       console.log('Refreshing inventory...');
-      alert('✅ Inventario actualizado');
+      alert('Inventario actualizado');
     },
   },
 };

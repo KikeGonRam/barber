@@ -2,12 +2,12 @@
   <div class="bg-white rounded-lg shadow-lg p-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-      <h3 class="text-2xl font-bold text-gray-900">👥 Gestión de Clientes</h3>
+      <h3 class="text-2xl font-bold text-gray-900">Gestión de Clientes</h3>
       <button
         @click="showCreateModal = true"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
       >
-        ➕ Nuevo Cliente
+        Nuevo Cliente
       </button>
     </div>
 
@@ -22,10 +22,10 @@
 
       <select v-model="filterSegment" class="px-4 py-2 border rounded-lg">
         <option value="">Todos los segmentos</option>
-        <option value="vip">⭐ VIP (Clientes frecuentes)</option>
-        <option value="new">🆕 Nuevos (Últimas 2 semanas)</option>
-        <option value="inactive">😴 Inactivos (>30 días)</option>
-        <option value="debtors">💳 Deudores</option>
+        <option value="vip">VIP (Clientes frecuentes)</option>
+        <option value="new">Nuevos (Últimas 2 semanas)</option>
+        <option value="inactive">Inactivos (>30 días)</option>
+        <option value="debtors">Deudores</option>
       </select>
 
       <select v-model="sortBy" class="px-4 py-2 border rounded-lg">
@@ -40,13 +40,13 @@
           @click="exportToExcel"
           class="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-sm font-semibold"
         >
-          📥 Excel
+          Excel
         </button>
         <button
           @click="exportToPDF"
           class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm font-semibold"
         >
-          📄 PDF
+          PDF
         </button>
       </div>
     </div>
@@ -84,7 +84,7 @@
             </td>
             <td class="px-6 py-4">
               <span :class="client.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-3 py-1 rounded-full text-xs font-semibold">
-                {{ client.active ? '✅ Activo' : '⛔ Inactivo' }}
+                {{ client.active ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
             <td class="px-6 py-4 text-sm space-x-2">
@@ -92,19 +92,19 @@
                 @click="viewProfile(client.id)"
                 class="text-blue-600 hover:text-blue-800 font-semibold"
               >
-                👁️
+
               </button>
               <button
                 @click="editClient(client.id)"
                 class="text-yellow-600 hover:text-yellow-800 font-semibold"
               >
-                ✏️
+
               </button>
               <button
                 @click="deleteClient(client.id)"
                 class="text-red-600 hover:text-red-800 font-semibold"
               >
-                🗑️
+
               </button>
             </td>
           </tr>
@@ -190,7 +190,7 @@
 
     <!-- Sin resultados -->
     <div v-if="filteredClients.length === 0" class="text-center py-12 text-gray-500">
-      <p>👤 No se encontraron clientes con estos criterios</p>
+      <p>No se encontraron clientes con estos criterios</p>
     </div>
   </div>
 </template>
@@ -283,10 +283,10 @@ export default {
   methods: {
     getSegmentLabel(segment) {
       const labels = {
-        vip: '⭐ VIP',
-        new: '🆕 Nuevo',
-        inactive: '😴 Inactivo',
-        debtors: '💳 Deudor',
+        vip: 'VIP',
+        new: 'Nuevo',
+        inactive: 'Inactivo',
+        debtors: 'Deudor',
       };
       return labels[segment] || 'Sin clasificar';
     },

@@ -312,7 +312,7 @@
 
                             <!-- Popular badge -->
                             @if($isPopular)
-                                <div class="popular-badge">★ Popular</div>
+                                <div class="popular-badge">Popular</div>
                             @endif
 
                             <!-- Price tag -->

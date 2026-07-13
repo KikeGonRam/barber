@@ -255,7 +255,7 @@
     <ul class="toc-footer" id="toc-footer">
                     <li style="padding-bottom: 5px;"><a href="{{ route("scribe.postman") }}">View Postman collection</a></li>
                             <li style="padding-bottom: 5px;"><a href="{{ route("scribe.openapi") }}">View OpenAPI spec</a></li>
-                <li><a href="http://github.com/knuckleswtf/scribe">Documentation powered by Scribe ✍</a></li>
+                <li><a href="http://github.com/knuckleswtf/scribe">Documentation powered by Scribe</a></li>
     </ul>
 
     <ul class="toc-footer" id="last-updated">
@@ -359,19 +359,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-auth-login"
-                    onclick="tryItOut('POSTapi-v1-auth-login');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-auth-login');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-auth-login"
-                    onclick="cancelTryOut('POSTapi-v1-auth-login');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-auth-login');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-auth-login"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -521,19 +521,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-auth-register"
-                    onclick="tryItOut('POSTapi-v1-auth-register');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-auth-register');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-auth-register"
-                    onclick="cancelTryOut('POSTapi-v1-auth-register');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-auth-register');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-auth-register"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -697,19 +697,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-services"
-                    onclick="tryItOut('GETapi-v1-services');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-services');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-services"
-                    onclick="cancelTryOut('GETapi-v1-services');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-services');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-services"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -824,19 +824,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-barbers"
-                    onclick="tryItOut('GETapi-v1-barbers');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-barbers');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-barbers"
-                    onclick="cancelTryOut('GETapi-v1-barbers');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-barbers');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-barbers"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -971,19 +971,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-availability-slots"
-                    onclick="tryItOut('GETapi-v1-availability-slots');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-availability-slots');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-availability-slots"
-                    onclick="cancelTryOut('GETapi-v1-availability-slots');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-availability-slots');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-availability-slots"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -1140,19 +1140,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-social-feed"
-                    onclick="tryItOut('GETapi-v1-social-feed');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-social-feed');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-social-feed"
-                    onclick="cancelTryOut('GETapi-v1-social-feed');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-social-feed');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-social-feed"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -1267,19 +1267,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-auth-me"
-                    onclick="tryItOut('GETapi-v1-auth-me');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-auth-me');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-auth-me"
-                    onclick="cancelTryOut('GETapi-v1-auth-me');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-auth-me');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-auth-me"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -1378,19 +1378,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-auth-logout"
-                    onclick="tryItOut('POSTapi-v1-auth-logout');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-auth-logout');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-auth-logout"
-                    onclick="cancelTryOut('POSTapi-v1-auth-logout');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-auth-logout');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-auth-logout"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -1505,19 +1505,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-dashboard"
-                    onclick="tryItOut('GETapi-v1-dashboard');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-dashboard');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-dashboard"
-                    onclick="cancelTryOut('GETapi-v1-dashboard');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-dashboard');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-dashboard"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -1632,19 +1632,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-notifications"
-                    onclick="tryItOut('GETapi-v1-notifications');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-notifications');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-notifications"
-                    onclick="cancelTryOut('GETapi-v1-notifications');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-notifications');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-notifications"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -1743,19 +1743,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-notifications-read-all"
-                    onclick="tryItOut('POSTapi-v1-notifications-read-all');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-notifications-read-all');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-notifications-read-all"
-                    onclick="cancelTryOut('POSTapi-v1-notifications-read-all');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-notifications-read-all');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-notifications-read-all"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -1854,19 +1854,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-social-work--work_id--react"
-                    onclick="tryItOut('POSTapi-v1-social-work--work_id--react');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-social-work--work_id--react');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-social-work--work_id--react"
-                    onclick="cancelTryOut('POSTapi-v1-social-work--work_id--react');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-social-work--work_id--react');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-social-work--work_id--react"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -1978,19 +1978,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-social-work--work_id--save"
-                    onclick="tryItOut('POSTapi-v1-social-work--work_id--save');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-social-work--work_id--save');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-social-work--work_id--save"
-                    onclick="cancelTryOut('POSTapi-v1-social-work--work_id--save');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-social-work--work_id--save');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-social-work--work_id--save"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -2110,19 +2110,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-social-work--work_id--comment"
-                    onclick="tryItOut('POSTapi-v1-social-work--work_id--comment');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-social-work--work_id--comment');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-social-work--work_id--comment"
-                    onclick="cancelTryOut('POSTapi-v1-social-work--work_id--comment');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-social-work--work_id--comment');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-social-work--work_id--comment"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -2263,19 +2263,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-users"
-                    onclick="tryItOut('GETapi-v1-users');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-users');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-users"
-                    onclick="cancelTryOut('GETapi-v1-users');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-users');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-users"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -2388,19 +2388,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-users"
-                    onclick="tryItOut('POSTapi-v1-users');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-users');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-users"
-                    onclick="cancelTryOut('POSTapi-v1-users');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-users');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-users"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -2562,19 +2562,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-PUTapi-v1-users--user_id-"
-                    onclick="tryItOut('PUTapi-v1-users--user_id-');">Try it out ⚡
+                    onclick="tryItOut('PUTapi-v1-users--user_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-PUTapi-v1-users--user_id-"
-                    onclick="cancelTryOut('PUTapi-v1-users--user_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('PUTapi-v1-users--user_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-PUTapi-v1-users--user_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -2735,19 +2735,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-DELETEapi-v1-users--user_id-"
-                    onclick="tryItOut('DELETEapi-v1-users--user_id-');">Try it out ⚡
+                    onclick="tryItOut('DELETEapi-v1-users--user_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-DELETEapi-v1-users--user_id-"
-                    onclick="cancelTryOut('DELETEapi-v1-users--user_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('DELETEapi-v1-users--user_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-DELETEapi-v1-users--user_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -2875,19 +2875,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-clients"
-                    onclick="tryItOut('GETapi-v1-clients');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-clients');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-clients"
-                    onclick="cancelTryOut('GETapi-v1-clients');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-clients');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-clients"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -3010,19 +3010,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-clients"
-                    onclick="tryItOut('POSTapi-v1-clients');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-clients');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-clients"
-                    onclick="cancelTryOut('POSTapi-v1-clients');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-clients');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-clients"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -3292,19 +3292,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-PUTapi-v1-clients--client_id-"
-                    onclick="tryItOut('PUTapi-v1-clients--client_id-');">Try it out ⚡
+                    onclick="tryItOut('PUTapi-v1-clients--client_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-PUTapi-v1-clients--client_id-"
-                    onclick="cancelTryOut('PUTapi-v1-clients--client_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('PUTapi-v1-clients--client_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-PUTapi-v1-clients--client_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -3553,19 +3553,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-DELETEapi-v1-clients--client_id-"
-                    onclick="tryItOut('DELETEapi-v1-clients--client_id-');">Try it out ⚡
+                    onclick="tryItOut('DELETEapi-v1-clients--client_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-DELETEapi-v1-clients--client_id-"
-                    onclick="cancelTryOut('DELETEapi-v1-clients--client_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('DELETEapi-v1-clients--client_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-DELETEapi-v1-clients--client_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -3693,19 +3693,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-services-manage"
-                    onclick="tryItOut('GETapi-v1-services-manage');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-services-manage');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-services-manage"
-                    onclick="cancelTryOut('GETapi-v1-services-manage');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-services-manage');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-services-manage"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -3824,19 +3824,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-services-manage"
-                    onclick="tryItOut('POSTapi-v1-services-manage');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-services-manage');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-services-manage"
-                    onclick="cancelTryOut('POSTapi-v1-services-manage');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-services-manage');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-services-manage"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -4050,19 +4050,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-PUTapi-v1-services-manage--service_id-"
-                    onclick="tryItOut('PUTapi-v1-services-manage--service_id-');">Try it out ⚡
+                    onclick="tryItOut('PUTapi-v1-services-manage--service_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-PUTapi-v1-services-manage--service_id-"
-                    onclick="cancelTryOut('PUTapi-v1-services-manage--service_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('PUTapi-v1-services-manage--service_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-PUTapi-v1-services-manage--service_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -4269,19 +4269,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-DELETEapi-v1-services-manage--service_id-"
-                    onclick="tryItOut('DELETEapi-v1-services-manage--service_id-');">Try it out ⚡
+                    onclick="tryItOut('DELETEapi-v1-services-manage--service_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-DELETEapi-v1-services-manage--service_id-"
-                    onclick="cancelTryOut('DELETEapi-v1-services-manage--service_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('DELETEapi-v1-services-manage--service_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-DELETEapi-v1-services-manage--service_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -4409,19 +4409,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-inventory-products"
-                    onclick="tryItOut('GETapi-v1-inventory-products');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-inventory-products');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-inventory-products"
-                    onclick="cancelTryOut('GETapi-v1-inventory-products');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-inventory-products');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-inventory-products"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -4542,19 +4542,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-inventory-products"
-                    onclick="tryItOut('POSTapi-v1-inventory-products');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-inventory-products');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-inventory-products"
-                    onclick="cancelTryOut('POSTapi-v1-inventory-products');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-inventory-products');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-inventory-products"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -4808,19 +4808,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-PUTapi-v1-inventory-products--product_id-"
-                    onclick="tryItOut('PUTapi-v1-inventory-products--product_id-');">Try it out ⚡
+                    onclick="tryItOut('PUTapi-v1-inventory-products--product_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-PUTapi-v1-inventory-products--product_id-"
-                    onclick="cancelTryOut('PUTapi-v1-inventory-products--product_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('PUTapi-v1-inventory-products--product_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-PUTapi-v1-inventory-products--product_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -5065,19 +5065,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-DELETEapi-v1-inventory-products--product_id-"
-                    onclick="tryItOut('DELETEapi-v1-inventory-products--product_id-');">Try it out ⚡
+                    onclick="tryItOut('DELETEapi-v1-inventory-products--product_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-DELETEapi-v1-inventory-products--product_id-"
-                    onclick="cancelTryOut('DELETEapi-v1-inventory-products--product_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('DELETEapi-v1-inventory-products--product_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-DELETEapi-v1-inventory-products--product_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -5205,19 +5205,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-inventory-movements"
-                    onclick="tryItOut('GETapi-v1-inventory-movements');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-inventory-movements');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-inventory-movements"
-                    onclick="cancelTryOut('GETapi-v1-inventory-movements');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-inventory-movements');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-inventory-movements"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -5332,19 +5332,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-inventory-movements"
-                    onclick="tryItOut('POSTapi-v1-inventory-movements');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-inventory-movements');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-inventory-movements"
-                    onclick="cancelTryOut('POSTapi-v1-inventory-movements');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-inventory-movements');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-inventory-movements"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -5532,19 +5532,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-warehouse"
-                    onclick="tryItOut('GETapi-v1-warehouse');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-warehouse');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-warehouse"
-                    onclick="cancelTryOut('GETapi-v1-warehouse');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-warehouse');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-warehouse"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -5659,19 +5659,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-warehouse"
-                    onclick="tryItOut('POSTapi-v1-warehouse');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-warehouse');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-warehouse"
-                    onclick="cancelTryOut('POSTapi-v1-warehouse');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-warehouse');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-warehouse"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -5881,19 +5881,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-PUTapi-v1-warehouse--inventory_id-"
-                    onclick="tryItOut('PUTapi-v1-warehouse--inventory_id-');">Try it out ⚡
+                    onclick="tryItOut('PUTapi-v1-warehouse--inventory_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-PUTapi-v1-warehouse--inventory_id-"
-                    onclick="cancelTryOut('PUTapi-v1-warehouse--inventory_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('PUTapi-v1-warehouse--inventory_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-PUTapi-v1-warehouse--inventory_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -6100,19 +6100,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-DELETEapi-v1-warehouse--inventory_id-"
-                    onclick="tryItOut('DELETEapi-v1-warehouse--inventory_id-');">Try it out ⚡
+                    onclick="tryItOut('DELETEapi-v1-warehouse--inventory_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-DELETEapi-v1-warehouse--inventory_id-"
-                    onclick="cancelTryOut('DELETEapi-v1-warehouse--inventory_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('DELETEapi-v1-warehouse--inventory_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-DELETEapi-v1-warehouse--inventory_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -6240,19 +6240,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-payments"
-                    onclick="tryItOut('GETapi-v1-payments');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-payments');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-payments"
-                    onclick="cancelTryOut('GETapi-v1-payments');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-payments');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-payments"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -6365,19 +6365,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-payments"
-                    onclick="tryItOut('POSTapi-v1-payments');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-payments');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-payments"
-                    onclick="cancelTryOut('POSTapi-v1-payments');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-payments');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-payments"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -6527,19 +6527,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-DELETEapi-v1-payments--payment_id-"
-                    onclick="tryItOut('DELETEapi-v1-payments--payment_id-');">Try it out ⚡
+                    onclick="tryItOut('DELETEapi-v1-payments--payment_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-DELETEapi-v1-payments--payment_id-"
-                    onclick="cancelTryOut('DELETEapi-v1-payments--payment_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('DELETEapi-v1-payments--payment_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-DELETEapi-v1-payments--payment_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -6667,19 +6667,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-payments--payment_id--receipt"
-                    onclick="tryItOut('GETapi-v1-payments--payment_id--receipt');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-payments--payment_id--receipt');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-payments--payment_id--receipt"
-                    onclick="cancelTryOut('GETapi-v1-payments--payment_id--receipt');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-payments--payment_id--receipt');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-payments--payment_id--receipt"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -6807,19 +6807,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-logs"
-                    onclick="tryItOut('GETapi-v1-logs');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-logs');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-logs"
-                    onclick="cancelTryOut('GETapi-v1-logs');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-logs');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-logs"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -6934,19 +6934,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-barbers-manage"
-                    onclick="tryItOut('GETapi-v1-barbers-manage');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-barbers-manage');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-barbers-manage"
-                    onclick="cancelTryOut('GETapi-v1-barbers-manage');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-barbers-manage');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-barbers-manage"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -7063,19 +7063,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-PUTapi-v1-barbers-manage--barber_id-"
-                    onclick="tryItOut('PUTapi-v1-barbers-manage--barber_id-');">Try it out ⚡
+                    onclick="tryItOut('PUTapi-v1-barbers-manage--barber_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-PUTapi-v1-barbers-manage--barber_id-"
-                    onclick="cancelTryOut('PUTapi-v1-barbers-manage--barber_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('PUTapi-v1-barbers-manage--barber_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-PUTapi-v1-barbers-manage--barber_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -7286,19 +7286,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-settings"
-                    onclick="tryItOut('GETapi-v1-settings');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-settings');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-settings"
-                    onclick="cancelTryOut('GETapi-v1-settings');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-settings');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-settings"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -7421,19 +7421,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-PUTapi-v1-settings"
-                    onclick="tryItOut('PUTapi-v1-settings');">Try it out ⚡
+                    onclick="tryItOut('PUTapi-v1-settings');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-PUTapi-v1-settings"
-                    onclick="cancelTryOut('PUTapi-v1-settings');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('PUTapi-v1-settings');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-PUTapi-v1-settings"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -7641,19 +7641,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-settings-maintenance"
-                    onclick="tryItOut('POSTapi-v1-settings-maintenance');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-settings-maintenance');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-settings-maintenance"
-                    onclick="cancelTryOut('POSTapi-v1-settings-maintenance');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-settings-maintenance');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-settings-maintenance"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -7768,19 +7768,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-reports"
-                    onclick="tryItOut('GETapi-v1-reports');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-reports');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-reports"
-                    onclick="cancelTryOut('GETapi-v1-reports');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-reports');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-reports"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -7895,19 +7895,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-reports--type---format-"
-                    onclick="tryItOut('GETapi-v1-reports--type---format-');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-reports--type---format-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-reports--type---format-"
-                    onclick="cancelTryOut('GETapi-v1-reports--type---format-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-reports--type---format-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-reports--type---format-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -8047,19 +8047,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-appointments"
-                    onclick="tryItOut('GETapi-v1-appointments');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-appointments');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-appointments"
-                    onclick="cancelTryOut('GETapi-v1-appointments');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-appointments');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-appointments"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -8174,19 +8174,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-appointments"
-                    onclick="tryItOut('POSTapi-v1-appointments');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-appointments');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-appointments"
-                    onclick="cancelTryOut('POSTapi-v1-appointments');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-appointments');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-appointments"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -8366,19 +8366,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-PUTapi-v1-appointments--appointment_id-"
-                    onclick="tryItOut('PUTapi-v1-appointments--appointment_id-');">Try it out ⚡
+                    onclick="tryItOut('PUTapi-v1-appointments--appointment_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-PUTapi-v1-appointments--appointment_id-"
-                    onclick="cancelTryOut('PUTapi-v1-appointments--appointment_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('PUTapi-v1-appointments--appointment_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-PUTapi-v1-appointments--appointment_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -8587,19 +8587,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-PATCHapi-v1-appointments--appointment_id--status"
-                    onclick="tryItOut('PATCHapi-v1-appointments--appointment_id--status');">Try it out ⚡
+                    onclick="tryItOut('PATCHapi-v1-appointments--appointment_id--status');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-PATCHapi-v1-appointments--appointment_id--status"
-                    onclick="cancelTryOut('PATCHapi-v1-appointments--appointment_id--status');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('PATCHapi-v1-appointments--appointment_id--status');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-PATCHapi-v1-appointments--appointment_id--status"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -8738,19 +8738,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-DELETEapi-v1-appointments--appointment_id-"
-                    onclick="tryItOut('DELETEapi-v1-appointments--appointment_id-');">Try it out ⚡
+                    onclick="tryItOut('DELETEapi-v1-appointments--appointment_id-');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-DELETEapi-v1-appointments--appointment_id-"
-                    onclick="cancelTryOut('DELETEapi-v1-appointments--appointment_id-');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('DELETEapi-v1-appointments--appointment_id-');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-DELETEapi-v1-appointments--appointment_id-"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -8878,19 +8878,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-chatbot-history"
-                    onclick="tryItOut('GETapi-v1-chatbot-history');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-chatbot-history');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-chatbot-history"
-                    onclick="cancelTryOut('GETapi-v1-chatbot-history');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-chatbot-history');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-chatbot-history"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -9005,19 +9005,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-chatbot-profile"
-                    onclick="tryItOut('GETapi-v1-chatbot-profile');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-chatbot-profile');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-chatbot-profile"
-                    onclick="cancelTryOut('GETapi-v1-chatbot-profile');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-chatbot-profile');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-chatbot-profile"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -9116,19 +9116,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-chatbot-clear-history"
-                    onclick="tryItOut('POSTapi-v1-chatbot-clear-history');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-chatbot-clear-history');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-chatbot-clear-history"
-                    onclick="cancelTryOut('POSTapi-v1-chatbot-clear-history');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-chatbot-clear-history');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-chatbot-clear-history"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -9243,19 +9243,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-GETapi-v1-chatbot-learning-stats"
-                    onclick="tryItOut('GETapi-v1-chatbot-learning-stats');">Try it out ⚡
+                    onclick="tryItOut('GETapi-v1-chatbot-learning-stats');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-GETapi-v1-chatbot-learning-stats"
-                    onclick="cancelTryOut('GETapi-v1-chatbot-learning-stats');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('GETapi-v1-chatbot-learning-stats');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-GETapi-v1-chatbot-learning-stats"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -9354,19 +9354,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-chatbot-train-history"
-                    onclick="tryItOut('POSTapi-v1-chatbot-train-history');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-chatbot-train-history');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-chatbot-train-history"
-                    onclick="cancelTryOut('POSTapi-v1-chatbot-train-history');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-chatbot-train-history');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-chatbot-train-history"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>
@@ -9465,19 +9465,19 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-tryout-POSTapi-v1-chatbot-query"
-                    onclick="tryItOut('POSTapi-v1-chatbot-query');">Try it out ⚡
+                    onclick="tryItOut('POSTapi-v1-chatbot-query');">Try it out
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-canceltryout-POSTapi-v1-chatbot-query"
-                    onclick="cancelTryOut('POSTapi-v1-chatbot-query');" hidden>Cancel 🛑
+                    onclick="cancelTryOut('POSTapi-v1-chatbot-query');" hidden>Cancel
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
                     id="btn-executetryout-POSTapi-v1-chatbot-query"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
+                    data-initial-text="Send Request"
+                    data-loading-text="Sending..."
+                    hidden>Send Request
             </button>
             </h3>
             <p>

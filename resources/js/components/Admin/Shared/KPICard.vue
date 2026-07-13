@@ -16,8 +16,8 @@
     <!-- Indicador de tendencia -->
     <div class="mt-4 pt-4 border-t border-blue-400 border-opacity-30">
       <p class="text-xs text-blue-100">
-        <span v-if="trendUp" class="text-green-300">📈</span>
-        <span v-else class="text-red-300">📉</span>
+        <span v-if="trendUp" class="text-green-300"></span>
+        <span v-else class="text-red-300"></span>
         {{ trendUp ? 'Crecimiento' : 'Disminución' }} respecto a ayer
       </p>
     </div>
@@ -38,7 +38,7 @@ export default {
     },
     icon: {
       type: String,
-      default: '📊',
+      default: '',
     },
     trend: {
       type: String,

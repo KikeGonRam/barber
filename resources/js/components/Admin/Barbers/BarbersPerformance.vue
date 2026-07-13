@@ -2,12 +2,12 @@
   <div class="bg-white rounded-lg shadow-lg p-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-      <h3 class="text-2xl font-bold text-gray-900">✂️ Performance de Barberos</h3>
+      <h3 class="text-2xl font-bold text-gray-900">Performance de Barberos</h3>
       <button
         @click="refreshData"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
       >
-        🔄 Actualizar
+        Actualizar
       </button>
     </div>
 
@@ -21,8 +21,8 @@
       />
       <select v-model="filterStatus" class="px-4 py-2 border rounded-lg">
         <option value="">Todos los estados</option>
-        <option value="active">✅ Activos</option>
-        <option value="inactive">⛔ Inactivos</option>
+        <option value="active">Activos</option>
+        <option value="inactive">Inactivos</option>
       </select>
     </div>
 
@@ -50,7 +50,7 @@
         <div class="p-4 space-y-3">
           <!-- Calificación -->
           <div class="flex items-center justify-between">
-            <span class="text-gray-700 font-semibold">⭐ Calificación</span>
+            <span class="text-gray-700 font-semibold">Calificación</span>
             <div class="flex items-center gap-1">
               <span class="text-lg font-bold text-yellow-500">{{ barber.rating }}</span>
               <span class="text-sm text-gray-600">({{ barber.ratingCount }})</span>
@@ -59,13 +59,13 @@
 
           <!-- Citas hoy -->
           <div class="flex items-center justify-between">
-            <span class="text-gray-700 font-semibold">📅 Citas Hoy</span>
+            <span class="text-gray-700 font-semibold">Citas Hoy</span>
             <span class="text-lg font-bold text-blue-600">{{ barber.appointmentsToday }}/{{ barber.maxAppointments }}</span>
           </div>
 
           <!-- Ocupación -->
           <div class="flex items-center justify-between">
-            <span class="text-gray-700 font-semibold">📊 Ocupación</span>
+            <span class="text-gray-700 font-semibold">Ocupación</span>
             <div class="flex items-center gap-2">
               <div class="w-24 h-2 bg-gray-300 rounded-full overflow-hidden">
                 <div
@@ -80,26 +80,26 @@
 
           <!-- Ingresos -->
           <div class="flex items-center justify-between">
-            <span class="text-gray-700 font-semibold">💰 Ingresos Hoy</span>
+            <span class="text-gray-700 font-semibold">Ingresos Hoy</span>
             <span class="text-lg font-bold text-green-600">${{ barber.revenueToday }}</span>
           </div>
 
           <!-- Cliente favorito -->
           <div class="flex items-center justify-between">
-            <span class="text-gray-700 font-semibold">👥 Clientes</span>
+            <span class="text-gray-700 font-semibold">Clientes</span>
             <span class="text-sm text-gray-600">{{ barber.totalClients }} regulares</span>
           </div>
 
           <!-- Tiempo promedio -->
           <div class="flex items-center justify-between">
-            <span class="text-gray-700 font-semibold">⏱️ Promedio</span>
+            <span class="text-gray-700 font-semibold">Promedio</span>
             <span class="text-sm text-gray-600">{{ barber.avgServiceTime }} min</span>
           </div>
 
           <!-- Estado -->
           <div class="border-t pt-3">
             <span :class="barber.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="inline-block px-3 py-1 rounded-full text-xs font-semibold">
-              {{ barber.active ? '✅ Activo' : '⛔ Inactivo' }}
+              {{ barber.active ? 'Activo' : 'Inactivo' }}
             </span>
           </div>
         </div>
@@ -110,19 +110,19 @@
             @click="viewProfile(barber.id)"
             class="flex-1 px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-sm font-semibold"
           >
-            👁️ Ver
+            Ver
           </button>
           <button
             @click="editBarber(barber.id)"
             class="flex-1 px-3 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition text-sm font-semibold"
           >
-            ✏️ Editar
+            Editar
           </button>
           <button
             @click="viewSchedule(barber.id)"
             class="flex-1 px-3 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition text-sm font-semibold"
           >
-            📅 Agenda
+            Agenda
           </button>
         </div>
       </div>
@@ -130,12 +130,12 @@
 
     <!-- Sin resultados -->
     <div v-if="filteredBarbers.length === 0" class="text-center py-12 text-gray-500">
-      <p>✂️ No se encontraron barberos con estos criterios</p>
+      <p>No se encontraron barberos con estos criterios</p>
     </div>
 
     <!-- Resumen de performance -->
     <div v-if="filteredBarbers.length > 0" class="mt-8 pt-6 border-t">
-      <h4 class="text-lg font-bold mb-4">📊 Resumen de Performance</h4>
+      <h4 class="text-lg font-bold mb-4">Resumen de Performance</h4>
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="bg-blue-50 rounded-lg p-4">
           <p class="text-gray-600 text-sm">Promedio de Calificación</p>

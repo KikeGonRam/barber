@@ -32,14 +32,14 @@
             <!-- Header -->
             <div class="sticky top-0 bg-indigo-600 text-white px-6 py-4 flex items-center justify-between">
                 <h2 class="text-lg font-bold flex items-center gap-2">
-                    ⌨️ Atajos de Teclado
+                    Atajos de Teclado
                 </h2>
                 <button
                     @click="showModal = false"
                     class="text-white hover:text-gray-300 transition text-xl"
                     aria-label="Cerrar"
                 >
-                    ✕
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
@@ -47,7 +47,7 @@
             <div class="p-6">
                 <!-- Categoría: Navegación -->
                 <div class="mb-6">
-                    <h3 class="text-sm font-bold text-gold mb-3 uppercase tracking-wider">🧭 Navegación</h3>
+                    <h3 class="text-sm font-bold text-gold mb-3 uppercase tracking-wider">Navegación</h3>
                     <div class="space-y-2 text-sm">
                         <div class="flex items-center justify-between">
                             <span class="text-muted">Dashboard</span>

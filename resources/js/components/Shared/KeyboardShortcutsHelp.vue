@@ -26,14 +26,14 @@
           <!-- Header -->
           <div class="sticky top-0 bg-blue-600 dark:bg-blue-700 text-white px-6 py-4 flex items-center justify-between">
             <h2 class="text-xl font-bold flex items-center gap-2">
-              ⌨️ Atajos de Teclado
+              Atajos de Teclado
             </h2>
             <button
               @click="showModal = false"
               class="text-white hover:text-gray-200 transition"
               aria-label="Close"
             >
-              ✕
+
             </button>
           </div>
 
@@ -43,7 +43,7 @@
             <div class="space-y-6">
               <!-- Navegación -->
               <div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">🧭 Navegación</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Navegación</h3>
                 <div class="space-y-2">
                   <div v-for="shortcut in navigationShortcuts" :key="shortcut.keys" class="flex items-center justify-between">
                     <span class="text-gray-700 dark:text-gray-300">{{ shortcut.description }}</span>
@@ -56,7 +56,7 @@
 
               <!-- Edición -->
               <div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">✏️ Edición</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Edición</h3>
                 <div class="space-y-2">
                   <div class="flex items-center justify-between">
                     <span class="text-gray-700 dark:text-gray-300">Guardar</span>
@@ -75,7 +75,7 @@
 
               <!-- Herramientas -->
               <div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">🛠️ Herramientas</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Herramientas</h3>
                 <div class="space-y-2">
                   <div class="flex items-center justify-between">
                     <span class="text-gray-700 dark:text-gray-300">Buscar</span>
@@ -101,7 +101,7 @@
               <!-- Tips -->
               <div class="bg-blue-50 dark:bg-blue-900 rounded-lg p-4 border-l-4 border-blue-600">
                 <p class="text-sm text-blue-900 dark:text-blue-100">
-                  💡 <strong>Tip:</strong> Los atajos de teclado no funcionan mientras escribes en inputs o textareas.
+                  <strong>Tip:</strong> Los atajos de teclado no funcionan mientras escribes en inputs o textareas.
                 </p>
               </div>
             </div>

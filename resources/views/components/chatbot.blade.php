@@ -249,7 +249,7 @@ function chatbotWidget() {
                 } else if (res.status === 422) {
                     this.messages.push({ role: 'bot', text: 'Escribe tu consulta primero.' });
                 } else {
-                    this.messages.push({ role: 'bot', text: data.response ?? '🤔 Sin respuesta disponible.' });
+                    this.messages.push({ role: 'bot', text: data.response ?? 'Sin respuesta disponible.' });
                 }
             } catch {
                 this.messages.push({ role: 'bot', text: 'Sin conexión. Intenta de nuevo.' });

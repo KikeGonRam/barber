@@ -19,8 +19,9 @@
     <button
       @click="$emit('close')"
       class="text-lg opacity-60 hover:opacity-100 transition flex-shrink-0"
+      aria-label="Cerrar"
     >
-      ✕
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
   </div>
 </template>
@@ -49,12 +50,12 @@ export default {
     },
     icon() {
       const icons = {
-        warning: '⚠️',
-        error: '❌',
-        success: '✅',
-        info: 'ℹ️',
+        warning: '',
+        error: '',
+        success: '',
+        info: '',
       };
-      return icons[this.alert.type] || '📢';
+      return icons[this.alert.type] || '';
     },
   },
   methods: {

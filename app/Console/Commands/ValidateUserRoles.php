@@ -12,23 +12,23 @@ class ValidateUserRoles extends Command
 
     public function handle()
     {
-        $this->info('🔍 Validating User Roles & Permissions...\n');
+        $this->info('Validating User Roles & Permissions...\n');
 
         $users = User::with('roles', 'permissions')->get();
 
         if ($users->isEmpty()) {
-            $this->error('❌ No users found in database. Run seeders first!');
+            $this->error('No users found in database. Run seeders first!');
             return 1;
         }
 
-        $this->info("📋 Found " . $users->count() . " users\n");
+        $this->info("Found " . $users->count() . " users\n");
 
         foreach ($users as $user) {
             $roles = $user->roles->pluck('name')->join(', ') ?: 'No roles';
             $perms = $user->permissions->pluck('name')->count();
 
             $this->line("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-            $this->line("👤 {$user->name} ({$user->email})");
+            $this->line("{$user->name} ({$user->email})");
             $this->line("   Roles: {$roles}");
             $this->line("   Direct Permissions: {$perms}");
 
@@ -39,7 +39,7 @@ class ValidateUserRoles extends Command
             if ($allPerms->count() > 0) {
                 $this->line("\n   Permissions:");
                 foreach ($allPerms->take(5) as $perm) {
-                    $this->line("      ✓ {$perm->name}");
+                    $this->line("      [OK] {$perm->name}");
                 }
                 if ($allPerms->count() > 5) {
                     $this->line("      ... and " . ($allPerms->count() - 5) . " more");
@@ -51,7 +51,7 @@ class ValidateUserRoles extends Command
         $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         
         // Validate specific permissions
-        $this->info("\n✅ Validating Permission Matrix...\n");
+        $this->info("\nValidating Permission Matrix...\n");
 
         $adminUser = User::whereHas('roles', fn ($q) => $q->where('name', 'administrador'))->first();
         $recepUser = User::whereHas('roles', fn ($q) => $q->where('name', 'recepcionista'))->first();
@@ -110,23 +110,23 @@ class ValidateUserRoles extends Command
             ]);
         }
 
-        $this->info("\n✅ Role validation complete!\n");
+        $this->info("\nRole validation complete!\n");
         return 0;
     }
 
     protected function validateRole($user, $roleName, $permissions)
     {
-        $this->line("\n📋 {$roleName}:");
+        $this->line("\n{$roleName}:");
         $allPass = true;
 
         foreach ($permissions as $permission => $shouldHave) {
             $hasPermission = $user->hasPermissionTo($permission);
             
             if ($hasPermission === $shouldHave) {
-                $status = $shouldHave ? '✓' : '✗';
+                $status = $shouldHave ? '[OK]' : '[--]';
                 $this->line("   {$status} {$permission}");
             } else {
-                $this->line("   ❌ {$permission} (Expected: " . ($shouldHave ? 'YES' : 'NO') . ", Got: " . ($hasPermission ? 'YES' : 'NO') . ")");
+                $this->line("   [FAIL] {$permission} (Expected: " . ($shouldHave ? 'YES' : 'NO') . ", Got: " . ($hasPermission ? 'YES' : 'NO') . ")");
                 $allPass = false;
             }
         }

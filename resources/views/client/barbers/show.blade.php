@@ -183,7 +183,7 @@
                             <p style="font-size:0.6rem;font-weight:800;color:#fff;text-transform:uppercase;line-height:1.2;" class="line-clamp-1">{{ $work->title }}</p>
                             <div class="flex items-center gap-2 mt-1">
                                 @if($work->reactions->count() > 0)
-                                <span style="font-size:0.6rem;color:rgba(255,255,255,0.5);">♥ {{ $work->reactions->count() }}</span>
+                                <span style="font-size:0.6rem;color:rgba(255,255,255,0.5);">{{ $work->reactions->count() }}</span>
                                 @endif
                                 @if($work->comments->count() > 0)
                                 <span style="font-size:0.6rem;color:rgba(255,255,255,0.5);">

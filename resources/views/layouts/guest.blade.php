@@ -77,7 +77,7 @@
                             <p class="text-[9px] font-bold uppercase tracking-widest text-muted mt-0.5">Años de experiencia</p>
                         </div>
                         <div class="border-l-2 border-gold/30 pl-4">
-                            <p class="text-2xl font-black text-white">4.9<span class="text-gold">★</span></p>
+                            <p class="text-2xl font-black text-white">4.9</p>
                             <p class="text-[9px] font-bold uppercase tracking-widest text-muted mt-0.5">Calificación</p>
                         </div>
                     </div>

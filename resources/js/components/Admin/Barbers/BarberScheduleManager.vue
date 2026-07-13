@@ -2,7 +2,7 @@
   <div class="bg-white rounded-lg shadow-lg p-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-      <h3 class="text-2xl font-bold text-gray-900">📅 Gestor de Horarios</h3>
+      <h3 class="text-2xl font-bold text-gray-900">Gestor de Horarios</h3>
       <div class="flex gap-3">
         <button
           @click="previousDay"
@@ -38,7 +38,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Columna izquierda: Horarios del día -->
       <div class="lg:col-span-2">
-        <h4 class="text-lg font-bold mb-4">⏰ Horarios - {{ formatDate(selectedDate) }}</h4>
+        <h4 class="text-lg font-bold mb-4">Horarios - {{ formatDate(selectedDate) }}</h4>
         <div class="bg-gray-50 rounded-lg p-4 space-y-2 max-h-96 overflow-y-auto">
           <div
             v-for="slot in timeSlots"
@@ -61,7 +61,7 @@
 
       <!-- Columna derecha: Citas del día -->
       <div>
-        <h4 class="text-lg font-bold mb-4">📋 Citas Programadas</h4>
+        <h4 class="text-lg font-bold mb-4">Citas Programadas</h4>
         <div class="space-y-3 max-h-96 overflow-y-auto">
           <div
             v-for="appointment in dayAppointments"
@@ -69,27 +69,27 @@
             class="bg-blue-50 border-l-4 border-blue-600 rounded-lg p-3"
           >
             <p class="font-bold text-blue-900">{{ appointment.clientName }}</p>
-            <p class="text-sm text-blue-700">🕐 {{ appointment.time }}</p>
-            <p class="text-sm text-blue-700">✂️ {{ appointment.service }}</p>
-            <p class="text-sm text-blue-700">💰 ${{ appointment.price }}</p>
+            <p class="text-sm text-blue-700">{{ appointment.time }}</p>
+            <p class="text-sm text-blue-700">{{ appointment.service }}</p>
+            <p class="text-sm text-blue-700">${{ appointment.price }}</p>
             <div class="flex gap-2 mt-2">
               <button
                 @click="editAppointment(appointment.id)"
                 class="flex-1 px-2 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600"
               >
-                ✏️ Editar
+                Editar
               </button>
               <button
                 @click="deleteAppointment(appointment.id)"
                 class="flex-1 px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
               >
-                🗑️ Eliminar
+                Eliminar
               </button>
             </div>
           </div>
 
           <div v-if="dayAppointments.length === 0" class="text-center py-4 text-gray-500">
-            ✅ Sin citas programadas
+            Sin citas programadas
           </div>
         </div>
       </div>
@@ -97,7 +97,7 @@
 
     <!-- Formulario para agregar cita -->
     <div v-if="selectedSlot" class="mt-8 pt-6 border-t">
-      <h4 class="text-lg font-bold mb-4">➕ Crear Nueva Cita</h4>
+      <h4 class="text-lg font-bold mb-4">Crear Nueva Cita</h4>
       <div class="bg-blue-50 rounded-lg p-6 border-2 border-blue-200">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -144,13 +144,13 @@
             @click="createAppointment"
             class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-bold"
           >
-            ✅ Agendar Cita
+            Agendar Cita
           </button>
           <button
             @click="cancelNewAppointment"
             class="flex-1 px-4 py-3 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition font-bold"
           >
-            ❌ Cancelar
+            Cancelar
           </button>
         </div>
       </div>
@@ -158,7 +158,7 @@
 
     <!-- Resumen del día -->
     <div class="mt-8 pt-6 border-t">
-      <h4 class="text-lg font-bold mb-4">📊 Resumen del Día</h4>
+      <h4 class="text-lg font-bold mb-4">Resumen del Día</h4>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600">
           <p class="text-gray-600 text-sm">Total Citas</p>
@@ -281,7 +281,7 @@ export default {
       });
 
       this.cancelNewAppointment();
-      alert('✅ Cita agendada correctamente');
+      alert('Cita agendada correctamente');
     },
     cancelNewAppointment() {
       this.selectedSlot = null;
@@ -299,7 +299,7 @@ export default {
       const index = this.appointments.findIndex(a => a.id === appointmentId);
       if (index > -1) {
         this.appointments.splice(index, 1);
-        alert('✅ Cita eliminada');
+        alert('Cita eliminada');
       }
     },
   },

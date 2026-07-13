@@ -30,7 +30,7 @@
                 <div class="flex items-center gap-3 rounded-xl border border-white/5 bg-black/30 px-4 py-3">
                     <span class="flex-1 font-mono text-base font-black text-white tracking-widest">{{ $db['clabe'] }}</span>
                     <button type="button"
-                        onclick="navigator.clipboard.writeText('{{ $db['clabe'] }}').then(() => { this.textContent = '✓'; setTimeout(() => this.textContent = 'Copiar', 1500) })"
+                        onclick="navigator.clipboard.writeText('{{ $db['clabe'] }}').then(() => { this.textContent = 'Copiado'; setTimeout(() => this.textContent = 'Copiar', 1500) })"
                         class="text-[9px] font-black uppercase text-gold/70 hover:text-gold border border-gold/20 hover:border-gold/40 px-2.5 py-1 rounded-lg transition-all">
                         Copiar
                     </button>

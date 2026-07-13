@@ -233,7 +233,7 @@
                     <p class="mt-2 text-[10px] font-black uppercase tracking-widest text-muted">Servicios Premium</p>
                 </div>
                 <div class="reveal text-center" style="transition-delay:300ms;">
-                    <p class="text-4xl font-black text-white">4.9<span class="text-gold">★</span></p>
+                    <p class="text-4xl font-black text-white">4.9</p>
                     <p class="mt-2 text-[10px] font-black uppercase tracking-widest text-muted">Calificación Promedio</p>
                 </div>
             </div>
@@ -424,7 +424,11 @@
                     <div class="mt-10 inline-flex items-center gap-5 border border-white/8 rounded-2xl px-6 py-4 bg-white/[0.02]">
                         <div class="text-center">
                             <p class="text-3xl font-black text-white">4.9</p>
-                            <div class="flex text-gold text-xs mt-1">★★★★★</div>
+                            <div class="flex text-gold gap-0.5 mt-1">
+                                @for ($i = 0; $i < 5; $i++)
+                                    <svg class="h-3 w-3 fill-current" viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.1 6.1-.6z"/></svg>
+                                @endfor
+                            </div>
                         </div>
                         <div class="h-10 w-px bg-white/10"></div>
                         <div>

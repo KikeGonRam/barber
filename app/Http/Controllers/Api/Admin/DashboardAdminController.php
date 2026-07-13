@@ -108,7 +108,7 @@ class DashboardAdminController
             $alerts[] = [
                 'id'      => 1,
                 'type'    => 'warning',
-                'title'   => '⏰ Citas Próximas',
+                'title'   => 'Citas Próximas',
                 'message' => "$upcomingAppointments citas en las próximas 2 horas",
             ];
         }
@@ -120,7 +120,7 @@ class DashboardAdminController
                 $alerts[] = [
                     'id'      => 2,
                     'type'    => 'error',
-                    'title'   => '📦 Inventario Bajo',
+                    'title'   => 'Inventario Bajo',
                     'message' => "$lowStock productos con stock bajo",
                 ];
             }

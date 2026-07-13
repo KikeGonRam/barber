@@ -1,15 +1,21 @@
+x-app-env: &app-env
+  env_file: .env
+  dns:
+    - 8.8.8.8
+    - 8.8.4.4
+  volumes:
+    - .:/var/www/html
+    - vendor_data:/var/www/html/vendor
+
 services:
 
-  # 🚀 Servidor de Aplicación
+  # Servidor de aplicacion (PHP-FPM)
   app:
     build: .
     image: barber-app:latest
     container_name: barber-app
     restart: unless-stopped
-    env_file: .env
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
+    <<: *app-env
     volumes:
       - .:/var/www/html
       - vendor_data:/var/www/html/vendor
@@ -26,7 +32,7 @@ services:
     networks:
       - internal
 
-  # 🌐 Servidor Web (NGINX)
+  # Servidor web (nginx)
   web:
     image: nginx:alpine
     container_name: barber-web
@@ -42,45 +48,49 @@ services:
     networks:
       - internal
 
-  # 👷 Queue Worker
+  # Queue worker. Reusa la imagen que "app" ya construyo (misma imagen,
+  # comando distinto) en vez de reconstruirla de forma redundante.
   worker:
-    build: .
+    image: barber-app:latest
     container_name: barber-worker
     restart: unless-stopped
-    env_file: .env
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    volumes:
-      - .:/var/www/html
-      - vendor_data:/var/www/html/vendor
+    <<: *app-env
     depends_on:
       app:
         condition: service_healthy
     command: php artisan queue:work --verbose --tries=3 --timeout=90
+    # El HEALTHCHECK del Dockerfile prueba el puerto 9000 (PHP-FPM), pero este
+    # contenedor corre "queue:work" y nunca escucha ahi -> reportaria
+    # "unhealthy" siempre. Se sobreescribe con un chequeo real del proceso.
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'artisan queue:work' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     networks:
       - internal
 
-  # ⏰ Scheduler
+  # Scheduler. Misma razon que "worker" para reusar la imagen de "app".
   scheduler:
-    build: .
+    image: barber-app:latest
     container_name: barber-scheduler
     restart: unless-stopped
-    env_file: .env
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    volumes:
-      - .:/var/www/html
-      - vendor_data:/var/www/html/vendor
+    <<: *app-env
     depends_on:
       app:
         condition: service_healthy
     command: php artisan schedule:work
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'artisan schedule:work' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     networks:
       - internal
 
-  # 📧 Mailpit
+  # Servidor de correo de pruebas
   mailpit:
     image: axllent/mailpit
     container_name: barber-mailpit
@@ -91,7 +101,7 @@ services:
     networks:
       - internal
 
-  # ⚡ Redis
+  # Cache / colas
   redis:
     image: redis:alpine
     container_name: barber-redis

@@ -135,7 +135,7 @@
             <div class="summary-box">
                 @if(!empty($trimmed) && $trimmed)
                     <p style="margin: 0 0 6px; font-size: 10px; font-weight: bold; color: #b45309;">
-                        ⚠ Este PDF muestra los primeros {{ $pdf_limit }} registros de {{ $total }} totales.
+                        Este PDF muestra los primeros {{ $pdf_limit }} registros de {{ $total }} totales.
                         Para exportar todos los datos usa el formato Excel o CSV.
                     </p>
                 @endif

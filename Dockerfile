@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     g++ \
     wget \
     netcat-traditional \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
@@ -44,22 +45,20 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framework/sessions \
         storage/logs bootstrap/cache \
-    && chmod -R 777 storage bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache
 
-# Install / update dependencies.
+# Install dependencies exactly as pinned in composer.lock -> reproducible build.
 # --no-scripts skips post-install artisan commands (package:discover, etc.)
 # that require DB env vars unavailable at build time. Entrypoint runs them instead.
-RUN composer update --no-interaction --no-progress --optimize-autoloader --no-scripts 2>&1
+RUN composer install --no-interaction --no-progress --optimize-autoloader --no-scripts 2>&1
 
 # Copy PHP configuration
 COPY .docker/php/php.ini /usr/local/etc/php/conf.d/app-php.ini
 COPY .docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
-# Ensure permissions remain correct after composer creates vendor files
-RUN chmod -R 777 storage bootstrap/cache
-
-# Set ownership
-RUN chown -R www-data:www-data /var/www/html
+# Set ownership, then relax perms only where PHP-FPM (www-data) needs to write
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache
 
 # Expose port for PHP-FPM
 EXPOSE 9000

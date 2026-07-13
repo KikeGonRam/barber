@@ -2,7 +2,7 @@
   <div class="space-y-6 p-6">
     <!-- Página Header -->
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">📊 Dashboard Administrativo</h1>
+      <h1 class="text-3xl font-bold text-gray-900">Dashboard Administrativo</h1>
       <p class="text-gray-600 mt-2">Bienvenido de vuelta, {{ userName }}. Aquí está tu resumen de hoy.</p>
     </div>
 
@@ -11,28 +11,28 @@
       <KPICard
         title="Ingresos Hoy"
         :value="`$${stats.revenueToday.toLocaleString()}`"
-        icon="💰"
+        icon=""
         trend="+12%"
         :trend-up="true"
       />
       <KPICard
         title="Citas Completadas"
         :value="stats.appointmentsCompleted"
-        icon="✅"
+        icon=""
         trend="+8%"
         :trend-up="true"
       />
       <KPICard
         title="Ocupación Promedio"
         :value="`${stats.occupancyRate}%`"
-        icon="📊"
+        icon=""
         trend="+5%"
         :trend-up="true"
       />
       <KPICard
         title="Clientes Nuevos"
         :value="stats.newClients"
-        icon="👥"
+        icon=""
         trend="+15%"
         :trend-up="true"
       />
@@ -54,7 +54,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Alerts -->
       <div class="lg:col-span-2 bg-white rounded-lg shadow-lg p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">⚠️ Alertas Importantes</h3>
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Alertas Importantes</h3>
         <div class="space-y-3">
           <Alert
             v-for="alert in alerts"
@@ -64,38 +64,38 @@
             @action="handleAlertAction"
           />
           <div v-if="alerts.length === 0" class="text-center py-8 text-gray-500">
-            ✅ No hay alertas por el momento
+            No hay alertas por el momento
           </div>
         </div>
       </div>
 
       <!-- Quick Actions -->
       <div class="bg-white rounded-lg shadow-lg p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">⚡ Acciones Rápidas</h3>
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Acciones Rápidas</h3>
         <div class="space-y-2">
           <button
             @click="goTo('appointments.create')"
             class="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-semibold flex items-center gap-2"
           >
-            ➕ Nueva Cita
+            Nueva Cita
           </button>
           <button
             @click="goTo('clients.create')"
             class="w-full px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-semibold flex items-center gap-2"
           >
-            👤 Nuevo Cliente
+            Nuevo Cliente
           </button>
           <button
             @click="goTo('reports.index')"
             class="w-full px-4 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition font-semibold flex items-center gap-2"
           >
-            📊 Ver Reportes
+            Ver Reportes
           </button>
           <button
             @click="goTo('settings.edit')"
             class="w-full px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-semibold flex items-center gap-2"
           >
-            ⚙️ Configuración
+            Configuración
           </button>
         </div>
       </div>
@@ -104,7 +104,7 @@
     <!-- Upcoming Appointments -->
     <div class="bg-white rounded-lg shadow-lg p-6">
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-bold text-gray-800">📅 Próximas Citas</h3>
+        <h3 class="text-xl font-bold text-gray-800">Próximas Citas</h3>
         <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">Ver todas →</a>
       </div>
 
@@ -144,7 +144,7 @@
       </div>
 
       <div v-else class="text-center py-12 text-gray-500">
-        <p>📭 No hay citas próximas</p>
+        <p>No hay citas próximas</p>
       </div>
     </div>
   </div>
@@ -178,7 +178,7 @@ export default {
         {
           id: 1,
           type: 'warning',
-          title: '⏰ Citas Próximas',
+          title: 'Citas Próximas',
           message: '2 citas en las próximas 2 horas - Confirma que todo está listo',
           action: [
             { label: 'Ver', action: 'view-appointments', style: 'bg-yellow-500 text-white' },
@@ -188,7 +188,7 @@ export default {
         {
           id: 2,
           type: 'error',
-          title: '📦 Inventario Bajo',
+          title: 'Inventario Bajo',
           message: 'Cuchillas de afeitar: Solo quedan 15 unidades',
           action: [
             { label: 'Reabastecer', action: 'restock', style: 'bg-red-500 text-white' },
@@ -198,7 +198,7 @@ export default {
         {
           id: 3,
           type: 'info',
-          title: '📊 Ocupación Baja',
+          title: 'Ocupación Baja',
           message: 'Juan tiene baja ocupación (30%) - Considera ofrecer promociones',
           action: [
             { label: 'Promociones', action: 'promotions', style: 'bg-blue-500 text-white' },

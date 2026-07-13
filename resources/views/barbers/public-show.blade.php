@@ -79,7 +79,7 @@
                         <div class="grid grid-cols-3 gap-3">
                             <div class="ui-card-premium p-4 text-center">
                                 @if($avgRating)
-                                    <p class="text-2xl font-black text-gold">{{ $avgRating }}<span class="text-lg">★</span></p>
+                                    <p class="text-2xl font-black text-gold">{{ $avgRating }}</p>
                                 @else
                                     <p class="text-2xl font-black text-muted">—</p>
                                 @endif

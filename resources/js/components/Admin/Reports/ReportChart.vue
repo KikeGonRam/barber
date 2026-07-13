@@ -2,12 +2,12 @@
   <div class="bg-white rounded-lg shadow-lg p-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-      <h3 class="text-2xl font-bold text-gray-900">📈 Visualización de Reportes</h3>
+      <h3 class="text-2xl font-bold text-gray-900">Visualización de Reportes</h3>
       <select v-model="selectedChart" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <option value="revenue">💰 Ingresos</option>
-        <option value="appointments">📅 Citas</option>
-        <option value="inventory">📦 Inventario</option>
-        <option value="clients">👥 Clientes</option>
+        <option value="revenue">Ingresos</option>
+        <option value="appointments">Citas</option>
+        <option value="inventory">Inventario</option>
+        <option value="clients">Clientes</option>
       </select>
     </div>
 
@@ -23,7 +23,7 @@
         @click="refreshChart"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
       >
-        🔄 Actualizar
+        Actualizar
       </button>
     </div>
 
@@ -58,7 +58,7 @@
 
     <!-- Tabla de detalles -->
     <div class="mb-6">
-      <h4 class="text-lg font-bold mb-4">📋 Detalle por Período</h4>
+      <h4 class="text-lg font-bold mb-4">Detalle por Período</h4>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
@@ -91,13 +91,13 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Gráfico de comparación -->
       <div class="bg-gray-50 rounded-lg p-4">
-        <h5 class="font-bold mb-3">📊 Comparación Períodos</h5>
+        <h5 class="font-bold mb-3">Comparación Períodos</h5>
         <canvas ref="comparisonChart" class="h-64"></canvas>
       </div>
 
       <!-- Top 5 -->
       <div class="bg-gray-50 rounded-lg p-4">
-        <h5 class="font-bold mb-3">🏆 Top 5</h5>
+        <h5 class="font-bold mb-3">Top 5</h5>
         <div class="space-y-3">
           <div v-for="(item, idx) in topItems" :key="idx" class="flex items-center justify-between p-2 bg-white rounded border-l-4 border-blue-500">
             <div>
@@ -112,7 +112,7 @@
 
     <!-- Análisis textual -->
     <div class="mt-6 pt-6 border-t">
-      <h4 class="text-lg font-bold mb-4">📝 Análisis</h4>
+      <h4 class="text-lg font-bold mb-4">Análisis</h4>
       <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600">
         <p class="text-gray-700 leading-relaxed">
           {{ analysisText }}
@@ -126,19 +126,19 @@
         @click="exportChart('png')"
         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
       >
-        🖼️ Exportar como Imagen
+        Exportar como Imagen
       </button>
       <button
         @click="exportChart('pdf')"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
       >
-        📄 Exportar como PDF
+        Exportar como PDF
       </button>
       <button
         @click="exportChart('excel')"
         class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
       >
-        📊 Exportar como Excel
+        Exportar como Excel
       </button>
     </div>
   </div>
@@ -263,12 +263,12 @@ export default {
 
     refreshChart() {
       console.log('Refreshing chart...');
-      alert('✅ Gráfico actualizado');
+      alert('Gráfico actualizado');
     },
 
     exportChart(format) {
       console.log(`Exporting chart as ${format}`);
-      alert(`📥 Exportando gráfico en formato ${format.toUpperCase()}`);
+      alert(`Exportando gráfico en formato ${format.toUpperCase()}`);
     },
   },
 };

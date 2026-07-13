@@ -25,7 +25,7 @@ export default {
                  * TOKENS DE TEMA — apuntan a variables CSS en app.css.
                  * Los valores cambian automáticamente al agregar/quitar class="dark" en <html>.
                  *
-                 * ⚠️  NOTA: estas clases NO admiten opacidad directa (ej. bg-card/50).
+                 * NOTA: estas clases NO admiten opacidad directa (ej. bg-card/50).
                  *    Para opacidad usa bg-white/10, bg-black/20, etc.
                  */
                 'main':   'var(--bg-main)',   // fondo general (body)

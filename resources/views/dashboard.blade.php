@@ -537,7 +537,7 @@
             ['label'=>'Citas Hoy',    'val'=>$kpis['appointments_today'], 'color'=>'gold',    'fmt'=>'%s'],
             ['label'=>'Citas del Mes','val'=>$kpis['appointments_month'], 'color'=>'white',   'fmt'=>'%s'],
             ['label'=>'Ingresos Mes', 'val'=>'$'.number_format($kpis['income_month'],0), 'color'=>'emerald', 'fmt'=>'%s'],
-            ['label'=>'Rating',       'val'=>$kpis['rating'].' ★',        'color'=>'gold',    'fmt'=>'%s'],
+            ['label'=>'Rating',       'val'=>$kpis['rating'],        'color'=>'gold',    'fmt'=>'%s'],
         ] as $kpi)
             <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 text-center">
                 <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30 mb-3">{{ $kpi['label'] }}</p>
