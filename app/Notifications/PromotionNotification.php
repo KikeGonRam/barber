@@ -21,6 +21,8 @@ class PromotionNotification extends Notification implements ShouldQueue
         public readonly string $cuerpo,
         public readonly ?string $ctaLabel = null,
         public readonly ?string $ctaUrl = null,
+        // Si viene de una campana, habilita seguimiento de apertura/clic.
+        public readonly ?string $campaignId = null,
     ) {}
 
     public function via(object $notifiable): array
@@ -45,17 +47,27 @@ class PromotionNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        $data = [
+            'accent' => '#d4af37',
+            'badge' => 'Promocion',
+            'title' => $this->titulo,
+            'greeting' => 'Hola '.$notifiable->name.',',
+            'intro' => $this->cuerpo,
+            'ctaLabel' => $this->ctaLabel ?? 'Reservar ahora',
+            'ctaUrl' => $this->ctaUrl ?? $this->defaultUrl(),
+        ];
+
+        // Seguimiento por destinatario cuando la promo pertenece a una campana:
+        // el boton pasa por el redirector de clic y se inserta el pixel de apertura.
+        if ($this->campaignId && $notifiable->id) {
+            $params = ['campaign' => $this->campaignId, 'user' => (string) $notifiable->id];
+            $data['ctaUrl'] = route('track.click', $params);
+            $data['pixel'] = route('track.open', $params);
+        }
+
         return (new MailMessage)
             ->subject($this->titulo)
-            ->markdown('emails.message', [
-                'accent' => '#d4af37',
-                'badge' => 'Promocion',
-                'title' => $this->titulo,
-                'greeting' => 'Hola '.$notifiable->name.',',
-                'intro' => $this->cuerpo,
-                'ctaLabel' => $this->ctaLabel ?? 'Reservar ahora',
-                'ctaUrl' => $this->ctaUrl ?? $this->defaultUrl(),
-            ]);
+            ->markdown('emails.message', $data);
     }
 
     public function toArray(object $notifiable): array

@@ -124,11 +124,26 @@
                             @if($programada)
                                 <span>{{ optional($c->programada_para)->format('d M, H:i') }}</span>
                             @else
-                                <span>{{ $c->destinatarios }} dest.</span>
-                                <span>·</span>
                                 <span>{{ optional($c->enviada_en ?? $c->created_at)->format('d M') }}</span>
                             @endif
                         </div>
+                        @unless($programada)
+                            @php $opens = $c->opensCount(); $clicks = $c->clicksCount(); @endphp
+                            <div class="grid grid-cols-3 gap-2 mt-2.5">
+                                <div class="rounded-lg bg-white/[0.03] border border-white/5 px-2 py-1.5 text-center">
+                                    <p class="text-sm font-black text-white leading-none">{{ $c->destinatarios }}</p>
+                                    <p class="text-[8px] font-black uppercase tracking-wider text-muted mt-1">Enviados</p>
+                                </div>
+                                <div class="rounded-lg bg-white/[0.03] border border-white/5 px-2 py-1.5 text-center">
+                                    <p class="text-sm font-black text-white leading-none">{{ $opens }} <span class="text-[9px] text-gold">{{ $c->rate($opens) }}%</span></p>
+                                    <p class="text-[8px] font-black uppercase tracking-wider text-muted mt-1">Aperturas</p>
+                                </div>
+                                <div class="rounded-lg bg-white/[0.03] border border-white/5 px-2 py-1.5 text-center">
+                                    <p class="text-sm font-black text-white leading-none">{{ $clicks }} <span class="text-[9px] text-gold">{{ $c->rate($clicks) }}%</span></p>
+                                    <p class="text-[8px] font-black uppercase tracking-wider text-muted mt-1">Clics</p>
+                                </div>
+                            </div>
+                        @endunless
                     </div>
                 @empty
                     <p class="text-xs text-muted/70 italic py-6 text-center">Aún no has enviado campañas.</p>

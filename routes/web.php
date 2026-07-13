@@ -51,6 +51,10 @@ Route::get('/mantenimiento', function () {
 
 Route::get('/equipo/{barber}', [BarberController::class, 'show'])->name('barbers.public.show');
 Route::get('/servicios', [ServiceController::class, 'publicIndex'])->name('services.public.index');
+
+// Seguimiento de campanas (publico: los golpea el cliente de correo).
+Route::get('/t/o/{campaign}/{user}', [\App\Http\Controllers\Campaign\TrackingController::class, 'open'])->name('track.open');
+Route::get('/t/c/{campaign}/{user}', [\App\Http\Controllers\Campaign\TrackingController::class, 'click'])->name('track.click');
 Route::post('/chatbot/query', [ChatbotController::class, 'query'])->name('chatbot.query');
 Route::middleware(['auth'])->group(function () {
     Route::get('/chatbot/history', [ChatbotController::class, 'getHistory'])->name('chatbot.history');

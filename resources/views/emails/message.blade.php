@@ -40,4 +40,7 @@
 @isset($secondary)
 {{ $secondary }}
 @endisset
+@isset($pixel)
+<img src="{{ $pixel }}" width="1" height="1" alt="" style="display:none;border:0;">
+@endisset
 @endcomponent

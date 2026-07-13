@@ -62,6 +62,7 @@ class CampaignDispatcher
                 $campaign->cuerpo,
                 $campaign->cta_label ?: null,
                 $campaign->cta_url ?: null,
+                (string) $campaign->id,
             );
 
             User::whereIn('_id', $userIds->all())
