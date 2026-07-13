@@ -127,6 +127,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['verified', 'role.custom:administrador'])->group(function () {
         Route::get('backups/database', [DatabaseBackupController::class, 'download'])->name('backups.database.download');
 
+        Route::get('campaigns', [\App\Http\Controllers\Campaign\CampaignController::class, 'index'])->name('campaigns.index');
+        Route::post('campaigns', [\App\Http\Controllers\Campaign\CampaignController::class, 'send'])->name('campaigns.send');
+
         Route::middleware('permission.custom:reportes.ver')->group(function () {
             Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
             Route::get('reports/{type}/{format}', [ReportController::class, 'export'])
