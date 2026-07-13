@@ -221,7 +221,7 @@
             @if($todayAppointments->isEmpty())
                 <div class="flex flex-col items-center justify-center py-12 border border-dashed border-white/[0.06] rounded-xl">
                     <svg class="h-8 w-8 text-white/10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <p class="text-xs font-bold text-white/25 uppercase tracking-widest">Sin citas hoy</p>
+                    <p class="text-xs font-bold text-white/45 uppercase tracking-widest">Sin citas hoy</p>
                     <a href="{{ route('appointments.create') }}" class="mt-3 text-[9px] font-black uppercase tracking-widest text-gold/60 hover:text-gold transition-colors">+ Crear cita</a>
                 </div>
             @else
@@ -231,7 +231,7 @@
                         <div class="flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] hover:border-white/10 hover:bg-white/[0.02] transition-all">
                             <div class="w-10 text-center shrink-0">
                                 <p class="text-[11px] font-black text-white">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
-                                <p class="text-[8px] text-white/25 font-bold">{{ substr($appt->hora_fin ?? '',0,5) }}</p>
+                                <p class="text-[8px] text-white/45 font-bold">{{ substr($appt->hora_fin ?? '',0,5) }}</p>
                             </div>
                             <div class="w-px h-7 bg-white/[0.06] shrink-0"></div>
                             <div class="flex-1 min-w-0">
@@ -281,7 +281,7 @@
                                     <span class="shrink-0 text-[8px] font-black uppercase border rounded-full px-2 py-0.5 {{ $st['cls'] }}">{{ $st['label'] }}</span>
                                 </div>
                             @empty
-                                <p class="text-xs text-white/25 italic text-center py-8">Sin actividad reciente</p>
+                                <p class="text-xs text-white/45 italic text-center py-8">Sin actividad reciente</p>
                             @endforelse
                         </div>
                     </div>
@@ -315,7 +315,7 @@
                                 @endforeach
                             </div>
                         @else
-                            <p class="text-xs text-white/25 italic text-center py-8">Sin barberos activos</p>
+                            <p class="text-xs text-white/45 italic text-center py-8">Sin barberos activos</p>
                         @endif
                     </div>
 
@@ -338,7 +338,7 @@
                                 </div>
                             </div>
                         @else
-                            <p class="text-xs text-white/25 italic text-center py-8">Sin datos este mes</p>
+                            <p class="text-xs text-white/45 italic text-center py-8">Sin datos este mes</p>
                         @endif
                     </div>
 
@@ -362,7 +362,7 @@
                 <div class="h-52"><canvas id="incomeChart"></canvas></div>
             @else
                 <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin ingresos aún</p>
+                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin ingresos aún</p>
                 </div>
             @endif
         </div>
@@ -379,7 +379,7 @@
                 <div class="h-52"><canvas id="servicesChart"></canvas></div>
             @else
                 <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin servicios registrados</p>
+                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin servicios registrados</p>
                 </div>
             @endif
         </div>
@@ -390,7 +390,7 @@
                     <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Este mes</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5">Desempeño Barberos</h3>
                 </div>
-                <div class="flex gap-3 text-[8px] font-black uppercase text-white/25">
+                <div class="flex gap-3 text-[8px] font-black uppercase text-white/45">
                     <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-blue-500"></span>Citas</span>
                     <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-emerald-500"></span>Ingresos</span>
                 </div>
@@ -399,7 +399,7 @@
                 <div class="h-52"><canvas id="barberPerformanceChart"></canvas></div>
             @else
                 <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin datos de desempeño</p>
+                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin datos de desempeño</p>
                 </div>
             @endif
         </div>
@@ -416,7 +416,7 @@
                 <div class="h-52"><canvas id="clientTrendsChart"></canvas></div>
             @else
                 <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin datos de tendencias</p>
+                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin datos de tendencias</p>
                 </div>
             @endif
         </div>
@@ -453,11 +453,11 @@
             </div>
 
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/25 mb-3">Insights</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/45 mb-3">Insights</p>
                 <div id="ai-insights" class="space-y-2">
                     <div class="flex items-start gap-2 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02] animate-pulse">
                         <div class="h-1.5 w-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></div>
-                        <p class="text-[10px] text-white/25">Cargando análisis...</p>
+                        <p class="text-[10px] text-white/45">Cargando análisis...</p>
                     </div>
                 </div>
             </div>
@@ -493,7 +493,7 @@
 
             @if(!empty($chatbotTelemetry['top_sources']))
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/25 mb-3">Top Fuentes</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/45 mb-3">Top Fuentes</p>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         @foreach($chatbotTelemetry['top_sources'] as $source => $count)
                             <div class="rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2 flex items-center justify-between">
@@ -557,7 +557,7 @@
                 <div class="h-52"><canvas id="performanceChart"></canvas></div>
             @else
                 <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin datos suficientes</p>
+                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin datos suficientes</p>
                 </div>
             @endif
         </div>
@@ -570,7 +570,7 @@
                 <div class="h-52"><canvas id="servicesChart"></canvas></div>
             @else
                 <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin especialidades aún</p>
+                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin especialidades aún</p>
                 </div>
             @endif
         </div>
@@ -636,7 +636,7 @@
                     </div>
                 @empty
                     <div class="py-12 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                        <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin llegadas próximas</p>
+                        <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin llegadas próximas</p>
                     </div>
                 @endforelse
             </div>
@@ -651,7 +651,7 @@
                 <div class="h-52"><canvas id="flowChart"></canvas></div>
             @else
                 <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin flujo registrado hoy</p>
+                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin flujo registrado hoy</p>
                 </div>
             @endif
         </div>
@@ -756,7 +756,7 @@
                 <div class="h-52"><canvas id="visitChart"></canvas></div>
             @else
                 <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/20 uppercase tracking-widest font-bold">Sin historial aún</p>
+                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin historial aún</p>
                 </div>
             @endif
         </div>
@@ -775,13 +775,13 @@
                         @endif
                     </div>
                     <div>
-                        <p class="text-[8px] font-black uppercase tracking-[0.28em] text-white/25">Mi Nivel</p>
+                        <p class="text-[8px] font-black uppercase tracking-[0.28em] text-white/45">Mi Nivel</p>
                         <p class="text-sm font-black uppercase" style="color:{{ $lvlColor }};">{{ $lvlLabel }}</p>
                     </div>
                 </div>
                 <div class="text-right">
                     <p class="text-2xl font-black text-gold leading-none">{{ $pts }}</p>
-                    <p class="text-[8px] font-bold uppercase tracking-[0.2em] text-white/25">puntos</p>
+                    <p class="text-[8px] font-bold uppercase tracking-[0.2em] text-white/45">puntos</p>
                 </div>
             </div>
 
@@ -791,7 +791,7 @@
                 @if($nextLvl)
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
-                            <p class="text-[8px] font-black uppercase tracking-[0.2em] text-white/25">Próximo: <span style="color:#d4af37;">{{ $nextLabel }}</span></p>
+                            <p class="text-[8px] font-black uppercase tracking-[0.2em] text-white/45">Próximo: <span style="color:#d4af37;">{{ $nextLabel }}</span></p>
                             <p class="text-[9px] font-black text-gold">{{ $faltan > 0 ? "Faltan {$faltan} cita".($faltan!==1?'s':'') : '¡Listo!' }}</p>
                         </div>
                         <div class="h-1.5 w-full rounded-full bg-white/[0.05] overflow-hidden">
@@ -823,7 +823,7 @@
                 {{-- Últimas transacciones --}}
                 @if($recentTx->isNotEmpty())
                     <div>
-                        <p class="text-[8px] font-black uppercase tracking-[0.22em] text-white/20 mb-2">Últimos movimientos</p>
+                        <p class="text-[8px] font-black uppercase tracking-[0.22em] text-white/45 mb-2">Últimos movimientos</p>
                         <div class="space-y-1.5">
                             @foreach($recentTx->take(4) as $tx)
                                 <div class="flex items-center justify-between gap-2">
@@ -964,7 +964,7 @@
                         <div class="flex items-start gap-2 p-3 rounded-xl border ${colors[i.status]||colors.neutral}">
                             <div class="h-1.5 w-1.5 rounded-full ${dots[i.status]||dots.neutral} mt-1.5 shrink-0"></div>
                             <p class="text-[10px] text-white/60">${i.message}</p>
-                        </div>`).join('') || '<p class="text-[10px] text-white/20 italic">Sin insights disponibles.</p>';
+                        </div>`).join('') || '<p class="text-[10px] text-white/45 italic">Sin insights disponibles.</p>';
                 }
             } catch(e) {
                 ['income-forecast','appointment-forecast','ai-confidence'].forEach(id => {

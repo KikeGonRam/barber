@@ -55,7 +55,8 @@
         <!-- Actions -->
         <div class="pt-2">
             <button type="submit" class="ui-btn w-full py-4 text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-gold/20">
-                Iniciar Sesión <span class="ml-2 opacity-50">&rarr;</span>
+                Iniciar Sesión
+                <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
             </button>
         </div>
 
