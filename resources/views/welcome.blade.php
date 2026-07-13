@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -114,7 +114,11 @@
                         <a href="{{ route('dashboard') }}" class="ui-btn py-2 px-6">Mi Panel</a>
                     @else
                         <a href="{{ route('login') }}"    class="hover:text-gold transition-colors">Acceso</a>
-                        <a href="{{ route('register') }}" class="ui-btn py-2 px-6">Reservar</a>
+                        <a href="{{ route('register') }}"
+                           class="ui-btn group py-2.5 px-7 text-[11px] font-black uppercase tracking-[0.15em] shadow-[0_0_25px_rgba(212,175,55,0.4)]">
+                            Reservar
+                            <svg class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
                     @endauth
                 </div>
 
@@ -267,9 +271,8 @@
                             </span>
                         </div>
                         <h3 class="text-2xl font-black text-white uppercase">{{ $service->nombre }}</h3>
-                        <p class="mt-4 text-sm text-muted font-medium leading-relaxed">
-                            {{ $service->descripcion ?: 'Una experiencia diseñada para resaltar tu mejor versión con técnica clásica.' }}
-                        </p>
+                        <x-service-desc :text="$service->descripcion ?: 'Una experiencia diseñada para resaltar tu mejor versión con técnica clásica.'"
+                                        class="mt-4 text-sm text-muted font-medium leading-relaxed" />
                         <div class="mt-8 flex items-center justify-between">
                             <span class="text-2xl font-black text-white">${{ number_format($service->precio, 2) }}</span>
                             <span class="text-[10px] font-black uppercase tracking-widest text-gold bg-gold/5 px-3 py-1.5 rounded-full border border-gold/10">
@@ -338,9 +341,10 @@
                 @endforeach
             </div>
 
-            <div class="mt-16 text-center">
-                <a href="{{ route('register') }}" class="ui-btn px-12 py-4 text-[12px] tracking-[0.2em]">
-                    Comenzar Ahora &rarr;
+            <div class="mt-16 flex justify-center">
+                <a href="{{ route('register') }}" class="ui-btn w-full sm:w-auto px-12 py-5 text-[13px] tracking-[0.15em] shadow-[0_0_50px_rgba(212,175,55,0.18)]">
+                    Comenzar Ahora
+                    <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
             </div>
         </div>
@@ -421,18 +425,18 @@
                     <div class="mt-10 inline-flex items-center gap-5 border border-white/8 rounded-2xl px-6 py-4 bg-white/[0.02]">
                         <div class="text-center">
                             <p class="text-3xl font-black text-white">4.9</p>
-                            <div class="flex text-gold gap-0.5 mt-1">
+                            <div class="flex justify-center gap-0.5 mt-1 text-gold" role="img" aria-label="Calificación 4.9 de 5 estrellas">
                                 @for ($i = 0; $i < 5; $i++)
-                                    <svg class="h-3 w-3 fill-current" viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.1 6.1-.6z"/></svg>
+                                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                                 @endfor
                             </div>
                         </div>
                         <div class="h-10 w-px bg-white/10"></div>
                         <div>
-                            <div class="flex -space-x-2">
-                                @foreach(['A','B','C','D','E'] as $l)
-                                    <div class="h-9 w-9 rounded-full border-2 border-[#0d0d0d] bg-gradient-to-br from-white/15 to-white/5 flex items-center justify-center text-[9px] font-black text-white/50">{{ $l }}</div>
-                                @endforeach
+                            <div class="flex items-center gap-1 text-gold" role="img" aria-label="Calificación 5 de 5 estrellas">
+                                @for ($i = 0; $i < 5; $i++)
+                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                @endfor
                             </div>
                             <p class="text-xs font-bold text-white mt-1.5">500+ Reseñas</p>
                         </div>
@@ -489,7 +493,7 @@
                             @foreach([
                                 ['icon'=>'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z','label'=>'Ubicación','text'=>'Av. de la Reforma 123,<br>Suite 405, CDMX'],
                                 ['icon'=>'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z','label'=>'Contacto','text'=>'+52 55 1234 5678<br>hola@urbanblade.com'],
-                                ['icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z','label'=>'Horario','text'=>'Lun – Sáb: 9:00 – 21:00<br><span class="text-muted/60">Dom: Cerrado</span>'],
+                                ['icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z','label'=>'Horario','text'=>'Lun – Sáb: 9:00 – 21:00<br><span class="text-muted">Dom: Cerrado</span>'],
                             ] as $info)
                                 <div class="flex gap-4">
                                     <div class="h-11 w-11 rounded-2xl bg-gold/8 text-gold flex items-center justify-center shrink-0 border border-gold/10">
@@ -529,7 +533,7 @@
                                 </svg>
                             </div>
                             <p class="text-[10px] font-black uppercase tracking-widest text-muted">Av. de la Reforma 123, CDMX</p>
-                            <p class="text-[9px] font-bold text-muted/40 mt-1 uppercase tracking-wider">Ver en Google Maps</p>
+                            <p class="text-[9px] font-bold text-muted mt-1 uppercase tracking-wider">Ver en Google Maps</p>
                         </div>
                     </div>
                 </div>
@@ -594,7 +598,7 @@
                         <ul class="space-y-3 text-[11px] font-bold text-muted tracking-wider">
                             <li>+52 55 1234 5678</li>
                             <li>hola@urbanblade.com</li>
-                            <li class="text-muted/50">Lun – Sáb: 9 – 21h</li>
+                            <li class="text-muted/80">Lun – Sáb: 9 – 21h</li>
                         </ul>
                     </div>
                     <div>
@@ -612,12 +616,12 @@
             </div>
 
             <div class="mt-14 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/20">
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50">
                     &copy; {{ date('Y') }} UrbanBlade. Todos los derechos reservados.
                 </p>
-                <div class="flex gap-6 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
-                    <a href="#" class="hover:text-white/40 transition">Privacidad</a>
-                    <a href="#" class="hover:text-white/40 transition">Términos</a>
+                <div class="flex gap-6 text-[9px] font-black uppercase tracking-[0.2em] text-white/50">
+                    <a href="#" class="hover:text-white transition">Privacidad</a>
+                    <a href="#" class="hover:text-white transition">Términos</a>
                 </div>
             </div>
         </div>

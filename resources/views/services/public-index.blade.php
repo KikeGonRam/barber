@@ -56,7 +56,7 @@
     ];
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -330,9 +330,8 @@
                             </h3>
 
                             <!-- Descripción -->
-                            <p class="text-sm text-muted leading-relaxed {{ $isFeatured ? 'max-w-sm' : '' }} mb-6 flex-1">
-                                {{ $service->descripcion ?: 'Servicio de alta precisión ejecutado por nuestros maestros con técnicas artesanales de la más alta calidad.' }}
-                            </p>
+                            <x-service-desc :text="$service->descripcion ?: 'Servicio de alta precisión ejecutado por nuestros maestros con técnicas artesanales de la más alta calidad.'"
+                                            class="text-sm text-muted leading-relaxed {{ $isFeatured ? 'max-w-sm' : '' }} mb-6 flex-1" />
 
                             <!-- Detalles -->
                             <div class="flex items-center gap-5 mb-6">
