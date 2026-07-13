@@ -5,6 +5,7 @@ namespace App\Services\Appointment;
 use App\Models\Appointment;
 use App\Models\User;
 use App\Notifications\AppointmentNotification;
+use App\Notifications\ReviewRequestNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
@@ -25,12 +26,12 @@ class AppointmentNotifier
         $barbero = $appointment->barber?->user?->name ?? 'el barbero';
         $fecha = optional($appointment->fecha)->format('d/m/Y') ?? 'la fecha indicada';
 
-        // Cliente
+        // Cliente (con invite de calendario)
         $this->send($appointment->client?->user, $appointment,
             'Confirmacion de cita', 'Tu cita esta reservada',
             'Te esperamos. Aqui estan los detalles de tu visita.',
             'Ver mi cita', $this->route('client.appointments.index'),
-            '#10b981', 'Confirmada');
+            '#10b981', 'Confirmada', true);
 
         // Barbero
         $this->send($appointment->barber?->user, $appointment,
@@ -105,10 +106,23 @@ class AppointmentNotifier
         $this->send($appointment->client?->user, $appointment,
             $subject, $title, $message,
             'Ver mis citas', $this->route('client.appointments.index'),
-            $accent, $badge);
+            $accent, $badge, $estado === 'confirmada');
+
+        // Tras completar, pide resena al cliente (con retraso para no
+        // colisionar con el correo de "completada").
+        if ($estado === 'completada' && ($client = $appointment->client?->user)) {
+            try {
+                $client->notify((new ReviewRequestNotification($appointment))->delay(now()->addHours(2)));
+            } catch (\Throwable $e) {
+                Log::warning('Fallo solicitud de resena', [
+                    'appointment_id' => $appointment->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
     }
 
-    private function send(?User $user, Appointment $appointment, string $subject, string $title, string $message, string $actionLabel, ?string $actionUrl, string $accent = '#d4af37', ?string $badge = null): void
+    private function send(?User $user, Appointment $appointment, string $subject, string $title, string $message, string $actionLabel, ?string $actionUrl, string $accent = '#d4af37', ?string $badge = null, bool $attachCalendar = false): void
     {
         if (! $user) {
             return;
@@ -124,6 +138,7 @@ class AppointmentNotifier
                 actionUrl: $actionUrl,
                 accent: $accent,
                 badge: $badge,
+                attachCalendar: $attachCalendar,
             ));
         } catch (\Throwable $e) {
             Log::warning('Fallo notificacion de cita', [

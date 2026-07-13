@@ -3,10 +3,12 @@
 namespace App\Notifications;
 
 use App\Models\Payment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 
 class PaymentReceiptNotification extends Notification implements ShouldQueue
 {
@@ -48,19 +50,44 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
         }
         $rows['Metodo de pago'] = ucfirst($this->payment->metodo_pago ?? '—');
 
-        return (new MailMessage)
+        $mail = (new MailMessage)
             ->subject('Tu comprobante de pago — '.$service)
             ->markdown('emails.message', [
                 'accent' => '#d4af37',
                 'badge' => 'Pagado',
                 'title' => 'Gracias por tu visita',
                 'greeting' => 'Hola '.$notifiable->name.',',
-                'intro' => 'Tu pago fue registrado correctamente. Aqui esta tu comprobante.',
+                'intro' => 'Tu pago fue registrado correctamente. Adjuntamos tu factura en PDF.',
                 'rows' => $rows,
                 'total' => ['label' => 'Total', 'value' => '$'.number_format($monto + $propina, 2)],
                 'ctaLabel' => 'Ver mis facturas',
                 'ctaUrl' => $url,
             ]);
+
+        // Adjunta la factura en PDF (no critico: si falla, el correo igual sale).
+        try {
+            $folio = 'F-'.strtoupper(substr((string) $this->payment->id, -6));
+            $pdf = Pdf::loadView('pdf.invoice', [
+                'folio' => $folio,
+                'emitido' => now()->format('d/m/Y'),
+                'cliente' => $notifiable->name,
+                'servicio' => $service,
+                'fecha' => $fecha,
+                'barbero' => $appt?->barber?->user?->name,
+                'monto' => $monto,
+                'propina' => $propina,
+                'metodo' => ucfirst($this->payment->metodo_pago ?? '—'),
+            ])->output();
+
+            $mail->attachData($pdf, 'factura-'.$folio.'.pdf', ['mime' => 'application/pdf']);
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo generar la factura PDF', [
+                'payment_id' => $this->payment->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return $mail;
     }
 
     public function toArray(object $notifiable): array
