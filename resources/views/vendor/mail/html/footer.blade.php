@@ -1,7 +1,5 @@
 <tr>
 <td class="content-cell" align="center">
-<p>
-{{ $slot }}
-</p>
+{!! Illuminate\Mail\Markdown::parse($slot) !!}
 </td>
 </tr>

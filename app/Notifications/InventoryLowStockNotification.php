@@ -34,18 +34,24 @@ class InventoryLowStockNotification extends Notification implements ShouldQueue
     {
         $count = count($this->products);
 
-        $mail = (new MailMessage)
-            ->subject("Alerta de inventario: {$count} producto(s) con stock bajo")
-            ->greeting('Hola '.$notifiable->name.',')
-            ->line("Hay {$count} producto(s) en o por debajo de su stock minimo:");
-
+        $rows = [];
         foreach ($this->products as $p) {
-            $mail->line("- {$p['nombre']}: {$p['stock_actual']} en existencia (minimo {$p['stock_minimo']})");
+            $existencia = $p['stock_actual'] <= 0 ? 'Agotado' : $p['stock_actual'].' en existencia';
+            $rows[$p['nombre']] = $existencia.' (min '.$p['stock_minimo'].')';
         }
 
-        return $mail
-            ->action('Ver inventario', $this->inventoryUrl())
-            ->line('Considera reabastecer para evitar quiebres de stock.');
+        return (new MailMessage)
+            ->subject("Alerta de inventario: {$count} producto(s) con stock bajo")
+            ->markdown('emails.message', [
+                'accent' => '#ef4444',
+                'badge' => $count.' producto(s)',
+                'title' => 'Stock bajo minimo',
+                'greeting' => 'Hola '.$notifiable->name.',',
+                'intro' => 'Estos productos estan en o por debajo de su stock minimo. Considera reabastecer.',
+                'rows' => $rows,
+                'ctaLabel' => 'Ver inventario',
+                'ctaUrl' => $this->inventoryUrl(),
+            ]);
     }
 
     public function toArray(object $notifiable): array

@@ -35,10 +35,19 @@ class LoyaltyNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject("¡Subiste de nivel! Ahora eres {$label}")
-            ->greeting('¡Felicidades, ' . $notifiable->name . '!')
-            ->line("Has alcanzado el nivel **{$label}** en UrbanBlade.")
-            ->line("A partir de ahora tienes un **{$this->discount}% de descuento** en todos tus servicios.")
-            ->action('Ver mi progreso', route('dashboard'));
+            ->markdown('emails.message', [
+                'accent' => '#d4af37',
+                'badge' => 'Nivel '.$label,
+                'title' => '¡Felicidades, '.$notifiable->name.'!',
+                'intro' => "Alcanzaste el nivel **{$label}** en UrbanBlade. Aqui estan tus nuevos beneficios.",
+                'rows' => [
+                    'Nuevo nivel' => $label,
+                    'Descuento' => $this->discount.'% en todos tus servicios',
+                    'Beneficio' => 'Prioridad en reservas',
+                ],
+                'ctaLabel' => 'Ver mi progreso',
+                'ctaUrl' => route('dashboard'),
+            ]);
     }
 
     public function toArray(object $notifiable): array

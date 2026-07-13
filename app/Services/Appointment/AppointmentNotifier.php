@@ -27,20 +27,23 @@ class AppointmentNotifier
 
         // Cliente
         $this->send($appointment->client?->user, $appointment,
-            'Confirmacion de cita', 'Tu cita fue registrada',
-            'Tu cita fue confirmada. Te esperamos el dia indicado.',
-            'Ver mis citas', $this->route('client.appointments.index'));
+            'Confirmacion de cita', 'Tu cita esta reservada',
+            'Te esperamos. Aqui estan los detalles de tu visita.',
+            'Ver mi cita', $this->route('client.appointments.index'),
+            '#10b981', 'Confirmada');
 
         // Barbero
         $this->send($appointment->barber?->user, $appointment,
             'Nueva cita agendada', 'Tienes una nueva cita',
             "{$cliente} agendo una cita contigo para el {$fecha}.",
-            'Ver mi agenda', $this->route('barber.agenda'));
+            'Ver mi agenda', $this->route('barber.agenda'),
+            '#5b8def', 'Nueva reserva');
 
         // Recepcion + Admin
         $this->sendStaff($appointment,
             'Nueva reserva', 'Nueva cita en el sistema',
-            "{$cliente} reservo con {$barbero} para el {$fecha}.");
+            "{$cliente} reservo con {$barbero} para el {$fecha}.",
+            '#94a3b8', 'Reserva online');
 
         $this->stamp($appointment, 'confirmation_sent_at');
     }
@@ -59,18 +62,21 @@ class AppointmentNotifier
         $this->send($appointment->client?->user, $appointment,
             'Cita cancelada', 'Tu cita fue cancelada',
             'Tu cita fue cancelada. Si deseas, puedes reagendar desde tu panel.',
-            'Reagendar', $this->route('client.appointments.index'));
+            'Reagendar', $this->route('client.appointments.index'),
+            '#ef4444', 'Cancelada');
 
         // Barbero
         $this->send($appointment->barber?->user, $appointment,
             'Cita cancelada', 'Se cancelo una cita',
             "{$cliente} cancelo su cita contigo{$suffix}.",
-            'Ver mi agenda', $this->route('barber.agenda'));
+            'Ver mi agenda', $this->route('barber.agenda'),
+            '#ef4444', 'Cancelada');
 
         // Recepcion + Admin
         $this->sendStaff($appointment,
             'Cita cancelada', 'Se cancelo una cita',
-            "Se cancelo la cita de {$cliente} con {$barbero}{$suffix}.");
+            "Se cancelo la cita de {$cliente} con {$barbero}{$suffix}.",
+            '#ef4444', 'Cancelada');
 
         $this->stamp($appointment, 'cancellation_notified_at');
     }
@@ -84,24 +90,25 @@ class AppointmentNotifier
         $appointment->loadMissing(['client.user', 'barber.user', 'service']);
 
         $map = [
-            'completada' => ['Cita completada', 'Gracias por tu visita', 'Tu cita fue completada. Esperamos verte pronto.'],
-            'confirmada' => ['Cita confirmada', 'Tu cita fue confirmada', 'Tu cita quedo confirmada. Te esperamos.'],
-            'en_proceso' => ['Tu cita esta en proceso', 'Estas siendo atendido', 'Tu servicio esta en proceso. Disfrutalo.'],
-            'no_asistio' => ['Marcada como no asistio', 'No registramos tu asistencia', 'Tu cita fue marcada como no asistida. Contacta a recepcion si es un error.'],
+            'completada' => ['Cita completada', 'Gracias por tu visita', 'Tu cita fue completada. Esperamos verte pronto.', '#d4af37', 'Completada'],
+            'confirmada' => ['Cita confirmada', 'Tu cita fue confirmada', 'Tu cita quedo confirmada. Te esperamos.', '#10b981', 'Confirmada'],
+            'en_proceso' => ['Tu cita esta en proceso', 'Estas siendo atendido', 'Tu servicio esta en proceso. Disfrutalo.', '#5b8def', 'En proceso'],
+            'no_asistio' => ['Marcada como no asistio', 'No registramos tu asistencia', 'Tu cita fue marcada como no asistida. Contacta a recepcion si es un error.', '#f59e0b', 'No asistio'],
         ];
 
         if (! isset($map[$estado])) {
             return; // estados sin notificacion al cliente
         }
 
-        [$subject, $title, $message] = $map[$estado];
+        [$subject, $title, $message, $accent, $badge] = $map[$estado];
 
         $this->send($appointment->client?->user, $appointment,
             $subject, $title, $message,
-            'Ver mis citas', $this->route('client.appointments.index'));
+            'Ver mis citas', $this->route('client.appointments.index'),
+            $accent, $badge);
     }
 
-    private function send(?User $user, Appointment $appointment, string $subject, string $title, string $message, string $actionLabel, ?string $actionUrl): void
+    private function send(?User $user, Appointment $appointment, string $subject, string $title, string $message, string $actionLabel, ?string $actionUrl, string $accent = '#d4af37', ?string $badge = null): void
     {
         if (! $user) {
             return;
@@ -115,6 +122,8 @@ class AppointmentNotifier
                 message: $message,
                 actionLabel: $actionLabel,
                 actionUrl: $actionUrl,
+                accent: $accent,
+                badge: $badge,
             ));
         } catch (\Throwable $e) {
             Log::warning('Fallo notificacion de cita', [
@@ -126,7 +135,7 @@ class AppointmentNotifier
         }
     }
 
-    private function sendStaff(Appointment $appointment, string $subject, string $title, string $message): void
+    private function sendStaff(Appointment $appointment, string $subject, string $title, string $message, string $accent = '#94a3b8', ?string $badge = null): void
     {
         try {
             $staff = User::whereRoleName(['recepcionista', 'administrador'])->get();
@@ -142,6 +151,8 @@ class AppointmentNotifier
                 message: $message,
                 actionLabel: 'Ver agenda',
                 actionUrl: $this->route('appointments.index'),
+                accent: $accent,
+                badge: $badge,
             ));
         } catch (\Throwable $e) {
             Log::warning('Fallo notificacion de cita a staff', [

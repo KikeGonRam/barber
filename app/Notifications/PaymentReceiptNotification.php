@@ -39,18 +39,28 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
         $appt    = $this->payment->appointment;
         $service = $appt?->service?->nombre ?? 'Servicio';
         $fecha   = optional($appt?->fecha)->format('d/m/Y') ?? '';
+        $monto   = (float) $this->payment->monto;
+        $propina = (float) $this->payment->propina;
+
+        $rows = [$service.($fecha ? ' · '.$fecha : '') => '$'.number_format($monto, 2)];
+        if ($propina > 0) {
+            $rows['Propina'] = '$'.number_format($propina, 2);
+        }
+        $rows['Metodo de pago'] = ucfirst($this->payment->metodo_pago ?? '—');
 
         return (new MailMessage)
             ->subject('Tu comprobante de pago — '.$service)
-            ->greeting('Hola '.$notifiable->name.',')
-            ->line('Tu pago ha sido registrado correctamente. Gracias por tu visita.')
-            ->line('**Servicio:** '.$service.($fecha ? ' · '.$fecha : ''))
-            ->line('**Monto:** $'.number_format((float) $this->payment->monto, 2))
-            ->when((float) $this->payment->propina > 0, fn($m) =>
-                $m->line('**Propina:** $'.number_format((float) $this->payment->propina, 2))
-            )
-            ->line('**Método de pago:** '.ucfirst($this->payment->metodo_pago ?? '—'))
-            ->action('Ver mis facturas', $url);
+            ->markdown('emails.message', [
+                'accent' => '#d4af37',
+                'badge' => 'Pagado',
+                'title' => 'Gracias por tu visita',
+                'greeting' => 'Hola '.$notifiable->name.',',
+                'intro' => 'Tu pago fue registrado correctamente. Aqui esta tu comprobante.',
+                'rows' => $rows,
+                'total' => ['label' => 'Total', 'value' => '$'.number_format($monto + $propina, 2)],
+                'ctaLabel' => 'Ver mis facturas',
+                'ctaUrl' => $url,
+            ]);
     }
 
     public function toArray(object $notifiable): array

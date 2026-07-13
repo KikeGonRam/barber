@@ -21,6 +21,10 @@ class AppointmentNotification extends Notification implements ShouldQueue
         // cliente; barbero/recepcion pasan su propia etiqueta y ruta.
         public readonly ?string $actionLabel = null,
         public readonly ?string $actionUrl = null,
+        // Color de acento y etiqueta de estado del correo (verde=confirmada,
+        // rojo=cancelada, azul=barbero, etc.).
+        public readonly string $accent = '#d4af37',
+        public readonly ?string $badge = null,
     ) {}
 
     public function via(object $notifiable): array
@@ -41,21 +45,26 @@ class AppointmentNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $hora = $this->appointment->hora_inicio
-            ? substr($this->appointment->hora_inicio, 0, 5).' — '.substr($this->appointment->hora_fin ?? '', 0, 5)
+            ? substr($this->appointment->hora_inicio, 0, 5).' – '.substr($this->appointment->hora_fin ?? '', 0, 5)
             : 'N/D';
 
         return (new MailMessage)
             ->subject($this->subject)
-            ->greeting('Hola '.$notifiable->name.',')
-            ->line($this->title)
-            ->line($this->message)
-            ->line('**Fecha:** '.optional($this->appointment->fecha)->format('d/m/Y'))
-            ->line('**Horario:** '.$hora)
-            ->line('**Servicio:** '.($this->appointment->service?->nombre ?? 'N/D'))
-            ->action(
-                $this->actionLabel ?? 'Ver mis citas',
-                $this->actionUrl ?? route('client.appointments.index'),
-            );
+            ->markdown('emails.message', [
+                'accent' => $this->accent,
+                'badge' => $this->badge,
+                'title' => $this->title,
+                'greeting' => 'Hola '.$notifiable->name.',',
+                'intro' => $this->message,
+                'rows' => [
+                    'Servicio' => $this->appointment->service?->nombre ?? 'N/D',
+                    'Barbero' => $this->appointment->barber?->user?->name ?? 'N/D',
+                    'Fecha' => optional($this->appointment->fecha)->format('d/m/Y') ?? 'N/D',
+                    'Horario' => $hora,
+                ],
+                'ctaLabel' => $this->actionLabel ?? 'Ver mis citas',
+                'ctaUrl' => $this->actionUrl ?? route('client.appointments.index'),
+            ]);
     }
 
     public function toArray(object $notifiable): array
