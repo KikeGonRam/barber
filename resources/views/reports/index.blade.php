@@ -19,7 +19,7 @@
 
             <!-- Filtros -->
             <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30 mb-4">Filtros de reporte</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50 mb-4">Filtros de reporte</p>
                 <form method="GET" action="{{ route('reports.index') }}"
                       class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
                       onsubmit="const s=this.start_date.value,e=this.end_date.value;if(s&&e&&e<s){alert('La fecha fin no puede ser anterior a la fecha inicio.');return false;}">
@@ -54,7 +54,7 @@
                     <div class="sm:col-span-2 lg:col-span-4 flex items-center justify-end gap-4 pt-2 border-t border-white/[0.06]">
                         @if(request()->anyFilled(['start_date', 'end_date', 'barber_id', 'metodo_pago']))
                             <a href="{{ route('reports.index') }}"
-                               class="text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-white transition">
+                               class="text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white transition">
                                 Limpiar
                             </a>
                         @endif

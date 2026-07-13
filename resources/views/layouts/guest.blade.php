@@ -135,7 +135,7 @@
 
                 <!-- Footer -->
                 <div class="mt-8 text-center">
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-white/20">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-white/45">
                         &copy; {{ date('Y') }} UrbanBlade &nbsp;·&nbsp; Todos los derechos reservados
                     </p>
                 </div>

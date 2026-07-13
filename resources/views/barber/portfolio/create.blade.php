@@ -5,7 +5,7 @@
                 <h2 class="ui-title">Publicar <span class="text-gold">Nuevo Trabajo</span></h2>
                 <p class="ui-subtitle">Muestra tu talento — sube fotos y videos de tu mejor obra.</p>
             </div>
-            <a href="{{ route('barber.portfolio.index') }}" class="text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-white transition self-start sm:self-auto">
+            <a href="{{ route('barber.portfolio.index') }}" class="text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white transition self-start sm:self-auto">
                 &larr; Volver
             </a>
         </div>
@@ -28,7 +28,7 @@
                             @error('title') <p class="mt-1 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="ui-label" for="description">Descripción <span class="text-white/20 normal-case font-normal">(opcional)</span></label>
+                            <label class="ui-label" for="description">Descripción <span class="text-white/45 normal-case font-normal">(opcional)</span></label>
                             <textarea id="description" name="description" rows="3"
                                       class="ui-input !bg-black/30 border-white/10 text-white leading-relaxed mt-1"
                                       placeholder="Describe la técnica, productos o estilo utilizado...">{{ old('description') }}</textarea>
@@ -39,10 +39,10 @@
                 {{-- Upload Zone --}}
                 <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
                     <div class="flex items-center justify-between mb-4">
-                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">
+                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">
                             Fotos & Videos
                         </p>
-                        <p class="text-[9px] font-bold text-white/30 uppercase tracking-wider"
+                        <p class="text-[9px] font-bold text-white/50 uppercase tracking-wider"
                            x-text="`${files.length} / 10 archivos`"></p>
                     </div>
 
@@ -63,10 +63,10 @@
                             </div>
                             <div class="text-center">
                                 <p class="text-sm font-black text-white uppercase tracking-tight">Arrastra o haz clic para subir</p>
-                                <p class="text-[10px] text-white/30 font-medium mt-1">
+                                <p class="text-[10px] text-white/50 font-medium mt-1">
                                     Fotos: JPG, PNG, WEBP &nbsp;·&nbsp; Videos: MP4, WEBM, MOV
                                 </p>
-                                <p class="text-[9px] text-white/20 font-bold uppercase mt-1">Máx. 10 archivos · 100 MB por archivo</p>
+                                <p class="text-[9px] text-white/45 font-bold uppercase mt-1">Máx. 10 archivos · 100 MB por archivo</p>
                             </div>
                         </div>
 
@@ -124,7 +124,7 @@
                         {{-- Add more button --}}
                         <template x-if="files.length < 10">
                             <label for="media-input" class="aspect-square rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center cursor-pointer hover:border-gold/30 transition-colors">
-                                <svg class="h-6 w-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="h-6 w-6 text-white/45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
                             </label>

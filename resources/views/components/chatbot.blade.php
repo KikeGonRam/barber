@@ -50,20 +50,20 @@
                         <h3 class="text-[11px] font-black text-white uppercase tracking-widest">Concierge UrbanBlade</h3>
                         <div class="flex items-center gap-1.5 mt-0.5">
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span class="text-[8px] font-bold text-white/30 uppercase tracking-widest">Asistente IA · En línea</span>
+                            <span class="text-[8px] font-bold text-white/50 uppercase tracking-widest">Asistente IA · En línea</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-1">
                     <button @click="clearConversation()" title="Nueva conversación" aria-label="Nueva conversación"
-                            class="h-7 w-7 rounded-lg flex items-center justify-center text-white/20 hover:text-white/60 hover:bg-white/5 transition-all">
+                            class="h-7 w-7 rounded-lg flex items-center justify-center text-white/45 hover:text-white/60 hover:bg-white/5 transition-all">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
                     </button>
                     <button @click="toggle()" aria-label="Cerrar chat"
-                            class="h-7 w-7 rounded-lg flex items-center justify-center text-white/20 hover:text-white/60 hover:bg-white/5 transition-all">
+                            class="h-7 w-7 rounded-lg flex items-center justify-center text-white/45 hover:text-white/60 hover:bg-white/5 transition-all">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>

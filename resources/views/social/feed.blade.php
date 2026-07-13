@@ -77,12 +77,12 @@
                             </div>
                             <div>
                                 <p class="text-sm font-black text-white uppercase tracking-tight group-hover/author:text-gold transition-colors">{{ $work->barberUser?->name ?? 'Barbero' }}</p>
-                                <p class="text-[9px] font-bold text-white/30 uppercase tracking-widest">Maestro Barbero · {{ $work->created_at->diffForHumans() }}</p>
+                                <p class="text-[9px] font-bold text-white/50 uppercase tracking-widest">Maestro Barbero · {{ $work->created_at->diffForHumans() }}</p>
                             </div>
                         </div>
 
                         <div class="relative" @click.outside="menuOpen = false">
-                            <button @click="menuOpen = !menuOpen" aria-label="Opciones de la publicación" class="text-white/30 hover:text-white transition p-1.5 rounded-lg hover:bg-white/5">
+                            <button @click="menuOpen = !menuOpen" aria-label="Opciones de la publicación" class="text-white/50 hover:text-white transition p-1.5 rounded-lg hover:bg-white/5">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" stroke-width="2"/>
                                 </svg>
@@ -237,7 +237,7 @@
                         {{-- Comments toggle --}}
                         @if($work->comments->count() > 0)
                             <button @click="showComments = !showComments"
-                                    class="text-[10px] font-black text-white/30 hover:text-white uppercase tracking-widest transition-colors">
+                                    class="text-[10px] font-black text-white/50 hover:text-white uppercase tracking-widest transition-colors">
                                 <span x-text="showComments ? 'Ocultar comentarios' : 'Ver {{ $work->comments->count() }} comentario{{ $work->comments->count() !== 1 ? 's' : '' }}'">
                                     Ver {{ $work->comments->count() }} comentario{{ $work->comments->count() !== 1 ? 's' : '' }}
                                 </span>
@@ -273,7 +273,7 @@
                     <svg class="h-14 w-14 text-white/5 mx-auto mb-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
-                    <p class="text-sm font-black text-white/20 uppercase tracking-widest">Sin publicaciones aún</p>
+                    <p class="text-sm font-black text-white/45 uppercase tracking-widest">Sin publicaciones aún</p>
                     <p class="text-xs text-white/10 mt-2 max-w-xs mx-auto">Nuestros barberos todavía no han compartido trabajos. Vuelve pronto.</p>
                     <a href="{{ route('home') }}"
                        class="mt-6 inline-flex items-center gap-2 px-8 py-3 rounded-xl border border-gold/30 bg-gold/10 text-[10px] font-black uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all">

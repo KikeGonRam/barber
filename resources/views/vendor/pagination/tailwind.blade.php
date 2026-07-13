@@ -43,7 +43,7 @@
             {{-- "…" separator --}}
             @if (is_string($element))
                 <span aria-hidden="true"
-                      class="inline-flex h-8 w-6 items-center justify-center text-[10px] font-black text-white/20 select-none">
+                      class="inline-flex h-8 w-6 items-center justify-center text-[10px] font-black text-white/45 select-none">
                     ···
                 </span>
             @endif

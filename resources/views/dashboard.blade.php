@@ -7,11 +7,11 @@
         @endphp
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 mb-1">UrbanBlade · Dashboard</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50 mb-1">UrbanBlade · Dashboard</p>
                 <h2 class="text-xl font-black text-white uppercase tracking-tight">
                     Panel <span class="{{ $modeColors[$mode] }}">{{ $modeLabels[$mode] }}</span>
                 </h2>
-                <p class="text-[10px] text-white/30 font-bold mt-0.5 uppercase tracking-wider">{{ now()->translatedFormat('l d \d\e F, Y') }}</p>
+                <p class="text-[10px] text-white/50 font-bold mt-0.5 uppercase tracking-wider">{{ now()->translatedFormat('l d \d\e F, Y') }}</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 @if($adminMode ?? false)
@@ -96,7 +96,7 @@
                 </div>
             </div>
             <p class="text-3xl font-black text-white leading-none">{{ $kpis['appointments_today'] }}</p>
-            <div class="mt-3 flex items-center gap-2 text-[9px] font-black text-white/30">
+            <div class="mt-3 flex items-center gap-2 text-[9px] font-black text-white/50">
                 <span class="text-blue-400/80">Sem {{ $kpis['appointments_week'] }}</span>
                 <span>·</span>
                 <span>Mes {{ $kpis['appointments_month'] }}</span>
@@ -124,7 +124,7 @@
                 </svg>
             @else <div class="h-5 my-2"></div>
             @endif
-            <div class="flex items-center gap-2 text-[9px] font-black text-white/30">
+            <div class="flex items-center gap-2 text-[9px] font-black text-white/50">
                 <span class="text-emerald-400/80">Sem ${{ number_format($kpis['income_week'],0) }}</span>
                 <span>·</span>
                 <span>Mes ${{ number_format($kpis['income_month'],0) }}</span>
@@ -150,7 +150,7 @@
             <div class="mt-3 h-1 w-full bg-white/5 rounded-full overflow-hidden">
                 <div class="h-full bg-cyan-400 rounded-full" style="width:{{ $ratio }}%"></div>
             </div>
-            <div class="mt-2 flex items-center gap-2 text-[9px] font-black text-white/30">
+            <div class="mt-2 flex items-center gap-2 text-[9px] font-black text-white/50">
                 <span class="text-cyan-400/80">{{ $ratio }}% activos</span>
                 <span>de {{ $kpis['total_clients'] }} totales</span>
             </div>
@@ -169,7 +169,7 @@
             <div class="mt-3 h-1 w-full bg-white/5 rounded-full overflow-hidden">
                 <div class="h-full bg-purple-400 rounded-full" style="width:{{ min(100,$kpis['retention_rate']) }}%"></div>
             </div>
-            <div class="mt-2 flex items-center gap-2 text-[9px] font-black text-white/30">
+            <div class="mt-2 flex items-center gap-2 text-[9px] font-black text-white/50">
                 <span class="text-purple-400/80">{{ $kpis['recurring_clients'] }} recurrentes</span>
                 @if(($kpis['low_stock_count'] ?? 0) > 0)
                     <a href="{{ route('inventory.products.index') }}" class="ml-auto flex items-center gap-1 text-amber-400/80 hover:text-amber-400 transition-colors">
@@ -210,10 +210,10 @@
         <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Agenda</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Agenda</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5">Citas de Hoy</h3>
                 </div>
-                <a href="{{ route('appointments.index') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/30 hover:text-gold transition-colors">
+                <a href="{{ route('appointments.index') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-gold transition-colors">
                     Ver todo <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </a>
             </div>
@@ -257,7 +257,7 @@
                     @foreach([['id'=>'activity','label'=>'Actividad'],['id'=>'stations','label'=>'Estaciones'],['id'=>'topbarber','label'=>'Top Mes']] as $tab)
                         <button type="button" @click="tab='{{ $tab['id'] }}'"
                             class="flex-1 py-3 text-[9px] font-black uppercase tracking-[0.2em] transition-all"
-                            :class="tab==='{{ $tab['id'] }}' ? 'text-gold border-b-2 border-gold -mb-px' : 'text-white/30 hover:text-white/60'">
+                            :class="tab==='{{ $tab['id'] }}' ? 'text-gold border-b-2 border-gold -mb-px' : 'text-white/50 hover:text-white/60'">
                             {{ $tab['label'] }}
                         </button>
                     @endforeach
@@ -276,7 +276,7 @@
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <p class="text-[11px] font-bold text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
-                                        <p class="text-[9px] text-white/30 truncate">{{ \Carbon\Carbon::parse($appt->fecha)->format('d M') }} · {{ substr($appt->hora_inicio,0,5) }}</p>
+                                        <p class="text-[9px] text-white/50 truncate">{{ \Carbon\Carbon::parse($appt->fecha)->format('d M') }} · {{ substr($appt->hora_inicio,0,5) }}</p>
                                     </div>
                                     <span class="shrink-0 text-[8px] font-black uppercase border rounded-full px-2 py-0.5 {{ $st['cls'] }}">{{ $st['label'] }}</span>
                                 </div>
@@ -289,7 +289,7 @@
                     {{-- Estaciones en vivo --}}
                     <div x-show="tab==='stations'" x-transition>
                         <div class="flex items-center justify-between mb-4">
-                            <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Ocupación en tiempo real</p>
+                            <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Ocupación en tiempo real</p>
                             <span class="flex items-center gap-1 text-[8px] font-black uppercase text-emerald-400">
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Live
                             </span>
@@ -327,11 +327,11 @@
                                     {{ strtoupper(substr($kpis['top_barber_name'],0,2)) }}
                                 </div>
                                 <p class="text-base font-black text-white uppercase">{{ $kpis['top_barber_name'] }}</p>
-                                <p class="text-[9px] text-white/30 font-bold uppercase tracking-widest mt-0.5">Mejor del mes</p>
+                                <p class="text-[9px] text-white/50 font-bold uppercase tracking-widest mt-0.5">Mejor del mes</p>
                                 <div class="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gold/15 bg-gold/[0.06]">
                                     <svg class="h-3.5 w-3.5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                     <p class="text-sm font-black text-gold">{{ $kpis['top_barber_total'] }}</p>
-                                    <p class="text-[9px] text-white/30 font-bold uppercase tracking-wider">citas</p>
+                                    <p class="text-[9px] text-white/50 font-bold uppercase tracking-wider">citas</p>
                                 </div>
                                 <div class="flex gap-0.5 mt-3">
                                     @for($s=0;$s<5;$s++)<svg class="h-3.5 w-3.5 text-gold" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>@endfor
@@ -353,7 +353,7 @@
         <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Últimas 8 semanas</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimas 8 semanas</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5">Tendencia de Ingresos</h3>
                 </div>
                 <div class="h-2 w-2 rounded-full bg-emerald-400"></div>
@@ -370,7 +370,7 @@
         <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Distribución</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Distribución</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5">Demanda de Servicios</h3>
                 </div>
                 <div class="h-2 w-2 rounded-full bg-gold"></div>
@@ -387,7 +387,7 @@
         <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Este mes</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Este mes</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5">Desempeño Barberos</h3>
                 </div>
                 <div class="flex gap-3 text-[8px] font-black uppercase text-white/45">
@@ -407,7 +407,7 @@
         <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Mes actual</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Mes actual</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5">Tendencia de Clientes</h3>
                 </div>
                 <div class="h-2 w-2 rounded-full bg-purple-400"></div>
@@ -429,7 +429,7 @@
         <div class="lg:col-span-5 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Próximos 7 días</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Próximos 7 días</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5 flex items-center gap-2">
                         Predicciones IA
                         <span class="text-[8px] font-black uppercase tracking-widest border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded-full">Beta</span>
@@ -444,7 +444,7 @@
                     ['id'=>'ai-confidence',        'label'=>'Confianza',      'color'=>'indigo'],
                 ] as $ai)
                     <div class="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3 text-center">
-                        <p class="text-[8px] font-black uppercase tracking-wider text-white/30 mb-2">{{ $ai['label'] }}</p>
+                        <p class="text-[8px] font-black uppercase tracking-wider text-white/50 mb-2">{{ $ai['label'] }}</p>
                         <p id="{{ $ai['id'] }}" class="text-lg font-black text-{{ $ai['color'] }}-400">
                             <span class="inline-block w-8 h-1 bg-{{ $ai['color'] }}-500/25 rounded animate-pulse"></span>
                         </p>
@@ -467,7 +467,7 @@
         <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Últimos {{ $chatbotTelemetry['window_days'] ?? 7 }} días</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimos {{ $chatbotTelemetry['window_days'] ?? 7 }} días</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5 flex items-center gap-2">
                         Telemetría Chatbot
                         <span class="flex items-center gap-1 text-[8px] font-black uppercase text-emerald-400">
@@ -485,7 +485,7 @@
                     ['label'=>'Costo Est.',     'val'=> '$'.number_format($chatbotTelemetry['estimated_cost_usd'] ?? 0,4), 'color'=>'emerald'],
                 ] as $tel)
                     <div class="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3">
-                        <p class="text-[8px] font-black uppercase tracking-wider text-white/30 mb-1.5">{{ $tel['label'] }}</p>
+                        <p class="text-[8px] font-black uppercase tracking-wider text-white/50 mb-1.5">{{ $tel['label'] }}</p>
                         <p class="text-lg font-black text-{{ $tel['color'] }}-400">{{ $tel['val'] }}</p>
                     </div>
                 @endforeach
@@ -520,7 +520,7 @@
                 <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">Bienvenido de vuelta</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50">Bienvenido de vuelta</p>
                 <h3 class="text-xl font-black text-white uppercase mt-0.5">Maestro <span class="text-gold">{{ explode(' ', auth()->user()->name)[0] }}</span></h3>
                 <p class="text-xs text-white/40 mt-1">Tienes <strong class="text-white">{{ $kpis['appointments_today'] }}</strong> servicio{{ $kpis['appointments_today'] !== 1 ? 's' : '' }} programado{{ $kpis['appointments_today'] !== 1 ? 's' : '' }} para hoy.</p>
             </div>
@@ -540,7 +540,7 @@
             ['label'=>'Rating',       'val'=>$kpis['rating'],        'color'=>'gold',    'fmt'=>'%s'],
         ] as $kpi)
             <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 text-center">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30 mb-3">{{ $kpi['label'] }}</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50 mb-3">{{ $kpi['label'] }}</p>
                 <p class="text-2xl font-black text-{{ $kpi['color'] === 'gold' ? 'gold' : ($kpi['color'] === 'emerald' ? 'emerald-400' : 'white') }}">{{ $kpi['val'] }}</p>
             </div>
         @endforeach
@@ -550,7 +550,7 @@
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="mb-5">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Últimos 7 días</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimos 7 días</p>
                 <h3 class="text-sm font-black text-white uppercase mt-0.5">Productividad Semanal</h3>
             </div>
             @if(!empty(array_filter($performanceChart['values'] ?? [])))
@@ -563,7 +563,7 @@
         </div>
         <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="mb-5">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Último año</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Último año</p>
                 <h3 class="text-sm font-black text-white uppercase mt-0.5">Top Especialidades</h3>
             </div>
             @if(!empty(array_filter($servicesChart['values'] ?? [])))
@@ -587,9 +587,9 @@
         <div class="sm:col-span-2 lg:col-span-1 rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden">
             <div class="absolute -right-8 -bottom-8 h-24 w-24 rounded-full bg-indigo-500/5 blur-2xl"></div>
             <div class="relative">
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">Recepción</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50">Recepción</p>
                 <h3 class="text-base font-black text-white uppercase mt-0.5">Hola, <span class="text-indigo-400">{{ explode(' ',auth()->user()->name)[0] }}</span></h3>
-                <p class="text-[10px] text-white/30 mt-1">Centro de mando activo.</p>
+                <p class="text-[10px] text-white/50 mt-1">Centro de mando activo.</p>
                 <div class="flex gap-2 mt-4">
                     <a href="{{ route('appointments.create') }}" class="ui-btn px-4 py-2 text-[9px]">+ Cita</a>
                     <a href="{{ route('payments.create') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Cobrar</a>
@@ -606,7 +606,7 @@
         ] as $kpi)
             <a href="{{ $kpi['href'] }}" class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden hover:border-{{ $kpi['color'] }}-500/25 transition-all group">
                 <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-{{ $kpi['color'] }}-500/60 to-transparent"></div>
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30 mb-3">{{ $kpi['label'] }}</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50 mb-3">{{ $kpi['label'] }}</p>
                 <p class="text-3xl font-black text-{{ $kpi['color'] }}-400">{{ $kpi['val'] }}</p>
             </a>
         @endforeach
@@ -617,10 +617,10 @@
         <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Hoy</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Hoy</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5">Próximas Llegadas</h3>
                 </div>
-                <a href="{{ route('appointments.index') }}" class="text-[9px] font-black uppercase tracking-widest text-white/30 hover:text-gold transition-colors">Agenda completa →</a>
+                <a href="{{ route('appointments.index') }}" class="text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-gold transition-colors">Agenda completa →</a>
             </div>
             <div class="space-y-2">
                 @forelse($nextAppointments as $appt)
@@ -630,7 +630,7 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-xs font-black text-white truncate uppercase">{{ $appt->client?->user?->name }}</p>
-                            <p class="text-[9px] text-white/30 truncate">{{ $appt->service?->nombre }} · {{ $appt->barber?->user?->name }}</p>
+                            <p class="text-[9px] text-white/50 truncate">{{ $appt->service?->nombre }} · {{ $appt->barber?->user?->name }}</p>
                         </div>
                         <p class="text-xs font-black text-white shrink-0">{{ substr($appt->hora_inicio,0,5) }}</p>
                     </div>
@@ -644,7 +644,7 @@
 
         <div class="lg:col-span-5 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="mb-5">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Distribución horaria</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Distribución horaria</p>
                 <h3 class="text-sm font-black text-white uppercase mt-0.5">Flujo Operativo</h3>
             </div>
             @if(!empty(array_filter($flow_chart['values'] ?? [])))
@@ -685,7 +685,7 @@
                 <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">Bienvenido</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50">Bienvenido</p>
                 <h3 class="text-xl font-black text-white uppercase mt-0.5"><span class="text-gold">{{ explode(' ',auth()->user()->name)[0] }}</span></h3>
                 <p class="text-xs text-white/40 mt-1">Estatus actual: <span class="text-white font-black uppercase">{{ $kpis['membership_status'] }}</span></p>
             </div>
@@ -723,7 +723,7 @@
                 </div>
                 <div class="p-6 flex-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
-                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30 mb-1">Servicio</p>
+                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50 mb-1">Servicio</p>
                         <h3 class="text-lg font-black text-white uppercase">{{ $nextAppointment['service']['nombre'] ?? 'Servicio' }}</h3>
                         <p class="text-xs text-gold/70 font-bold uppercase tracking-widest mt-0.5">Con Maestro {{ $nextAppointment['barber']['user']['name'] ?? '—' }}</p>
                     </div>
@@ -737,7 +737,7 @@
         <section class="rounded-2xl border border-dashed border-gold/15 bg-gold/[0.02] p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
                 <p class="text-sm font-black text-white uppercase">Sin citas próximas</p>
-                <p class="text-xs text-white/30 mt-0.5">Reserva tu siguiente visita y mantén tu estilo impecable.</p>
+                <p class="text-xs text-white/50 mt-0.5">Reserva tu siguiente visita y mantén tu estilo impecable.</p>
             </div>
             <a href="{{ route('client.appointments.create') }}" class="ui-btn px-8 py-3 shrink-0">Reservar ahora →</a>
         </section>
@@ -749,7 +749,7 @@
         {{-- Gráfica de visitas --}}
         <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="mb-5">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/30">Últimos 6 meses</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimos 6 meses</p>
                 <h3 class="text-sm font-black text-white uppercase mt-0.5">Frecuencia de Visitas</h3>
             </div>
             @if(!empty(array_filter($visit_chart['values'] ?? [])))
@@ -831,7 +831,7 @@
                                         <svg class="h-2.5 w-2.5 shrink-0" fill="none" stroke="{{ $tx->puntos > 0 ? '#4ade80' : '#f87171' }}" stroke-width="2.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="{{ $tx->puntos > 0 ? 'M12 19V5m0 0l-7 7m7-7l7 7' : 'M12 5v14m0 0l7-7m-7 7l-7-7' }}"/>
                                         </svg>
-                                        <span class="text-[9px] text-white/30">{{ $tx->descripcion }}</span>
+                                        <span class="text-[9px] text-white/50">{{ $tx->descripcion }}</span>
                                     </div>
                                     <span class="text-[9px] font-black shrink-0" style="color:{{ $tx->puntos > 0 ? '#4ade80' : '#f87171' }};">{{ $tx->puntos > 0 ? '+' : '' }}{{ $tx->puntos }} pts</span>
                                 </div>
@@ -846,7 +846,7 @@
                         <svg class="h-3.5 w-3.5 shrink-0" style="fill:rgba(232,121,249,0.8);" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                         <div>
                             <p class="text-[9px] font-black" style="color:rgba(232,121,249,0.8);">Ganaste el sorteo de {{ $wonRaffle->mes }}</p>
-                            <p class="text-[8px] text-white/30">{{ $wonRaffle->premio }}</p>
+                            <p class="text-[8px] text-white/50">{{ $wonRaffle->premio }}</p>
                         </div>
                     </div>
                 @endif
@@ -858,7 +858,7 @@
     @else
         <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-8">
             <h3 class="text-sm font-black text-white uppercase tracking-widest">Panel no disponible</h3>
-            <p class="mt-2 text-xs text-white/30">Tu perfil no tiene un rol configurado. Contacta a un administrador.</p>
+            <p class="mt-2 text-xs text-white/50">Tu perfil no tiene un rol configurado. Contacta a un administrador.</p>
         </section>
     @endif
 

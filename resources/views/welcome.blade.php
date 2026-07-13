@@ -391,7 +391,7 @@
                             <div class="absolute bottom-0 left-0 right-0 p-6 translate-y-1 group-hover:translate-y-0 transition-transform duration-400">
                                 <h4 class="text-base font-black text-white uppercase">{{ $barber->user?->name }}</h4>
                                 <p class="text-[9px] font-bold text-gold uppercase tracking-widest mt-1">{{ $barber->especialidades ?: 'Master Groomer' }}</p>
-                                <div class="mt-3 flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/30 group-hover:text-gold/80 transition-colors duration-400">
+                                <div class="mt-3 flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/50 group-hover:text-gold/80 transition-colors duration-400">
                                     <span>Ver perfil</span>
                                     <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                                 </div>
