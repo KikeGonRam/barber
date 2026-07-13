@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-mark.png') }}">
 
     <title>{{ config('app.name') }} - Acceso Premium</title>
 
@@ -40,11 +41,7 @@
 
                 <!-- Logo top -->
                 <a href="/" class="flex items-center gap-3 group w-fit">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-gold-dim shadow-[0_0_25px_rgba(212,175,55,0.4)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] transition-all duration-500">
-                        <svg class="h-6 w-6 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
+                    <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-11 w-11 object-contain">
                     <div>
                         <span class="block text-xl font-black uppercase tracking-tighter text-white">Urban<span class="text-gold">Blade</span></span>
                         <span class="block text-[9px] font-bold uppercase tracking-[0.3em] text-muted -mt-0.5">Elite Grooming Studio</span>
@@ -123,11 +120,7 @@
                 <!-- Logo móvil (sólo visible en móvil) -->
                 <div class="lg:hidden mb-10 flex flex-col items-center">
                     <a href="/" class="group transition-transform hover:scale-105">
-                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gold shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transition-all">
-                            <svg class="h-8 w-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
+                        <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-14 w-14 object-contain mx-auto">
                     </a>
                     <h1 class="mt-4 text-2xl font-black uppercase tracking-tighter text-white">Urban<span class="text-gold">Blade</span></h1>
                     <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-muted">Acceso Exclusivo</p>

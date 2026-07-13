@@ -12,11 +12,7 @@
     <!-- Brand Section (Fixed) -->
     <div class="flex items-center justify-between px-2 pb-8 pt-4 flex-shrink-0">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-sm font-semibold tracking-wide text-white group">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-gold-dim shadow-lg shadow-gold/20 group-hover:shadow-gold/40 group-hover:scale-105 transition-all duration-300">
-                <svg class="h-6 w-6 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
+            <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-10 w-10 object-contain group-hover:scale-105 transition-transform duration-300">
             <div class="hidden lg:block">
                 <span class="block text-lg font-black uppercase tracking-tighter leading-tight">Urban<span class="text-gold">Blade</span></span>
                 <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-muted">Management System</span>

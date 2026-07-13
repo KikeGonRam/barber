@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-mark.png') }}">
     <title>{{ config('app.name') }} - Premium Grooming Studio</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -98,11 +99,7 @@
             <div class="flex h-20 items-center justify-between">
 
                 <div class="flex items-center gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-gold-dim shadow-lg shadow-gold/25">
-                        <svg class="h-6 w-6 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
+                    <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-10 w-10 object-contain">
                     <a href="/" class="text-xl font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span></a>
                 </div>
 
@@ -574,11 +571,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start gap-12">
                 <div class="max-w-xs">
                     <div class="flex items-center gap-3 mb-5">
-                        <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-gold to-gold-dim text-black flex items-center justify-center">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
+                        <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-9 w-9 object-contain">
                         <span class="text-lg font-black uppercase tracking-tighter text-white">Urban<span class="text-gold">Blade</span></span>
                     </div>
                     <p class="text-xs text-muted leading-relaxed">

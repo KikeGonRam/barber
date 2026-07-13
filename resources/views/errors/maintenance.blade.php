@@ -18,11 +18,7 @@
         <div class="relative z-10 text-center px-4 max-w-2xl">
             <!-- Professional Logo Display -->
             <div class="flex items-center justify-center gap-3 mb-12">
-                <div class="h-12 w-12 rounded-2xl bg-gold flex items-center justify-center text-black shadow-lg shadow-gold/20 animate-pulse">
-                    <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
+                <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-12 w-12 object-contain animate-pulse">
                 <span class="text-2xl font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span> <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded ml-2 text-muted">v2.0</span></span>
             </div>
 

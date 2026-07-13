@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $barber->user?->name }} — UrbanBlade</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-mark.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,900&display=swap" rel="stylesheet" />
     @safeVite(['resources/css/app.css', 'resources/js/app.js'])
@@ -16,11 +17,7 @@
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
                     <a href="/" class="flex items-center gap-3">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gold shadow-lg shadow-gold/20">
-                            <svg class="h-5 w-5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
+                        <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-9 w-9 object-contain">
                         <span class="text-lg font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span></span>
                     </a>
                     <a href="/" class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted hover:text-gold transition">
