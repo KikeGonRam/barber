@@ -30,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'expo_push_token',
+        'notification_preferences',
     ];
 
     /**
@@ -52,6 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'notification_preferences' => 'array',
         ];
     }
 
@@ -119,20 +121,31 @@ class User extends Authenticatable implements MustVerifyEmail
             'email' => true,
             'sms' => false,
             'whatsapp' => false,
+            'promociones' => true,
         ];
 
-        $clientPreferences = $this->clientProfile?->preferencias_notificacion;
+        // Prioridad: propias (User) > legado del perfil de cliente > defaults.
+        $legacy = is_array($this->clientProfile?->preferencias_notificacion)
+            ? $this->clientProfile->preferencias_notificacion
+            : [];
+        $own = is_array($this->notification_preferences)
+            ? $this->notification_preferences
+            : [];
 
-        if (! is_array($clientPreferences)) {
-            return $defaults;
-        }
-
-        return array_merge($defaults, $clientPreferences);
+        return array_merge($defaults, $legacy, $own);
     }
 
     public function wantsNotificationChannel(string $channel): bool
     {
         return (bool) ($this->notificationPreferences()[$channel] ?? false);
+    }
+
+    /**
+     * Telefono destino para SMS/WhatsApp (canal Twilio).
+     */
+    public function routeNotificationForTwilio(): ?string
+    {
+        return $this->clientPhone();
     }
 
     /**

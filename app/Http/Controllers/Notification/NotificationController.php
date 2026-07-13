@@ -37,6 +37,35 @@ class NotificationController extends Controller
         return back()->with('status', 'Notificación marcada como leída.');
     }
 
+    public function preferences(Request $request)
+    {
+        return view('notifications.preferences', [
+            'prefs' => $request->user()->notificationPreferences(),
+        ]);
+    }
+
+    public function updatePreferences(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        $prefs = [
+            'in_app' => $request->boolean('in_app'),
+            'email' => $request->boolean('email'),
+            'sms' => $request->boolean('sms'),
+            'whatsapp' => $request->boolean('whatsapp'),
+            'promociones' => $request->boolean('promociones'),
+        ];
+
+        $user->update(['notification_preferences' => $prefs]);
+
+        // Mantener sincronizado el perfil de cliente (fuente legada) si existe.
+        if ($user->clientProfile) {
+            $user->clientProfile->update(['preferencias_notificacion' => $prefs]);
+        }
+
+        return back()->with('status', 'Preferencias de notificación actualizadas.');
+    }
+
     public function poll(Request $request): JsonResponse
     {
         $user  = $request->user();

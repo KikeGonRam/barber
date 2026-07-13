@@ -5,12 +5,17 @@
                 <h2 class="ui-title">Centro de <span class="text-gold">Notificaciones</span></h2>
                 <p class="ui-subtitle">Mantente al tanto de tus citas, pagos y eventos importantes.</p>
             </div>
-            <form method="POST" action="{{ route('notifications.read-all') }}">
-                @csrf
-                <button type="submit" class="ui-btn-secondary text-[10px] uppercase tracking-widest px-6">
-                    Marcar todo como leído
-                </button>
-            </form>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('notifications.preferences') }}" class="ui-btn-secondary text-[10px] uppercase tracking-widest px-6">
+                    Preferencias
+                </a>
+                <form method="POST" action="{{ route('notifications.read-all') }}">
+                    @csrf
+                    <button type="submit" class="ui-btn-secondary text-[10px] uppercase tracking-widest px-6">
+                        Marcar todo como leído
+                    </button>
+                </form>
+            </div>
         </div>
     </x-slot>
 

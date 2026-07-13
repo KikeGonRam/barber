@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Appointment;
+use App\Notifications\Channels\TwilioChannel;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,7 +43,24 @@ class AppointmentNotification extends Notification implements ShouldQueue
             $channels[] = 'mail';
         }
 
+        if (method_exists($notifiable, 'wantsNotificationChannel')
+            && ($notifiable->wantsNotificationChannel('sms') || $notifiable->wantsNotificationChannel('whatsapp'))) {
+            $channels[] = TwilioChannel::class;
+        }
+
         return $channels ?: ['database'];
+    }
+
+    /**
+     * Texto corto para SMS/WhatsApp (canal Twilio).
+     */
+    public function toTwilio(object $notifiable): string
+    {
+        $fecha = optional($this->appointment->fecha)->format('d/m') ?? '';
+        $hora = substr((string) $this->appointment->hora_inicio, 0, 5);
+        $servicio = $this->appointment->service?->nombre ?? 'tu servicio';
+
+        return "UrbanBlade: {$this->title}. {$servicio} el {$fecha} a las {$hora}.";
     }
 
     public function toMail(object $notifiable): MailMessage

@@ -27,7 +27,7 @@
 <div class="foot-brand">Urban<span style="color:#d4af37;">Blade</span></div>
 <div class="foot-contact">Av. Reforma 123, CDMX &nbsp;·&nbsp; +52 55 1234 5678 &nbsp;·&nbsp; hola@urbanblade.com</div>
 <div class="foot-social"><a href="{{ config('app.url') }}">Instagram</a> &nbsp;·&nbsp; <a href="{{ config('app.url') }}">Facebook</a></div>
-<div class="foot-legal">© {{ date('Y') }} {{ config('app.name') }}. Todos los derechos reservados. &nbsp;·&nbsp; <a href="{{ config('app.url') }}">Preferencias de correo</a></div>
+<div class="foot-legal">© {{ date('Y') }} {{ config('app.name') }}. Todos los derechos reservados. &nbsp;·&nbsp; <a href="{{ \Illuminate\Support\Facades\Route::has('notifications.preferences') ? route('notifications.preferences') : config('app.url') }}">Preferencias de correo</a></div>
         @endcomponent
     @endslot
 @endcomponent
