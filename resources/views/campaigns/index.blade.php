@@ -9,6 +9,7 @@
     <div class="py-4 grid grid-cols-1 lg:grid-cols-3 gap-6"
          x-data="{
             segmento: 'todos',
+            modo: 'ahora',
             counts: {{ Illuminate\Support\Js::from($segmentCounts) }},
             get recipientes() { return this.counts[this.segmento] ?? 0; }
          }">
@@ -69,13 +70,36 @@
                     </select>
                 </div>
 
+                {{-- Envío: ahora o programado --}}
+                <div class="pt-2 border-t border-white/5">
+                    <label class="ui-label">Envío</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2.5 rounded-xl border px-4 py-3 cursor-pointer transition-all"
+                               :class="modo === 'ahora' ? 'border-gold/50 bg-gold/5' : 'border-white/10'">
+                            <input type="radio" name="modo" value="ahora" x-model="modo" class="accent-gold">
+                            <span class="text-xs font-bold text-white">Enviar ahora</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 rounded-xl border px-4 py-3 cursor-pointer transition-all"
+                               :class="modo === 'programar' ? 'border-gold/50 bg-gold/5' : 'border-white/10'">
+                            <input type="radio" name="modo" value="programar" x-model="modo" class="accent-gold">
+                            <span class="text-xs font-bold text-white">Programar</span>
+                        </label>
+                    </div>
+                    <div x-show="modo === 'programar'" x-cloak class="mt-3">
+                        <input type="datetime-local" name="programada_para" value="{{ old('programada_para') }}"
+                               :required="modo === 'programar'" class="ui-input w-full">
+                    </div>
+                </div>
+
                 <div class="flex items-center justify-between gap-4 pt-2 border-t border-white/5">
                     <p class="text-[11px] text-muted">
                         Destinatarios del segmento:
                         <span class="text-gold font-black text-base" x-text="recipientes"></span>
                         <span class="block text-[10px] text-muted/70 mt-0.5">Quienes desactivaron promociones se omiten automáticamente.</span>
                     </p>
-                    <button type="submit" class="ui-btn px-8 py-3 text-[11px] tracking-widest shrink-0">Enviar campaña</button>
+                    <button type="submit" class="ui-btn px-8 py-3 text-[11px] tracking-widest shrink-0">
+                        <span x-text="modo === 'programar' ? 'Programar campaña' : 'Enviar campaña'"></span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -85,14 +109,25 @@
             <div class="ui-card-premium p-6">
                 <h3 class="text-[11px] font-black uppercase tracking-widest text-muted mb-4">Últimas campañas</h3>
                 @forelse($campaigns as $c)
+                    @php $programada = $c->estado === 'programada'; @endphp
                     <div class="py-3 border-b border-white/5 last:border-0">
-                        <p class="text-sm font-bold text-white line-clamp-1">{{ $c->titulo }}</p>
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="text-sm font-bold text-white line-clamp-1">{{ $c->titulo }}</p>
+                            <span class="shrink-0 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border
+                                {{ $programada ? 'text-amber-300 border-amber-500/30 bg-amber-500/10' : 'text-emerald-300 border-emerald-500/25 bg-emerald-500/10' }}">
+                                {{ $programada ? 'Programada' : 'Enviada' }}
+                            </span>
+                        </div>
                         <div class="flex items-center gap-2 mt-1 text-[10px] font-bold uppercase tracking-wider text-muted">
                             <span class="text-gold">{{ $c->segmento === 'todos' ? 'Todos' : ($levels[$c->segmento] ?? $c->segmento) }}</span>
                             <span>·</span>
-                            <span>{{ $c->destinatarios }} dest.</span>
-                            <span>·</span>
-                            <span>{{ optional($c->created_at)->format('d M') }}</span>
+                            @if($programada)
+                                <span>{{ optional($c->programada_para)->format('d M, H:i') }}</span>
+                            @else
+                                <span>{{ $c->destinatarios }} dest.</span>
+                                <span>·</span>
+                                <span>{{ optional($c->enviada_en ?? $c->created_at)->format('d M') }}</span>
+                            @endif
                         </div>
                     </div>
                 @empty

@@ -4,22 +4,21 @@ namespace App\Http\Controllers\Campaign;
 
 use App\Http\Controllers\Controller;
 use App\Models\Campaign;
-use App\Models\Client;
-use App\Models\User;
-use App\Notifications\PromotionNotification;
+use App\Services\Campaign\CampaignDispatcher;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class CampaignController extends Controller
 {
+    public function __construct(private readonly CampaignDispatcher $dispatcher) {}
+
     public function index(): View
     {
         return view('campaigns.index', [
             'levels' => LoyaltyService::LEVEL_LABELS,
-            'segmentCounts' => $this->segmentCounts(),
+            'segmentCounts' => $this->dispatcher->segmentCounts(),
             'campaigns' => Campaign::query()->latest()->limit(10)->get(),
         ]);
     }
@@ -34,66 +33,36 @@ class CampaignController extends Controller
             'cta_label' => ['nullable', 'string', 'max:40'],
             'cta_url' => ['nullable', 'url', 'max:300'],
             'segmento' => ['required', 'in:todos,'.implode(',', $niveles)],
+            'modo' => ['required', 'in:ahora,programar'],
+            'programada_para' => ['required_if:modo,programar', 'nullable', 'date', 'after:now'],
         ]);
 
-        $userIds = $this->audienceUserIds($data['segmento']);
-
-        if ($userIds->isEmpty()) {
+        if ($this->dispatcher->audienceUserIds($data['segmento'])->isEmpty()) {
             return back()->withInput()->withErrors(['segmento' => 'El segmento elegido no tiene clientes.']);
         }
 
-        $notification = new PromotionNotification(
-            $data['titulo'],
-            $data['cuerpo'],
-            $data['cta_label'] ?: null,
-            $data['cta_url'] ?: null,
-        );
-
-        // Envio por lotes; el via() de la notificacion omite a quien no dio
-        // consentimiento de marketing.
-        User::whereIn('_id', $userIds->all())
-            ->chunk(200, fn ($users) => Notification::send($users, $notification));
-
-        Campaign::create([
+        $campaign = Campaign::create([
             'titulo' => $data['titulo'],
             'cuerpo' => $data['cuerpo'],
             'cta_label' => $data['cta_label'] ?: null,
             'cta_url' => $data['cta_url'] ?: null,
             'segmento' => $data['segmento'],
-            'destinatarios' => $userIds->count(),
+            'destinatarios' => 0,
             'enviado_por' => $request->user()?->name,
+            'estado' => 'programada',
+            'programada_para' => $data['modo'] === 'programar' ? $data['programada_para'] : null,
         ]);
 
-        return back()->with('status', "Campana enviada a {$userIds->count()} cliente(s) del segmento seleccionado (quienes optaron por no recibir promociones se omiten).");
-    }
+        // Envio inmediato: se despacha ya. Programada: queda pendiente para
+        // que el comando campaigns:dispatch-due la envie al vencer.
+        if ($data['modo'] === 'ahora') {
+            $count = $this->dispatcher->dispatch($campaign);
 
-    /**
-     * IDs de usuario de los clientes en el segmento.
-     */
-    private function audienceUserIds(string $segmento)
-    {
-        $query = Client::query();
-
-        if ($segmento !== 'todos') {
-            $query->where('nivel', $segmento);
+            return back()->with('status', "Campana enviada a {$count} cliente(s) del segmento (quienes desactivaron promociones se omiten).");
         }
 
-        return $query->pluck('user_id')->filter()->values();
-    }
+        $cuando = $campaign->programada_para->translatedFormat('d M Y, H:i');
 
-    /**
-     * Conteo de clientes por segmento para mostrarlo en el formulario.
-     *
-     * @return array<string, int>
-     */
-    private function segmentCounts(): array
-    {
-        $counts = ['todos' => Client::count()];
-
-        foreach (array_keys(LoyaltyService::LEVEL_LABELS) as $nivel) {
-            $counts[$nivel] = Client::where('nivel', $nivel)->count();
-        }
-
-        return $counts;
+        return back()->with('status', "Campana programada para el {$cuando}.");
     }
 }
