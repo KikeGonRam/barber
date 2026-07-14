@@ -117,6 +117,7 @@ Route::middleware('auth')->group(function () {
             Route::get('pedidos', [\App\Http\Controllers\Reception\OrderController::class, 'index'])->name('orders.index');
             Route::patch('pedidos/{order}/entregar', [\App\Http\Controllers\Reception\OrderController::class, 'deliver'])->name('orders.deliver');
             Route::patch('pedidos/{order}/cancelar', [\App\Http\Controllers\Reception\OrderController::class, 'cancel'])->name('orders.cancel');
+            Route::get('pedidos/{order}/recibo', [\App\Http\Controllers\Reception\OrderController::class, 'receipt'])->name('orders.receipt');
         });
 
         Route::middleware('permission.custom:inventario.ver,inventario.gestionar')->group(function () {

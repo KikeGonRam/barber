@@ -5,8 +5,15 @@
         'completada' => ['pill' => 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25','dot'=> 'bg-emerald-400','label' => 'Completada'],
         'cancelada'  => ['pill' => 'bg-red-500/15 text-red-400 border-red-500/25',          'dot' => 'bg-red-400',     'label' => 'Cancelada'],
         'en_proceso' => ['pill' => 'bg-sky-500/15 text-sky-300 border-sky-500/25',          'dot' => 'bg-sky-400',     'label' => 'En Proceso'],
+        'no_asistio' => ['pill' => 'bg-orange-500/15 text-orange-300 border-orange-500/25', 'dot' => 'bg-orange-400',  'label' => 'No Asistió'],
     ];
     $activeFilters = array_filter($filters ?? [], fn($v) => $v !== '' && $v !== null);
+
+    // Etiquetas + transiciones validas de la maquina de estados: el dropdown
+    // solo ofrece el estado actual + los siguientes permitidos (nada de saltos).
+    $estadoLabels = ['pendiente'=>'Pendiente','confirmada'=>'Confirmada','en_proceso'=>'En Proceso','completada'=>'Completada','cancelada'=>'Cancelada','no_asistio'=>'No Asistió'];
+    $estadoTransitions = \App\Services\Appointment\AppointmentStatusService::TRANSITIONS;
+    $opcionesEstado = fn ($estado) => array_merge([$estado], $estadoTransitions[$estado] ?? []);
 @endphp
 
 <x-app-layout>
@@ -213,20 +220,25 @@
                                     </div>
                                 </td>
                                 <td>
-                                    {{-- Dropdown inline para cambiar estado --}}
-                                    <form method="POST" action="{{ route('appointments.update-status', $appt) }}" class="inline">
-                                        @csrf @method('PATCH')
-                                        <select name="estado" onchange="this.form.submit()"
-                                                class="rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest bg-transparent cursor-pointer transition-all hover:opacity-80 {{ $sc['pill'] }}"
-                                                title="Cambiar estado" aria-label="Cambiar estado de la cita">
-                                            @foreach(['pendiente'=>'Pendiente','confirmada'=>'Confirmada','en_proceso'=>'En Proceso','completada'=>'Completada','cancelada'=>'Cancelada','no_asistio'=>'No Asistió'] as $val => $lbl)
-                                                <option value="{{ $val }}" @selected($appt->estado === $val)
-                                                        class="bg-[#111] text-white normal-case tracking-normal font-bold">
-                                                    {{ $lbl }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </form>
+                                    {{-- Estado: solo transiciones validas (o badge fijo si es terminal) --}}
+                                    @php $opsT = $opcionesEstado($appt->estado); @endphp
+                                    @if(count($opsT) > 1)
+                                        <form method="POST" action="{{ route('appointments.update-status', $appt) }}" class="inline">
+                                            @csrf @method('PATCH')
+                                            <select name="estado" onchange="this.form.submit()"
+                                                    class="rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest bg-transparent cursor-pointer transition-all hover:opacity-80 {{ $sc['pill'] }}"
+                                                    title="Cambiar estado" aria-label="Cambiar estado de la cita">
+                                                @foreach($opsT as $val)
+                                                    <option value="{{ $val }}" @selected($appt->estado === $val)
+                                                            class="bg-[#111] text-white normal-case tracking-normal font-bold">
+                                                        {{ $estadoLabels[$val] ?? $val }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </form>
+                                    @else
+                                        <span class="inline-block rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest {{ $sc['pill'] }}">{{ $estadoLabels[$appt->estado] ?? $appt->estado }}</span>
+                                    @endif
                                 </td>
                                 <td class="text-right">
                                     <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -305,14 +317,15 @@
                                 <p class="font-bold text-white">{{ $appt->barber?->user?->name ?? 'Sin asignar' }}</p>
                             </div>
                         </div>
-                        {{-- Estado inline (mobile) --}}
-                        @if(!in_array($appt->estado, ['completada', 'cancelada']))
+                        {{-- Estado inline (mobile): solo transiciones validas --}}
+                        @php $opsC = $opcionesEstado($appt->estado); @endphp
+                        @if(count($opsC) > 1)
                         <form method="POST" action="{{ route('appointments.update-status', $appt) }}" class="mt-3">
                             @csrf @method('PATCH')
                             <div class="flex gap-2">
                                 <select name="estado" class="flex-1 h-9 rounded-xl border border-white/10 bg-black/40 px-3 text-[10px] font-black uppercase tracking-wider text-white focus:border-gold/50 focus:outline-none transition-all">
-                                    @foreach(['pendiente'=>'Pendiente','confirmada'=>'Confirmada','en_proceso'=>'En Proceso','completada'=>'Completada','cancelada'=>'Cancelada'] as $val => $lbl)
-                                        <option value="{{ $val }}" @selected($appt->estado === $val) class="bg-[#111] normal-case font-bold">{{ $lbl }}</option>
+                                    @foreach($opsC as $val)
+                                        <option value="{{ $val }}" @selected($appt->estado === $val) class="bg-[#111] normal-case font-bold">{{ $estadoLabels[$val] ?? $val }}</option>
                                     @endforeach
                                 </select>
                                 <button type="submit" class="h-9 px-3 rounded-xl border border-gold/30 bg-gold/10 text-[10px] font-black uppercase text-gold hover:bg-gold hover:text-black transition-all shrink-0">OK</button>

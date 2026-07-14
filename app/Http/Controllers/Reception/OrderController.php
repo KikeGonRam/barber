@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Notifications\OrderDeliveredNotification;
 use App\Services\Order\OrderService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -75,5 +77,26 @@ class OrderController extends Controller
         $this->orders->cancel($order);
 
         return back()->with('status', "Pedido {$order->folio} cancelado y stock devuelto.");
+    }
+
+    /**
+     * Recibo PDF de un pedido ya entregado.
+     */
+    public function receipt(Order $order): Response
+    {
+        abort_if($order->estado !== 'entregado', 404);
+
+        $order->loadMissing('client.user');
+
+        $pdf = Pdf::loadView('pdf.order-receipt', [
+            'folio' => $order->folio,
+            'emitido' => optional($order->entregado_en ?? $order->created_at)->format('d/m/Y'),
+            'cliente' => $order->client?->user?->name ?? 'Cliente',
+            'items' => $order->items ?? [],
+            'total' => (float) $order->total,
+            'metodo' => ucfirst($order->metodo_pago ?? '—'),
+        ]);
+
+        return $pdf->download('pedido-'.$order->folio.'.pdf');
     }
 }

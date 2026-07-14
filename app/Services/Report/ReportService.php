@@ -4,6 +4,7 @@ namespace App\Services\Report;
 
 use App\Models\Appointment;
 use App\Models\InventoryMovement;
+use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use Carbon\Carbon;
@@ -27,9 +28,11 @@ class ReportService
             $query->where('metodo_pago', $filters['metodo_pago']);
         }
 
-        $rows = $query->get()->map(function (Payment $payment) {
+        // Ingresos por servicios (citas cobradas).
+        $serviceRows = $query->get()->map(function (Payment $payment) {
             return [
                 'fecha'       => optional($payment->created_at)->format('Y-m-d H:i'),
+                'origen'      => 'Servicio',
                 'cliente'     => $payment->appointment?->client?->user?->name,
                 'barbero'     => $payment->appointment?->barber?->user?->name,
                 'metodo_pago' => $payment->metodo_pago,
@@ -39,11 +42,40 @@ class ReportService
             ];
         });
 
+        // Ingresos por productos (pedidos entregados). Solo si no se filtra por
+        // barbero (los pedidos de tienda no tienen barbero asignado).
+        $orderRows = collect();
+        if (empty($filters['barber_id'])) {
+            $orderQuery = Order::query()->where('estado', 'entregado')->with('client.user');
+            $this->applyDateRange($orderQuery, $filters, 'entregado_en');
+
+            if (! empty($filters['metodo_pago'])) {
+                $orderQuery->where('metodo_pago', $filters['metodo_pago']);
+            }
+
+            $orderRows = $orderQuery->get()->map(function (Order $order) {
+                $total = (float) $order->total;
+
+                return [
+                    'fecha'       => optional($order->entregado_en)->format('Y-m-d H:i'),
+                    'origen'      => 'Producto',
+                    'cliente'     => $order->client?->user?->name,
+                    'barbero'     => '—',
+                    'metodo_pago' => $order->metodo_pago,
+                    'monto'       => $total,
+                    'propina'     => 0.0,
+                    'total'       => $total,
+                ];
+            });
+        }
+
+        $rows = $serviceRows->concat($orderRows)->sortByDesc('fecha')->values();
+
         return [
             'title'    => 'Reporte de Ingresos',
-            'headings' => ['Fecha', 'Cliente', 'Barbero', 'Método de pago', 'Monto', 'Propina', 'Total'],
+            'headings' => ['Fecha', 'Origen', 'Cliente', 'Barbero', 'Método de pago', 'Monto', 'Propina', 'Total'],
             'rows'     => $rows,
-            'keys'     => ['fecha', 'cliente', 'barbero', 'metodo_pago', 'monto', 'propina', 'total'],
+            'keys'     => ['fecha', 'origen', 'cliente', 'barbero', 'metodo_pago', 'monto', 'propina', 'total'],
         ];
     }
 

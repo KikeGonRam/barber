@@ -26,9 +26,15 @@ class SendDailySummaryCommand extends Command
         $completadas = $todaysAppointments->where('estado', 'completada')->count();
         $canceladas = $todaysAppointments->where('estado', 'cancelada')->count();
 
-        $incomeToday = Payment::whereDate('created_at', $today)
+        $incomeServicios = Payment::whereDate('created_at', $today)
             ->get(['monto', 'propina'])
             ->sum(fn ($p) => (float) $p->monto + (float) $p->propina);
+
+        // Ventas de tienda (pedidos entregados hoy).
+        $ventasTienda = \App\Models\Order::where('estado', 'entregado')
+            ->whereDate('entregado_en', $today)
+            ->get(['total'])
+            ->sum(fn ($o) => (float) $o->total);
 
         $lowStock = Product::where('activo', true)
             ->whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])
@@ -37,7 +43,9 @@ class SendDailySummaryCommand extends Command
         $ocupacion = $total > 0 ? round(($completadas / $total) * 100).'%' : '—';
 
         $stats = [
-            'Ingresos del dia' => '$'.number_format($incomeToday, 2),
+            'Ingresos totales' => '$'.number_format($incomeServicios + $ventasTienda, 2),
+            '  Servicios' => '$'.number_format($incomeServicios, 2),
+            '  Tienda' => '$'.number_format($ventasTienda, 2),
             'Citas totales' => (string) $total,
             'Completadas' => (string) $completadas,
             'Canceladas' => (string) $canceladas,
