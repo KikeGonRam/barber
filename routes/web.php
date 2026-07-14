@@ -112,6 +112,11 @@ Route::middleware('auth')->group(function () {
         Route::middleware('permission.custom:pagos.gestionar')->group(function () {
             Route::resource('payments', PaymentController::class)->only(['index', 'create', 'store', 'destroy']);
             Route::get('payments/{payment}/receipt', [PaymentController::class, 'downloadReceipt'])->name('payments.receipt.download');
+
+            // Bandeja de pedidos de la tienda
+            Route::get('pedidos', [\App\Http\Controllers\Reception\OrderController::class, 'index'])->name('orders.index');
+            Route::patch('pedidos/{order}/entregar', [\App\Http\Controllers\Reception\OrderController::class, 'deliver'])->name('orders.deliver');
+            Route::patch('pedidos/{order}/cancelar', [\App\Http\Controllers\Reception\OrderController::class, 'cancel'])->name('orders.cancel');
         });
 
         Route::middleware('permission.custom:inventario.ver,inventario.gestionar')->group(function () {

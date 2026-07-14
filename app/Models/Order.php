@@ -18,6 +18,7 @@ class Order extends Model
         'tipo',           // 'tienda' | 'cita'
         'appointment_id', // si es add-on de una cita
         'metodo_pago',
+        'entregado_en',
         'notas',
     ];
 
@@ -26,6 +27,7 @@ class Order extends Model
         return [
             'items' => 'array',
             'total' => 'decimal:2',
+            'entregado_en' => 'datetime',
         ];
     }
 
