@@ -147,6 +147,22 @@
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     <span>Mis Citas</span>
                 </x-nav-link>
+                <x-nav-link :href="route('client.tienda.index')" :active="request()->routeIs('client.tienda.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span>Tienda</span>
+                </x-nav-link>
+                <x-nav-link :href="route('client.carrito.index')" :active="request()->routeIs('client.carrito.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    <span>Carrito</span>
+                    @php $navCart = app(\App\Services\Cart\CartService::class)->count(); @endphp
+                    @if($navCart > 0)
+                        <span class="ml-auto h-5 min-w-[20px] px-1 rounded-full bg-gold text-black text-[10px] font-black flex items-center justify-center">{{ $navCart }}</span>
+                    @endif
+                </x-nav-link>
+                <x-nav-link :href="route('client.pedidos.index')" :active="request()->routeIs('client.pedidos.*')">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9l2 2 4-4"/></svg>
+                    <span>Mis Pedidos</span>
+                </x-nav-link>
                 <x-nav-link :href="route('client.barberos.index')" :active="request()->routeIs('client.barberos.*')">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758L5 19m0-14l4.121 4.121"/><circle cx="17" cy="7" r="3"/></svg>
                     <span>Nuestros Barberos</span>

@@ -180,6 +180,16 @@ Route::middleware('auth')->group(function () {
         Route::get('facturas', [ClientInvoiceController::class, 'index'])->name('facturas.index');
         Route::get('facturas/{payment}/download', [ClientInvoiceController::class, 'download'])->name('facturas.download');
         Route::get('membresia/tarjeta', [\App\Http\Controllers\Client\MembershipController::class, 'card'])->name('membership.card');
+
+        // Tienda + carrito + pedidos
+        Route::get('tienda', [\App\Http\Controllers\Client\StoreController::class, 'index'])->name('tienda.index');
+        Route::get('carrito', [\App\Http\Controllers\Client\CartController::class, 'index'])->name('carrito.index');
+        Route::post('carrito/{product}', [\App\Http\Controllers\Client\CartController::class, 'add'])->name('carrito.add');
+        Route::patch('carrito', [\App\Http\Controllers\Client\CartController::class, 'update'])->name('carrito.update');
+        Route::delete('carrito/{productId}', [\App\Http\Controllers\Client\CartController::class, 'remove'])->name('carrito.remove');
+        Route::post('checkout', [\App\Http\Controllers\Client\CartController::class, 'checkout'])->name('carrito.checkout');
+        Route::get('pedidos', [\App\Http\Controllers\Client\OrderController::class, 'index'])->name('pedidos.index');
+        Route::patch('pedidos/{order}/cancelar', [\App\Http\Controllers\Client\OrderController::class, 'cancel'])->name('pedidos.cancel');
     });
 
     Route::middleware(['verified', 'role.custom:barbero'])->prefix('barbero')->name('barber.')->group(function () {

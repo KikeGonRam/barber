@@ -13,14 +13,19 @@ use App\Models\BarbershopSetting;
 use App\Models\Product;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentService;
+use App\Services\Order\OrderService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class ClientAppointmentController extends Controller
 {
-    public function __construct(private readonly AppointmentService $appointmentService) {}
+    public function __construct(
+        private readonly AppointmentService $appointmentService,
+        private readonly OrderService $orders,
+    ) {}
 
     public function index(): View
     {
@@ -104,11 +109,31 @@ class ClientAppointmentController extends Controller
         ]);
 
         try {
-            $this->appointmentService->createAppointment($payload);
+            $appointment = $this->appointmentService->createAppointment($payload);
         } catch (ClientAlreadyBookedException $exception) {
             return back()->withInput()->withErrors(['fecha' => $exception->getMessage()]);
         } catch (AppointmentConflictException $exception) {
             return back()->withInput()->withErrors(['hora_inicio' => $exception->getMessage()]);
+        }
+
+        // Add-on: productos elegidos en el wizard -> pedido ligado a la cita.
+        $productos = $data['productos'] ?? [];
+        if (! empty($productos)) {
+            try {
+                $order = $this->orders->place($client, $productos, 'cita', (string) $appointment->id);
+
+                return redirect()->route('client.appointments.index')
+                    ->with('status', "Cita agendada. Pedido {$order->folio} listo para tu visita.");
+            } catch (\Throwable $e) {
+                // La cita ya quedo; solo fallo el pedido de productos.
+                Log::warning('No se pudo crear el pedido de la cita', [
+                    'appointment_id' => $appointment->id,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return redirect()->route('client.appointments.index')
+                    ->with('status', 'Cita agendada. No se pudieron reservar los productos (revisa stock).');
+            }
         }
 
         return redirect()->route('client.appointments.index')->with('status', 'Cita agendada correctamente.');
