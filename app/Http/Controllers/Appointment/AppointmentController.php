@@ -9,9 +9,11 @@ use App\Http\Requests\Appointment\UpdateAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
+use App\Exceptions\Domain\InvalidAppointmentTransitionException;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
+use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -21,6 +23,7 @@ class AppointmentController extends Controller
     public function __construct(
         private readonly AppointmentService $appointmentService,
         private readonly AppointmentNotifier $notifier,
+        private readonly AppointmentStatusService $statusService,
     ) {}
 
     public function index(\Illuminate\Http\Request $request): View
@@ -237,15 +240,15 @@ class AppointmentController extends Controller
 
     public function updateStatus(\Illuminate\Http\Request $request, Appointment $appointment): RedirectResponse
     {
-        $estado = $request->input('estado');
-        $allowed = ['pendiente', 'confirmada', 'completada', 'cancelada', 'en_proceso', 'no_asistio'];
-
-        if (!in_array($estado, $allowed)) {
-            return back()->withErrors(['estado' => 'Estado no válido.']);
-        }
-
+        $estado = (string) $request->input('estado');
         $wasCompletada = $appointment->estado === 'completada';
-        $appointment->update(['estado' => $estado]);
+
+        // Transicion validada por la maquina de estados (flujo estricto).
+        try {
+            $this->statusService->transition($appointment, $estado);
+        } catch (InvalidAppointmentTransitionException $e) {
+            return back()->withErrors(['estado' => $e->getMessage()]);
+        }
 
         if ($estado === 'completada' && !$wasCompletada) {
             $client = $appointment->client ?? Client::find($appointment->client_id);
@@ -261,10 +264,12 @@ class AppointmentController extends Controller
 
     public function destroy(Appointment $appointment): RedirectResponse
     {
-        $appointment->update([
-            'estado' => 'cancelada',
-            'cancelada_en' => now(),
-        ]);
+        // No se puede cancelar una cita ya completada/cancelada/no asistida.
+        try {
+            $this->statusService->transition($appointment, 'cancelada');
+        } catch (InvalidAppointmentTransitionException $e) {
+            return back()->withErrors(['estado' => $e->getMessage()]);
+        }
 
         $this->notifier->cancelled($appointment);
 

@@ -8,9 +8,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Exceptions\Domain\InvalidAppointmentTransitionException;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
+use App\Services\Appointment\AppointmentStatusService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,6 +27,7 @@ class AppointmentController extends Controller
     public function __construct(
         private readonly AppointmentService $appointmentService,
         private readonly AppointmentNotifier $notifier,
+        private readonly AppointmentStatusService $statusService,
     ) {}
 
     /**
@@ -215,7 +218,15 @@ class AppointmentController extends Controller
             'notas' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $appointment->update($validated);
+        try {
+            $this->statusService->transition($appointment, $validated['estado']);
+        } catch (InvalidAppointmentTransitionException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        if (array_key_exists('notas', $validated)) {
+            $appointment->update(['notas' => $validated['notas']]);
+        }
 
         $this->notifier->statusChanged($appointment, $validated['estado']);
 

@@ -49,8 +49,9 @@ class PaymentController extends Controller
 
     public function create(): View
     {
+        // Solo citas cobrables (aprobadas por el barbero): nunca pendientes.
         $appointments = Appointment::query()
-            ->whereNotIn('estado', ['cancelada', 'no_asistio'])
+            ->whereIn('estado', \App\Services\Appointment\AppointmentStatusService::CHARGEABLE)
             ->whereDoesntHave('payments')
             ->with(['client.user', 'barber.user', 'service'])
             ->orderByDesc('fecha')

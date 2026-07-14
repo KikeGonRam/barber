@@ -6,6 +6,7 @@ use App\Exceptions\Domain\PaymentException;
 use App\Models\Appointment;
 use App\Models\Payment;
 use App\Notifications\PaymentReceiptNotification;
+use App\Services\Appointment\AppointmentStatusService;
 use App\Repositories\Contracts\PaymentRepositoryInterface;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +25,9 @@ class PaymentService
     {
         $appointment = Appointment::query()->with(['client.user', 'barber.user', 'service'])->findOrFail($payload['appointment_id']);
 
-        if (in_array($appointment->estado, ['cancelada', 'no_asistio'], true)) {
-            throw new PaymentException('No se puede registrar un pago para una cita cancelada o no asistida.');
+        // Gate de cobro: solo citas aprobadas por el barbero (nunca pendiente).
+        if (! in_array($appointment->estado, AppointmentStatusService::CHARGEABLE, true)) {
+            throw new PaymentException('Solo se puede cobrar una cita aprobada por el barbero (confirmada, en proceso o completada). Esta cita esta en estado: '.$appointment->estado.'.');
         }
 
         if ($this->payments->existsForAppointment((string) $appointment->id)) {

@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Barber;
 
+use App\Exceptions\Domain\InvalidAppointmentTransitionException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Barber\UpdateBarberAppointmentStatusRequest;
 use App\Http\Requests\Barber\UpdateBarberProfileRequest;
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Services\Appointment\AppointmentNotifier;
+use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -88,10 +91,16 @@ class BarberDashboardController extends Controller
         $wasCompletada = $appointment->estado === 'completada';
         $nuevoEstado   = $request->validated()['estado'];
 
-        $appointment->update([
-            'estado' => $nuevoEstado,
-            'notas'  => $request->validated()['notas'] ?? $appointment->notas,
-        ]);
+        // Transicion validada por la maquina de estados (flujo estricto).
+        try {
+            app(AppointmentStatusService::class)->transition($appointment, $nuevoEstado);
+        } catch (InvalidAppointmentTransitionException $e) {
+            return back()->withErrors(['estado' => $e->getMessage()]);
+        }
+
+        if (! empty($request->validated()['notas'])) {
+            $appointment->update(['notas' => $request->validated()['notas']]);
+        }
 
         if ($nuevoEstado === 'completada' && !$wasCompletada) {
             $client = Client::find($appointment->client_id);
@@ -99,6 +108,9 @@ class BarberDashboardController extends Controller
                 app(LoyaltyService::class)->awardCitaPoints($client, (string) $appointment->id);
             }
         }
+
+        // Avisar al cliente del cambio (aprobada, en proceso, completada, etc.).
+        app(AppointmentNotifier::class)->statusChanged($appointment, $nuevoEstado);
 
         return back()->with('status', 'Estado de cita actualizado.');
     }
