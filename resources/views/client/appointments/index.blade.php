@@ -135,9 +135,19 @@
                 $statusConfig = [
                     'pendiente'  => ['badge' => 'border-yellow-900/50 bg-yellow-950/20 text-yellow-400', 'bar' => 'bg-yellow-400'],
                     'confirmada' => ['badge' => 'border-blue-900/50 bg-blue-950/20 text-blue-400',       'bar' => 'bg-blue-400'],
+                    'en_proceso' => ['badge' => 'border-sky-900/50 bg-sky-950/20 text-sky-400',          'bar' => 'bg-sky-400'],
                     'completada' => ['badge' => 'border-green-900/50 bg-green-950/20 text-green-400',    'bar' => 'bg-green-400'],
                     'cancelada'  => ['badge' => 'border-red-900/50 bg-red-950/20 text-red-400',         'bar' => 'bg-red-500'],
                     'no_asistio' => ['badge' => 'border-orange-900/50 bg-orange-950/20 text-orange-400', 'bar' => 'bg-orange-400'],
+                ];
+                // Etiquetas claras para el cliente (una cita nace "pendiente de aprobacion").
+                $statusLabels = [
+                    'pendiente'  => 'Pendiente de aprobación',
+                    'confirmada' => 'Confirmada',
+                    'en_proceso' => 'En proceso',
+                    'completada' => 'Completada',
+                    'cancelada'  => 'Cancelada',
+                    'no_asistio' => 'No asististe',
                 ];
                 $upcoming = $appointments->filter(fn($a) =>
                     $a->fecha->toDateString() >= $todayStr &&
@@ -186,7 +196,7 @@
                                             <p class="text-[11px] font-bold text-muted mt-0.5">con {{ $appointment->barber?->user?->name }}</p>
                                         </div>
                                         <span class="inline-flex rounded-full border px-2.5 py-1 text-[8px] font-black uppercase tracking-wider {{ $sc['badge'] }}">
-                                            {{ $appointment->estado }}
+                                            {{ $statusLabels[strtolower($appointment->estado)] ?? ucfirst($appointment->estado) }}
                                         </span>
                                     </div>
 
@@ -257,7 +267,7 @@
                                             <p class="text-[10px] font-bold text-muted/60 mt-0.5">con {{ $appointment->barber?->user?->name }}</p>
                                         </div>
                                         <span class="inline-flex rounded-full border px-2 py-0.5 text-[8px] font-black uppercase tracking-wider opacity-60 {{ $sc['badge'] }}">
-                                            {{ $appointment->estado }}
+                                            {{ $statusLabels[strtolower($appointment->estado)] ?? ucfirst($appointment->estado) }}
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-3 text-[10px] text-muted/50 font-bold">

@@ -116,13 +116,33 @@
                                 @endif
                             </div>
                         </div>
-                        <form method="POST" action="{{ route('barber.appointments.status', $nextAppt) }}">
-                            @csrf @method('PATCH')
-                            <input type="hidden" name="estado" value="en_proceso">
-                            <button type="submit" class="ui-btn px-8 py-3.5 shadow-[0_0_30px_rgba(212,175,55,0.25)]">
-                                Iniciar Servicio &rarr;
-                            </button>
-                        </form>
+                        @if($nextAppt->estado === 'pendiente')
+                            <div class="flex items-center gap-2">
+                                <form method="POST" action="{{ route('barber.appointments.status', $nextAppt) }}">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="estado" value="confirmada">
+                                    <button type="submit" class="ui-btn px-7 py-3.5 shadow-[0_0_30px_rgba(212,175,55,0.25)]">
+                                        Aprobar cita &rarr;
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('barber.appointments.status', $nextAppt) }}"
+                                      onsubmit="return confirm('¿Rechazar esta solicitud de cita?')">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="estado" value="cancelada">
+                                    <button type="submit" class="px-5 py-3.5 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-400 hover:border-red-500/30 transition">
+                                        Rechazar
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <form method="POST" action="{{ route('barber.appointments.status', $nextAppt) }}">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="estado" value="en_proceso">
+                                <button type="submit" class="ui-btn px-8 py-3.5 shadow-[0_0_30px_rgba(212,175,55,0.25)]">
+                                    Iniciar Servicio &rarr;
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             </section>
@@ -289,16 +309,27 @@
                                     default      => null,
                                 };
                             @endphp
-                            @if($nextAction)
-                                <form method="POST" action="{{ route('barber.appointments.status', $appointment) }}"
-                                      class="shrink-0">
-                                    @csrf @method('PATCH')
-                                    <input type="hidden" name="estado" value="{{ $nextAction['estado'] }}">
-                                    <button type="submit"
-                                            class="h-11 px-6 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all {{ $nextAction['cls'] }}">
-                                        {{ $nextAction['label'] }} &rarr;
-                                    </button>
-                                </form>
+            @if($nextAction)
+                                <div class="flex items-center gap-2 shrink-0">
+                                    @if($appointment->estado === 'pendiente')
+                                        <form method="POST" action="{{ route('barber.appointments.status', $appointment) }}"
+                                              onsubmit="return confirm('¿Rechazar esta solicitud de cita?')">
+                                            @csrf @method('PATCH')
+                                            <input type="hidden" name="estado" value="cancelada">
+                                            <button type="submit" class="h-11 px-4 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-400 hover:border-red-500/30 transition-all">
+                                                Rechazar
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <form method="POST" action="{{ route('barber.appointments.status', $appointment) }}">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="estado" value="{{ $nextAction['estado'] }}">
+                                        <button type="submit"
+                                                class="h-11 px-6 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all {{ $nextAction['cls'] }}">
+                                            {{ $nextAction['label'] }} &rarr;
+                                        </button>
+                                    </form>
+                                </div>
                             @else
                                 <span class="text-[9px] font-bold text-muted uppercase tracking-wider shrink-0">Sin acciones</span>
                             @endif
