@@ -675,6 +675,11 @@
         $wonRaffle= $loy['won_raffle'] ?? null;
         $recentTx = $loy['recent_transactions'] ?? collect();
         $lvlColor = ['nuevo'=>'rgba(255,255,255,0.5)','regular'=>'#60a5fa','vip'=>'#d4af37','leyenda'=>'#e879f9'][$lvl] ?? '#d4af37';
+        // Numero de socio + "miembro desde" para la tarjeta de membresia.
+        $idHex = preg_replace('/[^0-9a-zA-Z]/', '', (string) auth()->id());
+        $idHex = strtoupper(str_pad(substr($idHex, -8), 8, '0', STR_PAD_LEFT));
+        $memberNumber = 'UB · '.substr($idHex, 0, 4).' '.substr($idHex, 4, 4);
+        $memberSince = optional(auth()->user()->created_at)->format('Y') ?? date('Y');
     @endphp
 
     {{-- Bienvenida --}}
@@ -762,30 +767,19 @@
         </div>
 
         {{-- Panel de lealtad --}}
-        <div class="lg:col-span-5 rounded-2xl border border-white/[0.06] bg-[#0d0d0d] overflow-hidden">
+        <div class="lg:col-span-5 space-y-4">
 
-            {{-- Header nivel --}}
-            <div class="p-5 flex items-center justify-between border-b border-white/[0.05]">
-                <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 rounded-xl border flex items-center justify-center" style="background:rgba(212,175,55,0.07);border-color:rgba(212,175,55,0.18);">
-                        @if($lvl==='leyenda') <svg style="width:18px;height:18px;fill:{{ $lvlColor }};" viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2 3a1 1 0 000 2h10a1 1 0 000-2H7z"/></svg>
-                        @elseif($lvl==='vip') <svg style="width:18px;height:18px;fill:{{ $lvlColor }};" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                        @elseif($lvl==='regular') <svg style="width:18px;height:18px;fill:none;stroke:{{ $lvlColor }};stroke-width:2;" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                        @else <svg style="width:18px;height:18px;fill:none;stroke:{{ $lvlColor }};stroke-width:2;" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path stroke-linecap="round" d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>
-                        @endif
-                    </div>
-                    <div>
-                        <p class="text-[8px] font-black uppercase tracking-[0.28em] text-white/45">Mi Nivel</p>
-                        <p class="text-sm font-black uppercase" style="color:{{ $lvlColor }};">{{ $lvlLabel }}</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <p class="text-2xl font-black text-gold leading-none">{{ $pts }}</p>
-                    <p class="text-[8px] font-bold uppercase tracking-[0.2em] text-white/45">puntos</p>
-                </div>
-            </div>
+            {{-- Tarjeta de membresia --}}
+            <x-membership-card
+                :nivel="$lvl"
+                :label="$lvlLabel"
+                :puntos="$pts"
+                :nombre="auth()->user()->name"
+                :numero="$memberNumber"
+                :desde="$memberSince" />
 
-            <div class="p-5 space-y-4">
+            {{-- Progreso + beneficios + movimientos --}}
+            <div class="rounded-2xl border border-white/[0.06] bg-[#0d0d0d] p-5 space-y-4">
 
                 {{-- Progreso --}}
                 @if($nextLvl)
