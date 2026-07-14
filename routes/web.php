@@ -179,6 +179,7 @@ Route::middleware('auth')->group(function () {
         Route::post('barberos/{barber}/review', [ClientBarberController::class, 'storeReview'])->name('barberos.review');
         Route::get('facturas', [ClientInvoiceController::class, 'index'])->name('facturas.index');
         Route::get('facturas/{payment}/download', [ClientInvoiceController::class, 'download'])->name('facturas.download');
+        Route::get('membresia/tarjeta', [\App\Http\Controllers\Client\MembershipController::class, 'card'])->name('membership.card');
     });
 
     Route::middleware(['verified', 'role.custom:barbero'])->prefix('barbero')->name('barber.')->group(function () {

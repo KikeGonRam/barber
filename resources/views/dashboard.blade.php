@@ -675,11 +675,11 @@
         $wonRaffle= $loy['won_raffle'] ?? null;
         $recentTx = $loy['recent_transactions'] ?? collect();
         $lvlColor = ['nuevo'=>'rgba(255,255,255,0.5)','regular'=>'#60a5fa','vip'=>'#d4af37','leyenda'=>'#e879f9'][$lvl] ?? '#d4af37';
-        // Numero de socio + "miembro desde" para la tarjeta de membresia.
-        $idHex = preg_replace('/[^0-9a-zA-Z]/', '', (string) auth()->id());
-        $idHex = strtoupper(str_pad(substr($idHex, -8), 8, '0', STR_PAD_LEFT));
-        $memberNumber = 'UB · '.substr($idHex, 0, 4).' '.substr($idHex, 4, 4);
-        $memberSince = optional(auth()->user()->created_at)->format('Y') ?? date('Y');
+        // Datos de la tarjeta de membresia (numero, alta, QR).
+        $memberCard   = app(\App\Services\Member\MemberCardService::class);
+        $memberNumber = $memberCard->memberNumber(auth()->user());
+        $memberSince  = $memberCard->memberSince(auth()->user());
+        $memberQr     = $memberCard->qrDataUri(auth()->user());
     @endphp
 
     {{-- Bienvenida --}}
@@ -776,7 +776,8 @@
                 :puntos="$pts"
                 :nombre="auth()->user()->name"
                 :numero="$memberNumber"
-                :desde="$memberSince" />
+                :desde="$memberSince"
+                :qr="$memberQr" />
 
             {{-- Progreso + beneficios + movimientos --}}
             <div class="rounded-2xl border border-white/[0.06] bg-[#0d0d0d] p-5 space-y-4">
