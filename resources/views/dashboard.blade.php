@@ -548,6 +548,21 @@
     {{-- ══════════════════════════════════════════════════════════ --}}
     @elseif($isBarberMode ?? false)
 
+    @php
+        $barberToday   = $barberToday   ?? collect();
+        $barberPending = $barberPending ?? collect();
+        $pendCount     = $barberPending->count();
+        $bStatus = [
+            'completada' => ['border-emerald-500/25 bg-emerald-500/10 text-emerald-300','Completada'],
+            'pendiente'  => ['border-amber-500/25 bg-amber-500/10 text-amber-300','Pendiente'],
+            'en_proceso' => ['border-blue-500/25 bg-blue-500/10 text-blue-300','En proceso'],
+            'confirmada' => ['border-gold/25 bg-gold/10 text-gold','Confirmada'],
+            'cancelada'  => ['border-red-500/25 bg-red-500/10 text-red-400','Cancelada'],
+            'no_asistio' => ['border-white/10 bg-white/5 text-white/40','No asistió'],
+        ];
+        $bNext = $barberToday->first(fn ($a) => in_array($a->estado, ['confirmada','en_proceso','pendiente'], true));
+    @endphp
+
     {{-- Bienvenida --}}
     <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-6 relative overflow-hidden">
         <div class="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/5 blur-3xl pointer-events-none"></div>
@@ -558,7 +573,7 @@
             <div>
                 <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50">Bienvenido de vuelta</p>
                 <h3 class="text-xl font-black text-white uppercase mt-0.5">Maestro <span class="text-gold">{{ explode(' ', auth()->user()->name)[0] }}</span></h3>
-                <p class="text-xs text-white/40 mt-1">Tienes <strong class="text-white">{{ $kpis['appointments_today'] }}</strong> servicio{{ $kpis['appointments_today'] !== 1 ? 's' : '' }} programado{{ $kpis['appointments_today'] !== 1 ? 's' : '' }} para hoy.</p>
+                <p class="text-xs text-white/40 mt-1">Tienes <strong class="text-white">{{ $kpis['appointments_today'] }}</strong> servicio{{ $kpis['appointments_today'] !== 1 ? 's' : '' }} hoy{!! $pendCount > 0 ? ' · <strong class="text-amber-300">'.$pendCount.'</strong> por aprobar' : '' !!}.</p>
             </div>
             <div class="sm:ml-auto flex gap-3">
                 <a href="{{ route('barber.agenda') }}" class="ui-btn px-6 py-3 text-[10px]">Mi Agenda</a>
@@ -567,19 +582,96 @@
         </div>
     </section>
 
-    {{-- KPIs --}}
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    {{-- KPIs (5) --}}
+    <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         @foreach([
-            ['label'=>'Citas Hoy',    'val'=>$kpis['appointments_today'], 'color'=>'gold',    'fmt'=>'%s'],
-            ['label'=>'Citas del Mes','val'=>$kpis['appointments_month'], 'color'=>'white',   'fmt'=>'%s'],
-            ['label'=>'Ingresos Mes', 'val'=>'$'.number_format($kpis['income_month'],0), 'color'=>'emerald', 'fmt'=>'%s'],
-            ['label'=>'Rating',       'val'=>$kpis['rating'],        'color'=>'gold',    'fmt'=>'%s'],
+            ['label'=>'Citas Hoy',    'val'=>$kpis['appointments_today'],                    'color'=>'gold'],
+            ['label'=>'Por Aprobar',  'val'=>$pendCount,                                     'color'=>'amber'],
+            ['label'=>'Ingresos Mes', 'val'=>'$'.number_format($kpis['income_month'],0),     'color'=>'emerald'],
+            ['label'=>'Propinas Mes', 'val'=>'$'.number_format($kpis['tips_month'] ?? 0,0),  'color'=>'gold'],
+            ['label'=>'Rating',       'val'=>$kpis['rating'],                                'color'=>'white'],
         ] as $kpi)
             <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 text-center">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50 mb-3">{{ $kpi['label'] }}</p>
-                <p class="text-2xl font-black text-{{ $kpi['color'] === 'gold' ? 'gold' : ($kpi['color'] === 'emerald' ? 'emerald-400' : 'white') }}">{{ $kpi['val'] }}</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.22em] text-white/50 mb-3">{{ $kpi['label'] }}</p>
+                <p class="text-2xl font-black text-{{ $kpi['color'] === 'gold' ? 'gold' : ($kpi['color'] === 'emerald' ? 'emerald-400' : ($kpi['color'] === 'amber' ? 'amber-300' : 'white')) }}">{{ $kpi['val'] }}</p>
             </div>
         @endforeach
+    </section>
+
+    {{-- Por aprobar (solo si hay solicitudes pendientes) --}}
+    @if($pendCount > 0)
+        <section class="rounded-2xl border border-amber-500/25 bg-amber-500/[0.04] p-5">
+            <div class="flex items-center gap-2 mb-4">
+                <svg class="h-4 w-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <h3 class="text-[11px] font-black uppercase tracking-widest text-amber-300">Esperando tu aprobación</h3>
+                <span class="ml-auto text-[9px] font-black text-amber-300/70">{{ $pendCount }} solicitud{{ $pendCount !== 1 ? 'es' : '' }}</span>
+            </div>
+            <div class="space-y-2">
+                @foreach($barberPending as $appt)
+                    <div class="flex flex-wrap items-center gap-3 p-3 rounded-xl border border-amber-500/10 bg-black/20">
+                        <div class="w-14 text-center shrink-0">
+                            <p class="text-[11px] font-black text-white">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
+                            <p class="text-[8px] text-white/45 font-bold">{{ \Carbon\Carbon::parse($appt->fecha)->format('d M') }}</p>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-black text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
+                            <p class="text-[9px] text-white/40 font-bold truncate">{{ $appt->service?->nombre ?? '—' }}</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <form method="POST" action="{{ route('barber.appointments.status', $appt) }}">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="estado" value="confirmada">
+                                <button type="submit" class="ui-btn px-4 py-2 text-[9px] tracking-widest">Aprobar</button>
+                            </form>
+                            <form method="POST" action="{{ route('barber.appointments.status', $appt) }}" onsubmit="return confirm('¿Rechazar esta solicitud de cita?')">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="estado" value="cancelada">
+                                <button type="submit" class="text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-red-400 transition px-2">Rechazar</button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    {{-- Citas de hoy --}}
+    <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="flex items-center justify-between mb-5">
+            <div>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Agenda</p>
+                <h3 class="text-sm font-black text-white uppercase mt-0.5">Citas de Hoy</h3>
+            </div>
+            <a href="{{ route('barber.agenda') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-gold transition-colors">
+                Ver agenda <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+        @if($barberToday->isEmpty())
+            <div class="flex flex-col items-center justify-center py-12 border border-dashed border-white/[0.06] rounded-xl">
+                <svg class="h-8 w-8 text-white/10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <p class="text-xs font-bold text-white/45 uppercase tracking-widest">Sin citas hoy</p>
+            </div>
+        @else
+            <div class="space-y-2">
+                @foreach($barberToday as $appt)
+                    @php $sc = $bStatus[$appt->estado] ?? ['border-white/10 bg-white/5 text-white/40','—']; $isNext = $bNext && (string)$bNext->id === (string)$appt->id; @endphp
+                    <div class="flex items-center gap-3 p-3 rounded-xl border transition-all {{ $isNext ? 'border-gold/30 bg-gold/[0.04]' : 'border-white/[0.05] hover:border-white/10' }}">
+                        <div class="w-12 text-center shrink-0">
+                            <p class="text-[11px] font-black {{ $isNext ? 'text-gold' : 'text-white' }}">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
+                            <p class="text-[8px] text-white/45 font-bold">{{ substr($appt->hora_fin ?? '',0,5) }}</p>
+                        </div>
+                        <div class="w-px h-7 bg-white/[0.06] shrink-0"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-black text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}
+                                @if($isNext)<span class="ml-1 text-[8px] font-black uppercase tracking-wider text-gold">· Siguiente</span>@endif
+                            </p>
+                            <p class="text-[9px] text-white/35 font-bold truncate">{{ $appt->service?->nombre ?? '—' }}</p>
+                        </div>
+                        <span class="shrink-0 text-[8px] font-black uppercase tracking-wider border rounded-full px-2 py-0.5 {{ $sc[0] }}">{{ $sc[1] }}</span>
+                    </div>
+                @endforeach
+            </div>
+        @endif
     </section>
 
     {{-- Gráficas --}}

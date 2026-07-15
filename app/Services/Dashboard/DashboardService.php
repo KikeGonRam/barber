@@ -262,6 +262,14 @@ class DashboardService
             ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->sum('precio_cobrado');
 
+        // Propinas del mes: suma de propina en pagos de citas de este barbero.
+        $monthApptIds = Appointment::where('barber_id', $barberId)
+            ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $tipsMonth = empty($monthApptIds)
+            ? 0.0
+            : (float) \App\Models\Payment::whereIn('appointment_id', $monthApptIds)->sum('propina');
+
         // Top services — date-limited to last year, batch Service lookup
         $yearAgo     = Carbon::now()->subYear()->toDateString();
         $svcGroups   = Appointment::where('barber_id', $barberId)
@@ -296,6 +304,7 @@ class DashboardService
                 'appointments_today' => $appointmentsToday,
                 'appointments_month' => $appointmentsMonth,
                 'income_month'       => $incomeMonth,
+                'tips_month'         => $tipsMonth,
                 'rating'             => 4.9,
             ],
             'performance_chart' => [

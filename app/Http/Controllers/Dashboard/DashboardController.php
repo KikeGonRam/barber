@@ -53,7 +53,23 @@ class DashboardController extends Controller
         }
 
         if ($user->hasRole('barbero') && $user->barberProfile) {
-            $data = $this->dashboardService->barberMetrics((string) $user->barberProfile->id);
+            $barberId = (string) $user->barberProfile->id;
+            $data = $this->dashboardService->barberMetrics($barberId);
+
+            // Sin cache: la agenda de hoy y las solicitudes por aprobar deben
+            // sentirse en tiempo real (el barbero aprueba/rechaza desde aquí).
+            $barberToday = \App\Models\Appointment::with(['client.user', 'service'])
+                ->where('barber_id', $barberId)
+                ->whereDate('fecha', \Carbon\Carbon::today())
+                ->orderBy('hora_inicio')
+                ->get();
+
+            $barberPending = \App\Models\Appointment::with(['client.user', 'service'])
+                ->where('barber_id', $barberId)
+                ->where('estado', 'pendiente')
+                ->where('fecha', '>=', \Carbon\Carbon::today())
+                ->orderBy('fecha')->orderBy('hora_inicio')
+                ->get();
 
             return view('dashboard', [
                 'adminMode' => false,
@@ -64,6 +80,8 @@ class DashboardController extends Controller
                 'performanceChart' => $data['performance_chart'],
                 'servicesChart' => $data['services_chart'],
                 'chatbotTelemetry' => [],
+                'barberToday' => $barberToday,
+                'barberPending' => $barberPending,
             ]);
         }
 
