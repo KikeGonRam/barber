@@ -188,8 +188,8 @@
     </section>
 
     {{-- ── INSIGHTS DEL ANÁLISIS (Spark / UrbanBlade Analytics) ──
-         Hallazgos calculados en vivo sobre la misma BD que analiza el
-         proyecto Spark: el conocimiento extraído, donde se decide. --}}
+        Hallazgos calculados en vivo sobre la misma BD que analiza el
+        proyecto Spark: el conocimiento extraído, donde se decide. --}}
     @if(!empty($insights ?? []))
         <section aria-label="Insights del análisis de datos">
             <div class="flex items-center gap-2 mb-3 px-1">
@@ -360,8 +360,8 @@
     </section>
 
     {{-- ── ZONA 3: ANALÍTICA AVANZADA (plegable, recuerda en localStorage) ──
-         Se pliega con max-height (NO display:none) para que los canvas de
-         Chart.js conserven su ancho real y no se inicialicen a 0x0. --}}
+        Se pliega con max-height (NO display:none) para que los canvas de
+        Chart.js conserven su ancho real y no se inicialicen a 0x0. --}}
     <section class="space-y-5" x-data="{
             open: localStorage.getItem('adminAnalytics') === 'true',
             booted: false,
@@ -709,33 +709,39 @@
     {{-- ══════════════════════════════════════════════════════════ --}}
     @elseif($isReceptionMode ?? false)
 
-    {{-- Bienvenida + KPIs --}}
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {{-- Bienvenida --}}
-        <div class="sm:col-span-2 lg:col-span-1 rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden">
-            <div class="absolute -right-8 -bottom-8 h-24 w-24 rounded-full bg-indigo-500/5 blur-2xl"></div>
-            <div class="relative">
+    @php $pendingOrdersList = $pending_orders_list ?? collect(); @endphp
+
+    {{-- Bienvenida --}}
+    <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-indigo-500/5 blur-2xl"></div>
+        <div class="relative flex flex-col sm:flex-row sm:items-center gap-4">
+            <div>
                 <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50">Recepción</p>
                 <h3 class="text-base font-black text-white uppercase mt-0.5">Hola, <span class="text-indigo-400">{{ explode(' ',auth()->user()->name)[0] }}</span></h3>
                 <p class="text-[10px] text-white/50 mt-1">Centro de mando activo.</p>
-                <div class="flex gap-2 mt-4">
-                    <a href="{{ route('appointments.create') }}" class="ui-btn px-4 py-2 text-[9px]">+ Cita</a>
-                    <a href="{{ route('payments.create') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Cobrar</a>
-                </div>
+            </div>
+            <div class="sm:ml-auto flex flex-wrap gap-2">
+                <a href="{{ route('appointments.create') }}" class="ui-btn px-4 py-2 text-[9px]">+ Cita (walk-in)</a>
+                <a href="{{ route('payments.create') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Cobrar</a>
+                <a href="{{ route('orders.index') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Pedidos</a>
             </div>
         </div>
+    </section>
 
-        {{-- KPIs --}}
+    {{-- KPIs (6) --}}
+    <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         @foreach([
-            ['label'=>'Citas Hoy',       'val'=>$kpis['appointments_today'], 'color'=>'indigo', 'href'=>route('appointments.index')],
-            ['label'=>'Cobros Pendientes','val'=>$kpis['pending_payments'],   'color'=>'amber',  'href'=>route('payments.create')],
-            ['label'=>'Nuevos Clientes', 'val'=>$kpis['new_clients_today'],  'color'=>'emerald','href'=>route('clients.index')],
-            ['label'=>'Stock Crítico',   'val'=>$kpis['low_stock_count'],    'color'=>'red',    'href'=>route('inventory.products.index')],
+            ['label'=>'Citas Hoy',        'val'=>$kpis['appointments_today'],                       'color'=>'indigo',  'href'=>route('appointments.index')],
+            ['label'=>'Cobrado Hoy',      'val'=>'$'.number_format($kpis['collected_today'] ?? 0,0),'color'=>'emerald', 'href'=>route('payments.index')],
+            ['label'=>'Cobros Pend.',     'val'=>$kpis['pending_payments'],                         'color'=>'amber',   'href'=>route('payments.create')],
+            ['label'=>'Pedidos',          'val'=>$kpis['pending_orders'] ?? 0,                      'color'=>'cyan',    'href'=>route('orders.index')],
+            ['label'=>'Nuevos Clientes',  'val'=>$kpis['new_clients_today'],                        'color'=>'indigo',  'href'=>route('clients.index')],
+            ['label'=>'Stock Crítico',    'val'=>$kpis['low_stock_count'],                          'color'=>'red',     'href'=>route('inventory.products.index')],
         ] as $kpi)
             <a href="{{ $kpi['href'] }}" class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden hover:border-{{ $kpi['color'] }}-500/25 transition-all group">
                 <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-{{ $kpi['color'] }}-500/60 to-transparent"></div>
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50 mb-3">{{ $kpi['label'] }}</p>
-                <p class="text-3xl font-black text-{{ $kpi['color'] }}-400">{{ $kpi['val'] }}</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/50 mb-3">{{ $kpi['label'] }}</p>
+                <p class="text-2xl font-black text-{{ $kpi['color'] }}-400">{{ $kpi['val'] }}</p>
             </a>
         @endforeach
     </section>
@@ -783,6 +789,35 @@
                 </div>
             @endif
         </div>
+    </section>
+
+    {{-- Pedidos por entregar --}}
+    <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="flex items-center justify-between mb-5">
+            <div>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Tienda</p>
+                <h3 class="text-sm font-black text-white uppercase mt-0.5">Pedidos por Entregar</h3>
+            </div>
+            <a href="{{ route('orders.index') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-gold transition-colors">
+                Ir a la bandeja <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+        @forelse($pendingOrdersList as $order)
+            <a href="{{ route('orders.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] hover:border-cyan-500/20 hover:bg-cyan-500/[0.03] transition-all mb-2 last:mb-0">
+                <div class="h-9 w-9 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-black text-white truncate">{{ $order->folio }} · {{ $order->client?->user?->name ?? 'Cliente' }}</p>
+                    <p class="text-[9px] text-white/45 font-bold truncate">{{ optional($order->created_at)->translatedFormat('d M, H:i') }} · {{ count($order->items ?? []) }} artículo{{ count($order->items ?? []) !== 1 ? 's' : '' }}</p>
+                </div>
+                <p class="text-sm font-black text-gold shrink-0">${{ number_format($order->total, 2) }}</p>
+            </a>
+        @empty
+            <div class="py-12 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
+                <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin pedidos pendientes</p>
+            </div>
+        @endforelse
     </section>
 
     {{-- ══════════════════════════════════════════════════════════ --}}

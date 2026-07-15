@@ -7,6 +7,7 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
 use App\Models\LoyaltyTransaction;
+use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\RaffleResult;
@@ -336,6 +337,24 @@ class DashboardService
 
         $lowStockCount = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->count();
 
+        // Pedidos de tienda por entregar (bandeja de recepción).
+        $pendingOrders     = Order::where('estado', 'pendiente')->count();
+        $pendingOrdersList = Order::with('client.user')
+            ->where('estado', 'pendiente')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get();
+
+        // Cobrado hoy = pagos de servicios + pedidos de tienda entregados hoy.
+        $collectedServices = (float) Payment::whereDate('created_at', $today)
+            ->get(['monto', 'propina'])
+            ->sum(fn ($p) => (float) $p->monto + (float) $p->propina);
+        $collectedOrders = (float) Order::where('estado', 'entregado')
+            ->whereDate('entregado_en', $today)
+            ->get(['total'])
+            ->sum(fn ($o) => (float) $o->total);
+        $collectedToday = $collectedServices + $collectedOrders;
+
         $nextAppointments = Appointment::with(['client.user', 'barber.user', 'service'])
             ->whereDate('fecha', $today)
             ->where('hora_inicio', '>=', now()->format('H:i:s'))
@@ -350,9 +369,12 @@ class DashboardService
                 'pending_payments'   => $pendingPayments,
                 'new_clients_today'  => $newClientsToday,
                 'low_stock_count'    => $lowStockCount,
+                'pending_orders'     => $pendingOrders,
+                'collected_today'    => $collectedToday,
             ],
-            'next_appointments' => $nextAppointments,
-            'flow_chart'        => $this->getReceptionistFlowData(),
+            'next_appointments'   => $nextAppointments,
+            'pending_orders_list' => $pendingOrdersList,
+            'flow_chart'          => $this->getReceptionistFlowData(),
         ];
     }
 

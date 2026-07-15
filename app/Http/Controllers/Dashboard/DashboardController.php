@@ -95,6 +95,7 @@ class DashboardController extends Controller
                 'isClientMode' => false,
                 'kpis' => $data['kpis'],
                 'nextAppointments' => $data['next_appointments'],
+                'pending_orders_list' => $data['pending_orders_list'] ?? collect(),
                 'flow_chart' => $data['flow_chart'],
                 'chatbotTelemetry' => [],
             ]);
