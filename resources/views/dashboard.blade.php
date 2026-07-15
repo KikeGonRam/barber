@@ -83,6 +83,12 @@
         @endforeach
     </section>
 
+    {{-- ── ZONA 1: RESUMEN ───────────────────────────────────── --}}
+    <div class="flex items-center gap-3 px-1 pt-1">
+        <span class="text-[10px] font-black uppercase tracking-[0.22em] text-gold">Resumen</span>
+        <span class="h-px flex-1 bg-white/[0.06]"></span>
+    </div>
+
     {{-- ── KPIs ──────────────────────────────────────────────── --}}
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
@@ -202,6 +208,12 @@
             </div>
         </section>
     @endif
+
+    {{-- ── ZONA 2: OPERACIÓN DE HOY ──────────────────────────── --}}
+    <div class="flex items-center gap-3 px-1 pt-2">
+        <span class="text-[10px] font-black uppercase tracking-[0.22em] text-gold">Operación de hoy</span>
+        <span class="h-px flex-1 bg-white/[0.06]"></span>
+    </div>
 
     {{-- ── CUERPO PRINCIPAL ──────────────────────────────────── --}}
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -346,6 +358,28 @@
             </div>
         </div>
     </section>
+
+    {{-- ── ZONA 3: ANALÍTICA AVANZADA (plegable, recuerda en localStorage) ──
+         Se pliega con max-height (NO display:none) para que los canvas de
+         Chart.js conserven su ancho real y no se inicialicen a 0x0. --}}
+    <section class="space-y-5" x-data="{
+            open: localStorage.getItem('adminAnalytics') === 'true',
+            booted: false,
+            boot() { if (this.open && !this.booted && window.__ubInitAdminCharts) { this.booted = true; this.$nextTick(() => window.__ubInitAdminCharts()); } },
+            toggle() { this.open = !this.open; localStorage.setItem('adminAnalytics', this.open); this.boot(); },
+        }" x-init="boot()">
+        <button type="button" @click="toggle()"
+            class="w-full flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-[#111] px-5 py-4 hover:border-white/12 transition-all"
+            :aria-expanded="open.toString()">
+            <svg class="h-4 w-4 text-gold shrink-0 transition-transform duration-200" :class="open ? 'rotate-90' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            <div class="text-left">
+                <p class="text-[11px] font-black uppercase tracking-widest text-white">Analítica avanzada</p>
+                <p class="text-[9px] text-white/45 font-bold">4 gráficas · predicciones IA · telemetría chatbot</p>
+            </div>
+            <span class="ml-auto text-[9px] font-black uppercase tracking-widest text-gold/70" x-text="open ? 'Ocultar' : 'Ver'"></span>
+        </button>
+
+        <div x-show="open" style="display:none" class="space-y-5">
 
     {{-- ── GRÁFICAS ──────────────────────────────────────────── --}}
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -506,6 +540,8 @@
             @endif
         </div>
     </section>
+        </div>{{-- /contenedor plegable --}}
+    </section>{{-- /zona 3 analítica avanzada --}}
 
     {{-- ══════════════════════════════════════════════════════════ --}}
     {{-- BARBER DASHBOARD                                          --}}
@@ -878,6 +914,9 @@
         }
 
         @if($adminMode ?? false)
+        // Init perezoso: las 4 gráficas admin se crean cuando se abre la zona
+        // "Analítica avanzada" (ya visible → canvas con tamaño real).
+        window.__ubInitAdminCharts = function () {
         makeChart('incomeChart', {
             type: 'line',
             data: {
@@ -930,6 +969,7 @@
             options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
                 scales:{ y:{...scale, beginAtZero:true}, x:scale } }
         });
+        }; {{-- /__ubInitAdminCharts --}}
 
         // AI Predictions
         (async () => {
