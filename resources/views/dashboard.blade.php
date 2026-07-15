@@ -857,9 +857,10 @@
                 <h3 class="text-xl font-black text-white uppercase mt-0.5"><span class="text-gold">{{ explode(' ',auth()->user()->name)[0] }}</span></h3>
                 <p class="text-xs text-white/40 mt-1">Estatus actual: <span class="text-white font-black uppercase">{{ $kpis['membership_status'] }}</span></p>
             </div>
-            <div class="sm:ml-auto flex gap-3">
+            <div class="sm:ml-auto flex flex-wrap gap-3">
                 <a href="{{ route('client.appointments.create') }}" class="ui-btn px-6 py-3 text-[10px]">Reservar Cita</a>
                 <a href="{{ route('client.appointments.index') }}" class="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Mis Citas</a>
+                <a href="{{ route('client.tienda.index') }}" class="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Tienda</a>
             </div>
         </div>
     </section>
@@ -870,7 +871,7 @@
             ['label'=>'Visitas Totales',   'val'=>$kpis['total_appointments'],     'color'=>'gold'],
             ['label'=>'Completadas',        'val'=>$kpis['completed_appointments'], 'color'=>'white'],
             ['label'=>'Barbero Favorito',  'val'=>$kpis['favorite_barber'],         'color'=>'white', 'sm'=>true],
-            ['label'=>'Puntos Acumulados', 'val'=>$kpis['completed_appointments']*10,'color'=>'gold'],
+            ['label'=>'Puntos Acumulados', 'val'=>$pts,                             'color'=>'gold'],
         ] as $kpi)
             <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 text-center hover:border-gold/20 transition-all">
                 <p class="text-[9px] font-black uppercase tracking-[0.25em] text-gold/60 mb-3">{{ $kpi['label'] }}</p>
