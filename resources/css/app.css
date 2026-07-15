@@ -134,6 +134,14 @@ html.dark {
     .ui-shell {
         @apply min-h-screen;
     }
+    /* Sidebar dock: tablet (768-1023) siempre en modo "rail" (solo íconos);
+       desktop (1024+) el ancho lo controla --sidebar-w (ver toggleRail en app.blade.php). */
+    @media (min-width: 768px) {
+        .ui-shell { display: grid; grid-template-columns: 88px 1fr; }
+    }
+    @media (min-width: 1024px) {
+        .ui-shell { grid-template-columns: var(--sidebar-w, 264px) 1fr; }
+    }
 
     /* ── Tarjeta base ── */
     .ui-card {
@@ -211,9 +219,9 @@ html.dark {
     }
 
     /* ── Drawers móviles ── */
-    .ui-mobile-drawer         { @apply lg:sticky lg:top-6; }
+    .ui-mobile-drawer         { @apply md:sticky md:top-6; }
     .ui-mobile-drawer-panel   { @apply transition-all duration-300 ease-out; }
-    .ui-mobile-drawer-backdrop { @apply fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden; }
+    .ui-mobile-drawer-backdrop { @apply fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden; }
 
     /* ── Botón dorado principal ──────────────────────────────────────────
        Para cambiar el color del botón: modifica --gold y --gold-dim en :root
@@ -723,6 +731,26 @@ html.dark {
 .nav-close-btn:hover  { background: color-mix(in srgb, var(--line) 50%, transparent); color: var(--ink); }
 .nav-close-btn:active { transform: scale(0.88); }
 
+/* Evita el flash de secciones del acordeón antes de que Alpine hidrate */
+[x-cloak] { display: none !important; }
+
+/* ── Nav rail toggle (colapsar/expandir sidebar en desktop) ── */
+.nav-rail-btn {
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease, transform 150ms ease;
+    flex-shrink: 0;
+}
+.nav-rail-btn:hover  { background: color-mix(in srgb, var(--line) 50%, transparent); color: var(--gold); }
+.nav-rail-btn:active { transform: scale(0.88); }
+
 /* ── Mobile Bottom Navigation ─────────────────────── */
 .mob-bottom-nav {
     position: fixed;
@@ -791,6 +819,24 @@ html.dark {
 .mob-nav-icon svg { width: 22px; height: 22px; }
 .mob-nav-item.is-active .mob-nav-icon { transform: scale(1.12) translateY(-1px); }
 
+.mob-nav-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    min-width: 15px;
+    height: 15px;
+    background: var(--gold);
+    color: #000;
+    font-size: 8px;
+    font-weight: 900;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    line-height: 1;
+}
+
 .mob-nav-item.is-active .mob-nav-icon::before {
     content: '';
     position: absolute;
@@ -822,7 +868,7 @@ html.dark {
 }
 
 .mob-nav-label {
-    font-size: 8.5px;
+    font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.03em;
     text-transform: uppercase;
@@ -832,11 +878,13 @@ html.dark {
 
 
 /* ── Responsive / Mobile overrides ───────────────── */
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
     .ui-mobile-drawer-backdrop {
         backdrop-filter: blur(4px);
         -webkit-backdrop-filter: blur(4px);
     }
+}
+@media (max-width: 1023px) {
     .page-content > * {
         animation: card-stagger 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }

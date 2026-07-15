@@ -23,21 +23,47 @@
 
 @auth
 @php
-    $_u      = auth()->user();
-    $_admin  = $_u?->hasRole('administrador');
-    $_recep  = $_u?->hasRole('recepcionista');
-    $_barb   = $_u?->hasRole('barbero');
-    $_cli    = $_u?->hasRole('cliente');
-    $_unread = $_u?->unreadNotifications()->count() ?? 0;
+    $_u        = auth()->user();
+    $_unread   = $_u?->unreadNotifications()->count() ?? 0;
+    $_navPrimary = \App\Helpers\NavigationMenu::primary($_u);
 @endphp
 @endauth
 
-{{-- Single Alpine scope wraps everything so the sidebar open state is shared --}}
-<div x-data="{ open: false }">
+{{-- Single Alpine scope wraps everything so the sidebar open/rail/accordion state is shared --}}
+<div x-data="{
+        open: false,
+        railCollapsed: localStorage.getItem('sidebarRail') === 'true',
+        mode: 'desktop',
+        openSections: {},
+        initShell() {
+            const mob = window.matchMedia('(max-width: 767px)');
+            const tab = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
+            const apply = () => { this.mode = mob.matches ? 'mobile' : (tab.matches ? 'tablet' : 'desktop'); };
+            apply();
+            mob.addEventListener('change', apply);
+            tab.addEventListener('change', apply);
+        },
+        get railView() { return this.mode === 'tablet' || (this.mode === 'desktop' && this.railCollapsed); },
+        toggleRail() { this.railCollapsed = !this.railCollapsed; localStorage.setItem('sidebarRail', this.railCollapsed); },
+        initSections(navEl) {
+            navEl.querySelectorAll('[data-sec-key]').forEach((el) => {
+                const key = el.dataset.secKey;
+                const active = el.dataset.secActive === '1';
+                const stored = localStorage.getItem('nav_sec_' + key);
+                this.openSections[key] = active ? true : (stored === null ? false : stored === 'true');
+            });
+        },
+        toggleSection(key) {
+            this.openSections[key] = !this.openSections[key];
+            localStorage.setItem('nav_sec_' + key, this.openSections[key]);
+        },
+     }"
+     x-init="initShell()"
+     :style="'--sidebar-w: ' + (railCollapsed ? '88px' : '264px')">
 
-    {{-- ── Mobile Top Bar ─────────────────────────────────────────── --}}
+    {{-- ── Mobile Top Bar (solo <768px; en tablet/desktop el sidebar va acoplado) ── --}}
     @auth
-    <header class="mob-topbar lg:hidden">
+    <header class="mob-topbar md:hidden">
         <button @click="open = !open" :aria-expanded="open.toString()"
                 class="mob-topbar-btn" aria-label="Abrir menú">
             <svg x-show="!open" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -71,7 +97,7 @@
     @endauth
 
     {{-- ── App Shell (sidebar + content) ─────────────────────────── --}}
-    <div class="ui-shell lg:grid lg:grid-cols-[280px_1fr] pt-14 lg:pt-0">
+    <div class="ui-shell pt-14 md:pt-0">
         @include('layouts.navigation')
         <div x-show="open" x-transition.opacity
              class="ui-mobile-drawer-backdrop" @click="open = false"></div>
@@ -93,185 +119,31 @@
         </div>
     </div>
 
-    {{-- ── Mobile Bottom Navigation ──────────────────────────────── --}}
+    {{-- ── Mobile Bottom Navigation (derivado de NavigationMenu::primary(), <768px) ── --}}
     @auth
-    <nav class="mob-bottom-nav lg:hidden" aria-label="Navegación principal">
+    <nav class="mob-bottom-nav md:hidden" aria-label="Navegación principal">
+        @foreach($_navPrimary as $navItem)
+            <a href="{{ $navItem['href'] }}" class="mob-nav-item {{ $navItem['active'] ? 'is-active' : '' }}">
+                <span class="mob-nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">{!! $navItem['icon'] !!}</svg>
+                    @if($navItem['badge'])
+                        <span class="mob-nav-badge">{{ $navItem['badge'] > 9 ? '9+' : $navItem['badge'] }}</span>
+                    @endif
+                </span>
+                <span class="mob-nav-label">{{ $navItem['label'] }}</span>
+            </a>
+        @endforeach
 
-        @if($_admin || $_recep)
-            <a href="{{ route('dashboard') }}"
-               class="mob-nav-item {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M3 12l9-8 9 8v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Inicio</span>
-            </a>
-            <a href="{{ route('appointments.index') }}"
-               class="mob-nav-item {{ request()->routeIs('appointments.*') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Citas</span>
-            </a>
-            <a href="{{ route('clients.index') }}"
-               class="mob-nav-item {{ request()->routeIs('clients.*') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Clientes</span>
-            </a>
-            <a href="{{ route('payments.index') }}"
-               class="mob-nav-item {{ request()->routeIs('payments.*') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><path d="M1 10h22"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Pagos</span>
-            </a>
-            <button @click="open = !open" :class="open ? 'is-active' : ''"
-                    class="mob-nav-item" type="button" aria-label="Más opciones">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Más</span>
-            </button>
-
-        @elseif($_barb)
-            <a href="{{ route('dashboard') }}"
-               class="mob-nav-item {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M3 12l9-8 9 8v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Inicio</span>
-            </a>
-            <a href="{{ route('barber.agenda') }}"
-               class="mob-nav-item {{ request()->routeIs('barber.agenda') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Agenda</span>
-            </a>
-            <a href="{{ route('barber.portfolio.index') }}"
-               class="mob-nav-item {{ request()->routeIs('barber.portfolio.*') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Portfolio</span>
-            </a>
-            <a href="{{ route('barber.schedule.edit') }}"
-               class="mob-nav-item {{ request()->routeIs('barber.schedule.*') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Horario</span>
-            </a>
-            <button @click="open = !open" :class="open ? 'is-active' : ''"
-                    class="mob-nav-item" type="button" aria-label="Más opciones">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Más</span>
-            </button>
-
-        @elseif($_cli)
-            <a href="{{ route('dashboard') }}"
-               class="mob-nav-item {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M3 12l9-8 9 8v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Inicio</span>
-            </a>
-            <a href="{{ route('client.appointments.index') }}"
-               class="mob-nav-item {{ request()->routeIs('client.appointments.*') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Mis Citas</span>
-            </a>
-            <a href="{{ route('client.barberos.index') }}"
-               class="mob-nav-item {{ request()->routeIs('client.barberos.*') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758L5 19m0-14l4.121 4.121"/>
-                        <circle cx="17" cy="7" r="3"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Barberos</span>
-            </a>
-            <a href="{{ route('social.feed') }}"
-               class="mob-nav-item {{ request()->routeIs('social.feed') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Muro</span>
-            </a>
-            <a href="{{ route('client.facturas.index') }}"
-               class="mob-nav-item {{ request()->routeIs('client.facturas.*') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Facturas</span>
-            </a>
-
-        @else
-            <a href="{{ route('dashboard') }}"
-               class="mob-nav-item {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M3 12l9-8 9 8v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Inicio</span>
-            </a>
-            <a href="{{ route('notifications.index') }}"
-               class="mob-nav-item {{ request()->routeIs('notifications.*') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Alertas</span>
-            </a>
-            <a href="{{ route('profile.edit') }}"
-               class="mob-nav-item {{ request()->routeIs('profile.*') ? 'is-active' : '' }}">
-                <span class="mob-nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                    </svg>
-                </span>
-                <span class="mob-nav-label">Perfil</span>
-            </a>
-        @endif
-
+        {{-- "Más" abre el drawer completo: garantiza acceso a todo el menú en todos los roles --}}
+        <button @click="open = !open" :class="open ? 'is-active' : ''"
+                class="mob-nav-item" type="button" aria-label="Más opciones">
+            <span class="mob-nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>
+                </svg>
+            </span>
+            <span class="mob-nav-label">Más</span>
+        </button>
     </nav>
     @endauth
 
