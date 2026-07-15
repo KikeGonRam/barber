@@ -92,9 +92,9 @@
     <!-- NAVBAR                                     -->
     <!-- ══════════════════════════════════════════ -->
     <nav x-data="{ open: false, scrolled: false }"
-         x-init="window.addEventListener('scroll', () => scrolled = window.scrollY > 50, { passive: true })"
-         :class="scrolled ? 'bg-black/95 shadow-[0_1px_0_rgba(212,175,55,0.1)]' : 'bg-black/60'"
-         class="sticky top-0 z-50 backdrop-blur-xl border-b border-white/5 transition-all duration-500">
+        x-init="window.addEventListener('scroll', () => scrolled = window.scrollY > 50, { passive: true })"
+        :class="scrolled ? 'bg-black/95 shadow-[0_1px_0_rgba(212,175,55,0.1)]' : 'bg-black/60'"
+        class="sticky top-0 z-50 backdrop-blur-xl border-b border-white/5 transition-all duration-500">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-20 items-center justify-between">
 
@@ -115,7 +115,7 @@
                     @else
                         <a href="{{ route('login') }}"    class="hover:text-gold transition-colors">Acceso</a>
                         <a href="{{ route('register') }}"
-                           class="ui-btn group py-2.5 px-7 text-[11px] font-black uppercase tracking-[0.15em] shadow-[0_0_25px_rgba(212,175,55,0.4)]">
+                            class="ui-btn group py-2.5 px-7 text-[11px] font-black uppercase tracking-[0.15em] shadow-[0_0_25px_rgba(212,175,55,0.4)]">
                             Reservar
                             <svg class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                         </a>
@@ -130,11 +130,11 @@
         </div>
 
         <div x-show="open"
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 -translate-y-3"
-             x-transition:enter-end="opacity-100 translate-y-0"
-             class="md:hidden bg-black/98 border-b border-white/5 px-5 pt-2 pb-6 space-y-4"
-             style="display:none;">
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-y-3"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            class="md:hidden bg-black/98 border-b border-white/5 px-5 pt-2 pb-6 space-y-4"
+            style="display:none;">
             <a href="#inicio"   @click="open=false" class="block text-[11px] font-black uppercase tracking-widest text-white py-2">Inicio</a>
             <a href="{{ route('services.public.index') }}" @click="open=false" class="block text-[11px] font-black uppercase tracking-widest text-white py-2">Servicios</a>
             <a href="#como-funciona" @click="open=false" class="block text-[11px] font-black uppercase tracking-widest text-white py-2">Proceso</a>
@@ -187,7 +187,7 @@
                 LA <span class="text-gradient-gold">EXCELENCIA</span>
             </h1>
             <p class="ui-title-serif lowercase italic opacity-90"
-               style="font-size: clamp(2.5rem, 7vw, 6.5rem);">
+                style="font-size: clamp(2.5rem, 7vw, 6.5rem);">
                 en cada detalle
             </p>
 
@@ -372,14 +372,14 @@
             <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 @forelse($barbers as $k => $barber)
                     <a href="{{ $barber->slug ? route('barbers.public.show', $barber) : '#' }}"
-                       class="barber-card group relative block reveal"
+                        class="barber-card group relative block reveal"
                        style="transition-delay: {{ $k * 120 }}ms;">
                         <div class="aspect-[3/4] overflow-hidden rounded-3xl border border-white/5 bg-[#111] relative">
                             @if($barber->foto)
                                 <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
-                                     class="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
-                                     loading="lazy"
-                                     alt="Foto de {{ $barber->user?->name }}">
+                                    class="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                                    loading="lazy"
+                                    alt="Foto de {{ $barber->user?->name }}">
                             @else
                                 <div class="h-full w-full flex items-center justify-center">
                                     <svg class="h-20 w-20 text-white/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
