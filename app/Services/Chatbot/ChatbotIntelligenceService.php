@@ -245,7 +245,7 @@ class ChatbotIntelligenceService
      */
     private function getBusyTimes(): array
     {
-        $busy = Appointment::where('fecha', '>=', now()->toDateString())
+        $busy = Appointment::where('fecha', '>=', now())
             ->where('estado', '!=', 'cancelada')
             ->get(['hora_inicio'])
             ->groupBy('hora_inicio')
@@ -267,7 +267,7 @@ class ChatbotIntelligenceService
         for ($hour = 9; $hour <= 20; $hour++) {
             $time = str_pad($hour, 2, '0', STR_PAD_LEFT).':00';
             $count = Appointment::where('hora_inicio', $time)
-                ->where('fecha', '>=', now()->toDateString())
+                ->where('fecha', '>=', now())
                 ->where('estado', '!=', 'cancelada')
                 ->count();
 

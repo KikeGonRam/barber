@@ -12,11 +12,11 @@ class EnsureUserHasRole
     {
         $user = $request->user();
 
-        if (! $user || ! method_exists($user, 'hasAnyRole')) {
+        if (! $user || ! method_exists($user, 'hasRoleName')) {
             abort(403);
         }
 
-        if (! $user->hasAnyRole($roles)) {
+        if ($user->roleNames()->intersect($roles)->isEmpty()) {
             abort(403);
         }
 

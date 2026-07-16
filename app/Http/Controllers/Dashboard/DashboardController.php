@@ -19,7 +19,7 @@ class DashboardController extends Controller
             return view('dashboard', ['adminMode' => false]);
         }
 
-        if ($user->hasRole('administrador')) {
+        if ($user->hasRoleName('administrador')) {
             $data = $this->dashboardService->adminMetrics();
             $setting = BarbershopSetting::first()
                 ?? BarbershopSetting::create(['nombre' => config('app.name'), 'politica_cancelacion' => 24]);
@@ -27,6 +27,7 @@ class DashboardController extends Controller
             $todayAppointments = \App\Models\Appointment::with(['client.user', 'barber.user', 'service'])
                 ->whereDate('fecha', \Carbon\Carbon::today())
                 ->orderBy('hora_inicio')
+                ->limit(6)
                 ->get();
 
             $recentAppointments = \App\Models\Appointment::with(['client.user', 'barber.user', 'service'])
@@ -52,7 +53,7 @@ class DashboardController extends Controller
             ]);
         }
 
-        if ($user->hasRole('barbero') && $user->barberProfile) {
+        if ($user->hasRoleName('barbero') && $user->barberProfile) {
             $barberId = (string) $user->barberProfile->id;
             $data = $this->dashboardService->barberMetrics($barberId);
 
@@ -85,7 +86,7 @@ class DashboardController extends Controller
             ]);
         }
 
-        if ($user->hasRole('recepcionista')) {
+        if ($user->hasRoleName('recepcionista')) {
             $data = $this->dashboardService->receptionistMetrics();
 
             return view('dashboard', [
@@ -101,7 +102,7 @@ class DashboardController extends Controller
             ]);
         }
 
-        if ($user->hasRole('cliente')) {
+        if ($user->hasRoleName('cliente')) {
             $client = $user->clientProfile;
             if (! $client) {
                 $client = $user->clientProfile()->create();

@@ -41,7 +41,7 @@ class DashboardAdminController
 
     public function getUpcomingAppointments(Request $request): JsonResponse
     {
-        $appointments = Appointment::where('fecha', '>=', now()->toDateString())
+        $appointments = Appointment::where('fecha', '>=', now())
             ->where('hora_inicio', '>=', now()->format('H:i:s'))
             ->where('estado', 'pendiente')
             ->orderBy('fecha')
@@ -63,18 +63,18 @@ class DashboardAdminController
 
         if ($period === 'week') {
             $query->whereBetween('fecha', [
-                now()->startOfWeek()->toDateString(),
-                now()->endOfWeek()->toDateString(),
+                now()->startOfWeek(),
+                now()->endOfWeek(),
             ]);
         } elseif ($period === 'month') {
             $query->whereBetween('fecha', [
-                now()->startOfMonth()->toDateString(),
-                now()->endOfMonth()->toDateString(),
+                now()->startOfMonth(),
+                now()->endOfMonth(),
             ]);
         } elseif ($period === 'year') {
             $query->whereBetween('fecha', [
-                now()->startOfYear()->toDateString(),
-                now()->endOfYear()->toDateString(),
+                now()->startOfYear(),
+                now()->endOfYear(),
             ]);
         }
 

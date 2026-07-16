@@ -30,6 +30,26 @@ class DashboardService
         return $payments->sum(fn ($p) => (float) ($p->monto ?? 0) + (float) ($p->propina ?? 0));
     }
 
+    /**
+     * Cuenta citas agrupadas por un campo, calculado en el servidor de Mongo
+     * (aggregation pipeline) en vez de traer todos los documentos a PHP.
+     * Necesario para ventanas grandes (p.ej. "último año") sobre ~100k+ citas,
+     * donde un ->get() completo puede agotar el timeout del socket hacia Atlas.
+     */
+    private function aggregateCountsBy(string $groupField, Carbon $since): Collection
+    {
+        $sinceUtc = new \MongoDB\BSON\UTCDateTime($since->getTimestamp() * 1000);
+
+        $rows = Appointment::raw(function ($collection) use ($groupField, $sinceUtc) {
+            return $collection->aggregate([
+                ['$match' => ['fecha' => ['$gte' => $sinceUtc]]],
+                ['$group' => ['_id' => '$'.$groupField, 'total' => ['$sum' => 1]]],
+            ]);
+        });
+
+        return collect($rows)->mapWithKeys(fn ($row) => [(string) $row->id => (int) $row->total]);
+    }
+
     public function adminMetrics(): array
     {
         return Cache::remember('dashboard.admin.metrics', 120, fn () => $this->buildAdminMetrics());
@@ -47,9 +67,9 @@ class DashboardService
 
         // --- Appointment counts (4 indexed queries, fast) ---
         $appointmentsToday      = Appointment::whereDate('fecha', $today)->count();
-        $appointmentsWeek       = Appointment::whereBetween('fecha', [$weekStart->toDateString(), $weekEnd->toDateString()])->count();
-        $appointmentsMonth      = Appointment::whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])->count();
-        $appointmentsLastMonth  = Appointment::whereBetween('fecha', [$lastMonthStart->toDateString(), $lastMonthEnd->toDateString()])->count();
+        $appointmentsWeek       = Appointment::whereBetween('fecha', [$weekStart, $weekEnd])->count();
+        $appointmentsMonth      = Appointment::whereBetween('fecha', [$monthStart, $monthEnd])->count();
+        $appointmentsLastMonth  = Appointment::whereBetween('fecha', [$lastMonthStart, $lastMonthEnd])->count();
 
         $appointmentGrowth = $appointmentsLastMonth > 0
             ? (($appointmentsMonth - $appointmentsLastMonth) / $appointmentsLastMonth) * 100 : 0;
@@ -67,7 +87,7 @@ class DashboardService
             ? (($incomeMonth - $incomeLastMonth) / $incomeLastMonth) * 100 : 0;
 
         // --- Top barber this month ---
-        $barberGroups = Appointment::whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
+        $barberGroups = Appointment::whereBetween('fecha', [$monthStart, $monthEnd])
             ->get(['barber_id'])
             ->groupBy('barber_id')
             ->map(fn ($g) => $g->count())
@@ -77,12 +97,8 @@ class DashboardService
         $topBarberTotal = $barberGroups->first() ?? 0;
 
         // --- Top services — date-limited to last year, batch Service lookup ---
-        $serviceGroups = Appointment::where('fecha', '>=', Carbon::now()->subYear()->toDateString())
-            ->get(['service_id'])
-            ->groupBy('service_id')
-            ->map(fn ($g) => $g->count())
-            ->sortDesc()
-            ->take(5);
+        $yearAgo       = Carbon::now()->subYear();
+        $serviceGroups = $this->aggregateCountsBy('service_id', $yearAgo)->sortDesc()->take(5);
         $serviceIds = $serviceGroups->keys()->filter()->all();
         $servicesMap = Service::find($serviceIds)->keyBy(fn ($s) => (string) $s->id);
         $topServices = $serviceGroups->map(function ($total, $serviceId) use ($servicesMap) {
@@ -93,16 +109,14 @@ class DashboardService
         })->values();
 
         // --- Client stats — date-limited to last year ---
-        $clientGroups     = Appointment::where('fecha', '>=', Carbon::now()->subYear()->toDateString())
-            ->get(['client_id'])
-            ->groupBy('client_id')
-            ->map(fn ($g) => $g->count());
+        $clientGroups     = $this->aggregateCountsBy('client_id', $yearAgo);
         $newClients       = $clientGroups->filter(fn ($t) => $t === 1)->count();
         $recurringClients = $clientGroups->filter(fn ($t) => $t > 1)->count();
         $totalClients     = Client::count();
-        $recentClientIds  = Appointment::where('fecha', '>=', Carbon::now()->subDays(30)->toDateString())
-            ->distinct('client_id')
+        $recentClientIds  = Appointment::where('fecha', '>=', Carbon::now()->subDays(30))
+            ->get(['client_id'])
             ->pluck('client_id')
+            ->filter()
             ->map(fn ($id) => (string) $id)
             ->unique()
             ->values();
@@ -193,7 +207,7 @@ class DashboardService
     private function getBarberPerformanceChart(Carbon $monthStart, Carbon $monthEnd): array
     {
         $appointments = Appointment::where('estado', 'completada')
-            ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->whereBetween('fecha', [$monthStart, $monthEnd])
             ->get(['barber_id', 'precio_cobrado']);
 
         $barberStats = $appointments->groupBy('barber_id')
@@ -220,7 +234,7 @@ class DashboardService
     {
         // 1 query for the whole month, grouped in PHP (was 12 queries)
         $apptDates = Appointment::where('estado', 'completada')
-            ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->whereBetween('fecha', [$monthStart, $monthEnd])
             ->get(['fecha'])
             ->map(fn ($a) => substr((string) $a->fecha, 0, 10));
 
@@ -255,24 +269,24 @@ class DashboardService
             ->count();
 
         $appointmentsMonth = Appointment::where('barber_id', $barberId)
-            ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->whereBetween('fecha', [$monthStart, $monthEnd])
             ->count();
 
         $incomeMonth = (float) Appointment::where('barber_id', $barberId)
             ->where('estado', 'completada')
-            ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->whereBetween('fecha', [$monthStart, $monthEnd])
             ->sum('precio_cobrado');
 
         // Propinas del mes: suma de propina en pagos de citas de este barbero.
         $monthApptIds = Appointment::where('barber_id', $barberId)
-            ->whereBetween('fecha', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->whereBetween('fecha', [$monthStart, $monthEnd])
             ->pluck('id')->map(fn ($id) => (string) $id)->all();
         $tipsMonth = empty($monthApptIds)
             ? 0.0
             : (float) \App\Models\Payment::whereIn('appointment_id', $monthApptIds)->sum('propina');
 
         // Top services — date-limited to last year, batch Service lookup
-        $yearAgo     = Carbon::now()->subYear()->toDateString();
+        $yearAgo     = Carbon::now()->subYear();
         $svcGroups   = Appointment::where('barber_id', $barberId)
             ->where('fecha', '>=', $yearAgo)
             ->get(['service_id'])
@@ -287,8 +301,8 @@ class DashboardService
         })->values();
 
         // Performance by day — 1 query for last 7 days, grouped in PHP (was 7 queries)
-        $weekStart = Carbon::now()->subDays(6)->toDateString();
-        $weekEnd   = Carbon::now()->toDateString();
+        $weekStart = Carbon::now()->subDays(6)->startOfDay();
+        $weekEnd   = Carbon::now()->endOfDay();
         $weeklyAppts = Appointment::where('barber_id', $barberId)
             ->whereBetween('fecha', [$weekStart, $weekEnd])
             ->get(['fecha'])
@@ -387,7 +401,7 @@ class DashboardService
 
         $nextAppt = Appointment::with(['barber.user', 'service'])
             ->where('client_id', $clientId)
-            ->where('fecha', '>=', now()->toDateString())
+            ->where('fecha', '>=', Carbon::today())
             ->where('estado', '!=', 'cancelada')
             ->orderBy('fecha')
             ->orderBy('hora_inicio')
@@ -422,7 +436,7 @@ class DashboardService
             ->first();
 
         // 1 query for 6-month range, grouped by month in PHP (replaces 6 slow whereMonth queries)
-        $sixMonthStart = Carbon::now()->subMonths(5)->startOfMonth()->toDateString();
+        $sixMonthStart = Carbon::now()->subMonths(5)->startOfMonth();
         $clientVisitDates = Appointment::where('client_id', $clientId)
             ->where('estado', 'completada')
             ->where('fecha', '>=', $sixMonthStart)

@@ -164,6 +164,27 @@ class User extends Authenticatable implements MustVerifyEmail
         return $query->whereIn('role_id', $roleIds);
     }
 
+    /**
+     * Nombres de rol de este usuario, resueltos directamente desde `role_id`.
+     *
+     * hasRole()/hasAnyRole() de Spatie dependen de la relacion roles()
+     * (MorphToMany), que en Mongo solo funciona quando se accede de forma
+     * "lazy" (propiedad magica `$user->roles`) pero devuelve vacio cuando se
+     * carga via loadMissing()/load() -- justo lo que hasRole() hace
+     * internamente. Eso provoca falsos "sin rol" intermitentes segun si algo
+     * mas ya habia tocado la relacion antes en el request. Usar este metodo
+     * (o hasRoleName()) en vez de hasRole() para checks confiables.
+     */
+    public function roleNames(): \Illuminate\Support\Collection
+    {
+        return Role::whereIn('id', (array) ($this->role_id ?? []))->pluck('name');
+    }
+
+    public function hasRoleName(string $name): bool
+    {
+        return $this->roleNames()->contains($name);
+    }
+
     public function clientPhone(): ?string
     {
         return $this->clientProfile?->telefono;

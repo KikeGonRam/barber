@@ -18,7 +18,7 @@ class ReportAdminController
         $startDate = $this->getStartDate($period);
         $endDate   = Carbon::now();
 
-        $appointments = Appointment::whereBetween('fecha', [$startDate->toDateString(), $endDate->toDateString()])
+        $appointments = Appointment::whereBetween('fecha', [$startDate, $endDate])
             ->where('estado', 'completada')
             ->get(['fecha', 'barber_id', 'precio_cobrado', 'service_id']);
 
@@ -73,7 +73,7 @@ class ReportAdminController
         $startDate = $this->getStartDate($period);
         $endDate   = Carbon::now();
 
-        $appointments = Appointment::whereBetween('fecha', [$startDate->toDateString(), $endDate->toDateString()])
+        $appointments = Appointment::whereBetween('fecha', [$startDate, $endDate])
             ->get(['fecha', 'barber_id', 'estado']);
 
         $byStatus = [
@@ -160,11 +160,11 @@ class ReportAdminController
         $newClients   = Client::where('created_at', '>=', $startDate)->count();
 
         $activeClients = Client::whereHas('appointments', function ($q) use ($startDate) {
-            $q->where('fecha', '>=', $startDate->toDateString());
+            $q->where('fecha', '>=', $startDate);
         })->count();
 
         $inactiveClients = Client::whereDoesntHave('appointments', function ($q) {
-            $q->where('fecha', '>=', Carbon::now()->subMonths(3)->toDateString());
+            $q->where('fecha', '>=', Carbon::now()->subMonths(3));
         })->count();
 
         $loyalClients = Client::whereHas('appointments', function ($q) {
