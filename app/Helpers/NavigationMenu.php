@@ -37,6 +37,7 @@ class NavigationMenu
         'barbers_client' => '<path stroke-linecap="round" stroke-linejoin="round" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758L5 19m0-14l4.121 4.121"/><circle cx="17" cy="7" r="3"/>',
         'invoices' => '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
         'notifications' => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+        'analytics' => '<path d="M3 3v18h18"/><path d="M18.7 8.3l-4.2 4.2-2.8-2.8L7 14.4"/>',
     ];
 
     /**
@@ -48,10 +49,15 @@ class NavigationMenu
             return [];
         }
 
-        $isAdmin = $user->hasRole('administrador');
-        $isReception = $user->hasRole('recepcionista');
-        $isBarber = $user->hasRole('barbero');
-        $isClient = $user->hasRole('cliente');
+        // hasRoleName() (no hasRole() de Spatie) — hasRole() depende de la
+        // relacion roles() de Spatie, que en Mongo devuelve falsos negativos
+        // intermitentes segun el orden de carga del request (ver el comentario
+        // largo en User::roleNames()). Usarlo aqui causaba que el sidebar
+        // completo desapareciera para un usuario sin ningun aviso.
+        $isAdmin = $user->hasRoleName('administrador');
+        $isReception = $user->hasRoleName('recepcionista');
+        $isBarber = $user->hasRoleName('barbero');
+        $isClient = $user->hasRoleName('cliente');
 
         $sections = [];
 
@@ -91,11 +97,28 @@ class NavigationMenu
             $sections[] = [
                 'title' => 'Analisis',
                 'items' => array_filter([
+                    self::item('Analitica', 'analytics.index', 'analytics', ['analytics.index']),
                     self::item('Reportes', 'reports.index', 'reports', ['reports.*']),
                     self::item('Campanas', 'campaigns.index', 'campaigns', ['campaigns.*']),
                     self::item('Logs', 'logs.index', 'logs', ['logs.*']),
                 ]),
             ];
+        }
+
+        if ($isReception) {
+            // La recepción no tiene sección "Analisis" propia (ese título ya
+            // se usa arriba solo para admin) — se agrega su acceso a
+            // Analítica dentro de "Operacion", que es donde vive el resto
+            // de sus herramientas del día a día.
+            foreach ($sections as &$s) {
+                if ($s['title'] === 'Operacion') {
+                    $itemAnalitica = self::item('Analitica', 'analytics.index', 'analytics', ['analytics.index']);
+                    if ($itemAnalitica) {
+                        $s['items'][] = $itemAnalitica;
+                    }
+                }
+            }
+            unset($s);
         }
 
         if ($isBarber) {
@@ -106,6 +129,7 @@ class NavigationMenu
                     self::item('Mi Portafolio', 'barber.portfolio.index', 'wall', ['barber.portfolio.*'], primary: true),
                     self::item('Mi Horario', 'barber.schedule.edit', 'schedule', ['barber.schedule.*'], primary: true),
                     self::item('Mi Perfil', 'barber.profile.edit', 'profile', ['barber.profile.*']),
+                    self::item('Mi Analitica', 'analytics.index', 'analytics', ['analytics.index']),
                 ]),
             ];
         }
@@ -122,6 +146,7 @@ class NavigationMenu
                     self::item('Mis Pedidos', 'client.pedidos.index', 'orders', ['client.pedidos.*']),
                     self::item('Nuestros Barberos', 'client.barberos.index', 'barbers_client', ['client.barberos.*'], primary: true),
                     self::item('Mis Facturas', 'client.facturas.index', 'invoices', ['client.facturas.*']),
+                    self::item('Recomendado para ti', 'analytics.index', 'analytics', ['analytics.index']),
                 ]),
             ];
         }

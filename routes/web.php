@@ -82,6 +82,13 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+// Página dedicada de Analítica (Spark) — un rol por dentro del controlador,
+// igual que /dashboard; no lleva role.custom porque los 4 roles la ven,
+// cada uno con su propio recorte de datos (ver AnalyticsController).
+Route::get('/analitica', [App\Http\Controllers\Analytics\AnalyticsController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('analytics.index');
+
 // Web-session based API token retrieval for the dashboard
 Route::post('/api/v1/auth/get-api-token', [App\Http\Controllers\Api\AuthController::class, 'getWebApiToken'])
     ->middleware(['web', 'auth'])

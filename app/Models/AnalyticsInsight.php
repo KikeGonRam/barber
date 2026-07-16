@@ -38,6 +38,11 @@ use MongoDB\Laravel\Eloquent\Model;
  *   color              "gold"|"success"|"warning"|"danger"|"info" — define
  *                      el acento visual de la tarjeta (ver
  *                      components/analytics-insights.blade.php)
+ *   grafica            null, o un array {tipo, labels, valores} YA LISTO
+ *                      para Chart.js (tipo: "bar"|"doughnut"|"line") — no
+ *                      todos los insights traen gráfica, solo los que tienen
+ *                      suficiente detalle detrás como para justificar una
+ *                      (ver la página de Analítica, resources/views/analytics/)
  *   generado_en        cuándo Spark calculó este resultado
  */
 class AnalyticsInsight extends Model
@@ -56,11 +61,13 @@ class AnalyticsInsight extends Model
         'mensaje',
         'valor_destacado',
         'color',
+        'grafica',
         'generado_en',
     ];
 
     protected $casts = [
         'roles' => 'array',
+        'grafica' => 'array',
         'generado_en' => 'datetime',
     ];
 }
