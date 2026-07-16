@@ -209,6 +209,11 @@
         </section>
     @endif
 
+    {{-- Analítica avanzada completa (Spark, Unidades II-V): el administrador
+        es el único rol que ve TODOS los hallazgos calculados, sin recorte
+        por barbero/cliente — ver AnalyticsInsightService::forAdmin(). --}}
+    <x-analytics-insights :insights="$sparkInsights ?? []" titulo="Analítica avanzada (Spark)" />
+
     {{-- ── ZONA 2: OPERACIÓN DE HOY ──────────────────────────── --}}
     <div class="flex items-center gap-3 px-1 pt-2">
         <span class="text-[10px] font-black uppercase tracking-[0.22em] text-gold">Operación de hoy</span>
@@ -598,6 +603,10 @@
         @endforeach
     </section>
 
+    {{-- Analítica personal (Spark): solo TUS propios hallazgos — nunca los
+        de otro barbero. Ver AnalyticsInsightService::forBarber(). --}}
+    <x-analytics-insights :insights="$sparkInsights ?? []" titulo="Tu analítica" />
+
     {{-- Por aprobar (solo si hay solicitudes pendientes) --}}
     @if($pendCount > 0)
         <section class="rounded-2xl border border-amber-500/25 bg-amber-500/[0.04] p-5">
@@ -746,6 +755,11 @@
         @endforeach
     </section>
 
+    {{-- Analítica operativa (Spark): solo lo que le sirve a recepción para
+        el día a día (turnos, alertas de inventario, tienda) — no ve el
+        detalle de cada cliente ni datos privados de un barbero. --}}
+    <x-analytics-insights :insights="$sparkInsights ?? []" titulo="Analítica operativa" />
+
     {{-- Próximas llegadas + Flujo --}}
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
@@ -879,6 +893,11 @@
             </div>
         @endforeach
     </section>
+
+    {{-- Sugerencia (Spark, Unidad IV — recomendación de servicios): al
+        cliente nunca se le muestra el dashboard analítico crudo, solo la
+        APLICACIÓN práctica del hallazgo ("también te puede interesar"). --}}
+    <x-analytics-insights :insights="$sparkInsights ?? []" titulo="Para ti" />
 
     {{-- Próxima cita spotlight --}}
     @if($nextAppointment)

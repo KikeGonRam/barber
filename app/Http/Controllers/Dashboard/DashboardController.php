@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\BarbershopSetting;
+use App\Services\Analytics\AnalyticsInsightService;
 use App\Services\Dashboard\DashboardService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __construct(private readonly DashboardService $dashboardService) {}
+    public function __construct(
+        private readonly DashboardService $dashboardService,
+        private readonly AnalyticsInsightService $analyticsInsightService,
+    ) {}
 
     public function index(): View
     {
@@ -50,6 +54,7 @@ class DashboardController extends Controller
                 'todayAppointments'  => $todayAppointments,
                 'recentAppointments' => $recentAppointments,
                 'insights'           => $this->analysisInsights(),
+                'sparkInsights'      => $this->analyticsInsightService->forAdmin(),
             ]);
         }
 
@@ -83,6 +88,12 @@ class DashboardController extends Controller
                 'chatbotTelemetry' => [],
                 'barberToday' => $barberToday,
                 'barberPending' => $barberPending,
+                // El barbero solo recibe SUS PROPIOS insights (nunca los de
+                // otro barbero) — ver AnalyticsInsightService::forBarber().
+                'sparkInsights' => $this->analyticsInsightService->forBarber(
+                    (string) $user->id,
+                    $barberId,
+                ),
             ]);
         }
 
@@ -99,6 +110,7 @@ class DashboardController extends Controller
                 'pending_orders_list' => $data['pending_orders_list'] ?? collect(),
                 'flow_chart' => $data['flow_chart'],
                 'chatbotTelemetry' => [],
+                'sparkInsights' => $this->analyticsInsightService->forReception(),
             ]);
         }
 
@@ -120,6 +132,7 @@ class DashboardController extends Controller
                 'nextAppointment'  => $data['next_appointment'],
                 'chatbotTelemetry' => [],
                 'visit_chart'      => $data['visit_chart'],
+                'sparkInsights'    => $this->analyticsInsightService->forClient(),
             ]);
         }
 
