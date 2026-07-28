@@ -38,6 +38,7 @@ class DashboardController extends Controller
                 ->orderByDesc('fecha')->orderByDesc('hora_inicio')
                 ->limit(8)
                 ->get();
+            $sparkInsights = $this->analyticsInsightService->forAdmin();
 
             return view('dashboard', [
                 'adminMode'          => true,
@@ -54,7 +55,8 @@ class DashboardController extends Controller
                 'todayAppointments'  => $todayAppointments,
                 'recentAppointments' => $recentAppointments,
                 'insights'           => $this->analysisInsights(),
-                'sparkInsights'      => $this->analyticsInsightService->forAdmin(),
+                'sparkInsights'      => $sparkInsights,
+                'sparkHighlights'    => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'administrador'),
             ]);
         }
 
@@ -76,6 +78,7 @@ class DashboardController extends Controller
                 ->where('fecha', '>=', \Carbon\Carbon::today())
                 ->orderBy('fecha')->orderBy('hora_inicio')
                 ->get();
+            $sparkInsights = $this->analyticsInsightService->forBarber((string) $user->id, $barberId);
 
             return view('dashboard', [
                 'adminMode' => false,
@@ -90,15 +93,14 @@ class DashboardController extends Controller
                 'barberPending' => $barberPending,
                 // El barbero solo recibe SUS PROPIOS insights (nunca los de
                 // otro barbero) — ver AnalyticsInsightService::forBarber().
-                'sparkInsights' => $this->analyticsInsightService->forBarber(
-                    (string) $user->id,
-                    $barberId,
-                ),
+                'sparkInsights' => $sparkInsights,
+                'sparkHighlights' => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'barbero'),
             ]);
         }
 
         if ($user->hasRoleName('recepcionista')) {
             $data = $this->dashboardService->receptionistMetrics();
+            $sparkInsights = $this->analyticsInsightService->forReception();
 
             return view('dashboard', [
                 'adminMode' => false,
@@ -110,7 +112,8 @@ class DashboardController extends Controller
                 'pending_orders_list' => $data['pending_orders_list'] ?? collect(),
                 'flow_chart' => $data['flow_chart'],
                 'chatbotTelemetry' => [],
-                'sparkInsights' => $this->analyticsInsightService->forReception(),
+                'sparkInsights' => $sparkInsights,
+                'sparkHighlights' => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'recepcionista'),
             ]);
         }
 
@@ -121,6 +124,7 @@ class DashboardController extends Controller
             }
 
             $data = $this->dashboardService->clientMetrics((string) $client->id);
+            $sparkInsights = $this->analyticsInsightService->forClient();
 
             return view('dashboard', [
                 'adminMode'        => false,
@@ -132,7 +136,8 @@ class DashboardController extends Controller
                 'nextAppointment'  => $data['next_appointment'],
                 'chatbotTelemetry' => [],
                 'visit_chart'      => $data['visit_chart'],
-                'sparkInsights'    => $this->analyticsInsightService->forClient(),
+                'sparkInsights'    => $sparkInsights,
+                'sparkHighlights'  => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'cliente'),
             ]);
         }
 

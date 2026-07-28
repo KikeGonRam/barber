@@ -44,6 +44,38 @@ class AnalyticsInsightService
     }
 
     /**
+     * Devuelve un resumen corto y accionable para el dashboard operativo.
+     * La página /analitica conserva el detalle completo; aquí se priorizan
+     * los hallazgos que ayudan a decidir qué hacer hoy, sin saturar el panel.
+     */
+    public function highlightsForDashboard(Collection $insights, string $role, int $limit = 3): Collection
+    {
+        $priority = match ($role) {
+            'administrador' => [
+                'clientes_en_riesgo', 'alertas_cancelacion', 'confirmacion_cancelacion_reforzada', 'inventario_alertas',
+                'regresion_facturacion', 'segmentacion_clientes', 'utilizacion_equipo',
+            ],
+            'recepcionista' => [
+                'inventario_alertas', 'alertas_cancelacion', 'clientes_en_riesgo', 'demanda_horas_pico',
+                'utilizacion_equipo', 'tienda_pedidos', 'segmentacion_clientes',
+            ],
+            'barbero' => [
+                'demanda_horas_pico_propia', 'utilizacion_propia', 'engagement_propio',
+                'demanda_horas_pico',
+            ],
+            'cliente' => ['tambien_te_puede_interesar'],
+            default => [],
+        };
+
+        $order = array_flip($priority);
+
+        return $insights
+            ->sortBy(fn (AnalyticsInsight $insight) => $order[$insight->tipo] ?? PHP_INT_MAX)
+            ->take($limit)
+            ->values();
+    }
+
+    /**
      * Un barbero puede tener DOS tipos de id distintos según de qué
      * colección viene el insight (ver el comentario largo en
      * AnalyticsInsight y en el script de Python): $barberUserId es
@@ -54,6 +86,10 @@ class AnalyticsInsightService
     public function forBarber(string $barberUserId, ?string $barberProfileId): Collection
     {
         $cacheKey = "analytics_insights.barbero.{$barberUserId}.{$barberProfileId}";
+
+        if (request()->boolean('actualizar')) {
+            Cache::forget($cacheKey);
+        }
 
         return Cache::remember($cacheKey, self::CACHE_TTL_SEGUNDOS, function () use ($barberUserId, $barberProfileId) {
             return AnalyticsInsight::query()
@@ -77,6 +113,10 @@ class AnalyticsInsightService
 
     private function porRol(string $rol): Collection
     {
+        if (request()->boolean('actualizar')) {
+            Cache::forget("analytics_insights.{$rol}");
+        }
+
         return Cache::remember("analytics_insights.{$rol}", self::CACHE_TTL_SEGUNDOS, function () use ($rol) {
             return AnalyticsInsight::query()
                 ->where('roles', $rol)

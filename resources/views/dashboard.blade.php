@@ -196,6 +196,9 @@
                 <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0013 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                 <h3 class="text-[11px] font-black uppercase tracking-widest text-gold">Insights del análisis de datos</h3>
                 <span class="text-[9px] text-muted">· UrbanBlade Analytics</span>
+                <a href="{{ route('analytics.index') }}" class="ml-auto flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-gold transition-colors">
+                    Ver todo <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </a>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 @foreach($insights as $insight)
@@ -209,10 +212,14 @@
         </section>
     @endif
 
-    {{-- Analítica avanzada completa (Spark, Unidades II-V): el administrador
-        es el único rol que ve TODOS los hallazgos calculados, sin recorte
-        por barbero/cliente — ver AnalyticsInsightService::forAdmin(). --}}
-    <x-analytics-insights :insights="$sparkInsights ?? []" titulo="Analítica avanzada (Spark)" />
+    {{-- Puente a la página completa de Analítica (Spark). El dashboard queda
+        limpio para operar; el análisis profundo (preparación de datos,
+        supervisado, no supervisado, gráficas) vive en /analitica. --}}
+    <x-analytics-insights :insights="$sparkHighlights ?? []" titulo="Prioridades detectadas" />
+    <x-analytics-cta
+        titulo="Analítica avanzada completa"
+        descripcion="Preparación de datos, predicciones (supervisado), patrones ocultos (no supervisado) y gráficas — todo explicado en lenguaje simple, con datos reales de tu barbería."
+        cta="Explorar" />
 
     {{-- ── ZONA 2: OPERACIÓN DE HOY ──────────────────────────── --}}
     <div class="flex items-center gap-3 px-1 pt-2">
@@ -603,9 +610,12 @@
         @endforeach
     </section>
 
-    {{-- Analítica personal (Spark): solo TUS propios hallazgos — nunca los
-        de otro barbero. Ver AnalyticsInsightService::forBarber(). --}}
-    <x-analytics-insights :insights="$sparkInsights ?? []" titulo="Tu analítica" />
+    {{-- Puente a la analítica personal del barbero (solo sus propios datos). --}}
+    <x-analytics-insights :insights="$sparkHighlights ?? []" titulo="Tus oportunidades" />
+    <x-analytics-cta
+        titulo="Tu analítica personal"
+        descripcion="Descubre a qué horas tienes más demanda y cómo le está yendo a tus publicaciones — solo tus datos, en lenguaje simple."
+        cta="Ver mi analítica" />
 
     {{-- Por aprobar (solo si hay solicitudes pendientes) --}}
     @if($pendCount > 0)
@@ -755,10 +765,13 @@
         @endforeach
     </section>
 
-    {{-- Analítica operativa (Spark): solo lo que le sirve a recepción para
-        el día a día (turnos, alertas de inventario, tienda) — no ve el
-        detalle de cada cliente ni datos privados de un barbero. --}}
-    <x-analytics-insights :insights="$sparkInsights ?? []" titulo="Analítica operativa" />
+    {{-- Puente a la analítica operativa de recepción (turnos, inventario,
+        tienda) — no ve datos privados de un barbero ni de cada cliente. --}}
+    <x-analytics-insights :insights="$sparkHighlights ?? []" titulo="Prioridades del turno" />
+    <x-analytics-cta
+        titulo="Analítica operativa"
+        descripcion="Horarios de mayor demanda, clientes por reactivar y productos por reabastecer — para planear mejor el día a día."
+        cta="Ver analítica" />
 
     {{-- Próximas llegadas + Flujo --}}
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -894,10 +907,22 @@
         @endforeach
     </section>
 
-    {{-- Sugerencia (Spark, Unidad IV — recomendación de servicios): al
-        cliente nunca se le muestra el dashboard analítico crudo, solo la
-        APLICACIÓN práctica del hallazgo ("también te puede interesar"). --}}
-    <x-analytics-insights :insights="$sparkInsights ?? []" titulo="Para ti" />
+    {{-- Al cliente nunca se le muestra el dashboard analítico crudo, solo la
+        APLICACIÓN práctica del hallazgo (recomendación de servicios). --}}
+    @php $clienteReco = collect($sparkInsights ?? [])->firstWhere('tipo', 'tambien_te_puede_interesar'); @endphp
+    @if($clienteReco)
+        <a href="{{ route('analytics.index') }}" class="group flex items-center gap-4 rounded-2xl border border-sky-500/20 bg-sky-500/[0.04] p-5 hover:border-sky-500/40 transition-all">
+            <div class="h-12 w-12 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-400 shrink-0">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            </div>
+            <div class="flex-1">
+                <p class="text-[9px] font-black uppercase tracking-widest text-sky-400/80">{{ $clienteReco->titulo }}</p>
+                <p class="text-lg font-black text-white mt-0.5">{{ $clienteReco->valor_destacado }}</p>
+                <p class="text-[11px] text-muted mt-1 leading-snug">{{ $clienteReco->mensaje }}</p>
+            </div>
+            <svg class="h-4 w-4 text-white/40 group-hover:text-sky-400 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </a>
+    @endif
 
     {{-- Próxima cita spotlight --}}
     @if($nextAppointment)
