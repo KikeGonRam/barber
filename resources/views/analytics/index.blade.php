@@ -1,22 +1,35 @@
 <x-app-layout>
     <x-slot name="header">
-        @php $rolLabels = ['administrador' => 'Administrativo', 'recepcionista' => 'Operativo', 'barbero' => 'Profesional', 'cliente' => 'Personal']; @endphp
+        @php
+            $rolLabels = [
+                'administrador' => 'Administrativo',
+                'recepcionista' => 'Operativo',
+                'barbero' => 'Profesional',
+                'cliente' => 'Personal',
+            ];
+        @endphp
+
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <p class="mb-1 text-[10px] font-black uppercase tracking-[0.28em] text-gold/75">UrbanBlade · Inteligencia del negocio</p>
                 <h2 class="text-xl font-black uppercase tracking-tight text-white">Centro de análisis <span class="text-gold">{{ $rolLabels[$rolLabel] ?? 'Personal' }}</span></h2>
                 <p class="mt-1 text-[12px] text-white/50">Indicadores, predicciones y recomendaciones listos para decidir.</p>
             </div>
+
             <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/50 transition-colors hover:text-gold">
-                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L5.56 9.25h10.69A.75.75 0 0 1 17 10Z" clip-rule="evenodd" /></svg>
+                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L5.56 9.25h10.69A.75.75 0 0 1 17 10Z" clip-rule="evenodd" />
+                </svg>
                 Volver al panel
             </a>
         </div>
     </x-slot>
 
     @php
-        $visibles = collect($secciones ?? [])->keys()->filter(fn ($seccion) => ($porSeccion[$seccion] ?? collect())->isNotEmpty());
-        $tieneMiniGraficas = $kpis->contains(fn ($kpi) => ! empty($kpi['graph']));
+        $visibles = collect($secciones ?? [])
+            ->keys()
+            ->filter(fn ($seccion) => ($porSeccion[$seccion] ?? collect())->isNotEmpty());
+
         $kpiStyles = [
             'gold' => ['border' => 'border-gold/20', 'bg' => 'bg-gold/[0.055]', 'text' => 'text-gold', 'bar' => 'bg-gold', 'hex' => '#d4af37'],
             'info' => ['border' => 'border-sky-400/20', 'bg' => 'bg-sky-500/[0.055]', 'text' => 'text-sky-300', 'bar' => 'bg-sky-400', 'hex' => '#38bdf8'],
@@ -24,6 +37,7 @@
             'warning' => ['border' => 'border-amber-400/20', 'bg' => 'bg-amber-500/[0.055]', 'text' => 'text-amber-300', 'bar' => 'bg-amber-400', 'hex' => '#f59e0b'],
             'danger' => ['border' => 'border-rose-400/20', 'bg' => 'bg-rose-500/[0.055]', 'text' => 'text-rose-300', 'bar' => 'bg-rose-400', 'hex' => '#fb7185'],
         ];
+
         $miniChartTypes = [
             'segmentacion_clientes' => 'doughnut',
             'clientes_en_riesgo' => 'doughnut',
@@ -32,22 +46,24 @@
             'utilizacion_equipo' => 'bar',
             'utilizacion_propia' => 'bar',
         ];
+
         $tabActiveStyles = [
             'resumen' => 'border-sky-400/50 bg-sky-500/[0.10] text-white',
             'operacion' => 'border-emerald-400/50 bg-emerald-500/[0.10] text-white',
             'clientes' => 'border-violet-400/50 bg-violet-500/[0.10] text-white',
             'prediccion' => 'border-amber-400/50 bg-amber-500/[0.10] text-white',
         ];
+
         $quickActions = [
-            ['tab' => 'resumen', 'label' => 'Limpieza de datos', 'detail' => 'Calidad del registro', 'mode' => 'diagnostic'],
-            ['tab' => 'prediccion', 'label' => 'Árbol de decisión', 'detail' => 'Factores de cancelación'],
-            ['tab' => 'prediccion', 'label' => 'Matriz de resultados', 'detail' => 'Aciertos y falsas alarmas'],
-            ['tab' => 'clientes', 'label' => 'Clientes y ventas', 'detail' => 'VIP, riesgo y add-ons'],
+            ['tab' => 'resumen', 'label' => 'Limpieza de datos', 'detail' => 'Calidad del registro', 'mode' => 'diagnostic', 'classes' => 'hover:border-emerald-400/30 hover:bg-emerald-500/[0.045]', 'icon' => 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'],
+            ['tab' => 'prediccion', 'label' => 'Árbol de decisión', 'detail' => 'Factores de cancelación', 'classes' => 'hover:border-amber-400/30 hover:bg-amber-500/[0.045]', 'icon' => 'M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h12M3.75 6.75H18M7.5 20.25h9M9 16.5v3.75m6-3.75v3.75'],
+            ['tab' => 'prediccion', 'label' => 'Matriz de resultados', 'detail' => 'Aciertos y falsas alarmas', 'classes' => 'hover:border-sky-400/30 hover:bg-sky-500/[0.045]', 'icon' => 'M3.75 5.25h16.5M3.75 9.75h16.5M3.75 14.25h16.5M8.25 5.25v13.5m7.5-13.5v13.5'],
+            ['tab' => 'clientes', 'label' => 'Clientes y ventas', 'detail' => 'VIP, riesgo y add-ons', 'classes' => 'hover:border-violet-400/30 hover:bg-violet-500/[0.045]', 'icon' => 'M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 12.75 0ZM12 7.5a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Z'],
         ];
     @endphp
 
     <div
-        class="font-analytics space-y-5"
+        class="ub-analytics-shell font-analytics space-y-6"
         x-data="{
             tab: '{{ $visibles->first() ?? 'resumen' }}',
             diagnosticoOpen: false,
@@ -71,13 +87,14 @@
                 <p class="mt-2 text-xs text-white/45">El sistema actualizará este espacio cuando termine su siguiente revisión.</p>
             </div>
         @else
-            <section class="rounded-[8px] border border-white/[0.08] bg-[#101010]/95 p-4 shadow-[0_22px_55px_rgba(0,0,0,.22)] sm:p-5">
+            <section class="ub-analytics-panel rounded-[8px] p-4 sm:p-5">
                 <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                     <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-gold">Panel ejecutivo</span>
                             <span class="text-[11px] font-bold text-white/38">{{ $insights->count() }} hallazgos disponibles para este rol</span>
                         </div>
+
                         <p class="mt-3 max-w-3xl text-sm leading-relaxed text-white/62">
                             Los resultados de Spark se muestran por prioridad administrativa: primero el pulso del negocio, después operación, clientes y predicción.
                         </p>
@@ -92,22 +109,33 @@
                                 <option>Histórico</option>
                             </select>
                         </label>
+
                         <label class="block">
                             <span class="mb-1 block text-[9px] font-black uppercase tracking-widest text-white/35">Sucursal</span>
                             <select class="h-9 w-full rounded-[8px] border-white/[0.08] bg-white/[0.035] px-2 text-[11px] font-bold text-white/70 focus:border-gold focus:ring-gold/25">
                                 <option>Sucursal principal</option>
                             </select>
                         </label>
+
                         <div class="flex items-end gap-2">
                             <a href="{{ route('analytics.index', ['actualizar' => 1]) }}" title="Actualizar resultados" class="inline-flex h-9 w-9 items-center justify-center rounded-[8px] bg-gold text-black shadow-[0_10px_24px_rgba(212,175,55,.18)] transition hover:bg-[#f0cc55]">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M5.6 15A7 7 0 0017.5 17.5L20 15M18.4 9A7 7 0 006.5 6.5L4 9"/></svg>
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M5.6 15A7 7 0 0 0 17.5 17.5L20 15M18.4 9A7 7 0 0 0 6.5 6.5L4 9"/>
+                                </svg>
                             </a>
+
                             @if($rolLabel === 'administrador')
                                 <a href="{{ route('reports.export', ['type' => 'ingresos', 'format' => 'pdf']) }}" title="Exportar PDF" class="inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-white/[0.08] bg-white/[0.035] text-white/60 transition hover:border-gold/35 hover:text-gold">
-                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm6 1.5V7A1.5 1.5 0 0 0 12 8.5h3.5v8h-11v-13h6Z"/><path d="M6.5 11.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75Z"/></svg>
+                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm6 1.5V7A1.5 1.5 0 0 0 12 8.5h3.5v8h-11v-13h6Z"/>
+                                        <path d="M6.5 11.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75Z"/>
+                                    </svg>
                                 </a>
+
                                 <a href="{{ route('reports.export', ['type' => 'ingresos', 'format' => 'excel']) }}" title="Exportar Excel" class="inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-white/[0.08] bg-white/[0.035] text-white/60 transition hover:border-emerald-400/35 hover:text-emerald-300">
-                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M4 3.5A1.5 1.5 0 0 1 5.5 2h7.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12A1.5 1.5 0 0 1 17 5.622V16.5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 4 16.5v-13ZM6.6 7.8l2.1 2.2-2.1 2.2 1.1 1.05L9.8 11l2.1 2.25L13 12.2 10.9 10 13 7.8l-1.1-1.05L9.8 9 7.7 6.75 6.6 7.8Z"/></svg>
+                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path d="M4 3.5A1.5 1.5 0 0 1 5.5 2h7.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12A1.5 1.5 0 0 1 17 5.622V16.5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 4 16.5v-13ZM6.6 7.8l2.1 2.2-2.1 2.2 1.1 1.05L9.8 11l2.1 2.25L13 12.2 10.9 10 13 7.8l-1.1-1.05L9.8 9 7.7 6.75 6.6 7.8Z"/>
+                                    </svg>
                                 </a>
                             @endif
                         </div>
@@ -144,7 +172,8 @@
                                 $progress = max(3, min(100, (float) str_replace(',', '.', $matches[1])));
                             }
                         @endphp
-                        <article class="overflow-hidden rounded-[8px] border {{ $style['border'] }} {{ $style['bg'] }} p-4 shadow-[0_16px_35px_rgba(0,0,0,.16)] transition duration-300 hover:-translate-y-0.5">
+
+                        <article class="ub-analytics-card ub-analytics-kpi overflow-hidden rounded-[8px] border {{ $style['border'] }} {{ $style['bg'] }} p-4 transition duration-300 hover:-translate-y-0.5">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <p class="text-[9px] font-black uppercase tracking-[0.16em] {{ $style['text'] }}">{{ $kpi['label'] }}</p>
@@ -182,13 +211,14 @@
                 </section>
             @endif
 
-            <section class="rounded-[8px] border border-white/[0.08] bg-[#101010]/90 p-2">
+            <section class="ub-analytics-panel sticky top-3 z-20 rounded-[8px] p-2 backdrop-blur-xl">
                 <nav class="grid grid-cols-1 gap-1 sm:grid-cols-2 xl:grid-cols-4" aria-label="Secciones de analítica">
                     @foreach($visibles as $seccion)
                         @php
                             $meta = $secciones[$seccion];
                             $activeStyle = $tabActiveStyles[$seccion] ?? 'border-gold/40 bg-gold/[0.10] text-white';
                         @endphp
+
                         <button
                             type="button"
                             @click="selectTab('{{ $seccion }}')"
@@ -205,12 +235,18 @@
             <section class="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label="Acciones de análisis">
                 @foreach($quickActions as $accion)
                     @if($accion['mode'] ?? null)
-                        <button type="button" @click="openDiagnostic()" class="rounded-[8px] border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-left transition hover:border-gold/30 hover:bg-gold/[0.05]">
+                        <button type="button" @click="openDiagnostic()" class="ub-analytics-card group rounded-[8px] border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-left transition {{ $accion['classes'] }}">
+                            <span class="mb-3 flex h-8 w-8 items-center justify-center rounded-[8px] border border-white/[0.07] bg-black/20 text-gold">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $accion['icon'] }}"/></svg>
+                            </span>
                             <span class="block text-[10px] font-black uppercase tracking-[0.16em] text-gold">{{ $accion['label'] }}</span>
                             <span class="mt-1 block text-[11px] text-white/42">{{ $accion['detail'] }}</span>
                         </button>
                     @elseif($visibles->contains($accion['tab']))
-                        <button type="button" @click="selectTab('{{ $accion['tab'] }}')" class="rounded-[8px] border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-left transition hover:border-gold/30 hover:bg-gold/[0.05]">
+                        <button type="button" @click="selectTab('{{ $accion['tab'] }}')" class="ub-analytics-card group rounded-[8px] border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-left transition {{ $accion['classes'] }}">
+                            <span class="mb-3 flex h-8 w-8 items-center justify-center rounded-[8px] border border-white/[0.07] bg-black/20 text-gold">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $accion['icon'] }}"/></svg>
+                            </span>
                             <span class="block text-[10px] font-black uppercase tracking-[0.16em] text-gold">{{ $accion['label'] }}</span>
                             <span class="mt-1 block text-[11px] text-white/42">{{ $accion['detail'] }}</span>
                         </button>
@@ -223,7 +259,8 @@
                     $meta = $secciones[$seccion];
                     $seccionInsights = $porSeccion[$seccion] ?? collect();
                 @endphp
-                <section x-show="tab === '{{ $seccion }}'" x-cloak class="space-y-4">
+
+                <section x-show="tab === '{{ $seccion }}'" x-cloak class="ub-analytics-section space-y-4">
                     <div class="flex flex-col gap-2 border-b border-white/[0.07] pb-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <p class="text-[10px] font-black uppercase tracking-[0.18em] {{ $meta['acento'] }}">{{ $meta['titulo'] }}</p>
@@ -232,10 +269,10 @@
                         <span class="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">{{ $seccionInsights->count() }} módulos</span>
                     </div>
 
-                    <x-analytics-insights :insights="$seccionInsights" titulo="Hallazgos relevantes" :showCharts="true" idPrefix="section-chart-{{ $seccion }}" />
+                    <x-analytics-insights :insights="$seccionInsights" titulo="Hallazgos relevantes" :showCharts="true" :idPrefix="'section-chart-'.$seccion" />
 
                     @if($seccion === 'resumen' && $diagnosticoInsights->isNotEmpty())
-                        <details id="diagnostico-datos" :open="diagnosticoOpen" class="group rounded-[8px] border border-white/[0.08] bg-[#101010]/92 p-4">
+                        <details id="diagnostico-datos" :open="diagnosticoOpen" class="ub-analytics-panel group rounded-[8px] p-4">
                             <summary @click="diagnosticoOpen = !diagnosticoOpen" class="flex cursor-pointer list-none items-center justify-between gap-4 text-[10px] font-black uppercase tracking-[0.16em] text-white/60">
                                 <span class="flex items-center gap-2">
                                     <span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.35)]"></span>
@@ -254,196 +291,4 @@
             @endforeach
         @endif
     </div>
-
-    @if(($tieneGraficas ?? false) || ($tieneMiniGraficas ?? false))
-        <script>
-            (() => {
-                const palette = ['#d4af37', '#38bdf8', '#34d399', '#a78bfa', '#f59e0b', '#fb7185', '#22d3ee', '#84cc16'];
-                const instances = window.__ubAnalyticsCharts || {};
-                window.__ubAnalyticsCharts = instances;
-
-                const numberFormatter = new Intl.NumberFormat('es-MX');
-                const textColor = 'rgba(255,255,255,.48)';
-                const gridColor = 'rgba(255,255,255,.07)';
-
-                const parseConfig = (canvas) => {
-                    const node = document.getElementById(canvas.dataset.chartConfig);
-                    if (!node) return null;
-                    try { return JSON.parse(node.textContent); } catch (error) { return null; }
-                };
-
-                const toValues = (values) => (values || []).map((value) => {
-                    const numeric = Number(String(value).replace(/,/g, ''));
-                    return Number.isFinite(numeric) ? numeric : 0;
-                });
-
-                const shortLabel = (label, mini) => {
-                    const text = String(label ?? '').replace(/\n/g, ' · ');
-                    if (mini) return '';
-                    return text.length > 28 ? `${text.slice(0, 26)}…` : text;
-                };
-
-                const bootCharts = () => {
-                    if (!window.Chart) {
-                        setTimeout(bootCharts, 80);
-                        return;
-                    }
-
-                    window.Chart.defaults.font.family = "'Plus Jakarta Sans', 'Figtree', sans-serif";
-                    window.Chart.defaults.color = textColor;
-
-                    document.querySelectorAll('[data-ub-analytics-chart]').forEach((canvas) => {
-                        const config = parseConfig(canvas);
-                        if (!config) return;
-
-                        if (instances[canvas.id]) {
-                            instances[canvas.id].resize();
-                            return;
-                        }
-
-                        const graph = config.graph || {};
-                        const labels = graph.labels || [];
-                        const values = toValues(graph.valores || []);
-                        if (!values.length) return;
-
-                        const mini = canvas.dataset.chartMini === 'true' || config.mini === true;
-                        const requestedType = config.type === 'matrix' ? 'bar' : (config.type || graph.tipo || 'bar');
-                        const longLabels = labels.length > 5 || labels.some((label) => String(label).length > 18);
-                        const horizontal = requestedType === 'bar' && longLabels && !mini;
-                        const accent = config.accent || '#d4af37';
-                        const ctx = canvas.getContext('2d');
-                        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.parentElement?.clientHeight || 240);
-                        gradient.addColorStop(0, `${accent}33`);
-                        gradient.addColorStop(1, `${accent}05`);
-
-                        const dataset = {
-                            data: values,
-                            label: 'Resultado',
-                            backgroundColor: values.map((_, index) => `${palette[index % palette.length]}cc`),
-                            borderColor: accent,
-                            borderWidth: 0,
-                            borderRadius: requestedType === 'bar' ? 8 : 0,
-                            hoverBorderColor: '#ffffff',
-                            hoverBorderWidth: requestedType === 'bar' ? 0 : 1,
-                        };
-
-                        if (requestedType === 'line') {
-                            dataset.backgroundColor = gradient;
-                            dataset.borderColor = accent;
-                            dataset.borderWidth = mini ? 1.8 : 2.6;
-                            dataset.fill = true;
-                            dataset.tension = 0.42;
-                            dataset.pointRadius = mini ? 0 : 3;
-                            dataset.pointHoverRadius = 5;
-                        }
-
-                        if (requestedType === 'radar') {
-                            dataset.backgroundColor = `${accent}24`;
-                            dataset.borderColor = accent;
-                            dataset.borderWidth = 2;
-                            dataset.pointBackgroundColor = accent;
-                            dataset.pointRadius = 2;
-                        }
-
-                        if (['doughnut', 'polarArea'].includes(requestedType)) {
-                            dataset.borderColor = '#101010';
-                            dataset.borderWidth = 2;
-                            dataset.hoverOffset = mini ? 2 : 6;
-                        }
-
-                        const axes = {
-                            x: {
-                                display: !mini,
-                                beginAtZero: horizontal,
-                                ticks: { color: textColor, font: { size: 10, weight: '600' }, callback(value) { return shortLabel(this.getLabelForValue(value), false); } },
-                                grid: { color: gridColor, drawBorder: false },
-                            },
-                            y: {
-                                display: !mini,
-                                beginAtZero: !horizontal,
-                                ticks: { color: textColor, font: { size: 10, weight: '600' }, callback(value) { return horizontal ? shortLabel(this.getLabelForValue(value), false) : value; } },
-                                grid: { color: gridColor, drawBorder: false },
-                            },
-                        };
-
-                        instances[canvas.id] = new window.Chart(ctx, {
-                            type: requestedType,
-                            data: {
-                                labels: labels.map((label) => shortLabel(label, mini)),
-                                datasets: [dataset],
-                            },
-                            options: {
-                                indexAxis: horizontal ? 'y' : 'x',
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                animation: {
-                                    duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : (mini ? 550 : 900),
-                                    easing: 'easeOutQuart',
-                                },
-                                layout: { padding: mini ? 0 : 4 },
-                                plugins: {
-                                    legend: {
-                                        display: !mini && ['doughnut', 'polarArea'].includes(requestedType),
-                                        position: 'bottom',
-                                        labels: {
-                                            color: 'rgba(255,255,255,.58)',
-                                            usePointStyle: true,
-                                            boxWidth: 7,
-                                            padding: 12,
-                                            font: { size: 10, weight: '700' },
-                                        },
-                                    },
-                                    tooltip: {
-                                        enabled: !mini,
-                                        backgroundColor: '#0f0f0f',
-                                        borderColor: 'rgba(212,175,55,.35)',
-                                        borderWidth: 1,
-                                        titleColor: '#d4af37',
-                                        bodyColor: '#ffffff',
-                                        padding: 10,
-                                        callbacks: {
-                                            title(items) {
-                                                const index = items[0]?.dataIndex ?? 0;
-                                                return String(labels[index] ?? '').replace(/\n/g, ' · ');
-                                            },
-                                            label(item) {
-                                                return ` ${numberFormatter.format(item.raw ?? 0)}`;
-                                            },
-                                        },
-                                    },
-                                },
-                                cutout: requestedType === 'doughnut' ? (mini ? '72%' : '64%') : undefined,
-                                scales: ['doughnut', 'polarArea'].includes(requestedType)
-                                    ? {}
-                                    : requestedType === 'radar'
-                                        ? {
-                                            r: {
-                                                beginAtZero: true,
-                                                angleLines: { color: gridColor },
-                                                grid: { color: gridColor },
-                                                pointLabels: { color: textColor, font: { size: 10, weight: '700' } },
-                                                ticks: { display: false },
-                                            },
-                                        }
-                                        : axes,
-                            },
-                        });
-                    });
-                };
-
-                const resizeCharts = () => {
-                    Object.values(instances).forEach((chart) => chart?.resize());
-                };
-
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', bootCharts);
-                } else {
-                    bootCharts();
-                }
-
-                window.addEventListener('ub:analytics:resize', () => setTimeout(resizeCharts, 140));
-                window.addEventListener('resize', () => setTimeout(resizeCharts, 80));
-            })();
-        </script>
-    @endif
 </x-app-layout>

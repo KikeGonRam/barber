@@ -917,3 +917,113 @@ html.dark {
 @media (max-width: 1023px) {
     .custom-scrollbar { -webkit-overflow-scrolling: touch; }
 }
+
+@layer components {
+    .ub-analytics-shell {
+        position: relative;
+        isolation: isolate;
+    }
+
+    .ub-analytics-shell::before {
+        content: '';
+        position: fixed;
+        inset: 96px 18px auto auto;
+        z-index: -1;
+        width: min(42vw, 520px);
+        height: min(42vw, 520px);
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 30% 30%, rgba(212, 175, 55, 0.10), transparent 62%),
+            radial-gradient(circle at 70% 65%, rgba(56, 189, 248, 0.08), transparent 60%);
+        filter: blur(24px);
+        opacity: 0.72;
+    }
+
+    .ub-analytics-panel {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.018)),
+            rgba(16, 16, 16, 0.94);
+        box-shadow: 0 22px 55px rgba(0, 0, 0, 0.22);
+    }
+
+    .ub-analytics-card {
+        position: relative;
+        isolation: isolate;
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+    }
+
+    .ub-analytics-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.075), transparent 34%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.055), transparent 42%);
+        opacity: 0;
+        transition: opacity 260ms ease;
+    }
+
+    .ub-analytics-card:hover::before {
+        opacity: 1;
+    }
+
+    .ub-analytics-kpi,
+    .ub-analytics-section,
+    .ub-analytics-card {
+        animation: ub-analytics-rise 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .ub-analytics-kpi:nth-child(1) { animation-delay: 40ms; }
+    .ub-analytics-kpi:nth-child(2) { animation-delay: 80ms; }
+    .ub-analytics-kpi:nth-child(3) { animation-delay: 120ms; }
+    .ub-analytics-kpi:nth-child(4) { animation-delay: 160ms; }
+    .ub-analytics-kpi:nth-child(5) { animation-delay: 200ms; }
+
+    .ub-chart-frame {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background:
+            linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+            rgba(0, 0, 0, 0.16);
+        background-size: 38px 38px, 38px 38px, auto;
+    }
+
+    .ub-chart-frame::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08), transparent 48%);
+    }
+
+    .ub-chart-frame canvas {
+        position: relative;
+        z-index: 1;
+    }
+}
+
+@keyframes ub-analytics-rise {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ub-analytics-kpi,
+    .ub-analytics-section,
+    .ub-analytics-card {
+        animation: none;
+        transition: none;
+    }
+}

@@ -1,4 +1,4 @@
-@props(['insights' => [], 'titulo' => 'Analitica avanzada', 'showCharts' => false, 'idPrefix' => 'insight-chart'])
+@props(['insights' => [], 'titulo' => 'Analítica avanzada', 'showCharts' => false, 'idPrefix' => 'insight-chart'])
 
 @php
     $items = collect($insights);
@@ -70,6 +70,16 @@
         'matriz_resultados_cancelacion',
         'regresion_facturacion',
     ];
+    $visualLabels = [
+        'bar' => 'Comparativo',
+        'line' => 'Tendencia',
+        'doughnut' => 'Distribución',
+        'polarArea' => 'Distribución',
+        'radar' => 'Factores clave',
+        'matrix' => 'Matriz',
+        'heatmap' => 'Mapa de demanda',
+        'factor-list' => 'Importancia',
+    ];
 @endphp
 
 @if($items->isNotEmpty())
@@ -82,7 +92,7 @@
             <span class="hidden text-[10px] font-bold text-white/35 sm:inline">{{ $items->count() }} resultados</span>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
             @foreach($items as $insight)
                 @php
                     $color = data_get($insight, 'color', 'gold');
@@ -103,6 +113,7 @@
                     $isWide = $hasVisual && in_array($tipoInsight, $wideTypes, true);
                     $brief = \Illuminate\Support\Str::words($msg ?? '', $hasVisual ? 22 : 34);
                     $maxValue = max((float) $values->max(), 1);
+                    $visualLabel = $visualLabels[$tipoVisual] ?? 'Indicador';
                     $progressValue = null;
                     if (preg_match('/([\d]+(?:[.,]\d+)?)\s*%/', (string) $dato, $matches)) {
                         $progressValue = max(3, min(100, (float) str_replace(',', '.', $matches[1])));
@@ -116,11 +127,17 @@
                     ];
                 @endphp
 
-                <article class="{{ $isWide ? 'xl:col-span-2' : '' }} group overflow-hidden rounded-[8px] border {{ $c['border'] }} {{ $c['bg'] }} p-4 shadow-[0_18px_45px_rgba(0,0,0,.18)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 sm:p-5">
+                <article class="{{ $isWide ? 'xl:col-span-2' : '' }} ub-analytics-card group overflow-hidden rounded-[8px] border {{ $c['border'] }} {{ $c['bg'] }} p-4 transition duration-300 hover:-translate-y-0.5 hover:border-white/15 sm:p-5">
                     <div class="{{ $isWide ? 'grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_320px]' : 'space-y-4' }}">
                         <div class="min-w-0">
                             <div class="mb-4 flex items-start justify-between gap-4">
                                 <div class="min-w-0">
+                                    <div class="mb-2 flex flex-wrap items-center gap-2">
+                                        <span class="rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.16em] text-white/42">{{ $visualLabel }}</span>
+                                        @if($hasVisual)
+                                            <span class="rounded-full border {{ $c['border'] }} px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.16em] {{ $c['texto'] }}">Con gráfica</span>
+                                        @endif
+                                    </div>
                                     <p class="text-[10px] font-black uppercase tracking-[0.18em] {{ $c['texto'] }}">{{ $tit }}</p>
                                     <p class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl">{{ $dato }}</p>
                                 </div>
@@ -172,7 +189,7 @@
                                     @endforeach
                                 </div>
                             @elseif($hasVisual)
-                                <div class="{{ $isWide ? 'h-[300px]' : 'h-[240px]' }} rounded-[8px] border border-white/[0.06] bg-black/15 p-3">
+                                <div class="{{ $isWide ? 'h-[300px]' : 'h-[240px]' }} ub-chart-frame p-3">
                                     <canvas
                                         id="{{ $chartId }}"
                                         data-ub-analytics-chart
@@ -206,10 +223,10 @@
                                 <p class="text-sm leading-relaxed text-white/58">{{ $brief }}</p>
                             @endif
 
-                            <details class="group/detail rounded-[8px] border border-white/[0.07] bg-white/[0.025] px-3 py-2">
+                            <details class="group rounded-[8px] border border-white/[0.07] bg-white/[0.025] px-3 py-2">
                                 <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/45 transition-colors hover:text-gold">
                                     <span>Ver hallazgo</span>
-                                    <svg class="h-3.5 w-3.5 transition-transform group-open/detail:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <svg class="h-3.5 w-3.5 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
                                     </svg>
                                 </summary>
