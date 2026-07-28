@@ -1,107 +1,164 @@
-{{--
-    Tarjetas de analítica en lenguaje natural, reutilizables en los 4
-    dashboards por rol.
-
-    Uso:
-        <x-analytics-insights :insights="$sparkInsights" titulo="Analítica avanzada" />
-
-    $insights: una Collection/array de AnalyticsInsight (o arrays con las
-    mismas claves: titulo, valor_destacado, mensaje, color). Si viene vacía,
-    el componente no dibuja nada (evita una sección vacía en pantalla).
-
-    El color de cada tarjeta viene calculado por Spark en el propio dato
-    (campo `color`), no aquí — este componente solo traduce ese nombre de
-    color a las clases de Tailwind correspondientes, para que la paleta se
-    mantenga centralizada en un solo lugar y todos los dashboards se vean
-    consistentes entre sí.
---}}
-@props(['insights' => [], 'titulo' => 'Analítica avanzada', 'showCharts' => false, 'idPrefix' => 'insight-chart'])
+@props(['insights' => [], 'titulo' => 'Analitica avanzada', 'showCharts' => false, 'idPrefix' => 'insight-chart'])
 
 @php
-    // Mapa de color -> clases Tailwind. Si Spark manda un color que no está
-    // en este mapa (por un typo o un valor nuevo no contemplado), se usa
-    // 'gold' como respaldo seguro en vez de romper el render.
+    $items = collect($insights);
     $paleta = [
-        'gold'    => ['border' => 'border-gold/15',        'bg' => 'bg-gold/[0.03]',        'texto' => 'text-gold/70'],
-        'success' => ['border' => 'border-emerald-500/20', 'bg' => 'bg-emerald-500/[0.04]', 'texto' => 'text-emerald-400/80'],
-        'warning' => ['border' => 'border-amber-500/20',   'bg' => 'bg-amber-500/[0.04]',   'texto' => 'text-amber-400/80'],
-        'danger'  => ['border' => 'border-rose-500/20',    'bg' => 'bg-rose-500/[0.04]',    'texto' => 'text-rose-400/80'],
-        'info'    => ['border' => 'border-sky-500/20',     'bg' => 'bg-sky-500/[0.04]',     'texto' => 'text-sky-400/80'],
+        'gold' => [
+            'border' => 'border-gold/20',
+            'bg' => 'bg-[linear-gradient(180deg,rgba(212,175,55,.07),rgba(255,255,255,.025))]',
+            'texto' => 'text-gold',
+            'dot' => 'bg-gold',
+            'hex' => '#d4af37',
+        ],
+        'success' => [
+            'border' => 'border-emerald-400/20',
+            'bg' => 'bg-[linear-gradient(180deg,rgba(52,211,153,.07),rgba(255,255,255,.025))]',
+            'texto' => 'text-emerald-300',
+            'dot' => 'bg-emerald-400',
+            'hex' => '#34d399',
+        ],
+        'warning' => [
+            'border' => 'border-amber-400/20',
+            'bg' => 'bg-[linear-gradient(180deg,rgba(245,158,11,.075),rgba(255,255,255,.025))]',
+            'texto' => 'text-amber-300',
+            'dot' => 'bg-amber-400',
+            'hex' => '#f59e0b',
+        ],
+        'danger' => [
+            'border' => 'border-rose-400/20',
+            'bg' => 'bg-[linear-gradient(180deg,rgba(251,113,133,.07),rgba(255,255,255,.025))]',
+            'texto' => 'text-rose-300',
+            'dot' => 'bg-rose-400',
+            'hex' => '#fb7185',
+        ],
+        'info' => [
+            'border' => 'border-sky-400/20',
+            'bg' => 'bg-[linear-gradient(180deg,rgba(56,189,248,.07),rgba(255,255,255,.025))]',
+            'texto' => 'text-sky-300',
+            'dot' => 'bg-sky-400',
+            'hex' => '#38bdf8',
+        ],
     ];
     $tiposVisuales = [
-        'resumen_ejecutivo' => 'line', 'calidad_datos_etl' => 'doughnut',
-        'demanda_horas_pico' => 'line', 'demanda_horas_pico_propia' => 'line',
-        'clientes_en_riesgo' => 'doughnut', 'segmentacion_clientes' => 'doughnut',
-        'perfil_citas_premium' => 'doughnut', 'fidelizacion_ratio' => 'bar',
-        'utilizacion_equipo' => 'bar', 'engagement_muro_top' => 'bar',
-        'tienda_pedidos' => 'bar', 'pca_factores' => 'polarArea',
-        'clasificacion_cancelacion' => 'line', 'alertas_cancelacion' => 'bar',
-        'matriz_resultados_cancelacion' => 'bar',
+        'resumen_ejecutivo' => 'line',
+        'calidad_datos_etl' => 'doughnut',
+        'control_limpieza_datos' => 'doughnut',
+        'demanda_horas_pico' => 'line',
+        'demanda_horas_pico_propia' => 'line',
+        'clientes_en_riesgo' => 'doughnut',
+        'segmentacion_clientes' => 'doughnut',
+        'perfil_citas_premium' => 'doughnut',
+        'fidelizacion_ratio' => 'bar',
+        'utilizacion_equipo' => 'bar',
+        'utilizacion_propia' => 'bar',
+        'engagement_muro_top' => 'bar',
+        'engagement_propio' => 'bar',
+        'tienda_pedidos' => 'bar',
+        'pca_factores' => 'radar',
+        'clasificacion_cancelacion' => 'line',
+        'alertas_cancelacion' => 'bar',
+        'confirmacion_cancelacion_reforzada' => 'bar',
+        'matriz_resultados_cancelacion' => 'matrix',
+        'regresion_facturacion' => 'line',
+    ];
+    $wideTypes = [
+        'resumen_ejecutivo',
+        'demanda_horas_pico',
+        'demanda_horas_pico_propia',
+        'clasificacion_cancelacion',
+        'matriz_resultados_cancelacion',
+        'regresion_facturacion',
     ];
 @endphp
 
-@if(!empty($insights) && count($insights) > 0)
+@if($items->isNotEmpty())
     <section aria-label="{{ $titulo }}">
-        <div class="flex items-center gap-2 mb-3 px-1">
-            <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0013 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-            <h3 class="text-[11px] font-black uppercase tracking-widest text-gold">{{ $titulo }}</h3>
-            <span class="text-[9px] text-muted">· UrbanBlade</span>
+        <div class="mb-3 flex items-center justify-between gap-3 px-1">
+            <div class="flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-gold shadow-[0_0_16px_rgba(212,175,55,.45)]"></span>
+                <h3 class="text-[11px] font-black uppercase tracking-[0.18em] text-gold">{{ $titulo }}</h3>
+            </div>
+            <span class="hidden text-[10px] font-bold text-white/35 sm:inline">{{ $items->count() }} resultados</span>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start gap-4">
-            @foreach($insights as $insight)
+
+        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            @foreach($items as $insight)
                 @php
-                    $c = $paleta[$insight['color'] ?? $insight->color ?? 'gold'] ?? $paleta['gold'];
-                    $tit  = $insight['titulo'] ?? $insight->titulo;
-                    $dato = $insight['valor_destacado'] ?? $insight->valor_destacado;
-                    $msg  = $insight['mensaje'] ?? $insight->mensaje;
-                    $grafica = $insight['grafica'] ?? $insight->grafica ?? null;
-                    $chartId = $idPrefix.'-'.($insight['tipo'] ?? $insight->tipo ?? $loop->index).'-'.$loop->index;
-                    $tipoInsight = $insight['tipo'] ?? $insight->tipo ?? '';
-                    $tipoVisual = $tiposVisuales[$tipoInsight] ?? ($grafica['tipo'] ?? 'bar');
+                    $color = data_get($insight, 'color', 'gold');
+                    $c = $paleta[$color] ?? $paleta['gold'];
+                    $tit = data_get($insight, 'titulo');
+                    $dato = data_get($insight, 'valor_destacado');
+                    $msg = data_get($insight, 'mensaje');
+                    $grafica = data_get($insight, 'grafica');
+                    $tipoInsight = data_get($insight, 'tipo', 'insight');
+                    $tipoVisual = $tiposVisuales[$tipoInsight] ?? data_get($grafica, 'tipo', 'bar');
+                    $chartId = \Illuminate\Support\Str::slug($idPrefix.'-'.$tipoInsight.'-'.$loop->index);
+                    $labels = collect(data_get($grafica, 'labels', []));
+                    $values = collect(data_get($grafica, 'valores', []));
+                    $hasVisual = $showCharts && $grafica && $values->isNotEmpty();
+                    $isMatrix = $hasVisual && $tipoVisual === 'matrix';
+                    $isWide = $hasVisual && in_array($tipoInsight, $wideTypes, true);
+                    $brief = \Illuminate\Support\Str::words($msg ?? '', $hasVisual ? 22 : 34);
                 @endphp
-                <article class="self-start h-fit rounded-3xl border {{ $c['border'] }} {{ $c['bg'] }} p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(0,0,0,.22)]">
-                    <p class="text-[9px] font-black uppercase tracking-widest {{ $c['texto'] }}">{{ $tit }}</p>
-                    <div class="flex items-end justify-between gap-3 mt-1">
-                        <p class="text-2xl font-black text-white leading-tight">{{ $dato }}</p>
-                        @if($grafica && $showCharts)
-                            <span class="text-[9px] text-white/35 uppercase tracking-widest">Detalle</span>
-                        @endif
+
+                <article class="{{ $isWide ? 'xl:col-span-2' : '' }} group overflow-hidden rounded-[8px] border {{ $c['border'] }} {{ $c['bg'] }} p-4 shadow-[0_18px_45px_rgba(0,0,0,.18)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 sm:p-5">
+                    <div class="{{ $isWide ? 'grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_320px]' : 'space-y-4' }}">
+                        <div class="min-w-0">
+                            <div class="mb-4 flex items-start justify-between gap-4">
+                                <div class="min-w-0">
+                                    <p class="text-[10px] font-black uppercase tracking-[0.18em] {{ $c['texto'] }}">{{ $tit }}</p>
+                                    <p class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl">{{ $dato }}</p>
+                                </div>
+                                <span class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-white/[0.08] bg-white/[0.035]">
+                                    <span class="h-2 w-2 rounded-full {{ $c['dot'] }}"></span>
+                                </span>
+                            </div>
+
+                            @if($isMatrix)
+                                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2" aria-label="Matriz de resultados">
+                                    @foreach($labels as $label)
+                                        @php $value = (float) ($values[$loop->index] ?? 0); @endphp
+                                        <div class="rounded-[8px] border border-white/[0.07] bg-black/20 p-4">
+                                            <p class="text-2xl font-black text-white">{{ number_format($value, 0) }}</p>
+                                            <p class="mt-2 whitespace-pre-line text-[10px] font-bold uppercase tracking-wider text-white/45">{{ $label }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @elseif($hasVisual)
+                                <div class="{{ $isWide ? 'h-[300px]' : 'h-[240px]' }} rounded-[8px] border border-white/[0.06] bg-black/15 p-3">
+                                    <canvas
+                                        id="{{ $chartId }}"
+                                        data-ub-analytics-chart
+                                        data-chart-config="{{ $chartId }}-config"
+                                        aria-label="{{ $tit }}"
+                                    ></canvas>
+                                    <script id="{{ $chartId }}-config" type="application/json">
+                                        @json(['graph' => $grafica, 'type' => $tipoVisual, 'tone' => $color, 'accent' => $c['hex'], 'insightType' => $tipoInsight])
+                                    </script>
+                                </div>
+                            @else
+                                <p class="max-w-2xl text-sm leading-relaxed text-white/58">{{ $brief }}</p>
+                            @endif
+                        </div>
+
+                        <div class="{{ $isWide ? 'lg:border-l lg:border-white/[0.07] lg:pl-5' : '' }} flex flex-col justify-between gap-3">
+                            @if($hasVisual)
+                                <p class="text-sm leading-relaxed text-white/58">{{ $brief }}</p>
+                            @endif
+
+                            <details class="group/detail rounded-[8px] border border-white/[0.07] bg-white/[0.025] px-3 py-2">
+                                <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/45 transition-colors hover:text-gold">
+                                    <span>Ver hallazgo</span>
+                                    <svg class="h-3.5 w-3.5 transition-transform group-open/detail:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+                                    </svg>
+                                </summary>
+                                <p class="mt-3 text-[12px] leading-relaxed text-white/62">{{ $msg }}</p>
+                            </details>
+                        </div>
                     </div>
-                    @if($grafica && $showCharts)
-                        <div class="h-44 mt-4"><canvas id="{{ $chartId }}"></canvas></div>
-                    @endif
-                    @if($showCharts)
-                        <details class="group mt-3 border-t border-white/[0.06] pt-3">
-                            <summary class="flex cursor-pointer list-none items-center justify-between text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-gold transition-colors">
-                                Ver hallazgo <span class="transition-transform group-open:rotate-180">⌄</span>
-                            </summary>
-                            <p class="text-[11px] text-muted mt-2 leading-relaxed">{{ $msg }}</p>
-                        </details>
-                    @else
-                        <p class="text-[11px] text-muted mt-3 leading-relaxed">{{ $msg }}</p>
-                    @endif
                 </article>
             @endforeach
         </div>
     </section>
-    @if($showCharts && collect($insights)->contains(fn ($i) => !empty($i['grafica'] ?? $i->grafica ?? null)))
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const colors = ['#d4af37','#38bdf8','#34d399','#a78bfa','#f59e0b','#fb7185','#22d3ee'];
-                const axis = { ticks: { color: 'rgba(255,255,255,.36)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,.055)' } };
-                @foreach($insights as $insight)
-                    @php $graph = $insight['grafica'] ?? $insight->grafica ?? null; $tipoInsight = $insight['tipo'] ?? $insight->tipo ?? ''; $tipoVisual = $tiposVisuales[$tipoInsight] ?? ($graph['tipo'] ?? 'bar'); $chartId = $idPrefix.'-'.$tipoInsight.'-'.$loop->index; @endphp
-                    @if($graph)
-                        (() => {
-                            const graph = @json($graph); const canvas = document.getElementById('{{ $chartId }}');
-                            if (!canvas) return;
-                            const type = '{{ $tipoVisual }}'; const line = type === 'line'; const horizontal = type === 'bar' && (graph.labels || []).length > 6;
-                            new Chart(canvas, { type, data: { labels: graph.labels || [], datasets: [{ data: graph.valores || [], backgroundColor: line ? 'rgba(212,175,55,.14)' : (graph.valores || []).map((_,i) => colors[i % colors.length] + 'cc'), borderColor: '#d4af37', borderWidth: line ? 2 : 0, borderRadius: type === 'bar' ? 7 : 0, fill: line, tension: .4, pointRadius: line ? 2 : 0 }] }, options: { indexAxis: horizontal ? 'y' : 'x', responsive: true, maintainAspectRatio: false, animation: { duration: 900, easing: 'easeOutQuart' }, plugins: { legend: { display: ['doughnut','polarArea'].includes(type), position: 'bottom', labels: { color: 'rgba(255,255,255,.5)', usePointStyle: true, boxWidth: 7, padding: 8, font: { size: 9 } } }, tooltip: { backgroundColor: '#111', borderColor: 'rgba(212,175,55,.35)', borderWidth: 1, titleColor: '#d4af37', bodyColor: '#fff', padding: 9 } }, cutout: type === 'doughnut' ? '66%' : undefined, scales: ['doughnut','polarArea'].includes(type) ? {} : { x: { ...axis, beginAtZero: horizontal }, y: { ...axis, beginAtZero: !horizontal } } } });
-                        })();
-                    @endif
-                @endforeach
-            });
-        </script>
-    @endif
 @endif

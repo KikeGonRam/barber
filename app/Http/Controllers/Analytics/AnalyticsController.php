@@ -105,6 +105,9 @@ class AnalyticsController extends Controller
                         'value' => $insight->valor_destacado,
                         'detail' => $detalle,
                         'tone' => $tone,
+                        'type' => $insight->tipo,
+                        'graph' => $insight->grafica,
+                        'message' => $insight->mensaje,
                     ];
                 }
             }
