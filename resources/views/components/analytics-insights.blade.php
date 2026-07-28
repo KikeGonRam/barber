@@ -43,8 +43,8 @@
         'resumen_ejecutivo' => 'line',
         'calidad_datos_etl' => 'doughnut',
         'control_limpieza_datos' => 'doughnut',
-        'demanda_horas_pico' => 'line',
-        'demanda_horas_pico_propia' => 'line',
+        'demanda_horas_pico' => 'heatmap',
+        'demanda_horas_pico_propia' => 'heatmap',
         'clientes_en_riesgo' => 'doughnut',
         'segmentacion_clientes' => 'doughnut',
         'perfil_citas_premium' => 'doughnut',
@@ -56,7 +56,7 @@
         'tienda_pedidos' => 'bar',
         'pca_factores' => 'radar',
         'clasificacion_cancelacion' => 'line',
-        'alertas_cancelacion' => 'bar',
+        'alertas_cancelacion' => 'factor-list',
         'confirmacion_cancelacion_reforzada' => 'bar',
         'matriz_resultados_cancelacion' => 'matrix',
         'regresion_facturacion' => 'line',
@@ -66,6 +66,7 @@
         'demanda_horas_pico',
         'demanda_horas_pico_propia',
         'clasificacion_cancelacion',
+        'alertas_cancelacion',
         'matriz_resultados_cancelacion',
         'regresion_facturacion',
     ];
@@ -97,8 +98,15 @@
                     $values = collect(data_get($grafica, 'valores', []));
                     $hasVisual = $showCharts && $grafica && $values->isNotEmpty();
                     $isMatrix = $hasVisual && $tipoVisual === 'matrix';
+                    $isHeatmap = $hasVisual && $tipoVisual === 'heatmap';
+                    $isFactorList = $hasVisual && $tipoVisual === 'factor-list';
                     $isWide = $hasVisual && in_array($tipoInsight, $wideTypes, true);
                     $brief = \Illuminate\Support\Str::words($msg ?? '', $hasVisual ? 22 : 34);
+                    $maxValue = max((float) $values->max(), 1);
+                    $progressValue = null;
+                    if (preg_match('/([\d]+(?:[.,]\d+)?)\s*%/', (string) $dato, $matches)) {
+                        $progressValue = max(3, min(100, (float) str_replace(',', '.', $matches[1])));
+                    }
                     $chartConfig = [
                         'graph' => $grafica,
                         'type' => $tipoVisual,
@@ -125,9 +133,41 @@
                                 <div class="grid grid-cols-1 gap-2 sm:grid-cols-2" aria-label="Matriz de resultados">
                                     @foreach($labels as $label)
                                         @php $value = (float) ($values[$loop->index] ?? 0); @endphp
-                                        <div class="rounded-[8px] border border-white/[0.07] bg-black/20 p-4">
+                                        <div class="rounded-[8px] border border-white/[0.07] bg-black/20 p-4 transition group-hover:bg-black/30">
                                             <p class="text-2xl font-black text-white">{{ number_format($value, 0) }}</p>
                                             <p class="mt-2 whitespace-pre-line text-[10px] font-bold uppercase tracking-wider text-white/45">{{ $label }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @elseif($isHeatmap)
+                                <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7" aria-label="Mapa de demanda por horario">
+                                    @foreach($labels as $label)
+                                        @php
+                                            $value = (float) ($values[$loop->index] ?? 0);
+                                            $heat = max(0.14, min(0.88, $value / $maxValue));
+                                        @endphp
+                                        <div class="rounded-[8px] border border-amber-300/10 p-3" style="background: rgba(245, 158, 11, {{ $heat }});">
+                                            <p class="text-[11px] font-black text-black/75">{{ $label }}</p>
+                                            <p class="mt-1 text-lg font-black text-black">{{ number_format($value, 0) }}</p>
+                                            <p class="text-[9px] font-bold uppercase tracking-wider text-black/55">citas</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @elseif($isFactorList)
+                                <div class="space-y-3 rounded-[8px] border border-white/[0.06] bg-black/15 p-4" aria-label="Importancia de factores">
+                                    @foreach($labels as $label)
+                                        @php
+                                            $value = (float) ($values[$loop->index] ?? 0);
+                                            $width = max(3, min(100, $value));
+                                        @endphp
+                                        <div>
+                                            <div class="mb-1 flex items-center justify-between gap-3">
+                                                <span class="truncate text-[11px] font-bold text-white/62">{{ $label }}</span>
+                                                <span class="text-[11px] font-black text-amber-300">{{ number_format($value, 1) }}%</span>
+                                            </div>
+                                            <div class="h-2 overflow-hidden rounded-full bg-white/[0.07]">
+                                                <span class="block h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-400" style="width: {{ $width }}%"></span>
+                                            </div>
                                         </div>
                                     @endforeach
                                 </div>
@@ -144,7 +184,20 @@
                                     </script>
                                 </div>
                             @else
-                                <p class="max-w-2xl text-sm leading-relaxed text-white/58">{{ $brief }}</p>
+                                <div class="rounded-[8px] border border-white/[0.06] bg-black/15 p-4">
+                                    @if($progressValue !== null)
+                                        <div class="mb-4 h-2 overflow-hidden rounded-full bg-white/[0.07]">
+                                            <span class="block h-full rounded-full {{ $c['dot'] }}" style="width: {{ $progressValue }}%"></span>
+                                        </div>
+                                    @else
+                                        <div class="mb-4 flex gap-1">
+                                            <span class="h-1.5 flex-1 rounded-full {{ $c['dot'] }}"></span>
+                                            <span class="h-1.5 flex-1 rounded-full {{ $c['dot'] }} opacity-70"></span>
+                                            <span class="h-1.5 flex-1 rounded-full {{ $c['dot'] }} opacity-40"></span>
+                                        </div>
+                                    @endif
+                                    <p class="max-w-2xl text-sm leading-relaxed text-white/58">{{ $brief }}</p>
+                                </div>
                             @endif
                         </div>
 
