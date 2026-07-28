@@ -1,35 +1,28 @@
-{{--
-    Banner compacto que invita a abrir la página completa de Analítica.
-    Reemplaza al grid grande de tarjetas que antes se volcaba dentro del
-    dashboard (lo saturaba). El dashboard queda para OPERAR el día a día;
-    el análisis profundo vive en su propia página, y este banner es el puente.
-
-    Props:
-      titulo      — encabezado del banner
-      descripcion — una frase explicando qué encontrará el usuario
-      cta         — texto del botón (por defecto "Ver analítica")
---}}
 @props([
     'titulo' => 'Analítica avanzada',
-    'descripcion' => 'Descubre patrones y predicciones calculadas automáticamente sobre tu historial.',
+    'descripcion' => 'Patrones, predicciones y recomendaciones calculadas sobre tu historial.',
     'cta' => 'Ver analítica',
 ])
 
 <a href="{{ route('analytics.index') }}"
-   class="group flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-gold/15 bg-gradient-to-r from-gold/[0.06] to-transparent p-5 hover:border-gold/35 transition-all">
-    <div class="h-12 w-12 rounded-xl bg-gold/10 flex items-center justify-center text-gold shrink-0">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+   class="group grid gap-4 rounded-[8px] border border-white/[0.08] bg-[#101010] p-4 shadow-[0_18px_45px_rgba(0,0,0,.18)] transition-all hover:border-gold/30 hover:bg-gold/[0.035] sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+    <div class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-gold/20 bg-gold/10 text-gold">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18"/>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18.7 8.3l-4.2 4.2-2.8-2.8L7 14.4"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="m18.7 8.3-4.2 4.2-2.8-2.8L7 14.4"/>
         </svg>
     </div>
-    <div class="flex-1">
-        <p class="text-[9px] font-black uppercase tracking-widest text-gold/70">UrbanBlade Analytics</p>
-        <h3 class="text-sm font-black text-white uppercase mt-0.5">{{ $titulo }}</h3>
-        <p class="text-[11px] text-muted mt-1 leading-snug max-w-xl">{{ $descripcion }}</p>
+
+    <div class="min-w-0">
+        <p class="text-[9px] font-black uppercase tracking-[0.22em] text-gold/70">UrbanBlade Analytics</p>
+        <h3 class="mt-1 text-sm font-black uppercase tracking-tight text-white">{{ $titulo }}</h3>
+        <p class="mt-1 max-w-2xl text-[12px] leading-relaxed text-white/48">{{ $descripcion }}</p>
     </div>
-    <span class="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gold text-black text-[10px] font-black uppercase tracking-widest shrink-0 group-hover:gap-2.5 transition-all">
+
+    <span class="inline-flex h-10 items-center justify-center gap-2 rounded-[8px] bg-gold px-4 text-[10px] font-black uppercase tracking-widest text-black transition-all group-hover:bg-[#f0cc55]">
         {{ $cta }}
-        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <svg class="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
     </span>
 </a>

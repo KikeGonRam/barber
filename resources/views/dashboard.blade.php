@@ -68,15 +68,15 @@
     {{-- ── ACCIONES RÁPIDAS ──────────────────────────────────── --}}
     <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         @foreach([
-            ['href'=>route('appointments.create'), 'label'=>'Nueva Cita',    'color'=>'blue',   'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
-            ['href'=>route('clients.create'),      'label'=>'Nuevo Cliente', 'color'=>'cyan',   'icon'=>'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'],
-            ['href'=>route('payments.create'),     'label'=>'Cobrar',        'color'=>'emerald','icon'=>'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
-            ['href'=>route('reports.index'),       'label'=>'Reportes',      'color'=>'purple', 'icon'=>'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+            ['href'=>route('appointments.create'), 'label'=>'Nueva Cita',    'link'=>'hover:border-blue-500/30 hover:bg-blue-500/[0.04]',       'box'=>'bg-blue-500/10',    'text'=>'text-blue-400',    'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
+            ['href'=>route('clients.create'),      'label'=>'Nuevo Cliente', 'link'=>'hover:border-cyan-500/30 hover:bg-cyan-500/[0.04]',       'box'=>'bg-cyan-500/10',    'text'=>'text-cyan-400',    'icon'=>'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'],
+            ['href'=>route('payments.create'),     'label'=>'Cobrar',        'link'=>'hover:border-emerald-500/30 hover:bg-emerald-500/[0.04]', 'box'=>'bg-emerald-500/10', 'text'=>'text-emerald-400', 'icon'=>'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
+            ['href'=>route('reports.index'),       'label'=>'Reportes',      'link'=>'hover:border-purple-500/30 hover:bg-purple-500/[0.04]',   'box'=>'bg-purple-500/10',  'text'=>'text-purple-400',  'icon'=>'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
         ] as $a)
             <a href="{{ $a['href'] }}"
-               class="group flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-[#111] px-4 py-3.5 hover:border-{{ $a['color'] }}-500/30 hover:bg-{{ $a['color'] }}-500/[0.04] transition-all">
-                <div class="h-8 w-8 rounded-xl bg-{{ $a['color'] }}-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <svg class="h-4 w-4 text-{{ $a['color'] }}-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $a['icon'] }}"/></svg>
+               class="group flex items-center gap-3 rounded-[8px] border border-white/[0.06] bg-[#111] px-4 py-3.5 {{ $a['link'] }} transition-all">
+                <div class="h-8 w-8 rounded-[8px] {{ $a['box'] }} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <svg class="h-4 w-4 {{ $a['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $a['icon'] }}"/></svg>
                 </div>
                 <span class="text-[11px] font-black text-white uppercase tracking-wide">{{ $a['label'] }}</span>
             </a>
@@ -485,14 +485,14 @@
 
             <div class="grid grid-cols-3 gap-3 mb-5">
                 @foreach([
-                    ['id'=>'income-forecast',      'label'=>'Ingresos Est.',  'color'=>'emerald'],
-                    ['id'=>'appointment-forecast', 'label'=>'Citas Est.',     'color'=>'blue'],
-                    ['id'=>'ai-confidence',        'label'=>'Confianza',      'color'=>'indigo'],
+                    ['id'=>'income-forecast',      'label'=>'Ingresos Est.',  'text'=>'text-emerald-400', 'pulse'=>'bg-emerald-500/25'],
+                    ['id'=>'appointment-forecast', 'label'=>'Citas Est.',     'text'=>'text-blue-400',    'pulse'=>'bg-blue-500/25'],
+                    ['id'=>'ai-confidence',        'label'=>'Confianza',      'text'=>'text-indigo-400',  'pulse'=>'bg-indigo-500/25'],
                 ] as $ai)
-                    <div class="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3 text-center">
+                    <div class="rounded-[8px] border border-white/[0.05] bg-white/[0.02] p-3 text-center">
                         <p class="text-[8px] font-black uppercase tracking-wider text-white/50 mb-2">{{ $ai['label'] }}</p>
-                        <p id="{{ $ai['id'] }}" class="text-lg font-black text-{{ $ai['color'] }}-400">
-                            <span class="inline-block w-8 h-1 bg-{{ $ai['color'] }}-500/25 rounded animate-pulse"></span>
+                        <p id="{{ $ai['id'] }}" class="text-lg font-black {{ $ai['text'] }}">
+                            <span class="inline-block w-8 h-1 {{ $ai['pulse'] }} rounded animate-pulse"></span>
                         </p>
                     </div>
                 @endforeach
@@ -525,14 +525,14 @@
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                 @foreach([
-                    ['label'=>'Eventos',        'val'=> $chatbotTelemetry['total_requests'] ?? 0,                          'color'=>'blue'],
-                    ['label'=>'Error Rate',     'val'=> number_format($chatbotTelemetry['error_rate_pct'] ?? 0,1).'%',     'color'=>'red'],
-                    ['label'=>'Latencia Prom.', 'val'=> ($chatbotTelemetry['avg_latency_ms'] ?? 0).'ms',                   'color'=>'sky'],
-                    ['label'=>'Costo Est.',     'val'=> '$'.number_format($chatbotTelemetry['estimated_cost_usd'] ?? 0,4), 'color'=>'emerald'],
+                    ['label'=>'Eventos',        'val'=> $chatbotTelemetry['total_requests'] ?? 0,                          'text'=>'text-blue-400'],
+                    ['label'=>'Error Rate',     'val'=> number_format($chatbotTelemetry['error_rate_pct'] ?? 0,1).'%',     'text'=>'text-red-400'],
+                    ['label'=>'Latencia Prom.', 'val'=> ($chatbotTelemetry['avg_latency_ms'] ?? 0).'ms',                   'text'=>'text-sky-400'],
+                    ['label'=>'Costo Est.',     'val'=> '$'.number_format($chatbotTelemetry['estimated_cost_usd'] ?? 0,4), 'text'=>'text-emerald-400'],
                 ] as $tel)
-                    <div class="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3">
+                    <div class="rounded-[8px] border border-white/[0.05] bg-white/[0.02] p-3">
                         <p class="text-[8px] font-black uppercase tracking-wider text-white/50 mb-1.5">{{ $tel['label'] }}</p>
-                        <p class="text-lg font-black text-{{ $tel['color'] }}-400">{{ $tel['val'] }}</p>
+                        <p class="text-lg font-black {{ $tel['text'] }}">{{ $tel['val'] }}</p>
                     </div>
                 @endforeach
             </div>
@@ -597,15 +597,15 @@
     {{-- KPIs (5) --}}
     <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         @foreach([
-            ['label'=>'Citas Hoy',    'val'=>$kpis['appointments_today'],                    'color'=>'gold'],
-            ['label'=>'Por Aprobar',  'val'=>$pendCount,                                     'color'=>'amber'],
-            ['label'=>'Ingresos Mes', 'val'=>'$'.number_format($kpis['income_month'],0),     'color'=>'emerald'],
-            ['label'=>'Propinas Mes', 'val'=>'$'.number_format($kpis['tips_month'] ?? 0,0),  'color'=>'gold'],
-            ['label'=>'Rating',       'val'=>$kpis['rating'],                                'color'=>'white'],
+            ['label'=>'Citas Hoy',    'val'=>$kpis['appointments_today'],                    'text'=>'text-gold'],
+            ['label'=>'Por Aprobar',  'val'=>$pendCount,                                     'text'=>'text-amber-300'],
+            ['label'=>'Ingresos Mes', 'val'=>'$'.number_format($kpis['income_month'],0),     'text'=>'text-emerald-400'],
+            ['label'=>'Propinas Mes', 'val'=>'$'.number_format($kpis['tips_month'] ?? 0,0),  'text'=>'text-gold'],
+            ['label'=>'Rating',       'val'=>$kpis['rating'],                                'text'=>'text-white'],
         ] as $kpi)
-            <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 text-center">
+            <div class="rounded-[8px] border border-white/[0.06] bg-[#111] p-5 text-center">
                 <p class="text-[9px] font-black uppercase tracking-[0.22em] text-white/50 mb-3">{{ $kpi['label'] }}</p>
-                <p class="text-2xl font-black text-{{ $kpi['color'] === 'gold' ? 'gold' : ($kpi['color'] === 'emerald' ? 'emerald-400' : ($kpi['color'] === 'amber' ? 'amber-300' : 'white')) }}">{{ $kpi['val'] }}</p>
+                <p class="text-2xl font-black {{ $kpi['text'] }}">{{ $kpi['val'] }}</p>
             </div>
         @endforeach
     </section>
@@ -750,17 +750,17 @@
     {{-- KPIs (6) --}}
     <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         @foreach([
-            ['label'=>'Citas Hoy',        'val'=>$kpis['appointments_today'],                       'color'=>'indigo',  'href'=>route('appointments.index')],
-            ['label'=>'Cobrado Hoy',      'val'=>'$'.number_format($kpis['collected_today'] ?? 0,0),'color'=>'emerald', 'href'=>route('payments.index')],
-            ['label'=>'Cobros Pend.',     'val'=>$kpis['pending_payments'],                         'color'=>'amber',   'href'=>route('payments.create')],
-            ['label'=>'Pedidos',          'val'=>$kpis['pending_orders'] ?? 0,                      'color'=>'cyan',    'href'=>route('orders.index')],
-            ['label'=>'Nuevos Clientes',  'val'=>$kpis['new_clients_today'],                        'color'=>'indigo',  'href'=>route('clients.index')],
-            ['label'=>'Stock Crítico',    'val'=>$kpis['low_stock_count'],                          'color'=>'red',     'href'=>route('inventory.products.index')],
+            ['label'=>'Citas Hoy',        'val'=>$kpis['appointments_today'],                       'text'=>'text-indigo-400',  'line'=>'from-indigo-500/60',  'hover'=>'hover:border-indigo-500/25',  'href'=>route('appointments.index')],
+            ['label'=>'Cobrado Hoy',      'val'=>'$'.number_format($kpis['collected_today'] ?? 0,0),'text'=>'text-emerald-400', 'line'=>'from-emerald-500/60', 'hover'=>'hover:border-emerald-500/25', 'href'=>route('payments.index')],
+            ['label'=>'Cobros Pend.',     'val'=>$kpis['pending_payments'],                         'text'=>'text-amber-400',   'line'=>'from-amber-500/60',   'hover'=>'hover:border-amber-500/25',   'href'=>route('payments.create')],
+            ['label'=>'Pedidos',          'val'=>$kpis['pending_orders'] ?? 0,                      'text'=>'text-cyan-400',    'line'=>'from-cyan-500/60',    'hover'=>'hover:border-cyan-500/25',    'href'=>route('orders.index')],
+            ['label'=>'Nuevos Clientes',  'val'=>$kpis['new_clients_today'],                        'text'=>'text-indigo-400',  'line'=>'from-indigo-500/60',  'hover'=>'hover:border-indigo-500/25',  'href'=>route('clients.index')],
+            ['label'=>'Stock Crítico',    'val'=>$kpis['low_stock_count'],                          'text'=>'text-red-400',     'line'=>'from-red-500/60',     'hover'=>'hover:border-red-500/25',     'href'=>route('inventory.products.index')],
         ] as $kpi)
-            <a href="{{ $kpi['href'] }}" class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden hover:border-{{ $kpi['color'] }}-500/25 transition-all group">
-                <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-{{ $kpi['color'] }}-500/60 to-transparent"></div>
+            <a href="{{ $kpi['href'] }}" class="rounded-[8px] border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden {{ $kpi['hover'] }} transition-all group">
+                <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r {{ $kpi['line'] }} to-transparent"></div>
                 <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/50 mb-3">{{ $kpi['label'] }}</p>
-                <p class="text-2xl font-black text-{{ $kpi['color'] }}-400">{{ $kpi['val'] }}</p>
+                <p class="text-2xl font-black {{ $kpi['text'] }}">{{ $kpi['val'] }}</p>
             </a>
         @endforeach
     </section>
@@ -895,14 +895,14 @@
     {{-- KPIs --}}
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         @foreach([
-            ['label'=>'Visitas Totales',   'val'=>$kpis['total_appointments'],     'color'=>'gold'],
-            ['label'=>'Completadas',        'val'=>$kpis['completed_appointments'], 'color'=>'white'],
-            ['label'=>'Barbero Favorito',  'val'=>$kpis['favorite_barber'],         'color'=>'white', 'sm'=>true],
-            ['label'=>'Puntos Acumulados', 'val'=>$pts,                             'color'=>'gold'],
+            ['label'=>'Visitas Totales',   'val'=>$kpis['total_appointments'],     'text'=>'text-gold'],
+            ['label'=>'Completadas',       'val'=>$kpis['completed_appointments'], 'text'=>'text-white'],
+            ['label'=>'Barbero Favorito',  'val'=>$kpis['favorite_barber'],        'text'=>'text-white', 'sm'=>true],
+            ['label'=>'Puntos Acumulados', 'val'=>$pts,                            'text'=>'text-gold'],
         ] as $kpi)
-            <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 text-center hover:border-gold/20 transition-all">
+            <div class="rounded-[8px] border border-white/[0.06] bg-[#111] p-5 text-center hover:border-gold/20 transition-all">
                 <p class="text-[9px] font-black uppercase tracking-[0.25em] text-gold/60 mb-3">{{ $kpi['label'] }}</p>
-                <p class="font-black {{ ($kpi['sm'] ?? false) ? 'text-base' : 'text-2xl' }} text-{{ $kpi['color'] === 'gold' ? 'gold' : 'white' }} truncate px-1">{{ $kpi['val'] }}</p>
+                <p class="font-black {{ ($kpi['sm'] ?? false) ? 'text-base' : 'text-2xl' }} {{ $kpi['text'] }} truncate px-1">{{ $kpi['val'] }}</p>
             </div>
         @endforeach
     </section>
