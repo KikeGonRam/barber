@@ -70,7 +70,16 @@
                     @if($grafica && $showCharts)
                         <div class="h-44 mt-4"><canvas id="{{ $chartId }}"></canvas></div>
                     @endif
-                    <p class="text-[11px] text-muted mt-3 leading-relaxed">{{ $msg }}</p>
+                    @if($showCharts)
+                        <details class="group mt-3 border-t border-white/[0.06] pt-3">
+                            <summary class="flex cursor-pointer list-none items-center justify-between text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-gold transition-colors">
+                                Ver hallazgo <span class="transition-transform group-open:rotate-180">⌄</span>
+                            </summary>
+                            <p class="text-[11px] text-muted mt-2 leading-relaxed">{{ $msg }}</p>
+                        </details>
+                    @else
+                        <p class="text-[11px] text-muted mt-3 leading-relaxed">{{ $msg }}</p>
+                    @endif
                 </article>
             @endforeach
         </div>

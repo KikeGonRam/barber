@@ -12,32 +12,7 @@
     </x-slot>
 
     @php
-        $unidades = [
-            'I' => ['titulo' => 'Resumen ejecutivo', 'subtitulo' => 'El pulso del negocio', 'activo' => 'border-sky-400/50 bg-sky-500/[0.10] text-white', 'acento' => 'text-sky-400'],
-            'II' => ['titulo' => 'Operación y barberos', 'subtitulo' => 'Agenda, ventas e inventario', 'activo' => 'border-emerald-400/50 bg-emerald-500/[0.10] text-white', 'acento' => 'text-emerald-400'],
-            'III' => ['titulo' => 'Predicción y alertas', 'subtitulo' => 'Demanda y cancelaciones', 'activo' => 'border-amber-400/50 bg-amber-500/[0.10] text-white', 'acento' => 'text-amber-400'],
-            'IV' => ['titulo' => 'Clientes y fidelización', 'subtitulo' => 'Valor, riesgo y servicios', 'activo' => 'border-violet-400/50 bg-violet-500/[0.10] text-white', 'acento' => 'text-violet-400'],
-            'V' => ['titulo' => 'Explorar gráficas', 'subtitulo' => 'Tendencias y comparativas', 'activo' => 'border-gold/50 bg-gold/[0.10] text-white', 'acento' => 'text-gold'],
-        ];
-        $visibles = collect(['I', 'II', 'III', 'IV'])->filter(fn ($unidad) => ($porUnidad ?? collect())->has($unidad));
-        if (($visualizaciones ?? collect())->isNotEmpty()) $visibles->push('V');
-        $introducciones = [
-            'I' => 'Una vista rápida de los indicadores que más importan para decidir: ingresos, agenda, clientes y alertas.',
-            'II' => 'Antes de decidir, los datos se revisan, limpian y organizan. Aquí ves la salud operativa actual de la barbería y sus procesos.',
-            'III' => 'El sistema aprende del historial para anticipar escenarios. Úsalo como apoyo para planear, no como una garantía absoluta.',
-            'IV' => 'Aquí se descubren grupos y relaciones sin decirle previamente a la computadora qué debe buscar: oportunidades que no saltan a la vista.',
-            'V' => 'Explora las gráficas. Pasa el cursor sobre cada punto para ver el detalle y detectar tendencias.',
-        ];
-        $tiposVisuales = [
-            'resumen_ejecutivo' => 'line', 'calidad_datos_etl' => 'doughnut',
-            'demanda_horas_pico' => 'line', 'demanda_horas_pico_propia' => 'line',
-            'clientes_en_riesgo' => 'doughnut', 'segmentacion_clientes' => 'doughnut',
-            'perfil_citas_premium' => 'doughnut', 'fidelizacion_ratio' => 'bar',
-            'utilizacion_equipo' => 'bar', 'engagement_muro_top' => 'bar',
-            'tienda_pedidos' => 'bar', 'pca_factores' => 'polarArea',
-            'clasificacion_cancelacion' => 'line', 'alertas_cancelacion' => 'bar',
-            'matriz_resultados_cancelacion' => 'bar',
-        ];
+        $visibles = collect($secciones ?? [])->keys()->filter(fn ($seccion) => ($porSeccion[$seccion] ?? collect())->isNotEmpty());
         $kpiStyles = [
             'gold' => ['borde' => 'border-gold/20', 'fondo' => 'bg-gold/[0.06]', 'texto' => 'text-gold'],
             'info' => ['borde' => 'border-sky-400/20', 'fondo' => 'bg-sky-500/[0.06]', 'texto' => 'text-sky-300'],
@@ -47,7 +22,7 @@
         ];
     @endphp
 
-    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8" x-data="{ tab: '{{ $visibles->first() ?? 'I' }}', selectTab(value) { this.tab = value; setTimeout(() => window.dispatchEvent(new Event('resize')), 80); } }">
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8" x-data="{ tab: '{{ $visibles->first() ?? 'resumen' }}', selectTab(value) { this.tab = value; setTimeout(() => window.dispatchEvent(new Event('resize')), 80); } }">
         @if($insights->isEmpty())
             <div class="rounded-3xl border border-white/[0.08] bg-[#111] p-10 text-center">
                 <p class="text-sm font-black text-white uppercase">Aún no hay resultados disponibles</p>
@@ -106,10 +81,10 @@
                 </section>
             @endif
 
-            <nav class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-2 mb-6" aria-label="Secciones de analítica">
-                @foreach($visibles as $unidad)
-                    @php $meta = $unidades[$unidad]; @endphp
-                    <button @click="selectTab('{{ $unidad }}')" :class="tab === '{{ $unidad }}' ? '{{ $meta['activo'] }}' : 'border-white/[0.07] bg-white/[0.025] text-white/55 hover:bg-white/[0.05]'" class="text-left rounded-2xl border p-4 transition-all">
+            <nav class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 mb-6" aria-label="Secciones de analítica">
+                @foreach($visibles as $seccion)
+                    @php $meta = $secciones[$seccion]; @endphp
+                    <button @click="selectTab('{{ $seccion }}')" :class="tab === '{{ $seccion }}' ? '{{ $meta['activo'] }}' : 'border-white/[0.07] bg-white/[0.025] text-white/55 hover:bg-white/[0.05]'" class="text-left rounded-2xl border p-4 transition-all">
                         <div class="flex items-center gap-2">
                             <span class="h-1.5 w-1.5 rounded-full bg-current opacity-80"></span>
                             <p class="text-sm font-black uppercase {{ $meta['acento'] }}">{{ $meta['titulo'] }}</p>
@@ -121,79 +96,40 @@
 
             <div class="flex flex-wrap items-center gap-2 mb-6 rounded-2xl border border-white/[0.07] bg-[#111] p-3">
                 <span class="text-[9px] font-black uppercase tracking-widest text-white/35 mr-1">Accesos rápidos</span>
-                @foreach([['II','Limpieza'],['III','Cancelaciones'],['IV','Clientes'],['V','Gráficas']] as $accion)
+                @foreach([['operacion','Operación'],['clientes','Clientes y ventas'],['prediccion','Alertas'],['resumen','Resumen']] as $accion)
                     @if($visibles->contains($accion[0]))
                         <button @click="selectTab('{{ $accion[0] }}')" class="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-[9px] font-black uppercase tracking-widest text-white/55 hover:border-gold/35 hover:text-gold transition-all">{{ $accion[1] }}</button>
                     @endif
                 @endforeach
             </div>
 
-            @foreach($visibles as $unidad)
+            @foreach($visibles as $seccion)
                 @php
-                    $meta = $unidades[$unidad];
-                    $unidadInsights = $unidad === 'V' ? collect() : ($porUnidad[$unidad] ?? collect());
-                    $graficas = $unidad === 'V' ? ($visualizaciones ?? collect()) : collect();
+                    $meta = $secciones[$seccion];
+                    $seccionInsights = $porSeccion[$seccion] ?? collect();
                 @endphp
-                <section x-show="tab === '{{ $unidad }}'" x-cloak class="space-y-5">
+                <section x-show="tab === '{{ $seccion }}'" x-cloak class="space-y-5">
                     <div class="rounded-2xl border border-white/[0.07] bg-[#111] p-5 flex gap-4 items-start">
                         <span class="h-2.5 w-2.5 rounded-full bg-gold mt-2 shrink-0 shadow-[0_0_14px_rgba(212,175,55,.45)]"></span>
                         <div>
                             <p class="text-[10px] font-black uppercase tracking-widest {{ $meta['acento'] }} mb-1">{{ $meta['titulo'] }}</p>
-                            <p class="text-sm text-white/65 leading-relaxed">{{ $introducciones[$unidad] }}</p>
+                            <p class="text-sm text-white/65 leading-relaxed">{{ $meta['intro'] }}</p>
                         </div>
                     </div>
 
-                    @if($unidad === 'I')
-                        <x-analytics-insights :insights="$summaryInsights" titulo="Lecturas clave" :showCharts="true" idPrefix="summary-chart" />
-                    @elseif($unidad !== 'V')
-                        <x-analytics-insights :insights="$unidadInsights" titulo="Hallazgos relevantes" :showCharts="true" idPrefix="unit-chart-{{ $unidad }}" />
-                    @else
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                            @forelse($graficas as $insight)
-                                <article class="self-start rounded-3xl border border-white/[0.07] bg-[#111] p-5 flex flex-col h-fit min-h-[360px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(0,0,0,.22)]">
-                                    <div class="flex items-start justify-between gap-4 mb-4">
-                                        <div>
-                                            <p class="text-[9px] font-black uppercase tracking-widest text-gold/70">Visualización · {{ $insight->titulo }}</p>
-                                            <p class="text-lg font-black text-white mt-1">{{ $insight->valor_destacado }}</p>
-                                        </div>
-                                        <span class="h-2 w-2 rounded-full bg-gold mt-2"></span>
-                                    </div>
-                                    <div class="h-60"><canvas id="chart-{{ $loop->index }}"></canvas></div>
-                                    <p class="mt-4 pt-4 border-t border-white/[0.06] text-[11px] leading-relaxed text-white/55">{{ $insight->mensaje }}</p>
-                                </article>
-                            @empty
-                                <div class="lg:col-span-2 rounded-2xl border border-dashed border-white/[0.1] p-10 text-center text-sm text-white/45">Este rol no tiene gráficas disponibles todavía.</div>
-                            @endforelse
-                        </div>
+                    <x-analytics-insights :insights="$seccionInsights" titulo="Hallazgos relevantes" :showCharts="true" idPrefix="section-chart-{{ $seccion }}" />
+                    @if($seccion === 'resumen' && $diagnosticoInsights->isNotEmpty())
+                        <details class="group rounded-2xl border border-white/[0.08] bg-[#111] p-4">
+                            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-[10px] font-black uppercase tracking-widest text-white/60">
+                                <span class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-emerald-400"></span>Diagnóstico de datos</span>
+                                <span class="text-white/35 transition-transform group-open:rotate-180">⌄</span>
+                            </summary>
+                            <div class="mt-5"><x-analytics-insights :insights="$diagnosticoInsights" titulo="Calidad y limpieza" :showCharts="true" idPrefix="diagnostic-chart" /></div>
+                        </details>
                     @endif
                 </section>
             @endforeach
         @endif
     </div>
 
-    @if($tieneGraficas)
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const palette = ['#d4af37', '#38bdf8', '#34d399', '#a78bfa', '#f59e0b', '#fb7185', '#22d3ee'];
-                const scale = { ticks: { color: 'rgba(255,255,255,.38)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.06)' } };
-                @foreach($visualizaciones as $insight)
-                    @php $graph = $insight->grafica; $tipoVisual = $tiposVisuales[$insight->tipo] ?? ($graph['tipo'] ?? 'bar'); @endphp
-                    (() => {
-                        const graph = @json($graph);
-                        const canvas = document.getElementById('chart-{{ $loop->index }}');
-                        if (!canvas || !graph) return;
-                        const type = '{{ $tipoVisual }}';
-                        const isLine = type === 'line';
-                        const horizontal = type === 'bar' && (graph.labels || []).length > 6;
-                        new Chart(canvas, {
-                            type,
-                            data: { labels: graph.labels || [], datasets: [{ data: graph.valores || [], borderColor: '#d4af37', backgroundColor: isLine ? 'rgba(212,175,55,.12)' : (graph.valores || []).map((_, i) => palette[i % palette.length] + 'cc'), fill: isLine, tension: .38, borderWidth: isLine ? 2.5 : 0, borderRadius: type === 'bar' ? 8 : 0, pointRadius: isLine ? 3 : 0, pointBackgroundColor: '#d4af37' }] },
-                            options: { indexAxis: horizontal ? 'y' : 'x', responsive: true, maintainAspectRatio: false, animation: { duration: 900, easing: 'easeOutQuart' }, plugins: { legend: { display: ['doughnut','polarArea'].includes(type), position: 'bottom', labels: { color: 'rgba(255,255,255,.55)', usePointStyle: true, padding: 14 } }, tooltip: { backgroundColor: '#111', borderColor: 'rgba(212,175,55,.35)', borderWidth: 1, titleColor: '#d4af37', bodyColor: '#fff' } }, cutout: type === 'doughnut' ? '68%' : undefined, scales: ['doughnut','polarArea'].includes(type) ? {} : { x: { ...scale, beginAtZero: horizontal }, y: { ...scale, beginAtZero: !horizontal } } }
-                        });
-                    })();
-                @endforeach
-            });
-        </script>
-    @endif
 </x-app-layout>

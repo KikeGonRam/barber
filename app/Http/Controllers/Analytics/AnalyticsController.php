@@ -46,6 +46,51 @@ class AnalyticsController extends Controller
         // interactivas que vienen incluidas en esos mismos hallazgos.
         $porUnidad = $insights->groupBy('unidad');
         $visualizaciones = $insights->filter(fn ($insight) => ! empty($insight->grafica))->values();
+        $secciones = [
+            'resumen' => [
+                'titulo' => 'Resumen ejecutivo',
+                'subtitulo' => 'El pulso del negocio',
+                'intro' => 'Una lectura rápida de los indicadores que más importan para decidir.',
+                'tipos' => ['resumen_ejecutivo', 'acerca_de_la_analitica'],
+                'acento' => 'text-sky-300',
+                'activo' => 'border-sky-400/50 bg-sky-500/[0.10] text-white',
+            ],
+            'operacion' => [
+                'titulo' => 'Operación y equipo',
+                'subtitulo' => 'Agenda, ventas e inventario',
+                'intro' => 'Conoce cuándo se llena la agenda y cómo está funcionando el equipo.',
+                'tipos' => ['demanda_horas_pico', 'demanda_horas_pico_propia', 'utilizacion_equipo', 'utilizacion_propia', 'engagement_muro_top', 'engagement_propio', 'calidad_pagos', 'inventario_alertas'],
+                'acento' => 'text-emerald-300',
+                'activo' => 'border-emerald-400/50 bg-emerald-500/[0.10] text-white',
+            ],
+            'clientes' => [
+                'titulo' => 'Clientes y ventas',
+                'subtitulo' => 'Valor, fidelización y productos',
+                'intro' => 'Identifica a tus mejores clientes y las oportunidades para aumentar cada visita.',
+                'tipos' => ['segmentacion_clientes', 'clientes_en_riesgo', 'perfil_citas_premium', 'fidelizacion_ratio', 'tienda_pedidos', 'recomendacion_servicios', 'tambien_te_puede_interesar', 'pca_factores'],
+                'acento' => 'text-violet-300',
+                'activo' => 'border-violet-400/50 bg-violet-500/[0.10] text-white',
+            ],
+            'prediccion' => [
+                'titulo' => 'Predicción y cancelaciones',
+                'subtitulo' => 'Alertas para anticiparte',
+                'intro' => 'Usa el historial para anticipar cancelaciones y confirmar las citas que necesitan atención.',
+                'tipos' => ['alertas_cancelacion', 'confirmacion_cancelacion_reforzada', 'clasificacion_cancelacion', 'matriz_resultados_cancelacion', 'regresion_facturacion'],
+                'acento' => 'text-amber-300',
+                'activo' => 'border-amber-400/50 bg-amber-500/[0.10] text-white',
+            ],
+        ];
+        $tiposDiagnostico = ['calidad_datos_etl', 'control_limpieza_datos'];
+        $tiposAsignados = collect($secciones)->pluck('tipos')->flatten()->merge($tiposDiagnostico)->unique();
+        $porSeccion = collect($secciones)->mapWithKeys(function (array $seccion, string $clave) use ($insights) {
+            return [$clave => $insights->filter(fn ($insight) => in_array($insight->tipo, $seccion['tipos'], true))->values()];
+        });
+        // Si Spark agrega un insight nuevo, se conserva en el resumen en vez
+        // de perderlo por no tener todavía una categoría visual.
+        $porSeccion['resumen'] = $porSeccion['resumen']->merge(
+            $insights->reject(fn ($insight) => $tiposAsignados->contains($insight->tipo))->values()
+        );
+        $diagnosticoInsights = $insights->filter(fn ($insight) => in_array($insight->tipo, $tiposDiagnostico, true))->values();
         $porTipo = $insights->keyBy('tipo');
 
         // KPIs ejecutivos construidos con los mismos resultados publicados por
@@ -76,8 +121,8 @@ class AnalyticsController extends Controller
 
         $summaryInsights = $insights->filter(fn ($insight) => in_array($insight->tipo, [
             'resumen_ejecutivo', 'demanda_horas_pico', 'clasificacion_cancelacion',
-            'segmentacion_clientes', 'clientes_en_riesgo', 'control_limpieza_datos',
-            'utilizacion_equipo', 'utilizacion_propia',
+            'segmentacion_clientes', 'clientes_en_riesgo', 'utilizacion_equipo',
+            'utilizacion_propia',
         ], true))->values();
         $ultimaActualizacion = $insights->max('generado_en');
 
@@ -92,6 +137,9 @@ class AnalyticsController extends Controller
             'kpis' => $kpis,
             'summaryInsights' => $summaryInsights,
             'ultimaActualizacion' => $ultimaActualizacion,
+            'secciones' => $secciones,
+            'porSeccion' => $porSeccion,
+            'diagnosticoInsights' => $diagnosticoInsights,
         ]);
     }
 }
