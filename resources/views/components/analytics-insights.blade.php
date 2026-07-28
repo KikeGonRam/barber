@@ -99,6 +99,13 @@
                     $isMatrix = $hasVisual && $tipoVisual === 'matrix';
                     $isWide = $hasVisual && in_array($tipoInsight, $wideTypes, true);
                     $brief = \Illuminate\Support\Str::words($msg ?? '', $hasVisual ? 22 : 34);
+                    $chartConfig = [
+                        'graph' => $grafica,
+                        'type' => $tipoVisual,
+                        'tone' => $color,
+                        'accent' => $c['hex'],
+                        'insightType' => $tipoInsight,
+                    ];
                 @endphp
 
                 <article class="{{ $isWide ? 'xl:col-span-2' : '' }} group overflow-hidden rounded-[8px] border {{ $c['border'] }} {{ $c['bg'] }} p-4 shadow-[0_18px_45px_rgba(0,0,0,.18)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 sm:p-5">
@@ -133,7 +140,7 @@
                                         aria-label="{{ $tit }}"
                                     ></canvas>
                                     <script id="{{ $chartId }}-config" type="application/json">
-                                        @json(['graph' => $grafica, 'type' => $tipoVisual, 'tone' => $color, 'accent' => $c['hex'], 'insightType' => $tipoInsight])
+                                        {!! json_encode($chartConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}
                                     </script>
                                 </div>
                             @else

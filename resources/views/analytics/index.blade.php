@@ -131,6 +131,14 @@
                             $miniGraph = $kpi['graph'] ?? null;
                             $miniId = \Illuminate\Support\Str::slug('kpi-chart-'.$kpi['type'].'-'.$loop->index);
                             $miniType = $miniChartTypes[$kpi['type'] ?? ''] ?? data_get($miniGraph, 'tipo', 'line');
+                            $miniConfig = [
+                                'graph' => $miniGraph,
+                                'type' => $miniType,
+                                'tone' => $kpi['tone'],
+                                'accent' => $style['hex'],
+                                'mini' => true,
+                                'insightType' => $kpi['type'],
+                            ];
                             $progress = null;
                             if (preg_match('/([\d]+(?:[.,]\d+)?)\s*%/', (string) $kpi['value'], $matches)) {
                                 $progress = max(3, min(100, (float) str_replace(',', '.', $matches[1])));
@@ -155,7 +163,7 @@
                                         aria-label="{{ $kpi['label'] }}"
                                     ></canvas>
                                     <script id="{{ $miniId }}-config" type="application/json">
-                                        @json(['graph' => $miniGraph, 'type' => $miniType, 'tone' => $kpi['tone'], 'accent' => $style['hex'], 'mini' => true, 'insightType' => $kpi['type']])
+                                        {!! json_encode($miniConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}
                                     </script>
                                 </div>
                             @elseif($progress !== null)
