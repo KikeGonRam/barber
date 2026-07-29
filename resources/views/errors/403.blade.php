@@ -15,13 +15,13 @@
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] bg-[radial-gradient(circle,rgba(212,175,55,0.15)_0%,transparent_70%)]"></div>
         </div>
 
-        <div class="relative z-10 text-center px-4">
-            <h1 class="text-[180px] font-black text-white/5 leading-none select-none">403</h1>
-            <div class="-mt-20">
+        <div class="relative z-10 px-4 text-center">
+            <h1 class="select-none text-[clamp(6rem,24vw,12rem)] font-black leading-none text-white/5">403</h1>
+            <div class="-mt-12 rounded-[1.5rem] border border-white/[0.08] bg-white/[0.025] p-6 backdrop-blur-xl sm:-mt-20 sm:p-8">
                 <span class="ui-badge border-gold/40 bg-gold/10 text-gold mb-6 uppercase tracking-widest">Área Exclusiva</span>
-                <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">Solo para <span class="text-gold">Maestros Autorizados</span></h2>
-                <p class="text-muted max-w-md mx-auto mb-10 font-medium">No tienes los permisos necesarios para entrar en esta estación. Si crees que esto es un error, contacta con la administración.</p>
-                
+                <h2 class="mb-4 text-3xl font-black uppercase tracking-tighter text-white sm:text-4xl">Solo para <span class="text-gold">usuarios autorizados</span></h2>
+                <p class="text-muted mx-auto mb-8 max-w-md text-sm font-medium leading-relaxed">No tienes permisos para abrir esta sección. Si tu rol debería tener acceso, contacta a administración.</p>
+
                 <a href="{{ route('dashboard') }}" class="ui-btn px-12 py-4 text-xs shadow-gold/20">
                     Volver a mi Panel
                 </a>
