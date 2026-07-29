@@ -9,7 +9,9 @@ use App\Services\Payment\StripePaymentService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class PaymentController extends Controller
 {
@@ -59,8 +61,8 @@ class PaymentController extends Controller
         $this->authorizeStaff($request);
 
         $validated = $request->validate([
-            'monto'          => ['required', 'numeric', 'min:0.01'],
-            'appointment_id' => ['required', 'string'],
+            'monto' => ['required', 'numeric', 'min:0.01'],
+            'appointment_id' => ['required', 'string', 'exists:appointments,id'],
         ]);
 
         try {
@@ -69,9 +71,17 @@ class PaymentController extends Controller
                 'mxn',
                 ['appointment_id' => $validated['appointment_id']]
             );
+
             return response()->json(['data' => $data]);
-        } catch (\Throwable $e) {
-            return response()->json(['message' => 'Error al crear intento de pago Stripe: '.$e->getMessage()], 422);
+        } catch (Throwable $exception) {
+            Log::warning('No se pudo crear intento de pago Stripe.', [
+                'appointment_id' => $validated['appointment_id'],
+                'error' => $exception->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'No se pudo crear el intento de pago Stripe. Intenta de nuevo o usa otro método de pago.',
+            ], 422);
         }
     }
 
@@ -80,11 +90,11 @@ class PaymentController extends Controller
         $this->authorizeStaff($request);
 
         $validated = $request->validate([
-            'appointment_id'     => ['required', 'string', 'exists:appointments,id'],
-            'monto'              => ['required', 'numeric', 'min:0.01'],
-            'metodo_pago'        => ['required', 'in:efectivo,tarjeta,transferencia,qr,stripe'],
-            'propina'            => ['nullable', 'numeric', 'min:0'],
-            'stripe_payment_id'  => ['nullable', 'string'],
+            'appointment_id' => ['required', 'string', 'exists:appointments,id'],
+            'monto' => ['required', 'numeric', 'min:0.01'],
+            'metodo_pago' => ['required', 'in:efectivo,tarjeta,transferencia,qr,stripe'],
+            'propina' => ['nullable', 'numeric', 'min:0'],
+            'stripe_payment_id' => ['nullable', 'string'],
         ]);
 
         $payment = $this->paymentService->create($validated, (string) $request->user()->id);

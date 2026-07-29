@@ -49,6 +49,7 @@ class BarberPortfolioController extends Controller
             'media'       => 'required|array|min:1|max:10',
             'media.*'     => [
                 'file',
+                'max:51200',
                 function ($attribute, $value, $fail) {
                     $mime = $value->getMimeType();
                     $allowed = [

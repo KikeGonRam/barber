@@ -28,18 +28,27 @@ class CartController extends Controller
 
     public function add(Request $request, Product $product): RedirectResponse
     {
+        $validated = $request->validate([
+            'cantidad' => ['nullable', 'integer', 'min:1'],
+        ]);
+
         if (! $product->activo || (int) $product->stock_actual < 1) {
             return back()->withErrors(['cart' => 'Ese producto no esta disponible.']);
         }
 
-        $this->cart->add($product, (int) $request->input('cantidad', 1));
+        $this->cart->add($product, (int) ($validated['cantidad'] ?? 1));
 
         return back()->with('status', 'Producto agregado al carrito.');
     }
 
     public function update(Request $request): RedirectResponse
     {
-        $this->cart->update((string) $request->input('product_id'), (int) $request->input('cantidad', 1));
+        $validated = $request->validate([
+            'product_id' => ['required', 'string'],
+            'cantidad' => ['required', 'integer', 'min:0'],
+        ]);
+
+        $this->cart->update((string) $validated['product_id'], (int) $validated['cantidad']);
 
         return back();
     }

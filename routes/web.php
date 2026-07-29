@@ -61,7 +61,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chatbot/profile', [ChatbotController::class, 'getProfile'])->name('chatbot.profile');
     Route::post('/chatbot/clear-history', [ChatbotController::class, 'clearHistory'])->name('chatbot.clear-history');
     Route::get('/chatbot/learning-stats', [ChatbotController::class, 'getLearningStats'])->name('chatbot.learning-stats');
-    Route::post('/chatbot/train-history', [ChatbotController::class, 'trainFromHistory'])->name('chatbot.train-history');
+    Route::post('/chatbot/train-history', [ChatbotController::class, 'trainFromHistory'])
+        ->middleware(['verified', 'role.custom:administrador', 'throttle:3,1'])
+        ->name('chatbot.train-history');
 });
 
 // Social Feed (Instagram Style)
@@ -91,7 +93,7 @@ Route::get('/analitica', [App\Http\Controllers\Analytics\AnalyticsController::cl
 
 // Web-session based API token retrieval for the dashboard
 Route::post('/api/v1/auth/get-api-token', [App\Http\Controllers\Api\AuthController::class, 'getWebApiToken'])
-    ->middleware(['web', 'auth'])
+    ->middleware(['web', 'auth', 'throttle:20,1'])
     ->name('api.get-token');
 
 Route::middleware('auth')->group(function () {

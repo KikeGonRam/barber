@@ -35,19 +35,20 @@ Route::post('stripe/webhook', [StripeWebhookController::class, 'handle'])
     ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
 // Backward compatibility for older frontend cache that still calls /api/availability/slots
-Route::get('availability/slots', [AvailabilityController::class, 'slots']);
+Route::get('availability/slots', [AvailabilityController::class, 'slots'])
+    ->middleware('throttle:30,1');
 
 Route::prefix('v1')->group(function (): void {
     // Public routes
     Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
     Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:6,1');
-    Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword']);
-    Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
-    
+    Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:6,1');
+    Route::post('auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:6,1');
+
     // Catálogo público
     Route::get('services', [CatalogController::class, 'services']);
     Route::get('barbers', [CatalogController::class, 'barbers']);
-    Route::get('availability/slots', [AvailabilityController::class, 'slots']);
+    Route::get('availability/slots', [AvailabilityController::class, 'slots'])->middleware('throttle:30,1');
     Route::get('social/feed', [ApiSocialController::class, 'feed']);
 
     // Chatbot (público con rate limiting)

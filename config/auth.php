@@ -119,4 +119,17 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Bootstrap Admin Registration
+    |--------------------------------------------------------------------------
+    |
+    | Local development can keep the convenient "first registered user becomes
+    | admin" behavior. In production this should stay disabled and the initial
+    | administrator should be created through AdminUserSeeder.
+    |
+    */
+
+    'first_user_admin_enabled' => env('FIRST_USER_ADMIN_ENABLED', env('APP_ENV', 'production') === 'local'),
+
 ];

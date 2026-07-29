@@ -50,15 +50,23 @@ class ChatbotController extends Controller
     public function query(Request $request): JsonResponse
     {
         $requestStartedAt = hrtime(true);
-        $message = strtolower(trim((string) $request->input('message', '')));
+        $rawMessage = trim((string) $request->input('message', ''));
         $user = auth()->user();
         $userId = $user?->id;
 
-        if ($message === '') {
+        if ($rawMessage === '') {
             return response()->json([
                 'response' => 'Por favor, escribe una consulta para poder ayudarte.',
             ], 422);
         }
+
+        if (strlen($rawMessage) > 2000) {
+            return response()->json([
+                'response' => 'Tu consulta es demasiado larga. Resume el mensaje e intenta de nuevo.',
+            ], 422);
+        }
+
+        $message = strtolower($rawMessage);
 
         $rateLimitKey = $userId ? "chatbot:user:{$userId}" : 'chatbot:ip:'.$request->ip();
         $maxAttempts = (int) config('chatbot.rate_limit.max_attempts', 20);
@@ -305,7 +313,7 @@ class ChatbotController extends Controller
                     $extraContext = 'El usuario NO tiene citas futuras.';
                 }
             } elseif ($user->hasRole('administrador')) {
-                $total = Payment::whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->get(['monto', 'propina'])->sum(fn($p) => (float)$p->monto + (float)$p->propina);
+                $total = Payment::whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->get(['monto', 'propina'])->sum(fn ($p) => (float) $p->monto + (float) $p->propina);
                 $extraContext = 'El usuario es ADMIN. La caja de hoy es: $'.number_format($total, 2);
             }
         }
@@ -444,7 +452,10 @@ class ChatbotController extends Controller
     public function trainFromHistory(Request $request): JsonResponse
     {
         $userId = auth()->id();
-        $historyCount = $request->input('history_count', 20);
+        $validated = $request->validate([
+            'history_count' => ['nullable', 'integer', 'min:1', 'max:200'],
+        ]);
+        $historyCount = (int) ($validated['history_count'] ?? 20);
 
         // Entrenar desde el historial existente
         $report = $this->learningService->trainFromHistory($userId, $historyCount);

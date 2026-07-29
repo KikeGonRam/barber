@@ -6,16 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\Client;
 use App\Models\MobileApiToken;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
-use App\Models\Role;
+use Throwable;
 
 /**
  * @group Autenticación
@@ -118,8 +120,11 @@ class AuthController extends Controller
         // Mark email as verified for mobile app (can be changed later)
         $user->markEmailAsVerified();
 
-        // Assign role based on user count
-        if ($userCountBefore === 0) {
+        $canBootstrapAdmin = $userCountBefore === 0
+            && (bool) config('auth.first_user_admin_enabled', false);
+
+        // Assign role based on safe bootstrap settings
+        if ($canBootstrapAdmin) {
             // First user gets admin role
             $role = Role::firstOrCreate([
                 'name' => 'administrador',
@@ -193,11 +198,12 @@ class AuthController extends Controller
             // Try to get user from web session first (dashboard context)
             $user = Auth::guard('web')->user();
 
-            if (!$user) {
-                \Illuminate\Support\Facades\Log::warning('Intento de obtener Web API Token sin sesión activa.', [
+            if (! $user) {
+                Log::warning('Intento de obtener Web API Token sin sesión activa.', [
                     'ip' => $request->ip(),
-                    'user_agent' => $request->userAgent()
+                    'user_agent' => $request->userAgent(),
                 ]);
+
                 return response()->json([
                     'ok' => false,
                     'message' => 'No autenticado. Por favor inicia sesión en el dashboard.',
@@ -223,15 +229,15 @@ class AuthController extends Controller
                 'token' => $issued['token'],
                 'expires_at' => $issued['token_model']->expires_at?->toISOString(),
             ]);
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error en getWebApiToken: ' . $e->getMessage(), [
-                'exception' => $e,
-                'user_id' => Auth::id()
+        } catch (Throwable $exception) {
+            Log::error('Error en getWebApiToken: '.$exception->getMessage(), [
+                'exception' => $exception,
+                'user_id' => Auth::id(),
             ]);
+
             return response()->json([
                 'ok' => false,
                 'message' => 'Error interno del servidor al generar el token.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -289,7 +295,7 @@ class AuthController extends Controller
             'message' => 'Token renovado exitosamente.',
             'token_type' => 'Bearer',
             'token' => $issued['token'],
-            'expires_at' => $issued['token']->expires_at?->toISOString(),
+            'expires_at' => $issued['token_model']->expires_at?->toISOString(),
             'user' => new UserResource($user),
         ]);
     }
@@ -379,6 +385,4 @@ class AuthController extends Controller
             'message' => 'Token de recuperación inválido o expirado.',
         ], 400);
     }
-
 }
-
