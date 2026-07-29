@@ -10,6 +10,7 @@ use App\Http\Requests\Client\UpdateClientAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarbershopSetting;
+use App\Models\Client;
 use App\Models\Product;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentService;
@@ -29,17 +30,13 @@ class ClientAppointmentController extends Controller
 
     public function index(): View
     {
-        $user = auth()->user();
-        $client = $user->clientProfile;
-
-        if (! $client && $user->hasRole('cliente')) {
-            $client = $user->clientProfile()->create();
-        }
+        $client = $this->currentClient();
 
         abort_if(! $client, 403);
 
         $clientId = (string) $client->id;
         $today = now()->startOfDay();
+        $policyHours = $this->cancellationPolicyHours();
 
         // Single query — group by estado in PHP to avoid 4 separate count() calls
         $allEstados = Appointment::where('client_id', $clientId)
@@ -68,7 +65,7 @@ class ClientAppointmentController extends Controller
             ->latest('hora_inicio')
             ->paginate(12);
 
-        return view('client.appointments.index', compact('appointments', 'stats', 'nextAppointment'));
+        return view('client.appointments.index', compact('appointments', 'stats', 'nextAppointment', 'policyHours'));
     }
 
     public function create(Request $request): View
@@ -92,7 +89,7 @@ class ClientAppointmentController extends Controller
 
     public function store(StoreClientAppointmentRequest $request): RedirectResponse
     {
-        $client = $request->user()->clientProfile;
+        $client = $this->currentClient();
         abort_if(! $client, 403);
 
         $data = $request->validated();
@@ -139,11 +136,16 @@ class ClientAppointmentController extends Controller
         return redirect()->route('client.appointments.index')->with('status', 'Cita agendada correctamente.');
     }
 
-    public function edit(Appointment $appointment): View
+    public function edit(Appointment $appointment): View|RedirectResponse
     {
         $client = auth()->user()->clientProfile;
 
-        abort_if(! $client || $appointment->client_id !== $client->id, 403);
+        abort_if(! $client || (string) $appointment->client_id !== (string) $client->id, 403);
+
+        if (! $this->canClientManage($appointment)) {
+            return redirect()->route('client.appointments.index')
+                ->withErrors(['general' => 'Esta cita ya no se puede reagendar desde tu panel.']);
+        }
 
         $barbers = Barber::query()->with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
         $services = Service::query()->where('activo', true)->orderBy('nombre')->get();
@@ -154,7 +156,12 @@ class ClientAppointmentController extends Controller
     public function update(UpdateClientAppointmentRequest $request, Appointment $appointment): RedirectResponse
     {
         $client = $request->user()->clientProfile;
-        abort_if(! $client || $appointment->client_id !== $client->id, 403);
+        abort_if(! $client || (string) $appointment->client_id !== (string) $client->id, 403);
+
+        if (! $this->canClientManage($appointment)) {
+            return redirect()->route('client.appointments.index')
+                ->withErrors(['general' => 'Esta cita ya no se puede modificar desde tu panel.']);
+        }
 
         $data = $request->validated();
         $service = Service::findOrFail($data['service_id']);
@@ -184,10 +191,15 @@ class ClientAppointmentController extends Controller
     {
         $client = auth()->user()->clientProfile;
 
-        abort_if(! $client || $appointment->client_id !== $client->id, 403);
+        abort_if(! $client || (string) $appointment->client_id !== (string) $client->id, 403);
 
-        $policyHours = (int) (BarbershopSetting::query()->value('politica_cancelacion') ?? 24);
+        if (! $this->canClientManage($appointment)) {
+            return back()->withErrors([
+                'general' => 'Esta cita ya no se puede cancelar desde tu panel.',
+            ]);
+        }
 
+        $policyHours = $this->cancellationPolicyHours();
         $appointmentDateTime = Carbon::parse($appointment->fecha->format('Y-m-d').' '.$appointment->hora_inicio);
         $hoursDiff = now()->diffInHours($appointmentDateTime, false);
 
@@ -203,5 +215,38 @@ class ClientAppointmentController extends Controller
         ]);
 
         return redirect()->route('client.appointments.index')->with('status', 'Cita cancelada correctamente.');
+    }
+
+    private function currentClient(): ?Client
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return null;
+        }
+
+        $client = $user->clientProfile;
+
+        if (! $client && $user->hasRole('cliente')) {
+            $client = $user->clientProfile()->create();
+        }
+
+        return $client;
+    }
+
+    private function canClientManage(Appointment $appointment): bool
+    {
+        return in_array($appointment->estado, ['pendiente', 'confirmada'], true)
+            && $this->appointmentStartsAt($appointment)->isFuture();
+    }
+
+    private function appointmentStartsAt(Appointment $appointment): Carbon
+    {
+        return Carbon::parse($appointment->fecha->format('Y-m-d').' '.$appointment->hora_inicio);
+    }
+
+    private function cancellationPolicyHours(): int
+    {
+        return (int) (BarbershopSetting::query()->value('politica_cancelacion') ?? 24);
     }
 }

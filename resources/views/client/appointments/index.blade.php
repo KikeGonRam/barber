@@ -87,11 +87,18 @@
                         </div>
 
                         <div class="mt-8 flex items-center gap-3">
-                            <a href="{{ route('client.appointments.edit', $nextAppointment) }}"
-                               class="rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-muted hover:border-gold/30 hover:text-gold transition-all">
-                                Reagendar
-                            </a>
-                            @php $canCancel = now()->diffInHours(\Carbon\Carbon::parse($nextAppointment->fecha->format('Y-m-d').' '.$nextAppointment->hora_inicio), false) >= 24; @endphp
+                            @php
+                                $nextStartsAt = \Carbon\Carbon::parse($nextAppointment->fecha->format('Y-m-d').' '.$nextAppointment->hora_inicio);
+                                $nextStatus = strtolower((string) $nextAppointment->estado);
+                                $canManageNext = in_array($nextStatus, ['pendiente', 'confirmada'], true) && $nextStartsAt->isFuture();
+                                $canCancel = $canManageNext && now()->diffInHours($nextStartsAt, false) >= ($policyHours ?? 24);
+                            @endphp
+                            @if($canManageNext)
+                                <a href="{{ route('client.appointments.edit', $nextAppointment) }}"
+                                   class="rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-muted hover:border-gold/30 hover:text-gold transition-all">
+                                    Reagendar
+                                </a>
+                            @endif
                             @if($canCancel)
                             <form action="{{ route('client.appointments.destroy', $nextAppointment) }}" method="POST"
                                   onsubmit="return confirm('¿Cancelar esta cita?');">
@@ -101,6 +108,10 @@
                                     Cancelar cita
                                 </button>
                             </form>
+                            @elseif($canManageNext)
+                                <span class="rounded-xl border border-amber-500/15 bg-amber-500/[0.04] px-4 py-2.5 text-[10px] font-bold text-amber-300/70">
+                                    Cancelación con {{ $policyHours ?? 24 }}h mín.
+                                </span>
                             @endif
                         </div>
                     </div>
@@ -151,11 +162,11 @@
                 ];
                 $upcoming = $appointments->filter(fn($a) =>
                     $a->fecha->toDateString() >= $todayStr &&
-                    !in_array($a->estado, ['cancelada', 'completada'])
+                    !in_array($a->estado, ['cancelada', 'completada', 'no_asistio'], true)
                 );
                 $history = $appointments->filter(fn($a) =>
                     $a->fecha->toDateString() < $todayStr ||
-                    in_array($a->estado, ['cancelada', 'completada'])
+                    in_array($a->estado, ['cancelada', 'completada', 'no_asistio'], true)
                 );
             @endphp
 
@@ -186,7 +197,13 @@
 
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         @foreach($upcoming as $appointment)
-                            @php $sc = $statusConfig[strtolower($appointment->estado)] ?? ['badge' => 'border-white/10 bg-white/5 text-muted', 'bar' => 'bg-muted']; @endphp
+                            @php
+                                $estado = strtolower((string) $appointment->estado);
+                                $sc = $statusConfig[$estado] ?? ['badge' => 'border-white/10 bg-white/5 text-muted', 'bar' => 'bg-muted'];
+                                $startsAt = \Carbon\Carbon::parse($appointment->fecha->format('Y-m-d').' '.$appointment->hora_inicio);
+                                $canManage = in_array($estado, ['pendiente', 'confirmada'], true) && $startsAt->isFuture();
+                                $canCancelAppointment = $canManage && now()->diffInHours($startsAt, false) >= ($policyHours ?? 24);
+                            @endphp
                             <article class="group relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] transition-all hover:border-gold/20 hover:bg-white/[0.04]">
                                 <div class="absolute left-0 top-0 h-full w-1 {{ $sc['bar'] }} opacity-70 rounded-l-2xl"></div>
                                 <div class="p-6 pl-8">
@@ -226,18 +243,31 @@
                                     @endif
 
                                     <div class="mt-5 flex items-center gap-2 pt-4 border-t border-white/5">
-                                        <a href="{{ route('client.appointments.edit', $appointment) }}"
-                                           class="flex-1 text-center rounded-xl border border-white/10 bg-white/5 py-2 text-[9px] font-black uppercase tracking-widest text-muted hover:border-gold/30 hover:text-gold transition-all">
-                                            Reagendar
-                                        </a>
-                                        <form action="{{ route('client.appointments.destroy', $appointment) }}" method="POST"
-                                              class="flex-1" onsubmit="return confirm('¿Cancelar esta cita?');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit"
-                                                class="w-full rounded-xl border border-red-900/30 bg-transparent py-2 text-[9px] font-black uppercase tracking-widest text-red-500/50 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 transition-all">
-                                                Cancelar
-                                            </button>
-                                        </form>
+                                        @if($canManage)
+                                            <a href="{{ route('client.appointments.edit', $appointment) }}"
+                                               class="flex-1 text-center rounded-xl border border-white/10 bg-white/5 py-2 text-[9px] font-black uppercase tracking-widest text-muted hover:border-gold/30 hover:text-gold transition-all">
+                                                Reagendar
+                                            </a>
+                                        @endif
+
+                                        @if($canCancelAppointment)
+                                            <form action="{{ route('client.appointments.destroy', $appointment) }}" method="POST"
+                                                  class="flex-1" onsubmit="return confirm('¿Cancelar esta cita?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit"
+                                                    class="w-full rounded-xl border border-red-900/30 bg-transparent py-2 text-[9px] font-black uppercase tracking-widest text-red-500/50 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 transition-all">
+                                                    Cancelar
+                                                </button>
+                                            </form>
+                                        @elseif($canManage)
+                                            <div class="flex-1 rounded-xl border border-amber-500/15 bg-amber-500/[0.04] px-3 py-2 text-center text-[9px] font-bold text-amber-300/70">
+                                                Cancelación: {{ $policyHours ?? 24 }}h mín.
+                                            </div>
+                                        @else
+                                            <div class="w-full rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-center text-[9px] font-bold text-white/35">
+                                                Solo seguimiento
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </article>

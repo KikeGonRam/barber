@@ -83,10 +83,15 @@
     <script>
         function bookingSystem() {
             return {
-                selectedService: { id: {{ $appointment->service_id }} },
-                selectedBarber: { id: {{ $appointment->barber_id }} },
+                selectedService: { id: @json((string) $appointment->service_id) },
+                selectedBarber: { id: @json((string) $appointment->barber_id) },
                 selectedDate: '{{ $appointment->fecha->format('Y-m-d') }}',
                 selectedSlot: '{{ substr($appointment->hora_inicio, 0, 5) }}',
+                currentDate: '{{ $appointment->fecha->format('Y-m-d') }}',
+                currentSlot: {
+                    time: '{{ substr($appointment->hora_inicio, 0, 5) }}',
+                    label: '{{ \Carbon\Carbon::parse($appointment->hora_inicio)->format('g:i A') }}',
+                },
                 slots: [],
                 loadingSlots: false,
 
@@ -104,6 +109,9 @@
                         }
                         const data = await response.json();
                         this.slots = data.slots;
+                        if (this.selectedDate === this.currentDate && !this.slots.some(slot => slot.time === this.currentSlot.time)) {
+                            this.slots.unshift({ ...this.currentSlot, current: true });
+                        }
                     } catch (e) {
                         this.slots = [];
                         console.error('Error fetching slots', e);

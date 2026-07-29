@@ -870,106 +870,183 @@
         $memberNumber = $memberCard->memberNumber(auth()->user());
         $memberSince  = $memberCard->memberSince(auth()->user());
         $memberQr     = $memberCard->qrDataUri(auth()->user());
+        $firstName    = trim(explode(' ', auth()->user()->name)[0] ?? 'Cliente');
+        $totalVisits  = (int) ($kpis['total_appointments'] ?? 0);
+        $doneVisits   = (int) ($kpis['completed_appointments'] ?? 0);
+        $completion   = (float) ($kpis['completion_rate'] ?? ($totalVisits > 0 ? ($doneVisits / $totalVisits) * 100 : 0));
+        $cancelRate   = (float) ($kpis['cancellation_rate'] ?? 0);
+        $visitValues  = array_map('intval', $visit_chart['values'] ?? []);
+        $visitLabels  = $visit_chart['labels'] ?? [];
+        $visitTotal6  = array_sum($visitValues);
+        $visitPeakVal = empty($visitValues) ? 0 : max($visitValues);
+        $visitPeakIdx = $visitPeakVal > 0 ? array_search($visitPeakVal, $visitValues, true) : null;
+        $visitPeakLbl = $visitPeakIdx !== null ? ($visitLabels[$visitPeakIdx] ?? '—') : '—';
+        $safeProgress = max(0, min(100, (float) $progPct));
+        $clientSummaryCards = [
+            ['label' => 'Visitas', 'value' => $totalVisits, 'caption' => "{$doneVisits} completadas", 'accent' => '#d4af37', 'progress' => $completion],
+            ['label' => 'Cumplimiento', 'value' => number_format($completion, 1).'%', 'caption' => 'Historial confiable', 'accent' => '#34d399', 'progress' => $completion],
+            ['label' => 'Cancelación', 'value' => number_format($cancelRate, 1).'%', 'caption' => $cancelRate <= 20 ? 'Dentro de rango' : 'Revisar hábitos', 'accent' => $cancelRate <= 20 ? '#f59e0b' : '#f87171', 'progress' => $cancelRate],
+            ['label' => 'Puntos', 'value' => number_format((int) $pts), 'caption' => $nextLvl ? "Meta: {$nextLabel}" : 'Nivel máximo', 'accent' => $lvlColor, 'progress' => $safeProgress],
+        ];
+        $nextApptAt = $nextAppointment
+            ? \Carbon\Carbon::parse(($nextAppointment['fecha'] ?? now()->toDateString()).' '.($nextAppointment['hora_inicio'] ?? '00:00'))
+            : null;
+        $canManageNextFromDashboard = $nextAppointment
+            && in_array(strtolower((string) ($nextAppointment['estado'] ?? '')), ['pendiente', 'confirmada'], true)
+            && $nextApptAt?->isFuture();
     @endphp
 
-    {{-- Bienvenida --}}
-    <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-6 relative overflow-hidden">
-        <div class="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/5 blur-3xl pointer-events-none"></div>
-        <div class="relative flex flex-col sm:flex-row items-center gap-6">
-            <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-gold to-amber-600 flex items-center justify-center text-black shrink-0">
-                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    {{-- Bienvenida + acciones rápidas --}}
+    <section class="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#111] p-5 sm:p-6">
+        <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-gold/10 blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-24 bottom-0 h-56 w-56 rounded-full bg-sky-500/10 blur-3xl pointer-events-none"></div>
+        <div class="relative grid gap-6 xl:grid-cols-[1fr_360px] xl:items-center">
+            <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
+                <div class="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-gold to-amber-600 text-black shadow-[0_18px_50px_rgba(212,175,55,0.18)]">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[9px] font-black uppercase tracking-[0.32em] text-gold/70">Tu panel personal</p>
+                    <h3 class="mt-1 text-2xl font-black uppercase leading-tight text-white sm:text-3xl">
+                        Hola, <span class="text-gold">{{ $firstName }}</span>
+                    </h3>
+                    <p class="mt-2 max-w-2xl text-sm text-white/50">
+                        Reserva, revisa tu próxima visita, consulta tus puntos y encuentra productos recomendados sin perderte entre pantallas.
+                    </p>
+                </div>
             </div>
-            <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50">Bienvenido</p>
-                <h3 class="text-xl font-black text-white uppercase mt-0.5"><span class="text-gold">{{ explode(' ',auth()->user()->name)[0] }}</span></h3>
-                <p class="text-xs text-white/40 mt-1">Estatus actual: <span class="text-white font-black uppercase">{{ $kpis['membership_status'] }}</span></p>
-            </div>
-            <div class="sm:ml-auto flex flex-wrap gap-3">
-                <a href="{{ route('client.appointments.create') }}" class="ui-btn px-6 py-3 text-[10px]">Reservar Cita</a>
-                <a href="{{ route('client.appointments.index') }}" class="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Mis Citas</a>
-                <a href="{{ route('client.tienda.index') }}" class="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Tienda</a>
+
+            <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap xl:justify-end">
+                <a href="{{ route('client.appointments.create') }}" class="ui-btn justify-center px-5 py-3 text-[10px]">Reservar</a>
+                <a href="{{ route('client.appointments.index') }}" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white/60 transition-all hover:border-gold/30 hover:text-white">Mis citas</a>
+                <a href="{{ route('client.barberos.index') }}" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white/60 transition-all hover:border-sky-400/30 hover:text-white">Barberos</a>
+                <a href="{{ route('client.tienda.index') }}" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white/60 transition-all hover:border-emerald-400/30 hover:text-white">Tienda</a>
             </div>
         </div>
     </section>
 
-    {{-- KPIs --}}
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        @foreach([
-            ['label'=>'Visitas Totales',   'val'=>$kpis['total_appointments'],     'text'=>'text-gold'],
-            ['label'=>'Completadas',       'val'=>$kpis['completed_appointments'], 'text'=>'text-white'],
-            ['label'=>'Barbero Favorito',  'val'=>$kpis['favorite_barber'],        'text'=>'text-white', 'sm'=>true],
-            ['label'=>'Puntos Acumulados', 'val'=>$pts,                            'text'=>'text-gold'],
-        ] as $kpi)
-            <div class="rounded-[8px] border border-white/[0.06] bg-[#111] p-5 text-center hover:border-gold/20 transition-all">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-gold/60 mb-3">{{ $kpi['label'] }}</p>
-                <p class="font-black {{ ($kpi['sm'] ?? false) ? 'text-base' : 'text-2xl' }} {{ $kpi['text'] }} truncate px-1">{{ $kpi['val'] }}</p>
-            </div>
+    {{-- KPIs visuales --}}
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        @foreach($clientSummaryCards as $card)
+            <article class="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111] p-5 transition-all hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.035]">
+                <div class="absolute inset-x-0 top-0 h-0.5 opacity-80" style="background: linear-gradient(90deg, {{ $card['accent'] }}, transparent);"></div>
+                <div class="mb-4 flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/40">{{ $card['label'] }}</p>
+                        <p class="mt-2 truncate text-3xl font-black leading-none text-white">{{ $card['value'] }}</p>
+                    </div>
+                    <span class="h-2.5 w-2.5 rounded-full shadow-[0_0_18px_currentColor]" style="color: {{ $card['accent'] }}; background: {{ $card['accent'] }};"></span>
+                </div>
+                <div class="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                    <div class="h-full rounded-full transition-all duration-700" style="width: {{ max(2, min(100, (float) $card['progress'])) }}%; background: {{ $card['accent'] }};"></div>
+                </div>
+                <p class="mt-3 text-[11px] font-bold text-white/45">{{ $card['caption'] }}</p>
+            </article>
         @endforeach
     </section>
 
-    {{-- Al cliente nunca se le muestra el dashboard analítico crudo, solo la
-        APLICACIÓN práctica del hallazgo (recomendación de servicios). --}}
+    {{-- Recomendación aplicada: el cliente ve acciones útiles, no análisis crudo. --}}
     @php $clienteReco = collect($sparkInsights ?? [])->firstWhere('tipo', 'tambien_te_puede_interesar'); @endphp
-    @if($clienteReco)
-        <a href="{{ route('analytics.index') }}" class="group flex items-center gap-4 rounded-2xl border border-sky-500/20 bg-sky-500/[0.04] p-5 hover:border-sky-500/40 transition-all">
-            <div class="h-12 w-12 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-400 shrink-0">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-            </div>
-            <div class="flex-1">
-                <p class="text-[9px] font-black uppercase tracking-widest text-sky-400/80">{{ $clienteReco->titulo }}</p>
-                <p class="text-lg font-black text-white mt-0.5">{{ $clienteReco->valor_destacado }}</p>
-                <p class="text-[11px] text-muted mt-1 leading-snug">{{ $clienteReco->mensaje }}</p>
-            </div>
-            <svg class="h-4 w-4 text-white/40 group-hover:text-sky-400 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-        </a>
-    @endif
 
-    {{-- Próxima cita spotlight --}}
-    @if($nextAppointment)
-        <section class="rounded-2xl border border-gold/25 overflow-hidden" style="background:#0d0d0d;">
-            <div class="flex flex-col md:flex-row">
-                <div class="bg-gradient-to-br from-gold to-amber-600 p-6 md:w-56 flex flex-col justify-center items-center text-black shrink-0">
-                    <p class="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">Tu Próxima Cita</p>
-                    <p class="text-3xl font-black leading-none">{{ \Carbon\Carbon::parse($nextAppointment['fecha'])->format('d') }}</p>
-                    <p class="text-sm font-bold opacity-80">{{ \Carbon\Carbon::parse($nextAppointment['fecha'])->translatedFormat('M Y') }}</p>
-                    <p class="text-xl font-black mt-2">{{ substr($nextAppointment['hora_inicio'],0,5) }}</p>
-                </div>
-                <div class="p-6 flex-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50 mb-1">Servicio</p>
-                        <h3 class="text-lg font-black text-white uppercase">{{ $nextAppointment['service']['nombre'] ?? 'Servicio' }}</h3>
-                        <p class="text-xs text-gold/70 font-bold uppercase tracking-widest mt-0.5">Con Maestro {{ $nextAppointment['barber']['user']['name'] ?? '—' }}</p>
+    {{-- Próxima cita + recomendación personalizada --}}
+    <section class="grid grid-cols-1 gap-5 xl:grid-cols-12">
+        <article class="relative overflow-hidden rounded-2xl border {{ $nextAppointment ? 'border-gold/25' : 'border-dashed border-gold/20' }} bg-[#0d0d0d] xl:col-span-7">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.13),transparent_36%)] pointer-events-none"></div>
+            @if($nextAppointment)
+                <div class="relative grid gap-0 md:grid-cols-[180px_1fr]">
+                    <div class="flex flex-row items-center gap-4 border-b border-white/[0.06] bg-gradient-to-br from-gold to-amber-600 p-5 text-black md:flex-col md:justify-center md:border-b-0 md:border-r md:border-black/10">
+                        <div class="text-center">
+                            <p class="text-[8px] font-black uppercase tracking-[0.22em] opacity-60">Próxima cita</p>
+                            <p class="mt-1 text-4xl font-black leading-none">{{ $nextApptAt?->format('d') }}</p>
+                            <p class="text-xs font-black uppercase opacity-70">{{ $nextApptAt?->translatedFormat('M') }}</p>
+                        </div>
+                        <div class="h-10 w-px bg-black/15 md:h-px md:w-20"></div>
+                        <p class="text-2xl font-black">{{ substr($nextAppointment['hora_inicio'], 0, 5) }}</p>
                     </div>
-                    <a href="{{ route('client.appointments.index') }}" class="shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/[0.05] text-[10px] font-black uppercase tracking-widest text-white hover:border-gold/30 hover:bg-gold/[0.06] transition-all">
-                        Ver detalles →
-                    </a>
+                    <div class="p-6">
+                        <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                            <div class="min-w-0">
+                                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-gold/70">Agenda confirmable</p>
+                                <h3 class="mt-2 text-2xl font-black uppercase leading-tight text-white">{{ $nextAppointment['service']['nombre'] ?? 'Servicio' }}</h3>
+                                <p class="mt-1 text-sm font-bold text-white/45">Con <span class="text-gold">{{ $nextAppointment['barber']['user']['name'] ?? 'Maestro UrbanBlade' }}</span></p>
+                                <div class="mt-4 flex flex-wrap gap-2">
+                                    <span class="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-white/55">{{ $nextApptAt?->translatedFormat('d F Y') }}</span>
+                                    <span class="rounded-full border border-emerald-500/20 bg-emerald-500/[0.05] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-300">{{ $nextAppointment['estado'] ?? 'pendiente' }}</span>
+                                </div>
+                            </div>
+                            <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col">
+                                <a href="{{ route('client.appointments.index') }}" class="rounded-xl border border-white/10 bg-white/[0.05] px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white transition-all hover:border-gold/30 hover:bg-gold/[0.06]">Ver detalles</a>
+                                @if($canManageNextFromDashboard)
+                                    <a href="{{ route('client.appointments.edit', $nextAppointment['id']) }}" class="rounded-xl border border-sky-500/20 bg-sky-500/[0.05] px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-sky-300 transition-all hover:border-sky-400/40">Reagendar</a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </section>
-    @else
-        <section class="rounded-2xl border border-dashed border-gold/15 bg-gold/[0.02] p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-                <p class="text-sm font-black text-white uppercase">Sin citas próximas</p>
-                <p class="text-xs text-white/50 mt-0.5">Reserva tu siguiente visita y mantén tu estilo impecable.</p>
-            </div>
-            <a href="{{ route('client.appointments.create') }}" class="ui-btn px-8 py-3 shrink-0">Reservar ahora →</a>
-        </section>
-    @endif
+            @else
+                <div class="relative flex flex-col gap-4 p-7 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-[9px] font-black uppercase tracking-[0.28em] text-gold/70">Agenda libre</p>
+                        <h3 class="mt-1 text-xl font-black uppercase text-white">Sin citas próximas</h3>
+                        <p class="mt-1 text-sm text-white/45">Reserva tu siguiente visita y mantén tu estilo impecable.</p>
+                    </div>
+                    <a href="{{ route('client.appointments.create') }}" class="ui-btn shrink-0 justify-center px-8 py-3">Reservar ahora →</a>
+                </div>
+            @endif
+        </article>
+
+        @if($clienteReco)
+            <a href="{{ route('analytics.index') }}" class="group relative overflow-hidden rounded-2xl border border-sky-500/20 bg-sky-500/[0.04] p-6 transition-all hover:-translate-y-0.5 hover:border-sky-500/40 xl:col-span-5">
+                <div class="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl"></div>
+                <div class="relative flex items-start gap-4">
+                    <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-sky-400/20 bg-sky-500/10 text-sky-300">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-sky-300/80">Sugerencia inteligente</p>
+                        <p class="mt-1 text-xl font-black leading-tight text-white">{{ $clienteReco->valor_destacado }}</p>
+                        <p class="mt-2 line-clamp-3 text-xs leading-relaxed text-white/50">{{ $clienteReco->mensaje }}</p>
+                    </div>
+                    <svg class="h-4 w-4 shrink-0 text-white/35 transition-colors group-hover:text-sky-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+        @else
+            <article class="rounded-2xl border border-white/[0.08] bg-[#111] p-6 xl:col-span-5">
+                <p class="text-[9px] font-black uppercase tracking-widest text-white/40">Recomendaciones</p>
+                <p class="mt-2 text-lg font-black text-white">Aún no hay patrón suficiente</p>
+                <p class="mt-2 text-xs leading-relaxed text-white/45">Cuando tengas más visitas, el sistema podrá sugerirte servicios y productos acordes a tu historial.</p>
+            </article>
+        @endif
+    </section>
 
     {{-- Gráfica + Lealtad --}}
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
         {{-- Gráfica de visitas --}}
-        <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
-            <div class="mb-5">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimos 6 meses</p>
-                <h3 class="text-sm font-black text-white uppercase mt-0.5">Frecuencia de Visitas</h3>
+        <div class="lg:col-span-7 rounded-2xl border border-white/[0.08] bg-[#111] p-5">
+            <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimos 6 meses</p>
+                    <h3 class="text-lg font-black text-white uppercase mt-0.5">Ritmo de visitas</h3>
+                    <p class="mt-1 text-xs text-white/45">Visualiza cuándo vienes más y qué tan constante es tu historial.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-right sm:min-w-56">
+                    <div class="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2">
+                        <p class="text-[8px] font-black uppercase tracking-widest text-white/35">Periodo</p>
+                        <p class="mt-0.5 text-sm font-black text-gold">{{ $visitTotal6 }} visitas</p>
+                    </div>
+                    <div class="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2">
+                        <p class="text-[8px] font-black uppercase tracking-widest text-white/35">Mejor mes</p>
+                        <p class="mt-0.5 text-sm font-black text-white">{{ $visitPeakLbl }}</p>
+                    </div>
+                </div>
             </div>
             @if(!empty(array_filter($visit_chart['values'] ?? [])))
-                <div class="h-52"><canvas id="visitChart"></canvas></div>
+                <div class="h-64"><canvas id="visitChart"></canvas></div>
             @else
-                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin historial aún</p>
+                <div class="h-64 flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] text-center">
+                    <p class="text-xs font-black uppercase tracking-widest text-white/45">Sin historial aún</p>
+                    <p class="mt-2 max-w-xs text-xs text-white/35">Después de tus primeras visitas, aquí aparecerá tu tendencia mensual.</p>
                 </div>
             @endif
         </div>
@@ -988,25 +1065,29 @@
                 :qr="$memberQr" />
 
             {{-- Progreso + beneficios + movimientos --}}
-            <div class="rounded-2xl border border-white/[0.06] bg-[#0d0d0d] p-5 space-y-4">
+            <div class="rounded-2xl border border-white/[0.08] bg-[#0d0d0d] p-5 space-y-4">
 
                 {{-- Progreso --}}
-                @if($nextLvl)
+                <div class="grid grid-cols-[86px_1fr] items-center gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
+                    <div class="grid h-20 w-20 place-items-center rounded-full"
+                         style="background: conic-gradient({{ $lvlColor }} {{ round($safeProgress) }}%, rgba(255,255,255,0.08) 0);">
+                        <div class="grid h-14 w-14 place-items-center rounded-full bg-[#0d0d0d]">
+                            <span class="text-sm font-black text-white">{{ round($safeProgress) }}%</span>
+                        </div>
+                    </div>
                     <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <p class="text-[8px] font-black uppercase tracking-[0.2em] text-white/45">Próximo: <span style="color:#d4af37;">{{ $nextLabel }}</span></p>
-                            <p class="text-[9px] font-black text-gold">{{ $faltan > 0 ? "Faltan {$faltan} cita".($faltan!==1?'s':'') : '¡Listo!' }}</p>
-                        </div>
-                        <div class="h-1.5 w-full rounded-full bg-white/[0.05] overflow-hidden">
-                            <div class="h-full rounded-full" style="width:{{ round($progPct) }}%;background:linear-gradient(90deg,#d4af37,#f5d87a);box-shadow:0 0 6px rgba(212,175,55,0.35);transition:width 1s;"></div>
-                        </div>
+                        <p class="text-[8px] font-black uppercase tracking-[0.22em] text-white/40">Lealtad</p>
+                        <p class="mt-1 text-lg font-black uppercase text-white">{{ $lvlLabel }}</p>
+                        @if($nextLvl)
+                            <p class="mt-1 text-xs font-bold text-white/45">
+                                Próximo nivel: <span class="text-gold">{{ $nextLabel }}</span> ·
+                                {{ $faltan > 0 ? "faltan {$faltan} visita".($faltan !== 1 ? 's' : '') : 'listo para subir' }}
+                            </p>
+                        @else
+                            <p class="mt-1 text-xs font-bold text-fuchsia-300/70">Nivel máximo alcanzado. Sigue acumulando beneficios.</p>
+                        @endif
                     </div>
-                @else
-                    <div class="flex items-center gap-2 py-1">
-                        <svg class="h-3 w-3" style="fill:rgba(232,121,249,0.7);" viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2 3a1 1 0 000 2h10a1 1 0 000-2H7z"/></svg>
-                        <p class="text-[9px] font-black uppercase tracking-[0.2em]" style="color:rgba(232,121,249,0.7);">Nivel máximo alcanzado</p>
-                    </div>
-                @endif
+                </div>
 
                 {{-- Beneficios --}}
                 <div class="grid grid-cols-2 gap-2">
@@ -1016,9 +1097,10 @@
                         ['active'=>in_array($lvl,['regular','vip','leyenda']), 'label'=>in_array($lvl,['regular','vip','leyenda'])?'Reserva prio.':'Requiere Regular', 'icon'=>'M13 10V3L4 14h7v7l9-11h-7z'],
                         ['active'=>$lvl==='leyenda', 'label'=>$lvl==='leyenda'?'Prod. gratis/mes':'Requiere Leyenda', 'icon'=>'M20 12v10H4V12M22 7H2v5h20V7zM12 22V7m0 0a2 2 0 10-4 0m4 0a2 2 0 114 0'],
                     ] as $ben)
-                        <div class="flex items-center gap-1.5 p-2 rounded-lg" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);">
-                            <svg class="h-3 w-3 shrink-0 flex-shrink-0" fill="none" stroke="{{ $ben['active'] ? '#d4af37' : 'rgba(255,255,255,0.18)' }}" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $ben['icon'] }}"/></svg>
-                            <span class="text-[8px] font-bold leading-tight" style="color:{{ $ben['active'] ? '#d4af37' : 'rgba(255,255,255,0.22)' }};">{{ $ben['label'] }}</span>
+                        <div class="flex items-center gap-2 rounded-xl p-2.5 transition-all hover:bg-white/[0.04]"
+                             style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+                            <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="{{ $ben['active'] ? '#d4af37' : 'rgba(255,255,255,0.18)' }}" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $ben['icon'] }}"/></svg>
+                            <span class="text-[9px] font-bold leading-tight" style="color:{{ $ben['active'] ? '#d4af37' : 'rgba(255,255,255,0.24)' }};">{{ $ben['label'] }}</span>
                         </div>
                     @endforeach
                 </div>
@@ -1213,15 +1295,36 @@
         @endif
 
         @if($isClientMode ?? false)
-        makeChart('visitChart', {
-            type:'line',
-            data:{ labels:@json($visit_chart['labels']??[]),
-                datasets:[{label:'Visitas',data:@json($visit_chart['values']??[]),
-                    borderColor:'#d4af37',backgroundColor:'rgba(212,175,55,0.08)',
-                    borderWidth:2.5,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#d4af37'}] },
-            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-                scales:{y:{...scale,beginAtZero:true,ticks:{...scale.ticks,stepSize:1}},x:scale}}
-        });
+        const visitEl = document.getElementById('visitChart');
+        if (visitEl) {
+            const visitGradient = visitEl.getContext('2d').createLinearGradient(0, 0, 0, 260);
+            visitGradient.addColorStop(0, 'rgba(212,175,55,0.28)');
+            visitGradient.addColorStop(1, 'rgba(212,175,55,0.01)');
+            new Chart(visitEl, {
+                type:'line',
+                data:{ labels:@json($visit_chart['labels']??[]),
+                    datasets:[{label:'Visitas',data:@json($visit_chart['values']??[]),
+                        borderColor:'#d4af37',backgroundColor:visitGradient,
+                        borderWidth:3,fill:true,tension:0.42,pointRadius:4,pointHoverRadius:7,
+                        pointBackgroundColor:'#0d0d0d',pointBorderColor:'#d4af37',pointBorderWidth:2}] },
+                options:{
+                    responsive:true,
+                    maintainAspectRatio:false,
+                    interaction:{intersect:false,mode:'index'},
+                    plugins:{
+                        legend:{display:false},
+                        tooltip:{
+                            backgroundColor:'rgba(13,13,13,0.96)',
+                            borderColor:'rgba(212,175,55,0.28)',
+                            borderWidth:1,
+                            padding:12,
+                            callbacks:{label:(ctx)=>`${ctx.parsed.y} visita${ctx.parsed.y === 1 ? '' : 's'}`}
+                        }
+                    },
+                    scales:{y:{...scale,beginAtZero:true,ticks:{...scale.ticks,stepSize:1}},x:scale}
+                }
+            });
+        }
         @endif
     </script>
     @endif

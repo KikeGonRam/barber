@@ -401,13 +401,18 @@ class DashboardService
     {
         $client = Client::find($clientId);
 
-        $totalAppointments = Appointment::where('client_id', $clientId)->count();
-        $completedAppointments = $client?->total_citas ?? Appointment::where('client_id', $clientId)->where('estado', 'completada')->count();
+        $appointmentStates = Appointment::where('client_id', $clientId)->get(['estado']);
+        $totalAppointments = $appointmentStates->count();
+        $completedAppointments = $client?->total_citas ?? $appointmentStates->where('estado', 'completada')->count();
+        $canceledAppointments = $appointmentStates->where('estado', 'cancelada')->count();
+        $completedForRate = min($completedAppointments, $totalAppointments);
+        $completionRate = $totalAppointments > 0 ? ($completedForRate / $totalAppointments) * 100 : 0;
+        $cancellationRate = $totalAppointments > 0 ? ($canceledAppointments / $totalAppointments) * 100 : 0;
 
         $nextAppt = Appointment::with(['barber.user', 'service'])
             ->where('client_id', $clientId)
             ->where('fecha', '>=', Carbon::today())
-            ->where('estado', '!=', 'cancelada')
+            ->whereNotIn('estado', ['cancelada', 'completada', 'no_asistio'])
             ->orderBy('fecha')
             ->orderBy('hora_inicio')
             ->first();
@@ -460,6 +465,8 @@ class DashboardService
             'kpis' => [
                 'total_appointments' => $totalAppointments,
                 'completed_appointments' => $completedAppointments,
+                'completion_rate' => round($completionRate, 1),
+                'cancellation_rate' => round($cancellationRate, 1),
                 'favorite_barber' => $favoriteBarber?->user?->name ?? 'Por descubrir',
                 'membership_status' => LoyaltyService::LEVEL_LABELS[$nivel] ?? strtoupper($nivel),
             ],
