@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Barber;
 use App\Models\Work;
-use App\Models\WorkImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -39,7 +37,7 @@ class BarberPortfolioController extends Controller
         $user = $request->user();
         $barber = $user->barberProfile;
 
-        if (!$barber) {
+        if (! $barber) {
             return response()->json([
                 'message' => 'No tienes perfil de barbero.',
             ], 403);
@@ -56,7 +54,7 @@ class BarberPortfolioController extends Controller
                     'id' => $work->id,
                     'title' => $work->title,
                     'description' => $work->description,
-                    'images' => $work->images->map(fn($img) => asset('storage/' . $img->image))->values(),
+                    'images' => $work->images->map(fn ($img) => asset('storage/'.$img->image))->values(),
                     'reactions_count' => $work->reactions->count(),
                     'comments_count' => $work->comments->count(),
                     'created_at' => $work->created_at,
@@ -84,7 +82,7 @@ class BarberPortfolioController extends Controller
         $user = $request->user();
         $barber = $user->barberProfile;
 
-        if (!$barber) {
+        if (! $barber) {
             return response()->json([
                 'message' => 'No tienes perfil de barbero.',
             ], 403);
@@ -121,7 +119,7 @@ class BarberPortfolioController extends Controller
                 'id' => $work->id,
                 'title' => $work->title,
                 'description' => $work->description,
-                'images' => $work->images->map(fn($img) => asset('storage/' . $img->image))->values(),
+                'images' => $work->images->map(fn ($img) => asset('storage/'.$img->image))->values(),
             ],
         ], 201);
     }
@@ -140,7 +138,7 @@ class BarberPortfolioController extends Controller
         $user = $request->user();
         $barber = $user->barberProfile;
 
-        if (!$barber) {
+        if (! $barber) {
             return response()->json([
                 'message' => 'No tienes perfil de barbero.',
             ], 403);

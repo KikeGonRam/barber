@@ -4,6 +4,8 @@ namespace App\Helpers;
 
 use App\Models\User;
 use App\Services\Cart\CartService;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 /**
  * Fuente única de verdad para la navegación (sidebar desktop/tablet + drawer
@@ -160,12 +162,12 @@ class NavigationMenu
             $items = array_values($section['items']);
 
             return [
-                'title'       => $section['title'],
-                'items'       => $items,
-                'key'         => \Illuminate\Support\Str::slug($section['title']),
+                'title' => $section['title'],
+                'items' => $items,
+                'key' => Str::slug($section['title']),
                 'collapsible' => $section['title'] !== 'Principal',
-                'active'      => collect($items)->contains('active', true),
-                'count'       => count($items),
+                'active' => collect($items)->contains('active', true),
+                'count' => count($items),
             ];
         }, $sections);
     }
@@ -192,7 +194,7 @@ class NavigationMenu
 
     private static function item(string $label, string $route, string $icon, array $activePatterns, bool $primary = false, ?int $badge = null): ?array
     {
-        if (! \Illuminate\Support\Facades\Route::has($route)) {
+        if (! Route::has($route)) {
             return null;
         }
 

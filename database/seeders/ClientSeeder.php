@@ -15,6 +15,7 @@ use MongoDB\BSON\ObjectId;
 class ClientSeeder extends Seeder
 {
     private const TOTAL = 1500;
+
     private const CHUNK = 300;
 
     private const DOMAINS = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com.mx', 'icloud.com'];
@@ -42,7 +43,7 @@ class ClientSeeder extends Seeder
             $email = Str::slug($name, '.').".c{$i}@".self::DOMAINS[array_rand(self::DOMAINS)];
             $telefono = '55'.str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
             $edad = random_int(18, 65);
-            $userId = new ObjectId();
+            $userId = new ObjectId;
 
             $userRows[] = [
                 '_id' => $userId,

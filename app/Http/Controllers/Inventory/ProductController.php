@@ -20,12 +20,12 @@ class ProductController extends Controller
         $filters = $request->only(['q', 'categoria', 'tipo', 'bajo_stock']);
 
         $products = Product::query()
-            ->when(!empty($filters['q']), fn($q) => $q
+            ->when(! empty($filters['q']), fn ($q) => $q
                 ->where('nombre', 'like', '%'.$filters['q'].'%')
                 ->orWhere('descripcion', 'like', '%'.$filters['q'].'%'))
-            ->when(!empty($filters['categoria']), fn($q) => $q->where('categoria', $filters['categoria']))
-            ->when(!empty($filters['tipo']),      fn($q) => $q->where('tipo', $filters['tipo']))
-            ->when(!empty($filters['bajo_stock']), fn($q) => $q->whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]]))
+            ->when(! empty($filters['categoria']), fn ($q) => $q->where('categoria', $filters['categoria']))
+            ->when(! empty($filters['tipo']), fn ($q) => $q->where('tipo', $filters['tipo']))
+            ->when(! empty($filters['bajo_stock']), fn ($q) => $q->whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]]))
             ->orderBy('nombre')
             ->paginate(20)
             ->withQueryString();
@@ -33,12 +33,12 @@ class ProductController extends Controller
         $lowStockCount = $this->inventoryService->lowStockCount();
 
         $categorias = Product::distinct()->pluck('categoria')->filter()->sort()->values();
-        $tipos      = Product::distinct()->pluck('tipo')->filter()->sort()->values();
+        $tipos = Product::distinct()->pluck('tipo')->filter()->sort()->values();
 
         $stats = [
-            'total'      => Product::count(),
+            'total' => Product::count(),
             'bajo_stock' => $lowStockCount,
-            'valor_total'=> Product::get(['stock_actual', 'precio_compra'])->sum(fn($p) => (float)$p->stock_actual * (float)$p->precio_compra),
+            'valor_total' => Product::get(['stock_actual', 'precio_compra'])->sum(fn ($p) => (float) $p->stock_actual * (float) $p->precio_compra),
         ];
 
         return view('inventory.products.index', compact('products', 'filters', 'lowStockCount', 'categorias', 'tipos', 'stats'));

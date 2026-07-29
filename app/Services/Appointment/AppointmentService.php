@@ -88,9 +88,9 @@ class AppointmentService
 
             if ($isAvailable) {
                 $slots[] = [
-                    'time'      => $current->format('H:i'),
-                    'label'     => $current->format('g:i A'),
-                    'end_time'  => $current->copy()->addMinutes($duration)->format('H:i'),
+                    'time' => $current->format('H:i'),
+                    'label' => $current->format('g:i A'),
+                    'end_time' => $current->copy()->addMinutes($duration)->format('H:i'),
                     'end_label' => $current->copy()->addMinutes($duration)->format('g:i A'),
                 ];
             }
@@ -140,7 +140,7 @@ class AppointmentService
 
         // 2. Verificar que el barbero no tenga solapamiento de horario
         $start = Carbon::parse($payload['hora_inicio'])->format('H:i:00');
-        $end   = Carbon::parse($payload['hora_fin'])->format('H:i:00');
+        $end = Carbon::parse($payload['hora_fin'])->format('H:i:00');
 
         $hasOverlap = $this->appointments->hasOverlap(
             barberId: (string) $payload['barber_id'],

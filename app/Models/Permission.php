@@ -16,6 +16,7 @@ class Permission extends Model implements PermissionContract
     use HasPermissions, RefreshesPermissionCache;
 
     protected $connection = 'mongodb';
+
     protected $guarded = [];
 
     public function __construct(array $attributes = [])
@@ -25,7 +26,7 @@ class Permission extends Model implements PermissionContract
         $this->setTable(config('permission.table_names.permissions', 'permissions'));
     }
 
-    public static function findById(int|string $id, string|null $guardName = null): PermissionContract
+    public static function findById(int|string $id, ?string $guardName = null): PermissionContract
     {
         $guardName = $guardName ?? config('auth.defaults.guard');
         $permission = static::where((new static)->getKeyName(), $id)
@@ -39,7 +40,7 @@ class Permission extends Model implements PermissionContract
         return $permission;
     }
 
-    public static function findByName(string $name, string|null $guardName = null): PermissionContract
+    public static function findByName(string $name, ?string $guardName = null): PermissionContract
     {
         $guardName = $guardName ?? config('auth.defaults.guard');
         $permission = static::where('name', $name)->where('guard_name', $guardName)->first();
@@ -51,7 +52,7 @@ class Permission extends Model implements PermissionContract
         return $permission;
     }
 
-    public static function findOrCreate(string $name, string|null $guardName = null): PermissionContract
+    public static function findOrCreate(string $name, ?string $guardName = null): PermissionContract
     {
         $guardName = $guardName ?? config('auth.defaults.guard');
         $permission = static::where('name', $name)->where('guard_name', $guardName)->first();

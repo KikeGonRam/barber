@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Http;
 class PredictionService
 {
     private string $ollamaUrl = 'http://ollama:11434';
+
     private string $model = 'qwen2.5:0.5b';
+
     private array $historicalData = [];
 
     public function __construct()
@@ -24,11 +26,12 @@ class PredictionService
         // Cache for 6 hours — prediction data doesn't need to be real-time
         $this->historicalData = Cache::remember('prediction_historical_data', 360, function () {
             $startDate = Carbon::now()->subMonths(12);
+
             return [
-                'daily_appointments'   => $this->getAppointmentTrend($startDate),
-                'daily_income'         => $this->getIncomeTrend($startDate),
+                'daily_appointments' => $this->getAppointmentTrend($startDate),
+                'daily_income' => $this->getIncomeTrend($startDate),
                 'service_distribution' => $this->getServiceDistribution(),
-                'hourly_distribution'  => $this->getHourlyDistribution(),
+                'hourly_distribution' => $this->getHourlyDistribution(),
             ];
         });
     }
@@ -38,7 +41,7 @@ class PredictionService
         return Appointment::where('estado', 'completada')
             ->where('fecha', '>=', $from)
             ->get(['fecha'])
-            ->groupBy(fn($a) => Carbon::parse($a->fecha)->format('Y-m-d'))
+            ->groupBy(fn ($a) => Carbon::parse($a->fecha)->format('Y-m-d'))
             ->map->count()
             ->sortKeys()
             ->toArray();
@@ -48,8 +51,8 @@ class PredictionService
     {
         return Payment::where('created_at', '>=', $from)
             ->get(['created_at', 'monto', 'propina'])
-            ->groupBy(fn($p) => Carbon::parse($p->created_at)->format('Y-m-d'))
-            ->map(fn($group) => (float) $group->sum(fn($p) => (float)$p->monto + (float)$p->propina))
+            ->groupBy(fn ($p) => Carbon::parse($p->created_at)->format('Y-m-d'))
+            ->map(fn ($group) => (float) $group->sum(fn ($p) => (float) $p->monto + (float) $p->propina))
             ->sortKeys()
             ->toArray();
     }
@@ -61,7 +64,7 @@ class PredictionService
             ->with('service:id,nombre')
             ->get(['service_id'])
             ->groupBy('service_id')
-            ->map(fn($group) => [
+            ->map(fn ($group) => [
                 'service' => $group->first()->service?->nombre ?? 'Sin servicio',
                 'count' => $group->count(),
             ])
@@ -76,7 +79,7 @@ class PredictionService
         return Appointment::where('estado', 'completada')
             ->whereBetween('fecha', [Carbon::now()->subMonths(1), Carbon::now()])
             ->get(['hora_inicio'])
-            ->groupBy(fn($a) => (int) substr((string)$a->hora_inicio, 0, 2))
+            ->groupBy(fn ($a) => (int) substr((string) $a->hora_inicio, 0, 2))
             ->map->count()
             ->sortKeys()
             ->toArray();
@@ -145,18 +148,18 @@ class PredictionService
         $insights = [];
 
         $incomeData = array_values($this->historicalData['daily_income']);
-        if (!empty($incomeData)) {
+        if (! empty($incomeData)) {
             $avgIncome = array_sum($incomeData) / count($incomeData);
             $trend = end($incomeData) > $avgIncome ? 'up' : 'down';
             $insights['revenue'] = [
                 'status' => $trend === 'up' ? 'positive' : 'warning',
-                'message' => "Los ingresos están en " . ($trend === 'up' ? 'tendencia alcista' : 'tendencia bajista'),
+                'message' => 'Los ingresos están en '.($trend === 'up' ? 'tendencia alcista' : 'tendencia bajista'),
                 'avg_daily' => round($avgIncome, 2),
             ];
         }
 
         $appointmentData = array_values($this->historicalData['daily_appointments']);
-        if (!empty($appointmentData)) {
+        if (! empty($appointmentData)) {
             $avgAppointments = array_sum($appointmentData) / count($appointmentData);
             $lastWeekAvg = array_sum(array_slice($appointmentData, -7)) / 7;
             $change = (($lastWeekAvg - $avgAppointments) / $avgAppointments) * 100;
@@ -164,21 +167,21 @@ class PredictionService
             $status = $change > 5 ? 'positive' : ($change < -5 ? 'warning' : 'neutral');
             $insights['appointments'] = [
                 'status' => $status,
-                'message' => "Cambio en citas: " . round($change, 1) . "%",
+                'message' => 'Cambio en citas: '.round($change, 1).'%',
                 'avg_daily' => round($avgAppointments, 1),
                 'trend_7d' => round($lastWeekAvg, 1),
             ];
         }
 
         $services = $this->historicalData['service_distribution'];
-        if (!empty($services)) {
+        if (! empty($services)) {
             $topService = $services[0];
             $totalCount = array_sum(array_column($services, 'count'));
             $concentration = ($topService['count'] / $totalCount) * 100;
 
             $insights['service_concentration'] = [
                 'status' => $concentration > 40 ? 'warning' : 'positive',
-                'message' => "Servicio top ({$topService['service']}) representa " . round($concentration, 1) . "% de citas",
+                'message' => "Servicio top ({$topService['service']}) representa ".round($concentration, 1).'% de citas',
                 'top_service' => $topService['service'],
                 'percentage' => round($concentration, 1),
             ];
@@ -190,12 +193,12 @@ class PredictionService
     private function buildIncomePrompt(int $daysAhead): string
     {
         $recentIncome = array_slice($this->historicalData['daily_income'], -30);
-        $avgIncome = !empty($recentIncome) ? array_sum($recentIncome) / count($recentIncome) : 0;
+        $avgIncome = ! empty($recentIncome) ? array_sum($recentIncome) / count($recentIncome) : 0;
 
         return "Analiza los datos históricos de ingresos diarios de una peluquería:
 
 Promedio diario último mes: \$$avgIncome
-Ingresos últimos 7 días: " . implode(", \$", array_slice($recentIncome, -7)) . "
+Ingresos últimos 7 días: ".implode(', $', array_slice($recentIncome, -7))."
 
 Basándote en esta tendencia, predice los ingresos para los próximos $daysAhead días.
 Responde solo con un número aproximado en dólares, sin explicación adicional.";
@@ -204,12 +207,12 @@ Responde solo con un número aproximado en dólares, sin explicación adicional.
     private function buildAppointmentsPrompt(int $daysAhead): string
     {
         $recentAppointments = array_slice($this->historicalData['daily_appointments'], -30);
-        $avgAppointments = !empty($recentAppointments) ? array_sum($recentAppointments) / count($recentAppointments) : 0;
+        $avgAppointments = ! empty($recentAppointments) ? array_sum($recentAppointments) / count($recentAppointments) : 0;
 
-        return "Analiza los datos históricos de citas de una peluquería:
+        return 'Analiza los datos históricos de citas de una peluquería:
 
-Promedio diario último mes: " . round($avgAppointments, 1) . " citas
-Citas últimos 7 días: " . implode(", ", array_slice($recentAppointments, -7)) . "
+Promedio diario último mes: '.round($avgAppointments, 1).' citas
+Citas últimos 7 días: '.implode(', ', array_slice($recentAppointments, -7))."
 
 Basándote en esta tendencia, predice las citas para los próximos $daysAhead días.
 Identifica también las horas pico esperadas.
@@ -219,7 +222,7 @@ Responde brevemente.";
     private function buildServicesPrompt(): string
     {
         $services = $this->historicalData['service_distribution'];
-        $serviceList = implode(", ", array_column($services, 'service'));
+        $serviceList = implode(', ', array_column($services, 'service'));
 
         return "Analiza la demanda de servicios en una peluquería:
 
@@ -261,10 +264,11 @@ Responde brevemente para optimizar el horario.";
 
             if ($response->successful()) {
                 $data = $response->json();
+
                 return $data['response'] ?? 'No se pudo generar la predicción.';
             }
         } catch (\Exception $e) {
-            \Log::warning("Ollama prediction error: " . $e->getMessage());
+            \Log::warning('Ollama prediction error: '.$e->getMessage());
         }
 
         return 'Predicción no disponible en este momento.';
@@ -272,9 +276,10 @@ Responde brevemente para optimizar el horario.";
 
     private function parseNumericPrediction(string $text, string $pattern): ?float
     {
-        if (preg_match('/(\d+(?:[.,]\d+)?)\s*(?:' . $pattern . ')?/i', $text, $matches)) {
-            return (float)str_replace(',', '.', $matches[1]);
+        if (preg_match('/(\d+(?:[.,]\d+)?)\s*(?:'.$pattern.')?/i', $text, $matches)) {
+            return (float) str_replace(',', '.', $matches[1]);
         }
+
         return null;
     }
 
@@ -285,6 +290,7 @@ Responde brevemente para optimizar el horario.";
         } elseif (preg_match('/(bajista|declive|disminución|down|decrease)/i', $text)) {
             return 'down';
         }
+
         return 'stable';
     }
 
@@ -294,10 +300,11 @@ Responde brevemente para optimizar el horario.";
         if (preg_match_all('/(\d{1,2}):?(\d{0,2})?(?:\s*-\s*\d{1,2})?/i', $text, $matches)) {
             foreach ($matches[1] as $hour) {
                 if ($hour >= 8 && $hour <= 22) {
-                    $peaks[] = (int)$hour;
+                    $peaks[] = (int) $hour;
                 }
             }
         }
+
         return array_unique($peaks);
     }
 
@@ -307,10 +314,11 @@ Responde brevemente para optimizar el horario.";
         if (preg_match_all('/(?:quiet|poco|baja|demanda.*?(\d{1,2}))/i', $text, $matches)) {
             foreach ($matches[1] ?? [] as $hour) {
                 if ($hour >= 8 && $hour <= 22) {
-                    $quiet[] = (int)$hour;
+                    $quiet[] = (int) $hour;
                 }
             }
         }
+
         return array_unique($quiet);
     }
 
@@ -320,10 +328,11 @@ Responde brevemente para optimizar el horario.";
         $lines = explode("\n", $text);
         foreach ($lines as $line) {
             $line = trim($line);
-            if (!empty($line) && strlen($line) > 10) {
+            if (! empty($line) && strlen($line) > 10) {
                 $recommendations[] = $line;
             }
         }
+
         return array_slice($recommendations, 0, 3);
     }
 
@@ -345,12 +354,13 @@ Responde brevemente para optimizar el horario.";
         $last30 = array_slice($this->historicalData['daily_appointments'], -30);
         $last60 = array_slice($this->historicalData['daily_appointments'], -60, 30);
 
-        $recent = !empty($last30) ? array_sum($last30) / count($last30) : 0;
-        $older = !empty($last60) ? array_sum($last60) / count($last60) : 0;
+        $recent = ! empty($last30) ? array_sum($last30) / count($last30) : 0;
+        $older = ! empty($last60) ? array_sum($last60) / count($last60) : 0;
 
         if ($recent > $older * 1.1) {
             return array_slice(array_column($this->historicalData['service_distribution'], 'service'), 0, 3);
         }
+
         return [];
     }
 
@@ -359,12 +369,13 @@ Responde brevemente para optimizar el horario.";
         $last30 = array_slice($this->historicalData['daily_appointments'], -30);
         $last60 = array_slice($this->historicalData['daily_appointments'], -60, 30);
 
-        $recent = !empty($last30) ? array_sum($last30) / count($last30) : 0;
-        $older = !empty($last60) ? array_sum($last60) / count($last60) : 0;
+        $recent = ! empty($last30) ? array_sum($last30) / count($last30) : 0;
+        $older = ! empty($last60) ? array_sum($last60) / count($last60) : 0;
 
         if ($recent < $older * 0.9) {
             return array_slice(array_column($this->historicalData['service_distribution'], 'service'), -3);
         }
+
         return [];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Appointment;
+use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
@@ -31,7 +32,7 @@ class SendDailySummaryCommand extends Command
             ->sum(fn ($p) => (float) $p->monto + (float) $p->propina);
 
         // Ventas de tienda (pedidos entregados hoy).
-        $ventasTienda = \App\Models\Order::where('estado', 'entregado')
+        $ventasTienda = Order::where('estado', 'entregado')
             ->whereDate('entregado_en', $today)
             ->get(['total'])
             ->sum(fn ($o) => (float) $o->total);

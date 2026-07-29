@@ -945,12 +945,15 @@ html.dark {
             linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.018)),
             rgba(16, 16, 16, 0.94);
         box-shadow: 0 22px 55px rgba(0, 0, 0, 0.22);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
     }
 
     .ub-analytics-card {
         position: relative;
         isolation: isolate;
         box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+        scroll-margin-top: 110px;
     }
 
     .ub-analytics-card::before {
@@ -1005,6 +1008,8 @@ html.dark {
     .ub-chart-frame canvas {
         position: relative;
         z-index: 1;
+        width: 100% !important;
+        height: 100% !important;
     }
 }
 

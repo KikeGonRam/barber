@@ -15,13 +15,12 @@ use App\Repositories\Eloquent\ServiceRepository;
 use App\Services\Chatbot\Contracts\ChatbotAiProvider;
 use App\Services\Chatbot\GeminiService;
 use App\Services\Chatbot\OllamaService;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\ServiceProvider;
-
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {

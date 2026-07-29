@@ -38,10 +38,10 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
             ? route('client.facturas.download', $this->payment)
             : route('client.facturas.index');
 
-        $appt    = $this->payment->appointment;
+        $appt = $this->payment->appointment;
         $service = $appt?->service?->nombre ?? 'Servicio';
-        $fecha   = optional($appt?->fecha)->format('d/m/Y') ?? '';
-        $monto   = (float) $this->payment->monto;
+        $fecha = optional($appt?->fecha)->format('d/m/Y') ?? '';
+        $monto = (float) $this->payment->monto;
         $propina = (float) $this->payment->propina;
 
         $rows = [$service.($fecha ? ' · '.$fecha : '') => '$'.number_format($monto, 2)];

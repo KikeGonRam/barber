@@ -1,15 +1,15 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 use MongoDB\Driver\Exception\CommandException;
 use MongoDB\Laravel\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     protected $connection = 'mongodb';
 
-    private function safeIndex(string $collection, \Closure $callback): void
+    private function safeIndex(string $collection, Closure $callback): void
     {
         try {
             Schema::connection('mongodb')->table($collection, $callback);

@@ -43,7 +43,7 @@ class DatabaseBackupController extends Controller
             }
 
             $zipPath = $backupDirectory.DIRECTORY_SEPARATOR."backup-{$stamp}.zip";
-            $zip = new ZipArchive();
+            $zip = new ZipArchive;
 
             if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
                 throw new RuntimeException('No se pudo crear el archivo zip de backup.');

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Models\LoyaltyTransaction;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Database\Seeder;
 
@@ -39,14 +40,14 @@ class LoyaltyTransactionSeeder extends Seeder
                     $totalTx++;
 
                     if (count($rows) >= 3000) {
-                        \App\Models\LoyaltyTransaction::insert($rows);
+                        LoyaltyTransaction::insert($rows);
                         $rows = [];
                     }
                 }
             });
 
         if (! empty($rows)) {
-            \App\Models\LoyaltyTransaction::insert($rows);
+            LoyaltyTransaction::insert($rows);
         }
 
         $updated = 0;

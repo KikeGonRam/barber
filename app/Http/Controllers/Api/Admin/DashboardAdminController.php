@@ -6,8 +6,9 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
 use App\Models\Product;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class DashboardAdminController
 {
@@ -31,10 +32,10 @@ class DashboardAdminController
 
         return response()->json([
             'stats' => [
-                'revenueToday'          => (float) $revenueToday,
+                'revenueToday' => (float) $revenueToday,
                 'appointmentsCompleted' => $appointmentsCompleted,
-                'occupancyRate'         => min($occupancyRate, 100),
-                'newClients'            => $newClients,
+                'occupancyRate' => min($occupancyRate, 100),
+                'newClients' => $newClients,
             ],
         ]);
     }
@@ -82,7 +83,7 @@ class DashboardAdminController
 
         $revenue = [];
         foreach ($appointments as $appointment) {
-            $date = $appointment->fecha instanceof \Carbon\Carbon
+            $date = $appointment->fecha instanceof Carbon
                 ? $appointment->fecha->toDateString()
                 : (string) $appointment->fecha;
             $revenue[$date] = ($revenue[$date] ?? 0) + (float) ($appointment->precio_cobrado ?? 0);
@@ -90,7 +91,7 @@ class DashboardAdminController
 
         return response()->json([
             'revenue' => $revenue,
-            'total'   => array_sum($revenue),
+            'total' => array_sum($revenue),
         ]);
     }
 
@@ -106,9 +107,9 @@ class DashboardAdminController
 
         if ($upcomingAppointments > 0) {
             $alerts[] = [
-                'id'      => 1,
-                'type'    => 'warning',
-                'title'   => 'Citas Próximas',
+                'id' => 1,
+                'type' => 'warning',
+                'title' => 'Citas Próximas',
                 'message' => "$upcomingAppointments citas en las próximas 2 horas",
             ];
         }
@@ -118,9 +119,9 @@ class DashboardAdminController
 
             if ($lowStock > 0) {
                 $alerts[] = [
-                    'id'      => 2,
-                    'type'    => 'error',
-                    'title'   => 'Inventario Bajo',
+                    'id' => 2,
+                    'type' => 'error',
+                    'title' => 'Inventario Bajo',
                     'message' => "$lowStock productos con stock bajo",
                 ];
             }
@@ -129,8 +130,8 @@ class DashboardAdminController
         }
 
         // Batch: 1 query for all barbers' today counts instead of N+1
-        $activeBarbers     = Barber::where('activo', true)->get(['_id']);
-        $activeBarberIds   = $activeBarbers->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $activeBarbers = Barber::where('activo', true)->get(['_id']);
+        $activeBarberIds = $activeBarbers->pluck('id')->map(fn ($id) => (string) $id)->all();
         $todayCountsByBarber = Appointment::whereDate('fecha', now()->toDateString())
             ->whereIn('barber_id', $activeBarberIds)
             ->get(['barber_id'])
@@ -142,9 +143,9 @@ class DashboardAdminController
 
         if ($lowOccupancyCount > 0) {
             $alerts[] = [
-                'id'      => 3,
-                'type'    => 'info',
-                'title'   => 'Ocupación Baja',
+                'id' => 3,
+                'type' => 'info',
+                'title' => 'Ocupación Baja',
                 'message' => "{$lowOccupancyCount} barbero(s) con baja ocupación hoy",
             ];
         }
@@ -154,28 +155,28 @@ class DashboardAdminController
 
     public function getMetrics(Request $request): JsonResponse
     {
-        $totalClients   = Client::count();
-        $activeBarbers  = Barber::where('activo', true)->count();
+        $totalClients = Client::count();
+        $activeBarbers = Barber::where('activo', true)->count();
 
-        $totalAppointments     = Appointment::count();
+        $totalAppointments = Appointment::count();
         $cancelledAppointments = Appointment::where('estado', 'cancelada')->count();
-        $cancellationRate      = $totalAppointments > 0
+        $cancellationRate = $totalAppointments > 0
             ? round(($cancelledAppointments / $totalAppointments) * 100, 2)
             : 0;
 
         $completedAppointments = Appointment::where('estado', 'completada')->count();
-        $totalRevenue          = (float) Appointment::where('estado', 'completada')->sum('precio_cobrado');
-        $averageRevenue        = $completedAppointments > 0
+        $totalRevenue = (float) Appointment::where('estado', 'completada')->sum('precio_cobrado');
+        $averageRevenue = $completedAppointments > 0
             ? round($totalRevenue / $completedAppointments, 2)
             : 0;
 
         return response()->json([
             'metrics' => [
-                'totalClients'                   => $totalClients,
-                'activeBarbers'                  => $activeBarbers,
-                'cancellationRate'               => $cancellationRate,
-                'averageRevenuePerAppointment'   => $averageRevenue,
-                'totalRevenue'                   => $totalRevenue,
+                'totalClients' => $totalClients,
+                'activeBarbers' => $activeBarbers,
+                'cancellationRate' => $cancellationRate,
+                'averageRevenuePerAppointment' => $averageRevenue,
+                'totalRevenue' => $totalRevenue,
             ],
         ]);
     }

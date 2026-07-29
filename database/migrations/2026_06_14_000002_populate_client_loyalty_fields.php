@@ -14,13 +14,13 @@ return new class extends Migration
                 ->where('estado', 'completada')
                 ->count();
 
-            $nivel  = LoyaltyService::nivelFromCitas($completadas);
+            $nivel = LoyaltyService::nivelFromCitas($completadas);
             $puntos = $completadas * 10;
 
             $client->update([
                 'total_citas' => $completadas,
-                'puntos'      => $puntos,
-                'nivel'       => $nivel,
+                'puntos' => $puntos,
+                'nivel' => $nivel,
             ]);
         });
     }

@@ -36,7 +36,7 @@ class MemberCardService
             $payload = 'UB|'.$user->id.'|'.$user->name;
 
             $builder = new Builder(
-                writer: new SvgWriter(),
+                writer: new SvgWriter,
                 data: $payload,
                 size: 240,
                 margin: 1,
@@ -55,7 +55,7 @@ class MemberCardService
     {
         try {
             $builder = new Builder(
-                writer: new PngWriter(),
+                writer: new PngWriter,
                 data: 'UB|'.$user->id.'|'.$user->name,
                 size: 240,
                 margin: 1,

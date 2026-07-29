@@ -35,25 +35,25 @@ class CatalogController extends Controller
             ->get();
 
         // Aggregate review stats in one query grouped in PHP (avoids N+1)
-        $barberIds   = $barbers->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $barberIds = $barbers->pluck('id')->map(fn ($id) => (string) $id)->all();
         $reviewStats = BarberReview::whereIn('barber_id', $barberIds)
             ->get(['barber_id', 'rating'])
             ->groupBy('barber_id')
             ->map(fn ($group) => [
-                'avg'   => round($group->avg('rating'), 1),
+                'avg' => round($group->avg('rating'), 1),
                 'count' => $group->count(),
             ]);
 
         $payload = $barbers->map(fn (Barber $barber) => [
-            'id'             => $barber->id,
-            'slug'           => $barber->slug,
-            'user'           => $barber->user ? ['id' => $barber->user->id, 'name' => $barber->user->name] : null,
+            'id' => $barber->id,
+            'slug' => $barber->slug,
+            'user' => $barber->user ? ['id' => $barber->user->id, 'name' => $barber->user->name] : null,
             'especialidades' => $barber->especialidades ?? '',
-            'descripcion'    => $barber->descripcion ?? '',
-            'foto'           => $barber->foto ? asset('storage/' . $barber->foto) : null,
-            'activo'         => (bool) ($barber->activo ?? true),
-            'avg_rating'     => $reviewStats[(string) $barber->id]['avg']   ?? null,
-            'total_reviews'  => $reviewStats[(string) $barber->id]['count'] ?? 0,
+            'descripcion' => $barber->descripcion ?? '',
+            'foto' => $barber->foto ? asset('storage/'.$barber->foto) : null,
+            'activo' => (bool) ($barber->activo ?? true),
+            'avg_rating' => $reviewStats[(string) $barber->id]['avg'] ?? null,
+            'total_reviews' => $reviewStats[(string) $barber->id]['count'] ?? 0,
         ])->values();
 
         return response()->json(['data' => $payload]);
@@ -110,7 +110,7 @@ class CatalogController extends Controller
                 'id' => $w->id,
                 'title' => $w->title,
                 'description' => $w->description,
-                'images' => $w->images->map(fn ($img) => asset('storage/' . $img->image))->values(),
+                'images' => $w->images->map(fn ($img) => asset('storage/'.$img->image))->values(),
             ])->values(),
             'reviews' => $reviews->map(fn (BarberReview $r) => [
                 'id' => $r->id,
@@ -133,17 +133,17 @@ class CatalogController extends Controller
         abort_if(! $client, 403, 'No tienes perfil de cliente.');
 
         if (! Appointment::where('barber_id', (string) $barber->id)
-                ->where('client_id', (string) $client->id)
-                ->where('estado', 'completada')
-                ->exists()) {
+            ->where('client_id', (string) $client->id)
+            ->where('estado', 'completada')
+            ->exists()) {
             return response()->json([
                 'message' => 'Solo puedes reseñar barberos con los que hayas tenido una cita completada.',
             ], 422);
         }
 
         if (BarberReview::where('barber_id', (string) $barber->id)
-                ->where('client_id', (string) $client->id)
-                ->exists()) {
+            ->where('client_id', (string) $client->id)
+            ->exists()) {
             return response()->json([
                 'message' => 'Ya dejaste una reseña para este barbero.',
             ], 422);
@@ -157,14 +157,14 @@ class CatalogController extends Controller
         $review = BarberReview::create([
             'barber_id' => (string) $barber->id,
             'client_id' => (string) $client->id,
-            'rating'    => (int) $validated['rating'],
-            'comment'   => $validated['comment'] ?? null,
+            'rating' => (int) $validated['rating'],
+            'comment' => $validated['comment'] ?? null,
         ]);
 
         // Keep denormalized rating fields on the Barber document in sync
-        $allReviews            = BarberReview::where('barber_id', (string) $barber->id)->get('rating');
+        $allReviews = BarberReview::where('barber_id', (string) $barber->id)->get('rating');
         $barber->calificacion_promedio = round($allReviews->avg('rating'), 2);
-        $barber->total_resenas         = $allReviews->count();
+        $barber->total_resenas = $allReviews->count();
         $barber->save();
 
         app(LoyaltyService::class)->awardResenaPoints($client, (string) $review->id);

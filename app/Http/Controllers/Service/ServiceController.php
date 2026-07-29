@@ -21,10 +21,10 @@ class ServiceController extends Controller
         $filters = $request->only(['q', 'categoria', 'activo']);
 
         $services = Service::query()
-            ->when(!empty($filters['q']), fn($query) => $query->where('nombre', 'like', '%'.$filters['q'].'%')
+            ->when(! empty($filters['q']), fn ($query) => $query->where('nombre', 'like', '%'.$filters['q'].'%')
                 ->orWhere('descripcion', 'like', '%'.$filters['q'].'%'))
-            ->when(isset($filters['categoria']) && $filters['categoria'] !== '', fn($q) => $q->where('categoria', $filters['categoria']))
-            ->when(isset($filters['activo']) && $filters['activo'] !== '', fn($q) => $q->where('activo', (bool) $filters['activo']))
+            ->when(isset($filters['categoria']) && $filters['categoria'] !== '', fn ($q) => $q->where('categoria', $filters['categoria']))
+            ->when(isset($filters['activo']) && $filters['activo'] !== '', fn ($q) => $q->where('activo', (bool) $filters['activo']))
             ->orderBy('nombre')
             ->paginate(20)
             ->withQueryString();

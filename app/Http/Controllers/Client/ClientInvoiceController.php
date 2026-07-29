@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Payment;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -21,7 +20,7 @@ class ClientInvoiceController extends Controller
 
         $appointmentIds = Appointment::where('client_id', $clientId)
             ->pluck('id')
-            ->map(fn($id) => (string) $id)
+            ->map(fn ($id) => (string) $id)
             ->toArray();
 
         $payments = Payment::whereIn('appointment_id', $appointmentIds)
@@ -31,7 +30,7 @@ class ClientInvoiceController extends Controller
 
         $totalPagado = Payment::whereIn('appointment_id', $appointmentIds)
             ->get(['monto', 'propina'])
-            ->sum(fn($p) => (float) $p->monto + (float) $p->propina);
+            ->sum(fn ($p) => (float) $p->monto + (float) $p->propina);
 
         $totalCitas = count($appointmentIds);
 

@@ -48,7 +48,7 @@ class SocialController extends Controller
 
     public function save(Request $request, Work $work): JsonResponse
     {
-        $user   = auth()->user();
+        $user = auth()->user();
         $workId = (string) $work->id;
         $userId = (string) $user->id;
 

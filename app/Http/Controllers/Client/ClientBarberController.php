@@ -7,6 +7,7 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarberReview;
 use App\Models\BarberSchedule;
+use App\Models\Work;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class ClientBarberController extends Controller
             ->with('user:id,name,created_at')
             ->get();
 
-        $barberIds = $barbers->pluck('id')->map(fn($id) => (string) $id)->toArray();
+        $barberIds = $barbers->pluck('id')->map(fn ($id) => (string) $id)->toArray();
 
         if (! empty($barberIds)) {
             $citasCounts = Appointment::whereIn('barber_id', $barberIds)
@@ -30,7 +31,7 @@ class ClientBarberController extends Controller
                 ->groupBy('barber_id')
                 ->map->count();
 
-            $barbers->each(fn($b) => $b->citas_completadas = $citasCounts->get((string) $b->id, 0));
+            $barbers->each(fn ($b) => $b->citas_completadas = $citasCounts->get((string) $b->id, 0));
         }
 
         return view('client.barbers.index', compact('barbers'));
@@ -40,7 +41,7 @@ class ClientBarberController extends Controller
     {
         $barber->load('user:id,name,email,created_at');
 
-        $works = \App\Models\Work::where('barbero_id', (string) $barber->user_id)
+        $works = Work::where('barbero_id', (string) $barber->user_id)
             ->with(['images', 'reactions', 'comments'])
             ->latest()
             ->limit(12)
@@ -55,9 +56,9 @@ class ClientBarberController extends Controller
             ->latest()
             ->get();
 
-        $avgRating     = $reviews->isNotEmpty() ? round($reviews->avg('rating'), 1) : null;
-        $totalReviews  = $reviews->count();
-        $ratingCounts  = $reviews->groupBy('rating')->map->count();
+        $avgRating = $reviews->isNotEmpty() ? round($reviews->avg('rating'), 1) : null;
+        $totalReviews = $reviews->count();
+        $ratingCounts = $reviews->groupBy('rating')->map->count();
 
         $yearsExp = max(1, (int) $barber->user?->created_at?->diffInYears(now()));
 
@@ -66,9 +67,9 @@ class ClientBarberController extends Controller
             ->where('is_working', true)
             ->exists();
 
-        $client          = auth()->user()?->clientProfile;
+        $client = auth()->user()?->clientProfile;
         $alreadyReviewed = false;
-        $canReview       = false;
+        $canReview = false;
 
         if ($client) {
             $alreadyReviewed = BarberReview::where('barber_id', (string) $barber->id)
@@ -96,28 +97,28 @@ class ClientBarberController extends Controller
         abort_if(! $client, 403);
 
         if (! Appointment::where('barber_id', (string) $barber->id)
-                ->where('client_id', (string) $client->id)
-                ->where('estado', 'completada')
-                ->exists()) {
+            ->where('client_id', (string) $client->id)
+            ->where('estado', 'completada')
+            ->exists()) {
             return back()->withErrors(['rating' => 'Solo puedes reseñar barberos con los que hayas tenido una cita completada.']);
         }
 
         if (BarberReview::where('barber_id', (string) $barber->id)
-                ->where('client_id', (string) $client->id)
-                ->exists()) {
+            ->where('client_id', (string) $client->id)
+            ->exists()) {
             return back()->withErrors(['rating' => 'Ya dejaste una reseña para este barbero.']);
         }
 
         $validated = $request->validate([
-            'rating'  => 'required|integer|min:1|max:5',
+            'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:500',
         ]);
 
         $review = BarberReview::create([
             'barber_id' => (string) $barber->id,
             'client_id' => (string) $client->id,
-            'rating'    => (int) $validated['rating'],
-            'comment'   => $validated['comment'] ?? null,
+            'rating' => (int) $validated['rating'],
+            'comment' => $validated['comment'] ?? null,
         ]);
 
         app(LoyaltyService::class)->awardResenaPoints($client, (string) $review->id);

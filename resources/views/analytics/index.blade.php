@@ -118,24 +118,27 @@
                         </label>
 
                         <div class="flex items-end gap-2">
-                            <a href="{{ route('analytics.index', ['actualizar' => 1]) }}" title="Actualizar resultados" class="inline-flex h-9 w-9 items-center justify-center rounded-[8px] bg-gold text-black shadow-[0_10px_24px_rgba(212,175,55,.18)] transition hover:bg-[#f0cc55]">
+                            <a href="{{ route('analytics.index', ['actualizar' => 1]) }}" title="Actualizar resultados" class="inline-flex h-9 items-center justify-center gap-2 rounded-[8px] bg-gold px-3 text-[10px] font-black uppercase tracking-wider text-black shadow-[0_10px_24px_rgba(212,175,55,.18)] transition hover:bg-[#f0cc55]">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M5.6 15A7 7 0 0 0 17.5 17.5L20 15M18.4 9A7 7 0 0 0 6.5 6.5L4 9"/>
                                 </svg>
+                                <span class="hidden sm:inline">Actualizar</span>
                             </a>
 
                             @if($rolLabel === 'administrador')
-                                <a href="{{ route('reports.export', ['type' => 'ingresos', 'format' => 'pdf']) }}" title="Exportar PDF" class="inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-white/[0.08] bg-white/[0.035] text-white/60 transition hover:border-gold/35 hover:text-gold">
+                                <a href="{{ route('reports.export', ['type' => 'ingresos', 'format' => 'pdf']) }}" title="Exportar PDF" class="inline-flex h-9 items-center justify-center gap-2 rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 text-[10px] font-black uppercase tracking-wider text-white/60 transition hover:border-gold/35 hover:text-gold">
                                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                         <path d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm6 1.5V7A1.5 1.5 0 0 0 12 8.5h3.5v8h-11v-13h6Z"/>
                                         <path d="M6.5 11.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75Z"/>
                                     </svg>
+                                    <span class="hidden 2xl:inline">PDF</span>
                                 </a>
 
-                                <a href="{{ route('reports.export', ['type' => 'ingresos', 'format' => 'excel']) }}" title="Exportar Excel" class="inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-white/[0.08] bg-white/[0.035] text-white/60 transition hover:border-emerald-400/35 hover:text-emerald-300">
+                                <a href="{{ route('reports.export', ['type' => 'ingresos', 'format' => 'excel']) }}" title="Exportar Excel" class="inline-flex h-9 items-center justify-center gap-2 rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 text-[10px] font-black uppercase tracking-wider text-white/60 transition hover:border-emerald-400/35 hover:text-emerald-300">
                                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                         <path d="M4 3.5A1.5 1.5 0 0 1 5.5 2h7.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12A1.5 1.5 0 0 1 17 5.622V16.5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 4 16.5v-13ZM6.6 7.8l2.1 2.2-2.1 2.2 1.1 1.05L9.8 11l2.1 2.25L13 12.2 10.9 10 13 7.8l-1.1-1.05L9.8 9 7.7 6.75 6.6 7.8Z"/>
                                     </svg>
+                                    <span class="hidden 2xl:inline">Excel</span>
                                 </a>
                             @endif
                         </div>

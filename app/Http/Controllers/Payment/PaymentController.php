@@ -6,10 +6,13 @@ use App\Exceptions\Domain\PaymentException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Models\Appointment;
+use App\Models\Barber;
 use App\Models\Payment;
+use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Payment\PaymentService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -17,31 +20,31 @@ class PaymentController extends Controller
 {
     public function __construct(private readonly PaymentService $paymentService) {}
 
-    public function index(\Illuminate\Http\Request $request): View
+    public function index(Request $request): View
     {
         $filters = $request->only(['q', 'metodo_pago', 'fecha_desde', 'fecha_hasta', 'barbero_id']);
 
         $payments = Payment::query()
             ->with(['appointment.client.user', 'appointment.barber.user', 'appointment.service', 'creator'])
-            ->when(!empty($filters['q']), function ($query) use ($filters) {
+            ->when(! empty($filters['q']), function ($query) use ($filters) {
                 $q = $filters['q'];
-                $query->whereHas('appointment.client.user', fn($u) => $u->where('name', 'like', "%{$q}%"))
-                      ->orWhereHas('appointment.service', fn($s) => $s->where('nombre', 'like', "%{$q}%"));
+                $query->whereHas('appointment.client.user', fn ($u) => $u->where('name', 'like', "%{$q}%"))
+                    ->orWhereHas('appointment.service', fn ($s) => $s->where('nombre', 'like', "%{$q}%"));
             })
-            ->when(!empty($filters['metodo_pago']), fn($q) => $q->where('metodo_pago', $filters['metodo_pago']))
-            ->when(!empty($filters['barbero_id']), fn($q) => $q->whereHas('appointment', fn($a) => $a->where('barber_id', $filters['barbero_id'])))
-            ->when(!empty($filters['fecha_desde']), fn($q) => $q->whereDate('created_at', '>=', $filters['fecha_desde']))
-            ->when(!empty($filters['fecha_hasta']), fn($q) => $q->whereDate('created_at', '<=', $filters['fecha_hasta']))
+            ->when(! empty($filters['metodo_pago']), fn ($q) => $q->where('metodo_pago', $filters['metodo_pago']))
+            ->when(! empty($filters['barbero_id']), fn ($q) => $q->whereHas('appointment', fn ($a) => $a->where('barber_id', $filters['barbero_id'])))
+            ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereDate('created_at', '>=', $filters['fecha_desde']))
+            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereDate('created_at', '<=', $filters['fecha_hasta']))
             ->latest()
             ->paginate(20)
             ->withQueryString();
 
-        $barbers = \App\Models\Barber::with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
+        $barbers = Barber::with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
         $stats = [
-            'total_hoy'    => (float) Payment::whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->get(['monto', 'propina'])->sum(fn($p) => (float)$p->monto + (float)$p->propina),
-            'total_mes'    => (float) Payment::whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])->get(['monto', 'propina'])->sum(fn($p) => (float)$p->monto + (float)$p->propina),
-            'count'        => Payment::count(),
-            'metodos'      => Payment::get(['metodo_pago'])->groupBy('metodo_pago')->map->count(),
+            'total_hoy' => (float) Payment::whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->get(['monto', 'propina'])->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
+            'total_mes' => (float) Payment::whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])->get(['monto', 'propina'])->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
+            'count' => Payment::count(),
+            'metodos' => Payment::get(['metodo_pago'])->groupBy('metodo_pago')->map->count(),
         ];
 
         return view('payments.index', compact('payments', 'filters', 'barbers', 'stats'));
@@ -51,7 +54,7 @@ class PaymentController extends Controller
     {
         // Solo citas cobrables (aprobadas por el barbero): nunca pendientes.
         $appointments = Appointment::query()
-            ->whereIn('estado', \App\Services\Appointment\AppointmentStatusService::CHARGEABLE)
+            ->whereIn('estado', AppointmentStatusService::CHARGEABLE)
             ->whereDoesntHave('payments')
             ->with(['client.user', 'barber.user', 'service'])
             ->orderByDesc('fecha')

@@ -17,17 +17,17 @@ class BarberPortfolioController extends Controller
     public function index(): View
     {
         $barber = auth()->user()->barberProfile;
-        $works  = Work::where('barbero_id', auth()->id())
+        $works = Work::where('barbero_id', auth()->id())
             ->with(['images', 'reactions', 'comments', 'saves'])
             ->latest()
             ->paginate(12);
 
         $workIds = Work::where('barbero_id', auth()->id())->pluck('_id')->toArray();
         $stats = [
-            'total_works'    => count($workIds),
-            'total_reactions'=> Reaction::whereIn('work_id', $workIds)->count(),
+            'total_works' => count($workIds),
+            'total_reactions' => Reaction::whereIn('work_id', $workIds)->count(),
             'total_comments' => Comment::whereIn('work_id', $workIds)->count(),
-            'total_saves'    => SavedWork::whereIn('work_id', $workIds)->count(),
+            'total_saves' => SavedWork::whereIn('work_id', $workIds)->count(),
         ];
 
         return view('barber.portfolio.index', compact('works', 'barber', 'stats'));
@@ -44,10 +44,10 @@ class BarberPortfolioController extends Controller
         abort_if($barberId !== auth()->id(), 403);
 
         $request->validate([
-            'title'       => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
-            'media'       => 'required|array|min:1|max:10',
-            'media.*'     => [
+            'media' => 'required|array|min:1|max:10',
+            'media.*' => [
                 'file',
                 'max:51200',
                 function ($attribute, $value, $fail) {
@@ -65,21 +65,21 @@ class BarberPortfolioController extends Controller
         ]);
 
         $work = Work::create([
-            'barbero_id'  => $barberId,
-            'title'       => $request->title,
+            'barbero_id' => $barberId,
+            'title' => $request->title,
             'description' => $request->description,
-            'work_date'   => now(),
+            'work_date' => now(),
         ]);
 
         foreach ($request->file('media') as $file) {
-            $mime     = $file->getMimeType();
-            $isVideo  = str_starts_with($mime, 'video/');
-            $folder   = $isVideo ? 'portfolio/videos' : 'portfolio';
-            $path     = $file->store($folder, 'public');
+            $mime = $file->getMimeType();
+            $isVideo = str_starts_with($mime, 'video/');
+            $folder = $isVideo ? 'portfolio/videos' : 'portfolio';
+            $path = $file->store($folder, 'public');
 
             $work->images()->create([
-                'image'     => $path,
-                'type'      => $isVideo ? 'video' : 'image',
+                'image' => $path,
+                'type' => $isVideo ? 'video' : 'image',
                 'mime_type' => $mime,
             ]);
         }

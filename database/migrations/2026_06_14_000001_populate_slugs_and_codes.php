@@ -48,7 +48,7 @@ return new class extends Migration
 
     private function populateClientSlugs(): void
     {
-        $existing  = Client::whereNotNull('slug')->pluck('slug')->flip()->toArray();
+        $existing = Client::whereNotNull('slug')->pluck('slug')->flip()->toArray();
         $userNames = User::all()->pluck('name', 'id')->mapWithKeys(fn ($name, $id) => [(string) $id => $name]);
 
         $this->bulkUpdate(Client::whereNull('slug'), function (Client $client) use (&$existing, $userNames) {
@@ -103,7 +103,7 @@ return new class extends Migration
         }
 
         $slug = $base;
-        $i    = 2;
+        $i = 2;
 
         while (isset($existing[$slug])) {
             $slug = "{$base}-{$i}";

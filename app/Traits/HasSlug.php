@@ -26,7 +26,7 @@ trait HasSlug
         }
 
         $slug = $base;
-        $i    = 2;
+        $i = 2;
 
         while (static::where('slug', $slug)->exists()) {
             $slug = "{$base}-{$i}";

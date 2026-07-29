@@ -14,27 +14,27 @@ class AppointmentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'             => $this->id,
-            'code'           => $this->code,
-            'fecha'          => optional($this->fecha)->toDateString(),
-            'hora_inicio'    => $this->hora_inicio,
-            'hora_fin'       => $this->hora_fin,
-            'estado'         => $this->estado,
-            'notas'          => $this->notas,
+            'id' => $this->id,
+            'code' => $this->code,
+            'fecha' => optional($this->fecha)->toDateString(),
+            'hora_inicio' => $this->hora_inicio,
+            'hora_fin' => $this->hora_fin,
+            'estado' => $this->estado,
+            'notas' => $this->notas,
             'precio_cobrado' => $this->precio_cobrado,
             'client' => [
-                'id'   => $this->client?->id,
+                'id' => $this->client?->id,
                 'user' => ['name' => $this->client?->user?->name],
             ],
             'barber' => [
-                'id'   => $this->barber?->id,
+                'id' => $this->barber?->id,
                 'slug' => $this->barber?->slug,
                 'user' => ['name' => $this->barber?->user?->name],
             ],
             'service' => [
-                'id'           => $this->service?->id,
-                'nombre'       => $this->service?->nombre,
-                'precio'       => $this->service?->precio,
+                'id' => $this->service?->id,
+                'nombre' => $this->service?->nombre,
+                'precio' => $this->service?->precio,
                 'duracion_min' => $this->service?->duracion_min,
             ],
         ];

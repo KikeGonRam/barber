@@ -8,6 +8,8 @@ use App\Http\Requests\Barber\UpdateBarberAppointmentStatusRequest;
 use App\Http\Requests\Barber\UpdateBarberProfileRequest;
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Models\Comment;
+use App\Models\Work;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
@@ -24,9 +26,9 @@ class BarberDashboardController extends Controller
         $barber = $request->user()?->barberProfile;
         abort_if(! $barber, 403);
 
-        $period      = $request->string('period')->toString() ?: 'day';
+        $period = $request->string('period')->toString() ?: 'day';
         $estadoFilter = $request->string('estado')->toString() ?: '';
-        $dateOffset  = (int) $request->input('offset', 0);
+        $dateOffset = (int) $request->input('offset', 0);
 
         $baseDate = now()->addDays($dateOffset);
 
@@ -44,14 +46,14 @@ class BarberDashboardController extends Controller
             ->whereBetween('fecha', [$periodStart, $periodEnd])
             ->get();
 
-        $totalPeriod     = $allPeriod->count();
+        $totalPeriod = $allPeriod->count();
         $completedPeriod = $allPeriod->where('estado', 'completada')->count();
-        $pendingPeriod   = $allPeriod->where('estado', 'pendiente')->count();
+        $pendingPeriod = $allPeriod->where('estado', 'pendiente')->count();
         $confirmedPeriod = $allPeriod->where('estado', 'confirmada')->count();
         $inProcessPeriod = $allPeriod->where('estado', 'en_proceso')->count();
         $cancelledPeriod = $allPeriod->where('estado', 'cancelada')->count();
-        $noShowPeriod    = $allPeriod->where('estado', 'no_asistio')->count();
-        $productivity    = $totalPeriod > 0 ? round($completedPeriod / $totalPeriod * 100) : 0;
+        $noShowPeriod = $allPeriod->where('estado', 'no_asistio')->count();
+        $productivity = $totalPeriod > 0 ? round($completedPeriod / $totalPeriod * 100) : 0;
 
         // Filtered agenda list
         $query = Appointment::query()
@@ -68,16 +70,16 @@ class BarberDashboardController extends Controller
         $agenda = $query->get();
 
         $stats = [
-            'completed_count'  => Appointment::query()->where('barber_id', (string) $barber->id)->where('estado', 'completada')->count(),
-            'income_total'     => (float) Appointment::query()->where('barber_id', (string) $barber->id)->where('estado', 'completada')->sum('precio_cobrado'),
-            'productivity'     => $productivity,
-            'total_period'     => $totalPeriod,
-            'pending_period'   => $pendingPeriod,
+            'completed_count' => Appointment::query()->where('barber_id', (string) $barber->id)->where('estado', 'completada')->count(),
+            'income_total' => (float) Appointment::query()->where('barber_id', (string) $barber->id)->where('estado', 'completada')->sum('precio_cobrado'),
+            'productivity' => $productivity,
+            'total_period' => $totalPeriod,
+            'pending_period' => $pendingPeriod,
             'confirmed_period' => $confirmedPeriod,
-            'in_process_period'=> $inProcessPeriod,
+            'in_process_period' => $inProcessPeriod,
             'completed_period' => $completedPeriod,
             'cancelled_period' => $cancelledPeriod,
-            'no_show_period'   => $noShowPeriod,
+            'no_show_period' => $noShowPeriod,
         ];
 
         return view('barber.agenda', compact('agenda', 'stats', 'period', 'estadoFilter', 'baseDate', 'dateOffset'));
@@ -89,7 +91,7 @@ class BarberDashboardController extends Controller
         abort_if(! $barber || (string) $appointment->barber_id !== (string) $barber->id, 403);
 
         $wasCompletada = $appointment->estado === 'completada';
-        $nuevoEstado   = $request->validated()['estado'];
+        $nuevoEstado = $request->validated()['estado'];
 
         // Transicion validada por la maquina de estados (flujo estricto).
         try {
@@ -102,7 +104,7 @@ class BarberDashboardController extends Controller
             $appointment->update(['notas' => $request->validated()['notas']]);
         }
 
-        if ($nuevoEstado === 'completada' && !$wasCompletada) {
+        if ($nuevoEstado === 'completada' && ! $wasCompletada) {
             $client = Client::find($appointment->client_id);
             if ($client) {
                 app(LoyaltyService::class)->awardCitaPoints($client, (string) $appointment->id);
@@ -123,27 +125,27 @@ class BarberDashboardController extends Controller
         $userId = $request->user()->id;
 
         // Real stats
-        $citasTotal     = \App\Models\Appointment::where('barber_id', (string) $barber->id)->where('estado', 'completada')->count();
-        $citasMes       = \App\Models\Appointment::where('barber_id', (string) $barber->id)
+        $citasTotal = Appointment::where('barber_id', (string) $barber->id)->where('estado', 'completada')->count();
+        $citasMes = Appointment::where('barber_id', (string) $barber->id)
             ->where('estado', 'completada')
             ->whereMonth('fecha', now()->month)->count();
-        $memberSince    = $request->user()->created_at;
-        $yearsExp       = max(1, (int) $memberSince->diffInYears(now()));
+        $memberSince = $request->user()->created_at;
+        $yearsExp = max(1, (int) $memberSince->diffInYears(now()));
 
         // Rating promedio desde comentarios de trabajos
-        $avgRating = \App\Models\Comment::whereHas('work', fn($q) => $q->where('barbero_id', $userId))
+        $avgRating = Comment::whereHas('work', fn ($q) => $q->where('barbero_id', $userId))
             ->whereNotNull('rating')
             ->avg('rating');
         $avgRating = $avgRating ? round((float) $avgRating, 1) : null;
 
         // Últimos 6 trabajos del portfolio
-        $portfolioWorks = \App\Models\Work::where('barbero_id', $userId)
+        $portfolioWorks = Work::where('barbero_id', $userId)
             ->with(['images', 'reactions', 'comments'])
             ->latest()
             ->limit(6)
             ->get();
 
-        $portfolioTotal = \App\Models\Work::where('barbero_id', $userId)->count();
+        $portfolioTotal = Work::where('barbero_id', $userId)->count();
 
         return view('barber.profile', compact(
             'barber',

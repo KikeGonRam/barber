@@ -13,7 +13,9 @@ use Illuminate\Support\Str;
 class OrderSeeder extends Seeder
 {
     private const METODOS = ['efectivo', 'tarjeta', 'transferencia', 'qr'];
+
     private const STANDALONE_ORDERS = 3000;
+
     private const TODAY_PENDING_ORDERS = 20;
 
     public function run(): void

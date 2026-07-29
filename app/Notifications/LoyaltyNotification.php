@@ -55,12 +55,12 @@ class LoyaltyNotification extends Notification implements ShouldQueue
         $label = LoyaltyService::LEVEL_LABELS[$this->level] ?? strtoupper($this->level);
 
         return [
-            'type'           => 'loyalty_level_up',
-            'level'          => $this->level,
+            'type' => 'loyalty_level_up',
+            'level' => $this->level,
             'previous_level' => $this->previousLevel,
-            'title'          => "¡Subiste a {$label}!",
-            'message'        => "Ahora tienes {$this->discount}% de descuento en tus próximos servicios.",
-            'discount'       => $this->discount,
+            'title' => "¡Subiste a {$label}!",
+            'message' => "Ahora tienes {$this->discount}% de descuento en tus próximos servicios.",
+            'discount' => $this->discount,
         ];
     }
 }

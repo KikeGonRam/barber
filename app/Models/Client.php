@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use MongoDB\Laravel\Eloquent\Model;
@@ -34,10 +33,10 @@ class Client extends Model
     protected function casts(): array
     {
         return [
-            'fecha_nacimiento'          => 'date',
+            'fecha_nacimiento' => 'date',
             'preferencias_notificacion' => 'array',
-            'puntos'                    => 'integer',
-            'total_citas'               => 'integer',
+            'puntos' => 'integer',
+            'total_citas' => 'integer',
         ];
     }
 
@@ -53,7 +52,7 @@ class Client extends Model
 
     public function loyaltyTransactions(): HasMany
     {
-        return $this->hasMany(\App\Models\LoyaltyTransaction::class);
+        return $this->hasMany(LoyaltyTransaction::class);
     }
 
     public function getNivelAttribute($value): string

@@ -3,19 +3,21 @@
 namespace App\Http\Controllers\Appointment;
 
 use App\Exceptions\Domain\AppointmentConflictException;
+use App\Exceptions\Domain\InvalidAppointmentTransitionException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Appointment\StoreAppointmentRequest;
 use App\Http\Requests\Appointment\UpdateAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
-use App\Exceptions\Domain\InvalidAppointmentTransitionException;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class AppointmentController extends Controller
@@ -26,22 +28,22 @@ class AppointmentController extends Controller
         private readonly AppointmentStatusService $statusService,
     ) {}
 
-    public function index(\Illuminate\Http\Request $request): View
+    public function index(Request $request): View
     {
         $filters = $request->only(['q', 'estado', 'barber_id', 'fecha_desde', 'fecha_hasta']);
 
         $appointments = Appointment::query()
             ->with(['client.user', 'barber.user', 'service'])
-            ->when(!empty($filters['q']), function ($query) use ($filters) {
+            ->when(! empty($filters['q']), function ($query) use ($filters) {
                 $q = $filters['q'];
-                $query->whereHas('client.user', fn($u) => $u->where('name', 'like', "%{$q}%"))
-                      ->orWhereHas('service', fn($s) => $s->where('nombre', 'like', "%{$q}%"))
-                      ->orWhereHas('barber.user', fn($b) => $b->where('name', 'like', "%{$q}%"));
+                $query->whereHas('client.user', fn ($u) => $u->where('name', 'like', "%{$q}%"))
+                    ->orWhereHas('service', fn ($s) => $s->where('nombre', 'like', "%{$q}%"))
+                    ->orWhereHas('barber.user', fn ($b) => $b->where('name', 'like', "%{$q}%"));
             })
-            ->when(!empty($filters['estado']), fn($q) => $q->where('estado', $filters['estado']))
-            ->when(!empty($filters['barber_id']), fn($q) => $q->where('barber_id', $filters['barber_id']))
-            ->when(!empty($filters['fecha_desde']), fn($q) => $q->whereDate('fecha', '>=', $filters['fecha_desde']))
-            ->when(!empty($filters['fecha_hasta']), fn($q) => $q->whereDate('fecha', '<=', $filters['fecha_hasta']))
+            ->when(! empty($filters['estado']), fn ($q) => $q->where('estado', $filters['estado']))
+            ->when(! empty($filters['barber_id']), fn ($q) => $q->where('barber_id', $filters['barber_id']))
+            ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereDate('fecha', '>=', $filters['fecha_desde']))
+            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereDate('fecha', '<=', $filters['fecha_hasta']))
             ->latest('fecha')
             ->latest('hora_inicio')
             ->paginate(20)
@@ -50,9 +52,9 @@ class AppointmentController extends Controller
         $barbers = Barber::with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
         $services = Service::query()->where('activo', true)->orderBy('nombre')->get(['id', 'nombre', 'duracion_min', 'precio']);
         $stats = [
-            'total'      => Appointment::count(),
-            'today'      => Appointment::whereDate('fecha', today())->count(),
-            'pendiente'  => Appointment::where('estado', 'pendiente')->count(),
+            'total' => Appointment::count(),
+            'today' => Appointment::whereDate('fecha', today())->count(),
+            'pendiente' => Appointment::where('estado', 'pendiente')->count(),
             'completada' => Appointment::where('estado', 'completada')->count(),
         ];
 
@@ -64,7 +66,7 @@ class AppointmentController extends Controller
      * máximo 10 resultados. El cliente parado en recepción normalmente da
      * su teléfono, por eso se busca en ambos campos.
      */
-    public function searchClients(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function searchClients(Request $request): JsonResponse
     {
         $q = trim((string) $request->query('q', ''));
 
@@ -88,8 +90,8 @@ class AppointmentController extends Controller
             ->unique(fn ($c) => (string) $c->id)
             ->take(10)
             ->map(fn ($c) => [
-                'id'       => (string) $c->id,
-                'name'     => $c->user?->name ?? 'Cliente',
+                'id' => (string) $c->id,
+                'name' => $c->user?->name ?? 'Cliente',
                 'telefono' => $c->telefono,
             ])
             ->values();
@@ -103,34 +105,34 @@ class AppointmentController extends Controller
      * calculada a partir de la duración del servicio. Reutiliza
      * createAppointment(), que valida solapamientos con la agenda del barbero.
      */
-    public function walkIn(\Illuminate\Http\Request $request): RedirectResponse
+    public function walkIn(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'client_id'  => ['required', 'string', 'exists:clients,id'],
-            'barber_id'  => ['required', 'string', 'exists:barbers,id'],
+            'client_id' => ['required', 'string', 'exists:clients,id'],
+            'barber_id' => ['required', 'string', 'exists:barbers,id'],
             'service_id' => ['required', 'string', 'exists:services,id'],
         ], [
-            'client_id.required'  => 'Selecciona el cliente.',
-            'barber_id.required'  => 'Selecciona el barbero.',
+            'client_id.required' => 'Selecciona el cliente.',
+            'barber_id.required' => 'Selecciona el barbero.',
             'service_id.required' => 'Selecciona el servicio.',
         ]);
 
         $service = Service::findOrFail($data['service_id']);
-        $inicio  = now();
-        $fin     = $inicio->copy()->addMinutes((int) $service->duracion_min);
+        $inicio = now();
+        $fin = $inicio->copy()->addMinutes((int) $service->duracion_min);
 
         try {
             $this->appointmentService->createAppointment([
-                'client_id'      => $data['client_id'],
-                'barber_id'      => $data['barber_id'],
-                'service_id'     => $data['service_id'],
-                'fecha'          => $inicio->format('Y-m-d'),
-                'hora_inicio'    => $inicio->format('H:i'),
-                'hora_fin'       => $fin->format('H:i'),
-                'estado'         => 'en_proceso',
+                'client_id' => $data['client_id'],
+                'barber_id' => $data['barber_id'],
+                'service_id' => $data['service_id'],
+                'fecha' => $inicio->format('Y-m-d'),
+                'hora_inicio' => $inicio->format('H:i'),
+                'hora_fin' => $fin->format('H:i'),
+                'estado' => 'en_proceso',
                 'precio_cobrado' => (float) $service->precio,
-                'metodo_pago'    => 'efectivo',
-                'notas'          => 'Walk-in registrado en recepción.',
+                'metodo_pago' => 'efectivo',
+                'notas' => 'Walk-in registrado en recepción.',
             ]);
         } catch (AppointmentConflictException $exception) {
             return back()->withErrors(['walkin' => $exception->getMessage()]);
@@ -189,47 +191,49 @@ class AppointmentController extends Controller
             ->with('status', 'Cita actualizada correctamente.');
     }
 
-    public function calendar(): \Illuminate\View\View
+    public function calendar(): View
     {
         $barbers = Barber::with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
+
         return view('appointments.calendar', compact('barbers'));
     }
 
-    public function calendarData(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function calendarData(Request $request): JsonResponse
     {
-        $start    = $request->query('start');
-        $end      = $request->query('end');
+        $start = $request->query('start');
+        $end = $request->query('end');
         $barberId = $request->query('barber_id');
 
         $appointments = Appointment::with(['client.user:id,name', 'service:id,nombre', 'barber.user:id,name'])
-            ->when($start, fn($q) => $q->whereDate('fecha', '>=', $start))
-            ->when($end,   fn($q) => $q->whereDate('fecha', '<=', $end))
-            ->when($barberId, fn($q) => $q->where('barber_id', $barberId))
+            ->when($start, fn ($q) => $q->whereDate('fecha', '>=', $start))
+            ->when($end, fn ($q) => $q->whereDate('fecha', '<=', $end))
+            ->when($barberId, fn ($q) => $q->where('barber_id', $barberId))
             ->get();
 
         $statusColors = [
-            'pendiente'  => '#d97706',
+            'pendiente' => '#d97706',
             'confirmada' => '#3b82f6',
             'en_proceso' => '#06b6d4',
             'completada' => '#10b981',
-            'cancelada'  => '#ef4444',
+            'cancelada' => '#ef4444',
             'no_asistio' => '#6b7280',
         ];
 
         $events = $appointments->map(function (Appointment $appt) use ($statusColors) {
             $color = $statusColors[$appt->estado] ?? '#d4af37';
+
             return [
-                'id'              => $appt->id,
-                'title'           => ($appt->client?->user?->name ?? 'Cliente') . ' — ' . ($appt->service?->nombre ?? ''),
-                'start'           => $appt->fecha->format('Y-m-d') . 'T' . $appt->hora_inicio,
-                'end'             => $appt->fecha->format('Y-m-d') . 'T' . ($appt->hora_fin ?? $appt->hora_inicio),
-                'color'           => $color,
-                'textColor'       => '#fff',
-                'extendedProps'   => [
-                    'cliente'  => $appt->client?->user?->name ?? '—',
+                'id' => $appt->id,
+                'title' => ($appt->client?->user?->name ?? 'Cliente').' — '.($appt->service?->nombre ?? ''),
+                'start' => $appt->fecha->format('Y-m-d').'T'.$appt->hora_inicio,
+                'end' => $appt->fecha->format('Y-m-d').'T'.($appt->hora_fin ?? $appt->hora_inicio),
+                'color' => $color,
+                'textColor' => '#fff',
+                'extendedProps' => [
+                    'cliente' => $appt->client?->user?->name ?? '—',
                     'servicio' => $appt->service?->nombre ?? '—',
-                    'barbero'  => $appt->barber?->user?->name ?? '—',
-                    'estado'   => $appt->estado,
+                    'barbero' => $appt->barber?->user?->name ?? '—',
+                    'estado' => $appt->estado,
                     'edit_url' => route('appointments.edit', $appt->id),
                 ],
             ];
@@ -238,7 +242,7 @@ class AppointmentController extends Controller
         return response()->json($events);
     }
 
-    public function updateStatus(\Illuminate\Http\Request $request, Appointment $appointment): RedirectResponse
+    public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
     {
         $estado = (string) $request->input('estado');
         $wasCompletada = $appointment->estado === 'completada';
@@ -250,7 +254,7 @@ class AppointmentController extends Controller
             return back()->withErrors(['estado' => $e->getMessage()]);
         }
 
-        if ($estado === 'completada' && !$wasCompletada) {
+        if ($estado === 'completada' && ! $wasCompletada) {
             $client = $appointment->client ?? Client::find($appointment->client_id);
             if ($client) {
                 app(LoyaltyService::class)->awardCitaPoints($client, (string) $appointment->id);

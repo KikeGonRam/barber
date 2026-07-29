@@ -37,7 +37,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'message' => 'Notificaciones marcadas como leidas.',
-            'unread'  => 0,
+            'unread' => 0,
         ]);
     }
 
@@ -56,7 +56,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'message' => 'Notificación marcada como leída.',
-            'unread'  => $request->user()->unreadNotifications()->count(),
+            'unread' => $request->user()->unreadNotifications()->count(),
         ]);
     }
 
@@ -75,7 +75,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'message' => 'Notificación eliminada.',
-            'unread'  => $request->user()->unreadNotifications()->count(),
+            'unread' => $request->user()->unreadNotifications()->count(),
         ]);
     }
 }

@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notification;
  * Aviso a administracion/recepcion de productos por debajo de su stock minimo.
  * Recibe un arreglo simple (no modelos) para ser seguro en la cola.
  *
- * @param array<int, array{nombre:string, stock_actual:int, stock_minimo:int}> $products
+ * @param  array<int, array{nombre:string, stock_actual:int, stock_minimo:int}>  $products
  */
 class InventoryLowStockNotification extends Notification implements ShouldQueue
 {

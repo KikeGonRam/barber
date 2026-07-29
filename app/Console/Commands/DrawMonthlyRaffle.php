@@ -19,6 +19,7 @@ class DrawMonthlyRaffle extends Command
 
         if (RaffleResult::where('mes', $mes)->exists()) {
             $this->warn("Ya existe un sorteo para {$mes}.");
+
             return self::FAILURE;
         }
 
@@ -28,15 +29,16 @@ class DrawMonthlyRaffle extends Command
 
         if ($elegibles->isEmpty()) {
             $this->warn('No hay clientes elegibles (VIP o Leyenda).');
+
             return self::FAILURE;
         }
 
         $ganador = $elegibles->random();
 
         $result = RaffleResult::create([
-            'client_id'    => (string) $ganador->id,
-            'mes'          => $mes,
-            'premio'       => 'Corte premium gratis',
+            'client_id' => (string) $ganador->id,
+            'mes' => $mes,
+            'premio' => 'Corte premium gratis',
             'nivel_ganador' => $ganador->nivel,
         ]);
 

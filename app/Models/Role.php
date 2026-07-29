@@ -16,6 +16,7 @@ class Role extends Model implements RoleContract
     use HasPermissions, RefreshesPermissionCache;
 
     protected $connection = 'mongodb';
+
     protected $guarded = [];
 
     public function __construct(array $attributes = [])
@@ -25,7 +26,7 @@ class Role extends Model implements RoleContract
         $this->setTable(config('permission.table_names.roles', 'roles'));
     }
 
-    public static function findById(int|string $id, string|null $guardName = null): RoleContract
+    public static function findById(int|string $id, ?string $guardName = null): RoleContract
     {
         $guardName = $guardName ?? config('auth.defaults.guard');
         $role = static::where((new static)->getKeyName(), $id)
@@ -39,7 +40,7 @@ class Role extends Model implements RoleContract
         return $role;
     }
 
-    public static function findByName(string $name, string|null $guardName = null): RoleContract
+    public static function findByName(string $name, ?string $guardName = null): RoleContract
     {
         $guardName = $guardName ?? config('auth.defaults.guard');
         $role = static::where('name', $name)->where('guard_name', $guardName)->first();
@@ -51,7 +52,7 @@ class Role extends Model implements RoleContract
         return $role;
     }
 
-    public static function findOrCreate(string $name, string|null $guardName = null): RoleContract
+    public static function findOrCreate(string $name, ?string $guardName = null): RoleContract
     {
         $guardName = $guardName ?? config('auth.defaults.guard');
         $role = static::where('name', $name)->where('guard_name', $guardName)->first();

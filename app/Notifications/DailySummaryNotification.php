@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notification;
 /**
  * Resumen de cierre de jornada para administracion.
  *
- * @param array<string, string> $stats  filas etiqueta => valor
+ * @param  array<string, string>  $stats  filas etiqueta => valor
  */
 class DailySummaryNotification extends Notification implements ShouldQueue
 {

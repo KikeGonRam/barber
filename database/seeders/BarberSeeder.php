@@ -43,7 +43,7 @@ class BarberSeeder extends Seeder
             $name = $faker->firstNameMale().' '.$faker->lastName().' '.$faker->lastName();
             $email = Str::slug($name, '.').".b{$i}@".self::DOMAINS[array_rand(self::DOMAINS)];
             $telefono = '55'.str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
-            $userId = new ObjectId();
+            $userId = new ObjectId;
 
             $userRows[] = [
                 '_id' => $userId,

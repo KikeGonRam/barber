@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use Stripe\PaymentIntent;
 use Stripe\StripeClient;
 
 class StripePaymentService
@@ -16,7 +17,7 @@ class StripePaymentService
     public function createPaymentIntent(float $amount, string $currency = 'mxn', array $metadata = []): array
     {
         $intent = $this->stripe->paymentIntents->create([
-            'amount'   => (int) round($amount * 100),
+            'amount' => (int) round($amount * 100),
             'currency' => $currency,
             'automatic_payment_methods' => ['enabled' => true],
             'metadata' => $metadata,
@@ -28,7 +29,7 @@ class StripePaymentService
         ];
     }
 
-    public function retrievePaymentIntent(string $paymentIntentId): \Stripe\PaymentIntent
+    public function retrievePaymentIntent(string $paymentIntentId): PaymentIntent
     {
         return $this->stripe->paymentIntents->retrieve($paymentIntentId);
     }
@@ -36,6 +37,7 @@ class StripePaymentService
     public function confirmPayment(string $paymentIntentId): bool
     {
         $intent = $this->retrievePaymentIntent($paymentIntentId);
+
         return $intent->status === 'succeeded';
     }
 }

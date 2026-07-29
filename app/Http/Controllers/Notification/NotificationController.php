@@ -68,7 +68,7 @@ class NotificationController extends Controller
 
     public function poll(Request $request): JsonResponse
     {
-        $user  = $request->user();
+        $user = $request->user();
         $unread = $user->unreadNotifications()->count();
 
         $notifications = $user->unreadNotifications()
@@ -76,14 +76,14 @@ class NotificationController extends Controller
             ->limit(5)
             ->get()
             ->map(fn ($n) => [
-                'id'         => (string) $n->id,
-                'type'       => $n->type,
-                'data'       => $n->data,
+                'id' => (string) $n->id,
+                'type' => $n->type,
+                'data' => $n->data,
                 'created_at' => optional($n->created_at)->toAtomString(),
             ]);
 
         return response()->json([
-            'unread'        => $unread,
+            'unread' => $unread,
             'notifications' => $notifications,
         ]);
     }

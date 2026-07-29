@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Exceptions\Domain\AppointmentConflictException;
 use App\Exceptions\Domain\ClientAlreadyBookedException;
+use App\Exceptions\Domain\InvalidAppointmentTransitionException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
 use App\Models\Client;
-use App\Exceptions\Domain\InvalidAppointmentTransitionException;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
@@ -69,6 +69,8 @@ class AppointmentController extends Controller
             $query->where('client_id', (string) $user->clientProfile->id);
         } elseif ($user?->hasRole('barbero') && $user->barberProfile) {
             $query->where('barber_id', (string) $user->barberProfile->id);
+        } elseif (! $user?->hasAnyRole(['administrador', 'recepcionista'])) {
+            abort(403, 'No autorizado para consultar citas.');
         }
 
         $appointments = $query->limit(50)->get();

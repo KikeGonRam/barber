@@ -32,7 +32,7 @@ return [
     'connections' => [
 
         'mongodb' => [
-            'driver'   => 'mongodb',
+            'driver' => 'mongodb',
             // Append readPreference=primary + w=majority to the Atlas M0 DSN.
             // readPreference=primary: reads always target the primary replica.
             // w=majority: writes wait for acknowledgment from the majority of replica-set
@@ -40,7 +40,7 @@ return [
             // sees the write. Both are required because Atlas M0 free tier may route reads
             // to secondaries despite the read-preference setting, and majority write concern
             // closes that gap by ensuring secondaries have the data before the app proceeds.
-            'dsn'      => (static function (): string {
+            'dsn' => (static function (): string {
                 $uri = env('MONGODB_URI', '');
                 if (empty($uri)) {
                     return $uri;
@@ -53,7 +53,8 @@ return [
                 if (! preg_match('/[?&]w=/i', $uri)) {
                     $params[] = 'w=majority';
                 }
-                return $params ? $uri . $sep . implode('&', $params) : $uri;
+
+                return $params ? $uri.$sep.implode('&', $params) : $uri;
             })(),
             'database' => env('MONGO_DATABASE', 'barber_db'),
         ],

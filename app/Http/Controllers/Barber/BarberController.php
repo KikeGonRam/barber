@@ -4,7 +4,12 @@ namespace App\Http\Controllers\Barber;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Barber\UpdateBarberRequest;
+use App\Models\Appointment;
 use App\Models\Barber;
+use App\Models\BarberSchedule;
+use App\Models\Comment;
+use App\Models\Payment;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,78 +21,78 @@ class BarberController extends Controller
     public function index(Request $request): View
     {
         $filters = $request->only(['q', 'activo', 'especialidad']);
-        $search  = trim((string) ($filters['q'] ?? ''));
-        $status  = (string) ($filters['activo'] ?? '');
+        $search = trim((string) ($filters['q'] ?? ''));
+        $status = (string) ($filters['activo'] ?? '');
 
         $barbers = Barber::query()
             ->with(['user:id,name,email'])
-            ->when($search !== '', fn($q) => $q->whereHas('user', fn($u) =>
-                $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")))
-            ->when($status !== '', fn($q) => $q->where('activo', $status === '1'))
-            ->when(!empty($filters['especialidad']), fn($q) => $q->where('especialidades', 'like', '%'.$filters['especialidad'].'%'))
+            ->when($search !== '', fn ($q) => $q->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")))
+            ->when($status !== '', fn ($q) => $q->where('activo', $status === '1'))
+            ->when(! empty($filters['especialidad']), fn ($q) => $q->where('especialidades', 'like', '%'.$filters['especialidad'].'%'))
             ->latest('id')
             ->paginate(15)
             ->withQueryString();
 
         // withCount not supported by MongoDB — compute PHP-side after pagination
         $barberIds = $barbers->pluck('id')->toArray();
-        if (!empty($barberIds)) {
-            $citasCounts = \App\Models\Appointment::whereIn('barber_id', $barberIds)
+        if (! empty($barberIds)) {
+            $citasCounts = Appointment::whereIn('barber_id', $barberIds)
                 ->where('estado', 'completada')
                 ->whereBetween('fecha', [now()->startOfMonth(), now()->endOfMonth()])
                 ->get(['barber_id'])
                 ->groupBy('barber_id')
                 ->map->count();
-            $barbers->each(fn($b) => $b->citas_mes = $citasCounts->get($b->id, 0));
+            $barbers->each(fn ($b) => $b->citas_mes = $citasCounts->get($b->id, 0));
         }
 
         $stats = [
-            'total'    => Barber::count(),
-            'activos'  => Barber::where('activo', true)->count(),
-            'inactivos'=> Barber::where('activo', false)->count(),
+            'total' => Barber::count(),
+            'activos' => Barber::where('activo', true)->count(),
+            'inactivos' => Barber::where('activo', false)->count(),
         ];
 
         return view('barbers.index', compact('barbers', 'filters', 'search', 'status', 'stats'));
     }
 
-    public function performance(Barber $barber): \Illuminate\View\View
+    public function performance(Barber $barber): View
     {
         $barber->load('user');
-        $today      = \Carbon\Carbon::today();
-        $monthStart = \Carbon\Carbon::now()->startOfMonth();
-        $monthEnd   = \Carbon\Carbon::now()->endOfMonth();
+        $today = Carbon::today();
+        $monthStart = Carbon::now()->startOfMonth();
+        $monthEnd = Carbon::now()->endOfMonth();
 
         $stats = [
-            'citas_hoy'    => \App\Models\Appointment::where('barber_id', $barber->id)->whereDate('fecha', $today)->count(),
-            'citas_mes'    => \App\Models\Appointment::where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd])->where('estado', 'completada')->count(),
-            'ingresos_mes' => (float) \App\Models\Payment::whereHas('appointment', fn($q) => $q->where('barber_id', (string) $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd]))->get(['monto', 'propina'])->sum(fn($p) => (float)$p->monto + (float)$p->propina),
-            'canceladas_mes' => \App\Models\Appointment::where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd])->where('estado', 'cancelada')->count(),
-            'total_historico' => \App\Models\Appointment::where('barber_id', $barber->id)->where('estado', 'completada')->count(),
+            'citas_hoy' => Appointment::where('barber_id', $barber->id)->whereDate('fecha', $today)->count(),
+            'citas_mes' => Appointment::where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd])->where('estado', 'completada')->count(),
+            'ingresos_mes' => (float) Payment::whereHas('appointment', fn ($q) => $q->where('barber_id', (string) $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd]))->get(['monto', 'propina'])->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
+            'canceladas_mes' => Appointment::where('barber_id', $barber->id)->whereBetween('fecha', [$monthStart, $monthEnd])->where('estado', 'cancelada')->count(),
+            'total_historico' => Appointment::where('barber_id', $barber->id)->where('estado', 'completada')->count(),
         ];
 
         // Top 5 servicios del barbero
-        $topServices = \App\Models\Appointment::where('barber_id', $barber->id)
+        $topServices = Appointment::where('barber_id', $barber->id)
             ->where('estado', 'completada')
             ->with('service:id,nombre')
             ->get(['service_id'])
             ->groupBy('service_id')
-            ->map(fn($group) => (object)['service' => $group->first()->service, 'total' => $group->count()])
+            ->map(fn ($group) => (object) ['service' => $group->first()->service, 'total' => $group->count()])
             ->sortByDesc('total')
             ->take(5)
             ->values();
 
         // Últimas 10 citas
-        $recentAppointments = \App\Models\Appointment::where('barber_id', $barber->id)
+        $recentAppointments = Appointment::where('barber_id', $barber->id)
             ->with(['client.user:id,name', 'service:id,nombre'])
             ->orderByDesc('fecha')->orderByDesc('hora_inicio')
             ->limit(10)->get();
 
         // Chart: citas por día últimas 4 semanas
-        $weeklyChart = collect(range(27, 0))->map(function($offset) use ($barber) {
-            $date = \Carbon\Carbon::now()->subDays($offset);
+        $weeklyChart = collect(range(27, 0))->map(function ($offset) use ($barber) {
+            $date = Carbon::now()->subDays($offset);
+
             return [
                 'label' => $date->format('d M'),
-                'count' => \App\Models\Appointment::where('barber_id', $barber->id)
+                'count' => Appointment::where('barber_id', $barber->id)
                     ->whereDate('fecha', $date)->where('estado', 'completada')->count(),
             ];
         });
@@ -106,18 +111,17 @@ class BarberController extends Controller
     {
         $barber->load([
             'user:id,name,email,created_at',
-            'works' => fn($q) => $q->latest()->limit(9),
+            'works' => fn ($q) => $q->latest()->limit(9),
             'works.images',
             'works.reactions',
             'works.comments',
         ]);
 
         // Stats reales
-        $citasCompletadas = \App\Models\Appointment::where('barber_id', $barber->id)
+        $citasCompletadas = Appointment::where('barber_id', $barber->id)
             ->where('estado', 'completada')->count();
 
-        $avgRating = \App\Models\Comment::whereHas('work', fn($q) =>
-            $q->where('barbero_id', $barber->user_id))
+        $avgRating = Comment::whereHas('work', fn ($q) => $q->where('barbero_id', $barber->user_id))
             ->whereNotNull('rating')
             ->avg('rating');
         $avgRating = $avgRating ? round((float) $avgRating, 1) : null;
@@ -125,8 +129,8 @@ class BarberController extends Controller
         $yearsExp = max(1, (int) $barber->user?->created_at?->diffInYears(now()));
 
         // Disponibilidad hoy según schedule real
-        $todayDow       = now()->dayOfWeek; // 0=Dom … 6=Sáb (Carbon)
-        $disponibleHoy  = \App\Models\BarberSchedule::where('barber_id', $barber->id)
+        $todayDow = now()->dayOfWeek; // 0=Dom … 6=Sáb (Carbon)
+        $disponibleHoy = BarberSchedule::where('barber_id', $barber->id)
             ->where('day_of_week', $todayDow)
             ->where('is_working', true)
             ->exists();
@@ -145,21 +149,21 @@ class BarberController extends Controller
         $data = $request->validated();
 
         $barber->user()->update([
-            'name'  => $data['name'],
+            'name' => $data['name'],
             'email' => $data['email'],
         ]);
 
         $payload = [
             'especialidades' => $data['especialidades'] ?? null,
-            'descripcion'    => $data['descripcion'] ?? null,
-            'activo'         => (bool) ($data['activo'] ?? false),
+            'descripcion' => $data['descripcion'] ?? null,
+            'activo' => (bool) ($data['activo'] ?? false),
         ];
 
         if ($request->hasFile('foto')) {
             if (! empty($barber->foto) && Storage::disk('public')->exists($barber->foto)) {
                 Storage::disk('public')->delete($barber->foto);
             }
-            $ext  = $request->file('foto')->getClientOriginalExtension();
+            $ext = $request->file('foto')->getClientOriginalExtension();
             $path = $request->file('foto')->storeAs(
                 'barbers/'.$barber->id,
                 Str::uuid().'.'.$ext,

@@ -2,6 +2,10 @@ const palette = ['#d4af37', '#38bdf8', '#34d399', '#a78bfa', '#f59e0b', '#fb7185
 const textColor = 'rgba(255,255,255,.48)';
 const gridColor = 'rgba(255,255,255,.07)';
 const numberFormatter = new Intl.NumberFormat('es-MX');
+const compactFormatter = new Intl.NumberFormat('es-MX', {
+    maximumFractionDigits: 1,
+    notation: 'compact',
+});
 
 function parseConfig(canvas) {
     const node = document.getElementById(canvas.dataset.chartConfig);
@@ -27,7 +31,15 @@ function shortLabel(label, mini) {
 
     if (mini) return '';
 
-    return text.length > 28 ? `${text.slice(0, 26)}…` : text;
+    return text.length > 30 ? `${text.slice(0, 28)}…` : text;
+}
+
+function formatTick(value) {
+    const numeric = Number(value);
+
+    if (!Number.isFinite(numeric)) return value;
+
+    return Math.abs(numeric) >= 1000 ? compactFormatter.format(numeric) : numberFormatter.format(numeric);
 }
 
 function buildDataset(ctx, canvas, type, values, accent, mini) {
@@ -42,6 +54,10 @@ function buildDataset(ctx, canvas, type, values, accent, mini) {
         borderColor: accent,
         borderWidth: 0,
         borderRadius: type === 'bar' ? 8 : 0,
+        borderSkipped: false,
+        barPercentage: 0.74,
+        categoryPercentage: 0.72,
+        maxBarThickness: mini ? 14 : 34,
         hoverBorderColor: '#ffffff',
         hoverBorderWidth: type === 'bar' ? 0 : 1,
     };
@@ -93,10 +109,13 @@ function buildScales(type, horizontal, mini) {
             display: !mini,
             beginAtZero: horizontal,
             ticks: {
+                autoSkip: true,
                 color: textColor,
                 font: { size: 10, weight: '600' },
+                maxRotation: 0,
+                maxTicksLimit: horizontal ? 6 : 7,
                 callback(value) {
-                    return shortLabel(this.getLabelForValue(value), false);
+                    return horizontal ? formatTick(value) : shortLabel(this.getLabelForValue(value), false);
                 },
             },
             grid: { color: gridColor, drawBorder: false },
@@ -105,10 +124,13 @@ function buildScales(type, horizontal, mini) {
             display: !mini,
             beginAtZero: !horizontal,
             ticks: {
+                autoSkip: true,
                 color: textColor,
                 font: { size: 10, weight: '600' },
+                maxRotation: 0,
+                maxTicksLimit: horizontal ? 8 : 6,
                 callback(value) {
-                    return horizontal ? shortLabel(this.getLabelForValue(value), false) : value;
+                    return horizontal ? shortLabel(this.getLabelForValue(value), false) : formatTick(value);
                 },
             },
             grid: { color: gridColor, drawBorder: false },
@@ -126,6 +148,10 @@ function chartOptions(type, labels, horizontal, mini) {
             easing: 'easeOutQuart',
         },
         layout: { padding: mini ? 0 : 4 },
+        interaction: {
+            intersect: false,
+            mode: 'nearest',
+        },
         plugins: {
             legend: {
                 display: !mini && ['doughnut', 'polarArea'].includes(type),
@@ -152,7 +178,7 @@ function chartOptions(type, labels, horizontal, mini) {
                         return String(labels[index] ?? '').replace(/\n/g, ' · ');
                     },
                     label(item) {
-                        return ` ${numberFormatter.format(item.raw ?? 0)}`;
+                        return ` Resultado: ${numberFormatter.format(item.raw ?? 0)}`;
                     },
                 },
             },

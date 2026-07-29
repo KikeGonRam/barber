@@ -3,17 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 use MongoDB\Laravel\Eloquent\Model;
 use Spatie\Activitylog\Contracts\Activity as ActivityContract;
 
 class Activity extends Model implements ActivityContract
 {
     protected $connection = 'mongodb';
+
     protected $collection = 'activity_log';
+
     protected $guarded = [];
 
     protected $casts = [
@@ -51,7 +53,7 @@ class Activity extends Model implements ActivityContract
     public function changes(): Collection
     {
         if (! $this->properties instanceof Collection) {
-            return new Collection();
+            return new Collection;
         }
 
         return collect(array_filter($this->properties->only(['attributes', 'old'])->toArray()));

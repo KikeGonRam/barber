@@ -1,13 +1,20 @@
 <?php
 
+use App\Http\Controllers\Analytics\AnalyticsController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Barber\BarberController;
 use App\Http\Controllers\Barber\BarberDashboardController;
+use App\Http\Controllers\Campaign\CampaignController;
+use App\Http\Controllers\Campaign\TrackingController;
 use App\Http\Controllers\Chatbot\ChatbotController;
+use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\ClientAppointmentController;
 use App\Http\Controllers\Client\ClientBarberController;
-use App\Http\Controllers\Client\ClientInvoiceController;
 use App\Http\Controllers\Client\ClientController;
+use App\Http\Controllers\Client\ClientInvoiceController;
+use App\Http\Controllers\Client\MembershipController;
+use App\Http\Controllers\Client\StoreController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\DatabaseBackupController;
 use App\Http\Controllers\Inventory\InventoryMovementController;
@@ -16,30 +23,32 @@ use App\Http\Controllers\Log\ActivityLogController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Reception\OrderController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Service\ServiceController;
 use App\Http\Controllers\Setting\BarbershopSettingController;
 use App\Http\Controllers\Social\BarberPortfolioController;
 use App\Http\Controllers\Social\SocialController;
 use App\Http\Controllers\User\UserController;
+use App\Models\Appointment;
 use App\Models\Barber;
+use App\Models\Client;
+use App\Models\Comment;
 use App\Models\Service;
 use Illuminate\Support\Facades\Cache;
 
 Route::get('/', function () {
     // Cache landing page data for 5 minutes — 7 queries → 0 on cache hit
-    $services = Cache::remember('landing_services', 300, fn () =>
-        Service::where('activo', true)->limit(6)->get()
+    $services = Cache::remember('landing_services', 300, fn () => Service::where('activo', true)->limit(6)->get()
     );
-    $barbers = Cache::remember('landing_barbers', 300, fn () =>
-        Barber::with('user')->where('activo', true)->limit(4)->get()
+    $barbers = Cache::remember('landing_barbers', 300, fn () => Barber::with('user')->where('activo', true)->limit(4)->get()
     );
     $statsGlobales = Cache::remember('landing_stats', 300, fn () => [
-        'clientes'  => \App\Models\Client::count(),
-        'servicios' => \App\Models\Service::where('activo', true)->count(),
-        'citas'     => \App\Models\Appointment::where('estado', 'completada')->count(),
-        'rating'    => number_format((float) (\App\Models\Comment::whereNotNull('rating')->avg('rating') ?? 4.9), 1),
-        'resenas'   => \App\Models\Comment::whereNotNull('rating')->count(),
+        'clientes' => Client::count(),
+        'servicios' => Service::where('activo', true)->count(),
+        'citas' => Appointment::where('estado', 'completada')->count(),
+        'rating' => number_format((float) (Comment::whereNotNull('rating')->avg('rating') ?? 4.9), 1),
+        'resenas' => Comment::whereNotNull('rating')->count(),
     ]);
 
     return view('welcome', compact('services', 'barbers', 'statsGlobales'));
@@ -53,8 +62,8 @@ Route::get('/equipo/{barber}', [BarberController::class, 'show'])->name('barbers
 Route::get('/servicios', [ServiceController::class, 'publicIndex'])->name('services.public.index');
 
 // Seguimiento de campanas (publico: los golpea el cliente de correo).
-Route::get('/t/o/{campaign}/{user}', [\App\Http\Controllers\Campaign\TrackingController::class, 'open'])->name('track.open');
-Route::get('/t/c/{campaign}/{user}', [\App\Http\Controllers\Campaign\TrackingController::class, 'click'])->name('track.click');
+Route::get('/t/o/{campaign}/{user}', [TrackingController::class, 'open'])->name('track.open');
+Route::get('/t/c/{campaign}/{user}', [TrackingController::class, 'click'])->name('track.click');
 Route::post('/chatbot/query', [ChatbotController::class, 'query'])->name('chatbot.query');
 Route::middleware(['auth'])->group(function () {
     Route::get('/chatbot/history', [ChatbotController::class, 'getHistory'])->name('chatbot.history');
@@ -87,12 +96,12 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 // Página dedicada de Analítica (Spark) — un rol por dentro del controlador,
 // igual que /dashboard; no lleva role.custom porque los 4 roles la ven,
 // cada uno con su propio recorte de datos (ver AnalyticsController).
-Route::get('/analitica', [App\Http\Controllers\Analytics\AnalyticsController::class, 'index'])
+Route::get('/analitica', [AnalyticsController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('analytics.index');
 
 // Web-session based API token retrieval for the dashboard
-Route::post('/api/v1/auth/get-api-token', [App\Http\Controllers\Api\AuthController::class, 'getWebApiToken'])
+Route::post('/api/v1/auth/get-api-token', [AuthController::class, 'getWebApiToken'])
     ->middleware(['web', 'auth', 'throttle:20,1'])
     ->name('api.get-token');
 
@@ -123,10 +132,10 @@ Route::middleware('auth')->group(function () {
             Route::get('payments/{payment}/receipt', [PaymentController::class, 'downloadReceipt'])->name('payments.receipt.download');
 
             // Bandeja de pedidos de la tienda
-            Route::get('pedidos', [\App\Http\Controllers\Reception\OrderController::class, 'index'])->name('orders.index');
-            Route::patch('pedidos/{order}/entregar', [\App\Http\Controllers\Reception\OrderController::class, 'deliver'])->name('orders.deliver');
-            Route::patch('pedidos/{order}/cancelar', [\App\Http\Controllers\Reception\OrderController::class, 'cancel'])->name('orders.cancel');
-            Route::get('pedidos/{order}/recibo', [\App\Http\Controllers\Reception\OrderController::class, 'receipt'])->name('orders.receipt');
+            Route::get('pedidos', [OrderController::class, 'index'])->name('orders.index');
+            Route::patch('pedidos/{order}/entregar', [OrderController::class, 'deliver'])->name('orders.deliver');
+            Route::patch('pedidos/{order}/cancelar', [OrderController::class, 'cancel'])->name('orders.cancel');
+            Route::get('pedidos/{order}/recibo', [OrderController::class, 'receipt'])->name('orders.receipt');
         });
 
         Route::middleware('permission.custom:inventario.ver,inventario.gestionar')->group(function () {
@@ -138,7 +147,7 @@ Route::middleware('auth')->group(function () {
         Route::middleware('permission.custom:clientes.gestionar')->group(function () {
             Route::resource('clients', ClientController::class)
                 ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
-            Route::get('clients/{client}/profile', [\App\Http\Controllers\Client\ClientController::class, 'show'])->name('clients.show');
+            Route::get('clients/{client}/profile', [ClientController::class, 'show'])->name('clients.show');
         });
 
     });
@@ -146,8 +155,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['verified', 'role.custom:administrador'])->group(function () {
         Route::get('backups/database', [DatabaseBackupController::class, 'download'])->name('backups.database.download');
 
-        Route::get('campaigns', [\App\Http\Controllers\Campaign\CampaignController::class, 'index'])->name('campaigns.index');
-        Route::post('campaigns', [\App\Http\Controllers\Campaign\CampaignController::class, 'send'])->name('campaigns.send');
+        Route::get('campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
+        Route::post('campaigns', [CampaignController::class, 'send'])->name('campaigns.send');
 
         Route::middleware('permission.custom:reportes.ver')->group(function () {
             Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
@@ -174,7 +183,7 @@ Route::middleware('auth')->group(function () {
         Route::middleware('permission.custom:barberos.gestionar')->group(function () {
             Route::resource('barbers', BarberController::class)
                 ->only(['index', 'edit', 'update']);
-            Route::get('barbers/{barber}/performance', [\App\Http\Controllers\Barber\BarberController::class, 'performance'])->name('barbers.performance');
+            Route::get('barbers/{barber}/performance', [BarberController::class, 'performance'])->name('barbers.performance');
         });
 
         Route::middleware('permission.custom:configuracion.gestionar')->group(function () {
@@ -194,17 +203,17 @@ Route::middleware('auth')->group(function () {
         Route::post('barberos/{barber}/review', [ClientBarberController::class, 'storeReview'])->name('barberos.review');
         Route::get('facturas', [ClientInvoiceController::class, 'index'])->name('facturas.index');
         Route::get('facturas/{payment}/download', [ClientInvoiceController::class, 'download'])->name('facturas.download');
-        Route::get('membresia/tarjeta', [\App\Http\Controllers\Client\MembershipController::class, 'card'])->name('membership.card');
+        Route::get('membresia/tarjeta', [MembershipController::class, 'card'])->name('membership.card');
 
         // Tienda + carrito + pedidos
-        Route::get('tienda', [\App\Http\Controllers\Client\StoreController::class, 'index'])->name('tienda.index');
-        Route::get('carrito', [\App\Http\Controllers\Client\CartController::class, 'index'])->name('carrito.index');
-        Route::post('carrito/{product}', [\App\Http\Controllers\Client\CartController::class, 'add'])->name('carrito.add');
-        Route::patch('carrito', [\App\Http\Controllers\Client\CartController::class, 'update'])->name('carrito.update');
-        Route::delete('carrito/{productId}', [\App\Http\Controllers\Client\CartController::class, 'remove'])->name('carrito.remove');
-        Route::post('checkout', [\App\Http\Controllers\Client\CartController::class, 'checkout'])->name('carrito.checkout');
-        Route::get('pedidos', [\App\Http\Controllers\Client\OrderController::class, 'index'])->name('pedidos.index');
-        Route::patch('pedidos/{order}/cancelar', [\App\Http\Controllers\Client\OrderController::class, 'cancel'])->name('pedidos.cancel');
+        Route::get('tienda', [StoreController::class, 'index'])->name('tienda.index');
+        Route::get('carrito', [CartController::class, 'index'])->name('carrito.index');
+        Route::post('carrito/{product}', [CartController::class, 'add'])->name('carrito.add');
+        Route::patch('carrito', [CartController::class, 'update'])->name('carrito.update');
+        Route::delete('carrito/{productId}', [CartController::class, 'remove'])->name('carrito.remove');
+        Route::post('checkout', [CartController::class, 'checkout'])->name('carrito.checkout');
+        Route::get('pedidos', [App\Http\Controllers\Client\OrderController::class, 'index'])->name('pedidos.index');
+        Route::patch('pedidos/{order}/cancelar', [App\Http\Controllers\Client\OrderController::class, 'cancel'])->name('pedidos.cancel');
     });
 
     Route::middleware(['verified', 'role.custom:barbero'])->prefix('barbero')->name('barber.')->group(function () {

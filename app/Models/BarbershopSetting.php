@@ -25,7 +25,7 @@ class BarbershopSetting extends Model
     protected function casts(): array
     {
         return [
-            'redes_sociales'  => 'array',
+            'redes_sociales' => 'array',
             'datos_bancarios' => 'array',
             'maintenance_mode' => 'boolean',
         ];

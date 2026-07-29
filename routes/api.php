@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\BarberAdminController;
+use App\Http\Controllers\Api\Admin\ClientAdminController;
+use App\Http\Controllers\Api\Admin\DashboardAdminController;
+use App\Http\Controllers\Api\Admin\InventoryAdminController;
+use App\Http\Controllers\Api\Admin\ReportAdminController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AvailabilityController;
@@ -14,25 +19,21 @@ use App\Http\Controllers\Api\InventoryController as ApiInventoryController;
 use App\Http\Controllers\Api\LogController as ApiLogController;
 use App\Http\Controllers\Api\NotificationController as ApiNotificationController;
 use App\Http\Controllers\Api\PaymentController as ApiPaymentController;
+use App\Http\Controllers\Api\PredictionController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ReportController as ApiReportController;
 use App\Http\Controllers\Api\ServiceManagementController as ApiServiceManagementController;
 use App\Http\Controllers\Api\SettingController as ApiSettingController;
 use App\Http\Controllers\Api\SocialController as ApiSocialController;
-use App\Http\Controllers\Api\UserController as ApiUserController;
-use App\Http\Controllers\Api\Admin\DashboardAdminController;
-use App\Http\Controllers\Api\Admin\BarberAdminController;
-use App\Http\Controllers\Api\Admin\ClientAdminController;
-use App\Http\Controllers\Api\Admin\InventoryAdminController;
-use App\Http\Controllers\Api\Admin\ReportAdminController;
-use App\Http\Controllers\Api\PredictionController;
 use App\Http\Controllers\Api\StripeWebhookController;
+use App\Http\Controllers\Api\UserController as ApiUserController;
 use App\Http\Controllers\Chatbot\ChatbotController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 // Stripe webhook — sin auth ni CSRF; Stripe valida con firma HMAC
 Route::post('stripe/webhook', [StripeWebhookController::class, 'handle'])
-    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    ->withoutMiddleware([VerifyCsrfToken::class]);
 
 // Backward compatibility for older frontend cache that still calls /api/availability/slots
 Route::get('availability/slots', [AvailabilityController::class, 'slots'])
@@ -78,58 +79,60 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
         Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy']);
 
-        // Pagos (Admin/Recepcionista)
-        Route::get('payments', [ApiPaymentController::class, 'index']);
-        Route::post('payments', [ApiPaymentController::class, 'store']);
-        Route::post('payments/stripe-intent', [ApiPaymentController::class, 'stripeIntent'])->name('api.payments.stripe-intent');
-        Route::delete('payments/{payment}', [ApiPaymentController::class, 'destroy']);
-        Route::get('payments/{payment}/receipt', [ApiPaymentController::class, 'receipt']);
+        Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {
+            // Pagos (Admin/Recepcionista)
+            Route::get('payments', [ApiPaymentController::class, 'index']);
+            Route::post('payments', [ApiPaymentController::class, 'store']);
+            Route::post('payments/stripe-intent', [ApiPaymentController::class, 'stripeIntent'])->name('api.payments.stripe-intent');
+            Route::delete('payments/{payment}', [ApiPaymentController::class, 'destroy']);
+            Route::get('payments/{payment}/receipt', [ApiPaymentController::class, 'receipt']);
 
-        // Clientes (Admin/Recepcionista)
-        Route::get('clients', [ApiClientController::class, 'index']);
-        Route::post('clients', [ApiClientController::class, 'store']);
-        Route::put('clients/{client}', [ApiClientController::class, 'update']);
-        Route::delete('clients/{client}', [ApiClientController::class, 'destroy']);
+            // Clientes (Admin/Recepcionista)
+            Route::get('clients', [ApiClientController::class, 'index']);
+            Route::post('clients', [ApiClientController::class, 'store']);
+            Route::put('clients/{client}', [ApiClientController::class, 'update']);
+            Route::delete('clients/{client}', [ApiClientController::class, 'destroy']);
 
-        // Servicios (Admin)
-        Route::get('services/manage', [ApiServiceManagementController::class, 'index']);
-        Route::post('services/manage', [ApiServiceManagementController::class, 'store']);
-        Route::put('services/manage/{service}', [ApiServiceManagementController::class, 'update']);
-        Route::delete('services/manage/{service}', [ApiServiceManagementController::class, 'destroy']);
+            // Inventario (Admin/Recepcionista; acciones sensibles se refuerzan en controller)
+            Route::get('inventory/products', [ApiInventoryController::class, 'products']);
+            Route::post('inventory/products', [ApiInventoryController::class, 'storeProduct']);
+            Route::put('inventory/products/{product}', [ApiInventoryController::class, 'updateProduct']);
+            Route::delete('inventory/products/{product}', [ApiInventoryController::class, 'destroyProduct']);
+            Route::get('inventory/movements', [ApiInventoryController::class, 'movements']);
+            Route::post('inventory/movements', [ApiInventoryController::class, 'storeMovement']);
+        });
 
-        // Barberos (Admin)
-        Route::get('barbers/manage', [BarberManagementController::class, 'index']);
-        Route::put('barbers/manage/{barber}', [BarberManagementController::class, 'update']);
+        Route::middleware('role.custom:administrador')->group(function (): void {
+            // Servicios (Admin)
+            Route::get('services/manage', [ApiServiceManagementController::class, 'index']);
+            Route::post('services/manage', [ApiServiceManagementController::class, 'store']);
+            Route::put('services/manage/{service}', [ApiServiceManagementController::class, 'update']);
+            Route::delete('services/manage/{service}', [ApiServiceManagementController::class, 'destroy']);
 
-        // Usuarios (Admin)
-        Route::get('users', [ApiUserController::class, 'index']);
-        Route::post('users', [ApiUserController::class, 'store']);
-        Route::put('users/{user}', [ApiUserController::class, 'update']);
-        Route::delete('users/{user}', [ApiUserController::class, 'destroy']);
+            // Barberos (Admin)
+            Route::get('barbers/manage', [BarberManagementController::class, 'index']);
+            Route::put('barbers/manage/{barber}', [BarberManagementController::class, 'update']);
 
-        // Inventario - Productos (Admin)
-        Route::get('inventory/products', [ApiInventoryController::class, 'products']);
-        Route::post('inventory/products', [ApiInventoryController::class, 'storeProduct']);
-        Route::put('inventory/products/{product}', [ApiInventoryController::class, 'updateProduct']);
-        Route::delete('inventory/products/{product}', [ApiInventoryController::class, 'destroyProduct']);
+            // Usuarios (Admin)
+            Route::get('users', [ApiUserController::class, 'index']);
+            Route::post('users', [ApiUserController::class, 'store']);
+            Route::put('users/{user}', [ApiUserController::class, 'update']);
+            Route::delete('users/{user}', [ApiUserController::class, 'destroy']);
 
-        // Inventario - Movimientos
-        Route::get('inventory/movements', [ApiInventoryController::class, 'movements']);
-        Route::post('inventory/movements', [ApiInventoryController::class, 'storeMovement']);
+            // Reportes (Admin)
+            Route::get('reports', [ApiReportController::class, 'index']);
+            Route::get('reports/{type}/{format}', [ApiReportController::class, 'export'])
+                ->whereIn('type', ['ingresos', 'citas', 'inventario', 'clientes'])
+                ->whereIn('format', ['json', 'pdf', 'excel']);
 
-        // Reportes (Admin/Recepcionista)
-        Route::get('reports', [ApiReportController::class, 'index']);
-        Route::get('reports/{type}/{format}', [ApiReportController::class, 'export'])
-            ->whereIn('type', ['ingresos', 'citas', 'inventario', 'clientes'])
-            ->whereIn('format', ['json', 'pdf', 'excel']);
+            // Configuración (Admin)
+            Route::get('settings', [ApiSettingController::class, 'show']);
+            Route::put('settings', [ApiSettingController::class, 'update']);
+            Route::post('settings/maintenance', [ApiSettingController::class, 'toggleMaintenance']);
 
-        // Configuración (Admin)
-        Route::get('settings', [ApiSettingController::class, 'show']);
-        Route::put('settings', [ApiSettingController::class, 'update']);
-        Route::post('settings/maintenance', [ApiSettingController::class, 'toggleMaintenance']);
-
-        // Logs (Admin)
-        Route::get('logs', [ApiLogController::class, 'index']);
+            // Logs (Admin)
+            Route::get('logs', [ApiLogController::class, 'index']);
+        });
 
         // Notificaciones
         Route::get('notifications', [ApiNotificationController::class, 'index']);
@@ -150,19 +153,21 @@ Route::prefix('v1')->group(function (): void {
         Route::post('chatbot/train-history', [ChatbotManagementController::class, 'trainFromHistory'])
             ->middleware('role.custom:administrador');
 
-        // Bio/perfil propio del Barbero
-        Route::get('barber/me', [ProfileController::class, 'showBarberProfile']);
-        Route::get('barber/bio', [ProfileController::class, 'showBarberBio']);
-        Route::put('barber/bio', [ProfileController::class, 'updateBarberBio']);
+        Route::middleware('role.custom:barbero')->group(function (): void {
+            // Bio/perfil propio del Barbero
+            Route::get('barber/me', [ProfileController::class, 'showBarberProfile']);
+            Route::get('barber/bio', [ProfileController::class, 'showBarberBio']);
+            Route::put('barber/bio', [ProfileController::class, 'updateBarberBio']);
 
-        // Portafolio de Barbero
-        Route::get('barber/portfolio', [BarberPortfolioController::class, 'index']);
-        Route::post('barber/works', [BarberPortfolioController::class, 'store']);
-        Route::delete('barber/works/{work}', [BarberPortfolioController::class, 'destroy']);
+            // Portafolio de Barbero
+            Route::get('barber/portfolio', [BarberPortfolioController::class, 'index']);
+            Route::post('barber/works', [BarberPortfolioController::class, 'store']);
+            Route::delete('barber/works/{work}', [BarberPortfolioController::class, 'destroy']);
 
-        // Horarios de Barbero
-        Route::get('barber/schedule', [BarberScheduleController::class, 'show']);
-        Route::put('barber/schedule', [BarberScheduleController::class, 'update']);
+            // Horarios de Barbero
+            Route::get('barber/schedule', [BarberScheduleController::class, 'show']);
+            Route::put('barber/schedule', [BarberScheduleController::class, 'update']);
+        });
 
         // Admin Dashboard (Phase 1)
         Route::prefix('admin')->middleware('role.custom:administrador')->group(function (): void {

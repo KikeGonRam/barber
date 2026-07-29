@@ -10,6 +10,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -31,21 +33,21 @@ class ReportController extends Controller
         set_time_limit(120);
         ini_set('memory_limit', '512M');
 
-        $filters  = $request->only(['start_date', 'end_date', 'barber_id', 'metodo_pago', 'estado', 'categoria', 'tipo']);
-        $report   = $this->reportService->reportByType($type, $filters);
+        $filters = $request->only(['start_date', 'end_date', 'barber_id', 'metodo_pago', 'estado', 'categoria', 'tipo']);
+        $report = $this->reportService->reportByType($type, $filters);
         $filename = sprintf('%s-%s', $type, now()->format('Ymd_His'));
 
         return match ($format) {
             'excel' => $this->downloadExcel($report, $filename),
-            'pdf'   => $this->downloadPdf($report, $filename),
-            'csv'   => $this->downloadCsv($report, $filename),
+            'pdf' => $this->downloadPdf($report, $filename),
+            'csv' => $this->downloadCsv($report, $filename),
             default => abort(404, 'Formato no soportado.'),
         };
     }
 
     // ── Formatos ─────────────────────────────────────────────────────────────
 
-    private function downloadExcel(array $report, string $filename): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    private function downloadExcel(array $report, string $filename): BinaryFileResponse
     {
         $rows = $report['rows']->map(
             fn ($row) => collect($report['keys'])->map(fn ($key) => $row[$key] ?? null)->all()
@@ -59,23 +61,23 @@ class ReportController extends Controller
 
     private function downloadPdf(array $report, string $filename): Response
     {
-        $rows    = $report['rows'];
+        $rows = $report['rows'];
         $trimmed = false;
 
         if ($rows->count() > self::PDF_ROW_LIMIT) {
-            $rows    = $rows->take(self::PDF_ROW_LIMIT);
+            $rows = $rows->take(self::PDF_ROW_LIMIT);
             $trimmed = true;
         }
 
         $pdf = Pdf::loadView('reports.pdf-table', [
-            'title'    => $report['title'],
+            'title' => $report['title'],
             'headings' => $report['headings'],
-            'rows'     => $rows,
-            'keys'     => $report['keys'],
-            'filters'  => [],
-            'trimmed'  => $trimmed,
-            'pdf_limit'=> self::PDF_ROW_LIMIT,
-            'total'    => $report['rows']->count(),
+            'rows' => $rows,
+            'keys' => $report['keys'],
+            'filters' => [],
+            'trimmed' => $trimmed,
+            'pdf_limit' => self::PDF_ROW_LIMIT,
+            'total' => $report['rows']->count(),
         ]);
 
         $pdf->setPaper('letter', 'landscape');
@@ -83,12 +85,12 @@ class ReportController extends Controller
         return $pdf->download("{$filename}.pdf");
     }
 
-    private function downloadCsv(array $report, string $filename): \Symfony\Component\HttpFoundation\StreamedResponse
+    private function downloadCsv(array $report, string $filename): StreamedResponse
     {
         $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}.csv\"",
-            'Cache-Control'       => 'no-store, no-cache',
+            'Cache-Control' => 'no-store, no-cache',
         ];
 
         return response()->stream(function () use ($report) {

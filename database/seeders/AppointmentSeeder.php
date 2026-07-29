@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 class AppointmentSeeder extends Seeder
 {
     private const MAX_PER_CLIENT = 150;
+
     private const METODOS = ['efectivo', 'tarjeta', 'transferencia'];
 
     /** Distribucion de estados terminales para citas en el pasado. */

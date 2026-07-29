@@ -16,6 +16,7 @@ use App\Services\Loyalty\LoyaltyService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use MongoDB\BSON\UTCDateTime;
 
 class DashboardService
 {
@@ -38,7 +39,7 @@ class DashboardService
      */
     private function aggregateCountsBy(string $groupField, Carbon $since): Collection
     {
-        $sinceUtc = new \MongoDB\BSON\UTCDateTime($since->getTimestamp() * 1000);
+        $sinceUtc = new UTCDateTime($since->getTimestamp() * 1000);
 
         $rows = Appointment::raw(function ($collection) use ($groupField, $sinceUtc) {
             return $collection->aggregate([
@@ -57,19 +58,19 @@ class DashboardService
 
     private function buildAdminMetrics(): array
     {
-        $today         = Carbon::today();
-        $weekStart     = Carbon::now()->startOfWeek();
-        $weekEnd       = Carbon::now()->endOfWeek();
-        $monthStart    = Carbon::now()->startOfMonth();
-        $monthEnd      = Carbon::now()->endOfMonth();
+        $today = Carbon::today();
+        $weekStart = Carbon::now()->startOfWeek();
+        $weekEnd = Carbon::now()->endOfWeek();
+        $monthStart = Carbon::now()->startOfMonth();
+        $monthEnd = Carbon::now()->endOfMonth();
         $lastMonthStart = (clone $monthStart)->subMonth();
-        $lastMonthEnd   = (clone $monthEnd)->subMonth();
+        $lastMonthEnd = (clone $monthEnd)->subMonth();
 
         // --- Appointment counts (4 indexed queries, fast) ---
-        $appointmentsToday      = Appointment::whereDate('fecha', $today)->count();
-        $appointmentsWeek       = Appointment::whereBetween('fecha', [$weekStart, $weekEnd])->count();
-        $appointmentsMonth      = Appointment::whereBetween('fecha', [$monthStart, $monthEnd])->count();
-        $appointmentsLastMonth  = Appointment::whereBetween('fecha', [$lastMonthStart, $lastMonthEnd])->count();
+        $appointmentsToday = Appointment::whereDate('fecha', $today)->count();
+        $appointmentsWeek = Appointment::whereBetween('fecha', [$weekStart, $weekEnd])->count();
+        $appointmentsMonth = Appointment::whereBetween('fecha', [$monthStart, $monthEnd])->count();
+        $appointmentsLastMonth = Appointment::whereBetween('fecha', [$lastMonthStart, $lastMonthEnd])->count();
 
         $appointmentGrowth = $appointmentsLastMonth > 0
             ? (($appointmentsMonth - $appointmentsLastMonth) / $appointmentsLastMonth) * 100 : 0;
@@ -78,9 +79,9 @@ class DashboardService
         $allPayments = Payment::where('created_at', '>=', $lastMonthStart->copy()->startOfDay())
             ->get(['created_at', 'monto', 'propina']);
 
-        $incomeToday     = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->isToday()));
-        $incomeWeek      = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($weekStart, $weekEnd)));
-        $incomeMonth     = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($monthStart, $monthEnd)));
+        $incomeToday = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->isToday()));
+        $incomeWeek = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($weekStart, $weekEnd)));
+        $incomeMonth = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($monthStart, $monthEnd)));
         $incomeLastMonth = $this->sumPaymentCollection($allPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($lastMonthStart, $lastMonthEnd)));
 
         $incomeGrowth = $incomeLastMonth > 0
@@ -92,43 +93,43 @@ class DashboardService
             ->groupBy('barber_id')
             ->map(fn ($g) => $g->count())
             ->sortDesc();
-        $topBarberId    = $barberGroups->keys()->first();
-        $topBarber      = $topBarberId ? Barber::with('user')->find($topBarberId) : null;
+        $topBarberId = $barberGroups->keys()->first();
+        $topBarber = $topBarberId ? Barber::with('user')->find($topBarberId) : null;
         $topBarberTotal = $barberGroups->first() ?? 0;
 
         // --- Top services — date-limited to last year, batch Service lookup ---
-        $yearAgo       = Carbon::now()->subYear();
+        $yearAgo = Carbon::now()->subYear();
         $serviceGroups = $this->aggregateCountsBy('service_id', $yearAgo)->sortDesc()->take(5);
         $serviceIds = $serviceGroups->keys()->filter()->all();
         $servicesMap = Service::find($serviceIds)->keyBy(fn ($s) => (string) $s->id);
         $topServices = $serviceGroups->map(function ($total, $serviceId) use ($servicesMap) {
             return (object) [
-                'total'   => $total,
+                'total' => $total,
                 'service' => $servicesMap->get((string) $serviceId),
             ];
         })->values();
 
         // --- Client stats — date-limited to last year ---
-        $clientGroups     = $this->aggregateCountsBy('client_id', $yearAgo);
-        $newClients       = $clientGroups->filter(fn ($t) => $t === 1)->count();
+        $clientGroups = $this->aggregateCountsBy('client_id', $yearAgo);
+        $newClients = $clientGroups->filter(fn ($t) => $t === 1)->count();
         $recurringClients = $clientGroups->filter(fn ($t) => $t > 1)->count();
-        $totalClients     = Client::count();
-        $recentClientIds  = Appointment::where('fecha', '>=', Carbon::now()->subDays(30))
+        $totalClients = Client::count();
+        $recentClientIds = Appointment::where('fecha', '>=', Carbon::now()->subDays(30))
             ->get(['client_id'])
             ->pluck('client_id')
             ->filter()
             ->map(fn ($id) => (string) $id)
             ->unique()
             ->values();
-        $activeClients    = $recentClientIds->count();
+        $activeClients = $recentClientIds->count();
         $retentionRate = $totalClients > 0 ? ($recurringClients / $totalClients) * 100 : 0;
 
         $lowStockCount = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->count();
 
         // --- Barbers status — 1 batch query instead of N+1 ---
-        $barbers    = Barber::with('user')->where('activo', true)->get();
-        $now        = Carbon::now();
-        $barberIds  = $barbers->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $barbers = Barber::with('user')->where('activo', true)->get();
+        $now = Carbon::now();
+        $barberIds = $barbers->pluck('id')->map(fn ($id) => (string) $id)->all();
         $currentTime = $now->format('H:i:s');
 
         $currentAppointments = Appointment::whereIn('barber_id', $barberIds)
@@ -141,30 +142,32 @@ class DashboardService
 
         $barbersStatus = $barbers->map(function ($barber) use ($now, $currentAppointments) {
             $currentAppt = $currentAppointments->get((string) $barber->id);
-            $isBusy      = (bool) $currentAppt;
-            $progress    = 0;
+            $isBusy = (bool) $currentAppt;
+            $progress = 0;
             if ($isBusy) {
-                $start    = Carbon::parse($currentAppt->fecha)->setTimeFromTimeString($currentAppt->hora_inicio);
-                $end      = Carbon::parse($currentAppt->fecha)->setTimeFromTimeString($currentAppt->hora_fin);
-                $total    = $end->diffInMinutes($start);
-                $elapsed  = $now->diffInMinutes($start);
+                $start = Carbon::parse($currentAppt->fecha)->setTimeFromTimeString($currentAppt->hora_inicio);
+                $end = Carbon::parse($currentAppt->fecha)->setTimeFromTimeString($currentAppt->hora_fin);
+                $total = $end->diffInMinutes($start);
+                $elapsed = $now->diffInMinutes($start);
                 $progress = min(100, max(0, round(($elapsed / ($total ?: 1)) * 100)));
             }
+
             return ['name' => $barber->user?->name ?? 'Barbero', 'is_busy' => $isBusy, 'progress' => $progress];
         });
 
         // --- Income by week — 1 query for 8-week range, grouped in PHP ---
         $weekRangeStart = Carbon::now()->startOfWeek()->subWeeks(7);
-        $weekRangeEnd   = Carbon::now()->endOfWeek();
+        $weekRangeEnd = Carbon::now()->endOfWeek();
         $weeklyPayments = Payment::whereBetween('created_at', [$weekRangeStart, $weekRangeEnd])
             ->get(['created_at', 'monto', 'propina']);
 
         $incomeByWeek = collect(range(0, 7))->map(function (int $offset) use ($weeklyPayments) {
             $start = Carbon::now()->startOfWeek()->subWeeks(7 - $offset);
-            $end   = (clone $start)->endOfWeek();
+            $end = (clone $start)->endOfWeek();
             $total = $this->sumPaymentCollection(
                 $weeklyPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($start, $end))
             );
+
             return ['label' => $start->format('d M'), 'total' => $total];
         });
 
@@ -172,23 +175,23 @@ class DashboardService
 
         return [
             'kpis' => [
-                'appointments_today'   => $appointmentsToday,
-                'appointments_week'    => $appointmentsWeek,
-                'appointments_month'   => $appointmentsMonth,
-                'appointment_growth'   => round($appointmentGrowth, 1),
-                'income_today'         => $incomeToday,
-                'income_week'          => $incomeWeek,
-                'income_month'         => $incomeMonth,
-                'income_growth'        => round($incomeGrowth, 1),
-                'top_barber_name'      => $topBarber?->user?->name,
-                'top_barber_total'     => $topBarberTotal,
-                'new_clients'          => $newClients,
-                'recurring_clients'    => $recurringClients,
-                'total_clients'        => $totalClients,
-                'active_clients'       => $activeClients,
-                'retention_rate'       => round($retentionRate, 1),
-                'low_stock_count'      => $lowStockCount,
-                'barbers_status'       => $barbersStatus,
+                'appointments_today' => $appointmentsToday,
+                'appointments_week' => $appointmentsWeek,
+                'appointments_month' => $appointmentsMonth,
+                'appointment_growth' => round($appointmentGrowth, 1),
+                'income_today' => $incomeToday,
+                'income_week' => $incomeWeek,
+                'income_month' => $incomeMonth,
+                'income_growth' => round($incomeGrowth, 1),
+                'top_barber_name' => $topBarber?->user?->name,
+                'top_barber_total' => $topBarberTotal,
+                'new_clients' => $newClients,
+                'recurring_clients' => $recurringClients,
+                'total_clients' => $totalClients,
+                'active_clients' => $activeClients,
+                'retention_rate' => round($retentionRate, 1),
+                'low_stock_count' => $lowStockCount,
+                'barbers_status' => $barbersStatus,
             ],
             'income_chart' => [
                 'labels' => $incomeByWeek->pluck('label')->all(),
@@ -199,8 +202,8 @@ class DashboardService
                 'values' => $topServices->pluck('total')->all(),
             ],
             'barber_performance' => $this->getBarberPerformanceChart($monthStart, $monthEnd),
-            'client_trends'      => $this->getClientTrendsChart($monthStart, $monthEnd),
-            'chatbot_telemetry'  => $chatbotTelemetry,
+            'client_trends' => $this->getClientTrendsChart($monthStart, $monthEnd),
+            'chatbot_telemetry' => $chatbotTelemetry,
         ];
     }
 
@@ -212,21 +215,21 @@ class DashboardService
 
         $barberStats = $appointments->groupBy('barber_id')
             ->map(fn ($g, $id) => [
-                'barber_id'    => $id,
+                'barber_id' => $id,
                 'appointments' => $g->count(),
-                'revenue'      => $g->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0)),
+                'revenue' => $g->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0)),
             ])
             ->sortByDesc('appointments')
             ->take(8)
             ->values();
 
         $barberIds = $barberStats->pluck('barber_id')->filter()->all();
-        $barbers   = Barber::with('user')->find($barberIds)->keyBy(fn ($b) => (string) $b->id);
+        $barbers = Barber::with('user')->find($barberIds)->keyBy(fn ($b) => (string) $b->id);
 
         return [
-            'labels'       => $barberStats->map(fn ($row) => $barbers->get((string) $row['barber_id'])?->user?->name ?? 'Sin nombre')->all(),
+            'labels' => $barberStats->map(fn ($row) => $barbers->get((string) $row['barber_id'])?->user?->name ?? 'Sin nombre')->all(),
             'appointments' => $barberStats->pluck('appointments')->all(),
-            'revenue'      => $barberStats->pluck('revenue')->map(fn ($v) => (float) ($v ?? 0))->all(),
+            'revenue' => $barberStats->pluck('revenue')->map(fn ($v) => (float) ($v ?? 0))->all(),
         ];
     }
 
@@ -239,11 +242,12 @@ class DashboardService
             ->map(fn ($a) => substr((string) $a->fecha, 0, 10));
 
         $clientTrends = collect(range(0, 11))->map(function (int $offset) use ($monthStart, $apptDates) {
-            $date    = (clone $monthStart)->addDays($offset * 3);
+            $date = (clone $monthStart)->addDays($offset * 3);
             $dateEnd = (clone $date)->addDays(3);
-            $ds      = $date->toDateString();
-            $de      = $dateEnd->toDateString();
-            $count   = $apptDates->filter(fn ($d) => $d >= $ds && $d < $de)->count();
+            $ds = $date->toDateString();
+            $de = $dateEnd->toDateString();
+            $count = $apptDates->filter(fn ($d) => $d >= $ds && $d < $de)->count();
+
             return ['label' => $date->format('d M'), 'count' => $count];
         });
 
@@ -260,9 +264,9 @@ class DashboardService
 
     private function buildBarberMetrics(string $barberId): array
     {
-        $today      = Carbon::today();
+        $today = Carbon::today();
         $monthStart = Carbon::now()->startOfMonth();
-        $monthEnd   = Carbon::now()->endOfMonth();
+        $monthEnd = Carbon::now()->endOfMonth();
 
         $appointmentsToday = Appointment::where('barber_id', $barberId)
             ->whereDate('fecha', $today)
@@ -283,34 +287,35 @@ class DashboardService
             ->pluck('id')->map(fn ($id) => (string) $id)->all();
         $tipsMonth = empty($monthApptIds)
             ? 0.0
-            : (float) \App\Models\Payment::whereIn('appointment_id', $monthApptIds)->sum('propina');
+            : (float) Payment::whereIn('appointment_id', $monthApptIds)->sum('propina');
 
         // Top services — date-limited to last year, batch Service lookup
-        $yearAgo     = Carbon::now()->subYear();
-        $svcGroups   = Appointment::where('barber_id', $barberId)
+        $yearAgo = Carbon::now()->subYear();
+        $svcGroups = Appointment::where('barber_id', $barberId)
             ->where('fecha', '>=', $yearAgo)
             ->get(['service_id'])
             ->groupBy('service_id')
             ->map(fn ($g) => $g->count())
             ->sortDesc()
             ->take(5);
-        $svcIds      = $svcGroups->keys()->filter()->all();
-        $svcMap      = Service::find($svcIds)->keyBy(fn ($s) => (string) $s->id);
+        $svcIds = $svcGroups->keys()->filter()->all();
+        $svcMap = Service::find($svcIds)->keyBy(fn ($s) => (string) $s->id);
         $topServices = $svcGroups->map(function ($total, $serviceId) use ($svcMap) {
             return (object) ['total' => $total, 'service' => $svcMap->get((string) $serviceId)];
         })->values();
 
         // Performance by day — 1 query for last 7 days, grouped in PHP (was 7 queries)
         $weekStart = Carbon::now()->subDays(6)->startOfDay();
-        $weekEnd   = Carbon::now()->endOfDay();
+        $weekEnd = Carbon::now()->endOfDay();
         $weeklyAppts = Appointment::where('barber_id', $barberId)
             ->whereBetween('fecha', [$weekStart, $weekEnd])
             ->get(['fecha'])
             ->map(fn ($a) => substr((string) $a->fecha, 0, 10));
 
         $performanceByDay = collect(range(0, 6))->map(function (int $offset) use ($weeklyAppts) {
-            $date  = Carbon::now()->subDays(6 - $offset)->toDateString();
+            $date = Carbon::now()->subDays(6 - $offset)->toDateString();
             $count = $weeklyAppts->filter(fn ($d) => $d === $date)->count();
+
             return ['label' => Carbon::parse($date)->format('D'), 'total' => $count];
         });
 
@@ -318,9 +323,9 @@ class DashboardService
             'kpis' => [
                 'appointments_today' => $appointmentsToday,
                 'appointments_month' => $appointmentsMonth,
-                'income_month'       => $incomeMonth,
-                'tips_month'         => $tipsMonth,
-                'rating'             => 4.9,
+                'income_month' => $incomeMonth,
+                'tips_month' => $tipsMonth,
+                'rating' => 4.9,
             ],
             'performance_chart' => [
                 'labels' => $performanceByDay->pluck('label')->all(),
@@ -343,7 +348,7 @@ class DashboardService
         $today = Carbon::today();
 
         $appointmentsToday = Appointment::whereDate('fecha', $today)->count();
-        $pendingPayments   = Appointment::whereDate('fecha', $today)
+        $pendingPayments = Appointment::whereDate('fecha', $today)
             ->where('estado', 'completada')
             ->whereDoesntHave('payments')
             ->count();
@@ -352,7 +357,7 @@ class DashboardService
         $lowStockCount = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->count();
 
         // Pedidos de tienda por entregar (bandeja de recepción).
-        $pendingOrders     = Order::where('estado', 'pendiente')->count();
+        $pendingOrders = Order::where('estado', 'pendiente')->count();
         $pendingOrdersList = Order::with('client.user')
             ->where('estado', 'pendiente')
             ->orderByDesc('created_at')
@@ -380,15 +385,15 @@ class DashboardService
         return [
             'kpis' => [
                 'appointments_today' => $appointmentsToday,
-                'pending_payments'   => $pendingPayments,
-                'new_clients_today'  => $newClientsToday,
-                'low_stock_count'    => $lowStockCount,
-                'pending_orders'     => $pendingOrders,
-                'collected_today'    => $collectedToday,
+                'pending_payments' => $pendingPayments,
+                'new_clients_today' => $newClientsToday,
+                'low_stock_count' => $lowStockCount,
+                'pending_orders' => $pendingOrders,
+                'collected_today' => $collectedToday,
             ],
-            'next_appointments'   => $nextAppointments,
+            'next_appointments' => $nextAppointments,
             'pending_orders_list' => $pendingOrdersList,
-            'flow_chart'          => $this->getReceptionistFlowData(),
+            'flow_chart' => $this->getReceptionistFlowData(),
         ];
     }
 
@@ -396,7 +401,7 @@ class DashboardService
     {
         $client = Client::find($clientId);
 
-        $totalAppointments     = Appointment::where('client_id', $clientId)->count();
+        $totalAppointments = Appointment::where('client_id', $clientId)->count();
         $completedAppointments = $client?->total_citas ?? Appointment::where('client_id', $clientId)->where('estado', 'completada')->count();
 
         $nextAppt = Appointment::with(['barber.user', 'service'])
@@ -413,16 +418,16 @@ class DashboardService
             ->map(fn ($g) => $g->count())
             ->sortDesc();
         $favoriteBarberId = $favoriteBarberData->keys()->first();
-        $favoriteBarber   = $favoriteBarberId ? Barber::with('user')->find($favoriteBarberId) : null;
+        $favoriteBarber = $favoriteBarberId ? Barber::with('user')->find($favoriteBarberId) : null;
 
         // Datos de lealtad desde el modelo (campo persistido)
-        $nivel   = $client?->nivel ?? LoyaltyService::nivelFromCitas($completedAppointments);
-        $puntos  = $client?->puntos ?? 0;
+        $nivel = $client?->nivel ?? LoyaltyService::nivelFromCitas($completedAppointments);
+        $puntos = $client?->puntos ?? 0;
         $discount = LoyaltyService::discountPct($nivel);
 
-        $nextNivel      = LoyaltyService::nextLevel($nivel);
+        $nextNivel = LoyaltyService::nextLevel($nivel);
         $citasNextNivel = $nextNivel ? LoyaltyService::citasForLevel($nextNivel) : null;
-        $citasFaltan    = $citasNextNivel ? max(0, $citasNextNivel - $completedAppointments) : 0;
+        $citasFaltan = $citasNextNivel ? max(0, $citasNextNivel - $completedAppointments) : 0;
 
         // Últimas transacciones de puntos
         $recentTransactions = LoyaltyTransaction::where('client_id', $clientId)
@@ -444,40 +449,41 @@ class DashboardService
             ->map(fn ($f) => substr((string) $f, 0, 7)); // "YYYY-MM"
 
         $visitData = collect(range(0, 5))->map(function ($offset) use ($clientVisitDates) {
-            $date  = Carbon::now()->subMonths(5 - $offset);
-            $key   = $date->format('Y-m');
+            $date = Carbon::now()->subMonths(5 - $offset);
+            $key = $date->format('Y-m');
             $count = $clientVisitDates->filter(fn ($d) => $d === $key)->count();
+
             return ['label' => $date->translatedFormat('M'), 'total' => $count];
         });
 
         return [
             'kpis' => [
-                'total_appointments'     => $totalAppointments,
+                'total_appointments' => $totalAppointments,
                 'completed_appointments' => $completedAppointments,
-                'favorite_barber'        => $favoriteBarber?->user?->name ?? 'Por descubrir',
-                'membership_status'      => LoyaltyService::LEVEL_LABELS[$nivel] ?? strtoupper($nivel),
+                'favorite_barber' => $favoriteBarber?->user?->name ?? 'Por descubrir',
+                'membership_status' => LoyaltyService::LEVEL_LABELS[$nivel] ?? strtoupper($nivel),
             ],
             'loyalty' => [
-                'nivel'               => $nivel,
-                'puntos'              => $puntos,
-                'discount_pct'        => $discount,
-                'next_nivel'          => $nextNivel,
-                'citas_faltan'        => $citasFaltan,
-                'citas_next_nivel'    => $citasNextNivel,
-                'progress_pct'        => $citasNextNivel ? min(100, ($completedAppointments / $citasNextNivel) * 100) : 100,
+                'nivel' => $nivel,
+                'puntos' => $puntos,
+                'discount_pct' => $discount,
+                'next_nivel' => $nextNivel,
+                'citas_faltan' => $citasFaltan,
+                'citas_next_nivel' => $citasNextNivel,
+                'progress_pct' => $citasNextNivel ? min(100, ($completedAppointments / $citasNextNivel) * 100) : 100,
                 'recent_transactions' => $recentTransactions,
-                'won_raffle'          => $lastRaffle,
+                'won_raffle' => $lastRaffle,
             ],
             'next_appointment' => $nextAppt ? [
-                'id'          => $nextAppt->id,
-                'code'        => $nextAppt->code,
-                'fecha'       => optional($nextAppt->fecha)->toDateString(),
+                'id' => $nextAppt->id,
+                'code' => $nextAppt->code,
+                'fecha' => optional($nextAppt->fecha)->toDateString(),
                 'hora_inicio' => $nextAppt->hora_inicio,
-                'hora_fin'    => $nextAppt->hora_fin,
-                'estado'      => $nextAppt->estado,
-                'service'     => $nextAppt->service ? ['id' => $nextAppt->service->id, 'nombre' => $nextAppt->service->nombre, 'precio' => $nextAppt->service->precio] : null,
-                'barber'      => $nextAppt->barber ? [
-                    'id'   => $nextAppt->barber->id,
+                'hora_fin' => $nextAppt->hora_fin,
+                'estado' => $nextAppt->estado,
+                'service' => $nextAppt->service ? ['id' => $nextAppt->service->id, 'nombre' => $nextAppt->service->nombre, 'precio' => $nextAppt->service->precio] : null,
+                'barber' => $nextAppt->barber ? [
+                    'id' => $nextAppt->barber->id,
                     'slug' => $nextAppt->barber->slug,
                     'user' => $nextAppt->barber->user ? ['name' => $nextAppt->barber->user->name] : null,
                 ] : null,
@@ -500,6 +506,7 @@ class DashboardService
 
         $counts = array_map(function (string $hour) use ($startTimes) {
             $nextHour = Carbon::parse($hour)->addHour()->format('H:i');
+
             return $startTimes->filter(fn ($h) => $h >= $hour && $h < $nextHour)->count();
         }, $hours);
 
@@ -517,7 +524,7 @@ class DashboardService
 
         $total = $errors = $latencyTotal = 0;
         $costTotal = 0.0;
-        $bySource  = [];
+        $bySource = [];
 
         foreach ($telemetryEvents as $event) {
             $rawProps = $event->properties;
@@ -526,15 +533,15 @@ class DashboardService
             } else {
                 $rawProps = (array) $rawProps;
             }
-            $props  = (array) ($rawProps['attributes'] ?? $rawProps);
+            $props = (array) ($rawProps['attributes'] ?? $rawProps);
             $source = (string) ($props['source'] ?? 'unknown');
             $status = (string) ($props['status'] ?? 'unknown');
             $latency = (int) ($props['latency_ms'] ?? 0);
-            $cost    = (float) ($props['estimated_cost_usd'] ?? 0);
+            $cost = (float) ($props['estimated_cost_usd'] ?? 0);
 
             $total++;
             $latencyTotal += $latency;
-            $costTotal    += $cost;
+            $costTotal += $cost;
             if ($status === 'error') {
                 $errors++;
             }
@@ -544,15 +551,15 @@ class DashboardService
         arsort($bySource);
 
         return [
-            'window_days'        => $days,
-            'total_requests'     => $total,
-            'errors'             => $errors,
-            'error_rate_pct'     => $total > 0 ? round(($errors / $total) * 100, 2) : 0.0,
-            'avg_latency_ms'     => $total > 0 ? (int) round($latencyTotal / $total) : 0,
+            'window_days' => $days,
+            'total_requests' => $total,
+            'errors' => $errors,
+            'error_rate_pct' => $total > 0 ? round(($errors / $total) * 100, 2) : 0.0,
+            'avg_latency_ms' => $total > 0 ? (int) round($latencyTotal / $total) : 0,
             'estimated_cost_usd' => round($costTotal, 6),
-            'top_sources'        => collect($bySource)->take(4)->all(),
+            'top_sources' => collect($bySource)->take(4)->all(),
             // Pass already-loaded events to avoid 7 redundant queries
-            'trend_chart'        => $this->chatbotTelemetryTrend($days, $telemetryEvents),
+            'trend_chart' => $this->chatbotTelemetryTrend($days, $telemetryEvents),
         ];
     }
 
@@ -562,10 +569,10 @@ class DashboardService
         $byDate = $events->groupBy(fn ($e) => Carbon::parse($e->created_at)->toDateString());
 
         $data = collect(range(0, $days - 1))->map(function (int $offset) use ($days, $byDate) {
-            $date      = Carbon::now()->subDays($days - 1 - $offset)->toDateString();
+            $date = Carbon::now()->subDays($days - 1 - $offset)->toDateString();
             $dayEvents = $byDate->get($date, collect());
-            $count     = $dayEvents->count();
-            $errors    = 0;
+            $count = $dayEvents->count();
+            $errors = 0;
             $latencyTotal = 0;
 
             foreach ($dayEvents as $event) {
@@ -583,16 +590,16 @@ class DashboardService
             }
 
             return [
-                'date'           => Carbon::parse($date)->format('M d'),
+                'date' => Carbon::parse($date)->format('M d'),
                 'error_rate_pct' => $count > 0 ? round(($errors / $count) * 100, 1) : 0.0,
                 'avg_latency_ms' => $count > 0 ? (int) round($latencyTotal / $count) : 0,
             ];
         });
 
         return [
-            'labels'      => $data->pluck('date')->all(),
+            'labels' => $data->pluck('date')->all(),
             'error_rates' => $data->pluck('error_rate_pct')->all(),
-            'latencies'   => $data->pluck('avg_latency_ms')->all(),
+            'latencies' => $data->pluck('avg_latency_ms')->all(),
         ];
     }
 }

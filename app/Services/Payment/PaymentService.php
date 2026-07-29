@@ -6,10 +6,11 @@ use App\Exceptions\Domain\PaymentException;
 use App\Models\Appointment;
 use App\Models\Payment;
 use App\Notifications\PaymentReceiptNotification;
-use App\Services\Appointment\AppointmentStatusService;
 use App\Repositories\Contracts\PaymentRepositoryInterface;
+use App\Services\Appointment\AppointmentStatusService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PaymentService
@@ -65,10 +66,10 @@ class PaymentService
                 try {
                     $user->notify(new PaymentReceiptNotification($payment));
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('Fallo notificación comprobante de pago', [
+                    Log::warning('Fallo notificación comprobante de pago', [
                         'payment_id' => $payment->id,
-                        'user_id'    => $user->id,
-                        'error'      => $e->getMessage(),
+                        'user_id' => $user->id,
+                        'error' => $e->getMessage(),
                     ]);
                 }
             }

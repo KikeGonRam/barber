@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Models\Activity;
 
 class LogController extends Controller
 {

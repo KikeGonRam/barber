@@ -100,17 +100,21 @@ class ValidateUserRoles extends Command
 
             foreach ($expectations as $permission => $shouldHave) {
                 $hasPermission = $user->checkPermissionTo($permission);
-                $status = $hasPermission === $shouldHave ? 'OK' : 'FAIL';
+                $hasPermissionThroughMiddleware = $user->hasAnyPermission([$permission]);
+                $status = $hasPermission === $shouldHave && $hasPermissionThroughMiddleware === $shouldHave
+                    ? 'OK'
+                    : 'FAIL';
 
                 $this->line(sprintf(
-                    '  [%s] %-26s esperado=%s actual=%s',
+                    '  [%s] %-26s esperado=%s directo=%s middleware=%s',
                     $status,
                     $permission,
                     $shouldHave ? 'si' : 'no',
                     $hasPermission ? 'si' : 'no',
+                    $hasPermissionThroughMiddleware ? 'si' : 'no',
                 ));
 
-                if ($hasPermission !== $shouldHave) {
+                if ($hasPermission !== $shouldHave || $hasPermissionThroughMiddleware !== $shouldHave) {
                     $allPass = false;
                 }
             }

@@ -7,6 +7,7 @@ use App\Notifications\AppointmentNotification;
 use App\Services\Messaging\MessagingService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class SendAppointmentRemindersCommand extends Command
 {
@@ -53,7 +54,7 @@ class SendAppointmentRemindersCommand extends Command
 
                         $this->dispatchDirectMessage($user, 'Recordatorio: tu cita es mañana.', $messagingService);
                     } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::warning('Fallo recordatorio 24h', [
+                        Log::warning('Fallo recordatorio 24h', [
                             'appointment_id' => $appointment->id,
                             'error' => $e->getMessage(),
                         ]);
@@ -68,8 +69,8 @@ class SendAppointmentRemindersCommand extends Command
     {
         // Window: appointments starting between 90 and 150 minutes from now.
         // String comparison works correctly for zero-padded HH:MM:SS in MongoDB.
-        $from  = $now->copy()->addMinutes(90)->format('H:i:s');
-        $to    = $now->copy()->addMinutes(150)->format('H:i:s');
+        $from = $now->copy()->addMinutes(90)->format('H:i:s');
+        $to = $now->copy()->addMinutes(150)->format('H:i:s');
         $today = $now->toDateString();
 
         Appointment::query()
@@ -97,7 +98,7 @@ class SendAppointmentRemindersCommand extends Command
 
                         $this->dispatchDirectMessage($user, 'Recordatorio: tu cita es en aproximadamente 2 horas.', $messagingService);
                     } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::warning('Fallo recordatorio 2h', [
+                        Log::warning('Fallo recordatorio 2h', [
                             'appointment_id' => $appointment->id,
                             'error' => $e->getMessage(),
                         ]);

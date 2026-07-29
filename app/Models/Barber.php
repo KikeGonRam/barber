@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\User as UserModel;
 use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\User as UserModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use MongoDB\Laravel\Eloquent\Model;
 
@@ -28,6 +28,7 @@ class Barber extends Model
     protected function slugSource(): string
     {
         $user = $this->user ?? ($this->user_id ? UserModel::find($this->user_id) : null);
+
         return $user?->name ?? $this->nombre ?? 'barbero';
     }
 
@@ -40,7 +41,7 @@ class Barber extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(UserModel::class);
     }
 
     public function appointments(): HasMany

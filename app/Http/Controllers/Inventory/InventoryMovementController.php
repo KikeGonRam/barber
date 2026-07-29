@@ -22,12 +22,12 @@ class InventoryMovementController extends Controller
         $filters = $request->only(['tipo', 'product_id', 'fecha_desde', 'fecha_hasta', 'q']);
 
         $movements = InventoryMovement::with(['product:id,nombre', 'user:id,name'])
-            ->when(!empty($filters['q']), fn($q) => $q->whereHas('product', fn($p) => $p->where('nombre', 'like', '%'.$filters['q'].'%'))
+            ->when(! empty($filters['q']), fn ($q) => $q->whereHas('product', fn ($p) => $p->where('nombre', 'like', '%'.$filters['q'].'%'))
                 ->orWhere('motivo', 'like', '%'.$filters['q'].'%'))
-            ->when(!empty($filters['tipo']),       fn($q) => $q->where('tipo', $filters['tipo']))
-            ->when(!empty($filters['product_id']), fn($q) => $q->where('product_id', $filters['product_id']))
-            ->when(!empty($filters['fecha_desde']),fn($q) => $q->whereDate('fecha', '>=', $filters['fecha_desde']))
-            ->when(!empty($filters['fecha_hasta']),fn($q) => $q->whereDate('fecha', '<=', $filters['fecha_hasta']))
+            ->when(! empty($filters['tipo']), fn ($q) => $q->where('tipo', $filters['tipo']))
+            ->when(! empty($filters['product_id']), fn ($q) => $q->where('product_id', $filters['product_id']))
+            ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereDate('fecha', '>=', $filters['fecha_desde']))
+            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereDate('fecha', '<=', $filters['fecha_hasta']))
             ->latest('fecha')
             ->latest('id')
             ->paginate(20)
@@ -36,10 +36,10 @@ class InventoryMovementController extends Controller
         $products = Product::query()->orderBy('nombre')->get(['id', 'nombre']);
 
         $stats = [
-            'total'    => InventoryMovement::count(),
+            'total' => InventoryMovement::count(),
             'entradas' => InventoryMovement::where('tipo', 'entrada')->count(),
-            'salidas'  => InventoryMovement::where('tipo', 'salida')->count(),
-            'hoy'      => InventoryMovement::whereDate('fecha', today())->count(),
+            'salidas' => InventoryMovement::where('tipo', 'salida')->count(),
+            'hoy' => InventoryMovement::whereDate('fecha', today())->count(),
         ];
 
         return view('inventory.movements.index', compact('movements', 'products', 'filters', 'stats'));

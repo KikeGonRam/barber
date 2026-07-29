@@ -9,13 +9,17 @@ use MongoDB\Laravel\Eloquent\Model;
 class DatabaseNotification extends Model
 {
     protected $connection = 'mongodb';
+
     protected $collection = 'notifications';
+
     protected $guarded = [];
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $casts = [
-        'data'    => 'array',
+        'data' => 'array',
         'read_at' => 'datetime',
     ];
 

@@ -92,6 +92,7 @@ class AnalyticsController extends Controller
             foreach ($tipos as $tipo) {
                 if ($porTipo->has($tipo)) {
                     $insight = $porTipo->get($tipo);
+
                     return [
                         'label' => $label,
                         'value' => $insight->valor_destacado,

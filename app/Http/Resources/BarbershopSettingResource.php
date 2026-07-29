@@ -14,15 +14,15 @@ class BarbershopSettingResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                   => $this->id,
-            'nombre'               => $this->nombre,
-            'direccion'            => $this->direccion,
-            'telefono'             => $this->telefono,
-            'horario_apertura'     => $this->horario_apertura,
-            'horario_cierre'       => $this->horario_cierre,
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+            'direccion' => $this->direccion,
+            'telefono' => $this->telefono,
+            'horario_apertura' => $this->horario_apertura,
+            'horario_cierre' => $this->horario_cierre,
             'politica_cancelacion' => $this->politica_cancelacion,
-            'maintenance_mode'     => (bool) $this->maintenance_mode,
-            'redes_sociales'       => $this->redes_sociales ?? [],
+            'maintenance_mode' => (bool) $this->maintenance_mode,
+            'redes_sociales' => $this->redes_sociales ?? [],
         ];
     }
 }

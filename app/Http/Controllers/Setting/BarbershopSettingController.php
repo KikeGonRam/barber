@@ -36,14 +36,14 @@ class BarbershopSettingController extends Controller
             'politica_cancelacion' => $request->validated()['politica_cancelacion'],
             'redes_sociales' => [
                 'instagram' => $request->validated()['instagram'] ?? null,
-                'facebook'  => $request->validated()['facebook'] ?? null,
-                'tiktok'    => $request->validated()['tiktok'] ?? null,
+                'facebook' => $request->validated()['facebook'] ?? null,
+                'tiktok' => $request->validated()['tiktok'] ?? null,
             ],
             'datos_bancarios' => [
-                'clabe'        => $request->validated()['clabe'] ?? null,
-                'banco'        => $request->validated()['banco'] ?? null,
+                'clabe' => $request->validated()['clabe'] ?? null,
+                'banco' => $request->validated()['banco'] ?? null,
                 'beneficiario' => $request->validated()['beneficiario'] ?? null,
-                'concepto'     => $request->validated()['concepto'] ?? null,
+                'concepto' => $request->validated()['concepto'] ?? null,
             ],
         ]);
 

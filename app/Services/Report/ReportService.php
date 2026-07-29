@@ -31,14 +31,14 @@ class ReportService
         // Ingresos por servicios (citas cobradas).
         $serviceRows = $query->get()->map(function (Payment $payment) {
             return [
-                'fecha'       => optional($payment->created_at)->format('Y-m-d H:i'),
-                'origen'      => 'Servicio',
-                'cliente'     => $payment->appointment?->client?->user?->name,
-                'barbero'     => $payment->appointment?->barber?->user?->name,
+                'fecha' => optional($payment->created_at)->format('Y-m-d H:i'),
+                'origen' => 'Servicio',
+                'cliente' => $payment->appointment?->client?->user?->name,
+                'barbero' => $payment->appointment?->barber?->user?->name,
                 'metodo_pago' => $payment->metodo_pago,
-                'monto'       => (float) $payment->monto,
-                'propina'     => (float) $payment->propina,
-                'total'       => (float) $payment->monto + (float) $payment->propina,
+                'monto' => (float) $payment->monto,
+                'propina' => (float) $payment->propina,
+                'total' => (float) $payment->monto + (float) $payment->propina,
             ];
         });
 
@@ -57,14 +57,14 @@ class ReportService
                 $total = (float) $order->total;
 
                 return [
-                    'fecha'       => optional($order->entregado_en)->format('Y-m-d H:i'),
-                    'origen'      => 'Producto',
-                    'cliente'     => $order->client?->user?->name,
-                    'barbero'     => '—',
+                    'fecha' => optional($order->entregado_en)->format('Y-m-d H:i'),
+                    'origen' => 'Producto',
+                    'cliente' => $order->client?->user?->name,
+                    'barbero' => '—',
                     'metodo_pago' => $order->metodo_pago,
-                    'monto'       => $total,
-                    'propina'     => 0.0,
-                    'total'       => $total,
+                    'monto' => $total,
+                    'propina' => 0.0,
+                    'total' => $total,
                 ];
             });
         }
@@ -72,10 +72,10 @@ class ReportService
         $rows = $serviceRows->concat($orderRows)->sortByDesc('fecha')->values();
 
         return [
-            'title'    => 'Reporte de Ingresos',
+            'title' => 'Reporte de Ingresos',
             'headings' => ['Fecha', 'Origen', 'Cliente', 'Barbero', 'Método de pago', 'Monto', 'Propina', 'Total'],
-            'rows'     => $rows,
-            'keys'     => ['fecha', 'origen', 'cliente', 'barbero', 'metodo_pago', 'monto', 'propina', 'total'],
+            'rows' => $rows,
+            'keys' => ['fecha', 'origen', 'cliente', 'barbero', 'metodo_pago', 'monto', 'propina', 'total'],
         ];
     }
 
@@ -96,22 +96,22 @@ class ReportService
 
         $rows = $query->get()->map(function (Appointment $appointment) {
             return [
-                'fecha'          => optional($appointment->fecha)->format('Y-m-d'),
-                'hora_inicio'    => $appointment->hora_inicio,
-                'hora_fin'       => $appointment->hora_fin,
-                'estado'         => $appointment->estado,
-                'cliente'        => $appointment->client?->user?->name,
-                'barbero'        => $appointment->barber?->user?->name,
-                'servicio'       => $appointment->service?->nombre,
+                'fecha' => optional($appointment->fecha)->format('Y-m-d'),
+                'hora_inicio' => $appointment->hora_inicio,
+                'hora_fin' => $appointment->hora_fin,
+                'estado' => $appointment->estado,
+                'cliente' => $appointment->client?->user?->name,
+                'barbero' => $appointment->barber?->user?->name,
+                'servicio' => $appointment->service?->nombre,
                 'precio_cobrado' => (float) ($appointment->precio_cobrado ?? 0),
             ];
         });
 
         return [
-            'title'    => 'Reporte de Citas',
+            'title' => 'Reporte de Citas',
             'headings' => ['Fecha', 'Hora inicio', 'Hora fin', 'Estado', 'Cliente', 'Barbero', 'Servicio', 'Precio cobrado'],
-            'rows'     => $rows,
-            'keys'     => ['fecha', 'hora_inicio', 'hora_fin', 'estado', 'cliente', 'barbero', 'servicio', 'precio_cobrado'],
+            'rows' => $rows,
+            'keys' => ['fecha', 'hora_inicio', 'hora_fin', 'estado', 'cliente', 'barbero', 'servicio', 'precio_cobrado'],
         ];
     }
 
@@ -127,7 +127,7 @@ class ReportService
             $query->where('tipo', $filters['tipo']);
         }
 
-        $products   = $query->get();
+        $products = $query->get();
         $productIds = $products->pluck('id')->toArray();
 
         $movementCounts = ! empty($productIds)
@@ -139,22 +139,22 @@ class ReportService
 
         $rows = $products->map(function (Product $product) use ($movementCounts) {
             return [
-                'producto'    => $product->nombre,
-                'categoria'   => $product->categoria,
-                'tipo'        => $product->tipo,
-                'stock_actual'=> (int) $product->stock_actual,
-                'stock_minimo'=> (int) $product->stock_minimo,
+                'producto' => $product->nombre,
+                'categoria' => $product->categoria,
+                'tipo' => $product->tipo,
+                'stock_actual' => (int) $product->stock_actual,
+                'stock_minimo' => (int) $product->stock_minimo,
                 'bajo_minimo' => $product->stock_actual <= $product->stock_minimo ? 'Sí' : 'No',
-                'precio_venta'=> (float) $product->precio_venta,
+                'precio_venta' => (float) $product->precio_venta,
                 'movimientos' => (int) ($movementCounts->get($product->id, 0)),
             ];
         });
 
         return [
-            'title'    => 'Reporte de Inventario',
+            'title' => 'Reporte de Inventario',
             'headings' => ['Producto', 'Categoría', 'Tipo', 'Stock actual', 'Stock mínimo', 'Bajo mínimo', 'Precio venta', 'Movimientos'],
-            'rows'     => $rows,
-            'keys'     => ['producto', 'categoria', 'tipo', 'stock_actual', 'stock_minimo', 'bajo_minimo', 'precio_venta', 'movimientos'],
+            'rows' => $rows,
+            'keys' => ['producto', 'categoria', 'tipo', 'stock_actual', 'stock_minimo', 'bajo_minimo', 'precio_venta', 'movimientos'],
         ];
     }
 
@@ -169,31 +169,31 @@ class ReportService
             ->groupBy('client_id')
             ->map(function ($group) {
                 return [
-                    'cliente'    => $group->first()->client?->user?->name,
-                    'visitas'    => $group->count(),
-                    'completadas'=> $group->where('estado', 'completada')->count(),
-                    'gasto_total'=> (float) $group->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0)),
+                    'cliente' => $group->first()->client?->user?->name,
+                    'visitas' => $group->count(),
+                    'completadas' => $group->where('estado', 'completada')->count(),
+                    'gasto_total' => (float) $group->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0)),
                 ];
             })
             ->sortByDesc('visitas')
             ->values();
 
         return [
-            'title'    => 'Reporte de Clientes',
+            'title' => 'Reporte de Clientes',
             'headings' => ['Cliente', 'Citas totales', 'Completadas', 'Gasto total'],
-            'rows'     => $rows,
-            'keys'     => ['cliente', 'visitas', 'completadas', 'gasto_total'],
+            'rows' => $rows,
+            'keys' => ['cliente', 'visitas', 'completadas', 'gasto_total'],
         ];
     }
 
     public function reportByType(string $type, array $filters): array
     {
         return match ($type) {
-            'ingresos'   => $this->incomeReport($filters),
-            'citas'      => $this->appointmentsReport($filters),
+            'ingresos' => $this->incomeReport($filters),
+            'citas' => $this->appointmentsReport($filters),
             'inventario' => $this->inventoryReport($filters),
-            'clientes'   => $this->clientsReport($filters),
-            default      => throw new \InvalidArgumentException('Tipo de reporte no soportado.'),
+            'clientes' => $this->clientsReport($filters),
+            default => throw new \InvalidArgumentException('Tipo de reporte no soportado.'),
         };
     }
 
@@ -212,6 +212,6 @@ class ReportService
             : Carbon::now()->endOfDay();
 
         $query->where($field, '>=', $start)
-              ->where($field, '<=', $end);
+            ->where($field, '<=', $end);
     }
 }
