@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -13,7 +14,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use App\Models\Role;
 
 class RegisteredUserController extends Controller
 {
@@ -38,7 +38,6 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Count users before creating a new one
         $userCountBefore = User::count();
 
         $user = User::create([
@@ -47,24 +46,26 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Mark email as verified for testing
         if (app()->environment('testing')) {
             $user->markEmailAsVerified();
         }
 
-        // Si es el primer usuario registrado (no incluir seeders), asignar rol administrador
-        if ($userCountBefore === 0) {
+        $canBootstrapAdmin = $userCountBefore === 0
+            && (bool) config('auth.first_user_admin_enabled', false);
+
+        if ($canBootstrapAdmin) {
             Role::firstOrCreate([
                 'name' => 'administrador',
                 'guard_name' => 'web',
             ]);
+
             $user->assignRole('administrador');
         } else {
-            // Todos los demás son clientes
             Role::firstOrCreate([
                 'name' => 'cliente',
                 'guard_name' => 'web',
             ]);
+
             $user->assignRole('cliente');
             Client::firstOrCreate([
                 'user_id' => $user->id,

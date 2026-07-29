@@ -14,7 +14,7 @@
     <div class="py-8">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <section class="ui-surface">
-                <form method="POST" action="{{ route('users.update', $user) }}" class="space-y-10" x-data="{ role: '{{ old('role', $user->roles->first()?->name) }}' }">
+                <form method="POST" action="{{ route('users.update', $user) }}" class="space-y-10" x-data="{ role: '{{ old('role', $user->roleNames()->first()) }}' }">
                     @csrf
                     @method('PUT')
 

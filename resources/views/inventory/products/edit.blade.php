@@ -58,10 +58,20 @@
                             <div>
                                 <label class="ui-label" for="tipo">Tipo de Uso</label>
                                 <select name="tipo" class="ui-input !bg-panel border-white/10 text-white" required>
-                                    <option value="venta_cliente" @selected(old('tipo', $product->tipo) === 'venta_cliente')>Venta a Cliente</option>
-                                    <option value="insumo_trabajo" @selected(old('tipo', $product->tipo) === 'insumo_trabajo')>Insumo de Trabajo</option>
+                                    @php $currentType = \App\Models\Product::normalizedType(old('tipo', $product->tipo)); @endphp
+                                    <option value="venta_cliente" @selected($currentType === 'venta_cliente')>Venta a Cliente</option>
+                                    <option value="insumo_trabajo" @selected($currentType === 'insumo_trabajo')>Insumo de Trabajo</option>
                                 </select>
                                 @error('tipo') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="ui-label" for="activo">Estado</label>
+                                <input type="hidden" name="activo" value="0">
+                                <label class="mt-1 flex cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-panel px-4 py-3 text-sm font-bold text-white">
+                                    <span>Disponible para venta/uso</span>
+                                    <input id="activo" type="checkbox" name="activo" value="1" class="h-4 w-4 rounded border-white/20 bg-black text-gold focus:ring-gold" @checked((bool) old('activo', $product->isActive()))>
+                                </label>
+                                @error('activo') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                             </div>
                         </div>
                     </div>
@@ -111,7 +121,8 @@
                         </div>
 
                         <div>
-                            <textarea name="description" rows="4" class="ui-input !bg-panel border-white/10 text-white leading-relaxed">{{ old('description', $product->descripcion) }}</textarea>
+                            <textarea name="descripcion" rows="4" class="ui-input !bg-panel border-white/10 text-white leading-relaxed">{{ old('descripcion', $product->descripcion) }}</textarea>
+                            @error('descripcion') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                         </div>
                     </div>
 

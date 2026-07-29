@@ -17,7 +17,7 @@ class OrderService
      * Crea un pedido a partir de items, reservando (descontando) stock con
      * trazabilidad. Valida stock de todo antes de descontar.
      *
-     * @param array<int, array{product_id:string,nombre:string,precio:float|int,cantidad:int}> $items
+     * @param  array<int, array{product_id:string,nombre:string,precio:float|int,cantidad:int}>  $items
      */
     public function place(Client $client, array $items, string $tipo = 'tienda', ?string $appointmentId = null): Order
     {
@@ -30,8 +30,8 @@ class OrderService
         // 1) Validar stock de todos los productos antes de descontar.
         foreach ($items as $it) {
             $product = Product::find($it['product_id']);
-            if (! $product) {
-                throw new \RuntimeException('Un producto ya no esta disponible.');
+            if (! $product || ! $product->isSellable()) {
+                throw new \RuntimeException('Un producto ya no está disponible.');
             }
             if ((int) $product->stock_actual < (int) $it['cantidad']) {
                 throw new InsufficientStockException("Stock insuficiente para {$product->nombre}.");

@@ -39,18 +39,18 @@ class ClientAppointmentController extends Controller
         abort_if(! $client, 403);
 
         $clientId = (string) $client->id;
-        $today    = now()->startOfDay();
+        $today = now()->startOfDay();
 
         // Single query — group by estado in PHP to avoid 4 separate count() calls
         $allEstados = Appointment::where('client_id', $clientId)
             ->get(['estado', 'fecha']);
         $todayStr = $today->toDateString();
         $stats = [
-            'total'       => $allEstados->count(),
-            'proximas'    => $allEstados->filter(fn ($a) => ! in_array($a->estado, ['cancelada', 'completada'], true)
+            'total' => $allEstados->count(),
+            'proximas' => $allEstados->filter(fn ($a) => ! in_array($a->estado, ['cancelada', 'completada'], true)
                                 && substr((string) $a->fecha, 0, 10) >= $todayStr)->count(),
             'completadas' => $allEstados->where('estado', 'completada')->count(),
-            'canceladas'  => $allEstados->where('estado', 'cancelada')->count(),
+            'canceladas' => $allEstados->where('estado', 'cancelada')->count(),
         ];
 
         $nextAppointment = Appointment::where('client_id', $clientId)
@@ -73,16 +73,16 @@ class ClientAppointmentController extends Controller
 
     public function create(Request $request): View
     {
-        $barbers  = Barber::query()->with('user:id,name')->where('activo', true)->get();
+        $barbers = Barber::query()->with('user:id,name')->where('activo', true)->get();
         $services = Service::query()->where('activo', true)->orderBy('nombre')->get();
         $products = Product::query()
-            ->where('stock_actual', '>', 0)
+            ->availableForSale()
             ->orderBy('nombre')
             ->get(['id', 'nombre', 'categoria', 'precio_venta', 'imagen', 'descripcion']);
 
         $preselectedBarber = null;
         if ($request->filled('barber_id')) {
-            $preselectedBarber = $barbers->first(fn($b) => (string) $b->id === (string) $request->barber_id);
+            $preselectedBarber = $barbers->first(fn ($b) => (string) $b->id === (string) $request->barber_id);
         }
 
         $settings = BarbershopSetting::query()->first();

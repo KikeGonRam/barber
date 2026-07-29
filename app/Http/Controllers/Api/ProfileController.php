@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
-use App\Models\Barber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -37,7 +36,7 @@ class ProfileController extends Controller
      */
     public function show(Request $request): JsonResponse
     {
-        $user = $request->user()->load('roles');
+        $user = $request->user();
 
         return response()->json([
             'user' => [
@@ -46,7 +45,7 @@ class ProfileController extends Controller
                 'email' => $user->email,
                 'email_verified_at' => $user->email_verified_at,
                 'created_at' => $user->created_at,
-                'roles' => $user->roles->pluck('name')->values(),
+                'roles' => $user->roleNames()->values(),
                 'client_id' => $user->clientProfile?->id,
                 'barber_id' => $user->barberProfile?->id,
             ],
@@ -72,7 +71,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
-            'email' => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'email' => ['sometimes', 'email', 'max:255', 'unique:users,email,'.$user->id],
         ]);
 
         $user->update($validated);
@@ -106,7 +105,7 @@ class ProfileController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        if (!Hash::check($validated['current_password'], $request->user()->password)) {
+        if (! Hash::check($validated['current_password'], $request->user()->password)) {
             return response()->json([
                 'message' => 'La contraseña actual es incorrecta.',
             ], 422);
@@ -142,17 +141,17 @@ class ProfileController extends Controller
      */
     public function showBarberProfile(Request $request): JsonResponse
     {
-        $user   = $request->user();
+        $user = $request->user();
         $barber = $user->barberProfile;
 
         if (! $barber) {
             return response()->json(['message' => 'Perfil de barbero no encontrado'], 404);
         }
 
-        $today        = now()->toDateString();
+        $today = now()->toDateString();
         $startOfMonth = now()->startOfMonth()->toDateString();
 
-        $citasHoy      = Appointment::where('barber_id', (string) $barber->id)
+        $citasHoy = Appointment::where('barber_id', (string) $barber->id)
             ->where('fecha', $today)->count();
         $completadasMes = Appointment::where('barber_id', (string) $barber->id)
             ->where('estado', 'completada')
@@ -161,17 +160,17 @@ class ProfileController extends Controller
             ->where('estado', 'completada')->count();
 
         return response()->json([
-            'id'                    => (string) $user->id,
-            'name'                  => $user->name,
-            'email'                 => $user->email,
-            'especialidades'        => $barber->especialidades ?? '',
-            'descripcion'           => $barber->descripcion ?? '',
+            'id' => (string) $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'especialidades' => $barber->especialidades ?? '',
+            'descripcion' => $barber->descripcion ?? '',
             'calificacion_promedio' => round((float) ($barber->calificacion_promedio ?? 0), 1),
-            'total_resenas'         => (int) ($barber->total_resenas ?? 0),
-            'activo'                => (bool) ($barber->activo ?? true),
-            'stats'                 => [
-                'citas_hoy'         => $citasHoy,
-                'completadas_mes'   => $completadasMes,
+            'total_resenas' => (int) ($barber->total_resenas ?? 0),
+            'activo' => (bool) ($barber->activo ?? true),
+            'stats' => [
+                'citas_hoy' => $citasHoy,
+                'completadas_mes' => $completadasMes,
                 'total_completadas' => $totalCompletadas,
             ],
         ]);
@@ -187,7 +186,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'especialidades' => $barber->especialidades ?? '',
-            'descripcion'    => $barber->descripcion ?? '',
+            'descripcion' => $barber->descripcion ?? '',
         ]);
     }
 
@@ -201,15 +200,15 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'especialidades' => ['nullable', 'string', 'max:255'],
-            'descripcion'    => ['nullable', 'string', 'max:1000'],
+            'descripcion' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $barber->update($validated);
 
         return response()->json([
-            'message'        => 'Perfil actualizado',
+            'message' => 'Perfil actualizado',
             'especialidades' => $barber->especialidades,
-            'descripcion'    => $barber->descripcion,
+            'descripcion' => $barber->descripcion,
         ]);
     }
 
@@ -232,7 +231,7 @@ class ProfileController extends Controller
             'password' => ['required'],
         ]);
 
-        if (!Hash::check($validated['password'], $request->user()->password)) {
+        if (! Hash::check($validated['password'], $request->user()->password)) {
             return response()->json([
                 'message' => 'Contraseña incorrecta.',
             ], 422);

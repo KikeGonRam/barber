@@ -8,129 +8,122 @@ use Illuminate\Console\Command;
 class ValidateUserRoles extends Command
 {
     protected $signature = 'validate:user-roles';
-    protected $description = 'Validate that all user roles and permissions are correctly configured';
 
-    public function handle()
+    protected $description = 'Valida que los roles y permisos reales del sistema estén configurados correctamente';
+
+    private const ROLE_EXPECTATIONS = [
+        'administrador' => [
+            'citas.gestionar' => true,
+            'pagos.gestionar' => true,
+            'inventario.ver' => true,
+            'inventario.gestionar' => true,
+            'clientes.gestionar' => true,
+            'reportes.ver' => true,
+            'servicios.gestionar' => true,
+            'usuarios.gestionar' => true,
+            'barberos.gestionar' => true,
+            'configuracion.gestionar' => true,
+            'logs.ver' => true,
+        ],
+        'recepcionista' => [
+            'citas.gestionar' => true,
+            'pagos.gestionar' => true,
+            'inventario.ver' => true,
+            'inventario.gestionar' => true,
+            'clientes.gestionar' => true,
+            'reportes.ver' => false,
+            'servicios.gestionar' => false,
+            'usuarios.gestionar' => false,
+            'barberos.gestionar' => false,
+            'configuracion.gestionar' => false,
+            'logs.ver' => false,
+        ],
+        'barbero' => [
+            'citas.gestionar' => false,
+            'pagos.gestionar' => false,
+            'inventario.ver' => false,
+            'inventario.gestionar' => false,
+            'clientes.gestionar' => false,
+            'reportes.ver' => false,
+            'servicios.gestionar' => false,
+            'usuarios.gestionar' => false,
+            'barberos.gestionar' => false,
+            'configuracion.gestionar' => false,
+            'logs.ver' => false,
+        ],
+        'cliente' => [
+            'citas.gestionar' => false,
+            'pagos.gestionar' => false,
+            'inventario.ver' => false,
+            'inventario.gestionar' => false,
+            'clientes.gestionar' => false,
+            'reportes.ver' => false,
+            'servicios.gestionar' => false,
+            'usuarios.gestionar' => false,
+            'barberos.gestionar' => false,
+            'configuracion.gestionar' => false,
+            'logs.ver' => false,
+        ],
+    ];
+
+    public function handle(): int
     {
-        $this->info('Validating User Roles & Permissions...\n');
+        $this->info('Validando roles y permisos...');
 
-        $users = User::with('roles', 'permissions')->get();
+        $userCount = User::query()->count();
 
-        if ($users->isEmpty()) {
-            $this->error('No users found in database. Run seeders first!');
-            return 1;
+        if ($userCount === 0) {
+            $this->error('No hay usuarios en la base de datos. Ejecuta los seeders primero.');
+
+            return self::FAILURE;
         }
 
-        $this->info("Found " . $users->count() . " users\n");
+        $this->line('Usuarios encontrados: '.$userCount);
 
-        foreach ($users as $user) {
-            $roles = $user->roles->pluck('name')->join(', ') ?: 'No roles';
-            $perms = $user->permissions->pluck('name')->count();
-
-            $this->line("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-            $this->line("{$user->name} ({$user->email})");
-            $this->line("   Roles: {$roles}");
-            $this->line("   Direct Permissions: {$perms}");
-
-            // Show inherited permissions
-            $allPerms = $user->getAllPermissions();
-            $this->line("   Total Permissions (inherited): " . $allPerms->count());
-            
-            if ($allPerms->count() > 0) {
-                $this->line("\n   Permissions:");
-                foreach ($allPerms->take(5) as $perm) {
-                    $this->line("      [OK] {$perm->name}");
-                }
-                if ($allPerms->count() > 5) {
-                    $this->line("      ... and " . ($allPerms->count() - 5) . " more");
-                }
-            }
-            $this->line("");
+        foreach (array_keys(self::ROLE_EXPECTATIONS) as $roleName) {
+            $this->line("- {$roleName}: ".User::query()->whereRoleName($roleName)->count());
         }
 
-        $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        
-        // Validate specific permissions
-        $this->info("\nValidating Permission Matrix...\n");
-
-        $adminUser = User::whereHas('roles', fn ($q) => $q->where('name', 'administrador'))->first();
-        $recepUser = User::whereHas('roles', fn ($q) => $q->where('name', 'recepcionista'))->first();
-        $barberUser = User::whereHas('roles', fn ($q) => $q->where('name', 'barbero'))->first();
-        $clientUser = User::whereHas('roles', fn ($q) => $q->where('name', 'cliente'))->first();
-
-        // Check Administrador permissions
-        if ($adminUser) {
-            $this->validateRole($adminUser, 'Administrador', [
-                'dashboard.ver' => true,
-                'usuarios.gestionar' => true,
-                'barberos.gestionar' => true,
-                'clientes.gestionar' => true,
-                'servicios.gestionar' => true,
-                'citas.gestionar' => true,
-                'pagos.gestionar' => true,
-                'inventario.gestionar' => true,
-                'reportes.ver' => true,
-                'configuracion.gestionar' => true,
-                'logs.ver' => true,
-            ]);
-        }
-
-        // Check Recepcionista permissions
-        if ($recepUser) {
-            $this->validateRole($recepUser, 'Recepcionista', [
-                'dashboard.ver' => true,
-                'clientes.gestionar' => true,
-                'citas.gestionar' => true,
-                'pagos.gestionar' => true,
-                'inventario.ver' => true,
-                'reportes.ver' => true,
-                'usuarios.gestionar' => false,
-                'barberos.gestionar' => false,
-            ]);
-        }
-
-        // Check Barbero permissions
-        if ($barberUser) {
-            $this->validateRole($barberUser, 'Barbero', [
-                'dashboard.ver' => true,
-                'citas.ver_propias' => true,
-                'clientes.gestionar' => false,
-                'pagos.gestionar' => false,
-                'configuracion.gestionar' => false,
-            ]);
-        }
-
-        // Check Cliente permissions
-        if ($clientUser) {
-            $this->validateRole($clientUser, 'Cliente', [
-                'dashboard.ver' => true,
-                'usuarios.gestionar' => false,
-                'clientes.gestionar' => false,
-                'citas.gestionar' => false,
-            ]);
-        }
-
-        $this->info("\nRole validation complete!\n");
-        return 0;
-    }
-
-    protected function validateRole($user, $roleName, $permissions)
-    {
-        $this->line("\n{$roleName}:");
         $allPass = true;
 
-        foreach ($permissions as $permission => $shouldHave) {
-            $hasPermission = $user->hasPermissionTo($permission);
-            
-            if ($hasPermission === $shouldHave) {
-                $status = $shouldHave ? '[OK]' : '[--]';
-                $this->line("   {$status} {$permission}");
-            } else {
-                $this->line("   [FAIL] {$permission} (Expected: " . ($shouldHave ? 'YES' : 'NO') . ", Got: " . ($hasPermission ? 'YES' : 'NO') . ")");
-                $allPass = false;
+        foreach (self::ROLE_EXPECTATIONS as $roleName => $expectations) {
+            $user = User::query()->whereRoleName($roleName)->first();
+
+            if (! $user) {
+                $this->warn("No hay usuario de ejemplo para el rol {$roleName}; se omite validación puntual.");
+
+                continue;
+            }
+
+            $this->line('');
+            $this->info(ucfirst($roleName));
+
+            foreach ($expectations as $permission => $shouldHave) {
+                $hasPermission = $user->checkPermissionTo($permission);
+                $status = $hasPermission === $shouldHave ? 'OK' : 'FAIL';
+
+                $this->line(sprintf(
+                    '  [%s] %-26s esperado=%s actual=%s',
+                    $status,
+                    $permission,
+                    $shouldHave ? 'si' : 'no',
+                    $hasPermission ? 'si' : 'no',
+                ));
+
+                if ($hasPermission !== $shouldHave) {
+                    $allPass = false;
+                }
             }
         }
 
-        return $allPass;
+        if (! $allPass) {
+            $this->error('La matriz de permisos no coincide con la configuración esperada.');
+
+            return self::FAILURE;
+        }
+
+        $this->info('Validación de roles completada correctamente.');
+
+        return self::SUCCESS;
     }
 }

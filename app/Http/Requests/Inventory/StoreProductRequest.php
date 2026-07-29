@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Inventory;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,8 +23,9 @@ class StoreProductRequest extends FormRequest
             'precio_venta' => ['required', 'numeric', 'min:0'],
             'stock_actual' => ['required', 'integer', 'min:0'],
             'stock_minimo' => ['required', 'integer', 'min:0'],
-            'tipo' => ['required', Rule::in(['venta_cliente', 'insumo_trabajo'])],
+            'tipo' => ['required', Rule::in([...Product::SALE_TYPES, ...Product::SUPPLY_TYPES])],
             'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'activo' => ['nullable', 'boolean'],
         ];
     }
 }

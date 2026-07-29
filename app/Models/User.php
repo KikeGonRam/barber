@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use BackedEnum;
+use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,9 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Permission\Contracts\Role as RoleContract;
+use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -96,7 +101,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(MobileApiToken::class);
     }
 
-    public function issueMobileApiToken(string $name = 'Mobile App', ?array $abilities = null, ?\Carbon\Carbon $expiresAt = null): array
+    public function issueMobileApiToken(string $name = 'Mobile App', ?array $abilities = null, ?Carbon $expiresAt = null): array
     {
         $plainToken = bin2hex(random_bytes(32));
 
@@ -167,22 +172,136 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Nombres de rol de este usuario, resueltos directamente desde `role_id`.
      *
-     * hasRole()/hasAnyRole() de Spatie dependen de la relacion roles()
-     * (MorphToMany), que en Mongo solo funciona quando se accede de forma
+     * hasRole()/hasAnyRole() de Spatie dependen de la relación roles()
+     * (MorphToMany), que en Mongo solo funciona cuando se accede de forma
      * "lazy" (propiedad magica `$user->roles`) pero devuelve vacio cuando se
      * carga via loadMissing()/load() -- justo lo que hasRole() hace
      * internamente. Eso provoca falsos "sin rol" intermitentes segun si algo
      * mas ya habia tocado la relacion antes en el request. Usar este metodo
      * (o hasRoleName()) en vez de hasRole() para checks confiables.
      */
-    public function roleNames(): \Illuminate\Support\Collection
+    public function roleNames(?string $guard = null): Collection
     {
-        return Role::whereIn('id', (array) ($this->role_id ?? []))->pluck('name');
+        $roleIds = $this->roleIds();
+
+        if ($roleIds === []) {
+            return collect();
+        }
+
+        return Role::query()
+            ->whereIn('id', $roleIds)
+            ->when($guard, fn ($query) => $query->where('guard_name', $guard))
+            ->pluck('name')
+            ->values();
     }
 
     public function hasRoleName(string $name): bool
     {
         return $this->roleNames()->contains($name);
+    }
+
+    /**
+     * Mantiene estable la API pública de Spatie, pero resuelve los roles desde
+     * `role_id`, que es la fuente real de este proyecto en MongoDB.
+     */
+    public function hasRole($roles, ?string $guard = null): bool
+    {
+        $requiredRoles = $this->normalizeRoleNames($roles, $guard);
+
+        if ($requiredRoles->isEmpty()) {
+            return false;
+        }
+
+        return $this->roleNames($guard)->intersect($requiredRoles)->isNotEmpty();
+    }
+
+    public function hasAnyRole(...$roles): bool
+    {
+        return $this->hasRole($roles);
+    }
+
+    public function hasAllRoles($roles, ?string $guard = null): bool
+    {
+        $requiredRoles = $this->normalizeRoleNames($roles, $guard)->unique()->values();
+
+        if ($requiredRoles->isEmpty()) {
+            return false;
+        }
+
+        return $requiredRoles->diff($this->roleNames($guard))->isEmpty();
+    }
+
+    public function getRoleNames(): Collection
+    {
+        return $this->roleNames();
+    }
+
+    public function getPermissionsViaRoles(): Collection
+    {
+        $roleIds = $this->roleIds();
+
+        if ($roleIds === []) {
+            return collect();
+        }
+
+        return Role::query()
+            ->whereIn('id', $roleIds)
+            ->with('permissions')
+            ->get()
+            ->flatMap(fn (Role $role) => $role->permissions)
+            ->unique(fn ($permission) => (string) $permission->getKey())
+            ->sortBy('name')
+            ->values();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function roleIds(): array
+    {
+        return collect((array) ($this->role_id ?? []))
+            ->filter(fn ($id) => filled($id))
+            ->map(fn ($id) => (string) $id)
+            ->values()
+            ->all();
+    }
+
+    private function normalizeRoleNames(mixed $roles, ?string $guard = null): Collection
+    {
+        if (is_string($roles) && str_contains($roles, '|')) {
+            $roles = explode('|', $roles);
+        }
+
+        return collect(is_array($roles) || $roles instanceof Collection ? $roles : [$roles])
+            ->flatten()
+            ->flatMap(fn ($role) => $this->roleNameFromValue($role, $guard))
+            ->filter()
+            ->values();
+    }
+
+    private function roleNameFromValue(mixed $role, ?string $guard = null): array
+    {
+        if ($role instanceof BackedEnum) {
+            $role = $role->value;
+        }
+
+        if ($role instanceof RoleContract) {
+            return [$role->name];
+        }
+
+        if (is_string($role) && str_contains($role, '|')) {
+            return explode('|', $role);
+        }
+
+        if (is_int($role) || (is_string($role) && PermissionRegistrar::isUid($role))) {
+            return Role::query()
+                ->where('id', $role)
+                ->when($guard, fn ($query) => $query->where('guard_name', $guard))
+                ->pluck('name')
+                ->all();
+        }
+
+        return is_string($role) ? [$role] : [];
     }
 
     public function clientPhone(): ?string

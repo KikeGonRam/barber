@@ -15,16 +15,14 @@ class StoreController extends Controller
         $categoria = trim((string) $request->query('categoria', ''));
 
         $products = Product::query()
-            ->where('activo', true)
-            ->where('stock_actual', '>', 0)
+            ->availableForSale()
             ->when($search !== '', fn ($q) => $q->where('nombre', 'like', "%{$search}%"))
             ->when($categoria !== '', fn ($q) => $q->where('categoria', $categoria))
             ->orderBy('nombre')
             ->get();
 
         $categorias = Product::query()
-            ->where('activo', true)
-            ->where('stock_actual', '>', 0)
+            ->availableForSale()
             ->get(['categoria'])
             ->pluck('categoria')
             ->filter()

@@ -130,10 +130,10 @@
                                 <td class="text-muted text-sm">{{ $user->email }}</td>
                                 <td>
                                     <div class="flex flex-wrap gap-1.5">
-                                        @foreach($user->roles as $role)
-                                            @php $rc = $roleColors[$role->name] ?? 'white'; @endphp
+                                        @foreach($user->roleNames() as $roleName)
+                                            @php $rc = $roleColors[$roleName] ?? 'white'; @endphp
                                             <span class="inline-flex items-center rounded-full border border-{{ $rc === 'gold' ? 'gold/25' : $rc.'-500/25' }} bg-{{ $rc === 'gold' ? 'gold/10' : $rc.'-500/10' }} px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest {{ $rc === 'gold' ? 'text-gold' : 'text-'.$rc.'-400' }}">
-                                                {{ $role->name }}
+                                                {{ $roleName }}
                                             </span>
                                         @endforeach
                                     </div>
@@ -199,8 +199,8 @@
                             @endif
                         </div>
                         <div class="flex flex-wrap gap-1.5 border-t border-white/5 pt-3 mb-3">
-                            @foreach($user->roles as $role)
-                                <span class="text-[9px] font-black bg-white/8 border border-white/10 text-muted rounded-full px-2 py-0.5 uppercase">{{ $role->name }}</span>
+                            @foreach($user->roleNames() as $roleName)
+                                <span class="text-[9px] font-black bg-white/8 border border-white/10 text-muted rounded-full px-2 py-0.5 uppercase">{{ $roleName }}</span>
                             @endforeach
                         </div>
                         <div class="flex justify-end gap-3 border-t border-white/5 pt-3">

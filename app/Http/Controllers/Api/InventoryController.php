@@ -9,6 +9,7 @@ use App\Services\Inventory\InventoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 /**
  * @group Inventario
@@ -50,20 +51,9 @@ class InventoryController extends Controller
         $products = $this->inventoryService->listProducts($filters, 50);
 
         return response()->json([
-            'data' => collect($products->items())->map(fn ($product) => [
-                'id' => $product->id,
-                'nombre' => $product->nombre,
-                'categoria' => $product->categoria,
-                'descripcion' => $product->descripcion,
-                'tipo' => $product->tipo,
-                'stock_actual' => $product->stock_actual,
-                'stock_minimo' => $product->stock_minimo,
-                'precio_compra' => $product->precio_compra,
-                'precio_venta' => $product->precio_venta,
-                'active' => (bool) $product->active,
-                'low_stock' => (int) $product->stock_actual <= (int) $product->stock_minimo,
-                'imagen_url' => $product->imagen ? Storage::disk('public')->url($product->imagen) : null,
-            ])->values(),
+            'data' => collect($products->items())
+                ->map(fn (Product $product) => $this->productPayload($product))
+                ->values(),
             'meta' => [
                 'current_page' => $products->currentPage(),
                 'last_page' => $products->lastPage(),
@@ -141,9 +131,10 @@ class InventoryController extends Controller
             'precio_venta' => ['required', 'numeric', 'min:0'],
             'stock_actual' => ['required', 'integer', 'min:0'],
             'stock_minimo' => ['required', 'integer', 'min:0'],
-            'tipo' => ['required', 'in:venta_cliente,insumo_trabajo'],
+            'tipo' => ['required', Rule::in([...Product::SALE_TYPES, ...Product::SUPPLY_TYPES])],
             'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'active' => ['nullable', 'boolean'],
+            'activo' => ['nullable', 'boolean'],
         ]);
 
         if ($request->hasFile('imagen')) {
@@ -154,18 +145,7 @@ class InventoryController extends Controller
 
         return response()->json([
             'message' => 'Producto creado correctamente.',
-            'data' => [
-                'id' => $created->id,
-                'nombre' => $created->nombre,
-                'categoria' => $created->categoria,
-                'tipo' => $created->tipo,
-                'stock_actual' => $created->stock_actual,
-                'stock_minimo' => $created->stock_minimo,
-                'precio_compra' => $created->precio_compra,
-                'precio_venta' => $created->precio_venta,
-                'active' => (bool) $created->active,
-                'imagen_url' => $created->imagen ? Storage::disk('public')->url($created->imagen) : null,
-            ],
+            'data' => $this->productPayload($created),
         ], 201);
     }
 
@@ -181,9 +161,10 @@ class InventoryController extends Controller
             'precio_venta' => ['sometimes', 'required', 'numeric', 'min:0'],
             'stock_actual' => ['sometimes', 'required', 'integer', 'min:0'],
             'stock_minimo' => ['sometimes', 'required', 'integer', 'min:0'],
-            'tipo' => ['sometimes', 'required', 'in:venta_cliente,insumo_trabajo'],
+            'tipo' => ['sometimes', 'required', Rule::in([...Product::SALE_TYPES, ...Product::SUPPLY_TYPES])],
             'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'active' => ['nullable', 'boolean'],
+            'activo' => ['nullable', 'boolean'],
         ]);
 
         if ($request->hasFile('imagen')) {
@@ -195,18 +176,7 @@ class InventoryController extends Controller
 
         return response()->json([
             'message' => 'Producto actualizado correctamente.',
-            'data' => [
-                'id' => $product->id,
-                'nombre' => $product->nombre,
-                'categoria' => $product->categoria,
-                'tipo' => $product->tipo,
-                'stock_actual' => $product->stock_actual,
-                'stock_minimo' => $product->stock_minimo,
-                'precio_compra' => $product->precio_compra,
-                'precio_venta' => $product->precio_venta,
-                'active' => (bool) $product->active,
-                'imagen_url' => $product->imagen ? Storage::disk('public')->url($product->imagen) : null,
-            ],
+            'data' => $this->productPayload($product),
         ]);
     }
 
@@ -288,5 +258,24 @@ class InventoryController extends Controller
         $user = $request->user();
 
         abort_if(! $user || ! $user->hasAnyRole(['administrador', 'recepcionista']), 403, 'No autorizado.');
+    }
+
+    private function productPayload(Product $product): array
+    {
+        return [
+            'id' => $product->id,
+            'nombre' => $product->nombre,
+            'categoria' => $product->categoria,
+            'descripcion' => $product->descripcion,
+            'tipo' => $product->tipo,
+            'stock_actual' => $product->stock_actual,
+            'stock_minimo' => $product->stock_minimo,
+            'precio_compra' => $product->precio_compra,
+            'precio_venta' => $product->precio_venta,
+            'activo' => $product->isActive(),
+            'active' => $product->isActive(),
+            'low_stock' => (int) $product->stock_actual <= (int) $product->stock_minimo,
+            'imagen_url' => $product->imagen ? Storage::disk('public')->url($product->imagen) : null,
+        ];
     }
 }

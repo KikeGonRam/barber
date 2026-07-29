@@ -7,30 +7,29 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Barber;
 use App\Models\Client;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
-use App\Models\Role;
 
 class UserController extends Controller
 {
     public function index(Request $request): View
     {
-        $search     = trim((string) $request->query('q', ''));
+        $search = trim((string) $request->query('q', ''));
         $roleFilter = (string) $request->query('role', '');
-        $verified   = $request->query('verified', '');
+        $verified = $request->query('verified', '');
 
         $users = User::query()
-            ->with('roles:id,name')
-            ->when($search !== '', fn($q) => $q->where(fn($s) => $s
+            ->when($search !== '', fn ($q) => $q->where(fn ($s) => $s
                 ->where('name', 'like', "%{$search}%")
                 ->orWhere('email', 'like', "%{$search}%")))
-            ->when($roleFilter !== '', fn($q) => $q->whereRoleName($roleFilter))
-            ->when($verified === '1', fn($q) => $q->whereNotNull('email_verified_at'))
-            ->when($verified === '0', fn($q) => $q->whereNull('email_verified_at'))
+            ->when($roleFilter !== '', fn ($q) => $q->whereRoleName($roleFilter))
+            ->when($verified === '1', fn ($q) => $q->whereNotNull('email_verified_at'))
+            ->when($verified === '0', fn ($q) => $q->whereNull('email_verified_at'))
             ->latest('id')
             ->paginate(20)
             ->withQueryString();

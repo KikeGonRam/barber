@@ -32,12 +32,12 @@ class InventoryService
 
     public function createProduct(array $payload)
     {
-        return $this->products->create($payload);
+        return $this->products->create(Product::normalizePayload($payload));
     }
 
     public function updateProduct(Product $product, array $payload): bool
     {
-        return $this->products->update($product->id, $payload);
+        return $this->products->update($product->id, Product::normalizePayload($payload));
     }
 
     public function deleteProduct(Product $product): bool

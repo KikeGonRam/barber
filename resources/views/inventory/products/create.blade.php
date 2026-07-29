@@ -50,6 +50,15 @@
                                 </select>
                                 @error('tipo') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                             </div>
+                            <div>
+                                <label class="ui-label" for="activo">Estado</label>
+                                <input type="hidden" name="activo" value="0">
+                                <label class="mt-1 flex cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-panel px-4 py-3 text-sm font-bold text-white">
+                                    <span>Disponible para venta/uso</span>
+                                    <input id="activo" type="checkbox" name="activo" value="1" class="h-4 w-4 rounded border-white/20 bg-black text-gold focus:ring-gold" @checked(old('activo', '1') === '1')>
+                                </label>
+                                @error('activo') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                            </div>
                         </div>
                     </div>
 
@@ -98,7 +107,8 @@
                         </div>
 
                         <div>
-                            <textarea name="description" rows="4" class="ui-input !bg-panel border-white/10 text-white leading-relaxed" placeholder="Especificaciones, marca o modo de uso...">{{ old('description') }}</textarea>
+                            <textarea name="descripcion" rows="4" class="ui-input !bg-panel border-white/10 text-white leading-relaxed" placeholder="Especificaciones, marca o modo de uso...">{{ old('descripcion') }}</textarea>
+                            @error('descripcion') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                         </div>
                     </div>
 

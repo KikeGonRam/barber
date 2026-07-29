@@ -54,10 +54,10 @@ class ChatbotIntelligenceService
         $workIds = $worksByBarber->pluck('_id')->toArray();
         $workToBarber = $worksByBarber->pluck('barbero_id', '_id');
         $avgRatings = Comment::whereIn('work_id', $workIds)->get(['work_id', 'rating'])
-            ->groupBy(fn($c) => $workToBarber->get($c->work_id))
-            ->map(fn($g) => round($g->avg('rating') ?? 0, 1));
+            ->groupBy(fn ($c) => $workToBarber->get($c->work_id))
+            ->map(fn ($g) => round($g->avg('rating') ?? 0, 1));
 
-        return $barbers->map(fn($b) => [
+        return $barbers->map(fn ($b) => [
             'name' => $b->user->name,
             'works' => $workCounts->get($b->id, 0),
             'appointments' => $apptCounts->get($b->id, 0),
@@ -79,7 +79,7 @@ class ChatbotIntelligenceService
         $commentCounts = Comment::whereIn('work_id', $workIds)
             ->get(['work_id'])->groupBy('work_id')->map->count();
 
-        return $works->map(fn($work) => [
+        return $works->map(fn ($work) => [
             'title' => $work->title ?? $work->titulo,
             'barber' => $work->barberUser?->name,
             'likes' => $reactionCounts->get($work->_id, 0),
@@ -100,7 +100,7 @@ class ChatbotIntelligenceService
         $apptCounts = Appointment::whereIn('service_id', $ids)->where('estado', 'completada')
             ->where('created_at', '>=', $cutoff)->get(['service_id'])->groupBy('service_id')->map->count();
 
-        return $services->map(fn($s) => [
+        return $services->map(fn ($s) => [
             'name' => $s->nombre,
             'price' => $s->precio,
             'duration' => $s->duracion_minutos ?? 30,
@@ -161,7 +161,7 @@ class ChatbotIntelligenceService
             ->with('barber.user')
             ->get(['barber_id'])
             ->groupBy('barber_id')
-            ->map(fn($g) => ['name' => $g->first()->barber?->user?->name, 'count' => $g->count()])
+            ->map(fn ($g) => ['name' => $g->first()->barber?->user?->name, 'count' => $g->count()])
             ->sortByDesc('count')
             ->take(3)
             ->pluck('name')
@@ -191,7 +191,7 @@ class ChatbotIntelligenceService
             ->with('service:id,nombre')
             ->get(['service_id'])
             ->groupBy('service_id')
-            ->map(fn($g) => ['count' => $g->count(), 'name' => $g->first()->service?->nombre])
+            ->map(fn ($g) => ['count' => $g->count(), 'name' => $g->first()->service?->nombre])
             ->sortByDesc('count')
             ->first()['name'] ?? null;
 
@@ -201,7 +201,7 @@ class ChatbotIntelligenceService
             ->with('barber.user')
             ->get(['barber_id'])
             ->groupBy('barber_id')
-            ->map(fn($g) => ['count' => $g->count(), 'name' => $g->first()->barber?->user?->name])
+            ->map(fn ($g) => ['count' => $g->count(), 'name' => $g->first()->barber?->user?->name])
             ->sortByDesc('count')
             ->first()['name'] ?? null;
 
@@ -249,7 +249,7 @@ class ChatbotIntelligenceService
             ->where('estado', '!=', 'cancelada')
             ->get(['hora_inicio'])
             ->groupBy('hora_inicio')
-            ->map(fn($group) => ['hora' => $group->first()->hora_inicio, 'count' => $group->count()])
+            ->map(fn ($group) => ['hora' => $group->first()->hora_inicio, 'count' => $group->count()])
             ->sortByDesc('count')
             ->take(3)
             ->pluck('hora')
@@ -285,13 +285,14 @@ class ChatbotIntelligenceService
     private function getBestSellingProducts(): array
     {
         // Nota: Ajusta según tu estructura de tabla de ventas
-        $products = Product::where('activo', true)
+        $products = Product::query()
+            ->availableForSale()
             ->orderByDesc('created_at')
             ->limit(5)
             ->get()
             ->map(fn ($p) => [
                 'name' => $p->nombre,
-                'price' => $p->precio,
+                'price' => $p->precio_venta,
                 'category' => $p->categoria ?? 'Producto',
             ])
             ->toArray();

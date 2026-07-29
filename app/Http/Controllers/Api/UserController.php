@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Barber;
 use App\Models\Client;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Role;
 
 class UserController extends Controller
 {
@@ -24,7 +24,6 @@ class UserController extends Controller
         $roleFilter = trim((string) $request->query('role', ''));
 
         $users = User::query()
-            ->with('roles:id,name')
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($subQuery) use ($search): void {
                     $subQuery
@@ -33,7 +32,7 @@ class UserController extends Controller
                 });
             })
             ->when($roleFilter !== '', function ($query) use ($roleFilter): void {
-                $query->role($roleFilter);
+                $query->whereRoleName($roleFilter);
             })
             ->latest('id')
             ->paginate(15)
@@ -46,7 +45,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'email_verified_at' => optional($user->email_verified_at)?->toAtomString(),
                 'created_at' => optional($user->created_at)?->toAtomString(),
-                'roles' => $user->roles->pluck('name')->values(),
+                'roles' => $user->roleNames()->values(),
             ])->values(),
             'meta' => [
                 'current_page' => $users->currentPage(),
@@ -88,7 +87,7 @@ class UserController extends Controller
             $user->syncRoles([$data['role']]);
             $this->syncRoleProfiles($user, $data['role']);
 
-            return $user->fresh('roles:id,name');
+            return $user->fresh();
         });
 
         return response()->json([
@@ -97,7 +96,7 @@ class UserController extends Controller
                 'id' => $created->id,
                 'name' => $created->name,
                 'email' => $created->email,
-                'roles' => $created->roles->pluck('name')->values(),
+                'roles' => $created->roleNames()->values(),
             ],
         ], 201);
     }
@@ -127,7 +126,7 @@ class UserController extends Controller
             $user->syncRoles([$data['role']]);
             $this->syncRoleProfiles($user, $data['role']);
 
-            return $user->fresh('roles:id,name');
+            return $user->fresh();
         });
 
         return response()->json([
@@ -136,7 +135,7 @@ class UserController extends Controller
                 'id' => $updated->id,
                 'name' => $updated->name,
                 'email' => $updated->email,
-                'roles' => $updated->roles->pluck('name')->values(),
+                'roles' => $updated->roleNames()->values(),
             ],
         ]);
     }

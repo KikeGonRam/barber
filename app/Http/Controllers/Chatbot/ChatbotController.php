@@ -322,7 +322,7 @@ class ChatbotController extends Controller
             'services' => $services,
             'barbers' => $barbers,
             'user_name' => $user?->name,
-            'user_role' => $user?->roles->first()?->name ?? 'Visitante',
+            'user_role' => $user?->roleNames()->first() ?? 'Visitante',
             'extra_context' => $extraContext,
         ];
     }
@@ -411,7 +411,7 @@ class ChatbotController extends Controller
         }
 
         if ($this->matchesKeywords($message, ['producto', 'vender', 'comprar', 'inventario'])) {
-            $products = Product::where('activo', true)->count();
+            $products = Product::query()->availableForSale()->count();
             $productsInfo = $products > 0 ? "Tenemos {$products} productos disponibles" : 'Consulta nuestro catálogo de productos';
 
             return "PRODUCTOS:\n{$productsInfo}. Visita la sección 'Tienda' para ver detalles, precios y características.";
@@ -423,7 +423,6 @@ class ChatbotController extends Controller
 
         // ============ RESPUESTAS CONTEXTUALES POR ROL ============
         if ($user) {
-            $role = $user->roles->first()?->name ?? 'usuario';
             if (str_contains($message, 'hola') || str_contains($message, 'buenos') || str_contains($message, 'hi')) {
                 return "¡Hola {$user->name}! Soy el Concierge de UrbanBlade. ¿En qué puedo ayudarte hoy?";
             }

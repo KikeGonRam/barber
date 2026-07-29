@@ -14,17 +14,20 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'            => $this->id,
-            'nombre'        => $this->nombre,
-            'categoria'     => $this->categoria,
-            'stock_actual'  => $this->stock_actual,
-            'stock_minimo'  => $this->stock_minimo,
-            'precio_venta'  => $this->precio_venta,
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+            'categoria' => $this->categoria,
+            'descripcion' => $this->descripcion,
+            'stock_actual' => $this->stock_actual,
+            'stock_minimo' => $this->stock_minimo,
+            'precio_venta' => $this->precio_venta,
             'precio_compra' => $this->precio_compra,
-            'tipo'          => $this->tipo,
-            'status'        => $this->stockStatus(),
-            'totalValue'    => (float) ($this->stock_actual ?? 0) * (float) ($this->precio_venta ?? 0),
-            'updatedAt'     => optional($this->updated_at)->toIso8601String(),
+            'tipo' => $this->tipo,
+            'activo' => $this->isActive(),
+            'active' => $this->isActive(),
+            'status' => $this->stockStatus(),
+            'totalValue' => (float) ($this->stock_actual ?? 0) * (float) ($this->precio_venta ?? 0),
+            'updatedAt' => optional($this->updated_at)->toIso8601String(),
         ];
     }
 
@@ -34,7 +37,7 @@ class ProductResource extends JsonResource
     private function stockStatus(): string
     {
         $stock = (int) ($this->stock_actual ?? 0);
-        $min   = (int) ($this->stock_minimo ?? 0);
+        $min = (int) ($this->stock_minimo ?? 0);
 
         if ($stock === 0) {
             return 'empty';

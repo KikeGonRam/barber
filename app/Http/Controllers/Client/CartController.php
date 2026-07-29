@@ -32,8 +32,8 @@ class CartController extends Controller
             'cantidad' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        if (! $product->activo || (int) $product->stock_actual < 1) {
-            return back()->withErrors(['cart' => 'Ese producto no esta disponible.']);
+        if (! $product->isSellable()) {
+            return back()->withErrors(['cart' => 'Ese producto no está disponible.']);
         }
 
         $this->cart->add($product, (int) ($validated['cantidad'] ?? 1));
@@ -66,7 +66,7 @@ class CartController extends Controller
         abort_if(! $client, 403);
 
         if ($this->cart->isEmpty()) {
-            return redirect()->route('client.carrito.index')->withErrors(['cart' => 'Tu carrito esta vacio.']);
+            return redirect()->route('client.carrito.index')->withErrors(['cart' => 'Tu carrito está vacío.']);
         }
 
         $items = array_map(fn ($i) => [
