@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Analytics;
 
 use App\Http\Controllers\Controller;
+use App\Models\AnalyticsInsight;
 use App\Services\Analytics\AnalyticsInsightService;
 use Illuminate\View\View;
 
@@ -85,6 +86,63 @@ class AnalyticsController extends Controller
         $diagnosticoInsights = $insights->filter(fn ($insight) => in_array($insight->tipo, $tiposDiagnostico, true))->values();
         $porTipo = $insights->keyBy('tipo');
 
+        $visualCoverage = collect(AnalyticsInsight::VISUAL_FAMILIES)->map(function (array $familia, string $tipoVisual) use ($insights) {
+            $count = $insights->filter(function ($insight) use ($tipoVisual) {
+                $visual = AnalyticsInsight::visualTypeFor($insight->tipo, $insight->grafica);
+
+                return $visual === $tipoVisual && ! empty($insight->grafica);
+            })->count();
+
+            return array_merge($familia, [
+                'tipo' => $tipoVisual,
+                'count' => $count,
+            ]);
+        })->values();
+
+        $sparkFlow = collect([
+            [
+                'titulo' => 'Datos listos',
+                'descripcion' => 'Revisión, limpieza y calidad antes de calcular indicadores.',
+                'tipos' => ['calidad_datos_etl', 'control_limpieza_datos'],
+                'color' => 'success',
+            ],
+            [
+                'titulo' => 'Operación del negocio',
+                'descripcion' => 'Demanda, utilización, inventario, pagos e interacción.',
+                'tipos' => ['demanda_horas_pico', 'demanda_horas_pico_propia', 'utilizacion_equipo', 'utilizacion_propia', 'engagement_muro_top', 'engagement_propio', 'calidad_pagos', 'inventario_alertas'],
+                'color' => 'info',
+            ],
+            [
+                'titulo' => 'Clientes y ventas',
+                'descripcion' => 'Segmentos, clientes en riesgo, add-ons, puntos y recomendaciones.',
+                'tipos' => ['segmentacion_clientes', 'clientes_en_riesgo', 'perfil_citas_premium', 'fidelizacion_ratio', 'tienda_pedidos', 'recomendacion_servicios', 'tambien_te_puede_interesar', 'pca_factores'],
+                'color' => 'gold',
+            ],
+            [
+                'titulo' => 'Predicción',
+                'descripcion' => 'Cancelaciones, confirmaciones y estimaciones futuras.',
+                'tipos' => ['alertas_cancelacion', 'confirmacion_cancelacion_reforzada', 'clasificacion_cancelacion', 'matriz_resultados_cancelacion', 'regresion_facturacion'],
+                'color' => 'warning',
+            ],
+            [
+                'titulo' => 'Visualización ejecutiva',
+                'descripcion' => 'Resultados convertidos en gráficas legibles para decidir rápido.',
+                'tipos' => $insights->filter(fn ($insight) => ! empty($insight->grafica))->pluck('tipo')->all(),
+                'color' => 'danger',
+            ],
+        ])->map(function (array $paso) use ($insights) {
+            $total = count($paso['tipos']);
+            $done = $total > 0
+                ? $insights->filter(fn ($insight) => in_array($insight->tipo, $paso['tipos'], true))->count()
+                : 0;
+
+            return array_merge($paso, [
+                'count' => $done,
+                'total' => max($total, 1),
+                'progress' => min(100, max(0, ($done / max($total, 1)) * 100)),
+            ]);
+        })->values();
+
         // KPIs ejecutivos construidos con los mismos resultados publicados por
         // Spark. Los candidatos alternos permiten que cada rol vea su métrica
         // equivalente aunque tenga un recorte distinto de información.
@@ -125,6 +183,8 @@ class AnalyticsController extends Controller
             'secciones' => $secciones,
             'porSeccion' => $porSeccion,
             'diagnosticoInsights' => $diagnosticoInsights,
+            'sparkFlow' => $sparkFlow,
+            'visualCoverage' => $visualCoverage,
         ]);
     }
 }

@@ -6,6 +6,78 @@ const compactFormatter = new Intl.NumberFormat('es-MX', {
     maximumFractionDigits: 1,
     notation: 'compact',
 });
+const percentFormatter = new Intl.NumberFormat('es-MX', {
+    maximumFractionDigits: 1,
+    style: 'percent',
+});
+
+const chartJsTypeMap = {
+    area: 'line',
+    heatmap: 'bar',
+    matrix: 'bar',
+    'factor-list': 'bar',
+    'horizontal-bar': 'bar',
+    ranked: 'bar',
+};
+const supportedChartTypes = new Set(['bar', 'line', 'doughnut', 'polarArea', 'radar']);
+
+const analyticsValueLabelsPlugin = {
+    id: 'ubAnalyticsValueLabels',
+    afterDatasetsDraw(chart, _args, options) {
+        if (!options?.display) return;
+
+        const { ctx } = chart;
+        const dataset = chart.data.datasets[0];
+        const meta = chart.getDatasetMeta(0);
+
+        if (!dataset || !meta?.data?.length) return;
+
+        ctx.save();
+        ctx.font = '700 10px "Plus Jakarta Sans", sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,.62)';
+        ctx.textAlign = chart.options.indexAxis === 'y' ? 'left' : 'center';
+        ctx.textBaseline = 'middle';
+
+        meta.data.forEach((element, index) => {
+            const raw = Number(dataset.data[index] ?? 0);
+            if (!Number.isFinite(raw)) return;
+
+            const value = formatTick(raw);
+            const props = element.tooltipPosition?.() ?? { x: element.x, y: element.y };
+            const x = chart.options.indexAxis === 'y' ? Math.min(props.x + 10, chart.chartArea.right - 22) : props.x;
+            const y = chart.options.indexAxis === 'y' ? props.y : Math.max(props.y - 12, chart.chartArea.top + 10);
+
+            ctx.fillText(value, x, y);
+        });
+
+        ctx.restore();
+    },
+};
+
+const analyticsCenterTextPlugin = {
+    id: 'ubAnalyticsCenterText',
+    afterDraw(chart, _args, options) {
+        if (!options?.display) return;
+        if (!['doughnut', 'polarArea'].includes(chart.config.type)) return;
+
+        const values = chart.data.datasets[0]?.data || [];
+        const total = values.reduce((sum, value) => sum + Number(value || 0), 0);
+        const { ctx, chartArea } = chart;
+        const cx = (chartArea.left + chartArea.right) / 2;
+        const cy = (chartArea.top + chartArea.bottom) / 2;
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '800 16px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(formatTick(total), cx, cy - 4);
+        ctx.fillStyle = 'rgba(255,255,255,.42)';
+        ctx.font = '700 9px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('total', cx, cy + 12);
+        ctx.restore();
+    },
+};
 
 function parseConfig(canvas) {
     const node = document.getElementById(canvas.dataset.chartConfig);
@@ -42,15 +114,58 @@ function formatTick(value) {
     return Math.abs(numeric) >= 1000 ? compactFormatter.format(numeric) : numberFormatter.format(numeric);
 }
 
-function buildDataset(ctx, canvas, type, values, accent, mini) {
+function normalizeVisualType(config, graph) {
+    return config.type || graph.tipo || 'bar';
+}
+
+function toChartJsType(visualType) {
+    const mappedType = chartJsTypeMap[visualType] || visualType || 'bar';
+
+    return supportedChartTypes.has(mappedType) ? mappedType : 'bar';
+}
+
+function colorByIntensity(value, max, accent = '#d4af37') {
+    const alpha = Math.max(0.24, Math.min(0.92, Number(value || 0) / Math.max(max, 1)));
+
+    if (accent.startsWith('#') && accent.length === 7) {
+        const red = parseInt(accent.slice(1, 3), 16);
+        const green = parseInt(accent.slice(3, 5), 16);
+        const blue = parseInt(accent.slice(5, 7), 16);
+
+        return `rgba(${red},${green},${blue},${alpha})`;
+    }
+
+    return `rgba(212,175,55,${alpha})`;
+}
+
+function matrixColors(labels, values) {
+    return values.map((_value, index) => {
+        const label = String(labels[index] || '').toLowerCase();
+        const isGood = label.includes('verdadero')
+            || label.includes('acierto')
+            || label.includes('correct')
+            || [0, 3].includes(index);
+
+        return isGood ? 'rgba(52,211,153,.78)' : 'rgba(245,158,11,.78)';
+    });
+}
+
+function buildDataset(ctx, canvas, type, visualType, labels, values, accent, mini) {
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.parentElement?.clientHeight || 240);
     gradient.addColorStop(0, `${accent}33`);
     gradient.addColorStop(1, `${accent}05`);
+    const maxValue = Math.max(...values, 1);
 
     const dataset = {
         data: values,
         label: 'Resultado',
-        backgroundColor: values.map((_, index) => `${palette[index % palette.length]}cc`),
+        backgroundColor: values.map((value, index) => {
+            if (visualType === 'heatmap') return colorByIntensity(value, maxValue, '#f59e0b');
+            if (visualType === 'matrix') return matrixColors(labels, values)[index];
+            if (visualType === 'factor-list') return colorByIntensity(value, maxValue, accent);
+
+            return `${palette[index % palette.length]}cc`;
+        }),
         borderColor: accent,
         borderWidth: 0,
         borderRadius: type === 'bar' ? 8 : 0,
@@ -70,6 +185,9 @@ function buildDataset(ctx, canvas, type, values, accent, mini) {
         dataset.tension = 0.42;
         dataset.pointRadius = mini ? 0 : 3;
         dataset.pointHoverRadius = 5;
+        dataset.pointBackgroundColor = '#101010';
+        dataset.pointBorderColor = accent;
+        dataset.pointBorderWidth = 2;
     }
 
     if (type === 'radar') {
@@ -89,7 +207,7 @@ function buildDataset(ctx, canvas, type, values, accent, mini) {
     return dataset;
 }
 
-function buildScales(type, horizontal, mini) {
+function buildScales(type, visualType, horizontal, mini) {
     if (['doughnut', 'polarArea'].includes(type)) return {};
 
     if (type === 'radar') {
@@ -113,7 +231,7 @@ function buildScales(type, horizontal, mini) {
                 color: textColor,
                 font: { size: 10, weight: '600' },
                 maxRotation: 0,
-                maxTicksLimit: horizontal ? 6 : 7,
+                maxTicksLimit: horizontal ? 6 : (visualType === 'matrix' ? 4 : 7),
                 callback(value) {
                     return horizontal ? formatTick(value) : shortLabel(this.getLabelForValue(value), false);
                 },
@@ -128,7 +246,7 @@ function buildScales(type, horizontal, mini) {
                 color: textColor,
                 font: { size: 10, weight: '600' },
                 maxRotation: 0,
-                maxTicksLimit: horizontal ? 8 : 6,
+                maxTicksLimit: horizontal ? (visualType === 'factor-list' ? 10 : 8) : 6,
                 callback(value) {
                     return horizontal ? shortLabel(this.getLabelForValue(value), false) : formatTick(value);
                 },
@@ -138,7 +256,9 @@ function buildScales(type, horizontal, mini) {
     };
 }
 
-function chartOptions(type, labels, horizontal, mini) {
+function chartOptions(type, visualType, labels, values, horizontal, mini) {
+    const total = values.reduce((sum, value) => sum + Number(value || 0), 0);
+
     return {
         indexAxis: horizontal ? 'y' : 'x',
         responsive: true,
@@ -178,19 +298,37 @@ function chartOptions(type, labels, horizontal, mini) {
                         return String(labels[index] ?? '').replace(/\n/g, ' · ');
                     },
                     label(item) {
-                        return ` Resultado: ${numberFormatter.format(item.raw ?? 0)}`;
+                        const raw = Number(item.raw ?? 0);
+                        const parts = [`Resultado: ${numberFormatter.format(raw)}`];
+
+                        if (total > 0 && ['doughnut', 'polarArea', 'matrix'].includes(visualType)) {
+                            parts.push(`Participación: ${percentFormatter.format(raw / total)}`);
+                        }
+
+                        return parts;
                     },
                 },
             },
+            ubAnalyticsValueLabels: {
+                display: !mini && ['bar', 'line'].includes(type),
+            },
+            ubAnalyticsCenterText: {
+                display: !mini && type === 'doughnut',
+            },
         },
         cutout: type === 'doughnut' ? (mini ? '72%' : '64%') : undefined,
-        scales: buildScales(type, horizontal, mini),
+        scales: buildScales(type, visualType, horizontal, mini),
     };
 }
 
 export function registerAnalyticsCharts(Chart) {
     const instances = window.__ubAnalyticsCharts || {};
     window.__ubAnalyticsCharts = instances;
+
+    if (!window.__ubAnalyticsChartPluginsRegistered) {
+        Chart.register(analyticsValueLabelsPlugin, analyticsCenterTextPlugin);
+        window.__ubAnalyticsChartPluginsRegistered = true;
+    }
 
     const resizeCharts = () => {
         Object.values(instances).forEach((chart) => chart?.resize());
@@ -217,12 +355,13 @@ export function registerAnalyticsCharts(Chart) {
             if (!values.length) return;
 
             const mini = canvas.dataset.chartMini === 'true' || config.mini === true;
-            const type = config.type === 'matrix' ? 'bar' : (config.type || graph.tipo || 'bar');
+            const visualType = normalizeVisualType(config, graph);
+            const type = toChartJsType(visualType);
             const longLabels = labels.length > 5 || labels.some((label) => String(label).length > 18);
-            const horizontal = type === 'bar' && longLabels && !mini;
+            const horizontal = type === 'bar' && !mini && (longLabels || ['factor-list', 'matrix', 'horizontal-bar', 'ranked'].includes(visualType));
             const accent = config.accent || '#d4af37';
             const ctx = canvas.getContext('2d');
-            const dataset = buildDataset(ctx, canvas, type, values, accent, mini);
+            const dataset = buildDataset(ctx, canvas, type, visualType, labels, values, accent, mini);
 
             instances[canvas.id] = new Chart(ctx, {
                 type,
@@ -230,7 +369,7 @@ export function registerAnalyticsCharts(Chart) {
                     labels: labels.map((label) => shortLabel(label, mini)),
                     datasets: [dataset],
                 },
-                options: chartOptions(type, labels, horizontal, mini),
+                options: chartOptions(type, visualType, labels, values, horizontal, mini),
             });
         });
     };

@@ -37,6 +37,13 @@
             'warning' => ['border' => 'border-amber-400/20', 'bg' => 'bg-amber-500/[0.055]', 'text' => 'text-amber-300', 'bar' => 'bg-amber-400', 'hex' => '#f59e0b'],
             'danger' => ['border' => 'border-rose-400/20', 'bg' => 'bg-rose-500/[0.055]', 'text' => 'text-rose-300', 'bar' => 'bg-rose-400', 'hex' => '#fb7185'],
         ];
+        $flowStyles = [
+            'gold' => ['text' => 'text-gold', 'bar' => 'bg-gold', 'border' => 'border-gold/20', 'bg' => 'bg-gold/[0.04]'],
+            'info' => ['text' => 'text-sky-300', 'bar' => 'bg-sky-400', 'border' => 'border-sky-400/20', 'bg' => 'bg-sky-500/[0.04]'],
+            'success' => ['text' => 'text-emerald-300', 'bar' => 'bg-emerald-400', 'border' => 'border-emerald-400/20', 'bg' => 'bg-emerald-500/[0.04]'],
+            'warning' => ['text' => 'text-amber-300', 'bar' => 'bg-amber-400', 'border' => 'border-amber-400/20', 'bg' => 'bg-amber-500/[0.04]'],
+            'danger' => ['text' => 'text-rose-300', 'bar' => 'bg-rose-400', 'border' => 'border-rose-400/20', 'bg' => 'bg-rose-500/[0.04]'],
+        ];
 
         $miniChartTypes = [
             'segmentacion_clientes' => 'doughnut',
@@ -152,6 +159,59 @@
                     <span class="hidden h-1 w-1 rounded-full bg-white/25 sm:inline-block"></span>
                     <span class="text-[10px] font-bold text-white/35">Vista optimizada para administración y toma de decisiones.</span>
                 </div>
+            </section>
+
+            <section class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,.75fr)]" aria-label="Cobertura del análisis">
+                <article class="ub-analytics-panel rounded-[8px] p-4 sm:p-5">
+                    <div class="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gold">Flujo analítico aplicado</p>
+                            <p class="mt-1 text-sm text-white/55">Del dato crudo a una recomendación accionable, sin mostrar lenguaje académico al usuario final.</p>
+                        </div>
+                        <span class="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-white/42">
+                            {{ $insights->filter(fn ($insight) => ! empty($insight->grafica))->count() }} visuales
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-5">
+                        @foreach(($sparkFlow ?? collect()) as $paso)
+                            @php $style = $flowStyles[$paso['color'] ?? 'gold'] ?? $flowStyles['gold']; @endphp
+                            <div class="rounded-[8px] border {{ $style['border'] }} {{ $style['bg'] }} p-3">
+                                <div class="mb-3 flex items-center justify-between gap-2">
+                                    <span class="grid h-7 w-7 place-items-center rounded-[8px] border border-white/[0.08] bg-black/20 text-[10px] font-black {{ $style['text'] }}">{{ $loop->iteration }}</span>
+                                    <span class="text-[10px] font-black {{ $style['text'] }}">{{ $paso['count'] }}/{{ $paso['total'] }}</span>
+                                </div>
+                                <p class="text-[11px] font-black uppercase tracking-wide text-white">{{ $paso['titulo'] }}</p>
+                                <p class="mt-1 min-h-10 text-[10px] leading-snug text-white/45">{{ $paso['descripcion'] }}</p>
+                                <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
+                                    <span class="block h-full rounded-full {{ $style['bar'] }}" style="width: {{ max(4, min(100, $paso['progress'])) }}%"></span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </article>
+
+                <article class="ub-analytics-panel rounded-[8px] p-4 sm:p-5">
+                    <div class="mb-4">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gold">Tipos de gráfica activos</p>
+                        <p class="mt-1 text-sm text-white/55">Cada visual se elige según lo que el usuario necesita interpretar.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        @foreach(($visualCoverage ?? collect()) as $visual)
+                            @php $style = $flowStyles[$visual['color'] ?? 'gold'] ?? $flowStyles['gold']; @endphp
+                            <div class="rounded-[8px] border border-white/[0.07] bg-white/[0.025] p-3 transition hover:bg-white/[0.045]">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-[10px] font-black uppercase tracking-wide {{ $style['text'] }}">{{ $visual['titulo'] }}</p>
+                                        <p class="mt-1 text-[10px] leading-snug text-white/42">{{ $visual['descripcion'] }}</p>
+                                    </div>
+                                    <span class="rounded-full border {{ $style['border'] }} px-2 py-0.5 text-[10px] font-black {{ $style['text'] }}">{{ $visual['count'] }}</span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </article>
             </section>
 
             @if($kpis->isNotEmpty())

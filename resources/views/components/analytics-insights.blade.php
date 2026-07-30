@@ -39,28 +39,6 @@
             'hex' => '#38bdf8',
         ],
     ];
-    $tiposVisuales = [
-        'resumen_ejecutivo' => 'line',
-        'calidad_datos_etl' => 'doughnut',
-        'control_limpieza_datos' => 'doughnut',
-        'demanda_horas_pico' => 'heatmap',
-        'demanda_horas_pico_propia' => 'heatmap',
-        'clientes_en_riesgo' => 'doughnut',
-        'segmentacion_clientes' => 'doughnut',
-        'perfil_citas_premium' => 'doughnut',
-        'fidelizacion_ratio' => 'bar',
-        'utilizacion_equipo' => 'bar',
-        'utilizacion_propia' => 'bar',
-        'engagement_muro_top' => 'bar',
-        'engagement_propio' => 'bar',
-        'tienda_pedidos' => 'bar',
-        'pca_factores' => 'radar',
-        'clasificacion_cancelacion' => 'line',
-        'alertas_cancelacion' => 'factor-list',
-        'confirmacion_cancelacion_reforzada' => 'bar',
-        'matriz_resultados_cancelacion' => 'matrix',
-        'regresion_facturacion' => 'line',
-    ];
     $wideTypes = [
         'resumen_ejecutivo',
         'demanda_horas_pico',
@@ -70,16 +48,7 @@
         'matriz_resultados_cancelacion',
         'regresion_facturacion',
     ];
-    $visualLabels = [
-        'bar' => 'Comparativo',
-        'line' => 'Tendencia',
-        'doughnut' => 'Distribución',
-        'polarArea' => 'Distribución',
-        'radar' => 'Factores clave',
-        'matrix' => 'Matriz',
-        'heatmap' => 'Mapa de demanda',
-        'factor-list' => 'Importancia',
-    ];
+    $visualLabels = \App\Models\AnalyticsInsight::VISUAL_LABELS;
 @endphp
 
 @if($items->isNotEmpty())
@@ -102,7 +71,7 @@
                     $msg = data_get($insight, 'mensaje');
                     $grafica = data_get($insight, 'grafica');
                     $tipoInsight = data_get($insight, 'tipo', 'insight');
-                    $tipoVisual = $tiposVisuales[$tipoInsight] ?? data_get($grafica, 'tipo', 'bar');
+                    $tipoVisual = \App\Models\AnalyticsInsight::visualTypeFor($tipoInsight, $grafica);
                     $chartId = \Illuminate\Support\Str::slug($idPrefix.'-'.$tipoInsight.'-'.$loop->index);
                     $labels = collect(data_get($grafica, 'labels', []));
                     $values = collect(data_get($grafica, 'valores', []));
@@ -147,14 +116,42 @@
                             </div>
 
                             @if($isMatrix)
-                                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2" aria-label="Matriz de resultados">
-                                    @foreach($labels as $label)
-                                        @php $value = (float) ($values[$loop->index] ?? 0); @endphp
-                                        <div class="rounded-[8px] border border-white/[0.07] bg-black/20 p-4 transition group-hover:bg-black/30">
-                                            <p class="text-2xl font-black text-white">{{ number_format($value, 0) }}</p>
-                                            <p class="mt-2 whitespace-pre-line text-[10px] font-bold uppercase tracking-wider text-white/45">{{ $label }}</p>
-                                        </div>
-                                    @endforeach
+                                <div class="rounded-[8px] border border-white/[0.07] bg-black/20 p-4" aria-label="Matriz de resultados">
+                                    <div class="mb-3 flex items-center justify-between gap-3">
+                                        <p class="text-[9px] font-black uppercase tracking-[0.18em] text-white/38">Resultado del modelo</p>
+                                        <span class="rounded-full border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[9px] font-black text-white/45">
+                                            {{ number_format((float) $values->sum(), 0) }} casos
+                                        </span>
+                                    </div>
+
+                                    <div class="grid grid-cols-[74px_1fr_1fr] gap-2 text-center">
+                                        <div></div>
+                                        <div class="rounded-[8px] border border-emerald-400/12 bg-emerald-500/[0.045] px-2 py-2 text-[9px] font-black uppercase tracking-wider text-emerald-300">Acierto</div>
+                                        <div class="rounded-[8px] border border-rose-400/12 bg-rose-500/[0.045] px-2 py-2 text-[9px] font-black uppercase tracking-wider text-rose-300">Revisar</div>
+
+                                        @foreach($labels as $label)
+                                            @php
+                                                $value = (float) ($values[$loop->index] ?? 0);
+                                                $lower = mb_strtolower((string) $label);
+                                                $isGood = str_contains($lower, 'verdadero')
+                                                    || str_contains($lower, 'acierto')
+                                                    || str_contains($lower, 'correct')
+                                                    || in_array($loop->index, [0, 3], true);
+                                                $cellClass = $isGood
+                                                    ? 'border-emerald-400/20 bg-emerald-500/[0.08] text-emerald-200'
+                                                    : 'border-amber-400/20 bg-amber-500/[0.08] text-amber-200';
+                                            @endphp
+
+                                            @if($loop->index === 0)
+                                                <div class="row-span-2 grid place-items-center rounded-[8px] border border-white/[0.06] bg-white/[0.025] px-2 text-[9px] font-black uppercase tracking-wider text-white/42 [writing-mode:vertical-rl] rotate-180">Real</div>
+                                            @endif
+
+                                            <div class="rounded-[8px] border {{ $cellClass }} p-3 text-left">
+                                                <p class="text-2xl font-black text-white">{{ number_format($value, 0) }}</p>
+                                                <p class="mt-1 whitespace-pre-line text-[9px] font-bold uppercase tracking-wider opacity-70">{{ $label }}</p>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </div>
                             @elseif($isHeatmap)
                                 <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7" aria-label="Mapa de demanda por horario">

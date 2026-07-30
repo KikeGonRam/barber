@@ -39,14 +39,57 @@ use MongoDB\Laravel\Eloquent\Model;
  *                      el acento visual de la tarjeta (ver
  *                      components/analytics-insights.blade.php)
  *   grafica            null, o un array {tipo, labels, valores} YA LISTO
- *                      para Chart.js (tipo: "bar"|"doughnut"|"line") — no
- *                      todos los insights traen gráfica, solo los que tienen
- *                      suficiente detalle detrás como para justificar una
- *                      (ver la página de Analítica, resources/views/analytics/)
+ *                      para visualización. Spark entrega la data y Laravel
+ *                      decide la forma ejecutiva más legible para cada insight
+ *                      (barras, dona, línea, matriz, mapa de demanda, etc.).
  *   generado_en        cuándo Spark calculó este resultado
  */
 class AnalyticsInsight extends Model
 {
+    public const VISUAL_TYPES_BY_INSIGHT = [
+        'resumen_ejecutivo' => 'line',
+        'calidad_datos_etl' => 'doughnut',
+        'control_limpieza_datos' => 'doughnut',
+        'demanda_horas_pico' => 'heatmap',
+        'demanda_horas_pico_propia' => 'heatmap',
+        'clientes_en_riesgo' => 'doughnut',
+        'segmentacion_clientes' => 'doughnut',
+        'perfil_citas_premium' => 'doughnut',
+        'fidelizacion_ratio' => 'bar',
+        'utilizacion_equipo' => 'bar',
+        'utilizacion_propia' => 'bar',
+        'engagement_muro_top' => 'bar',
+        'engagement_propio' => 'bar',
+        'tienda_pedidos' => 'bar',
+        'pca_factores' => 'radar',
+        'clasificacion_cancelacion' => 'line',
+        'alertas_cancelacion' => 'factor-list',
+        'confirmacion_cancelacion_reforzada' => 'bar',
+        'matriz_resultados_cancelacion' => 'matrix',
+        'regresion_facturacion' => 'line',
+    ];
+
+    public const VISUAL_FAMILIES = [
+        'line' => ['titulo' => 'Tendencias', 'descripcion' => 'Evolución histórica y pronóstico', 'color' => 'gold'],
+        'bar' => ['titulo' => 'Comparativos', 'descripcion' => 'Ranking por equipo, servicio o categoría', 'color' => 'info'],
+        'doughnut' => ['titulo' => 'Distribuciones', 'descripcion' => 'Participación, segmentos y composición', 'color' => 'success'],
+        'heatmap' => ['titulo' => 'Mapas de demanda', 'descripcion' => 'Horarios y concentración de actividad', 'color' => 'warning'],
+        'radar' => ['titulo' => 'Factores clave', 'descripcion' => 'Variables que explican el resultado', 'color' => 'info'],
+        'matrix' => ['titulo' => 'Matriz de resultados', 'descripcion' => 'Aciertos, falsas alarmas y omisiones', 'color' => 'danger'],
+        'factor-list' => ['titulo' => 'Importancia de factores', 'descripcion' => 'Señales que conviene vigilar', 'color' => 'warning'],
+    ];
+
+    public const VISUAL_LABELS = [
+        'bar' => 'Comparativo',
+        'line' => 'Tendencia',
+        'doughnut' => 'Distribución',
+        'polarArea' => 'Distribución',
+        'radar' => 'Factores clave',
+        'matrix' => 'Matriz',
+        'heatmap' => 'Mapa de demanda',
+        'factor-list' => 'Importancia',
+    ];
+
     protected $connection = 'mongodb';
 
     protected $collection = 'analytics_insights';
@@ -70,4 +113,13 @@ class AnalyticsInsight extends Model
         'grafica' => 'array',
         'generado_en' => 'datetime',
     ];
+
+    public static function visualTypeFor(?string $insightType, ?array $graph = null): string
+    {
+        $visualType = $insightType !== null
+            ? (self::VISUAL_TYPES_BY_INSIGHT[$insightType] ?? data_get($graph, 'tipo', 'bar'))
+            : data_get($graph, 'tipo', 'bar');
+
+        return is_string($visualType) && $visualType !== '' ? $visualType : 'bar';
+    }
 }
