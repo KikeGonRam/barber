@@ -63,6 +63,7 @@
 
         $quickActions = [
             ['tab' => 'resumen', 'label' => 'Limpieza de datos', 'detail' => 'Calidad del registro', 'mode' => 'diagnostic', 'classes' => 'hover:border-emerald-400/30 hover:bg-emerald-500/[0.045]', 'icon' => 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'],
+            ['tab' => 'operacion', 'label' => 'Mapa de calor', 'detail' => 'Demanda por horarios', 'classes' => 'hover:border-amber-400/30 hover:bg-amber-500/[0.045]', 'icon' => 'M3.75 4.5h16.5v15H3.75v-15Zm0 5h16.5M8.75 4.5v15m5-15v15M7 7h.01M12 7h.01M17 7h.01M7 12h.01M12 12h.01M17 12h.01M7 17h.01M12 17h.01M17 17h.01'],
             ['tab' => 'prediccion', 'label' => 'Árbol de decisión', 'detail' => 'Factores de cancelación', 'classes' => 'hover:border-amber-400/30 hover:bg-amber-500/[0.045]', 'icon' => 'M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h12M3.75 6.75H18M7.5 20.25h9M9 16.5v3.75m6-3.75v3.75'],
             ['tab' => 'prediccion', 'label' => 'Matriz de resultados', 'detail' => 'Aciertos y falsas alarmas', 'classes' => 'hover:border-sky-400/30 hover:bg-sky-500/[0.045]', 'icon' => 'M3.75 5.25h16.5M3.75 9.75h16.5M3.75 14.25h16.5M8.25 5.25v13.5m7.5-13.5v13.5'],
             ['tab' => 'clientes', 'label' => 'Clientes y ventas', 'detail' => 'VIP, riesgo y add-ons', 'classes' => 'hover:border-violet-400/30 hover:bg-violet-500/[0.045]', 'icon' => 'M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 12.75 0ZM12 7.5a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Z'],
@@ -169,7 +170,7 @@
                             <p class="mt-1 text-sm text-white/55">Del dato crudo a una recomendación accionable, sin mostrar lenguaje académico al usuario final.</p>
                         </div>
                         <span class="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-white/42">
-                            {{ $insights->filter(fn ($insight) => ! empty($insight->grafica))->count() }} visuales
+                            {{ $insights->filter->hasRenderableVisual()->count() }} visuales
                         </span>
                     </div>
 

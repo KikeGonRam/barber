@@ -122,4 +122,18 @@ class AnalyticsInsight extends Model
 
         return is_string($visualType) && $visualType !== '' ? $visualType : 'bar';
     }
+
+    public function hasRenderableVisual(): bool
+    {
+        $values = collect(data_get($this->grafica, 'valores', []))->filter(
+            fn ($value) => is_numeric(str_replace(',', '', (string) $value))
+        );
+
+        if ($values->isNotEmpty()) {
+            return true;
+        }
+
+        return self::visualTypeFor($this->tipo, $this->grafica) === 'heatmap'
+            && filled($this->valor_destacado);
+    }
 }

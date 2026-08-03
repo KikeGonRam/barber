@@ -1011,6 +1011,76 @@ html.dark {
         width: 100% !important;
         height: 100% !important;
     }
+
+    .ub-heatmap-board {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ub-heatmap-board::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 18% 0%, rgba(245, 158, 11, 0.13), transparent 36%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 42%);
+        opacity: 0.85;
+    }
+
+    .ub-heatmap-board > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .ub-heatmap-grid {
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    .ub-heatmap-cell {
+        position: relative;
+        min-height: 104px;
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid rgba(251, 191, 36, calc(0.10 + (var(--heat) * 0.22)));
+        padding: 0.75rem;
+        background:
+            radial-gradient(circle at 30% 12%, rgba(255, 255, 255, calc(0.08 + (var(--heat) * 0.10))), transparent 34%),
+            linear-gradient(180deg, rgba(245, 158, 11, calc(0.12 + (var(--heat) * 0.54))), rgba(120, 53, 15, calc(0.13 + (var(--heat) * 0.24)))),
+            rgba(0, 0, 0, 0.20);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            0 14px 28px rgba(0, 0, 0, calc(0.08 + (var(--heat) * 0.10)));
+        transition:
+            border-color 220ms ease,
+            box-shadow 220ms ease,
+            transform 220ms ease;
+    }
+
+    .ub-heatmap-cell::after {
+        content: '';
+        position: absolute;
+        inset: auto 0 0 0;
+        height: var(--heat-percent);
+        pointer-events: none;
+        background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.09));
+        opacity: 0.72;
+    }
+
+    .ub-heatmap-cell:hover,
+    .ub-heatmap-cell.is-peak {
+        transform: translateY(-2px);
+        border-color: rgba(251, 191, 36, 0.52);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.12),
+            0 18px 38px rgba(245, 158, 11, 0.13);
+    }
+
+    .ub-heatmap-cell.is-peak {
+        outline: 1px solid rgba(251, 191, 36, 0.34);
+        outline-offset: 2px;
+    }
 }
 
 @keyframes ub-analytics-rise {

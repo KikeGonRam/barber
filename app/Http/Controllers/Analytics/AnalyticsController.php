@@ -90,7 +90,7 @@ class AnalyticsController extends Controller
             $count = $insights->filter(function ($insight) use ($tipoVisual) {
                 $visual = AnalyticsInsight::visualTypeFor($insight->tipo, $insight->grafica);
 
-                return $visual === $tipoVisual && ! empty($insight->grafica);
+                return $visual === $tipoVisual && $insight->hasRenderableVisual();
             })->count();
 
             return array_merge($familia, [
@@ -127,7 +127,7 @@ class AnalyticsController extends Controller
             [
                 'titulo' => 'Visualización ejecutiva',
                 'descripcion' => 'Resultados convertidos en gráficas legibles para decidir rápido.',
-                'tipos' => $insights->filter(fn ($insight) => ! empty($insight->grafica))->pluck('tipo')->all(),
+                'tipos' => $insights->filter->hasRenderableVisual()->pluck('tipo')->all(),
                 'color' => 'danger',
             ],
         ])->map(function (array $paso) use ($insights) {

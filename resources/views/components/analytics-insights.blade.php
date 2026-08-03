@@ -75,7 +75,14 @@
                     $chartId = \Illuminate\Support\Str::slug($idPrefix.'-'.$tipoInsight.'-'.$loop->index);
                     $labels = collect(data_get($grafica, 'labels', []));
                     $values = collect(data_get($grafica, 'valores', []));
-                    $hasVisual = $showCharts && $grafica && $values->isNotEmpty();
+                    $heatmapIsFallback = false;
+                    if ($showCharts && $tipoVisual === 'heatmap' && $values->isEmpty() && filled($dato)) {
+                        $heatmapIsFallback = true;
+                        $labels = collect([(string) $dato]);
+                        $values = collect([100]);
+                        $grafica = ['tipo' => 'heatmap', 'labels' => $labels->all(), 'valores' => $values->all()];
+                    }
+                    $hasVisual = $showCharts && $values->isNotEmpty() && ($grafica || $tipoVisual === 'heatmap');
                     $isMatrix = $hasVisual && $tipoVisual === 'matrix';
                     $isHeatmap = $hasVisual && $tipoVisual === 'heatmap';
                     $isFactorList = $hasVisual && $tipoVisual === 'factor-list';
@@ -154,18 +161,87 @@
                                     </div>
                                 </div>
                             @elseif($isHeatmap)
-                                <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7" aria-label="Mapa de demanda por horario">
-                                    @foreach($labels as $label)
-                                        @php
-                                            $value = (float) ($values[$loop->index] ?? 0);
-                                            $heat = max(0.14, min(0.88, $value / $maxValue));
-                                        @endphp
-                                        <div class="rounded-[8px] border border-amber-300/10 p-3" style="background: rgba(245, 158, 11, {{ $heat }});">
-                                            <p class="text-[11px] font-black text-black/75">{{ $label }}</p>
-                                            <p class="mt-1 text-lg font-black text-black">{{ number_format($value, 0) }}</p>
-                                            <p class="text-[9px] font-bold uppercase tracking-wider text-black/55">citas</p>
+                                @php
+                                    $heatmapPoints = $labels->map(function ($label, $index) use ($values, $maxValue, $heatmapIsFallback) {
+                                        $value = (float) ($values[$index] ?? 0);
+                                        $intensity = max(18, min(100, (int) round(($value / max($maxValue, 1)) * 100)));
+
+                                        return [
+                                            'label' => (string) $label,
+                                            'value' => $value,
+                                            'display' => $heatmapIsFallback ? 'Pico' : number_format($value, 0),
+                                            'caption' => $heatmapIsFallback ? 'punto caliente' : 'citas',
+                                            'intensity' => $intensity,
+                                            'alpha' => number_format($intensity / 100, 2, '.', ''),
+                                        ];
+                                    });
+                                    $heatmapTotal = (float) $heatmapPoints->sum('value');
+                                    $heatmapAverage = (float) ($heatmapPoints->avg('value') ?? 0);
+                                    $peak = $heatmapPoints->sortByDesc('value')->first();
+                                    $topHeatmap = $heatmapPoints->sortByDesc('value')->take(3)->values();
+                                    $heatmapColumns = min(max($heatmapPoints->count(), 1), 14);
+                                @endphp
+
+                                <div class="ub-heatmap-board rounded-[8px] border border-amber-300/15 bg-black/20 p-4" aria-label="Mapa de calor de demanda">
+                                    <div class="grid gap-2 sm:grid-cols-3">
+                                        <div class="rounded-[8px] border border-white/[0.07] bg-white/[0.035] p-3">
+                                            <p class="text-[9px] font-black uppercase tracking-[0.16em] text-amber-300">Mayor demanda</p>
+                                            <p class="mt-1 text-xl font-black text-white">{{ $peak['label'] ?? $dato }}</p>
+                                            <p class="text-[10px] font-bold text-white/42">
+                                                {{ $heatmapIsFallback ? 'Horario detectado por Spark' : number_format((float) ($peak['value'] ?? 0), 0).' citas detectadas' }}
+                                            </p>
                                         </div>
-                                    @endforeach
+                                        <div class="rounded-[8px] border border-white/[0.07] bg-white/[0.035] p-3">
+                                            <p class="text-[9px] font-black uppercase tracking-[0.16em] text-white/38">Promedio</p>
+                                            <p class="mt-1 text-xl font-black text-white">{{ $heatmapIsFallback ? 'N/D' : number_format($heatmapAverage, 1) }}</p>
+                                            <p class="text-[10px] font-bold text-white/42">{{ $heatmapIsFallback ? 'serie no disponible' : 'citas por bloque' }}</p>
+                                        </div>
+                                        <div class="rounded-[8px] border border-white/[0.07] bg-white/[0.035] p-3">
+                                            <p class="text-[9px] font-black uppercase tracking-[0.16em] text-white/38">Volumen leído</p>
+                                            <p class="mt-1 text-xl font-black text-white">{{ $heatmapIsFallback ? 'Punto clave' : number_format($heatmapTotal, 0) }}</p>
+                                            <p class="text-[10px] font-bold text-white/42">{{ $heatmapIsFallback ? 'sin inventar volumen' : $heatmapPoints->count().' bloques analizados' }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 overflow-x-auto pb-1">
+                                        <div class="ub-heatmap-grid min-w-[520px]" style="grid-template-columns: repeat({{ $heatmapColumns }}, minmax(58px, 1fr));">
+                                            @foreach($heatmapPoints as $point)
+                                                @php $isPeak = abs($point['value'] - (float) ($peak['value'] ?? -1)) < 0.0001; @endphp
+                                                <div class="ub-heatmap-cell {{ $isPeak ? 'is-peak' : '' }}" style="--heat: {{ $point['alpha'] }}; --heat-percent: {{ $point['intensity'] }}%;">
+                                                    <div class="flex items-center justify-between gap-2">
+                                                        <span class="truncate text-[10px] font-black text-white">{{ $point['label'] }}</span>
+                                                        @if($isPeak)
+                                                            <span class="rounded-full bg-black/45 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-amber-200">Pico</span>
+                                                        @endif
+                                                    </div>
+                                                    <p class="mt-3 text-2xl font-black text-white">{{ $point['display'] }}</p>
+                                                    <p class="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-white/52">{{ $point['caption'] }}</p>
+                                                    <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-black/35">
+                                                        <span class="block h-full rounded-full bg-white/85" style="width: {{ $point['intensity'] }}%"></span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                                        <div>
+                                            <div class="h-2 rounded-full bg-[linear-gradient(90deg,rgba(245,158,11,.18),rgba(245,158,11,.52),rgba(245,158,11,.95))]"></div>
+                                            <div class="mt-1 flex justify-between text-[9px] font-black uppercase tracking-wider text-white/35">
+                                                <span>Baja</span>
+                                                <span>Media</span>
+                                                <span>Alta</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach($topHeatmap as $point)
+                                                <span class="rounded-full border border-amber-300/20 bg-amber-500/[0.08] px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-amber-200">
+                                                    {{ $loop->iteration }} · {{ $point['label'] }} · {{ $heatmapIsFallback ? 'pico' : number_format($point['value'], 0) }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
                             @elseif($isFactorList)
                                 <div class="space-y-3 rounded-[8px] border border-white/[0.06] bg-black/15 p-4" aria-label="Importancia de factores">
