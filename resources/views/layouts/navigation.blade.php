@@ -119,7 +119,7 @@
 
         <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-2 rounded-xl py-2 hover:bg-white/5 transition-colors group justify-center md:justify-start" :class="!railCollapsed ? 'lg:justify-start' : ''" title="{{ $user?->name }}">
             <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-gold/30 to-gold/10 border border-gold/20 flex items-center justify-center text-[11px] font-black text-gold shrink-0 group-hover:from-gold/50 group-hover:to-gold/20 transition-all">
-                {{ strtoupper(substr($user?->name ?? 'U', 0, 2)) }}
+                {{ strtoupper(mb_substr($user?->name ?? 'U', 0, 2)) }}
             </div>
             <div class="flex-1 min-w-0 md:hidden" :class="!railCollapsed ? 'lg:block' : ''">
                 <p class="truncate text-xs font-bold text-white">{{ $user?->name }}</p>

@@ -91,7 +91,7 @@
                       style="{{ $_unread > 0 ? '' : 'display:none' }}">{{ min($_unread, 9) }}</span>
             </a>
             <a href="{{ route('profile.edit') }}" class="mob-topbar-avatar" aria-label="Mi perfil">
-                {{ strtoupper(substr($_u?->name ?? 'U', 0, 2)) }}
+                {{ strtoupper(mb_substr($_u?->name ?? 'U', 0, 2)) }}
             </a>
         </div>
     </header>

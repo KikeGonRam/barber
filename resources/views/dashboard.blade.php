@@ -296,11 +296,11 @@
                                 @php $st = $statusMap[$appt->estado] ?? ['cls'=>'border-white/10 bg-white/5 text-white/40','dot'=>'bg-white/30','label'=>'—']; @endphp
                                 <div class="flex items-center gap-3">
                                     <div class="h-8 w-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-[10px] font-black text-gold shrink-0">
-                                        {{ strtoupper(substr($appt->barber?->user?->name ?? 'B',0,1)) }}
+                                        {{ strtoupper(mb_substr($appt->barber?->user?->name ?? 'B',0,1)) }}
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <p class="text-[11px] font-bold text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
-                                        <p class="text-[9px] text-white/50 truncate">{{ \Carbon\Carbon::parse($appt->fecha)->format('d M') }} · {{ substr($appt->hora_inicio,0,5) }}</p>
+                                        <p class="text-[9px] text-white/50 truncate">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M') }} · {{ substr($appt->hora_inicio,0,5) }}</p>
                                     </div>
                                     <span class="shrink-0 text-[8px] font-black uppercase border rounded-full px-2 py-0.5 {{ $st['cls'] }}">{{ $st['label'] }}</span>
                                 </div>
@@ -324,7 +324,7 @@
                                     <div class="rounded-xl border {{ $st['is_busy'] ? 'border-red-500/20 bg-red-500/[0.04]' : 'border-emerald-500/15 bg-emerald-500/[0.04]' }} p-3 text-center">
                                         <div class="relative inline-flex mb-2">
                                             <div class="h-9 w-9 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[11px] font-black text-gold">
-                                                {{ strtoupper(substr($st['name'],0,2)) }}
+                                                {{ strtoupper(mb_substr($st['name'],0,2)) }}
                                             </div>
                                             <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#111] {{ $st['is_busy'] ? 'bg-red-500' : 'bg-emerald-500' }}"></span>
                                         </div>
@@ -348,7 +348,7 @@
                         @if($kpis['top_barber_name'])
                             <div class="flex flex-col items-center text-center py-4">
                                 <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center text-2xl font-black text-gold mb-3">
-                                    {{ strtoupper(substr($kpis['top_barber_name'],0,2)) }}
+                                    {{ strtoupper(mb_substr($kpis['top_barber_name'],0,2)) }}
                                 </div>
                                 <p class="text-base font-black text-white uppercase">{{ $kpis['top_barber_name'] }}</p>
                                 <p class="text-[9px] text-white/50 font-bold uppercase tracking-widest mt-0.5">Mejor del mes</p>
@@ -630,7 +630,7 @@
                     <div class="flex flex-wrap items-center gap-3 p-3 rounded-xl border border-amber-500/10 bg-black/20">
                         <div class="w-14 text-center shrink-0">
                             <p class="text-[11px] font-black text-white">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
-                            <p class="text-[8px] text-white/45 font-bold">{{ \Carbon\Carbon::parse($appt->fecha)->format('d M') }}</p>
+                            <p class="text-[8px] text-white/45 font-bold">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M') }}</p>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-xs font-black text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>

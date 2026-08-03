@@ -122,7 +122,7 @@
                                 <td>
                                     <div class="flex items-center gap-3">
                                         <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center text-[11px] font-black text-white shrink-0">
-                                            {{ strtoupper(substr($user->name, 0, 2)) }}
+                                            {{ strtoupper(mb_substr($user->name, 0, 2)) }}
                                         </div>
                                         <span class="font-bold text-white text-sm">{{ $user->name }}</span>
                                     </div>
@@ -149,7 +149,7 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="text-muted text-xs">{{ $user->created_at->format('d M, Y') }}</td>
+                                <td class="text-muted text-xs">{{ $user->created_at->translatedFormat('d M, Y') }}</td>
                                 <td class="text-right">
                                     <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         <a href="{{ route('users.edit', $user) }}"
@@ -185,7 +185,7 @@
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-3">
                                 <div class="h-10 w-10 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-sm font-black text-white">
-                                    {{ strtoupper(substr($user->name, 0, 2)) }}
+                                    {{ strtoupper(mb_substr($user->name, 0, 2)) }}
                                 </div>
                                 <div>
                                     <p class="text-sm font-bold text-white">{{ $user->name }}</p>

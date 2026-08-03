@@ -72,7 +72,7 @@
                                     </div>
                                     <div>
                                         <p class="text-[9px] font-black text-muted uppercase tracking-widest">Factura</p>
-                                        <p class="text-xs font-black text-white font-mono mt-0.5">#{{ strtoupper(substr((string)$payment->id, -8)) }}</p>
+                                        <p class="text-xs font-black text-white font-mono mt-0.5">#{{ strtoupper(mb_substr((string)$payment->id, -8)) }}</p>
                                     </div>
                                 </div>
 

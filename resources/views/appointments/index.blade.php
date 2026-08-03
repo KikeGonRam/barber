@@ -193,7 +193,7 @@
                                 <td>
                                     <div class="flex items-center gap-3">
                                         <div class="h-8 w-8 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-[10px] font-black text-gold shrink-0">
-                                            {{ strtoupper(substr($appt->client?->user?->name ?? 'C', 0, 2)) }}
+                                            {{ strtoupper(mb_substr($appt->client?->user?->name ?? 'C', 0, 2)) }}
                                         </div>
                                         <span class="font-bold text-white text-sm">{{ $appt->client?->user?->name ?? 'Desconocido' }}</span>
                                     </div>
@@ -205,7 +205,7 @@
                                     @if($appt->barber?->user)
                                         <div class="flex items-center gap-2">
                                             <div class="h-6 w-6 rounded-lg bg-gold/10 border border-gold/15 flex items-center justify-center text-[9px] font-black text-gold">
-                                                {{ strtoupper(substr($appt->barber->user->name, 0, 2)) }}
+                                                {{ strtoupper(mb_substr($appt->barber->user->name, 0, 2)) }}
                                             </div>
                                             <span class="text-sm text-white/80">{{ $appt->barber->user->name }}</span>
                                         </div>
@@ -215,7 +215,7 @@
                                 </td>
                                 <td>
                                     <div class="flex flex-col">
-                                        <span class="font-bold text-white text-sm">{{ \Carbon\Carbon::parse($appt->fecha)->format('d M, Y') }}</span>
+                                        <span class="font-bold text-white text-sm">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M, Y') }}</span>
                                         <span class="text-[10px] text-muted font-bold">{{ substr($appt->hora_inicio, 0, 5) }} – {{ substr($appt->hora_fin, 0, 5) }}</span>
                                     </div>
                                 </td>
@@ -294,7 +294,7 @@
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-3">
                                 <div class="h-10 w-10 rounded-xl bg-gold/10 border border-gold/15 flex items-center justify-center text-sm font-black text-gold">
-                                    {{ strtoupper(substr($appt->client?->user?->name ?? 'C', 0, 2)) }}
+                                    {{ strtoupper(mb_substr($appt->client?->user?->name ?? 'C', 0, 2)) }}
                                 </div>
                                 <div>
                                     <p class="text-sm font-black text-white">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>

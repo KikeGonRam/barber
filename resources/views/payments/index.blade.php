@@ -143,7 +143,7 @@
                     <div class="flex items-start justify-between mb-3">
                         <div>
                             <p class="text-xs font-black text-white">#{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}</p>
-                            <p class="text-[10px] text-muted">{{ $payment->created_at?->format('d M, Y · H:i') }}</p>
+                            <p class="text-[10px] text-muted">{{ $payment->created_at?->translatedFormat('d M, Y · H:i') }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-xl font-black text-emerald-400">${{ number_format($payment->monto + $payment->propina, 2) }}</p>
@@ -154,7 +154,7 @@
                     </div>
                     <div class="flex items-center gap-3 mb-3">
                         <div class="h-9 w-9 rounded-xl bg-gold/10 border border-gold/15 flex items-center justify-center text-sm font-black text-gold shrink-0">
-                            {{ strtoupper(substr($payment->appointment?->client?->user?->name ?? 'C', 0, 2)) }}
+                            {{ strtoupper(mb_substr($payment->appointment?->client?->user?->name ?? 'C', 0, 2)) }}
                         </div>
                         <div class="min-w-0">
                             <p class="font-bold text-white text-sm truncate">{{ $payment->appointment?->client?->user?->name ?? 'N/A' }}</p>
@@ -205,7 +205,7 @@
                                 <td>
                                     <div class="flex flex-col">
                                         <span class="font-black text-white text-xs">#{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}</span>
-                                        <span class="text-[10px] text-muted font-bold uppercase">{{ $payment->created_at?->format('d M, Y · H:i') }}</span>
+                                        <span class="text-[10px] text-muted font-bold uppercase">{{ $payment->created_at?->translatedFormat('d M, Y · H:i') }}</span>
                                     </div>
                                 </td>
                                 <td>
@@ -218,7 +218,7 @@
                                     @if($payment->appointment?->barber?->user)
                                         <div class="flex items-center gap-2">
                                             <div class="h-6 w-6 rounded-lg bg-gold/10 border border-gold/15 flex items-center justify-center text-[9px] font-black text-gold">
-                                                {{ strtoupper(substr($payment->appointment->barber->user->name, 0, 2)) }}
+                                                {{ strtoupper(mb_substr($payment->appointment->barber->user->name, 0, 2)) }}
                                             </div>
                                             <span class="text-sm text-white/80">{{ $payment->appointment->barber->user->name }}</span>
                                         </div>

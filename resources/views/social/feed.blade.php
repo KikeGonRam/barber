@@ -71,7 +71,7 @@
                                          alt="Foto de {{ $work->barberUser?->name ?? 'barbero' }}">
                                 @else
                                     <div class="h-full w-full bg-gold/10 flex items-center justify-center rounded-full text-xs font-black text-gold">
-                                        {{ strtoupper(substr($work->barberUser?->name ?? 'UB', 0, 2)) }}
+                                        {{ strtoupper(mb_substr($work->barberUser?->name ?? 'UB', 0, 2)) }}
                                     </div>
                                 @endif
                             </div>
@@ -249,7 +249,7 @@
                             @foreach($work->comments as $comment)
                                 <div class="flex items-start gap-2.5">
                                     <div class="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center text-[8px] font-black text-white/60 shrink-0">
-                                        {{ strtoupper(substr($comment->user->name, 0, 2)) }}
+                                        {{ strtoupper(mb_substr($comment->user->name, 0, 2)) }}
                                     </div>
                                     <p class="text-xs text-white/70 leading-relaxed">
                                         <span class="font-black text-white mr-1.5">{{ $comment->user->name }}</span>{{ $comment->comment }}

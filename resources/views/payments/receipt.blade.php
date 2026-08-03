@@ -112,7 +112,7 @@
     <div class="header">
         <h1 class="header-title">Urban<span>Blade</span></h1>
         <div class="invoice-info">
-            <p>Factura No: <span>#{{ strtoupper(substr((string) $payment->id, -8)) }}</span></p>
+            <p>Factura No: <span>#{{ strtoupper(mb_substr((string) $payment->id, -8)) }}</span></p>
             <p>Fecha: <span>{{ $payment->created_at?->format('d/m/Y') }}</span></p>
             <p>Hora: <span>{{ $payment->created_at?->format('H:i') }}</span></p>
         </div>

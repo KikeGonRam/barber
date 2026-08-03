@@ -3,7 +3,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h2 class="ui-title">Mi <span class="text-gold">Agenda</span></h2>
-                <p class="ui-subtitle">{{ $period === 'week' ? 'Semana del '.$baseDate->copy()->startOfWeek()->format('d M').' al '.$baseDate->copy()->endOfWeek()->format('d M, Y') : $baseDate->translatedFormat('l, d \d\e F Y') }}</p>
+                <p class="ui-subtitle">{{ $period === 'week' ? 'Semana del '.$baseDate->copy()->startOfWeek()->translatedFormat('d M').' al '.$baseDate->copy()->endOfWeek()->translatedFormat('d M, Y') : $baseDate->translatedFormat('l, d \d\e F Y') }}</p>
             </div>
             {{-- Period + Nav --}}
             <div class="flex items-center gap-3">
@@ -286,7 +286,7 @@
                         <div class="flex-1 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
                             <div class="flex items-center gap-4">
                                 <div class="h-11 w-11 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 border border-gold/15 flex items-center justify-center text-sm font-black text-gold shrink-0">
-                                    {{ strtoupper(substr($appointment->client?->user?->name ?? 'C', 0, 2)) }}
+                                    {{ strtoupper(mb_substr($appointment->client?->user?->name ?? 'C', 0, 2)) }}
                                 </div>
                                 <div>
                                     <p class="font-black text-white text-base">{{ $appointment->client?->user?->name ?? '—' }}</p>

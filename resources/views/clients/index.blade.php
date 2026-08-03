@@ -25,7 +25,7 @@
                 ['label'=>'Total Clientes', 'val'=>$stats['total'],     'color'=>'white',   'sub'=>'Registrados'],
                 ['label'=>'Con Citas',       'val'=>$stats['con_citas'], 'color'=>'emerald', 'sub'=>'Al menos una cita'],
                 ['label'=>'Sin Citas',       'val'=>$stats['sin_citas'], 'color'=>'amber',   'sub'=>'Sin historial'],
-                ['label'=>'Este Mes',        'val'=>$stats['este_mes'],  'color'=>'blue',    'sub'=>'Nuevos en ' . now()->format('M')],
+                ['label'=>'Este Mes',        'val'=>$stats['este_mes'],  'color'=>'blue',    'sub'=>'Nuevos en ' . now()->translatedFormat('M')],
             ] as $stat)
                 <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
                     <p class="text-[10px] font-black uppercase tracking-wider text-muted mb-1">{{ $stat['label'] }}</p>
@@ -130,7 +130,7 @@
                                 <td>
                                     <div class="flex items-center gap-3">
                                         <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center text-[11px] font-black text-white shrink-0">
-                                            {{ strtoupper(substr($client->user?->name ?? 'CL', 0, 2)) }}
+                                            {{ strtoupper(mb_substr($client->user?->name ?? 'CL', 0, 2)) }}
                                         </div>
                                         <span class="font-bold text-white text-sm">{{ $client->user?->name ?? 'Sin usuario' }}</span>
                                     </div>
@@ -142,7 +142,7 @@
                                         {{ $client->appointments_count ?? 0 }}
                                     </span>
                                 </td>
-                                <td class="text-muted text-sm">{{ $client->fecha_nacimiento?->format('d M, Y') ?: '—' }}</td>
+                                <td class="text-muted text-sm">{{ $client->fecha_nacimiento?->translatedFormat('d M, Y') ?: '—' }}</td>
                                 <td class="text-muted text-xs">{{ $client->created_at?->format('d/m/Y') }}</td>
                                 <td class="text-right">
                                     <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -185,7 +185,7 @@
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-3">
                                 <div class="h-10 w-10 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-sm font-black text-white">
-                                    {{ strtoupper(substr($client->user?->name ?? 'CL', 0, 2)) }}
+                                    {{ strtoupper(mb_substr($client->user?->name ?? 'CL', 0, 2)) }}
                                 </div>
                                 <div>
                                     <p class="text-sm font-bold text-white">{{ $client->user?->name ?? 'Sin usuario' }}</p>

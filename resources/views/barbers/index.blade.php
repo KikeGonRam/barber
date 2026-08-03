@@ -189,7 +189,7 @@
                     <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
                         <div class="flex items-center gap-4 mb-4">
                             <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/15 flex items-center justify-center text-base font-black text-gold shrink-0">
-                                {{ strtoupper(substr($barber->user?->name ?? 'B', 0, 2)) }}
+                                {{ strtoupper(mb_substr($barber->user?->name ?? 'B', 0, 2)) }}
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="font-black text-white text-sm">{{ $barber->user?->name }}</p>

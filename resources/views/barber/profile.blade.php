@@ -39,7 +39,7 @@
                                          class="h-full w-full object-cover">
                                 @else
                                     <div class="h-full w-full bg-gradient-to-br from-gold/25 to-gold/5 flex items-center justify-center text-3xl font-black text-gold">
-                                        {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                                        {{ strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}
                                     </div>
                                 @endif
                             </div>

@@ -158,7 +158,7 @@
                         {{-- Fecha --}}
                         <div class="text-right shrink-0">
                             <p class="text-xs font-black text-white">{{ $log->created_at?->format('H:i:s') }}</p>
-                            <p class="text-[10px] text-muted uppercase tracking-wider mt-0.5">{{ $log->created_at?->format('d M, Y') }}</p>
+                            <p class="text-[10px] text-muted uppercase tracking-wider mt-0.5">{{ $log->created_at?->translatedFormat('d M, Y') }}</p>
                         </div>
                     </div>
                 @empty

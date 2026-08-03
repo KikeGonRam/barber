@@ -26,7 +26,7 @@
                 {{-- Avatar + datos básicos --}}
                 <div class="flex flex-col items-center justify-center p-8 sm:w-64 border-b sm:border-b-0 sm:border-r border-white/6 bg-[#0f0f0f]">
                     <div class="h-24 w-24 rounded-3xl bg-gradient-to-br from-gold/30 to-gold/10 border border-gold/20 flex items-center justify-center text-4xl font-black text-gold mb-4">
-                        {{ strtoupper(substr($client->user?->name ?? 'CL', 0, 2)) }}
+                        {{ strtoupper(mb_substr($client->user?->name ?? 'CL', 0, 2)) }}
                     </div>
                     <h3 class="text-lg font-black text-white text-center">{{ $client->user?->name }}</h3>
                     <p class="text-[10px] text-muted mt-0.5 text-center">{{ $client->user?->email }}</p>
@@ -47,16 +47,16 @@
                         </div>
                         <div>
                             <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-1">Nacimiento</p>
-                            <p class="text-sm font-bold text-white">{{ $client->fecha_nacimiento?->format('d M, Y') ?: '—' }}</p>
+                            <p class="text-sm font-bold text-white">{{ $client->fecha_nacimiento?->translatedFormat('d M, Y') ?: '—' }}</p>
                         </div>
                         <div>
                             <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-1">Cliente desde</p>
-                            <p class="text-sm font-bold text-white">{{ $client->created_at?->format('d M, Y') }}</p>
+                            <p class="text-sm font-bold text-white">{{ $client->created_at?->translatedFormat('d M, Y') }}</p>
                         </div>
                         <div>
                             <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-1">Última Visita</p>
                             <p class="text-sm font-bold text-white">
-                                {{ $stats['ultima_visita'] ? \Carbon\Carbon::parse($stats['ultima_visita'])->format('d M, Y') : '—' }}
+                                {{ $stats['ultima_visita'] ? \Carbon\Carbon::parse($stats['ultima_visita'])->translatedFormat('d M, Y') : '—' }}
                             </p>
                         </div>
                         <div>
@@ -120,7 +120,7 @@
                         <div class="flex items-center gap-4 p-3.5 rounded-2xl border border-white/5 hover:border-gold/20 hover:bg-white/[0.02] transition-all">
                             <div class="shrink-0 w-14 text-center">
                                 <p class="text-base font-black text-white">{{ \Carbon\Carbon::parse($appt->fecha)->format('d') }}</p>
-                                <p class="text-[10px] font-bold text-muted uppercase">{{ \Carbon\Carbon::parse($appt->fecha)->format('M Y') }}</p>
+                                <p class="text-[10px] font-bold text-muted uppercase">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('M Y') }}</p>
                             </div>
                             <div class="w-px h-8 bg-white/8 shrink-0"></div>
                             <div class="flex-1 min-w-0">

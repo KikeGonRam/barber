@@ -133,7 +133,7 @@
                             <tr class="group">
                                 <td>
                                     <div class="flex flex-col">
-                                        <span class="font-bold text-white text-sm">{{ \Carbon\Carbon::parse($mov->fecha)->format('d M, Y') }}</span>
+                                        <span class="font-bold text-white text-sm">{{ \Carbon\Carbon::parse($mov->fecha)->translatedFormat('d M, Y') }}</span>
                                         <span class="text-[10px] text-muted">{{ \Carbon\Carbon::parse($mov->fecha)->format('H:i') }}</span>
                                     </div>
                                 </td>
@@ -154,7 +154,7 @@
                                     <div class="flex items-center gap-2">
                                         @if($mov->user)
                                             <div class="h-6 w-6 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center text-[9px] font-black text-gold">
-                                                {{ strtoupper(substr($mov->user->name, 0, 2)) }}
+                                                {{ strtoupper(mb_substr($mov->user->name, 0, 2)) }}
                                             </div>
                                             <span class="text-sm text-white/80">{{ $mov->user->name }}</span>
                                         @else

@@ -32,7 +32,7 @@
                              alt="Foto de {{ $barber->user?->name }}">
                     @else
                         <div class="h-24 w-24 rounded-3xl bg-gradient-to-br from-gold/30 to-gold/10 border border-gold/20 flex items-center justify-center text-4xl font-black text-gold mb-4 relative z-10">
-                            {{ strtoupper(substr($barber->user?->name ?? 'B', 0, 2)) }}
+                            {{ strtoupper(mb_substr($barber->user?->name ?? 'B', 0, 2)) }}
                         </div>
                     @endif
                     <h3 class="text-base font-black text-white text-center relative z-10">{{ $barber->user?->name }}</h3>
@@ -157,7 +157,7 @@
                                 @endphp
                                 <tr>
                                     <td>
-                                        <p class="font-bold text-white text-sm">{{ \Carbon\Carbon::parse($appt->fecha)->format('d M, Y') }}</p>
+                                        <p class="font-bold text-white text-sm">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M, Y') }}</p>
                                         <p class="text-[10px] text-muted">{{ substr($appt->hora_inicio, 0, 5) }}</p>
                                     </td>
                                     <td class="text-white text-sm font-bold">{{ $appt->client?->user?->name ?? '—' }}</td>
@@ -179,7 +179,7 @@
                         <div class="flex items-center gap-3 p-3 rounded-xl border border-white/5">
                             <div class="text-center w-10 shrink-0">
                                 <p class="text-sm font-black text-white">{{ \Carbon\Carbon::parse($appt->fecha)->format('d') }}</p>
-                                <p class="text-[9px] text-muted">{{ \Carbon\Carbon::parse($appt->fecha)->format('M') }}</p>
+                                <p class="text-[9px] text-muted">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('M') }}</p>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-xs font-bold text-white truncate">{{ $appt->client?->user?->name ?? '—' }}</p>

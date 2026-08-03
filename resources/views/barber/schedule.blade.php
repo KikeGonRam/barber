@@ -62,7 +62,7 @@
                                          :class="days[{{ $schedule->day_of_week }}].working
                                              ? 'bg-gold/15 border-gold/25 text-gold'
                                              : 'bg-white/5 border-white/8 text-muted'">
-                                        {{ strtoupper(substr($days[$schedule->day_of_week], 0, 2)) }}
+                                        {{ strtoupper(mb_substr($days[$schedule->day_of_week], 0, 2)) }}
                                     </div>
                                     <div>
                                         <p class="text-sm font-black text-white uppercase tracking-wide">{{ $days[$schedule->day_of_week] }}</p>

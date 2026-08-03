@@ -122,9 +122,9 @@
                             <span class="text-gold">{{ $c->segmento === 'todos' ? 'Todos' : ($levels[$c->segmento] ?? $c->segmento) }}</span>
                             <span>·</span>
                             @if($programada)
-                                <span>{{ optional($c->programada_para)->format('d M, H:i') }}</span>
+                                <span>{{ optional($c->programada_para)->translatedFormat('d M, H:i') }}</span>
                             @else
-                                <span>{{ optional($c->enviada_en ?? $c->created_at)->format('d M') }}</span>
+                                <span>{{ optional($c->enviada_en ?? $c->created_at)->translatedFormat('d M') }}</span>
                             @endif
                         </div>
                         @unless($programada)

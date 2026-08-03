@@ -45,7 +45,7 @@
                                          alt="{{ $barber->user?->name }}">
                                 @else
                                     <div class="h-full w-full flex items-center justify-center text-3xl font-black text-gold bg-gradient-to-br from-gold/20 to-gold/5" id="avatarPlaceholder">
-                                        {{ strtoupper(substr($barber->user?->name ?? 'B', 0, 2)) }}
+                                        {{ strtoupper(mb_substr($barber->user?->name ?? 'B', 0, 2)) }}
                                     </div>
                                 @endif
                             </div>
