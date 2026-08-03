@@ -67,7 +67,7 @@ class BarberSeeder extends Seeder
                 // NO un array -- guardarlo como array rompe welcome/perfil/etc.
                 'especialidades' => implode(', ', $especialidades),
                 'telefono' => $telefono,
-                'descripcion' => "Barbero profesional especializado en {$especialidades[0]} con anios de experiencia en UrbanBlade.",
+                'descripcion' => "Barbero profesional especializado en {$especialidades[0]} con años de experiencia en UrbanBlade.",
                 'activo' => true,
                 'slug' => Str::slug($name).'-'.$i,
                 'created_at' => $now,

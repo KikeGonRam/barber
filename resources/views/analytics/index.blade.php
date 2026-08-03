@@ -94,20 +94,31 @@
                 <p class="text-sm font-black uppercase text-white">Aún no hay resultados disponibles</p>
                 <p class="mt-2 text-xs text-white/45">El sistema actualizará este espacio cuando termine su siguiente revisión.</p>
             </div>
-        @elseif($rolLabel === 'cliente')
-            {{-- El cliente solo recibe 1-2 hallazgos (recomendación + nota informativa).
-                 El panel ejecutivo completo (rango/sucursal, exportar, flujo de 5 pasos,
-                 cobertura de familias visuales, tabs) está pensado para docenas de
-                 hallazgos y se ve vacío/apretado con tan poco contenido — así que el
-                 cliente tiene su propia vista simple de una sola columna. --}}
+        @elseif(in_array($rolLabel, ['cliente', 'barbero'], true))
+            {{-- El cliente (1-2 hallazgos) y el barbero (solo sus insights
+                 privados, ~5) reciben un recorte mucho más chico que
+                 administrador/recepción. El panel ejecutivo completo
+                 (rango/sucursal, exportar, flujo de 5 pasos, cobertura de
+                 familias visuales, tabs, KPIs con etiquetas pensadas para
+                 "el equipo") está diseñado para docenas de hallazgos
+                 operativos — con tan poco contenido personal se ve vacío,
+                 apretado, y con copy que no aplica (ej. "Ocupación del
+                 equipo" cuando es la ocupación de UN barbero). Ambos roles
+                 comparten esta vista simple de una sola columna. --}}
             <section class="ub-analytics-panel rounded-[8px] p-5 sm:p-6">
-                <span class="rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-gold">Recomendado para ti</span>
+                <span class="rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-gold">
+                    {{ $rolLabel === 'cliente' ? 'Recomendado para ti' : 'Tu analítica personal' }}
+                </span>
                 <p class="mt-3 max-w-2xl text-sm leading-relaxed text-white/62">
-                    Estas recomendaciones se calculan a partir del historial real de la barbería, no de tus datos personales. Se actualizan solas.
+                    @if($rolLabel === 'cliente')
+                        Estas recomendaciones se calculan a partir del historial real de la barbería, no de tus datos personales. Se actualizan solas.
+                    @else
+                        Solo tus datos: tu demanda, tu ocupación de agenda y cómo le está yendo a tus publicaciones. Se actualiza sola.
+                    @endif
                 </p>
             </section>
 
-            <x-analytics-insights :insights="$insights" titulo="Para ti" :showCharts="true" idPrefix="client-chart" />
+            <x-analytics-insights :insights="$insights" titulo="Para ti" :showCharts="true" idPrefix="role-chart" />
         @else
             <section class="ub-analytics-panel rounded-[8px] p-4 sm:p-5">
                 <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">

@@ -14,7 +14,7 @@ class CommentSeeder extends Seeder
         'El mejor barbero de la zona, sin duda.', 'Que precision en el degradado.',
         'Ya quiero mi cita para que me dejen asi.', 'Un artista con las tijeras.',
         'Se ve buenisimo, recomendado al 100%.', 'Justo el estilo que buscaba.',
-        'Trabajo limpio y profesional.', 'Vengo desde hace anios y nunca falla.',
+        'Trabajo limpio y profesional.', 'Vengo desde hace años y nunca falla.',
         'Que nivel de detalle, impresionante.', 'Definitivamente mi barberia de confianza.',
     ];
 

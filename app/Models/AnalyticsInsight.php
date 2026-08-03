@@ -61,7 +61,10 @@ class AnalyticsInsight extends Model
         'engagement_muro_top' => 'bar',
         'engagement_propio' => 'bar',
         'tienda_pedidos' => 'bar',
-        'pca_factores' => 'radar',
+        // 'radar' se ve como una línea vacía con solo 2 ejes (precio/duración);
+        // el dato ya viene como {tipo: "bar"} desde Spark, así que se respeta
+        // esa forma en vez de forzar un radar que no tiene sentido con 2 puntos.
+        'pca_factores' => 'bar',
         'clasificacion_cancelacion' => 'line',
         'alertas_cancelacion' => 'factor-list',
         'confirmacion_cancelacion_reforzada' => 'bar',
