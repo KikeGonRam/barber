@@ -87,7 +87,15 @@
                     $isHeatmap = $hasVisual && $tipoVisual === 'heatmap';
                     $isFactorList = $hasVisual && $tipoVisual === 'factor-list';
                     $isWide = $hasVisual && in_array($tipoInsight, $wideTypes, true);
-                    $brief = \Illuminate\Support\Str::words($msg ?? '', $hasVisual ? 22 : 34);
+                    // Solo se recorta si el mensaje realmente es más largo que el
+                    // límite — así evitamos mostrar el mismo texto completo dos
+                    // veces (una vez "resumido" y otra dentro de "Ver hallazgo")
+                    // cuando el mensaje ya es corto, como pasa con los insights
+                    // de pocas palabras del rol cliente.
+                    $briefLimit = $hasVisual ? 22 : 34;
+                    $totalPalabras = str_word_count(strip_tags($msg ?? ''));
+                    $estaTruncado = $totalPalabras > $briefLimit;
+                    $brief = $estaTruncado ? \Illuminate\Support\Str::words($msg ?? '', $briefLimit) : ($msg ?? '');
                     $maxValue = max((float) $values->max(), 1);
                     $visualLabel = $visualLabels[$tipoVisual] ?? 'Indicador';
                     $progressValue = null;
@@ -296,15 +304,19 @@
                                 <p class="text-sm leading-relaxed text-white/58">{{ $brief }}</p>
                             @endif
 
-                            <details class="group rounded-[8px] border border-white/[0.07] bg-white/[0.025] px-3 py-2">
-                                <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/45 transition-colors hover:text-gold">
-                                    <span>Ver hallazgo</span>
-                                    <svg class="h-3.5 w-3.5 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
-                                    </svg>
-                                </summary>
-                                <p class="mt-3 text-[12px] leading-relaxed text-white/62">{{ $msg }}</p>
-                            </details>
+                            @if($estaTruncado)
+                                <details class="group rounded-[8px] border border-white/[0.07] bg-white/[0.025] px-3 py-2">
+                                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/45 transition-colors hover:text-gold">
+                                        <span>Ver hallazgo</span>
+                                        <svg class="h-3.5 w-3.5 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+                                        </svg>
+                                    </summary>
+                                    <p class="mt-3 text-[12px] leading-relaxed text-white/62">{{ $msg }}</p>
+                                </details>
+                            @elseif(!$hasVisual)
+                                {{-- Mensaje corto sin gráfica: ya se muestra completo arriba, no hay nada que expandir. --}}
+                            @endif
                         </div>
                     </div>
                 </article>
