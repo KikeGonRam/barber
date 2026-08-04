@@ -1315,7 +1315,7 @@
             type:'doughnut',
             data:{ labels:@json($servicesChart['labels']??[]),
                 datasets:[{data:@json($servicesChart['values']??[]),
-                    backgroundColor:['#d4af37','rgba(255,255,255,0.6)','#555','#888','#333'],
+                    backgroundColor:['#d4af37','#38bdf8','#34d399','#a78bfa','#f472b6','#fb923c'],
                     borderWidth:0, hoverOffset:8}] },
             options:{responsive:true,maintainAspectRatio:false,cutout:'78%',
                 plugins:{legend:{position:'bottom',labels:{color:'rgba(255,255,255,0.35)',usePointStyle:true,padding:14,font:{size:10}}}}}
