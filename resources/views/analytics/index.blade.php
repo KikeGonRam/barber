@@ -187,7 +187,21 @@
                 </div>
             </section>
 
-            <section class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,.75fr)]" aria-label="Cobertura del análisis">
+            <section x-data="{ coverageOpen: false }" aria-label="Cobertura del análisis">
+                <button type="button" @click="coverageOpen = !coverageOpen"
+                        class="ub-analytics-panel flex w-full items-center justify-between gap-3 rounded-[8px] p-4 text-left transition hover:bg-white/[0.03]">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gold">Cómo se calculan estos datos</p>
+                        <p class="mt-1 text-sm text-white/55">Del dato crudo a una recomendación accionable — detalle técnico opcional.</p>
+                    </div>
+                    <svg class="h-4 w-4 flex-shrink-0 text-white/40 transition-transform" :class="coverageOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+
+                <div x-show="coverageOpen" x-cloak
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     class="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,.75fr)]">
                 <article class="ub-analytics-panel rounded-[8px] p-4 sm:p-5">
                     <div class="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                         <div>
@@ -238,6 +252,7 @@
                         @endforeach
                     </div>
                 </article>
+                </div>
             </section>
 
             @if($kpis->isNotEmpty())
