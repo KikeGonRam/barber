@@ -7,7 +7,7 @@
     {{-- ── Botón flotante ────────────────────────────────────── --}}
     <button
         @click="toggle()"
-        class="fixed bottom-6 left-6 z-[200] h-14 w-14 rounded-full bg-gradient-to-br from-gold to-gold/70 text-black shadow-[0_8px_32px_rgba(212,175,55,0.4)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 group"
+        class="fixed bottom-24 left-6 md:bottom-6 z-[200] h-14 w-14 rounded-full bg-gradient-to-br from-gold to-gold/70 text-black shadow-[0_8px_32px_rgba(212,175,55,0.4)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 group"
         title="Asistente Virtual"
     >
         <svg x-show="!open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -34,8 +34,8 @@
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-            class="fixed z-[199] flex flex-col rounded-2xl border border-white/[0.08] bg-[#0d0d0d] shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden"
-            style="bottom: 88px; left: 24px; width: min(390px, calc(100vw - 48px)); height: min(540px, calc(100dvh - 120px)); display: none;"
+            class="fixed z-[199] flex flex-col rounded-2xl border border-white/[0.08] bg-[#0d0d0d] shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden bottom-[152px] left-6 md:bottom-[88px] md:left-6"
+            style="width: min(390px, calc(100vw - 48px)); height: min(540px, calc(100dvh - 184px)); display: none;"
         >
             {{-- Header --}}
             <div class="px-5 py-4 border-b border-white/[0.06] bg-white/[0.03] flex items-center justify-between shrink-0">
