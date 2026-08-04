@@ -608,7 +608,7 @@ html.dark {
     height: 56px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     padding: 0 0.875rem;
     background: var(--bg-topbar);
     backdrop-filter: blur(24px);
@@ -621,23 +621,6 @@ html.dark {
     from { opacity: 0; transform: translateY(-100%); }
     to   { opacity: 1; transform: translateY(0);     }
 }
-
-.mob-topbar-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    color: var(--ink);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: background 200ms ease, transform 150ms ease;
-    -webkit-tap-highlight-color: transparent;
-}
-.mob-topbar-btn:hover  { background: color-mix(in srgb, var(--line) 50%, transparent); }
-.mob-topbar-btn:active { transform: scale(0.88); }
 
 .mob-topbar-brand {
     position: absolute;

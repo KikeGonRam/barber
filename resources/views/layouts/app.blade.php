@@ -65,16 +65,6 @@
     {{-- ── Mobile Top Bar (solo <768px; en tablet/desktop el sidebar va acoplado) ── --}}
     @auth
     <header class="mob-topbar md:hidden">
-        <button @click="open = !open" :aria-expanded="open.toString()"
-                class="mob-topbar-btn" aria-label="Abrir menú">
-            <svg x-show="!open" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/>
-            </svg>
-            <svg x-show="open" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/>
-            </svg>
-        </button>
-
         <a href="{{ route('dashboard') }}" class="mob-topbar-brand">
             Urban<span class="text-gold">Blade</span>
         </a>
