@@ -14,26 +14,27 @@
                 <p class="text-[10px] text-white/50 font-bold mt-0.5 uppercase tracking-wider">{{ now()->translatedFormat('l d \d\e F, Y') }}</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-                @if($adminMode ?? false)
-                    <form method="POST" action="{{ route('settings.maintenance.toggle') }}">
-                        @csrf
-                        <button type="submit"
-                            class="flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all
-                                {{ ($maintenanceMode ?? false) ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-white/[0.03] border-white/8 text-white/40 hover:text-white hover:border-white/20' }}">
-                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            {{ ($maintenanceMode ?? false) ? 'Mantenimiento ON' : 'Mantenimiento' }}
-                        </button>
-                    </form>
-                    <a href="{{ route('backups.database.download') }}"
-                        class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] text-emerald-400 text-[9px] font-black uppercase tracking-widest hover:bg-emerald-500/10 transition-all">
-                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                        Backup
-                    </a>
-                @endif
                 <span class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/8 bg-white/[0.03] text-[9px] font-black uppercase tracking-widest text-white/40">
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     Sistema Activo
                 </span>
+                @if($adminMode ?? false)
+                    <div class="flex items-center gap-1.5 ml-auto sm:ml-0">
+                        <form method="POST" action="{{ route('settings.maintenance.toggle') }}">
+                            @csrf
+                            <button type="submit" title="{{ ($maintenanceMode ?? false) ? 'Mantenimiento activado' : 'Activar modo mantenimiento' }}"
+                                aria-label="Modo mantenimiento"
+                                class="flex h-8 w-8 items-center justify-center rounded-xl border transition-all
+                                    {{ ($maintenanceMode ?? false) ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-white/[0.03] border-white/8 text-white/35 hover:text-white hover:border-white/20' }}">
+                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            </button>
+                        </form>
+                        <a href="{{ route('backups.database.download') }}" title="Descargar backup de la base de datos" aria-label="Backup"
+                            class="flex h-8 w-8 items-center justify-center rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] text-emerald-400 hover:bg-emerald-500/10 transition-all">
+                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
     </x-slot>

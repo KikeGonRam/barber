@@ -190,7 +190,9 @@ class DashboardController extends Controller
             $mesCan = Appointment::where('fecha', '>=', $iniMes)->where('estado', 'cancelada')->count();
             $prevTot = Appointment::whereBetween('fecha', [$iniPrev, $finPrev])->count();
             $prevCan = Appointment::whereBetween('fecha', [$iniPrev, $finPrev])->where('estado', 'cancelada')->count();
-            if ($mesTot > 0 && $prevTot > 0) {
+            // Umbral minimo de muestra: con pocas citas un solo caso mueve el
+            // porcentaje de forma dramatica y engañosa (ej. 1 de 2 = "50%").
+            if ($mesTot >= 10 && $prevTot >= 10) {
                 $tasaMes = $mesCan / $mesTot * 100;
                 $tasaPrev = $prevCan / $prevTot * 100;
                 $insights[] = [
