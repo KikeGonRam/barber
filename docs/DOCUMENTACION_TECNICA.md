@@ -147,6 +147,24 @@ El proyecto no cuenta actualmente con un directorio `tests/` ni suite de pruebas
 automatizadas activa. Cualquier verificación de cambios se hace manualmente
 (navegador + revisión de logs de Docker).
 
+### 2.8 Antes de desplegar a producción
+
+El `.env` local trae `APP_ENV=local` y `APP_DEBUG=true` a propósito — así
+Laravel muestra la traza completa del error (archivo, línea, versión de
+PHP/Laravel) cuando algo falla, útil en desarrollo. **En producción esto es
+una fuga de información**: cualquier visitante que provoque un error (incluso
+sin haber iniciado sesión) puede ver rutas del servidor y detalles internos.
+
+Antes de publicar el sistema, en el `.env` de producción:
+
+```
+APP_ENV=production
+APP_DEBUG=false
+```
+
+y confirmar que aparece una página de error genérica (no la traza de Laravel)
+al forzar un error, por ejemplo visitando una ruta que no existe.
+
 ---
 
 ## 3. Módulo de analítica (`spark/`)
