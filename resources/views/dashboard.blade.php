@@ -311,7 +311,11 @@
                     </div>
 
                     {{-- Estaciones en vivo --}}
-                    <div x-show="tab==='stations'" x-transition>
+                    @php
+                        $busyStatuses = collect($barberStatuses)->filter(fn ($s) => $s['is_busy'])->values();
+                        $freeStatuses = collect($barberStatuses)->reject(fn ($s) => $s['is_busy'])->values();
+                    @endphp
+                    <div x-show="tab==='stations'" x-transition x-data="{ showFree: false }">
                         <div class="flex items-center justify-between mb-4">
                             <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Ocupación en tiempo real</p>
                             <span class="flex items-center gap-1 text-[8px] font-black uppercase text-emerald-400">
@@ -319,25 +323,60 @@
                             </span>
                         </div>
                         @if(!empty($barberStatuses))
-                            <div class="grid grid-cols-2 gap-3">
-                                @foreach($barberStatuses as $st)
-                                    <div class="rounded-xl border {{ $st['is_busy'] ? 'border-red-500/20 bg-red-500/[0.04]' : 'border-emerald-500/15 bg-emerald-500/[0.04]' }} p-3 text-center">
-                                        <div class="relative inline-flex mb-2">
-                                            <div class="h-9 w-9 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[11px] font-black text-gold">
-                                                {{ strtoupper(mb_substr($st['name'],0,2)) }}
+                            <div class="mb-4 flex gap-3">
+                                <div class="flex-1 rounded-xl border border-red-500/20 bg-red-500/[0.04] p-3 text-center">
+                                    <p class="text-lg font-black text-red-400">{{ $busyStatuses->count() }}</p>
+                                    <p class="text-[8px] font-black uppercase text-red-400/80">Ocupados</p>
+                                </div>
+                                <div class="flex-1 rounded-xl border border-emerald-500/15 bg-emerald-500/[0.04] p-3 text-center">
+                                    <p class="text-lg font-black text-emerald-400">{{ $freeStatuses->count() }}</p>
+                                    <p class="text-[8px] font-black uppercase text-emerald-400/80">Libres</p>
+                                </div>
+                            </div>
+
+                            @if($busyStatuses->isNotEmpty())
+                                <div class="grid grid-cols-2 gap-3">
+                                    @foreach($busyStatuses as $st)
+                                        <div class="rounded-xl border border-red-500/20 bg-red-500/[0.04] p-3 text-center">
+                                            <div class="relative inline-flex mb-2">
+                                                <div class="h-9 w-9 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[11px] font-black text-gold">
+                                                    {{ strtoupper(mb_substr($st['name'],0,2)) }}
+                                                </div>
+                                                <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#111] bg-red-500"></span>
                                             </div>
-                                            <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#111] {{ $st['is_busy'] ? 'bg-red-500' : 'bg-emerald-500' }}"></span>
-                                        </div>
-                                        <p class="text-[10px] font-black text-white truncate">{{ explode(' ',$st['name'])[0] }}</p>
-                                        <p class="text-[8px] font-black uppercase {{ $st['is_busy'] ? 'text-red-400' : 'text-emerald-400' }}">{{ $st['is_busy'] ? 'Ocupado' : 'Libre' }}</p>
-                                        @if($st['is_busy'])
+                                            <p class="text-[10px] font-black text-white truncate">{{ explode(' ',$st['name'])[0] }}</p>
+                                            <p class="text-[8px] font-black uppercase text-red-400">Ocupado</p>
                                             <div class="mt-1.5 h-0.5 w-full bg-white/5 rounded-full overflow-hidden">
                                                 <div class="h-full bg-gold rounded-full" style="width:{{ $st['progress'] }}%"></div>
                                             </div>
-                                        @endif
-                                    </div>
-                                @endforeach
-                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <p class="text-xs text-white/45 italic text-center py-4">Nadie está atendiendo ahora mismo.</p>
+                            @endif
+
+                            @if($freeStatuses->isNotEmpty())
+                                <button type="button" @click="showFree = !showFree"
+                                        class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] py-2.5 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-white/70 transition">
+                                    <span x-text="showFree ? 'Ocultar libres' : 'Ver {{ $freeStatuses->count() }} libres'"></span>
+                                    <svg class="h-3 w-3 transition-transform" :class="showFree ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                                <div x-show="showFree" x-transition x-cloak class="mt-3 grid grid-cols-2 gap-3">
+                                    @foreach($freeStatuses as $st)
+                                        <div class="rounded-xl border border-emerald-500/15 bg-emerald-500/[0.04] p-3 text-center">
+                                            <div class="relative inline-flex mb-2">
+                                                <div class="h-9 w-9 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[11px] font-black text-gold">
+                                                    {{ strtoupper(mb_substr($st['name'],0,2)) }}
+                                                </div>
+                                                <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#111] bg-emerald-500"></span>
+                                            </div>
+                                            <p class="text-[10px] font-black text-white truncate">{{ explode(' ',$st['name'])[0] }}</p>
+                                            <p class="text-[8px] font-black uppercase text-emerald-400">Libre</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
                         @else
                             <p class="text-xs text-white/45 italic text-center py-8">Sin barberos activos</p>
                         @endif
