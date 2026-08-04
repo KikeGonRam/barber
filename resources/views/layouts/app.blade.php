@@ -10,14 +10,8 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap" rel="stylesheet" />
-    {{-- Anti-flash: aplica el tema ANTES de que el CSS pinte la pantalla --}}
-    <script>
-        (function () {
-            var saved = localStorage.getItem('darkMode');
-            var isDark = saved === null ? true : saved === 'true'; // default oscuro
-            if (isDark) document.documentElement.classList.add('dark');
-        })();
-    </script>
+    {{-- La app usa un único modo (oscuro) --}}
+    <script>document.documentElement.classList.add('dark');</script>
     @safeVite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased">

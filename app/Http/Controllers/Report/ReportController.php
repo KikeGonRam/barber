@@ -20,11 +20,18 @@ class ReportController extends Controller
 
     public function __construct(private readonly ReportService $reportService) {}
 
-    public function index()
+    public function index(Request $request)
     {
         $barbers = Barber::query()->with('user:id,name')->get(['id', 'user_id']);
 
-        return view('reports.index', compact('barbers'));
+        $filters = $request->only(['start_date', 'end_date', 'barber_id', 'metodo_pago', 'estado', 'categoria', 'tipo']);
+
+        $charts = [];
+        foreach (['ingresos', 'citas', 'inventario', 'clientes'] as $type) {
+            $charts[$type] = $this->reportService->reportByType($type, $filters)['chart'] ?? null;
+        }
+
+        return view('reports.index', compact('barbers', 'charts'));
     }
 
     public function export(Request $request, string $type, string $format)
@@ -54,7 +61,7 @@ class ReportController extends Controller
         );
 
         return Excel::download(
-            new GenericReportExport($rows, $report['headings'], $report['title']),
+            new GenericReportExport($rows, $report['headings'], $report['title'], $report['chart'] ?? null),
             "{$filename}.xlsx"
         );
     }
@@ -78,6 +85,7 @@ class ReportController extends Controller
             'trimmed' => $trimmed,
             'pdf_limit' => self::PDF_ROW_LIMIT,
             'total' => $report['rows']->count(),
+            'chart' => $report['chart'] ?? null,
         ]);
 
         $pdf->setPaper('letter', 'landscape');

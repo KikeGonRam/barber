@@ -71,11 +71,21 @@ class ReportService
 
         $rows = $serviceRows->concat($orderRows)->sortByDesc('fecha')->values();
 
+        // Grafica: total de ingresos por dia dentro del rango.
+        $chartValues = $rows->groupBy(fn ($r) => substr((string) $r['fecha'], 0, 10))
+            ->map(fn ($g) => $g->sum('total'))
+            ->sortKeys();
+
         return [
             'title' => 'Reporte de Ingresos',
             'headings' => ['Fecha', 'Origen', 'Cliente', 'Barbero', 'Método de pago', 'Monto', 'Propina', 'Total'],
             'rows' => $rows,
             'keys' => ['fecha', 'origen', 'cliente', 'barbero', 'metodo_pago', 'monto', 'propina', 'total'],
+            'chart' => [
+                'title' => 'Ingresos por día',
+                'labels' => $chartValues->keys()->values()->all(),
+                'values' => $chartValues->values()->map(fn ($v) => round($v, 2))->all(),
+            ],
         ];
     }
 
@@ -107,11 +117,19 @@ class ReportService
             ];
         });
 
+        // Grafica: cantidad de citas por estado.
+        $chartValues = $rows->groupBy('estado')->map->count()->sortDesc();
+
         return [
             'title' => 'Reporte de Citas',
             'headings' => ['Fecha', 'Hora inicio', 'Hora fin', 'Estado', 'Cliente', 'Barbero', 'Servicio', 'Precio cobrado'],
             'rows' => $rows,
             'keys' => ['fecha', 'hora_inicio', 'hora_fin', 'estado', 'cliente', 'barbero', 'servicio', 'precio_cobrado'],
+            'chart' => [
+                'title' => 'Citas por estado',
+                'labels' => $chartValues->keys()->values()->all(),
+                'values' => $chartValues->values()->all(),
+            ],
         ];
     }
 
@@ -150,11 +168,19 @@ class ReportService
             ];
         });
 
+        // Grafica: los 8 productos con menor stock (los mas criticos primero).
+        $chartRows = $rows->sortBy('stock_actual')->take(8);
+
         return [
             'title' => 'Reporte de Inventario',
             'headings' => ['Producto', 'Categoría', 'Tipo', 'Stock actual', 'Stock mínimo', 'Bajo mínimo', 'Precio venta', 'Movimientos'],
             'rows' => $rows,
             'keys' => ['producto', 'categoria', 'tipo', 'stock_actual', 'stock_minimo', 'bajo_minimo', 'precio_venta', 'movimientos'],
+            'chart' => [
+                'title' => 'Stock más bajo (top 8)',
+                'labels' => $chartRows->pluck('producto')->all(),
+                'values' => $chartRows->pluck('stock_actual')->all(),
+            ],
         ];
     }
 
@@ -178,11 +204,19 @@ class ReportService
             ->sortByDesc('visitas')
             ->values();
 
+        // Grafica: los 8 clientes con mas visitas en el rango.
+        $chartRows = $rows->take(8);
+
         return [
             'title' => 'Reporte de Clientes',
             'headings' => ['Cliente', 'Citas totales', 'Completadas', 'Gasto total'],
             'rows' => $rows,
             'keys' => ['cliente', 'visitas', 'completadas', 'gasto_total'],
+            'chart' => [
+                'title' => 'Clientes con más visitas (top 8)',
+                'labels' => $chartRows->pluck('cliente')->all(),
+                'values' => $chartRows->pluck('visitas')->all(),
+            ],
         ];
     }
 

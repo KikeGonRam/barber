@@ -92,6 +92,54 @@
             margin-top: 20px;
         }
         .clear { clear: both; }
+
+        .chart-box {
+            background-color: #0a0a0a;
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+        }
+        .chart-title {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #d4af37;
+            margin: 0 0 14px;
+        }
+        .chart-row { margin-bottom: 8px; }
+        .chart-label {
+            display: inline-block;
+            width: 140px;
+            font-size: 9px;
+            color: #ccc;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+        .chart-track {
+            display: inline-block;
+            width: 340px;
+            height: 12px;
+            background-color: #1a1a1a;
+            vertical-align: middle;
+            border-radius: 3px;
+        }
+        .chart-bar {
+            display: block;
+            height: 12px;
+            background-color: #d4af37;
+            border-radius: 3px;
+        }
+        .chart-value {
+            display: inline-block;
+            width: 70px;
+            text-align: right;
+            font-size: 9px;
+            font-weight: bold;
+            color: #fff;
+            vertical-align: middle;
+            padding-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -104,8 +152,23 @@
     </div>
 
     <div class="content">
+        @if(!empty($chart['labels'] ?? []))
+            @php $chartMax = max(1, max($chart['values'])); @endphp
+            <div class="chart-box">
+                <p class="chart-title">{{ $chart['title'] ?? 'Gráfica' }}</p>
+                @foreach($chart['labels'] as $i => $label)
+                    @php $pct = round((($chart['values'][$i] ?? 0) / $chartMax) * 100); @endphp
+                    <div class="chart-row">
+                        <span class="chart-label">{{ \Illuminate\Support\Str::limit($label, 22) }}</span>
+                        <span class="chart-track"><span class="chart-bar" style="width: {{ $pct }}%;"></span></span>
+                        <span class="chart-value">{{ $chart['values'][$i] ?? 0 }}</span>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
         <div class="section-title">Detalle del Informe</div>
-        
+
         <table class="data-table">
             <thead>
                 <tr>

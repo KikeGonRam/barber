@@ -36,6 +36,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'expo_push_token',
         'notification_preferences',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     /**
@@ -59,7 +61,24 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'notification_preferences' => 'array',
+            'verification_code_expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Genera un codigo de 6 digitos (valido 10 min) y lo envia por correo con
+     * la plantilla de marca, en vez del enlace firmado default de Laravel.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $this->forceFill([
+            'verification_code' => $code,
+            'verification_code_expires_at' => now()->addMinutes(10),
+        ])->save();
+
+        $this->notify(new \App\Notifications\EmailVerificationCodeNotification($code));
     }
 
     public function getActivitylogOptions(): LogOptions

@@ -129,6 +129,12 @@
                                 </div>
                             </div>
 
+                            @if(!empty($charts[$card['type']]['labels'] ?? []))
+                                <div class="mt-4 h-32">
+                                    <canvas id="chart-{{ $card['type'] }}"></canvas>
+                                </div>
+                            @endif
+
                             <div class="mt-4 flex gap-2">
                                 <a href="{{ route('reports.export', ['type' => $card['type'], 'format' => 'pdf'] + $filterQuery) }}"
                                    @click="loading='pdf'; setTimeout(() => loading=null, 2500)"
@@ -156,4 +162,47 @@
 
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        Chart.defaults.font.family = "'Figtree', sans-serif";
+        Chart.defaults.color = 'rgba(255,255,255,0.3)';
+        Chart.defaults.font.weight = 'bold';
+
+        const reportScale = {
+            ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 9 } },
+            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+        };
+
+        @foreach($charts as $type => $chart)
+            @if(!empty($chart['labels'] ?? []))
+                (function () {
+                    const el = document.getElementById('chart-{{ $type }}');
+                    if (!el) return;
+                    new Chart(el, {
+                        type: 'bar',
+                        data: {
+                            labels: @json($chart['labels']),
+                            datasets: [{
+                                label: @json($chart['title'] ?? ''),
+                                data: @json($chart['values']),
+                                backgroundColor: 'rgba(212,175,55,0.7)',
+                                borderRadius: 4,
+                                barThickness: 14,
+                            }],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { backgroundColor: 'rgba(13,13,13,0.96)', borderColor: '#d4af37', borderWidth: 1 },
+                            },
+                            scales: { y: reportScale, x: reportScale },
+                        },
+                    });
+                })();
+            @endif
+        @endforeach
+    </script>
 </x-app-layout>

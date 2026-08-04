@@ -76,27 +76,7 @@
 
     <!-- User Footer Section (Fixed) -->
     <div :class="open ? 'block' : 'hidden'" class="space-y-4 pt-4 md:block border-t border-white/10 flex-shrink-0">
-        <!-- Dark Mode Toggle y Keyboard Shortcuts -->
-        <div class="px-2 mb-2 flex items-center gap-2 justify-center md:justify-start" :class="!railCollapsed ? 'lg:justify-between' : ''">
-            <x-dark-mode-toggle />
-            <div class="hidden" :class="!railCollapsed ? 'lg:block' : ''">
-                <x-keyboard-shortcuts-help />
-            </div>
-        </div>
-
-        <!-- Shortcut Hint -->
-        <div class="px-2 mb-2 hidden" :class="!railCollapsed ? 'lg:block' : ''">
-            <div class="flex items-center justify-between rounded-lg bg-white/5 px-2 py-1.5 border border-white/5">
-                <span class="text-[9px] font-black uppercase text-muted tracking-widest">Atajos</span>
-                <div class="flex items-center gap-1">
-                    <kbd class="px-1 py-0.5 rounded border border-white/10 bg-black text-[8px] font-bold text-gold">Ctrl</kbd>
-                    <span class="text-[8px] text-muted">+</span>
-                    <kbd class="px-1 py-0.5 rounded border border-white/10 bg-black text-[8px] font-bold text-gold">K</kbd>
-                </div>
-            </div>
-        </div>
-
-         <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.*')" title="Notificaciones">
+        <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.*')" title="Notificaciones">
             <svg class="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="flex items-center gap-2 w-full justify-between md:hidden" :class="!railCollapsed ? 'lg:flex' : ''">
                 Notificaciones
