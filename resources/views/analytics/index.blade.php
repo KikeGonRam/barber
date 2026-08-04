@@ -300,7 +300,10 @@
                 </section>
             @endif
 
-            <section class="ub-analytics-panel sticky top-3 z-20 rounded-[8px] p-2 backdrop-blur-xl">
+            {{-- sticky solo desde sm: en movil los 4 botones se apilan a pantalla
+                 completa (una columna) y, al quedar fijos mientras se hace scroll,
+                 tapan gran parte del contenido -- se ve como una superposicion. --}}
+            <section class="ub-analytics-panel sm:sticky sm:top-3 z-20 rounded-[8px] p-2 backdrop-blur-xl">
                 <nav class="grid grid-cols-1 gap-1 sm:grid-cols-2 xl:grid-cols-4" aria-label="Secciones de analítica">
                     @foreach($visibles as $seccion)
                         @php
