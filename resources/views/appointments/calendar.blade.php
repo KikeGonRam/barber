@@ -82,7 +82,7 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="h-8 w-8 rounded-lg bg-gold/10 text-gold flex items-center justify-center shrink-0">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758L5 19m0-14l4.121 4.121"/></svg>
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 9a3 3 0 100-6 3 3 0 000 6zm0 12a3 3 0 100-6 3 3 0 000 6zm14-15L8.5 15M9 6l11 12"/></svg>
                         </div>
                         <div>
                             <p class="text-[9px] text-muted uppercase font-bold tracking-widest">Servicio</p>
@@ -180,6 +180,8 @@
                 list:     'Lista',
             },
             height: 'auto',
+            slotMinTime: '08:00:00',
+            slotMaxTime: '22:00:00',
             events: getEvents,
             eventClick: function (info) {
                 const p = info.event.extendedProps;

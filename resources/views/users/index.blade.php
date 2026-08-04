@@ -1,6 +1,11 @@
 @php
     $activeFilters = array_filter(['q' => request('q'), 'role' => request('role'), 'verified' => request('verified')], fn($v) => $v !== '' && $v !== null);
-    $roleColors = ['administrador'=>'red','barbero'=>'gold','recepcionista'=>'blue','cliente'=>'cyan'];
+    $roleBadgeClasses = [
+        'administrador'  => 'border-red-500/25 bg-red-500/10 text-red-400',
+        'barbero'        => 'border-gold/25 bg-gold/10 text-gold',
+        'recepcionista'  => 'border-blue-500/25 bg-blue-500/10 text-blue-400',
+        'cliente'        => 'border-cyan-500/25 bg-cyan-500/10 text-cyan-400',
+    ];
 @endphp
 
 <x-app-layout>
@@ -131,8 +136,8 @@
                                 <td>
                                     <div class="flex flex-wrap gap-1.5">
                                         @foreach($user->roleNames() as $roleName)
-                                            @php $rc = $roleColors[$roleName] ?? 'white'; @endphp
-                                            <span class="inline-flex items-center rounded-full border border-{{ $rc === 'gold' ? 'gold/25' : $rc.'-500/25' }} bg-{{ $rc === 'gold' ? 'gold/10' : $rc.'-500/10' }} px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest {{ $rc === 'gold' ? 'text-gold' : 'text-'.$rc.'-400' }}">
+                                            @php $roleBadge = $roleBadgeClasses[$roleName] ?? 'border-white/25 bg-white/10 text-white/70'; @endphp
+                                            <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest {{ $roleBadge }}">
                                                 {{ $roleName }}
                                             </span>
                                         @endforeach

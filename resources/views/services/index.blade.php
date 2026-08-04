@@ -1,7 +1,16 @@
 @php
     use App\Helpers\SmartImageHelper;
     $activeFilters = array_filter($filters ?? [], fn($v) => $v !== '' && $v !== null);
-    $catColors = ['corte'=>'sky','barba'=>'amber','combo'=>'purple','tratamiento'=>'emerald'];
+    $catBadgeClasses = [
+        'corte'       => 'border-sky-500/25 bg-sky-500/10 text-sky-400',
+        'barba'       => 'border-amber-500/25 bg-amber-500/10 text-amber-400',
+        'combo'       => 'border-purple-500/25 bg-purple-500/10 text-purple-400',
+        'tratamiento' => 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400',
+    ];
+    $catBadgeFor = function (?string $categoria) use ($catBadgeClasses) {
+        $key = rtrim(Str::lower((string) $categoria), 's');
+        return $catBadgeClasses[$key] ?? 'border-white/25 bg-white/10 text-white/70';
+    };
 @endphp
 
 <x-app-layout>
@@ -110,7 +119,7 @@
                     <tbody>
                         @forelse($services as $service)
                             @php
-                                $catColor  = $catColors[$service->categoria] ?? 'white';
+                                $catBadge  = $catBadgeFor($service->categoria);
                                 $svcImgUrl = $service->imagen
                                     ? \Illuminate\Support\Facades\Storage::url($service->imagen)
                                     : SmartImageHelper::forService($service->nombre, 'sm');
@@ -134,8 +143,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="inline-flex items-center rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-wider
-                                        border-{{ $catColor }}-500/25 bg-{{ $catColor }}-500/10 text-{{ $catColor }}-400">
+                                    <span class="inline-flex items-center rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-wider {{ $catBadge }}">
                                         {{ $service->categoria }}
                                     </span>
                                 </td>
@@ -191,12 +199,12 @@
             {{-- Mobile --}}
             <div class="space-y-3 md:hidden">
                 @forelse($services as $service)
-                    @php $catColor = $catColors[$service->categoria] ?? 'white'; @endphp
+                    @php $catBadge = $catBadgeFor($service->categoria); @endphp
                     <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
                         <div class="flex items-start justify-between mb-3">
                             <div>
                                 <p class="font-black text-white text-sm">{{ $service->nombre }}</p>
-                                <span class="inline-flex items-center rounded-full border border-{{ $catColor }}-500/25 bg-{{ $catColor }}-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-{{ $catColor }}-400 mt-1">
+                                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wider mt-1 {{ $catBadge }}">
                                     {{ $service->categoria }}
                                 </span>
                             </div>

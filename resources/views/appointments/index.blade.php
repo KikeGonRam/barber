@@ -44,14 +44,14 @@
         {{-- ── STATS ROW ──────────────────────────────── --}}
         <section class="grid grid-cols-2 gap-4 sm:grid-cols-4">
             @foreach([
-                ['label'=>'Total Citas',   'val'=>$stats['total'],      'color'=>'white',   'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
-                ['label'=>'Hoy',           'val'=>$stats['today'],      'color'=>'blue',    'icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
-                ['label'=>'Pendientes',    'val'=>$stats['pendiente'],  'color'=>'amber',   'icon'=>'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
-                ['label'=>'Completadas',   'val'=>$stats['completada'], 'color'=>'emerald', 'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+                ['label'=>'Total Citas',   'val'=>$stats['total'],      'iconClasses'=>'bg-white/10 text-white/60',            'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
+                ['label'=>'Hoy',           'val'=>$stats['today'],      'iconClasses'=>'bg-blue-500/10 text-blue-400',         'icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+                ['label'=>'Pendientes',    'val'=>$stats['pendiente'],  'iconClasses'=>'bg-amber-500/10 text-amber-400',       'icon'=>'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
+                ['label'=>'Completadas',   'val'=>$stats['completada'], 'iconClasses'=>'bg-emerald-500/10 text-emerald-400',   'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
             ] as $stat)
                 <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
                     <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-xl bg-{{ $stat['color'] }}-500/10 text-{{ $stat['color'] === 'white' ? 'white/60' : $stat['color'].'-400' }} flex items-center justify-center shrink-0">
+                        <div class="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 {{ $stat['iconClasses'] }}">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $stat['icon'] }}"/></svg>
                         </div>
                         <div>

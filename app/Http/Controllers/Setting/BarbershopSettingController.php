@@ -13,7 +13,7 @@ class BarbershopSettingController extends Controller
     public function edit(): View
     {
         $setting = BarbershopSetting::query()->firstOrCreate(
-            ['id' => 1],
+            [],
             ['nombre' => config('app.name', 'Barbershop'), 'politica_cancelacion' => 24]
         );
 
@@ -23,7 +23,7 @@ class BarbershopSettingController extends Controller
     public function update(UpdateBarbershopSettingRequest $request): RedirectResponse
     {
         $setting = BarbershopSetting::query()->firstOrCreate(
-            ['id' => 1],
+            [],
             ['nombre' => config('app.name', 'Barbershop'), 'politica_cancelacion' => 24]
         );
 
@@ -53,7 +53,7 @@ class BarbershopSettingController extends Controller
     public function toggleMaintenance(): RedirectResponse
     {
         $setting = BarbershopSetting::query()->firstOrCreate(
-            ['id' => 1],
+            [],
             ['nombre' => config('app.name', 'Barbershop'), 'politica_cancelacion' => 24]
         );
 

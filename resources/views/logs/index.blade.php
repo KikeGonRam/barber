@@ -1,10 +1,23 @@
 @php
     $activeFilters = array_filter($filters ?? [], fn($v) => $v !== '' && $v !== null);
     $eventConfig = [
-        'created' => ['color' => 'emerald', 'icon' => 'M12 4v16m8-8H4',        'label' => 'Creado'],
-        'updated' => ['color' => 'blue',    'icon' => 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', 'label' => 'Actualizado'],
-        'deleted' => ['color' => 'red',     'icon' => 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16', 'label' => 'Eliminado'],
+        'created' => ['icon' => 'M12 4v16m8-8H4',        'label' => 'Creado',
+            'ring' => 'hover:border-emerald-500/25 hover:bg-emerald-500/[0.02]',
+            'iconBg' => 'bg-emerald-500/10 text-emerald-400',
+            'badge' => 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400'],
+        'updated' => ['icon' => 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', 'label' => 'Actualizado',
+            'ring' => 'hover:border-blue-500/25 hover:bg-blue-500/[0.02]',
+            'iconBg' => 'bg-blue-500/10 text-blue-400',
+            'badge' => 'border-blue-500/25 bg-blue-500/10 text-blue-400'],
+        'deleted' => ['icon' => 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16', 'label' => 'Eliminado',
+            'ring' => 'hover:border-red-500/25 hover:bg-red-500/[0.02]',
+            'iconBg' => 'bg-red-500/10 text-red-400',
+            'badge' => 'border-red-500/25 bg-red-500/10 text-red-400'],
     ];
+    $defaultEventConfig = ['icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+        'ring' => 'hover:border-white/25 hover:bg-white/[0.02]',
+        'iconBg' => 'bg-white/10 text-white/40',
+        'badge' => 'border-white/25 bg-white/10 text-white/50'];
 @endphp
 
 <x-app-layout>
@@ -116,12 +129,11 @@
             <div class="space-y-2">
                 @forelse($logs as $log)
                     @php
-                        $ec = $eventConfig[$log->event ?? ''] ?? ['color'=>'white','icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z','label'=>$log->event ?? 'Sistema'];
-                        $clr = $ec['color'];
+                        $ec = ($eventConfig[$log->event ?? ''] ?? $defaultEventConfig) + ['label' => $log->event ?? 'Sistema'];
                     @endphp
-                    <div class="group flex items-start gap-4 rounded-2xl border border-white/6 bg-[#111] p-4 hover:border-{{ $clr }}-500/25 hover:bg-{{ $clr }}-500/[0.02] transition-all duration-300">
+                    <div class="group flex items-start gap-4 rounded-2xl border border-white/6 bg-[#111] p-4 {{ $ec['ring'] }} transition-all duration-300">
                         {{-- Icono de tipo evento --}}
-                        <div class="h-10 w-10 rounded-xl bg-{{ $clr }}-500/10 text-{{ $clr === 'white' ? 'white/40' : $clr.'-400' }} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <div class="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform {{ $ec['iconBg'] }}">
                             <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $ec['icon'] }}"/>
                             </svg>
@@ -136,8 +148,7 @@
                                         {{ $log->log_name }}
                                     </span>
                                 @endif
-                                <span class="text-[9px] font-black border rounded-full px-2 py-0.5 uppercase tracking-wider
-                                    border-{{ $clr }}-500/25 bg-{{ $clr }}-500/10 text-{{ $clr === 'white' ? 'white/50' : $clr.'-400' }}">
+                                <span class="text-[9px] font-black border rounded-full px-2 py-0.5 uppercase tracking-wider {{ $ec['badge'] }}">
                                     {{ $ec['label'] }}
                                 </span>
                             </div>

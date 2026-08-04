@@ -82,7 +82,7 @@ class SettingController extends Controller
     private function getSetting(): BarbershopSetting
     {
         return BarbershopSetting::query()->firstOrCreate(
-            ['id' => 1],
+            [],
             ['nombre' => config('app.name', 'Barbershop'), 'politica_cancelacion' => 24]
         );
     }
