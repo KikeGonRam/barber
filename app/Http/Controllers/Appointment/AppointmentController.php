@@ -133,6 +133,7 @@ class AppointmentController extends Controller
                 'precio_cobrado' => (float) $service->precio,
                 'metodo_pago' => 'efectivo',
                 'notas' => 'Walk-in registrado en recepción.',
+                'servicio_iniciado_en' => $inicio,
             ]);
         } catch (AppointmentConflictException $exception) {
             return back()->withErrors(['walkin' => $exception->getMessage()]);

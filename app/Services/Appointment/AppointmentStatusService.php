@@ -89,6 +89,10 @@ class AppointmentStatusService
             $updates['cancelada_en'] = now();
         }
 
+        if ($to === 'en_proceso') {
+            $updates['servicio_iniciado_en'] = now();
+        }
+
         $appointment->update($updates);
     }
 }

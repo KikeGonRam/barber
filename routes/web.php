@@ -13,6 +13,7 @@ use App\Http\Controllers\Client\ClientAppointmentController;
 use App\Http\Controllers\Client\ClientBarberController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Client\ClientInvoiceController;
+use App\Http\Controllers\Client\ClientPaymentController;
 use App\Http\Controllers\Client\MembershipController;
 use App\Http\Controllers\Client\StoreController;
 use App\Http\Controllers\Dashboard\DashboardController;
@@ -130,6 +131,9 @@ Route::middleware('auth')->group(function () {
         Route::middleware('permission.custom:pagos.gestionar')->group(function () {
             Route::resource('payments', PaymentController::class)->only(['index', 'create', 'store', 'destroy']);
             Route::get('payments/{payment}/receipt', [PaymentController::class, 'downloadReceipt'])->name('payments.receipt.download');
+            Route::get('payments-pendientes', [PaymentController::class, 'pending'])->name('payments.pending');
+            Route::post('payments/{payment}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
+            Route::post('payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
 
             // Bandeja de pedidos de la tienda
             Route::get('pedidos', [OrderController::class, 'index'])->name('orders.index');
@@ -203,6 +207,9 @@ Route::middleware('auth')->group(function () {
         Route::post('barberos/{barber}/review', [ClientBarberController::class, 'storeReview'])->name('barberos.review');
         Route::get('facturas', [ClientInvoiceController::class, 'index'])->name('facturas.index');
         Route::get('facturas/{payment}/download', [ClientInvoiceController::class, 'download'])->name('facturas.download');
+        Route::get('pagos-pendientes', [ClientPaymentController::class, 'pending'])->name('payments.pending');
+        Route::get('appointments/{appointment}/comprobante', [ClientPaymentController::class, 'create'])->name('payments.upload');
+        Route::post('appointments/{appointment}/comprobante', [ClientPaymentController::class, 'store'])->name('payments.store');
         Route::get('membresia/tarjeta', [MembershipController::class, 'card'])->name('membership.card');
 
         // Tienda + carrito + pedidos

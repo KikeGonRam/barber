@@ -28,6 +28,7 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
     {
         return $this->model->newQuery()
             ->where('appointment_id', $appointmentId)
+            ->where('estado', '!=', Payment::ESTADO_RECHAZADO)
             ->exists();
     }
 }

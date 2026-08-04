@@ -11,6 +11,13 @@
                 <p class="ui-subtitle">Gestión de ingresos, comprobantes y trazabilidad financiera.</p>
             </div>
             <div class="flex items-center gap-3">
+                <a href="{{ route('payments.pending') }}" class="ui-btn-secondary px-5 text-[11px] tracking-widest relative">
+                    <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Por Revisar
+                    @if(($pendingCount ?? 0) > 0)
+                        <span class="ml-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[9px] font-black text-black">{{ $pendingCount }}</span>
+                    @endif
+                </a>
                 <a href="{{ route('reports.index') }}" class="ui-btn-secondary px-5 text-[11px] tracking-widest">
                     <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     Reportes

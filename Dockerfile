@@ -24,6 +24,8 @@ RUN apt-get update && apt-get install -y \
     wget \
     netcat-traditional \
     procps \
+    tesseract-ocr \
+    tesseract-ocr-spa \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions

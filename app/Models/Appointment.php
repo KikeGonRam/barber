@@ -34,6 +34,8 @@ class Appointment extends Model
         'reminder_24h_sent_at',
         'reminder_2h_sent_at',
         'cancellation_notified_at',
+        'servicio_iniciado_en',
+        'ultimo_aviso_barbero_en',
     ];
 
     protected function casts(): array
@@ -47,6 +49,8 @@ class Appointment extends Model
             'reminder_24h_sent_at' => 'datetime',
             'reminder_2h_sent_at' => 'datetime',
             'cancellation_notified_at' => 'datetime',
+            'servicio_iniciado_en' => 'datetime',
+            'ultimo_aviso_barbero_en' => 'datetime',
         ];
     }
 

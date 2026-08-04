@@ -47,7 +47,9 @@ class PaymentController extends Controller
             'metodos' => Payment::get(['metodo_pago'])->groupBy('metodo_pago')->map->count(),
         ];
 
-        return view('payments.index', compact('payments', 'filters', 'barbers', 'stats'));
+        $pendingCount = Payment::where('estado', Payment::ESTADO_PENDIENTE_VERIFICACION)->count();
+
+        return view('payments.index', compact('payments', 'filters', 'barbers', 'stats', 'pendingCount'));
     }
 
     public function create(): View
@@ -79,6 +81,43 @@ class PaymentController extends Controller
         }
 
         return redirect()->route('payments.index')->with('status', 'Pago registrado correctamente.');
+    }
+
+    public function pending(): View
+    {
+        $payments = Payment::query()
+            ->where('estado', Payment::ESTADO_PENDIENTE_VERIFICACION)
+            ->with(['appointment.client.user', 'appointment.barber.user', 'appointment.service'])
+            ->latest()
+            ->get();
+
+        return view('payments.pendientes', compact('payments'));
+    }
+
+    public function approve(Payment $payment, Request $request): RedirectResponse
+    {
+        try {
+            $this->paymentService->approveTransfer($payment, (string) $request->user()->id);
+        } catch (PaymentException $exception) {
+            return back()->withErrors(['payment' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('payments.pending')->with('status', 'Comprobante aprobado. Cita marcada como completada.');
+    }
+
+    public function reject(Payment $payment, Request $request): RedirectResponse
+    {
+        $request->validate([
+            'motivo_rechazo' => ['required', 'string', 'max:500'],
+        ]);
+
+        try {
+            $this->paymentService->rejectTransfer($payment, (string) $request->user()->id, (string) $request->input('motivo_rechazo'));
+        } catch (PaymentException $exception) {
+            return back()->withErrors(['payment' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('payments.pending')->with('status', 'Comprobante rechazado. El cliente puede subir uno nuevo.');
     }
 
     public function destroy(Payment $payment): RedirectResponse

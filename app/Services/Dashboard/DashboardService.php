@@ -287,7 +287,7 @@ class DashboardService
             ->pluck('id')->map(fn ($id) => (string) $id)->all();
         $tipsMonth = empty($monthApptIds)
             ? 0.0
-            : (float) Payment::whereIn('appointment_id', $monthApptIds)->sum('propina');
+            : (float) Payment::whereIn('appointment_id', $monthApptIds)->get(['propina'])->sum(fn ($p) => (float) $p->propina);
 
         // Top services — date-limited to last year, batch Service lookup
         $yearAgo = Carbon::now()->subYear();

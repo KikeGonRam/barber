@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\User;
 use App\Notifications\AppointmentNotification;
 use App\Notifications\ReviewRequestNotification;
+use App\Notifications\ServiceOverrunNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
@@ -120,6 +121,47 @@ class AppointmentNotifier
                 ]);
             }
         }
+    }
+
+    /**
+     * Servicio "en_proceso" que ya supero su tiempo estimado. Avisa solo al
+     * barbero asignado, canal in-app unicamente (ver ServiceOverrunNotification).
+     * Se repite cada 5 min via NotifyServiceOverrunCommand mientras el
+     * barbero no lo marque como completado.
+     */
+    public function serviceOverrun(Appointment $appointment): void
+    {
+        $appointment->loadMissing(['client.user', 'barber.user', 'service']);
+
+        $barber = $appointment->barber?->user;
+        if (! $barber) {
+            return;
+        }
+
+        try {
+            $barber->notify(new ServiceOverrunNotification($appointment));
+        } catch (\Throwable $e) {
+            Log::warning('Fallo notificacion de servicio con tiempo excedido', [
+                'appointment_id' => $appointment->id,
+                'barber_user_id' => $barber->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * El cliente subio un comprobante de transferencia pendiente de revision.
+     * Avisa a recepcion/admin para que lo revisen.
+     */
+    public function transferReceiptUploaded(Appointment $appointment, \App\Models\Payment $payment): void
+    {
+        $cliente = $appointment->client?->user?->name ?? 'Un cliente';
+        $servicio = $appointment->service?->nombre ?? 'un servicio';
+
+        $this->sendStaff($appointment,
+            'Comprobante por revisar', 'Nuevo comprobante de transferencia',
+            "{$cliente} subio un comprobante para {$servicio}. Revisalo antes de aprobarlo.",
+            '#5b8def', 'Por revisar');
     }
 
     private function send(?User $user, Appointment $appointment, string $subject, string $title, string $message, string $actionLabel, ?string $actionUrl, string $accent = '#d4af37', ?string $badge = null, bool $attachCalendar = false): void

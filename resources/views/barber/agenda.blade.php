@@ -294,6 +294,15 @@
                                     @if($appointment->service?->precio)
                                         <p class="text-[10px] text-muted mt-0.5">${{ number_format($appointment->service->precio, 0) }}</p>
                                     @endif
+                                    @if($appointment->estado === 'en_proceso' && $appointment->servicio_iniciado_en)
+                                        <div x-data="serviceTimer('{{ $appointment->servicio_iniciado_en->toIso8601String() }}', {{ (int) ($appointment->service?->duracion_min ?? 30) }})"
+                                             x-init="start()"
+                                             class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest mt-1.5"
+                                             :class="overrun ? 'border-red-500/40 bg-red-500/10 text-red-300' : 'border-blue-500/30 bg-blue-500/10 text-blue-300'">
+                                            <span class="h-1.5 w-1.5 rounded-full" :class="overrun ? 'bg-red-400 animate-pulse' : 'bg-blue-400'"></span>
+                                            <span x-text="label"></span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -349,4 +358,41 @@
             </div>
         </section>
     </div>
+
+    @push('scripts')
+    <script>
+        // Cronometro visual de la cita en_proceso: cuenta el tiempo desde
+        // servicio_iniciado_en y, al pasar la duracion del servicio, cambia
+        // a "excedido" (el aviso real al backend lo manda
+        // appointments:notify-service-overrun cada 5 min, esto es solo UI).
+        function serviceTimer(startIso, durationMin) {
+            return {
+                label: '',
+                overrun: false,
+                _timer: null,
+                start() {
+                    this.tick();
+                    this._timer = setInterval(() => this.tick(), 1000);
+                },
+                tick() {
+                    const start = new Date(startIso).getTime();
+                    const expectedEnd = start + durationMin * 60000;
+                    const now = Date.now();
+                    const diffMs = Math.abs(now - expectedEnd);
+                    const mins = Math.floor(diffMs / 60000);
+                    const secs = Math.floor((diffMs % 60000) / 1000);
+                    const clock = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+
+                    if (now > expectedEnd) {
+                        this.overrun = true;
+                        this.label = clock + ' excedido';
+                    } else {
+                        this.overrun = false;
+                        this.label = clock + ' restante';
+                    }
+                },
+            };
+        }
+    </script>
+    @endpush
 </x-app-layout>
