@@ -14,6 +14,7 @@
     <div class="py-8">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <section
+                id="paymentForm"
                 x-data="{
                     monto: {{ old('monto', 0) }},
                     propina: {{ old('propina', 0) }},
@@ -157,7 +158,7 @@
             const selected = this.options[this.selectedIndex];
             if (selected.value) {
                 const monto = selected.getAttribute('data-monto');
-                const alpineData = document.querySelector('[x-data]').__x.$data;
+                const alpineData = Alpine.$data(document.getElementById('paymentForm'));
                 alpineData.monto = monto;
             }
         });
@@ -178,7 +179,7 @@
         });
 
         document.getElementById('stripe-pay-btn').addEventListener('click', async () => {
-            const alpineData = document.querySelector('[x-data]').__x.$data;
+            const alpineData = Alpine.$data(document.getElementById('paymentForm'));
             const appointmentId = document.getElementById('appointment_id').value;
             if (!appointmentId) { alert('Selecciona una cita primero.'); return; }
 
