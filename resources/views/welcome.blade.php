@@ -376,7 +376,7 @@
                        style="transition-delay: {{ $k * 120 }}ms;">
                         <div class="aspect-[3/4] overflow-hidden rounded-3xl border border-white/5 bg-[#111] relative">
                             @if($barber->foto)
-                                <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
+                                <img src="{{ str_starts_with($barber->foto, 'http') ? $barber->foto : \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
                                     class="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
                                     loading="lazy"
                                     alt="Foto de {{ $barber->user?->name }}">

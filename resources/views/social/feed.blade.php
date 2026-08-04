@@ -14,7 +14,9 @@
             @forelse($works as $work)
                 @php
                     $mediaItems = $work->images->map(fn($img) => [
-                        'url'  => \Illuminate\Support\Facades\Storage::url($img->image),
+                        'url'  => str_starts_with($img->image, 'http')
+                            ? $img->image
+                            : \Illuminate\Support\Facades\Storage::url($img->image),
                         'type' => $img->type ?? 'image',
                     ])->values()->toArray();
                     $mediaCount = count($mediaItems);
@@ -66,7 +68,7 @@
                            class="flex items-center gap-3 group/author {{ $barberProfileUrl ? 'cursor-pointer' : '' }}">
                             <div class="h-10 w-10 rounded-full border-2 border-gold/30 p-0.5 overflow-hidden shrink-0">
                                 @if($barberProfile?->foto)
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($barberProfile->foto) }}"
+                                    <img src="{{ str_starts_with($barberProfile->foto, 'http') ? $barberProfile->foto : \Illuminate\Support\Facades\Storage::url($barberProfile->foto) }}"
                                          class="h-full w-full object-cover rounded-full"
                                          alt="Foto de {{ $work->barberUser?->name ?? 'barbero' }}">
                                 @else

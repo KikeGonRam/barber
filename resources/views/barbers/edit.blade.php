@@ -39,7 +39,7 @@
                         <div class="relative">
                             <div class="h-28 w-28 rounded-3xl overflow-hidden border-2 border-white/10 bg-[#0d0d0d]" id="avatarPreview">
                                 @if($barber->foto)
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
+                                    <img src="{{ str_starts_with($barber->foto, 'http') ? $barber->foto : \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
                                          class="h-full w-full object-cover"
                                          id="avatarImg"
                                          alt="{{ $barber->user?->name }}">

@@ -115,7 +115,7 @@
                         {{-- Foto --}}
                         <div class="relative h-48 bg-[#181818] overflow-hidden">
                             @if($barber->foto)
-                                <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
+                                <img src="{{ str_starts_with($barber->foto, 'http') ? $barber->foto : \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
                                      class="h-full w-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-600"
                                      loading="lazy"
                                      alt="Foto de {{ $barber->user?->name }}">

@@ -209,7 +209,8 @@
                             @foreach($portfolioWorks as $work)
                                 <div class="group aspect-square rounded-xl overflow-hidden relative bg-[#0d0d0d] border border-white/5">
                                     @if($work->images->first())
-                                        <img src="{{ \Illuminate\Support\Facades\Storage::url($work->images->first()->image) }}"
+                                        @php $workImg = $work->images->first()->image; @endphp
+                                        <img src="{{ str_starts_with($workImg, 'http') ? $workImg : \Illuminate\Support\Facades\Storage::url($workImg) }}"
                                              class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 grayscale-[15%] group-hover:grayscale-0"
                                              loading="lazy"
                                              alt="{{ $work->title }}">

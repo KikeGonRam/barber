@@ -60,8 +60,9 @@
                         @endphp
                         <div class="aspect-square relative overflow-hidden bg-[#0d0d0d]">
                             @if($firstMedia)
+                                @php $firstMediaUrl = str_starts_with($firstMedia->image, 'http') ? $firstMedia->image : \Illuminate\Support\Facades\Storage::url($firstMedia->image); @endphp
                                 @if($isFirstVideo)
-                                    <video src="{{ \Illuminate\Support\Facades\Storage::url($firstMedia->image) }}"
+                                    <video src="{{ $firstMediaUrl }}"
                                            class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
                                            muted preload="metadata" playsinline></video>
                                     <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
@@ -70,7 +71,7 @@
                                         </div>
                                     </div>
                                 @else
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($firstMedia->image) }}"
+                                    <img src="{{ $firstMediaUrl }}"
                                          class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 grayscale-[20%] group-hover:grayscale-0"
                                          loading="lazy" alt="{{ $work->title }}">
                                 @endif

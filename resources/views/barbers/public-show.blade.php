@@ -144,7 +144,8 @@
                                 @forelse($barber->works as $work)
                                     <div class="aspect-square rounded-2xl overflow-hidden border border-white/5 bg-white/3 relative group">
                                         @if($work->images->first())
-                                            <img src="{{ \Illuminate\Support\Facades\Storage::url($work->images->first()->image) }}"
+                                            @php $workImg = $work->images->first()->image; @endphp
+                                            <img src="{{ str_starts_with($workImg, 'http') ? $workImg : \Illuminate\Support\Facades\Storage::url($workImg) }}"
                                                  class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                                                  loading="lazy"
                                                  alt="{{ $work->title }}">

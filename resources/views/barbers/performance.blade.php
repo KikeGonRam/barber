@@ -27,7 +27,7 @@
                 <div class="flex flex-col items-center justify-center p-8 sm:w-56 border-b sm:border-b-0 sm:border-r border-white/6 bg-[#0f0f0f] relative overflow-hidden">
                     <div class="absolute inset-0 bg-gradient-to-br from-gold/4 to-transparent pointer-events-none"></div>
                     @if($barber->foto)
-                        <img src="{{ \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
+                        <img src="{{ str_starts_with($barber->foto, 'http') ? $barber->foto : \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
                              class="h-24 w-24 rounded-3xl object-cover border border-gold/20 mb-4 relative z-10" loading="lazy"
                              alt="Foto de {{ $barber->user?->name }}">
                     @else
