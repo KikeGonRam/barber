@@ -27,7 +27,7 @@ class ActivityLogController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        $logNames = Activity::query()->select('log_name')->distinct()->orderBy('log_name')->pluck('log_name');
+        $logNames = Activity::query()->select('log_name')->distinct()->orderBy('log_name')->pluck('log_name')->filter();
         $events = Activity::query()->select('event')->distinct()->orderBy('event')->pluck('event')->filter();
 
         $stats = [
