@@ -32,7 +32,7 @@
     </div>
 
     <!-- Links Section (Scrollable) — acordeón inteligente en modo expandido, iconos agrupados en rail -->
-    <div :class="open ? 'block' : 'hidden'" class="hidden flex-1 space-y-2 overflow-y-auto md:block pr-1 custom-scrollbar min-h-0"
+    <div :class="open ? 'block' : 'hidden'" class="flex-1 space-y-2 overflow-y-auto md:block pr-1 custom-scrollbar min-h-0"
          x-init="initSections($el)">
         @foreach($navSections as $section)
             @php $k = $section['key']; @endphp
@@ -75,7 +75,7 @@
     </div>
 
     <!-- User Footer Section (Fixed) -->
-    <div :class="open ? 'block' : 'hidden'" class="hidden space-y-4 pt-4 md:block border-t border-white/10 flex-shrink-0">
+    <div :class="open ? 'block' : 'hidden'" class="space-y-4 pt-4 md:block border-t border-white/10 flex-shrink-0">
         <!-- Dark Mode Toggle y Keyboard Shortcuts -->
         <div class="px-2 mb-2 flex items-center gap-2 justify-center md:justify-start" :class="!railCollapsed ? 'lg:justify-between' : ''">
             <x-dark-mode-toggle />
