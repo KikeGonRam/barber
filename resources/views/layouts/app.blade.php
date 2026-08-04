@@ -152,10 +152,7 @@
 
 <x-toast />
 <x-command-palette />
-{{-- Chatbot floats above the bottom nav on mobile --}}
-<div class="fixed z-50 bottom-20 right-4 lg:bottom-6 lg:right-6">
-    <x-chatbot />
-</div>
+<x-chatbot />
 <x-notification-toaster />
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
