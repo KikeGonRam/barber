@@ -594,7 +594,13 @@ html.dark {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── Page entrance ───────────────────────────────── */
-.page-content { animation: page-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+/* fill-mode "both"/"forwards" dejaria transform:translateY(0) activo tras
+   terminar la animacion, y CUALQUIER transform != none crea un containing
+   block nuevo para descendientes position:fixed -- rompiendo todos los
+   modales "fixed inset-0" definidos dentro del contenido de la pagina
+   (dejan de posicionarse respecto al viewport). Sin fill-mode, al terminar
+   la animacion el elemento vuelve a transform:none y dejan de estar atrapados. */
+.page-content { animation: page-in 480ms cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes page-in {
     from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0);    }
@@ -868,8 +874,11 @@ html.dark {
     }
 }
 @media (max-width: 1023px) {
+    /* Sin fill-mode "both": ver nota junto a .page-content mas arriba --
+       un transform que persiste tras la animacion rompe cualquier modal
+       fixed anidado dentro de estos hijos. */
     .page-content > * {
-        animation: card-stagger 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+        animation: card-stagger 500ms cubic-bezier(0.22, 1, 0.36, 1);
     }
     .page-content > *:nth-child(1) { animation-delay: 60ms;  }
     .page-content > *:nth-child(2) { animation-delay: 100ms; }
