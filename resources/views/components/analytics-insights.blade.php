@@ -75,6 +75,15 @@
                     $chartId = \Illuminate\Support\Str::slug($idPrefix.'-'.$tipoInsight.'-'.$loop->index);
                     $labels = collect(data_get($grafica, 'labels', []));
                     $values = collect(data_get($grafica, 'valores', []));
+                    // Algunos insights de Spark traen una fila de encabezado
+                    // ("LEYENDA") mezclada como si fuera una categoría real —
+                    // mostrarla como un dato más confunde a un usuario no
+                    // técnico, así que se descarta antes de graficar.
+                    $placeholderIndexes = $labels->filter(fn ($label) => preg_match('/^\s*leyenda\s*$/i', (string) $label))->keys();
+                    if ($placeholderIndexes->isNotEmpty() && $placeholderIndexes->count() < $labels->count()) {
+                        $labels = $labels->reject(fn ($label, $index) => $placeholderIndexes->contains($index))->values();
+                        $values = $values->reject(fn ($value, $index) => $placeholderIndexes->contains($index))->values();
+                    }
                     $heatmapIsFallback = false;
                     if ($showCharts && $tipoVisual === 'heatmap' && $values->isEmpty() && filled($dato)) {
                         $heatmapIsFallback = true;

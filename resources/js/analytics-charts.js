@@ -21,6 +21,36 @@ const chartJsTypeMap = {
 };
 const supportedChartTypes = new Set(['bar', 'line', 'doughnut', 'polarArea', 'radar']);
 
+// Insights cuyo eje de valores ya viene expresado en porcentaje (ej. "% de
+// utilización de agenda", "% de cancelaciones por día", "% de varianza
+// explicada por cada componente de PCA"). Sin esto, el eje y los tooltips
+// muestran "98" en vez de "98%" y el usuario pierde la unidad del dato.
+const percentInsightTypes = new Set([
+    'pca_factores',
+    'utilizacion_equipo',
+    'utilizacion_propia',
+    'clasificacion_cancelacion',
+]);
+
+// Algunos insights de Spark traen una fila de encabezado/leyenda mezclada
+// como si fuera una categoría real de datos (ej. "LEYENDA" con un valor
+// numérico). Mostrarla como una barra más confunde a un usuario no técnico,
+// así que se descarta antes de graficar.
+const placeholderLabelPattern = /^\s*leyenda\s*$/i;
+
+function stripPlaceholderEntries(labels, values) {
+    const cleanLabels = [];
+    const cleanValues = [];
+
+    labels.forEach((label, index) => {
+        if (placeholderLabelPattern.test(String(label ?? ''))) return;
+        cleanLabels.push(label);
+        cleanValues.push(values[index]);
+    });
+
+    return cleanLabels.length ? [cleanLabels, cleanValues] : [labels, values];
+}
+
 const analyticsValueLabelsPlugin = {
     id: 'ubAnalyticsValueLabels',
     afterDatasetsDraw(chart, _args, options) {
@@ -42,7 +72,7 @@ const analyticsValueLabelsPlugin = {
             const raw = Number(dataset.data[index] ?? 0);
             if (!Number.isFinite(raw)) return;
 
-            const value = formatTick(raw);
+            const value = formatTick(raw, options.insightType);
             const props = element.tooltipPosition?.() ?? { x: element.x, y: element.y };
             const x = chart.options.indexAxis === 'y' ? Math.min(props.x + 10, chart.chartArea.right - 22) : props.x;
             const y = chart.options.indexAxis === 'y' ? props.y : Math.max(props.y - 12, chart.chartArea.top + 10);
@@ -106,12 +136,14 @@ function shortLabel(label, mini) {
     return text.length > 30 ? `${text.slice(0, 28)}…` : text;
 }
 
-function formatTick(value) {
+function formatTick(value, insightType) {
     const numeric = Number(value);
 
     if (!Number.isFinite(numeric)) return value;
 
-    return Math.abs(numeric) >= 1000 ? compactFormatter.format(numeric) : numberFormatter.format(numeric);
+    const formatted = Math.abs(numeric) >= 1000 ? compactFormatter.format(numeric) : numberFormatter.format(numeric);
+
+    return percentInsightTypes.has(insightType) ? `${formatted}%` : formatted;
 }
 
 function normalizeVisualType(config, graph) {
@@ -207,7 +239,7 @@ function buildDataset(ctx, canvas, type, visualType, labels, values, accent, min
     return dataset;
 }
 
-function buildScales(type, visualType, horizontal, mini) {
+function buildScales(type, visualType, horizontal, mini, insightType) {
     if (['doughnut', 'polarArea'].includes(type)) return {};
 
     if (type === 'radar') {
@@ -233,7 +265,7 @@ function buildScales(type, visualType, horizontal, mini) {
                 maxRotation: 0,
                 maxTicksLimit: horizontal ? 6 : (visualType === 'matrix' ? 4 : 7),
                 callback(value) {
-                    return horizontal ? formatTick(value) : shortLabel(this.getLabelForValue(value), false);
+                    return horizontal ? formatTick(value, insightType) : shortLabel(this.getLabelForValue(value), false);
                 },
             },
             grid: { color: gridColor, drawBorder: false },
@@ -248,7 +280,7 @@ function buildScales(type, visualType, horizontal, mini) {
                 maxRotation: 0,
                 maxTicksLimit: horizontal ? (visualType === 'factor-list' ? 10 : 8) : 6,
                 callback(value) {
-                    return horizontal ? shortLabel(this.getLabelForValue(value), false) : formatTick(value);
+                    return horizontal ? shortLabel(this.getLabelForValue(value), false) : formatTick(value, insightType);
                 },
             },
             grid: { color: gridColor, drawBorder: false },
@@ -256,8 +288,9 @@ function buildScales(type, visualType, horizontal, mini) {
     };
 }
 
-function chartOptions(type, visualType, labels, values, horizontal, mini) {
+function chartOptions(type, visualType, labels, values, horizontal, mini, insightType) {
     const total = values.reduce((sum, value) => sum + Number(value || 0), 0);
+    const isPercentInsight = percentInsightTypes.has(insightType);
 
     return {
         indexAxis: horizontal ? 'y' : 'x',
@@ -299,9 +332,9 @@ function chartOptions(type, visualType, labels, values, horizontal, mini) {
                     },
                     label(item) {
                         const raw = Number(item.raw ?? 0);
-                        const parts = [`Resultado: ${numberFormatter.format(raw)}`];
+                        const parts = [`Resultado: ${isPercentInsight ? formatTick(raw, insightType) : numberFormatter.format(raw)}`];
 
-                        if (total > 0 && ['doughnut', 'polarArea', 'matrix'].includes(visualType)) {
+                        if (total > 0 && !isPercentInsight && ['doughnut', 'polarArea', 'matrix'].includes(visualType)) {
                             parts.push(`Participación: ${percentFormatter.format(raw / total)}`);
                         }
 
@@ -311,13 +344,14 @@ function chartOptions(type, visualType, labels, values, horizontal, mini) {
             },
             ubAnalyticsValueLabels: {
                 display: !mini && ['bar', 'line'].includes(type),
+                insightType,
             },
             ubAnalyticsCenterText: {
                 display: !mini && type === 'doughnut',
             },
         },
         cutout: type === 'doughnut' ? (mini ? '72%' : '64%') : undefined,
-        scales: buildScales(type, visualType, horizontal, mini),
+        scales: buildScales(type, visualType, horizontal, mini, insightType),
     };
 }
 
@@ -349,8 +383,7 @@ export function registerAnalyticsCharts(Chart) {
             }
 
             const graph = config.graph || {};
-            const labels = graph.labels || [];
-            const values = toValues(graph.valores || []);
+            const [labels, values] = stripPlaceholderEntries(graph.labels || [], toValues(graph.valores || []));
 
             if (!values.length) return;
 
@@ -360,6 +393,7 @@ export function registerAnalyticsCharts(Chart) {
             const longLabels = labels.length > 5 || labels.some((label) => String(label).length > 18);
             const horizontal = type === 'bar' && !mini && (longLabels || ['factor-list', 'matrix', 'horizontal-bar', 'ranked'].includes(visualType));
             const accent = config.accent || '#d4af37';
+            const insightType = config.insightType;
             const ctx = canvas.getContext('2d');
             const dataset = buildDataset(ctx, canvas, type, visualType, labels, values, accent, mini);
 
@@ -369,7 +403,7 @@ export function registerAnalyticsCharts(Chart) {
                     labels: labels.map((label) => shortLabel(label, mini)),
                     datasets: [dataset],
                 },
-                options: chartOptions(type, visualType, labels, values, horizontal, mini),
+                options: chartOptions(type, visualType, labels, values, horizontal, mini, insightType),
             });
         });
     };

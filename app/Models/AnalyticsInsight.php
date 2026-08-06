@@ -65,7 +65,11 @@ class AnalyticsInsight extends Model
         // el dato ya viene como {tipo: "bar"} desde Spark, así que se respeta
         // esa forma en vez de forzar un radar que no tiene sentido con 2 puntos.
         'pca_factores' => 'bar',
-        'clasificacion_cancelacion' => 'line',
+        // Comparativo por día de la semana (Lunes..Sábado) — son categorías,
+        // no una serie temporal continua, así que una línea sugiere una
+        // tendencia que conecta días entre sí que en realidad no existe.
+        // Barras comparan cada día como categoría independiente.
+        'clasificacion_cancelacion' => 'bar',
         'alertas_cancelacion' => 'factor-list',
         'confirmacion_cancelacion_reforzada' => 'bar',
         'matriz_resultados_cancelacion' => 'matrix',
