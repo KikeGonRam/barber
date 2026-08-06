@@ -100,6 +100,15 @@ class Product extends Model
             $payload['tipo'] = self::normalizedType($payload['tipo']);
         }
 
+        // El cast decimal:2 no admite null al escribir en MongoDB: omitir la
+        // clave en vez de enviarla como null (create()/update() simplemente
+        // no tocan el campo, igual que si no se hubiera enviado).
+        foreach (['precio_compra', 'precio_venta'] as $decimalField) {
+            if (array_key_exists($decimalField, $payload) && $payload[$decimalField] === null) {
+                unset($payload[$decimalField]);
+            }
+        }
+
         return $payload;
     }
 

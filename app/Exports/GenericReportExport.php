@@ -101,7 +101,11 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
 
     /**
      * Grafico de barras nativo de Excel (embebido, editable), construido a
-     * partir de los datos ya agregados por ReportService.
+     * partir de los datos ya agregados por ReportService. Los valores fuente
+     * se escriben en las columnas AA/AB (ver registerEvents()) — asume que
+     * ningun reporte llega a tener 27+ columnas (los 4 tipos actuales
+     * tienen 4-8); si se agrega un reporte con muchas mas columnas, mover
+     * AA/AB mas a la derecha.
      */
     public function charts(): array
     {
