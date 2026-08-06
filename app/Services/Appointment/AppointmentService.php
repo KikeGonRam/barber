@@ -35,7 +35,7 @@ class AppointmentService
             $isWorking = $barberSchedule->is_working;
         } else {
             // FALLBACK: Si no hay horario de barbero, usar horario global
-            $settings = BarbershopSetting::first();
+            $settings = BarbershopSetting::cached();
             if ($settings && $settings->horario_apertura && $settings->horario_cierre) {
                 $startTime = $settings->horario_apertura;
                 $endTime = $settings->horario_cierre;

@@ -82,7 +82,7 @@ class ClientAppointmentController extends Controller
             $preselectedBarber = $barbers->first(fn ($b) => (string) $b->id === (string) $request->barber_id);
         }
 
-        $settings = BarbershopSetting::query()->first();
+        $settings = BarbershopSetting::cached();
 
         return view('client.appointments.create', compact('barbers', 'services', 'products', 'preselectedBarber', 'settings'));
     }
@@ -247,6 +247,6 @@ class ClientAppointmentController extends Controller
 
     private function cancellationPolicyHours(): int
     {
-        return (int) (BarbershopSetting::query()->value('politica_cancelacion') ?? 24);
+        return (int) (BarbershopSetting::cached()?->politica_cancelacion ?? 24);
     }
 }

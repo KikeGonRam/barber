@@ -29,7 +29,7 @@ class DashboardController extends Controller
 
         if ($user->hasRoleName('administrador')) {
             $data = $this->dashboardService->adminMetrics();
-            $setting = BarbershopSetting::first()
+            $setting = BarbershopSetting::cached()
                 ?? BarbershopSetting::create(['nombre' => config('app.name'), 'politica_cancelacion' => 24]);
 
             $todayAppointments = Appointment::with(['client.user', 'barber.user', 'service'])

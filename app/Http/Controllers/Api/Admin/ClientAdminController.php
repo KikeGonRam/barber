@@ -14,10 +14,18 @@ use Illuminate\Support\Facades\Hash;
 
 class ClientAdminController
 {
+    // El segmento (activo/inactivo/leal) se calcula en PHP a partir del
+    // historial de citas, no es un campo guardado — no se puede paginar en
+    // Mongo cuando se filtra por segmento sin antes calcularlo. Este limite
+    // evita un escaneo sin fondo en ese caso; el path normal (sin segmento)
+    // sí pagina de verdad a nivel de base de datos.
+    private const SEGMENT_FILTER_SCAN_LIMIT = 1000;
+
     public function getClients(Request $request): JsonResponse
     {
         $search = $request->query('search', '');
         $segment = $request->query('segment');
+        $perPage = min((int) $request->query('per_page', 15), 50);
 
         $query = Client::with('user');
         if ($search) {
@@ -26,7 +34,14 @@ class ClientAdminController
                 ->orWhere('email', 'like', "%{$search}%")
             );
         }
-        $clients = $query->get();
+
+        if ($segment) {
+            $clients = $query->limit(self::SEGMENT_FILTER_SCAN_LIMIT)->get();
+        } else {
+            $paginator = $query->paginate($perPage);
+            $clients = collect($paginator->items());
+        }
+
         $clientIds = $clients->pluck('id')->map(fn ($id) => (string) $id)->all();
 
         // 1 batch query for all appointments of all clients (was N queries via enrichClientData)
@@ -39,12 +54,21 @@ class ClientAdminController
 
         if ($segment) {
             $enriched = $enriched->filter(fn ($c) => $c['segment'] === $segment)->values();
+
+            return response()->json([
+                'success' => true,
+                'data' => $enriched,
+                'total' => $enriched->count(),
+            ]);
         }
 
         return response()->json([
             'success' => true,
             'data' => $enriched,
-            'total' => $enriched->count(),
+            'total' => $paginator->total(),
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
         ]);
     }
 

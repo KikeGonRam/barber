@@ -12,6 +12,10 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
+    // DomPDF no puede manejar miles de filas — mismo limite que el
+    // controlador web (Report/ReportController::PDF_ROW_LIMIT).
+    private const PDF_ROW_LIMIT = 500;
+
     public function __construct(private readonly ReportService $reportService) {}
 
     public function index(Request $request): JsonResponse
@@ -41,12 +45,24 @@ class ReportController extends Controller
         }
 
         if ($format === 'pdf') {
+            $rows = $report['rows'];
+            $trimmed = false;
+
+            if ($rows->count() > self::PDF_ROW_LIMIT) {
+                $rows = $rows->take(self::PDF_ROW_LIMIT);
+                $trimmed = true;
+            }
+
             $pdf = Pdf::loadView('reports.pdf-table', [
                 'title' => $report['title'],
                 'headings' => $report['headings'],
-                'rows' => $report['rows'],
+                'rows' => $rows,
                 'keys' => $report['keys'],
                 'filters' => $filters,
+                'trimmed' => $trimmed,
+                'pdf_limit' => self::PDF_ROW_LIMIT,
+                'total' => $report['rows']->count(),
+                'chart' => $report['chart'] ?? null,
             ]);
 
             return $pdf->download(sprintf('%s-%s.pdf', $type, now()->format('Ymd_His')));

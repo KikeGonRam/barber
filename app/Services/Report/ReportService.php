@@ -8,11 +8,17 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class ReportService
 {
     // Sin filtro de fecha → últimos 30 días para proteger memoria
     private const DEFAULT_DAYS = 30;
+
+    // La pagina de reportes llama reportByType() 4 veces (una por tipo) en
+    // cada carga/refresh; cachear evita recalcular las mismas agregaciones
+    // de Mongo si el usuario no cambio los filtros en ese lapso.
+    private const CACHE_TTL_SECONDS = 120;
 
     public function incomeReport(array $filters): array
     {
@@ -222,13 +228,15 @@ class ReportService
 
     public function reportByType(string $type, array $filters): array
     {
-        return match ($type) {
+        $cacheKey = 'report.'.$type.'.'.md5(json_encode($filters));
+
+        return Cache::remember($cacheKey, self::CACHE_TTL_SECONDS, fn () => match ($type) {
             'ingresos' => $this->incomeReport($filters),
             'citas' => $this->appointmentsReport($filters),
             'inventario' => $this->inventoryReport($filters),
             'clientes' => $this->clientsReport($filters),
             default => throw new \InvalidArgumentException('Tipo de reporte no soportado.'),
-        };
+        });
     }
 
     /**
