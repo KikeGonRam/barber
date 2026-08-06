@@ -442,7 +442,7 @@
                     <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimas 8 semanas</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5">Tendencia de Ingresos</h3>
                 </div>
-                <div class="h-2 w-2 rounded-full bg-emerald-400"></div>
+                <div class="h-2 w-2 rounded-full bg-emerald-400" title="Ingresos ($)"></div>
             </div>
             @if(!empty(array_filter($incomeChart['values'] ?? [])))
                 <div class="h-52"><canvas id="incomeChart"></canvas></div>
@@ -459,7 +459,6 @@
                     <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Distribución</p>
                     <h3 class="text-sm font-black text-white uppercase mt-0.5">Demanda de Servicios</h3>
                 </div>
-                <div class="h-2 w-2 rounded-full bg-gold"></div>
             </div>
             @if(!empty(array_filter($servicesChart['values'] ?? [])))
                 <div class="h-52"><canvas id="servicesChart"></canvas></div>
@@ -470,6 +469,10 @@
             @endif
         </div>
 
+        {{-- Desempeño de barberos: citas (conteo) e ingresos ($) viven en dos
+            mini-gráficas independientes, cada una con su propia escala. Un
+            solo eje compartido entre ambas unidades aplastaba la barra de
+            "Citas" a un hilo invisible junto a "Ingresos". --}}
         <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
@@ -481,8 +484,11 @@
                     <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-emerald-500"></span>Ingresos</span>
                 </div>
             </div>
-            @if(!empty(array_filter($barberPerformance['appointments'] ?? [])))
-                <div class="h-52"><canvas id="barberPerformanceChart"></canvas></div>
+            @if(!empty(array_filter($barberPerformance['appointments'] ?? [])) || !empty(array_filter($barberPerformance['revenue'] ?? [])))
+                <div class="grid grid-cols-2 gap-4 h-52">
+                    <div class="min-w-0"><canvas id="barberPerformanceCitasChart"></canvas></div>
+                    <div class="min-w-0"><canvas id="barberPerformanceIngresosChart"></canvas></div>
+                </div>
             @else
                 <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
                     <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin datos de desempeño</p>
@@ -1197,10 +1203,41 @@
         Chart.defaults.color = 'rgba(255,255,255,0.3)';
         Chart.defaults.font.weight = 'bold';
 
+        // Tooltip de marca: una sola vez, heredado por todas las gráficas de
+        // esta página (dashboard = la pantalla que ve cada usuario al iniciar
+        // sesión). Antes cada canvas usaba el tooltip genérico de Chart.js.
+        Object.assign(Chart.defaults.plugins.tooltip, {
+            backgroundColor: 'rgba(10,10,10,0.96)',
+            titleColor: '#d4af37',
+            titleFont: { weight: '900', size: 11 },
+            bodyColor: '#ffffff',
+            bodyFont: { weight: 'bold', size: 11 },
+            borderColor: 'rgba(212,175,55,0.3)',
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
+            boxPadding: 4,
+            usePointStyle: true,
+        });
+
         const scale = {
-            ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 10 } },
-            grid:  { color: 'rgba(255,255,255,0.04)', drawBorder: false }
+            ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } },
+            grid:  { color: 'rgba(255,255,255,0.05)' },
+            border: { display: false }
         };
+        // Paleta categórica (validada: banda de luminosidad oscura, ΔE CVD >= 8
+        // frente al fondo de tarjeta #111) para gráficas con varias series del
+        // mismo tipo (doughnut de servicios). El dorado de marca se reserva para
+        // series únicas (identidad), no entra en este set porque es demasiado
+        // claro para convivir con el resto en una misma paleta categórica.
+        const UB_CATEGORICAL = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300'];
+
+        function fmtMoney(v) {
+            return '$' + Number(v ?? 0).toLocaleString('es-MX', { maximumFractionDigits: 0 });
+        }
+        function fmtInt(v) {
+            return Number(v ?? 0).toLocaleString('es-MX', { maximumFractionDigits: 0 });
+        }
 
         function makeChart(id, config) {
             const el = document.getElementById(id);
@@ -1211,57 +1248,102 @@
         // Init perezoso: las 4 gráficas admin se crean cuando se abre la zona
         // "Analítica avanzada" (ya visible → canvas con tamaño real).
         window.__ubInitAdminCharts = function () {
-        makeChart('incomeChart', {
-            type: 'line',
-            data: {
-                labels: @json($incomeChart['labels'] ?? []),
-                datasets: [{ label: 'Ingresos ($)', data: @json($incomeChart['values'] ?? []),
-                    borderColor: '#d4af37', backgroundColor: 'rgba(212,175,55,0.08)',
-                    borderWidth: 2.5, fill: true, tension: 0.4,
-                    pointRadius: 3, pointBackgroundColor: '#0d0d0d', pointBorderColor: '#d4af37', pointBorderWidth: 2 }]
-            },
-            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:scale,x:scale} }
-        });
+        (function () {
+            const incomeEl = document.getElementById('incomeChart');
+            if (!incomeEl) return;
+            // Degradado sutil en vez de relleno plano: consistente con el
+            // patrón ya usado en la gráfica de visitas del cliente.
+            const incomeGradient = incomeEl.getContext('2d').createLinearGradient(0, 0, 0, 208);
+            incomeGradient.addColorStop(0, 'rgba(52,211,153,0.24)');
+            incomeGradient.addColorStop(1, 'rgba(52,211,153,0.01)');
+            new Chart(incomeEl, {
+                type: 'line',
+                data: {
+                    labels: @json($incomeChart['labels'] ?? []),
+                    datasets: [{ label: 'Ingresos ($)', data: @json($incomeChart['values'] ?? []),
+                        borderColor: '#34d399', backgroundColor: incomeGradient,
+                        borderWidth: 2.5, fill: true, tension: 0.35,
+                        pointRadius: 3, pointHoverRadius: 6, pointBackgroundColor: '#0d0d0d', pointBorderColor: '#34d399', pointBorderWidth: 2 }]
+                },
+                options: {
+                    responsive:true, maintainAspectRatio:false,
+                    interaction:{ intersect:false, mode:'index' },
+                    plugins:{
+                        legend:{display:false},
+                        tooltip:{ displayColors:false, callbacks:{ label:(ctx) => 'Ingresos: ' + fmtMoney(ctx.parsed.y) } }
+                    },
+                    scales:{
+                        y:{ ...scale, beginAtZero:true, ticks:{ ...scale.ticks, callback:(v) => fmtMoney(v) } },
+                        x:scale
+                    }
+                }
+            });
+        })();
 
         makeChart('servicesChart', {
             type: 'doughnut',
             data: {
                 labels: @json($servicesChart['labels'] ?? []),
                 datasets: [{ data: @json($servicesChart['values'] ?? []),
-                    backgroundColor: ['#d4af37','rgba(255,255,255,0.7)','#555','#888','#333'],
-                    borderWidth: 0, hoverOffset: 10 }]
+                    backgroundColor: UB_CATEGORICAL,
+                    borderColor: '#111111', borderWidth: 3, hoverOffset: 10 }]
             },
-            options: { responsive:true, maintainAspectRatio:false, cutout:'78%',
-                plugins:{ legend:{ position:'bottom', labels:{ color:'rgba(255,255,255,0.35)', usePointStyle:true, padding:16, font:{size:10,weight:'bold'} } } } }
+            options: { responsive:true, maintainAspectRatio:false, cutout:'72%',
+                plugins:{
+                    legend:{ position:'bottom', labels:{ color:'rgba(255,255,255,0.45)', usePointStyle:true, pointStyle:'circle', padding:16, font:{size:10,weight:'bold'} } },
+                    tooltip:{ displayColors:true, callbacks:{ label:(ctx) => `${ctx.label}: ${fmtInt(ctx.parsed)}` } }
+                } }
         });
 
-        makeChart('barberPerformanceChart', {
+        // Desempeño barberos: dos mini-gráficas de una sola serie cada una
+        // (citas = conteo, ingresos = $) en vez de una barra agrupada con un
+        // solo eje — antes "Citas" (valores ~0-20) quedaba invisible junto a
+        // "Ingresos" (valores ~0-thousands) al compartir escala lineal.
+        makeChart('barberPerformanceCitasChart', {
             type: 'bar',
             data: {
                 labels: @json($barberPerformance['labels'] ?? []),
-                datasets: [
-                    { label:'Citas', data: @json($barberPerformance['appointments'] ?? []),
-                        backgroundColor: 'rgba(59,130,246,0.7)', borderRadius:6, barThickness:20 },
-                    { label:'Ingresos ($)', data: @json($barberPerformance['revenue'] ?? []),
-                        backgroundColor: 'rgba(16,185,129,0.7)', borderRadius:6, barThickness:20 }
-                ]
+                datasets: [{ label:'Citas', data: @json($barberPerformance['appointments'] ?? []),
+                    backgroundColor: 'rgba(59,130,246,0.75)', hoverBackgroundColor:'#3b82f6', borderRadius:4, barThickness:18 }]
             },
             options: { responsive:true, maintainAspectRatio:false,
-                plugins:{ legend:{ display:true, labels:{ color:'rgba(255,255,255,0.35)', usePointStyle:true, padding:12, font:{size:10} } } },
-                scales:{y:scale,x:scale} }
+                plugins:{ legend:{display:false}, tooltip:{ displayColors:false, callbacks:{ label:(ctx) => `Citas: ${fmtInt(ctx.parsed.y)}` } } },
+                scales:{ y:{ ...scale, beginAtZero:true, ticks:{ ...scale.ticks, precision:0 } }, x:scale } }
+        });
+        makeChart('barberPerformanceIngresosChart', {
+            type: 'bar',
+            data: {
+                labels: @json($barberPerformance['labels'] ?? []),
+                datasets: [{ label:'Ingresos ($)', data: @json($barberPerformance['revenue'] ?? []),
+                    backgroundColor: 'rgba(16,185,129,0.75)', hoverBackgroundColor:'#10b981', borderRadius:4, barThickness:18 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{display:false}, tooltip:{ displayColors:false, callbacks:{ label:(ctx) => `Ingresos: ${fmtMoney(ctx.parsed.y)}` } } },
+                scales:{ y:{ ...scale, beginAtZero:true, ticks:{ ...scale.ticks, callback:(v) => fmtMoney(v) } }, x:scale } }
         });
 
         makeChart('clientTrendsChart', {
             type: 'line',
             data: {
                 labels: @json($clientTrends['labels'] ?? []),
+                // #c084fc = mismo tono que el punto morado del encabezado de
+                // esta tarjeta (antes el punto usaba Tailwind purple-400 y la
+                // línea un violet-400 distinto: no eran el mismo color).
                 datasets: [{ label:'Citas Completadas', data: @json($clientTrends['values'] ?? []),
-                    borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,0.08)',
-                    borderWidth:2.5, fill:true, tension:0.4,
-                    pointRadius:3, pointBackgroundColor:'#0d0d0d', pointBorderColor:'#a78bfa', pointBorderWidth:2 }]
+                    borderColor:'#c084fc', backgroundColor:'rgba(192,132,252,0.1)',
+                    borderWidth:2.5, fill:true, cubicInterpolationMode:'monotone',
+                    pointRadius:3, pointHoverRadius:6, pointBackgroundColor:'#0d0d0d', pointBorderColor:'#c084fc', pointBorderWidth:2 }]
             },
-            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-                scales:{ y:{...scale, beginAtZero:true}, x:scale } }
+            options: { responsive:true, maintainAspectRatio:false,
+                interaction:{ intersect:false, mode:'index' },
+                plugins:{
+                    legend:{display:false},
+                    tooltip:{ displayColors:false, callbacks:{ label:(ctx) => `${fmtInt(ctx.parsed.y)} cita${ctx.parsed.y === 1 ? '' : 's'}` } }
+                },
+                // stepSize:1 evita ticks decimales (0.1, 0.2…) cuando el pico
+                // de la serie es un valor bajo como 1 — antes el eje mostraba
+                // "0.1 clientes" que no tiene sentido para un conteo.
+                scales:{ y:{...scale, beginAtZero:true, ticks:{...scale.ticks, stepSize:1, precision:0}}, x:scale } }
         });
         }; {{-- /__ubInitAdminCharts --}}
 
@@ -1308,17 +1390,25 @@
             type:'bar',
             data:{ labels:@json($performanceChart['labels']??[]),
                 datasets:[{label:'Citas', data:@json($performanceChart['values']??[]),
-                    backgroundColor:'#d4af37', borderRadius:8, barThickness:18}] },
-            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{...scale,beginAtZero:true},x:scale}}
+                    backgroundColor:'rgba(212,175,55,0.75)', hoverBackgroundColor:'#d4af37', borderRadius:6, barThickness:18}] },
+            options:{responsive:true,maintainAspectRatio:false,
+                plugins:{legend:{display:false}, tooltip:{displayColors:false, callbacks:{label:(ctx)=>`Citas: ${fmtInt(ctx.parsed.y)}`}}},
+                scales:{y:{...scale,beginAtZero:true,ticks:{...scale.ticks,precision:0}},x:scale}}
         });
+        // Misma paleta categórica que "Demanda de Servicios" del admin: antes
+        // cada rol usaba una lista de colores distinta para el mismo tipo de
+        // gráfica (doughnut de servicios), rompiendo la coherencia visual.
         makeChart('servicesChart', {
             type:'doughnut',
             data:{ labels:@json($servicesChart['labels']??[]),
                 datasets:[{data:@json($servicesChart['values']??[]),
-                    backgroundColor:['#d4af37','#38bdf8','#34d399','#a78bfa','#f472b6','#fb923c'],
-                    borderWidth:0, hoverOffset:8}] },
-            options:{responsive:true,maintainAspectRatio:false,cutout:'78%',
-                plugins:{legend:{position:'bottom',labels:{color:'rgba(255,255,255,0.35)',usePointStyle:true,padding:14,font:{size:10}}}}}
+                    backgroundColor: UB_CATEGORICAL,
+                    borderColor:'#111111', borderWidth:3, hoverOffset:8}] },
+            options:{responsive:true,maintainAspectRatio:false,cutout:'72%',
+                plugins:{
+                    legend:{position:'bottom',labels:{color:'rgba(255,255,255,0.45)',usePointStyle:true,pointStyle:'circle',padding:14,font:{size:10,weight:'bold'}}},
+                    tooltip:{ displayColors:true, callbacks:{ label:(ctx) => `${ctx.label}: ${fmtInt(ctx.parsed)}` } }
+                }}
         });
         @endif
 
@@ -1327,10 +1417,12 @@
             type:'line',
             data:{ labels:@json($flow_chart['labels']??[]),
                 datasets:[{label:'Citas',data:@json($flow_chart['values']??[]),
-                    borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,0.08)',
-                    borderWidth:2.5,fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#0d0d0d',pointBorderColor:'#6366f1',pointBorderWidth:2}] },
-            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-                scales:{y:{...scale,beginAtZero:true,ticks:{...scale.ticks,stepSize:1}},x:scale}}
+                    borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,0.1)',
+                    borderWidth:2.5,fill:true,cubicInterpolationMode:'monotone',pointRadius:3,pointHoverRadius:6,pointBackgroundColor:'#0d0d0d',pointBorderColor:'#6366f1',pointBorderWidth:2}] },
+            options:{responsive:true,maintainAspectRatio:false,
+                interaction:{intersect:false,mode:'index'},
+                plugins:{legend:{display:false}, tooltip:{displayColors:false, callbacks:{label:(ctx)=>`${fmtInt(ctx.parsed.y)} cita${ctx.parsed.y===1?'':'s'}`}}},
+                scales:{y:{...scale,beginAtZero:true,ticks:{...scale.ticks,stepSize:1,precision:0}},x:scale}}
         });
         @endif
 

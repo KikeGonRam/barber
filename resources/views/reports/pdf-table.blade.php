@@ -132,7 +132,7 @@
         }
         .chart-value {
             display: inline-block;
-            width: 70px;
+            width: 90px;
             text-align: right;
             font-size: 9px;
             font-weight: bold;
@@ -153,15 +153,27 @@
 
     <div class="content">
         @if(!empty($chart['labels'] ?? []))
-            @php $chartMax = max(1, max($chart['values'])); @endphp
+            @php
+                $chartMax = max(1, max($chart['values']));
+                // Fechas ISO (2026-07-07) se muestran como "07 Jul" en vez del
+                // string crudo; cualquier otra etiqueta (nombre de barbero,
+                // categoría de producto, cliente) se deja tal cual, solo acortada.
+                $chartLabelFmt = function ($label) {
+                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $label)) {
+                        return \Carbon\Carbon::parse($label)->translatedFormat('d M');
+                    }
+
+                    return \Illuminate\Support\Str::limit($label, 22);
+                };
+            @endphp
             <div class="chart-box">
                 <p class="chart-title">{{ $chart['title'] ?? 'Gráfica' }}</p>
                 @foreach($chart['labels'] as $i => $label)
                     @php $pct = round((($chart['values'][$i] ?? 0) / $chartMax) * 100); @endphp
                     <div class="chart-row">
-                        <span class="chart-label">{{ \Illuminate\Support\Str::limit($label, 22) }}</span>
+                        <span class="chart-label">{{ $chartLabelFmt($label) }}</span>
                         <span class="chart-track"><span class="chart-bar" style="width: {{ $pct }}%;"></span></span>
-                        <span class="chart-value">{{ $chart['values'][$i] ?? 0 }}</span>
+                        <span class="chart-value">{{ number_format($chart['values'][$i] ?? 0) }}</span>
                     </div>
                 @endforeach
             </div>

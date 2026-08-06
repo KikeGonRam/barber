@@ -204,6 +204,7 @@
                 data: {
                     labels: @json($weeklyChart->pluck('label')),
                     datasets: [{
+                        label: 'Citas completadas',
                         data: @json($weeklyChart->pluck('count')),
                         backgroundColor: 'rgba(212,175,55,0.6)',
                         hoverBackgroundColor: '#d4af37',
@@ -213,10 +214,23 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(10,10,10,0.96)',
+                            titleColor: '#d4af37',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(212,175,55,0.3)',
+                            borderWidth: 1,
+                            padding: 9,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: { label: (ctx) => `${ctx.parsed.y} cita${ctx.parsed.y === 1 ? '' : 's'}` },
+                        },
+                    },
                     scales: {
                         x: { ticks: { color:'#737373', font:{size:9}, maxRotation:45 }, grid: { display:false } },
-                        y: { ticks: { color:'#737373', font:{size:10}, stepSize:1 }, grid: { color:'rgba(255,255,255,0.03)' }, beginAtZero:true }
+                        y: { ticks: { color:'#737373', font:{size:10}, stepSize:1, precision:0 }, grid: { color:'rgba(255,255,255,0.04)' }, border:{display:false}, beginAtZero:true }
                     }
                 }
             });

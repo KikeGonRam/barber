@@ -14,7 +14,6 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
-use PhpOffice\PhpSpreadsheet\Chart\Legend;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -122,6 +121,9 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
 
         $categories = [new DataSeriesValues('String', "'{$sheetTitle}'!\$AA\$2:\$AA\${$lastRow}", null, $count)];
         $dataValues = [new DataSeriesValues('Number', "'{$sheetTitle}'!\$AB\$2:\$AB\${$lastRow}", null, $count)];
+        // Dorado de marca en vez del azul por defecto de Excel, para que el
+        // grafico nativo combine con el resto de exportes (PDF/dashboard).
+        $dataValues[0]->setFillColor('D4AF37');
 
         $series = new DataSeries(
             DataSeries::TYPE_BARCHART,
@@ -134,12 +136,13 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
         $series->setPlotDirection(DataSeries::DIRECTION_COL);
 
         $plotArea = new PlotArea(null, [$series]);
-        $legend = new Legend(Legend::POSITION_BOTTOM, null, false);
+        // Una sola serie no necesita leyenda: el titulo ya dice que se grafica
+        // y la leyenda solo repetia "Valor" ocupando espacio.
         $title = new Title($this->chart['title'] ?? 'Gráfica');
 
-        $chartObj = new Chart('chart_'.substr(md5($sheetTitle), 0, 8), $title, $legend, $plotArea);
+        $chartObj = new Chart('chart_'.substr(md5($sheetTitle), 0, 8), $title, null, $plotArea);
         $chartObj->setTopLeftPosition('AD2');
-        $chartObj->setBottomRightPosition('AN20');
+        $chartObj->setBottomRightPosition('AO22');
 
         return [$chartObj];
     }

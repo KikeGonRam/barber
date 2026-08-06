@@ -130,7 +130,7 @@
                             </div>
 
                             @if(!empty($charts[$card['type']]['labels'] ?? []))
-                                <div class="mt-4 h-32">
+                                <div class="mt-4 h-44">
                                     <canvas id="chart-{{ $card['type'] }}"></canvas>
                                 </div>
                             @endif
@@ -170,23 +170,43 @@
         Chart.defaults.font.weight = 'bold';
 
         const reportScale = {
-            ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 9 } },
-            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+            ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 } },
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            border: { display: false },
         };
+
+        // Reformatea una etiqueta para que quepa en una gráfica pequeña:
+        // fechas ISO (2026-07-07) -> "07/07"; cualquier otro texto largo
+        // (p. ej. nombres completos de clientes) se trunca con elipsis.
+        // El valor completo siempre queda disponible en el tooltip.
+        function reportTickLabel(raw) {
+            const label = String(raw ?? '');
+            const isoDate = label.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (isoDate) return `${isoDate[3]}/${isoDate[2]}`;
+            return label.length > 12 ? label.slice(0, 11) + '…' : label;
+        }
+        function reportValueLabel(type, value) {
+            const n = Number(value ?? 0);
+            return type === 'ingresos'
+                ? '$' + n.toLocaleString('es-MX', { maximumFractionDigits: 0 })
+                : n.toLocaleString('es-MX', { maximumFractionDigits: 0 });
+        }
 
         @foreach($charts as $type => $chart)
             @if(!empty($chart['labels'] ?? []))
                 (function () {
                     const el = document.getElementById('chart-{{ $type }}');
                     if (!el) return;
+                    const fullLabels = @json($chart['labels']);
                     new Chart(el, {
                         type: 'bar',
                         data: {
-                            labels: @json($chart['labels']),
+                            labels: fullLabels,
                             datasets: [{
                                 label: @json($chart['title'] ?? ''),
                                 data: @json($chart['values']),
-                                backgroundColor: 'rgba(212,175,55,0.7)',
+                                backgroundColor: 'rgba(212,175,55,0.75)',
+                                hoverBackgroundColor: '#d4af37',
                                 borderRadius: 4,
                                 barThickness: 14,
                             }],
@@ -196,9 +216,25 @@
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: { display: false },
-                                tooltip: { backgroundColor: 'rgba(13,13,13,0.96)', borderColor: '#d4af37', borderWidth: 1 },
+                                tooltip: {
+                                    backgroundColor: 'rgba(10,10,10,0.96)',
+                                    titleColor: '#d4af37',
+                                    bodyColor: '#fff',
+                                    borderColor: 'rgba(212,175,55,0.3)',
+                                    borderWidth: 1,
+                                    padding: 9,
+                                    cornerRadius: 8,
+                                    displayColors: false,
+                                    callbacks: {
+                                        title: (items) => fullLabels[items[0].dataIndex] ?? '',
+                                        label: (ctx) => reportValueLabel('{{ $type }}', ctx.parsed.y),
+                                    },
+                                },
                             },
-                            scales: { y: reportScale, x: reportScale },
+                            scales: {
+                                y: { ...reportScale, ticks: { ...reportScale.ticks, callback: (v) => reportValueLabel('{{ $type }}', v) } },
+                                x: { ...reportScale, ticks: { ...reportScale.ticks, maxRotation: 45, minRotation: 0, callback: function (val) { return reportTickLabel(this.getLabelForValue(val)); } } },
+                            },
                         },
                     });
                 })();
