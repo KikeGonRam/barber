@@ -22,11 +22,19 @@ class ClientController extends Controller
         $filters = $request->only(['q', 'sin_citas', 'fecha_desde', 'fecha_hasta']);
         $search = trim((string) ($filters['q'] ?? ''));
 
+        // has()/doesntHave() sobre la relacion appointments son extremadamente lentos en
+        // MongoDB (~90s con 112k citas: laravel-mongodb los resuelve con un exists-check
+        // por cada cliente, no con un JOIN real). En su lugar, se saca el set de client_id
+        // con al menos una cita via distinct() nativo de Mongo (~2s) y se compara en PHP.
+        $clientIdsWithAppointments = collect(
+            Appointment::raw(fn ($collection) => $collection->distinct('client_id'))
+        )->filter()->map(fn ($id) => (string) $id)->values();
+
         $clients = Client::query()
             ->with('user:id,name,email')
             ->when($search !== '', fn ($query) => $query->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")
             ))
-            ->when(! empty($filters['sin_citas']), fn ($q) => $q->doesntHave('appointments'))
+            ->when(! empty($filters['sin_citas']), fn ($q) => $q->whereNotIn('_id', $clientIdsWithAppointments))
             ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereHas('user', fn ($u) => $u->whereDate('created_at', '>=', $filters['fecha_desde'])))
             ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereHas('user', fn ($u) => $u->whereDate('created_at', '<=', $filters['fecha_hasta'])))
             ->latest('id')
@@ -43,10 +51,13 @@ class ClientController extends Controller
             $clients->each(fn ($c) => $c->appointments_count = $apptCounts->get($c->id, 0));
         }
 
+        $totalClients = Client::count();
+        $conCitas = $clientIdsWithAppointments->count();
+
         $stats = [
-            'total' => Client::count(),
-            'con_citas' => Client::has('appointments')->count(),
-            'sin_citas' => Client::doesntHave('appointments')->count(),
+            'total' => $totalClients,
+            'con_citas' => $conCitas,
+            'sin_citas' => $totalClients - $conCitas,
             'este_mes' => Client::whereHas('user', fn ($u) => $u->whereMonth('created_at', now()->month))->count(),
         ];
 
