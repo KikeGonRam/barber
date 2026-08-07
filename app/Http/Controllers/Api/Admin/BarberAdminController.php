@@ -10,8 +10,14 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador de administración de barberos (panel admin).
+ * Expone listado, detalle, agenda, clientes recurrentes, edición y estadísticas
+ * de desempeño de cada barbero, con métricas agregadas (ingresos, ocupación, rating).
+ */
 class BarberAdminController
 {
+    // Devuelve el listado de barberos activos con métricas del día (citas, ingresos, clientes totales)
     public function getBarbers(Request $request): JsonResponse
     {
         $barbers = Barber::with('user')->where('activo', true)->get();
@@ -55,6 +61,7 @@ class BarberAdminController
         return response()->json(['success' => true, 'data' => $barbers]);
     }
 
+    // Devuelve el perfil completo de un barbero con estadísticas del mes actual
     public function show(Barber $barber): JsonResponse
     {
         $barber->load('user');
@@ -86,6 +93,7 @@ class BarberAdminController
         ]);
     }
 
+    // Devuelve la agenda de citas de un barbero para una fecha específica (por defecto hoy)
     public function getSchedule(Barber $barber, Request $request): JsonResponse
     {
         $barberId = (string) $barber->id;
@@ -114,9 +122,11 @@ class BarberAdminController
         ]);
     }
 
+    // Devuelve hasta 20 clientes recurrentes del barbero, con total de citas y gasto acumulado
     public function getRegularClients(Barber $barber): JsonResponse
     {
         $barberId = (string) $barber->id;
+        // Se limita a 20 clientes para evitar cargar el historial completo cuando hay muchos
         $clientIds = Appointment::where('barber_id', $barberId)
             ->get(['client_id'])
             ->pluck('client_id')
@@ -152,6 +162,7 @@ class BarberAdminController
         return response()->json(['success' => true, 'data' => $clients]);
     }
 
+    // Actualiza datos del perfil de barbero y, opcionalmente, datos del usuario asociado (nombre/email)
     public function update(Barber $barber, Request $request): JsonResponse
     {
         $barber->load('user');
@@ -163,6 +174,7 @@ class BarberAdminController
 
         $barber->update($validated);
 
+        // name/email pertenecen al modelo User, no a Barber, por eso se actualizan aparte
         if ($request->has('name') || $request->has('email')) {
             $barber->user?->update($request->only(['name', 'email']));
         }
@@ -174,6 +186,7 @@ class BarberAdminController
         ]);
     }
 
+    // Compara el número de citas del mes actual contra el mes anterior y calcula el % de crecimiento
     public function getPerformanceStats(Barber $barber): JsonResponse
     {
         $barberId = (string) $barber->id;
@@ -203,7 +216,7 @@ class BarberAdminController
         ]);
     }
 
-    // Accept user_id (barbero_id on works) to avoid redundant Barber::find() calls
+    // Recibe user_id (barbero_id en works) para evitar llamadas redundantes a Barber::find()
     private function calculateRating(string $barberUserId): float
     {
         if (! $barberUserId) {
@@ -217,6 +230,7 @@ class BarberAdminController
         return $avg ? round((float) $avg, 1) : 0.0;
     }
 
+    // Cuenta clientes únicos atendidos por el barbero a partir del historial de citas
     private function getTotalClients(string $barberId): int
     {
         return Appointment::where('barber_id', $barberId)

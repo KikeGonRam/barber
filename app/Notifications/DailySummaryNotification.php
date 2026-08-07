@@ -21,6 +21,9 @@ class DailySummaryNotification extends Notification implements ShouldQueue
         public readonly string $dateLabel,
     ) {}
 
+    /**
+     * Database siempre; correo opcional segun preferencia del admin.
+     */
     public function via(object $notifiable): array
     {
         $channels = ['database'];
@@ -32,6 +35,10 @@ class DailySummaryNotification extends Notification implements ShouldQueue
         return $channels;
     }
 
+    /**
+     * Correo con la plantilla compartida; $stats ya viene formateado desde
+     * el comando que dispara esta notificacion.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
@@ -48,6 +55,9 @@ class DailySummaryNotification extends Notification implements ShouldQueue
             ]);
     }
 
+    /**
+     * Payload para el canal database (centro de notificaciones in-app).
+     */
     public function toArray(object $notifiable): array
     {
         return [
@@ -58,6 +68,10 @@ class DailySummaryNotification extends Notification implements ShouldQueue
         ];
     }
 
+    /**
+     * Intenta varias rutas de reportes segun lo que exista registrado en la
+     * app; si ninguna existe, cae a la raiz en vez de lanzar excepcion.
+     */
     private function reportsUrl(): string
     {
         foreach (['reports.index', 'dashboard'] as $name) {

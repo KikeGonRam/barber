@@ -5,10 +5,17 @@ namespace App\Http\Controllers\Api;
 use App\Services\Prediction\PredictionService;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * Endpoints de API de predicciones/analítica (ML) del negocio: ingresos, citas,
+ * servicios populares y horas pico. Expone los resultados de PredictionService como JSON.
+ */
 class PredictionController
 {
     public function __construct(private PredictionService $predictionService) {}
 
+    /**
+     * Proyección de ingresos futuros a N días calculada por el servicio de predicción.
+     */
     public function incomeForecasting(int $days = 7): JsonResponse
     {
         return response()->json([
@@ -17,6 +24,9 @@ class PredictionController
         ]);
     }
 
+    /**
+     * Proyección de volumen de citas futuras a N días.
+     */
     public function appointmentForecast(int $days = 7): JsonResponse
     {
         return response()->json([
@@ -25,6 +35,9 @@ class PredictionController
         ]);
     }
 
+    /**
+     * Análisis de qué servicios tienen mayor demanda, según el histórico.
+     */
     public function serviceAnalysis(): JsonResponse
     {
         return response()->json([
@@ -33,6 +46,9 @@ class PredictionController
         ]);
     }
 
+    /**
+     * Identifica los horarios de mayor afluencia para apoyar planificación de personal.
+     */
     public function peakHoursAnalysis(): JsonResponse
     {
         return response()->json([
@@ -41,6 +57,10 @@ class PredictionController
         ]);
     }
 
+    /**
+     * Genera un resumen de insights combinados (ingresos, citas, servicios, horas pico)
+     * para mostrar recomendaciones accionables en el dashboard.
+     */
     public function insights(): JsonResponse
     {
         return response()->json([

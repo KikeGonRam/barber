@@ -7,12 +7,23 @@ use App\Services\Appointment\AppointmentNotifier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
+/**
+ * Detecta citas en estado "en_proceso" cuyo tiempo estimado de servicio ya se
+ * cumplió y el barbero aún no la marca como completada, y le envía un aviso
+ * (con throttling para no spamear). Se repite cada 5 min via NotifyServiceOverrunCommand
+ * mientras el barbero no lo marque como completado
+ * (Schedule::command('appointments:notify-service-overrun')->everyFiveMinutes()).
+ */
 class NotifyServiceOverrunCommand extends Command
 {
     protected $signature = 'appointments:notify-service-overrun {--throttle=5 : Minutos entre avisos repetidos al mismo barbero}';
 
     protected $description = 'Avisa al barbero cuando un servicio "en_proceso" supera el tiempo estimado y sigue sin marcarse como completado';
 
+    /**
+     * Recorre las citas en proceso, calcula si ya se excedió el tiempo estimado
+     * y, respetando el throttle, dispara el aviso al barbero.
+     */
     public function handle(AppointmentNotifier $notifier): int
     {
         $throttleMin = (int) $this->option('throttle');
@@ -32,6 +43,8 @@ class NotifyServiceOverrunCommand extends Command
 
                 $ultimoAviso = $appt->ultimo_aviso_barbero_en;
 
+                // Throttling: si el ultimo aviso fue hace menos de $throttleMin minutos,
+                // se omite para no reenviar la notificacion en cada corrida de 5 min.
                 if ($ultimoAviso && Carbon::parse($ultimoAviso)->addMinutes($throttleMin)->isFuture()) {
                     continue;
                 }

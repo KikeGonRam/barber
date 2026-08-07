@@ -4,6 +4,12 @@ namespace App\Services\Chatbot;
 
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Motor de "aprendizaje" ligero del chatbot: guarda preguntas nuevas,
+ * feedback de usuarios y detecta intenciones/sinónimos por coincidencia de
+ * texto (sin ML real). Todo el estado vive en Cache (no hay tabla dedicada),
+ * por lo que el "aprendizaje" es efímero y por usuario/guest.
+ */
 class ChatbotLearningService
 {
     /**
@@ -26,7 +32,8 @@ class ChatbotLearningService
     ];
 
     /**
-     * Aprende una nueva pregunta y la mapea a una categoría
+     * Aprende una nueva pregunta y la mapea a una categoría.
+     * Efecto secundario: escribe/actualiza en Cache (clave por usuario o global si $userId es null).
      */
     public function learnQuestion(string $question, string $category, float $confidence = 0.8, $userId = null): void
     {
@@ -51,7 +58,8 @@ class ChatbotLearningService
             ];
         }
 
-        // Limitar a 50 por categoría
+        // Limitar a 50 por categoría: evita que la cache crezca sin control
+        // (FIFO simple, descarta la más antigua).
         if (count($learned[$category]) > 50) {
             array_shift($learned[$category]);
         }
@@ -60,7 +68,8 @@ class ChatbotLearningService
     }
 
     /**
-     * Registra feedback de una respuesta (si fue útil o no)
+     * Registra feedback de una respuesta (si fue útil o no).
+     * Efecto secundario: escribe en Cache, clave por usuario (útil para auditar calidad de respuestas).
      */
     public function recordFeedback(string $question, string $response, bool $wasHelpful, $userId = null, float $confidence = 0.8): void
     {
@@ -84,7 +93,8 @@ class ChatbotLearningService
     }
 
     /**
-     * Detecta la intención real detrás de una pregunta
+     * Detecta la intención real detrás de una pregunta por coincidencia de
+     * palabras clave (no usa el resultado de findSynonyms/aprendizaje).
      */
     public function detectRealIntent(string $question): string
     {
@@ -120,7 +130,7 @@ class ChatbotLearningService
     }
 
     /**
-     * Busca sinónimos y palabras relacionadas
+     * Busca sinónimos y palabras relacionadas contra el diccionario estático $synonyms.
      */
     public function findSynonyms(string $word): array
     {
@@ -139,7 +149,8 @@ class ChatbotLearningService
     }
 
     /**
-     * Sugiere una respuesta basada en preguntas aprendidas similares
+     * Sugiere una respuesta basada en preguntas aprendidas similares (lee de Cache).
+     * Recorre TODAS las preguntas aprendidas por Levenshtein: O(n) por llamada, sin índice.
      */
     public function suggestResponse(string $question, $userId = null): ?string
     {
@@ -148,7 +159,7 @@ class ChatbotLearningService
         $normalized = $this->normalizeText($question);
 
         $bestMatch = null;
-        $bestScore = 0.7; // Umbral mínimo
+        $bestScore = 0.7; // Umbral mínimo de similitud para aceptar la coincidencia
 
         foreach ($learned as $category => $questions) {
             foreach ($questions as $item) {
@@ -165,7 +176,7 @@ class ChatbotLearningService
     }
 
     /**
-     * Calcula similitud entre dos strings usando Levenshtein
+     * Calcula similitud entre dos strings usando Levenshtein (0.0 a 1.0, normalizada por longitud).
      */
     public function stringSimilarity(string $str1, string $str2): float
     {
@@ -190,7 +201,7 @@ class ChatbotLearningService
     }
 
     /**
-     * Calcula distancia Levenshtein entre dos strings
+     * Calcula distancia Levenshtein entre dos strings (programación dinámica, matriz completa).
      */
     public function levenshteinDistance(string $s1, string $s2): int
     {
@@ -232,7 +243,9 @@ class ChatbotLearningService
     }
 
     /**
-     * Entrena desde historial
+     * Entrena desde historial: recorre el historial de conversación cacheado
+     * y llama a learnQuestion() por cada entrada. Efecto secundario: escribe en Cache
+     * (vía learnQuestion) por cada pregunta procesada.
      */
     public function trainFromHistory($userId = null, int $limit = 20): array
     {
@@ -260,7 +273,7 @@ class ChatbotLearningService
     }
 
     /**
-     * Obtiene reporte de aprendizaje
+     * Obtiene reporte de aprendizaje: agrega estadísticas de preguntas aprendidas por categoría (lee de Cache).
      */
     public function getLearningReport($userId = null): array
     {
@@ -287,7 +300,7 @@ class ChatbotLearningService
     }
 
     /**
-     * Top categorías
+     * Top categorías: las N categorías con más preguntas aprendidas, ordenadas descendente.
      */
     public function getTopCategories($userId = null, int $limit = 5): array
     {

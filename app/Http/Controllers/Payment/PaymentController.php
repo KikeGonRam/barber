@@ -16,10 +16,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
+/**
+ * Controlador web (vistas Blade) de pagos para el panel de recepción/administración.
+ * Maneja el listado, registro, aprobación/rechazo de comprobantes y descarga de facturas.
+ */
 class PaymentController extends Controller
 {
     public function __construct(private readonly PaymentService $paymentService) {}
 
+    /**
+     * Lista los pagos con filtros de búsqueda, estadísticas del día/mes y
+     * conteo de comprobantes pendientes de verificación.
+     */
     public function index(Request $request): View
     {
         $filters = $request->only(['q', 'metodo_pago', 'fecha_desde', 'fecha_hasta', 'barbero_id']);
@@ -52,6 +60,10 @@ class PaymentController extends Controller
         return view('payments.index', compact('payments', 'filters', 'barbers', 'stats', 'pendingCount'));
     }
 
+    /**
+     * Muestra el formulario para registrar un pago, listando solo citas
+     * que ya son cobrables y que aún no tienen un pago asociado.
+     */
     public function create(): View
     {
         // Solo citas cobrables (aprobadas por el barbero): nunca pendientes.
@@ -66,6 +78,10 @@ class PaymentController extends Controller
         return view('payments.create', compact('appointments'));
     }
 
+    /**
+     * Registra el pago (delegado al servicio, que también marca la cita
+     * como completada) y decide a dónde redirigir según el origen del formulario.
+     */
     public function store(StorePaymentRequest $request): RedirectResponse
     {
         try {
@@ -83,6 +99,10 @@ class PaymentController extends Controller
         return redirect()->route('payments.index')->with('status', 'Pago registrado correctamente.');
     }
 
+    /**
+     * Lista los pagos por transferencia cuyo comprobante aún no ha sido
+     * verificado (aprobado o rechazado) por recepción/administración.
+     */
     public function pending(): View
     {
         $payments = Payment::query()
@@ -94,6 +114,10 @@ class PaymentController extends Controller
         return view('payments.pendientes', compact('payments'));
     }
 
+    /**
+     * Aprueba el comprobante de transferencia: el servicio marca el pago
+     * como verificado y completa la cita asociada.
+     */
     public function approve(Payment $payment, Request $request): RedirectResponse
     {
         try {
@@ -105,6 +129,10 @@ class PaymentController extends Controller
         return redirect()->route('payments.pending')->with('status', 'Comprobante aprobado. Cita marcada como completada.');
     }
 
+    /**
+     * Rechaza el comprobante de transferencia con un motivo obligatorio,
+     * dejando la cita pendiente de que el cliente suba un nuevo comprobante.
+     */
     public function reject(Payment $payment, Request $request): RedirectResponse
     {
         $request->validate([
@@ -120,9 +148,13 @@ class PaymentController extends Controller
         return redirect()->route('payments.pending')->with('status', 'Comprobante rechazado. El cliente puede subir uno nuevo.');
     }
 
+    /**
+     * Elimina un pago y su comprobante PDF almacenado (si existe).
+     */
     public function destroy(Payment $payment): RedirectResponse
     {
         if ($payment->comprobante_pdf) {
+            // Borra primero el archivo físico para no dejar comprobantes huérfanos en disco.
             Storage::disk('public')->delete($payment->comprobante_pdf);
         }
 
@@ -131,6 +163,10 @@ class PaymentController extends Controller
         return redirect()->route('payments.index')->with('status', 'Pago eliminado correctamente.');
     }
 
+    /**
+     * Descarga la factura/comprobante del pago en PDF, generándolo bajo
+     * demanda y cacheándolo en disco si todavía no existe.
+     */
     public function downloadReceipt(Payment $payment)
     {
         $pdfPath = $payment->comprobante_pdf;
@@ -144,9 +180,11 @@ class PaymentController extends Controller
             $pdfPath = 'comprobantes/pago-'.$payment->id.'.pdf';
             Storage::disk('public')->put($pdfPath, $pdf->output());
 
+            // Guarda la ruta generada para no regenerar el PDF en próximas descargas.
             $payment->update(['comprobante_pdf' => $pdfPath]);
         }
 
+        // Fallback a la fecha actual si created_at no está disponible (dato legado/nulo).
         $stamp = optional($payment->created_at)->format('Ymd-His') ?: now()->format('Ymd-His');
 
         return Storage::disk('public')->download($pdfPath, 'factura-'.$payment->id.'-'.$stamp.'.pdf');

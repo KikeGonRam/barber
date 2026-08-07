@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
+/**
+ * API de pagos para personal de recepción/administración (móvil y web).
+ * Maneja registro, consulta, eliminación y generación de comprobantes (PDF)
+ * de pagos asociados a citas, incluyendo integración con Stripe.
+ */
 class PaymentController extends Controller
 {
     public function __construct(
@@ -20,6 +25,10 @@ class PaymentController extends Controller
         private readonly StripePaymentService $stripeService,
     ) {}
 
+    /**
+     * Lista paginada de pagos con datos de cita, cliente, barbero y comprobante,
+     * filtrable por método de pago.
+     */
     public function index(Request $request): JsonResponse
     {
         $this->authorizeStaff($request);
@@ -56,6 +65,10 @@ class PaymentController extends Controller
         ]);
     }
 
+    /**
+     * Crea un PaymentIntent en Stripe (moneda fija MXN) para que el cliente
+     * pague desde la app; no registra el pago local, eso ocurre vía webhook o store().
+     */
     public function stripeIntent(Request $request): JsonResponse
     {
         $this->authorizeStaff($request);
@@ -74,6 +87,7 @@ class PaymentController extends Controller
 
             return response()->json(['data' => $data]);
         } catch (Throwable $exception) {
+            // No se expone el detalle de Stripe al cliente; se registra para diagnóstico
             Log::warning('No se pudo crear intento de pago Stripe.', [
                 'appointment_id' => $validated['appointment_id'],
                 'error' => $exception->getMessage(),
@@ -85,6 +99,10 @@ class PaymentController extends Controller
         }
     }
 
+    /**
+     * Registra un pago manual (efectivo, tarjeta, transferencia, QR o stripe)
+     * asociado a una cita; la lógica de negocio (transacción, estado de cita) vive en PaymentService.
+     */
     public function store(Request $request): JsonResponse
     {
         $this->authorizeStaff($request);
@@ -116,6 +134,9 @@ class PaymentController extends Controller
         ], 201);
     }
 
+    /**
+     * Elimina un pago y su comprobante PDF asociado (si existe) del almacenamiento público.
+     */
     public function destroy(Request $request, Payment $payment): JsonResponse
     {
         $this->authorizeStaff($request);
@@ -131,6 +152,10 @@ class PaymentController extends Controller
         ]);
     }
 
+    /**
+     * Devuelve la URL del comprobante PDF; lo genera bajo demanda (lazy) y lo cachea
+     * en el pago si aún no existe o el archivo se perdió del disco.
+     */
     public function receipt(Request $request, Payment $payment): JsonResponse
     {
         $this->authorizeStaff($request);
@@ -156,6 +181,9 @@ class PaymentController extends Controller
         ]);
     }
 
+    /**
+     * Restringe el acceso a administradores y recepcionistas; el resto de roles recibe 403.
+     */
     private function authorizeStaff(Request $request): void
     {
         $user = $request->user();

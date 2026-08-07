@@ -38,6 +38,7 @@ use App\Models\Comment;
 use App\Models\Service;
 use Illuminate\Support\Facades\Cache;
 
+// Página de inicio pública: muestra servicios, barberos destacados y estadísticas globales.
 Route::get('/', function () {
     // Cache landing page data for 5 minutes — 7 queries → 0 on cache hit
     $services = Cache::remember('landing_services', 300, fn () => Service::where('activo', true)->limit(6)->get()
@@ -66,6 +67,8 @@ Route::get('/servicios', [ServiceController::class, 'publicIndex'])->name('servi
 Route::get('/t/o/{campaign}/{user}', [TrackingController::class, 'open'])->name('track.open');
 Route::get('/t/c/{campaign}/{user}', [TrackingController::class, 'click'])->name('track.click');
 Route::post('/chatbot/query', [ChatbotController::class, 'query'])->name('chatbot.query');
+// Rutas del chatbot que requieren sesión (historial, perfil, estadísticas de aprendizaje).
+// Cualquier usuario autenticado puede usarlas; solo "train-history" se restringe a administrador.
 Route::middleware(['auth'])->group(function () {
     Route::get('/chatbot/history', [ChatbotController::class, 'getHistory'])->name('chatbot.history');
     Route::get('/chatbot/profile', [ChatbotController::class, 'getProfile'])->name('chatbot.profile');
@@ -79,12 +82,14 @@ Route::middleware(['auth'])->group(function () {
 // Social Feed (Instagram Style)
 Route::get('/descubrir', [SocialController::class, 'feed'])->name('social.feed');
 
+// Rutas del feed social que requieren usuario autenticado y verificado.
 Route::middleware(['auth', 'verified'])->group(function () {
     // Interactions
     Route::post('/social/work/{work}/react', [SocialController::class, 'react'])->name('social.react');
     Route::post('/social/work/{work}/save', [SocialController::class, 'save'])->name('social.save');
     Route::post('/social/work/{work}/comment', [SocialController::class, 'comment'])->name('social.comment');
 
+    // Solo el administrador puede activar/desactivar el modo mantenimiento del sitio.
     Route::middleware(['role.custom:administrador'])->group(function () {
         Route::post('/settings/maintenance', [BarbershopSettingController::class, 'toggleMaintenance'])->name('settings.maintenance.toggle');
     });
@@ -106,6 +111,8 @@ Route::post('/api/v1/auth/get-api-token', [AuthController::class, 'getWebApiToke
     ->middleware(['web', 'auth', 'throttle:20,1'])
     ->name('api.get-token');
 
+// Bloque principal de rutas autenticadas: perfil, notificaciones y, dentro de él,
+// los sub-grupos por rol (administrador/recepcionista, cliente, barbero).
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -117,6 +124,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markOneRead'])->name('notifications.read-one');
 
+    // Rutas exclusivas de administrador y recepcionista: gestión de citas, pagos,
+    // pedidos de la tienda, inventario y clientes. Cada sub-grupo además exige
+    // un permiso granular (permission.custom) porque recepcionista y administrador
+    // pueden tener permisos distintos aunque compartan el rol.
     Route::middleware(['verified', 'role.custom:administrador,recepcionista'])->group(function () {
         Route::middleware('permission.custom:citas.gestionar')->group(function () {
             // Walk-in ANTES del resource para que 'walk-in' no se capture como {appointment}
@@ -128,6 +139,7 @@ Route::middleware('auth')->group(function () {
             Route::get('appointments-calendar/data', [AppointmentController::class, 'calendarData'])->name('appointments.calendar.data');
         });
 
+        // Gestión de pagos (aprobar/rechazar comprobantes) y bandeja de pedidos de la tienda.
         Route::middleware('permission.custom:pagos.gestionar')->group(function () {
             Route::resource('payments', PaymentController::class)->only(['index', 'create', 'store', 'destroy']);
             Route::get('payments/{payment}/receipt', [PaymentController::class, 'downloadReceipt'])->name('payments.receipt.download');
@@ -142,12 +154,14 @@ Route::middleware('auth')->group(function () {
             Route::get('pedidos/{order}/recibo', [OrderController::class, 'receipt'])->name('orders.receipt');
         });
 
+        // Registrar/consultar movimientos de inventario (entradas/salidas de stock).
         Route::middleware('permission.custom:inventario.ver,inventario.gestionar')->group(function () {
             Route::resource('inventory/movements', InventoryMovementController::class)
                 ->only(['index', 'create', 'store'])
                 ->names('inventory.movements');
         });
 
+        // CRUD de clientes desde el panel administrativo/recepción.
         Route::middleware('permission.custom:clientes.gestionar')->group(function () {
             Route::resource('clients', ClientController::class)
                 ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
@@ -156,12 +170,15 @@ Route::middleware('auth')->group(function () {
 
     });
 
+    // Rutas exclusivas del rol administrador: respaldos de BD, campañas de marketing,
+    // reportes, gestión de servicios/inventario/usuarios/barberos, configuración y logs.
     Route::middleware(['verified', 'role.custom:administrador'])->group(function () {
         Route::get('backups/database', [DatabaseBackupController::class, 'download'])->name('backups.database.download');
 
         Route::get('campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
         Route::post('campaigns', [CampaignController::class, 'send'])->name('campaigns.send');
 
+        // Exportación de reportes (ingresos, citas, inventario, clientes) en varios formatos.
         Route::middleware('permission.custom:reportes.ver')->group(function () {
             Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
             Route::get('reports/{type}/{format}', [ReportController::class, 'export'])
@@ -170,36 +187,44 @@ Route::middleware('auth')->group(function () {
                 ->name('reports.export');
         });
 
+        // CRUD del catálogo de servicios ofrecidos por la barbería.
         Route::middleware('permission.custom:servicios.gestionar')->group(function () {
             Route::resource('services', ServiceController::class)->except('show');
         });
 
+        // CRUD de productos de inventario/tienda.
         Route::middleware('permission.custom:inventario.gestionar')->group(function () {
             Route::resource('inventory/products', ProductController::class)
                 ->except('show')
                 ->names('inventory.products');
         });
 
+        // CRUD de usuarios del sistema (cuentas de acceso, no clientes).
         Route::middleware('permission.custom:usuarios.gestionar')->group(function () {
             Route::resource('users', UserController::class)->except('show');
         });
 
+        // Edición de barberos (no se permite crear/eliminar aquí) y su reporte de desempeño.
         Route::middleware('permission.custom:barberos.gestionar')->group(function () {
             Route::resource('barbers', BarberController::class)
                 ->only(['index', 'edit', 'update']);
             Route::get('barbers/{barber}/performance', [BarberController::class, 'performance'])->name('barbers.performance');
         });
 
+        // Configuración global de la barbería (horarios, datos de negocio, etc.).
         Route::middleware('permission.custom:configuracion.gestionar')->group(function () {
             Route::get('settings', [BarbershopSettingController::class, 'edit'])->name('settings.edit');
             Route::put('settings', [BarbershopSettingController::class, 'update'])->name('settings.update');
         });
 
+        // Bitácora de actividad del sistema (auditoría).
         Route::middleware('permission.custom:logs.ver')->group(function () {
             Route::get('logs', [ActivityLogController::class, 'index'])->name('logs.index');
         });
     });
 
+    // Rutas exclusivas del rol cliente (prefijo /cliente): reservar citas, ver barberos,
+    // facturas, subir comprobantes de pago, tarjeta de membresía y tienda/carrito/pedidos.
     Route::middleware(['verified', 'role.custom:cliente'])->prefix('cliente')->name('client.')->group(function () {
         Route::resource('appointments', ClientAppointmentController::class)->except('show');
         Route::get('barberos', [ClientBarberController::class, 'index'])->name('barberos.index');
@@ -223,6 +248,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('pedidos/{order}/cancelar', [App\Http\Controllers\Client\OrderController::class, 'cancel'])->name('pedidos.cancel');
     });
 
+    // Rutas exclusivas del rol barbero (prefijo /barbero): agenda propia, perfil,
+    // horario de trabajo y portafolio de fotos de sus cortes.
     Route::middleware(['verified', 'role.custom:barbero'])->prefix('barbero')->name('barber.')->group(function () {
         Route::get('agenda', [BarberDashboardController::class, 'agenda'])->name('agenda');
         Route::patch('appointments/{appointment}/status', [BarberDashboardController::class, 'updateAppointmentStatus'])->name('appointments.status');
@@ -240,6 +267,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('portfolio/{work}', [BarberPortfolioController::class, 'destroy'])->name('portfolio.destroy');
     });
 
+    // Ruta suelta fuera del prefijo 'barbero.' (nombre distinto: 'barbers.works.store')
+    // usada por otra vista que espera ese nombre de ruta específico.
     Route::middleware(['verified', 'role.custom:barbero'])->group(function () {
         Route::post('/barbero/{barber}/works', [BarberPortfolioController::class, 'store'])->name('barbers.works.store');
     });

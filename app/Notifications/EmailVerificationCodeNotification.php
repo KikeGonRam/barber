@@ -17,11 +17,17 @@ class EmailVerificationCodeNotification extends Notification implements ShouldQu
 
     public function __construct(public readonly string $code) {}
 
+    /**
+     * Solo correo: el codigo no tiene sentido como notificacion in-app/sms.
+     */
     public function via(object $notifiable): array
     {
         return ['mail'];
     }
 
+    /**
+     * Correo con la plantilla de marca mostrando el codigo de 6 digitos.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)

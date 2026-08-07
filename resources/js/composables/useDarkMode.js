@@ -7,10 +7,11 @@ import { ref, computed, watch } from 'vue';
 export function useDarkMode() {
   const isDark = ref(false);
 
-  // Detectar preferencia del SO al montar
+  // Detectar preferencia del SO al montar. Prioridad: valor guardado por el
+  // usuario en localStorage > preferencia del sistema operativo (prefers-color-scheme).
   const initDarkMode = () => {
     const saved = localStorage.getItem('darkMode');
-    
+
     if (saved !== null) {
       isDark.value = saved === 'true';
     } else {
@@ -21,7 +22,8 @@ export function useDarkMode() {
     applyDarkMode();
   };
 
-  // Aplicar dark mode al documento
+  // Aplica/quita la clase "dark" en <html> (usada por Tailwind con estrategia
+  // "class") y persiste la elección en localStorage para futuras visitas.
   const applyDarkMode = () => {
     if (isDark.value) {
       document.documentElement.classList.add('dark');
@@ -31,17 +33,20 @@ export function useDarkMode() {
     localStorage.setItem('darkMode', isDark.value);
   };
 
-  // Toggle dark mode
+  // Alterna entre modo claro y oscuro
   const toggleDarkMode = () => {
     isDark.value = !isDark.value;
   };
 
-  // Watch para cambios
+  // Cada vez que cambia isDark (por toggle o por código), se refleja en el DOM
+  // y se guarda automáticamente.
   watch(isDark, () => {
     applyDarkMode();
   });
 
   return {
+    // Se expone como computed (solo lectura) para forzar que los componentes
+    // usen toggleDarkMode() en vez de mutar isDark directamente.
     isDark: computed(() => isDark.value),
     toggleDarkMode,
     initDarkMode,

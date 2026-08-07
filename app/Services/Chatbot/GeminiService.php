@@ -7,6 +7,11 @@ use App\Services\Chatbot\Contracts\ChatbotAiProvider;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Proveedor de IA en la nube via Gemini (Google). Requiere GEMINI_API_KEY;
+ * si no está configurada, responde en "modo offline" en vez de fallar.
+ * Implementa ChatbotAiProvider junto con OllamaService (motor local intercambiable).
+ */
 class GeminiService implements ChatbotAiProvider
 {
     use BuildsBarberSystemPrompt;
@@ -21,16 +26,26 @@ class GeminiService implements ChatbotAiProvider
         $this->apiKey = config('services.gemini.api_key');
     }
 
+    /**
+     * True si hay API key configurada (condición para usar este proveedor).
+     */
     public function isEnabled(): bool
     {
         return ! empty($this->apiKey);
     }
 
+    /**
+     * Etiqueta del modelo para telemetría/logs.
+     */
     public function label(): string
     {
         return 'gemini-2.0-flash';
     }
 
+    /**
+     * Arma el system prompt y genera una respuesta para un mensaje suelto (sin historial).
+     * Efecto secundario: llama a la API externa de Gemini (HTTP).
+     */
     public function generateResponse(string $userMessage, array $contextData): string
     {
         if (empty($this->apiKey)) {
@@ -55,13 +70,14 @@ class GeminiService implements ChatbotAiProvider
     }
 
     /**
-     * Método privado para enviar request a Gemini
+     * Método privado para enviar request a Gemini. Efecto secundario: llamada HTTP externa
+     * (con timeout de 15s) y log de errores si falla o hay excepción de conexión.
      */
     private function sendRequest(string $prompt): string
     {
         try {
             $response = Http::withHeaders(['Content-Type' => 'application/json'])
-                ->timeout(15)
+                ->timeout(15) // corta la espera si Gemini no responde, para no bloquear el request del usuario
                 ->post("{$this->baseUrl}?key={$this->apiKey}", [
                     'contents' => [
                         [

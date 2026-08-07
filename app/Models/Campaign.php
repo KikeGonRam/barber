@@ -4,6 +4,11 @@ namespace App\Models;
 
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * Campaña de marketing/notificacion enviada (o programada) a un segmento de
+ * usuarios. Lleva contadores simples de apertura/clic como arrays de ids
+ * unicos (opened_by/clicked_by) en vez de una tabla pivote, por ser Mongo.
+ */
 class Campaign extends Model
 {
     protected $fillable = [
@@ -32,11 +37,13 @@ class Campaign extends Model
         ];
     }
 
+    // Cantidad de usuarios unicos que abrieron la campaña.
     public function opensCount(): int
     {
         return count($this->opened_by ?? []);
     }
 
+    // Cantidad de usuarios unicos que hicieron clic en el CTA.
     public function clicksCount(): int
     {
         return count($this->clicked_by ?? []);

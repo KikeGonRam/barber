@@ -4,10 +4,15 @@ namespace App\Services\Chatbot;
 
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Perfil de conversación del chatbot por usuario (o invitado por IP): guarda
+ * estilo/tono, tópicos discutidos y última intención para personalizar
+ * respuestas entre turnos. Todo el estado vive en Cache, no hay tabla dedicada.
+ */
 class ChatbotUserProfileService
 {
     /**
-     * Obtiene o crea el perfil de conversación del usuario
+     * Obtiene o crea el perfil de conversación del usuario (lee de Cache; no persiste el default).
      */
     public function getUserProfile($userId = null): array
     {
@@ -29,7 +34,7 @@ class ChatbotUserProfileService
     }
 
     /**
-     * Guarda el perfil del usuario (cache de 7 días)
+     * Guarda el perfil del usuario. Efecto secundario: escribe en Cache con TTL de 7 días.
      */
     public function saveUserProfile($profile, $userId = null): void
     {
@@ -39,7 +44,7 @@ class ChatbotUserProfileService
     }
 
     /**
-     * Actualiza tópicos de la conversación
+     * Actualiza tópicos de la conversación. Efecto secundario: persiste el perfil actualizado en Cache.
      */
     public function updateTopics(string $keyword, $userId = null): array
     {
@@ -47,7 +52,7 @@ class ChatbotUserProfileService
 
         if (! in_array($keyword, $profile['topics_discussed'])) {
             $profile['topics_discussed'][] = $keyword;
-            // Limitar a últimos 10 tópicos
+            // Limitar a últimos 10 tópicos: evita que el perfil crezca indefinidamente
             if (count($profile['topics_discussed']) > 10) {
                 array_shift($profile['topics_discussed']);
             }
@@ -59,7 +64,7 @@ class ChatbotUserProfileService
     }
 
     /**
-     * Actualiza la intención del usuario
+     * Actualiza la intención del usuario. Efecto secundario: persiste el perfil actualizado en Cache.
      */
     public function updateIntent(string $intent, $userId = null): void
     {
@@ -69,7 +74,8 @@ class ChatbotUserProfileService
     }
 
     /**
-     * Obtiene resumen del perfil actual
+     * Obtiene resumen del perfil actual en texto plano, pensado para inyectarse
+     * como contexto adicional en el system prompt del chatbot.
      */
     public function getProfileSummary($userId = null): string
     {
@@ -95,13 +101,15 @@ class ChatbotUserProfileService
      */
     private function getProfileKey($userId = null): string
     {
+        // Fallback a IP para invitados no autenticados: permite mantener contexto
+        // de conversación aun sin login (aunque comparte perfil entre usuarios detrás de la misma IP).
         $id = $userId ?? auth()->id() ?? 'guest_'.request()->ip();
 
         return "chatbot_profile_{$id}";
     }
 
     /**
-     * Limpia el perfil del usuario
+     * Limpia el perfil del usuario. Efecto secundario: elimina la entrada de Cache.
      */
     public function clearProfile($userId = null): void
     {

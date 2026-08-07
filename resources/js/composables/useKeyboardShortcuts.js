@@ -5,6 +5,8 @@ import { onMounted, onUnmounted } from 'vue';
  * Permite registrar y usar atajos de teclado en la aplicación
  */
 export function useKeyboardShortcuts() {
+  // Mapa keyCombo -> { callback, description }; keyCombo es un string normalizado
+  // como "Ctrl+K" generado por handleKeyDown.
   const shortcuts = new Map();
 
   /**
@@ -18,17 +20,20 @@ export function useKeyboardShortcuts() {
   };
 
   /**
-   * Manejar eventos de teclado
+   * Manejar eventos de teclado: construye la misma representación de string
+   * usada al registrar ("Ctrl+K", etc.) y ejecuta el callback si coincide.
    */
   const handleKeyDown = (event) => {
-    // Ignorar si está escribiendo en un input
+    // Ignorar si está escribiendo en un input, textarea o select, para no
+    // interceptar atajos mientras el usuario teclea texto normal.
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) {
       return;
     }
 
     let keyCombo = '';
 
-    // Construir la combinación
+    // Construir la combinación en el mismo orden que se espera en register()
+    // (Ctrl/Cmd -> Shift -> Alt -> tecla). metaKey cubre Cmd en Mac.
     if (event.ctrlKey || event.metaKey) {
       keyCombo += 'Ctrl+';
     }
@@ -41,14 +46,16 @@ export function useKeyboardShortcuts() {
 
     keyCombo += event.key.toUpperCase();
 
-    // Buscar atajo
+    // Buscar atajo y, si existe, prevenir el comportamiento por defecto del
+    // navegador (p. ej. Ctrl+S abriendo el diálogo de guardar) antes de ejecutarlo.
     if (shortcuts.has(keyCombo)) {
       event.preventDefault();
       shortcuts.get(keyCombo).callback();
     }
   };
 
-  // Montar y desmontar listeners
+  // Registra el listener global al montar el componente y lo retira al
+  // desmontar, para no acumular listeners duplicados entre navegaciones.
   onMounted(() => {
     window.addEventListener('keydown', handleKeyDown);
   });

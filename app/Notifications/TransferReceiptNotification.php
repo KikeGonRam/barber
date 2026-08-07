@@ -19,6 +19,10 @@ class TransferReceiptNotification extends Notification implements ShouldQueue
 
     public function __construct(public readonly Payment $payment, public readonly string $status, public readonly ?string $motivo = null) {}
 
+    /**
+     * Igual patron que AppointmentNotification: sin preferencias explicitas
+     * cae a 'database' para no perder el aviso.
+     */
     public function via(object $notifiable): array
     {
         $channels = [];
@@ -34,6 +38,10 @@ class TransferReceiptNotification extends Notification implements ShouldQueue
         return $channels ?: ['database'];
     }
 
+    /**
+     * Elige plantilla segun $status: rechazo (con motivo, en rojo) o
+     * recibido/en revision (en azul, informativo).
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $servicio = $this->payment->appointment?->service?->nombre ?? 'tu servicio';
@@ -68,6 +76,9 @@ class TransferReceiptNotification extends Notification implements ShouldQueue
             ]);
     }
 
+    /**
+     * Payload para el canal database (centro de notificaciones in-app).
+     */
     public function toArray(object $notifiable): array
     {
         return [

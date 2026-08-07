@@ -8,6 +8,12 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * Genera predicciones de negocio (ingresos, citas, servicios populares,
+ * horas pico) combinando agregaciones historicas de MongoDB con un LLM
+ * local (Ollama) que interpreta esos datos en lenguaje natural. Tambien
+ * calcula insights deterministas (sin LLM) a partir de los mismos datos.
+ */
 class PredictionService
 {
     private string $ollamaUrl = 'http://ollama:11434';
@@ -21,6 +27,11 @@ class PredictionService
         $this->loadHistoricalData();
     }
 
+    /**
+     * Carga (o recupera de cache) los datos historicos base usados por
+     * todas las predicciones: tendencia de citas, ingresos, distribucion
+     * de servicios y de horarios.
+     */
     private function loadHistoricalData(): void
     {
         // Cache for 6 hours — prediction data doesn't need to be real-time
@@ -85,6 +96,11 @@ class PredictionService
             ->toArray();
     }
 
+    /**
+     * Predice ingresos para los proximos N dias. Construye un prompt con
+     * datos historicos y llama al LLM local (Ollama) para obtener una
+     * estimacion en texto, que luego se parsea a numero.
+     */
     public function predictIncome(int $daysAhead = 7): array
     {
         $prompt = $this->buildIncomePrompt($daysAhead);
@@ -99,6 +115,10 @@ class PredictionService
         ];
     }
 
+    /**
+     * Predice el numero de citas esperadas para los proximos N dias y sus
+     * horas pico, usando el LLM local sobre el historico de citas.
+     */
     public function predictAppointments(int $daysAhead = 7): array
     {
         $prompt = $this->buildAppointmentsPrompt($daysAhead);
@@ -113,6 +133,10 @@ class PredictionService
         ];
     }
 
+    /**
+     * Combina el top de servicios historico (calculo directo) con
+     * recomendaciones de crecimiento/declive generadas por el LLM.
+     */
     public function predictPopularServices(): array
     {
         $prompt = $this->buildServicesPrompt();
@@ -130,6 +154,10 @@ class PredictionService
         ];
     }
 
+    /**
+     * Identifica horas pico y horas de baja demanda usando el LLM sobre
+     * la distribucion historica de citas por hora.
+     */
     public function predictPeakHours(): array
     {
         $prompt = $this->buildPeakHoursPrompt();
@@ -143,6 +171,11 @@ class PredictionService
         ];
     }
 
+    /**
+     * Calcula insights deterministas (sin LLM) sobre ingresos, citas y
+     * concentracion de servicios, comparando promedios recientes contra
+     * el historico para detectar tendencias al alza/baja.
+     */
     public function generateInsights(): array
     {
         $insights = [];
@@ -249,6 +282,12 @@ $hoursList
 Responde brevemente para optimizar el horario.";
     }
 
+    /**
+     * Llama a la API de Ollama (LLM local) para generar texto a partir de
+     * un prompt. Si Ollama no responde o falla, devuelve un mensaje por
+     * defecto en vez de propagar la excepcion (la prediccion es opcional,
+     * no debe romper el flujo).
+     */
     private function callOllama(string $prompt): string
     {
         try {
@@ -336,6 +375,11 @@ Responde brevemente para optimizar el horario.";
         return array_slice($recommendations, 0, 3);
     }
 
+    /**
+     * Heuristica simple de "confianza" de la respuesta del LLM: parte de
+     * una base de 60 y suma puntos si el texto incluye numeros o razones
+     * explicitas, tope en 100. No es una metrica estadistica real.
+     */
     private function calculateConfidence(string $text): int
     {
         if (empty($text) || strpos($text, 'no disponible') !== false) {

@@ -8,12 +8,20 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+/**
+ * Aviso al cliente de que su pedido de la tienda fue marcado como entregado.
+ * Se dispara desde Reception\OrderController al confirmar la entrega en
+ * recepcion.
+ */
 class OrderDeliveredNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(public readonly Order $order) {}
 
+    /**
+     * Database siempre; correo solo si el cliente lo tiene activado.
+     */
     public function via(object $notifiable): array
     {
         $channels = ['database'];
@@ -47,6 +55,9 @@ class OrderDeliveredNotification extends Notification implements ShouldQueue
             ]);
     }
 
+    /**
+     * Payload para el canal database (centro de notificaciones in-app).
+     */
     public function toArray(object $notifiable): array
     {
         return [

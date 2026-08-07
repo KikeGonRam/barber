@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * Movimiento del programa de lealtad de un cliente (puntos ganados o
+ * canjeados). Cada registro es un evento inmutable, no un saldo acumulado.
+ */
 class LoyaltyTransaction extends Model
 {
     use HasFactory;
@@ -15,7 +19,7 @@ class LoyaltyTransaction extends Model
         'tipo',         // 'ganado' | 'canjeado'
         'puntos',
         'descripcion',
-        'referencia_id',
+        'referencia_id', // id de la entidad que originó el movimiento (cita, canje, etc.)
     ];
 
     protected function casts(): array
@@ -23,6 +27,7 @@ class LoyaltyTransaction extends Model
         return ['puntos' => 'integer'];
     }
 
+    // Cliente dueño de este movimiento de puntos.
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);

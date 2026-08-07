@@ -20,6 +20,14 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
+/**
+ * Exportador de Excel generico y reutilizable para cualquier tipo de
+ * reporte (ingresos, citas, inventario, clientes, etc.). Las filas y
+ * encabezados ya vienen agregados por ReportService::reportByType(); esta
+ * clase solo se encarga del formato del archivo (estilos, titulo, grafico
+ * de barras opcional). Se instancia desde Report\ReportController::export()
+ * y desde Api\ReportController.
+ */
 class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts, WithEvents, WithHeadings, WithStyles, WithTitle
 {
     /**
@@ -32,16 +40,26 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
         private readonly ?array $chart = null,
     ) {}
 
+    /**
+     * Filas de datos ya calculadas por el servicio de reportes.
+     */
     public function collection(): Collection
     {
         return $this->rows;
     }
 
+    /**
+     * Encabezados de columna, definidos por el tipo de reporte solicitado.
+     */
     public function headings(): array
     {
         return $this->headings;
     }
 
+    /**
+     * Estilo de la fila de encabezado con los colores de marca
+     * (dorado sobre negro).
+     */
     public function styles(Worksheet $sheet)
     {
         return [
@@ -64,6 +82,9 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
         ];
     }
 
+    /**
+     * Nombre de la pestana del Excel.
+     */
     public function title(): string
     {
         return $this->reportTitle;

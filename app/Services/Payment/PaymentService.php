@@ -17,6 +17,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Orquesta el cobro de citas: pagos directos por staff, subida y revision
+ * de comprobantes de transferencia, y el "completar cobro" compartido
+ * (marca cita completada, genera PDF de recibo y notifica al cliente).
+ */
 class PaymentService
 {
     public function __construct(
@@ -24,11 +29,19 @@ class PaymentService
         private readonly AppointmentNotifier $notifier,
     ) {}
 
+    /**
+     * Lista pagos paginados aplicando filtros del repositorio.
+     */
     public function list(array $filters = [], int $perPage = 15)
     {
         return $this->payments->paginateWithFilters($filters, $perPage);
     }
 
+    /**
+     * Cobro directo por staff: crea el pago ya verificado y completa el
+     * cobro (cita completada + PDF + notificacion) dentro de una
+     * transaccion DB para evitar estados intermedios inconsistentes.
+     */
     public function create(array $payload, string $createdBy): Payment
     {
         $appointment = Appointment::query()->with(['client.user', 'barber.user', 'service'])->findOrFail($payload['appointment_id']);
@@ -87,8 +100,11 @@ class PaymentService
 
         $appointment->loadMissing(['client.user', 'service']);
 
+        // Encola un job asincrono para leer el comprobante via OCR (ayuda a
+        // recepcion/admin a verificarlo, no bloquea la subida).
         RunOcrOnComprobante::dispatch((string) $payment->id);
 
+        // Avisa a recepcion/admin (canal interno) que hay un comprobante por revisar.
         $this->notifier->transferReceiptUploaded($appointment, $payment);
 
         if ($user = $appointment->client?->user) {
@@ -106,8 +122,9 @@ class PaymentService
     }
 
     /**
-     * Staff aprueba un comprobante en revision: ahora si se completa el
-     * cobro (cita completada, factura PDF, notificacion al cliente).
+     * Aprueba un comprobante en revision y completa el cobro. Actualiza
+     * estado dentro de transaccion DB y luego reusa completeCharge() para
+     * marcar la cita, generar el PDF y notificar.
      */
     public function approveTransfer(Payment $payment, string $reviewerId): Payment
     {
@@ -131,8 +148,8 @@ class PaymentService
     }
 
     /**
-     * Staff rechaza un comprobante (motivo obligatorio). El cliente puede
-     * volver a subir uno nuevo para la misma cita.
+     * Rechaza un comprobante en revision (no completa el cobro) y notifica
+     * al cliente el motivo para que pueda volver a subir un comprobante.
      */
     public function rejectTransfer(Payment $payment, string $reviewerId, string $motivo): Payment
     {
@@ -170,15 +187,19 @@ class PaymentService
      */
     private function completeCharge(Payment $payment, Appointment $appointment, float $monto): Payment
     {
+        // Efecto secundario: transiciona la cita a "completada" (fin del
+        // flujo de estados) y fija el precio realmente cobrado.
         $appointment->update([
             'estado' => 'completada',
             'precio_cobrado' => $monto,
         ]);
 
+        // Genera el PDF del recibo/factura con DomPDF a partir de una vista Blade.
         $pdf = Pdf::loadView('payments.receipt', [
             'payment' => $payment->load(['appointment.client.user', 'appointment.barber.user', 'appointment.service', 'creator']),
         ]);
 
+        // Persiste el PDF en el disco publico para poder servirlo despues.
         $pdfPath = 'comprobantes/pago-'.$payment->id.'.pdf';
         Storage::disk('public')->put($pdfPath, $pdf->output());
 
@@ -188,6 +209,8 @@ class PaymentService
 
         $user = $payment->appointment?->client?->user;
 
+        // Notifica al cliente el recibo de pago; el fallo de notificacion
+        // se registra pero no revierte el cobro ya completado.
         if ($user) {
             try {
                 $user->notify(new PaymentReceiptNotification($payment));

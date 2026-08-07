@@ -8,6 +8,13 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+/**
+ * Aviso de subida de nivel de lealtad. Se dispara desde LoyaltyService
+ * cuando el nivel calculado del cliente sube respecto al guardado, y
+ * tambien desde el comando DrawMonthlyRaffle al anunciar al ganador del
+ * sorteo mensual (ahi previousLevel llega igual a level, solo se usa para
+ * mostrar el mensaje de felicitacion).
+ */
 class LoyaltyNotification extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -18,6 +25,10 @@ class LoyaltyNotification extends Notification implements ShouldQueue
         public readonly int $discount,
     ) {}
 
+    /**
+     * Siempre va por database (para el centro de notificaciones); el
+     * correo es opcional segun preferencia del usuario.
+     */
     public function via(object $notifiable): array
     {
         $channels = ['database'];
@@ -50,6 +61,9 @@ class LoyaltyNotification extends Notification implements ShouldQueue
             ]);
     }
 
+    /**
+     * Payload para el canal database (centro de notificaciones in-app).
+     */
     public function toArray(object $notifiable): array
     {
         $label = LoyaltyService::LEVEL_LABELS[$this->level] ?? strtoupper($this->level);

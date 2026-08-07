@@ -121,6 +121,8 @@ class AnalyticsInsight extends Model
         'generado_en' => 'datetime',
     ];
 
+    // Resuelve el tipo de grafica a renderizar: primero el mapa fijo por tipo de insight,
+    // si no hay match cae al campo 'tipo' que Spark manda dentro de 'grafica'.
     public static function visualTypeFor(?string $insightType, ?array $graph = null): string
     {
         $visualType = $insightType !== null
@@ -130,6 +132,8 @@ class AnalyticsInsight extends Model
         return is_string($visualType) && $visualType !== '' ? $visualType : 'bar';
     }
 
+    // Determina si hay algo que dibujar: valores numericos en 'grafica.valores',
+    // o (caso especial) un heatmap que solo trae 'valor_destacado' sin serie de valores.
     public function hasRenderableVisual(): bool
     {
         $values = collect(data_get($this->grafica, 'valores', []))->filter(

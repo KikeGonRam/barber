@@ -9,6 +9,10 @@ namespace App\Services\Chatbot\Concerns;
  */
 trait BuildsBarberSystemPrompt
 {
+    /**
+     * Arma el system prompt completo (rol, datos del negocio, contexto de usuario
+     * e instrucciones) que se antepone al mensaje del usuario antes de llamar al proveedor de IA.
+     */
     public function buildSystemPrompt(array $data): string
     {
         $services = implode(', ', $data['services'] ?? []);

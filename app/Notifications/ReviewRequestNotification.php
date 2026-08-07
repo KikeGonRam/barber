@@ -18,6 +18,9 @@ class ReviewRequestNotification extends Notification implements ShouldQueue
 
     public function __construct(public readonly Appointment $appointment) {}
 
+    /**
+     * Database siempre; correo opcional segun preferencia del cliente.
+     */
     public function via(object $notifiable): array
     {
         $channels = ['database'];
@@ -29,6 +32,10 @@ class ReviewRequestNotification extends Notification implements ShouldQueue
         return $channels;
     }
 
+    /**
+     * Correo invitando a dejar resena, con enlace directo al perfil del
+     * barbero que atendio (ver reviewUrl()).
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $barbero = $this->appointment->barber?->user?->name ?? 'tu barbero';
@@ -51,6 +58,9 @@ class ReviewRequestNotification extends Notification implements ShouldQueue
             ]);
     }
 
+    /**
+     * Payload para el canal database (centro de notificaciones in-app).
+     */
     public function toArray(object $notifiable): array
     {
         return [
@@ -62,6 +72,10 @@ class ReviewRequestNotification extends Notification implements ShouldQueue
         ];
     }
 
+    /**
+     * Lleva directo al perfil del barbero (donde se deja la resena); si no
+     * hay barbero asociado o falla la ruta, cae al listado general.
+     */
     private function reviewUrl(): string
     {
         try {

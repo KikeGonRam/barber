@@ -10,6 +10,11 @@ use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Genera los reportes administrativos (ingresos, citas, inventario,
+ * clientes) para el panel de reportes: agrega datos de Mongo, arma filas
+ * tabulares y datos de grafica, y cachea el resultado por tipo+filtros.
+ */
 class ReportService
 {
     // Sin filtro de fecha → últimos 30 días para proteger memoria
@@ -20,6 +25,10 @@ class ReportService
     // de Mongo si el usuario no cambio los filtros en ese lapso.
     private const CACHE_TTL_SECONDS = 120;
 
+    /**
+     * Reporte de ingresos: combina cobros de citas (Payment) con pedidos
+     * de tienda entregados (Order), ya que ambos son fuente de ingreso.
+     */
     public function incomeReport(array $filters): array
     {
         $query = Payment::query()->with(['appointment.barber.user', 'appointment.client.user']);
@@ -95,6 +104,10 @@ class ReportService
         ];
     }
 
+    /**
+     * Reporte de citas filtrable por barbero/estado/rango de fechas, con
+     * grafica de cantidad de citas agrupada por estado.
+     */
     public function appointmentsReport(array $filters): array
     {
         $query = Appointment::query()->with(['barber.user', 'client.user', 'service']);
@@ -139,6 +152,11 @@ class ReportService
         ];
     }
 
+    /**
+     * Reporte de inventario: estado de stock por producto y cuantos
+     * movimientos de inventario tuvo cada uno (1 query batch para todos
+     * los productos, en vez de N queries por producto).
+     */
     public function inventoryReport(array $filters): array
     {
         $query = Product::query();
@@ -190,6 +208,10 @@ class ReportService
         ];
     }
 
+    /**
+     * Reporte de clientes: agrupa citas por cliente para mostrar visitas,
+     * completadas y gasto total, ordenado por mas visitas.
+     */
     public function clientsReport(array $filters): array
     {
         $query = Appointment::query()->with('client.user');
@@ -226,6 +248,12 @@ class ReportService
         ];
     }
 
+    /**
+     * Punto de entrada usado por el controlador: despacha al metodo de
+     * reporte correspondiente segun $type y cachea el resultado
+     * (actualiza cache) para evitar recalcular agregaciones de Mongo en
+     * cada carga/refresh de la pagina de reportes.
+     */
     public function reportByType(string $type, array $filters): array
     {
         $cacheKey = 'report.'.$type.'.'.md5(json_encode($filters));

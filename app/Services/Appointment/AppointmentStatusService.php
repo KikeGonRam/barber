@@ -44,21 +44,37 @@ class AppointmentStatusService
         'cancelada' => ['barbero', 'recepcionista', 'administrador', 'cliente'],
     ];
 
+    /**
+     * Indica si el cambio de estado $from -> $to esta permitido por la
+     * maquina de estados (sin considerar rol del usuario).
+     */
     public function canTransition(string $from, string $to): bool
     {
         return in_array($to, self::TRANSITIONS[$from] ?? [], true);
     }
 
+    /**
+     * Lista los estados destino validos desde el estado actual (para
+     * poblar opciones en la UI, por ejemplo).
+     */
     public function allowedFor(string $from): array
     {
         return self::TRANSITIONS[$from] ?? [];
     }
 
+    /**
+     * Indica si el rol dado tiene permiso para poner la cita en el estado
+     * destino $to (independiente de si la transicion en si es legal).
+     */
     public function roleCanSet(string $to, ?string $role): bool
     {
         return $role !== null && in_array($role, self::ROLE_MAP[$to] ?? [], true);
     }
 
+    /**
+     * Gate de cobro: solo se puede cobrar una cita que este confirmada,
+     * en proceso o completada (nunca pendiente ni cancelada).
+     */
     public function isChargeable(string $estado): bool
     {
         return in_array($estado, self::CHARGEABLE, true);

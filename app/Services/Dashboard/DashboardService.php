@@ -18,14 +18,22 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use MongoDB\BSON\UTCDateTime;
 
+/**
+ * Orquesta las métricas y gráficos de los dashboards por rol (admin, barbero,
+ * recepcionista, cliente). Agrega datos de citas, pagos, inventario, lealtad
+ * y telemetría del chatbot; cachea los resultados pesados para no recalcular
+ * en cada carga de página.
+ */
 class DashboardService
 {
+    // Suma monto + propina de una query de Payment sin resolver (trae solo las columnas necesarias).
     private function sumPayments($query): float
     {
         return $query->get(['monto', 'propina'])
             ->sum(fn ($p) => (float) ($p->monto ?? 0) + (float) ($p->propina ?? 0));
     }
 
+    // Igual que sumPayments pero sobre una Collection ya cargada (evita volver a golpear la DB).
     private function sumPaymentCollection(Collection $payments): float
     {
         return $payments->sum(fn ($p) => (float) ($p->monto ?? 0) + (float) ($p->propina ?? 0));
@@ -51,6 +59,10 @@ class DashboardService
         return collect($rows)->mapWithKeys(fn ($row) => [(string) $row->id => (int) $row->total]);
     }
 
+    /**
+     * KPIs y gráficos del dashboard de administrador. Efecto secundario: cachea 120s (clave global,
+     * no depende de usuario) para evitar recalcular las agregaciones pesadas en cada request.
+     */
     public function adminMetrics(): array
     {
         return Cache::remember('dashboard.admin.metrics', 120, fn () => $this->buildAdminMetrics());
@@ -207,6 +219,7 @@ class DashboardService
         ];
     }
 
+    // Ranking de los 8 barberos con más citas completadas del mes, con ingresos por barbero.
     private function getBarberPerformanceChart(Carbon $monthStart, Carbon $monthEnd): array
     {
         $appointments = Appointment::where('estado', 'completada')
@@ -233,6 +246,7 @@ class DashboardService
         ];
     }
 
+    // Tendencia de citas completadas del mes, agrupada en 12 buckets de 3 días.
     private function getClientTrendsChart(Carbon $monthStart, Carbon $monthEnd): array
     {
         // 1 query for the whole month, grouped in PHP (was 12 queries)
@@ -257,6 +271,9 @@ class DashboardService
         ];
     }
 
+    /**
+     * KPIs y gráficos del dashboard del barbero. Efecto secundario: cachea 60s por barberId.
+     */
     public function barberMetrics(string $barberId): array
     {
         return Cache::remember("dashboard.barber.{$barberId}", 60, fn () => $this->buildBarberMetrics($barberId));
@@ -338,6 +355,9 @@ class DashboardService
         ];
     }
 
+    /**
+     * KPIs y gráficos del dashboard de recepción. Efecto secundario: cachea 60s (clave global).
+     */
     public function receptionistMetrics(): array
     {
         return Cache::remember('dashboard.receptionist.metrics', 60, fn () => $this->buildReceptionistMetrics());
@@ -397,6 +417,10 @@ class DashboardService
         ];
     }
 
+    /**
+     * KPIs, lealtad y gráficos del dashboard del cliente. A diferencia de los otros
+     * dashboards, NO usa Cache::remember (se recalcula en cada request).
+     */
     public function clientMetrics(string $clientId): array
     {
         $client = Client::find($clientId);
@@ -502,6 +526,7 @@ class DashboardService
         ];
     }
 
+    // Distribución de citas del día por hora, para el gráfico de flujo de recepción.
     private function getReceptionistFlowData(): array
     {
         $hours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
@@ -520,6 +545,8 @@ class DashboardService
         return ['labels' => $hours, 'values' => $counts];
     }
 
+    // Resumen de telemetría del chatbot (volumen, tasa de error, latencia, costo estimado)
+    // leído del log de Activity (spatie/laravel-activitylog) filtrado por evento chatbot_provider_telemetry.
     private function chatbotTelemetrySummary(int $days): array
     {
         $start = Carbon::now()->subDays(max(0, $days - 1))->startOfDay();
@@ -570,6 +597,7 @@ class DashboardService
         ];
     }
 
+    // Serie diaria de tasa de error y latencia del chatbot, a partir de eventos ya cargados por chatbotTelemetrySummary.
     private function chatbotTelemetryTrend(int $days, Collection $events): array
     {
         // Group events by date in PHP — no extra DB queries (was 7 queries)

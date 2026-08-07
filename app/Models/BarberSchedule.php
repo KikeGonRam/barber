@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * Horario de trabajo de un barbero para un dia de la semana (day_of_week).
+ * is_working=false representa un dia libre/no laborable; start_time/end_time
+ * definen la ventana de atencion usada para calcular disponibilidad de citas.
+ */
 class BarberSchedule extends Model
 {
     use HasFactory;
@@ -22,6 +27,7 @@ class BarberSchedule extends Model
         'is_working' => 'boolean',
     ];
 
+    // Barbero dueño de este horario.
     public function barber(): BelongsTo
     {
         return $this->belongsTo(Barber::class);

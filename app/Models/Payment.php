@@ -8,6 +8,10 @@ use MongoDB\Laravel\Eloquent\Model;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
+/**
+ * Pago asociado a una cita (Appointment). Incluye comprobante, revisión
+ * manual/OCR del monto y bitácora de cambios vía Spatie Activitylog.
+ */
 class Payment extends Model
 {
     use HasFactory, LogsActivity;
@@ -44,21 +48,25 @@ class Payment extends Model
         ];
     }
 
+    // Cita a la que corresponde este pago.
     public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class);
     }
 
+    // Usuario que registró el pago (recepción/barbero).
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    // Usuario que revisó/verificó el comprobante.
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'revisado_por');
     }
 
+    // Configura Activitylog: solo registra cambios en campos fillable y solo cuando hay diferencias reales.
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

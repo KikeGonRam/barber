@@ -4,6 +4,17 @@ namespace App\Helpers;
 
 use Illuminate\Support\Str;
 
+/**
+ * Resuelve una imagen "adivinada" de Unsplash para servicios y productos que
+ * no tienen foto propia cargada, buscando palabras clave en el nombre (y
+ * categoría, para productos) contra un mapa de coincidencias ordenado del
+ * término más específico al más genérico. Se usa en las vistas de citas del
+ * cliente, catálogo de servicios/productos e inventario (ver
+ * resources/views/client/appointments/create.blade.php,
+ * resources/views/inventory/products/index.blade.php,
+ * resources/views/services/index.blade.php y public-index.blade.php) como
+ * fallback cuando el modelo no trae una imagen real.
+ */
 class SmartImageHelper
 {
     private static array $serviceMap = [
@@ -105,16 +116,30 @@ class SmartImageHelper
             'id' => 'photo-1526947425960-945c6e72858f'],
     ];
 
+    /**
+     * Devuelve la URL de imagen sugerida para un servicio, según su nombre.
+     */
     public static function forService(string $nombre, string $size = 'md'): string
     {
         return self::resolve($nombre, '', self::$serviceMap, $size);
     }
 
+    /**
+     * Devuelve la URL de imagen sugerida para un producto, combinando
+     * nombre y categoría para mejorar la coincidencia de palabras clave.
+     */
     public static function forProduct(string $nombre, string $categoria = '', string $size = 'md'): string
     {
         return self::resolve($nombre, $categoria, self::$productMap, $size);
     }
 
+    /**
+     * Busca la primera palabra clave del mapa que aparezca en "nombre +
+     * extra" y arma la URL de Unsplash con las dimensiones pedidas. El
+     * orden del mapa importa: las entradas más específicas van primero
+     * para que no las "tape" una coincidencia genérica (p.ej. "aceite de
+     * barba" debe matchear antes que el "aceite" genérico).
+     */
     private static function resolve(string $nombre, string $extra, array $map, string $size): string
     {
         $dims = match ($size) {
@@ -132,6 +157,8 @@ class SmartImageHelper
             }
         }
 
+        // Ninguna palabra clave coincidió: imagen genérica de "combo/paquete"
+        // como último recurso para no dejar el <img> roto.
         return "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?{$dims}&auto=format&fit=crop&q=80";
     }
 }

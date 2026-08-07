@@ -7,6 +7,11 @@ use App\Notifications\PromotionNotification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
 
+/**
+ * Comando manual (no está en el scheduler) para difundir una promoción por
+ * correo/in-app a todos los clientes que hayan aceptado recibir marketing.
+ * Se invoca a mano desde la terminal cuando el negocio quiere lanzar una promo.
+ */
 class SendPromotionCommand extends Command
 {
     protected $signature = 'promo:send
@@ -17,6 +22,11 @@ class SendPromotionCommand extends Command
 
     protected $description = 'Difunde una promocion por correo/in-app a los clientes con opt-in de marketing';
 
+    /**
+     * Construye la notificación de promoción a partir de los argumentos de
+     * consola y la envía por lotes a todos los clientes (el filtrado de opt-in
+     * ocurre dentro de la notificación).
+     */
     public function handle(): int
     {
         $titulo = (string) $this->argument('titulo');

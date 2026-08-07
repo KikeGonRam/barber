@@ -13,9 +13,13 @@ use Illuminate\Support\Facades\Storage;
 use thiagoalessio\TesseractOCR\TesseractOCR;
 
 /**
- * Lee el comprobante subido por el cliente con Tesseract (local, sin API de
- * pago) y guarda el texto crudo + un monto sugerido por regex. Puramente
- * informativo: ayuda visual para quien revisa, nunca aprueba nada solo.
+ * Job en cola que lee el comprobante de pago subido por el cliente con
+ * Tesseract OCR (local, sin API de pago) y guarda el texto crudo + un monto
+ * sugerido extraído por regex. Puramente informativo: ayuda visual para quien
+ * revisa, nunca aprueba nada solo. Se despacha automáticamente desde
+ * App\Services\Payment\PaymentService::uploadTransferReceipt() (via
+ * RunOcrOnComprobante::dispatch()) cada vez que un cliente sube un comprobante
+ * de transferencia.
  */
 class RunOcrOnComprobante implements ShouldQueue
 {
@@ -23,6 +27,10 @@ class RunOcrOnComprobante implements ShouldQueue
 
     public function __construct(public readonly string $paymentId) {}
 
+    /**
+     * Ejecuta el OCR sobre el comprobante del pago indicado y persiste el
+     * texto reconocido junto con el monto sugerido, si se pudo detectar.
+     */
     public function handle(): void
     {
         $payment = Payment::find($this->paymentId);

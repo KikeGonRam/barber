@@ -11,6 +11,12 @@ use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\RefreshesPermissionCache;
 
+/**
+ * Permiso individual del paquete Spatie Permission, adaptado a MongoDB.
+ * Reimplementa findById/findByName/findOrCreate y las relaciones roles()/
+ * users() porque el modelo base de Spatie asume SQL; aquí corren sobre
+ * colecciones Mongo vía MongoDB\Laravel\Eloquent\Model.
+ */
 class Permission extends Model implements PermissionContract
 {
     use HasPermissions, RefreshesPermissionCache;
@@ -19,6 +25,7 @@ class Permission extends Model implements PermissionContract
 
     protected $guarded = [];
 
+    // Fuerza guard_name por defecto si no viene en los atributos (lo exige Spatie).
     public function __construct(array $attributes = [])
     {
         $attributes['guard_name'] = $attributes['guard_name'] ?? config('auth.defaults.guard');
@@ -26,6 +33,7 @@ class Permission extends Model implements PermissionContract
         $this->setTable(config('permission.table_names.permissions', 'permissions'));
     }
 
+    // Busca el permiso por id + guard; lanza excepción si no existe.
     public static function findById(int|string $id, ?string $guardName = null): PermissionContract
     {
         $guardName = $guardName ?? config('auth.defaults.guard');
@@ -40,6 +48,7 @@ class Permission extends Model implements PermissionContract
         return $permission;
     }
 
+    // Busca el permiso por nombre + guard; lanza excepción si no existe.
     public static function findByName(string $name, ?string $guardName = null): PermissionContract
     {
         $guardName = $guardName ?? config('auth.defaults.guard');
@@ -52,6 +61,7 @@ class Permission extends Model implements PermissionContract
         return $permission;
     }
 
+    // Busca el permiso por nombre + guard, o lo crea si no existe.
     public static function findOrCreate(string $name, ?string $guardName = null): PermissionContract
     {
         $guardName = $guardName ?? config('auth.defaults.guard');
@@ -64,6 +74,7 @@ class Permission extends Model implements PermissionContract
         return $permission;
     }
 
+    // Roles que incluyen este permiso; si el paquete usa "teams", filtra por el team actual.
     public function roles(): BelongsToMany
     {
         $relation = $this->belongsToMany(
@@ -80,6 +91,7 @@ class Permission extends Model implements PermissionContract
         return $relation->wherePivot(app(PermissionRegistrar::class)->teamsKey, getPermissionsTeamId());
     }
 
+    // Usuarios (del modelo del guard correspondiente) con este permiso asignado directamente.
     public function users(): MorphToMany
     {
         return $this->morphedByMany(

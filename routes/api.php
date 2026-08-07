@@ -31,6 +31,7 @@ use App\Http\Controllers\Chatbot\ChatbotController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
+// Rutas fuera del prefijo v1: integraciones externas y compatibilidad retro.
 // Stripe webhook — sin auth ni CSRF; Stripe valida con firma HMAC
 Route::post('stripe/webhook', [StripeWebhookController::class, 'handle'])
     ->withoutMiddleware([VerifyCsrfToken::class]);
@@ -39,8 +40,10 @@ Route::post('stripe/webhook', [StripeWebhookController::class, 'handle'])
 Route::get('availability/slots', [AvailabilityController::class, 'slots'])
     ->middleware('throttle:30,1');
 
+// API móvil (app cliente/barbero/admin), versionada bajo /v1. Autenticación por token
+// Bearer (middleware 'mobile.auth'), no por sesión web.
 Route::prefix('v1')->group(function (): void {
-    // Public routes
+    // Rutas públicas: login, registro, recuperación de contraseña y catálogo (sin token).
     Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
     Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:6,1');
     Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:6,1');
@@ -55,7 +58,8 @@ Route::prefix('v1')->group(function (): void {
     // Chatbot (público con rate limiting)
     Route::post('chatbot/query', [ChatbotController::class, 'query'])->middleware('throttle:10,1');
 
-    // Rutas protegidas (requieren token Bearer)
+    // Rutas protegidas (requieren token Bearer): disponibles para cualquier usuario
+    // autenticado; los sub-grupos de abajo añaden restricción por rol.
     Route::middleware('mobile.auth')->group(function (): void {
         // Autenticación
         Route::get('auth/me', [AuthController::class, 'me']);
@@ -79,6 +83,7 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
         Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy']);
 
+        // Solo administrador y recepcionista: gestión de pagos, clientes e inventario.
         Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {
             // Pagos (Admin/Recepcionista)
             Route::get('payments', [ApiPaymentController::class, 'index']);
@@ -102,6 +107,7 @@ Route::prefix('v1')->group(function (): void {
             Route::post('inventory/movements', [ApiInventoryController::class, 'storeMovement']);
         });
 
+        // Solo administrador: servicios, barberos, usuarios, reportes, configuración y logs.
         Route::middleware('role.custom:administrador')->group(function (): void {
             // Servicios (Admin)
             Route::get('services/manage', [ApiServiceManagementController::class, 'index']);
@@ -153,6 +159,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('chatbot/train-history', [ChatbotManagementController::class, 'trainFromHistory'])
             ->middleware('role.custom:administrador');
 
+        // Solo barbero: su propio perfil/bio, portafolio y horario de trabajo.
         Route::middleware('role.custom:barbero')->group(function (): void {
             // Bio/perfil propio del Barbero
             Route::get('barber/me', [ProfileController::class, 'showBarberProfile']);
@@ -169,7 +176,8 @@ Route::prefix('v1')->group(function (): void {
             Route::put('barber/schedule', [BarberScheduleController::class, 'update']);
         });
 
-        // Admin Dashboard (Phase 1)
+        // Panel de administración móvil completo (dashboard, barberos, clientes,
+        // inventario, reportes y predicciones/insights de IA). Solo administrador.
         Route::prefix('admin')->middleware('role.custom:administrador')->group(function (): void {
             Route::get('dashboard/stats', [DashboardAdminController::class, 'getStats']);
             Route::get('dashboard/appointments', [DashboardAdminController::class, 'getUpcomingAppointments']);

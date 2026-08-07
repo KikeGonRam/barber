@@ -8,12 +8,23 @@ use App\Services\Appointment\AppointmentStatusService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
+/**
+ * Revisa las citas en estados "abiertos" (pendiente/confirmada) cuya hora fin ya
+ * pasó (más un margen de gracia): a las confirmadas las marca "no_asistio" y a
+ * las pendientes que nunca fueron aprobadas las cancela por expiración.
+ * Se ejecuta cada hora vía el scheduler
+ * (Schedule::command('appointments:mark-no-show')->hourly()).
+ */
 class MarkNoShowAppointmentsCommand extends Command
 {
     protected $signature = 'appointments:mark-no-show {--grace=30 : Minutos de gracia tras la hora fin}';
 
     protected $description = 'Marca no_asistio las citas confirmadas ya vencidas y cancela las pendientes expiradas';
 
+    /**
+     * Recorre todas las citas abiertas y aplica la transición de estado que
+     * corresponda según si estaban confirmadas o solo pendientes.
+     */
     public function handle(AppointmentStatusService $status, AppointmentNotifier $notifier): int
     {
         $grace = (int) $this->option('grace');

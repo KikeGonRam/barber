@@ -5,6 +5,11 @@ namespace App\Console\Commands;
 use App\Models\MobileApiToken;
 use Illuminate\Console\Command;
 
+/**
+ * Comando de mantenimiento que borra los tokens de la API móvil (MobileApiToken)
+ * cuya fecha de expiración ya pasó. Se ejecuta automáticamente vía el scheduler
+ * (Schedule::command('tokens:clean-expired')->daily()) una vez al día.
+ */
 class CleanExpiredTokens extends Command
 {
     /**
@@ -22,7 +27,7 @@ class CleanExpiredTokens extends Command
     protected $description = 'Elimina tokens de API expirados de la base de datos';
 
     /**
-     * Ejecutar el comando de consola.
+     * Borra en un solo query masivo todos los tokens con expires_at en el pasado.
      */
     public function handle(): int
     {

@@ -9,12 +9,21 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Envía recordatorios de citas próximas por notificación (email/in-app) y por
+ * mensajería directa (SMS/WhatsApp) según las preferencias del usuario: uno
+ * a 24 horas antes y otro a 2 horas antes. Se ejecuta cada 10 minutos vía el
+ * scheduler (Schedule::command('appointments:send-reminders')->everyTenMinutes()).
+ */
 class SendAppointmentRemindersCommand extends Command
 {
     protected $signature = 'appointments:send-reminders';
 
     protected $description = 'Enviar recordatorios de citas (24h y 2h antes).';
 
+    /**
+     * Dispara los dos flujos de recordatorio (24h y 2h) en cada ejecución.
+     */
     public function handle(MessagingService $messagingService): int
     {
         $now = Carbon::now();
@@ -25,10 +34,15 @@ class SendAppointmentRemindersCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * Recordatorio de 24h: notifica a todas las citas de mañana (sin ventana
+     * horaria) que aún no tengan el flag reminder_24h_sent_at.
+     */
     private function send24hReminder(Carbon $now, MessagingService $messagingService): void
     {
-        // Get ALL appointments for tomorrow — no time-window filtering.
-        // The sent_at flag ensures each appointment only gets notified once.
+        // Se toman TODAS las citas de manana, sin filtrar por ventana horaria.
+        // El flag reminder_24h_sent_at garantiza que cada cita se notifique una sola vez
+        // (evita que corridas repetidas del scheduler dupliquen el aviso).
         $tomorrow = $now->copy()->addDay()->toDateString();
 
         Appointment::query()
@@ -65,10 +79,17 @@ class SendAppointmentRemindersCommand extends Command
             });
     }
 
+    /**
+     * Recordatorio de 2h: notifica a las citas de hoy cuya hora de inicio cae
+     * dentro de una ventana de 90 a 150 minutos a partir de ahora.
+     */
     private function send2hReminder(Carbon $now, MessagingService $messagingService): void
     {
-        // Window: appointments starting between 90 and 150 minutes from now.
-        // String comparison works correctly for zero-padded HH:MM:SS in MongoDB.
+        // Ventana: citas que inician entre 90 y 150 minutos desde ahora (el comando
+        // corre cada 10 min, asi que la ventana de 60 min evita huecos sin cubrir).
+        // La comparacion de strings funciona correctamente porque hora_inicio se
+        // guarda en formato HH:MM:SS con ceros a la izquierda (orden lexicografico
+        // coincide con orden cronologico) en MongoDB.
         $from = $now->copy()->addMinutes(90)->format('H:i:s');
         $to = $now->copy()->addMinutes(150)->format('H:i:s');
         $today = $now->toDateString();
@@ -109,6 +130,10 @@ class SendAppointmentRemindersCommand extends Command
             });
     }
 
+    /**
+     * Envía el recordatorio por SMS y/o WhatsApp según el teléfono disponible
+     * y los canales de notificación que el usuario haya habilitado.
+     */
     private function dispatchDirectMessage($user, string $message, MessagingService $messagingService): void
     {
         $phone = method_exists($user, 'clientPhone') ? $user->clientPhone() : null;

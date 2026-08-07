@@ -10,12 +10,21 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Comprobante de pago (factura) enviado al cliente. Se dispara desde
+ * PaymentService al registrar un pago exitoso (efectivo/tarjeta o
+ * transferencia ya aprobada).
+ */
 class PaymentReceiptNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(public readonly Payment $payment) {}
 
+    /**
+     * Igual que AppointmentNotification: sin preferencias explicitas cae a
+     * 'database' para no perder el aviso.
+     */
     public function via(object $notifiable): array
     {
         $channels = [];
@@ -31,6 +40,10 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
         return $channels ?: ['database'];
     }
 
+    /**
+     * Arma el correo de comprobante y adjunta la factura en PDF generada
+     * en el momento (ver bloque try/catch abajo).
+     */
     public function toMail(object $notifiable): MailMessage
     {
         // Use the client-accessible download route so the client can open it directly.
@@ -90,6 +103,9 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
         return $mail;
     }
 
+    /**
+     * Payload para el canal database (centro de notificaciones in-app).
+     */
     public function toArray(object $notifiable): array
     {
         return [

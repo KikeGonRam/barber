@@ -13,10 +13,18 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
+/**
+ * Controlador de recepción para la gestión de pedidos de la tienda.
+ * Permite listar, entregar (con cobro), cancelar y generar recibo PDF de pedidos.
+ */
 class OrderController extends Controller
 {
     public function __construct(private readonly OrderService $orders) {}
 
+    /**
+     * Lista paginada de pedidos con filtros por estado y búsqueda de folio,
+     * más estadísticas rápidas para el panel de recepción.
+     */
     public function index(Request $request): View
     {
         $estado = (string) $request->query('estado', '');
@@ -33,12 +41,17 @@ class OrderController extends Controller
         $stats = [
             'pendientes' => Order::where('estado', 'pendiente')->count(),
             'entregados' => Order::where('estado', 'entregado')->count(),
+            // Suma en PHP en vez de agregación Mongo: 'total' es decimal y se castea manualmente por cada registro.
             'por_cobrar' => Order::where('estado', 'pendiente')->get(['total'])->sum(fn ($o) => (float) $o->total),
         ];
 
         return view('reception.orders.index', compact('orders', 'stats', 'estado', 'search'));
     }
 
+    /**
+     * Marca el pedido como entregado y registra el cobro (método de pago) en recepción.
+     * Solo aplica a pedidos en estado "pendiente"; entrega y cobro ocurren en el mismo paso.
+     */
     public function deliver(Request $request, Order $order): RedirectResponse
     {
         if ($order->estado !== 'pendiente') {
@@ -61,6 +74,7 @@ class OrderController extends Controller
             try {
                 $user->notify(new OrderDeliveredNotification($order));
             } catch (\Throwable $e) {
+                // La notificación es best-effort: si falla no debe revertir la entrega ya confirmada.
                 Log::warning('Fallo notificacion de pedido entregado', ['order_id' => $order->id, 'error' => $e->getMessage()]);
             }
         }
@@ -68,12 +82,16 @@ class OrderController extends Controller
         return back()->with('status', "Pedido {$order->folio} entregado y cobrado.");
     }
 
+    /**
+     * Cancela un pedido pendiente y delega en el servicio la devolución de stock.
+     */
     public function cancel(Request $request, Order $order): RedirectResponse
     {
         if ($order->estado !== 'pendiente') {
             return back()->withErrors(['order' => 'Solo se pueden cancelar pedidos pendientes.']);
         }
 
+        // El servicio se encarga de reponer el stock de los items dentro de una transacción.
         $this->orders->cancel($order);
 
         return back()->with('status', "Pedido {$order->folio} cancelado y stock devuelto.");
@@ -84,6 +102,7 @@ class OrderController extends Controller
      */
     public function receipt(Order $order): Response
     {
+        // Solo se emite recibo de pedidos ya entregados; en cualquier otro estado no existe cobro que respaldar.
         abort_if($order->estado !== 'entregado', 404);
 
         $order->loadMissing('client.user');

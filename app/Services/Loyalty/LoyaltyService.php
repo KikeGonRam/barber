@@ -6,6 +6,11 @@ use App\Models\Client;
 use App\Models\LoyaltyTransaction;
 use App\Notifications\LoyaltyNotification;
 
+/**
+ * Orquesta el programa de lealtad: niveles por número de citas completadas,
+ * descuentos asociados, otorgamiento/canje de puntos y registro de transacciones.
+ * Usado por el flujo de citas (al completarse), reseñas y los dashboards de cliente/admin.
+ */
 class LoyaltyService
 {
     const LEVELS = [
@@ -36,6 +41,9 @@ class LoyaltyService
         'leyenda' => 'L',
     ];
 
+    /**
+     * Calcula el nivel de lealtad correspondiente a un número de citas completadas.
+     */
     public static function nivelFromCitas(int $citas): string
     {
         if ($citas >= self::LEVELS['leyenda']) {
@@ -51,6 +59,9 @@ class LoyaltyService
         return 'nuevo';
     }
 
+    /**
+     * Siguiente nivel en la progresión, o null si ya está en el nivel máximo (leyenda).
+     */
     public static function nextLevel(string $nivel): ?string
     {
         $map = ['nuevo' => 'regular', 'regular' => 'vip', 'vip' => 'leyenda', 'leyenda' => null];
@@ -58,16 +69,25 @@ class LoyaltyService
         return $map[$nivel] ?? null;
     }
 
+    /**
+     * Número de citas requeridas para alcanzar un nivel.
+     */
     public static function citasForLevel(string $nivel): int
     {
         return self::LEVELS[$nivel] ?? 0;
     }
 
+    /**
+     * Porcentaje de descuento asociado a un nivel de lealtad.
+     */
     public static function discountPct(string $nivel): int
     {
         return self::DISCOUNTS[$nivel] ?? 0;
     }
 
+    /**
+     * Aplica el descuento por nivel a un precio, redondeado a 2 decimales.
+     */
     public static function applyDiscount(float $price, string $nivel): float
     {
         $pct = self::discountPct($nivel);

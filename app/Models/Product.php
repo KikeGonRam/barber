@@ -9,6 +9,12 @@ use MongoDB\Laravel\Eloquent\Model;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
+/**
+ * Producto de inventario: puede ser para venta al cliente o insumo interno
+ * de trabajo. Soporta tipos "legacy" (venta/uso_interno) que se normalizan
+ * a los nuevos (venta_cliente/insumo_trabajo) para compatibilidad con datos
+ * antiguos. Usa soft deletes y Activitylog para auditoría.
+ */
 class Product extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
@@ -57,11 +63,13 @@ class Product extends Model
         ];
     }
 
+    // Activo por defecto si el campo no está presente en el documento (dato legado sin `activo`).
     public function isActive(): bool
     {
         return (bool) ($this->activo ?? true);
     }
 
+    // Combina activo + tipo venta + stock disponible + precio válido para saber si se puede vender.
     public function isSellable(): bool
     {
         return $this->isActive()
@@ -70,6 +78,7 @@ class Product extends Model
             && (float) $this->precio_venta > 0;
     }
 
+    // Scope con los mismos criterios de isSellable() pero como query, para listados.
     public function scopeAvailableForSale($query)
     {
         return $query
@@ -79,6 +88,7 @@ class Product extends Model
             ->whereIn('tipo', self::SALE_TYPES);
     }
 
+    // Traduce un tipo legado ('venta'/'uso_interno') al tipo actual equivalente.
     public static function normalizedType(?string $type): ?string
     {
         return match ($type) {
@@ -88,6 +98,7 @@ class Product extends Model
         };
     }
 
+    // Normaliza el payload de entrada (alias 'active'->'activo', tipo legado, decimales null) antes de guardar.
     public static function normalizePayload(array $payload): array
     {
         if (array_key_exists('active', $payload) && ! array_key_exists('activo', $payload)) {
@@ -112,11 +123,13 @@ class Product extends Model
         return $payload;
     }
 
+    // Historial de entradas/salidas de este producto.
     public function movements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class);
     }
 
+    // Configura Activitylog: solo campos fillable y solo cuando cambian.
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

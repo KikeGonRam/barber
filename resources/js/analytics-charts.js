@@ -1,3 +1,20 @@
+/**
+ * Módulo de renderizado de gráficos para la página de Analítica (Spark).
+ *
+ * El backend (AnalyticsController + servicio de IA) entrega "insights" en un
+ * formato genérico (tipo de gráfico, etiquetas, valores) que aquí se traduce a
+ * configuraciones concretas de Chart.js. Se encarga de:
+ *  - Mapear tipos de visualización "conceptuales" (heatmap, matrix, ranked, etc.)
+ *    a los tipos reales que soporta Chart.js (bar, line, doughnut, polarArea, radar).
+ *  - Formatear números (compacto, porcentaje) según el tipo de insight.
+ *  - Dibujar plugins propios: etiquetas de valor sobre las barras/puntos y el
+ *    texto central en gráficos de dona.
+ *  - Detectar y limpiar datos "sucios" que vienen del backend (filas de leyenda
+ *    mezcladas como si fueran categorías).
+ *
+ * Se exporta registerAnalyticsCharts(Chart) para inyectar la instancia global
+ * de Chart.js (evita importar Chart.js dos veces) y se invoca desde app.js.
+ */
 const palette = ['#d4af37', '#38bdf8', '#34d399', '#a78bfa', '#f59e0b', '#fb7185', '#22d3ee', '#84cc16'];
 const textColor = 'rgba(255,255,255,.48)';
 const gridColor = 'rgba(255,255,255,.07)';

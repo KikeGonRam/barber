@@ -43,7 +43,9 @@ class NavigationMenu
     ];
 
     /**
-     * Secciones completas para el sidebar (desktop/tablet/drawer móvil).
+     * Construye las secciones del menú (con sus ítems) según el/los rol(es)
+     * del usuario autenticado. Usada por resources/views/layouts/navigation.blade.php
+     * para pintar el sidebar desktop/tablet y el drawer móvil.
      */
     public static function sections(?User $user): array
     {
@@ -176,6 +178,7 @@ class NavigationMenu
      * Ítems marcados "primary" (hasta 4), en el orden en que deben
      * aparecer en el bottom-nav móvil. El botón "Más" (abre el drawer)
      * se agrega aparte en la vista porque no es una ruta.
+     * Usada por resources/views/layouts/app.blade.php para el bottom-nav (<768px).
      */
     public static function primary(?User $user): array
     {
@@ -192,8 +195,15 @@ class NavigationMenu
         return array_slice($items, 0, 4);
     }
 
+    /**
+     * Arma un ítem individual del menú, o null si la ruta no existe en la
+     * app (permite quitar rutas sin tener que tocar este archivo a mano).
+     */
     private static function item(string $label, string $route, string $icon, array $activePatterns, bool $primary = false, ?int $badge = null): ?array
     {
+        // Si la ruta no está registrada (p.ej. feature deshabilitada), el
+        // ítem se omite en vez de romper la vista con route() a una ruta
+        // inexistente.
         if (! Route::has($route)) {
             return null;
         }

@@ -28,16 +28,25 @@ class AnalyticsInsightService
 {
     private const CACHE_TTL_SEGUNDOS = 600;
 
+    /**
+     * Insights globales para el rol administrador. Lee de cache (10 min).
+     */
     public function forAdmin(): Collection
     {
         return $this->porRol('administrador');
     }
 
+    /**
+     * Insights globales para el rol recepcionista. Lee de cache (10 min).
+     */
     public function forReception(): Collection
     {
         return $this->porRol('recepcionista');
     }
 
+    /**
+     * Insights genéricos visibles para cualquier cliente. Lee de cache (10 min).
+     */
     public function forClient(): Collection
     {
         return $this->porRol('cliente');
@@ -111,6 +120,10 @@ class AnalyticsInsightService
         });
     }
 
+    /**
+     * Consulta (con cache de 10 min, invalidable via ?actualizar=1) los
+     * insights de un rol sin recorte privado por barbero.
+     */
     private function porRol(string $rol): Collection
     {
         if (request()->boolean('actualizar')) {

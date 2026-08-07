@@ -20,6 +20,14 @@ use Spatie\Permission\Contracts\Role as RoleContract;
 use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * Usuario de autenticación (cliente, barbero o admin). El rol real vive en
+ * `role_id` (array de ids) dentro del propio documento en vez de la tabla
+ * pivote MorphToMany que usa Spatie Permission por defecto: en MongoDB esa
+ * relación falla o se comporta de forma inconsistente (ver hasRole()/
+ * roleNames() más abajo), así que aquí se resuelve todo manualmente.
+ * Puede tener un perfil de barbero (Barber) o de cliente (Client) via HasOne.
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
@@ -81,6 +89,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new \App\Notifications\EmailVerificationCodeNotification($code));
     }
 
+    // Configura Activitylog: solo registra cambios en name/email.
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -89,37 +98,44 @@ class User extends Authenticatable implements MustVerifyEmail
             ->logOnlyDirty();
     }
 
+    // Notificaciones de base de datos del usuario, más recientes primero.
     public function notifications(): MorphMany
     {
         return $this->morphMany(DatabaseNotification::class, 'notifiable')
             ->orderBy('created_at', 'desc');
     }
 
+    // Perfil de barbero, si este usuario tiene rol de barbero.
     public function barberProfile(): HasOne
     {
         return $this->hasOne(Barber::class);
     }
 
+    // Perfil de cliente, si este usuario tiene rol de cliente.
     public function clientProfile(): HasOne
     {
         return $this->hasOne(Client::class);
     }
 
+    // Pagos que este usuario registró (no necesariamente los suyos propios).
     public function createdPayments(): HasMany
     {
         return $this->hasMany(Payment::class, 'created_by');
     }
 
+    // Movimientos de inventario realizados por este usuario.
     public function inventoryMovements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class);
     }
 
+    // Tokens de API móvil emitidos para este usuario.
     public function mobileApiTokens(): HasMany
     {
         return $this->hasMany(MobileApiToken::class);
     }
 
+    // Genera un token nuevo en texto plano, guarda solo su hash y devuelve ambos (el plano no se puede recuperar después).
     public function issueMobileApiToken(string $name = 'Mobile App', ?array $abilities = null, ?Carbon $expiresAt = null): array
     {
         $plainToken = bin2hex(random_bytes(32));
@@ -138,6 +154,7 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    // Preferencias de notificación resueltas con prioridad propias > legado del cliente > defaults.
     public function notificationPreferences(): array
     {
         $defaults = [
@@ -159,6 +176,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return array_merge($defaults, $legacy, $own);
     }
 
+    // Si el usuario tiene habilitado un canal de notificación dado.
     public function wantsNotificationChannel(string $channel): bool
     {
         return (bool) ($this->notificationPreferences()[$channel] ?? false);
@@ -223,6 +241,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * Mantiene estable la API pública de Spatie, pero resuelve los roles desde
      * `role_id`, que es la fuente real de este proyecto en MongoDB.
      */
+    // Mismo nombre de método que Spatie pero resuelto desde role_id, no desde la relación roles().
     public function hasRole($roles, ?string $guard = null): bool
     {
         $requiredRoles = $this->normalizeRoleNames($roles, $guard);
@@ -234,11 +253,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->roleNames($guard)->intersect($requiredRoles)->isNotEmpty();
     }
 
+    // Verdadero si el usuario tiene al menos uno de los roles dados.
     public function hasAnyRole(...$roles): bool
     {
         return $this->hasRole($roles);
     }
 
+    // Verdadero solo si el usuario tiene todos los roles dados.
     public function hasAllRoles($roles, ?string $guard = null): bool
     {
         $requiredRoles = $this->normalizeRoleNames($roles, $guard)->unique()->values();
@@ -250,11 +271,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $requiredRoles->diff($this->roleNames($guard))->isEmpty();
     }
 
+    // Alias compatible con la API de Spatie.
     public function getRoleNames(): Collection
     {
         return $this->roleNames();
     }
 
+    // Todos los permisos heredados por los roles del usuario, deduplicados y ordenados por nombre.
     public function getPermissionsViaRoles(): Collection
     {
         $roleIds = $this->roleIds();
@@ -276,6 +299,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @return array<int, string>
      */
+    // Normaliza role_id (puede faltar, ser escalar o array) a un array de ids como string.
     private function roleIds(): array
     {
         return collect((array) ($this->role_id ?? []))
@@ -285,6 +309,7 @@ class User extends Authenticatable implements MustVerifyEmail
             ->all();
     }
 
+    // Aplana cualquier combinación de string(s) separados por '|', arrays o Collections a nombres de rol.
     private function normalizeRoleNames(mixed $roles, ?string $guard = null): Collection
     {
         if (is_string($roles) && str_contains($roles, '|')) {
@@ -298,6 +323,7 @@ class User extends Authenticatable implements MustVerifyEmail
             ->values();
     }
 
+    // Convierte un valor individual (enum, modelo Role, id o nombre) a su(s) nombre(s) de rol.
     private function roleNameFromValue(mixed $role, ?string $guard = null): array
     {
         if ($role instanceof BackedEnum) {
@@ -323,21 +349,25 @@ class User extends Authenticatable implements MustVerifyEmail
         return is_string($role) ? [$role] : [];
     }
 
+    // Teléfono desde el perfil de cliente (puede ser null si no tiene uno).
     public function clientPhone(): ?string
     {
         return $this->clientProfile?->telefono;
     }
 
+    // Comentarios hechos por este usuario en el portafolio.
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }
 
+    // Reacciones hechas por este usuario en el portafolio.
     public function reactions(): HasMany
     {
         return $this->hasMany(Reaction::class);
     }
 
+    // Trabajos guardados/favoritos por este usuario.
     public function savedWorks(): HasMany
     {
         return $this->hasMany(SavedWork::class);

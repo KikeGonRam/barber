@@ -12,12 +12,22 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
 
+/**
+ * Genera y envía a todos los usuarios administradores un resumen de cierre de
+ * jornada: ingresos (servicios + tienda), citas totales/completadas/canceladas
+ * y productos con stock bajo. Se ejecuta a diario a las 21:30 vía el scheduler
+ * (Schedule::command('reports:daily-summary')->dailyAt('21:30')).
+ */
 class SendDailySummaryCommand extends Command
 {
     protected $signature = 'reports:daily-summary';
 
     protected $description = 'Envia a administracion el resumen de cierre de jornada del dia';
 
+    /**
+     * Calcula las métricas del día (citas, ingresos, stock bajo) y notifica
+     * el resumen a todos los usuarios con rol administrador.
+     */
     public function handle(): int
     {
         $today = Carbon::today();
@@ -37,6 +47,9 @@ class SendDailySummaryCommand extends Command
             ->get(['total'])
             ->sum(fn ($o) => (float) $o->total);
 
+        // Comparacion campo-a-campo (stock_actual vs stock_minimo) no se puede hacer
+        // con los operadores normales de Eloquent porque ambos son campos del mismo
+        // documento; se usa $expr de MongoDB para evaluarlos en el propio pipeline.
         $lowStock = Product::where('activo', true)
             ->whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])
             ->count();

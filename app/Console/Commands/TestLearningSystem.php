@@ -5,24 +5,33 @@ namespace App\Console\Commands;
 use App\Services\Chatbot\ChatbotLearningService;
 use Illuminate\Console\Command;
 
+/**
+ * Comando manual de diagnóstico (no está en el scheduler) que ejercita a mano
+ * cada función del sistema de aprendizaje del chatbot (ChatbotLearningService):
+ * detección de intención, aprendizaje de preguntas, sinónimos, similitud de
+ * texto, registro de feedback y reportes. Se usa para verificar rápidamente
+ * en consola que la integración sigue funcionando tras cambios.
+ */
 class TestLearningSystem extends Command
 {
     /**
-     * The name and signature of the console command.
+     * El nombre y firma del comando de consola.
      *
      * @var string
      */
     protected $signature = 'chatbot:test-learning {user_id?}';
 
     /**
-     * The console command description.
+     * La descripción del comando de consola.
      *
      * @var string
      */
     protected $description = 'Test the chatbot learning system integration';
 
     /**
-     * Execute the console command.
+     * Corre secuencialmente 7 pruebas manuales contra ChatbotLearningService
+     * (deteccion de intencion, aprendizaje, sinonimos, similitud, feedback y
+     * reportes), imprimiendo resultados en consola sin usar un framework de tests.
      */
     public function handle(ChatbotLearningService $learningService): int
     {

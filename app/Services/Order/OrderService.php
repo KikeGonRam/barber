@@ -9,6 +9,11 @@ use App\Models\Product;
 use App\Services\Inventory\InventoryService;
 use Illuminate\Support\Str;
 
+/**
+ * Orquesta la creacion y cancelacion de pedidos (tienda o productos de
+ * cita), coordinando la reserva/devolucion de stock con InventoryService
+ * para mantener trazabilidad de cada movimiento de inventario.
+ */
 class OrderService
 {
     public function __construct(private readonly InventoryService $inventory) {}
@@ -49,6 +54,8 @@ class OrderService
             $precio = (float) $it['precio'];
             $subtotal = $precio * $qty;
 
+            // Descuenta stock por cada linea: efecto secundario que persiste
+            // un movimiento de inventario (salida) con trazabilidad.
             $this->inventory->registerMovement([
                 'product_id' => $it['product_id'],
                 'cantidad' => $qty,
@@ -80,7 +87,9 @@ class OrderService
     }
 
     /**
-     * Cancela un pedido pendiente y devuelve el stock.
+     * Cancela un pedido pendiente y devuelve el stock. No hace nada si el
+     * pedido ya no esta en estado "pendiente" (evita cancelar dos veces o
+     * revertir stock de un pedido ya entregado/cancelado).
      */
     public function cancel(Order $order): void
     {
@@ -103,6 +112,8 @@ class OrderService
             }
         }
 
+        // Marca el pedido como cancelado solo despues de intentar devolver
+        // el stock de todas las lineas.
         $order->update(['estado' => 'cancelado']);
     }
 }

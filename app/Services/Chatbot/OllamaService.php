@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 /**
  * Proveedor de IA local via Ollama. Corre 100% en la maquina (sin API key ni
  * costo). Se conecta a un servidor Ollama que expone /api/generate.
+ * Implementa ChatbotAiProvider junto con GeminiService (motor en la nube
+ * intercambiable); esta es la opcion sin costo para desarrollo/produccion sin API key.
  */
 class OllamaService implements ChatbotAiProvider
 {
@@ -35,16 +37,27 @@ class OllamaService implements ChatbotAiProvider
         $this->keepAlive = (string) config('chatbot.ai.ollama.keep_alive', '30m');
     }
 
+    /**
+     * True si hay URL de servidor y modelo configurados (no verifica conectividad real).
+     */
     public function isEnabled(): bool
     {
         return $this->baseUrl !== '' && $this->model !== '';
     }
 
+    /**
+     * Etiqueta del modelo para telemetría/logs.
+     */
     public function label(): string
     {
         return 'ollama:'.$this->model;
     }
 
+    /**
+     * Envía el prompt ya armado al servidor Ollama y devuelve el texto generado.
+     * Efecto secundario: llamada HTTP al servidor Ollama local (host.docker.internal)
+     * y log de errores si falla o hay excepción de conexión.
+     */
     public function generateResponseWithPrompt(string $fullPrompt): string
     {
         try {

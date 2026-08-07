@@ -7,6 +7,13 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Bloquea el acceso al sistema cuando el modo mantenimiento está activado en
+ * la configuración de la barbería (BarbershopSetting), dejando pasar solo
+ * landing pública, rutas públicas, login/logout y al administrador. Se
+ * registra al final del grupo "web" en bootstrap/app.php, por lo que corre
+ * en todas las rutas web (no en api/*).
+ */
 class CheckMaintenanceMode
 {
     /**
@@ -42,6 +49,10 @@ class CheckMaintenanceMode
         $user = auth()->user();
 
         // B. El ADMINISTRADOR es inmune en todo el sistema
+        // NOTA: aquí se usa hasRole() (Spatie) en vez de hasRoleName(), que es
+        // el método recomendado en el resto del proyecto para Mongo (ver el
+        // comentario en NavigationMenu::sections()). Queda como está porque
+        // no se debe cambiar comportamiento en esta pasada de comentarios.
         if ($user && $user->hasRole('administrador')) {
             return $next($request);
         }

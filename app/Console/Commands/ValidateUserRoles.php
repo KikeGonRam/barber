@@ -5,12 +5,20 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 
+/**
+ * Comando manual de diagnóstico (no está en el scheduler) que compara los
+ * permisos reales de un usuario de ejemplo por cada rol contra la matriz
+ * esperada definida en ROLE_EXPECTATIONS, para detectar configuraciones de
+ * roles/permisos rotas. Se ejecuta a mano tras cambios en roles o seeders.
+ */
 class ValidateUserRoles extends Command
 {
     protected $signature = 'validate:user-roles';
 
     protected $description = 'Valida que los roles y permisos reales del sistema estén configurados correctamente';
 
+    // Matriz de permisos esperados por rol: sirve como "fuente de verdad" contra
+    // la que se comparan los permisos reales asignados en la base de datos.
     private const ROLE_EXPECTATIONS = [
         'administrador' => [
             'citas.gestionar' => true,
@@ -66,6 +74,11 @@ class ValidateUserRoles extends Command
         ],
     ];
 
+    /**
+     * Para cada rol definido en ROLE_EXPECTATIONS, toma un usuario de ejemplo
+     * y verifica que sus permisos (directos y vía middleware) coincidan con
+     * lo esperado, marcando el comando como fallido si hay discrepancias.
+     */
     public function handle(): int
     {
         $this->info('Validando roles y permisos...');
@@ -99,6 +112,8 @@ class ValidateUserRoles extends Command
             $this->info(ucfirst($roleName));
 
             foreach ($expectations as $permission => $shouldHave) {
+                // Se comprueban dos vias de verificacion (directa y la que usaria el
+                // middleware de rutas) para detectar si divergen entre si.
                 $hasPermission = $user->checkPermissionTo($permission);
                 $hasPermissionThroughMiddleware = $user->hasAnyPermission([$permission]);
                 $status = $hasPermission === $shouldHave && $hasPermissionThroughMiddleware === $shouldHave

@@ -6,10 +6,18 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Enriquece las respuestas del chatbot con datos de APIs externas
+ * (Wikipedia, OpenStreetMap/Nominatim, Overpass) sobre estilos, tecnicas
+ * y ubicacion. Todas las llamadas HTTP van cacheadas y protegidas con
+ * try/catch: si la API externa falla, se devuelve null en vez de romper
+ * la conversacion del chatbot.
+ */
 class ChatbotExternalDataService
 {
     /**
-     * Obtiene información de Wikipedia sobre barbería, estilos, técnicas
+     * Obtiene información de Wikipedia sobre barbería, estilos, técnicas.
+     * Efecto secundario: llamada HTTP externa cacheada 24h por query.
      */
     public function getWikipediaInfo(string $query): ?string
     {
@@ -61,7 +69,8 @@ class ChatbotExternalDataService
     }
 
     /**
-     * Busca información sobre estilos de corte en Wikipedia
+     * Busca información sobre estilos de corte en Wikipedia, mapeando el
+     * nombre coloquial del estilo al titulo real del articulo.
      */
     public function getHairstyleInfo(string $style): ?array
     {
@@ -90,7 +99,8 @@ class ChatbotExternalDataService
     }
 
     /**
-     * Obtiene información de tendencias de barbería
+     * Obtiene información de tendencias de barbería desde Wikipedia
+     * (misma cache/manejo de errores que getWikipediaInfo).
      */
     public function getBarberTrends(): ?string
     {
@@ -104,7 +114,9 @@ class ChatbotExternalDataService
     }
 
     /**
-     * Obtiene coordenadas y detalles usando Nominatim (OpenStreetMap)
+     * Obtiene coordenadas y detalles usando Nominatim (OpenStreetMap).
+     * Efecto secundario: llamada HTTP externa, cacheada 7 dias (una
+     * direccion fisica no cambia seguido).
      */
     public function getLocationInfo(string $address): ?array
     {
@@ -154,7 +166,9 @@ class ChatbotExternalDataService
     }
 
     /**
-     * Busca barbershops cercanas (requiere ubicación)
+     * Busca barbershops cercanas (requiere ubicación) via Overpass API
+     * (consulta cruda de OpenStreetMap). Efecto secundario: llamada HTTP
+     * externa cacheada 24h, limita el resultado a 5 barberias.
      */
     public function getNearbyBarbers(float $lat, float $lon, int $radius = 2): ?array
     {
@@ -208,7 +222,8 @@ EOQ;
     }
 
     /**
-     * Genera URL de Google Maps
+     * Genera URL de Google Maps para una dirección dada (sin llamada HTTP,
+     * solo construye el link de busqueda).
      */
     public function getGoogleMapsUrl(string $address): string
     {
@@ -216,7 +231,8 @@ EOQ;
     }
 
     /**
-     * Obtiene direcciones entre dos puntos
+     * Arma un link de direcciones (routing) entre dos coordenadas en
+     * OpenStreetMap. No hace llamada HTTP, solo construye la URL.
      */
     public function getDirections(float $fromLat, float $fromLon, float $toLat, float $toLon): ?string
     {
@@ -224,7 +240,8 @@ EOQ;
     }
 
     /**
-     * Responde preguntas sobre ubicación
+     * Responde preguntas sobre ubicación del negocio (dirección, cómo
+     * llegar, competencia cercana) por deteccion de palabras clave.
      */
     public function answerLocationQuestion(string $message): ?string
     {
@@ -238,6 +255,7 @@ EOQ;
 
         // DIRECTIONS
         if (str_contains($message, 'cómo llego') || str_contains($message, 'ruta')) {
+            // NOTA: direccion hardcodeada, no viene de BarbershopSetting.
             $mapsUrl = $this->getGoogleMapsUrl('Av. Reforma 123, CDMX');
 
             return "CÓMO LLEGAR:\nAv. Reforma 123, CDMX\nVer en Google Maps: {$mapsUrl}";
@@ -245,6 +263,7 @@ EOQ;
 
         // LOCATION DETAILS
         if (str_contains($message, 'dónde estamos') || str_contains($message, 'ubicación')) {
+            // NOTA: misma direccion hardcodeada que arriba.
             $location = $this->getLocationInfo('Av. Reforma 123, CDMX');
 
             if ($location) {
@@ -258,7 +277,8 @@ EOQ;
     }
 
     /**
-     * Responde preguntas sobre estilos y tendencias
+     * Responde preguntas sobre estilos de corte y tendencias, buscando
+     * coincidencia de estilo o palabra de tendencia en el mensaje.
      */
     public function answerStyleQuestion(string $message): ?string
     {
@@ -288,7 +308,8 @@ EOQ;
     }
 
     /**
-     * Responde preguntas técnicas sobre barbería
+     * Responde preguntas técnicas sobre barbería (clipper, tijera, etc.)
+     * mapeando la palabra clave a un articulo especifico de Wikipedia.
      */
     public function answerTechniqueQuestion(string $message): ?string
     {
@@ -314,7 +335,9 @@ EOQ;
     }
 
     /**
-     * Compilador de datos externos para contexto aumentado
+     * Compila todos los datos externos relevantes (ubicacion, estilo,
+     * tecnica, barberias cercanas) en un solo array de contexto para
+     * pasarle al chatbot. Puede disparar varias llamadas HTTP cacheadas.
      */
     public function getEnhancedContext(string $message, ?array $userLocation = null): array
     {
@@ -347,7 +370,8 @@ EOQ;
     }
 
     /**
-     * Contextual response usando datos externos
+     * Intenta responder directamente con datos externos (ubicacion, estilo
+     * o tecnica), en ese orden de prioridad; null si ninguno aplica.
      */
     public function getExternalResponse(string $message): ?string
     {

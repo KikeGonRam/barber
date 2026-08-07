@@ -164,6 +164,11 @@ class AppointmentNotifier
             '#5b8def', 'Por revisar');
     }
 
+    /**
+     * Envia una notificacion a un solo usuario. Atrapa cualquier excepcion
+     * (mail/canal caido, etc.) y solo deja log: nunca debe tumbar el flujo
+     * de la cita que la origino.
+     */
     private function send(?User $user, Appointment $appointment, string $subject, string $title, string $message, string $actionLabel, ?string $actionUrl, string $accent = '#d4af37', ?string $badge = null, bool $attachCalendar = false): void
     {
         if (! $user) {
@@ -192,6 +197,10 @@ class AppointmentNotifier
         }
     }
 
+    /**
+     * Envia la misma notificacion a todo el staff (recepcion + admin) de una
+     * sola vez via Notification::send (batch), no una a una.
+     */
     private function sendStaff(Appointment $appointment, string $subject, string $title, string $message, string $accent = '#94a3b8', ?string $badge = null): void
     {
         try {
@@ -220,6 +229,10 @@ class AppointmentNotifier
         }
     }
 
+    /**
+     * Marca en la cita la hora en que se envio cierta notificacion (columna
+     * de auditoria). Silencioso ante fallos: no es critico para el negocio.
+     */
     private function stamp(Appointment $appointment, string $column): void
     {
         try {
@@ -229,6 +242,10 @@ class AppointmentNotifier
         }
     }
 
+    /**
+     * Resuelve una URL de ruta nombrada; devuelve null si la ruta no existe
+     * (evita romper la notificacion por un nombre de ruta invalido).
+     */
     private function route(string $name): ?string
     {
         try {

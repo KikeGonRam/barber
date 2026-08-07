@@ -11,6 +11,13 @@ use App\Models\Service;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use Carbon\Carbon;
 
+/**
+ * Orquesta la creacion/edicion de citas: calcula disponibilidad de horarios
+ * y valida que no haya conflictos (cliente con doble cita el mismo dia,
+ * barbero con solape de horario) antes de persistir. Dispara notificaciones
+ * tras crear la cita, pero no maneja el resto de la maquina de estados
+ * (ver AppointmentStatusService para las transiciones de estado).
+ */
 class AppointmentService
 {
     public function __construct(
@@ -18,6 +25,12 @@ class AppointmentService
         private readonly AppointmentNotifier $notifier,
     ) {}
 
+    /**
+     * Calcula los slots de horario disponibles para un barbero en una fecha,
+     * segun su horario propio (o el horario global de la barberia como
+     * fallback), descontando las citas ya existentes y el margen de 10 min
+     * si la fecha es hoy.
+     */
     public function getAvailableSlots(Barber $barber, string $date, Service $service): array
     {
         $carbonDate = Carbon::parse($date);
@@ -101,6 +114,10 @@ class AppointmentService
         return $slots;
     }
 
+    /**
+     * Crea la cita tras validar que no haya conflictos. Efecto secundario:
+     * dispara notificaciones a cliente/barbero/staff (ver AppointmentNotifier).
+     */
     public function createAppointment(array $payload)
     {
         $this->ensureNoOverlap($payload);
@@ -113,6 +130,10 @@ class AppointmentService
         return $appointment;
     }
 
+    /**
+     * Actualiza una cita existente (ej. reprogramacion) tras revalidar que
+     * el nuevo horario no genere conflictos, ignorando la propia cita.
+     */
     public function updateAppointment(string $appointmentId, array $payload): bool
     {
         $this->ensureNoOverlap($payload, $appointmentId);
@@ -120,6 +141,12 @@ class AppointmentService
         return $this->appointments->update($appointmentId, $payload);
     }
 
+    /**
+     * Valida las dos reglas de negocio que impiden guardar una cita:
+     * 1) el mismo cliente no puede tener dos citas el mismo dia, y
+     * 2) el barbero no puede tener dos citas que se solapen en horario.
+     * Lanza una excepcion de dominio especifica si alguna regla se viola.
+     */
     private function ensureNoOverlap(array $payload, ?string $ignoreAppointmentId = null): void
     {
         // 1. Verificar que el cliente no tenga otra cita ese mismo día

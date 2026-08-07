@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailCodeController;
 use Illuminate\Support\Facades\Route;
 
+// Rutas solo para visitantes no autenticados: registro, login y recuperación de contraseña.
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
@@ -35,6 +36,8 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
+// Rutas para usuarios ya autenticados: verificación de email (por código),
+// confirmación de contraseña, cambio de contraseña y logout.
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');

@@ -4,10 +4,17 @@ namespace App\Services\Chatbot;
 
 use Illuminate\Support\Facades\Session;
 
+/**
+ * Mantiene y analiza el historial de conversacion del chatbot en sesion
+ * (sin persistencia en BD): detecta intencion, entidades y preguntas de
+ * seguimiento en base a heuristicas simples, y arma el contexto aumentado
+ * que se inyecta en el prompt enviado al modelo de IA.
+ */
 class ChatbotContextService
 {
     /**
-     * Obtiene el historial de conversación del usuario actual
+     * Obtiene el historial de conversación del usuario actual (o invitado,
+     * segun IP) desde la sesion.
      */
     public function getConversationHistory($userId = null): array
     {
@@ -17,7 +24,9 @@ class ChatbotContextService
     }
 
     /**
-     * Guarda un mensaje en el historial
+     * Guarda un mensaje (y su respuesta) en el historial de sesion.
+     * Efecto secundario: escribe en sesion y recorta a los ultimos 20
+     * mensajes para no hacer crecer la cookie/almacen de sesion sin limite.
      */
     public function addMessage($message, $response, $type = 'user', $userId = null): void
     {
@@ -41,7 +50,8 @@ class ChatbotContextService
     }
 
     /**
-     * Obtiene el último contexto de la conversación
+     * Obtiene el contexto (keywords/intent/entities) del ultimo mensaje
+     * guardado, o null si no hay historial.
      */
     public function getLastContext($userId = null): ?array
     {
@@ -137,7 +147,8 @@ class ChatbotContextService
             }
         }
 
-        // Extraer referencias a barberos
+        // Extraer referencias a barberos: heuristica simple, nombres
+        // hardcodeados (no viene de la BD de barberos reales).
         if (str_contains($message, 'carlos') || str_contains($message, 'juan') || str_contains($message, 'luis')) {
             $entities['barbers'][] = strtolower(substr($message, strpos($message, 'c')));
         }
@@ -146,7 +157,8 @@ class ChatbotContextService
     }
 
     /**
-     * Calcula similitud entre dos preguntas (0-100)
+     * Calcula similitud entre dos preguntas (0-100) usando similar_text de
+     * PHP (comparacion de caracteres, no semantica).
      */
     public function getSimilarity(string $message1, string $message2): float
     {
@@ -156,7 +168,8 @@ class ChatbotContextService
     }
 
     /**
-     * Encuentra preguntas similares en el historial
+     * Busca en el historial preguntas previas del usuario (mismo mensaje
+     * type='user') con similitud >= threshold, para reforzar contexto.
      */
     public function findSimilarQuestions(string $message, $userId = null, float $threshold = 60): array
     {
@@ -185,7 +198,8 @@ class ChatbotContextService
     }
 
     /**
-     * Detecta si es una pregunta de seguimiento (follow-up)
+     * Detecta si es una pregunta de seguimiento (follow-up) por presencia
+     * de palabras de continuidad, solo si ya hay historial previo.
      */
     public function isFollowUp(string $message, $userId = null): bool
     {
@@ -209,7 +223,9 @@ class ChatbotContextService
     }
 
     /**
-     * Genera contexto aumentado para respuesta
+     * Arma el contexto aumentado (historial formateado, ultimo contexto,
+     * preguntas similares, intencion, keywords) que alimenta el prompt de
+     * la IA para dar respuestas coherentes con la conversacion.
      */
     public function getAugmentedContext(string $message, $userId = null): array
     {
@@ -271,7 +287,8 @@ class ChatbotContextService
     }
 
     /**
-     * Limpia el historial de conversación
+     * Limpia el historial de conversación. Efecto secundario: borra la
+     * clave de sesion correspondiente.
      */
     public function clearHistory($userId = null): void
     {
@@ -280,7 +297,8 @@ class ChatbotContextService
     }
 
     /**
-     * Obtiene resumen de conversación para análisis
+     * Obtiene resumen de conversación para análisis (conteos, temas
+     * principales, intenciones frecuentes, duracion aproximada).
      */
     public function getConversationSummary($userId = null): array
     {
@@ -335,7 +353,9 @@ class ChatbotContextService
     }
 
     /**
-     * Genera prompt mejorado con contexto (agnostico del proveedor de IA)
+     * Genera prompt mejorado con contexto (agnostico del proveedor de IA:
+     * sirve igual para Ollama/qwen local o Gemini). No tiene efectos
+     * secundarios propios, pero llama a getAugmentedContext que lee sesion.
      */
     public function generateAugmentedPrompt(string $userMessage, string $basePrompt, $userId = null): string
     {
@@ -369,7 +389,9 @@ class ChatbotContextService
     }
 
     /**
-     * Obtiene la clave de sesión para el usuario
+     * Obtiene la clave de sesión para el usuario. Si no hay usuario
+     * autenticado ni id explicito, usa la IP para dar continuidad a
+     * invitados sin cuenta.
      */
     private function getSessionKey($userId = null): string
     {

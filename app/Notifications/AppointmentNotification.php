@@ -10,6 +10,16 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+/**
+ * Notificacion generica de citas: creacion, confirmacion, cancelacion,
+ * cambio de estado, recordatorio, etc. Se dispara desde
+ * AppointmentNotifier (metodos send()/sendStaff()) hacia el cliente o hacia
+ * todo el staff (recepcion + admin), y tambien desde
+ * SendAppointmentRemindersCommand para los recordatorios programados. El
+ * contenido (asunto, titulo, mensaje, color de acento) varia segun el
+ * evento, por eso todo llega por parametros del constructor en vez de
+ * tener una notificacion distinta por caso.
+ */
 class AppointmentNotification extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -31,6 +41,11 @@ class AppointmentNotification extends Notification implements ShouldQueue
         public readonly bool $attachCalendar = false,
     ) {}
 
+    /**
+     * Arma la lista de canales segun las preferencias del usuario
+     * (in_app/email/sms/whatsapp). Si no tiene ninguna activa, cae a
+     * 'database' para no perder el aviso silenciosamente.
+     */
     public function via(object $notifiable): array
     {
         $channels = [];
@@ -63,6 +78,11 @@ class AppointmentNotification extends Notification implements ShouldQueue
         return "UrbanBlade: {$this->title}. {$servicio} el {$fecha} a las {$hora}.";
     }
 
+    /**
+     * Construye el correo con la plantilla de marca compartida
+     * (emails.message) y, si corresponde, adjunta invitacion de calendario
+     * (solo para confirmaciones, ver $attachCalendar).
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $hora = $this->appointment->hora_inicio
@@ -166,6 +186,10 @@ class AppointmentNotification extends Notification implements ShouldQueue
         ]);
     }
 
+    /**
+     * Payload guardado en la coleccion de notificaciones (canal database)
+     * para el centro de notificaciones in-app.
+     */
     public function toArray(object $notifiable): array
     {
         return [

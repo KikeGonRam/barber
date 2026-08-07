@@ -19,6 +19,9 @@ class InventoryLowStockNotification extends Notification implements ShouldQueue
 
     public function __construct(public readonly array $products) {}
 
+    /**
+     * Database siempre; correo opcional segun preferencia del destinatario.
+     */
     public function via(object $notifiable): array
     {
         $channels = ['database'];
@@ -30,12 +33,17 @@ class InventoryLowStockNotification extends Notification implements ShouldQueue
         return $channels;
     }
 
+    /**
+     * Arma la tabla de productos bajo stock minimo para el correo.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $count = count($this->products);
 
         $rows = [];
         foreach ($this->products as $p) {
+            // Se distingue "Agotado" de solo "bajo" para que recepcion priorice
+            // los productos que ya no tienen ni una unidad disponible.
             $existencia = $p['stock_actual'] <= 0 ? 'Agotado' : $p['stock_actual'].' en existencia';
             $rows[$p['nombre']] = $existencia.' (min '.$p['stock_minimo'].')';
         }
@@ -54,6 +62,9 @@ class InventoryLowStockNotification extends Notification implements ShouldQueue
             ]);
     }
 
+    /**
+     * Payload para el canal database (centro de notificaciones in-app).
+     */
     public function toArray(object $notifiable): array
     {
         return [
@@ -66,6 +77,10 @@ class InventoryLowStockNotification extends Notification implements ShouldQueue
         ];
     }
 
+    /**
+     * Ruta al inventario; si no esta registrada (contexto sin web routes,
+     * ej. pruebas), cae a la raiz en vez de lanzar excepcion.
+     */
     private function inventoryUrl(): string
     {
         try {

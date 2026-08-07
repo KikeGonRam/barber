@@ -45,6 +45,10 @@ class PromotionNotification extends Notification implements ShouldQueue
         return $channels;
     }
 
+    /**
+     * Arma el correo de promocion; agrega tracking de apertura/clic solo si
+     * viene de una campana (ver bloque de campaignId abajo).
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $data = [
@@ -70,6 +74,9 @@ class PromotionNotification extends Notification implements ShouldQueue
             ->markdown('emails.message', $data);
     }
 
+    /**
+     * Payload para el canal database (centro de notificaciones in-app).
+     */
     public function toArray(object $notifiable): array
     {
         return [
@@ -80,6 +87,10 @@ class PromotionNotification extends Notification implements ShouldQueue
         ];
     }
 
+    /**
+     * URL por defecto si la promo no trae una propia; intenta la pagina
+     * publica de servicios y cae al dashboard o a la raiz.
+     */
     private function defaultUrl(): string
     {
         foreach (['services.public.index', 'dashboard'] as $name) {

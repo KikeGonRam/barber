@@ -5,8 +5,18 @@ namespace App\Services\Messaging;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Envia mensajes salientes (SMS y WhatsApp) via la API de Twilio.
+ * Orquesta el canal de notificaciones externas al cliente/barbero para
+ * flujos como confirmacion de citas o avisos de pago.
+ */
 class MessagingService
 {
+    /**
+     * Envia un SMS via Twilio. Si Twilio no esta configurado (falta sid,
+     * token o from), no lanza error: solo simula el envio con un log info,
+     * util para entornos de desarrollo sin credenciales reales.
+     */
     public function sendSms(string $to, string $message): void
     {
         if (! config('services.twilio.sid') || ! config('services.twilio.token') || ! config('services.twilio.from')) {
@@ -24,6 +34,11 @@ class MessagingService
             ]);
     }
 
+    /**
+     * Envia un mensaje de WhatsApp via Twilio (mismo endpoint que SMS pero
+     * con prefijo "whatsapp:" en los numeros). Simula el envio con log si
+     * falta configuracion, igual que sendSms().
+     */
     public function sendWhatsapp(string $to, string $message): void
     {
         if (! config('services.twilio.sid') || ! config('services.twilio.token') || ! config('services.twilio.whatsapp_from')) {
