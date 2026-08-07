@@ -263,7 +263,7 @@
                         <div class="mb-8 flex items-start justify-between">
                             <div class="h-14 w-14 rounded-2xl bg-gold/5 border border-gold/10 text-gold flex items-center justify-center group-hover:scale-110 group-hover:bg-gold group-hover:text-black transition-all duration-500">
                                 <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758L5 19m0-14l4.121 4.121" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.848 8.25l1.536.887M7.848 8.25a3 3 0 11-5.196-3 3 3 0 015.196 3zm1.536.887a2.165 2.165 0 011.083 1.839c.005.351.054.695.196 1.024M9.384 9.137l2.077 1.199M13.5 15.75l1.83 1.83a3 3 0 006.086-1.803L21 15.75m-6.5-4.5l-3.83-2.212M7.848 15.75l1.536-.887M7.848 15.75a3 3 0 11-5.196 3 3 3 0 015.196-3zm1.536-.887a2.165 2.165 0 001.083-1.839 4.166 4.166 0 01.196-1.024M9.384 14.863l7.632-4.406M18.75 4.5l-2.928 1.69" />
                                 </svg>
                             </div>
                             <span class="text-[10px] font-black text-white/10 group-hover:text-gold/20 transition-colors">
@@ -381,10 +381,10 @@
                                     loading="lazy"
                                     alt="Foto de {{ $barber->user?->name }}">
                             @else
-                                <div class="h-full w-full flex items-center justify-center">
-                                    <svg class="h-20 w-20 text-white/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="1"/>
-                                    </svg>
+                                <div class="h-full w-full flex items-center justify-center bg-gradient-to-br from-gold/10 via-[#151515] to-[#0a0a0a]">
+                                    <span class="text-4xl font-black text-gold/50 uppercase tracking-tighter">
+                                        {{ collect(explode(' ', trim($barber->user?->name ?? '?')))->map(fn ($p) => mb_substr($p, 0, 1))->take(2)->implode('') }}
+                                    </span>
                                 </div>
                             @endif
                             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
@@ -522,19 +522,21 @@
                         </div>
                     </div>
 
-                    <!-- Mapa -->
-                    <div class="lg:flex-1 h-[320px] lg:h-auto bg-[#080808] relative overflow-hidden">
-                        <div class="absolute inset-0 opacity-[0.035]"
-                             style="background-image: linear-gradient(rgba(212,175,55,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.5) 1px, transparent 1px); background-size: 50px 50px;"></div>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <div class="h-16 w-16 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center mb-4 animate-pulse">
-                                <svg class="h-8 w-8 text-gold/60" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                                </svg>
-                            </div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-muted">Av. de la Reforma 123, CDMX</p>
-                            <p class="text-[9px] font-bold text-muted mt-1 uppercase tracking-wider">Ver en Google Maps</p>
-                        </div>
+                    <!-- Mapa real (Google Maps embed, sin API key: query publica) -->
+                    <div class="lg:flex-1 h-[320px] lg:h-auto bg-[#080808] relative overflow-hidden group">
+                        <iframe
+                            src="https://www.google.com/maps?q={{ urlencode('Av. de la Reforma 123, Suite 405, Ciudad de México') }}&output=embed"
+                            class="absolute inset-0 h-full w-full border-0 grayscale-[35%] contrast-125 opacity-90 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-500"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Ubicación de UrbanBlade en el mapa"></iframe>
+                        <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10"></div>
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode('Av. de la Reforma 123, Suite 405, Ciudad de México') }}"
+                           target="_blank" rel="noopener"
+                           class="absolute bottom-4 right-4 flex items-center gap-2 rounded-xl bg-[#0a0a0a]/90 border border-gold/20 px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all backdrop-blur">
+                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            Abrir en Google Maps
+                        </a>
                     </div>
                 </div>
             </div>
