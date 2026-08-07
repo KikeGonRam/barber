@@ -10,6 +10,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
+/**
+ * API de reportes (ingresos, citas, inventario, clientes) para consumo desde la app
+ * móvil/SPA por administradores. Reutiliza ReportService, compartido con el controlador web.
+ */
 class ReportController extends Controller
 {
     // DomPDF no puede manejar miles de filas — mismo limite que el
@@ -18,6 +22,9 @@ class ReportController extends Controller
 
     public function __construct(private readonly ReportService $reportService) {}
 
+    /**
+     * Lista los tipos de reporte y formatos de exportación disponibles.
+     */
     public function index(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -28,6 +35,10 @@ class ReportController extends Controller
         ]);
     }
 
+    /**
+     * Genera un reporte del tipo indicado y lo devuelve en el formato solicitado
+     * (json, excel descargable o pdf con recorte de filas).
+     */
     public function export(Request $request, string $type, string $format)
     {
         $this->authorizeAdmin($request);
@@ -77,6 +88,9 @@ class ReportController extends Controller
         ]);
     }
 
+    /**
+     * Restringe el acceso solo a administradores; el resto recibe 403.
+     */
     private function authorizeAdmin(Request $request): void
     {
         $user = $request->user();

@@ -12,8 +12,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/**
+ * Controlador de gestión de clientes (para administrador/recepcionista).
+ * Expone listado paginado con conteo de citas, alta, edición y baja de clientes.
+ */
 class ClientController extends Controller
 {
+    // Lista clientes con búsqueda por nombre/email y conteo de citas por cliente (1 query en lote)
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -36,6 +41,7 @@ class ClientController extends Controller
 
         $ids = $clients->pluck('id')->toArray();
         if (! empty($ids)) {
+            // 1 query en lote para el conteo de citas de todos los clientes de la página (evita N+1)
             $counts = Appointment::whereIn('client_id', $ids)
                 ->get(['client_id'])
                 ->groupBy('client_id')
@@ -69,6 +75,7 @@ class ClientController extends Controller
         ]);
     }
 
+    // Crea el User (con rol cliente) y su Client asociado dentro de una transacción
     public function store(Request $request): JsonResponse
     {
         $this->authorizeStaff($request);
@@ -89,6 +96,7 @@ class ClientController extends Controller
             $user = User::query()->create([
                 'name' => $data['name'],
                 'email' => $data['email'],
+                // Si el staff no define contraseña, se genera una aleatoria (el cliente no la necesita para hacer login por sí mismo aún)
                 'password' => Hash::make($data['password'] ?? Str::password(12)),
                 'email_verified_at' => now(),
             ]);
@@ -124,6 +132,7 @@ class ClientController extends Controller
         ], 201);
     }
 
+    // Actualiza datos del usuario asociado y del perfil de cliente (incluyendo preferencias de notificación)
     public function update(Request $request, Client $client): JsonResponse
     {
         $this->authorizeStaff($request);
@@ -173,6 +182,7 @@ class ClientController extends Controller
         ]);
     }
 
+    // Elimina el cliente y su usuario asociado en una transacción (solo si no tiene citas registradas)
     public function destroy(Request $request, Client $client): JsonResponse
     {
         $this->authorizeStaff($request);
@@ -199,6 +209,7 @@ class ClientController extends Controller
         ]);
     }
 
+    // Aborta con 403 si no hay usuario autenticado o no tiene rol administrador/recepcionista
     private function authorizeStaff(Request $request): void
     {
         $user = $request->user();

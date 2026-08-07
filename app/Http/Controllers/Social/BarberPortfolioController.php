@@ -12,8 +12,16 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Controlador de portafolio del barbero (rol barbero): gestión de sus
+ * propios trabajos (fotos/videos) publicados en el feed social.
+ */
 class BarberPortfolioController extends Controller
 {
+    /**
+     * Portafolio propio del barbero autenticado, con estadísticas de
+     * interacción (reacciones, comentarios, guardados) de sus trabajos.
+     */
     public function index(): View
     {
         $barber = auth()->user()->barberProfile;
@@ -38,6 +46,10 @@ class BarberPortfolioController extends Controller
         return view('barber.portfolio.create');
     }
 
+    /**
+     * Publica un nuevo trabajo con una o varias imágenes/videos. Solo el
+     * propio barbero puede publicar en su portafolio (nunca en el de otro).
+     */
     public function store(Request $request, ?User $barber = null): RedirectResponse
     {
         $barberId = $barber?->id ?? auth()->id();
@@ -74,6 +86,7 @@ class BarberPortfolioController extends Controller
         foreach ($request->file('media') as $file) {
             $mime = $file->getMimeType();
             $isVideo = str_starts_with($mime, 'video/');
+            // Separar en carpetas por tipo para facilitar limpieza/CDN diferenciado.
             $folder = $isVideo ? 'portfolio/videos' : 'portfolio';
             $path = $file->store($folder, 'public');
 
@@ -91,6 +104,9 @@ class BarberPortfolioController extends Controller
         return redirect()->route('barber.portfolio.index')->with('status', 'Trabajo publicado exitosamente.');
     }
 
+    /**
+     * Elimina un trabajo del propio portafolio del barbero.
+     */
     public function destroy(Work $work): RedirectResponse
     {
         abort_if($work->barbero_id !== auth()->id(), 403);

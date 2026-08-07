@@ -12,8 +12,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * CRUD de usuarios del sistema (cualquier rol), restringido a administradores.
+ * Se encarga también de mantener sincronizados los perfiles Barber/Client según el rol asignado.
+ */
 class UserController extends Controller
 {
+    /**
+     * Lista usuarios paginados, con búsqueda por nombre/email y filtro por rol.
+     */
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -65,6 +72,9 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Crea un usuario nuevo, le asigna un único rol y crea su perfil Barber/Client si corresponde.
+     */
     public function store(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -101,6 +111,9 @@ class UserController extends Controller
         ], 201);
     }
 
+    /**
+     * Actualiza nombre/email/rol de un usuario y opcionalmente su contraseña.
+     */
     public function update(Request $request, User $user): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -118,6 +131,7 @@ class UserController extends Controller
                 'email' => $data['email'],
             ];
 
+            // La contraseña es opcional al editar: solo se re-hashea si vino un valor nuevo
             if (! empty($data['password'])) {
                 $payload['password'] = Hash::make($data['password']);
             }
@@ -140,10 +154,14 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Elimina un usuario, evitando que un administrador se elimine a sí mismo.
+     */
     public function destroy(Request $request, User $user): JsonResponse
     {
         $this->authorizeAdmin($request);
 
+        // Comparación como string por los ObjectId de MongoDB
         if ((string) $request->user()->id === (string) $user->id) {
             return response()->json([
                 'message' => 'No puedes eliminar tu propio usuario.',
@@ -157,6 +175,9 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Guard reutilizado por store/update/destroy: solo administradores pueden gestionar usuarios.
+     */
     private function authorizeAdmin(Request $request): void
     {
         $user = $request->user();
@@ -164,6 +185,10 @@ class UserController extends Controller
         abort_if(! $user || ! $user->hasRole('administrador'), 403, 'Solo administradores pueden ejecutar esta acción.');
     }
 
+    /**
+     * Crea el perfil Barber o Client correspondiente al rol asignado, si aún no existe.
+     * Necesario porque el rol por sí solo no basta: barbero/cliente requieren su propio modelo de dominio.
+     */
     private function syncRoleProfiles(User $user, string $role): void
     {
         if ($role === 'barbero') {

@@ -19,8 +19,16 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
+/**
+ * Panel web propio del barbero autenticado: su agenda, cambio de estado de sus citas,
+ * su perfil público/portafolio y su horario de trabajo. Uso exclusivo del rol barbero.
+ */
 class BarberDashboardController extends Controller
 {
+    /**
+     * Agenda del barbero autenticado para el período (día/semana) y offset dados,
+     * con estadísticas del período y del filtro de estado aplicado.
+     */
     public function agenda(Request $request): View
     {
         $barber = $request->user()?->barberProfile;
@@ -85,9 +93,14 @@ class BarberDashboardController extends Controller
         return view('barber.agenda', compact('agenda', 'stats', 'period', 'estadoFilter', 'baseDate', 'dateOffset'));
     }
 
+    /**
+     * Cambia el estado de una cita del barbero autenticado (verifica que la cita le pertenezca);
+     * al completarla otorga puntos de lealtad y notifica al cliente.
+     */
     public function updateAppointmentStatus(UpdateBarberAppointmentStatusRequest $request, Appointment $appointment): RedirectResponse
     {
         $barber = $request->user()?->barberProfile;
+        // La cita debe pertenecer a ESTE barbero — evita que edite citas ajenas por URL directa
         abort_if(! $barber || (string) $appointment->barber_id !== (string) $barber->id, 403);
 
         $wasCompletada = $appointment->estado === 'completada';
@@ -117,6 +130,10 @@ class BarberDashboardController extends Controller
         return back()->with('status', 'Estado de cita actualizado.');
     }
 
+    /**
+     * Perfil público del barbero autenticado (para que edite su bio/foto), con estadísticas
+     * reales de citas, rating y últimos trabajos del portafolio.
+     */
     public function editProfile(Request $request): View
     {
         $barber = $request->user()?->barberProfile;
@@ -158,6 +175,10 @@ class BarberDashboardController extends Controller
         ));
     }
 
+    /**
+     * Formulario de horario semanal del barbero autenticado; si nunca lo configuró,
+     * genera un horario por defecto (lunes a sábado 9-21, domingo libre).
+     */
     public function editSchedule(Request $request): View
     {
         $barber = $request->user()?->barberProfile;
@@ -181,6 +202,9 @@ class BarberDashboardController extends Controller
         return view('barber.schedule', compact('barber', 'schedules'));
     }
 
+    /**
+     * Guarda el horario semanal completo del barbero (los 7 días se envían siempre juntos).
+     */
     public function updateSchedule(Request $request): RedirectResponse
     {
         $barber = $request->user()?->barberProfile;
@@ -207,6 +231,10 @@ class BarberDashboardController extends Controller
         return back()->with('status', 'Horario actualizado correctamente.');
     }
 
+    /**
+     * Actualiza el perfil del barbero autenticado; si sube una foto nueva, borra la anterior
+     * y organiza el archivo en una carpeta por barbero/fecha para evitar colisiones de nombre.
+     */
     public function updateProfile(UpdateBarberProfileRequest $request): RedirectResponse
     {
         $barber = $request->user()?->barberProfile;

@@ -9,6 +9,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Pedidos de productos del cliente (rol cliente): listado de sus propios
+ * pedidos y cancelación de pedidos aún pendientes (con devolución de stock).
+ */
 class OrderController extends Controller
 {
     public function __construct(private readonly OrderService $orders) {}
@@ -26,6 +30,7 @@ class OrderController extends Controller
         return view('client.orders.index', compact('orders'));
     }
 
+    // Cancela un pedido propio solo si sigue 'pendiente'; OrderService se encarga de devolver el stock.
     public function cancel(Request $request, Order $order): RedirectResponse
     {
         $client = $request->user()->clientProfile;

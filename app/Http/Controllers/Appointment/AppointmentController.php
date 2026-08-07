@@ -20,6 +20,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Panel web de gestión de citas para recepción/administración: listado con filtros,
+ * alta manual y walk-in, edición, calendario y cambios de estado (máquina de estados).
+ */
 class AppointmentController extends Controller
 {
     public function __construct(
@@ -28,6 +32,10 @@ class AppointmentController extends Controller
         private readonly AppointmentStatusService $statusService,
     ) {}
 
+    /**
+     * Listado paginado de citas con filtros (búsqueda libre, estado, barbero, rango de fechas)
+     * y contadores rápidos para las tarjetas de estadísticas.
+     */
     public function index(Request $request): View
     {
         $filters = $request->only(['q', 'estado', 'barber_id', 'fecha_desde', 'fecha_hasta']);
@@ -144,6 +152,9 @@ class AppointmentController extends Controller
             ->with('status', 'Walk-in registrado: el servicio ya está en proceso.');
     }
 
+    /**
+     * Formulario de creación de cita: precarga clientes, barberos activos y servicios activos.
+     */
     public function create(): View
     {
         $clients = Client::query()->with('user:id,name')->get(['id', 'user_id'])->sortBy(fn (Client $client) => strtolower((string) $client->user?->name))->values();
@@ -153,6 +164,9 @@ class AppointmentController extends Controller
         return view('appointments.create', compact('clients', 'barbers', 'services'));
     }
 
+    /**
+     * Crea una cita nueva; captura conflictos de horario del barbero y los muestra como error de validación.
+     */
     public function store(StoreAppointmentRequest $request): RedirectResponse
     {
         try {
@@ -168,6 +182,9 @@ class AppointmentController extends Controller
             ->with('status', 'Cita creada correctamente.');
     }
 
+    /**
+     * Formulario de edición de una cita existente (incluye barberos inactivos, para no perder el historial).
+     */
     public function edit(Appointment $appointment): View
     {
         $clients = Client::query()->with('user:id,name')->get(['id', 'user_id'])->sortBy(fn (Client $client) => strtolower((string) $client->user?->name))->values();
@@ -177,6 +194,9 @@ class AppointmentController extends Controller
         return view('appointments.edit', compact('appointment', 'clients', 'barbers', 'services'));
     }
 
+    /**
+     * Actualiza una cita existente; igual que store(), reporta conflictos de horario como error de validación.
+     */
     public function update(UpdateAppointmentRequest $request, Appointment $appointment): RedirectResponse
     {
         try {
@@ -192,6 +212,9 @@ class AppointmentController extends Controller
             ->with('status', 'Cita actualizada correctamente.');
     }
 
+    /**
+     * Vista de calendario (FullCalendar); los eventos se cargan luego vía calendarData().
+     */
     public function calendar(): View
     {
         $barbers = Barber::with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
@@ -199,6 +222,10 @@ class AppointmentController extends Controller
         return view('appointments.calendar', compact('barbers'));
     }
 
+    /**
+     * Devuelve las citas del rango de fechas (y barbero opcional) como eventos de FullCalendar,
+     * con color según estado.
+     */
     public function calendarData(Request $request): JsonResponse
     {
         $start = $request->query('start');
@@ -243,6 +270,10 @@ class AppointmentController extends Controller
         return response()->json($events);
     }
 
+    /**
+     * Cambia el estado de una cita mediante la máquina de estados; al completarla por primera vez
+     * otorga puntos de lealtad al cliente y notifica el cambio.
+     */
     public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
     {
         $estado = (string) $request->input('estado');
@@ -267,6 +298,9 @@ class AppointmentController extends Controller
         return back()->with('status', "Cita actualizada a: {$estado}.");
     }
 
+    /**
+     * "Elimina" una cita cancelándola vía la máquina de estados (no hay borrado físico).
+     */
     public function destroy(Appointment $appointment): RedirectResponse
     {
         // No se puede cancelar una cita ya completada/cancelada/no asistida.

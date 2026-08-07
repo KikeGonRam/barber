@@ -9,10 +9,16 @@ use App\Services\Appointment\AppointmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Expone la disponibilidad horaria de un barbero para agendar citas desde la app móvil/dashboard.
+ */
 class AvailabilityController extends Controller
 {
     public function __construct(private readonly AppointmentService $appointmentService) {}
 
+    /**
+     * Calcula los horarios libres de un barbero en una fecha dada, según la duración del servicio elegido.
+     */
     public function slots(Request $request): JsonResponse
     {
         $request->validate([

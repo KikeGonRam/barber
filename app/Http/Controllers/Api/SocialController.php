@@ -9,8 +9,16 @@ use App\Models\Work;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * API social de la app móvil: feed de trabajos (cortes) publicados por barberos,
+ * con reacciones, guardados y comentarios. Accesible a clientes autenticados o no.
+ */
 class SocialController extends Controller
 {
+    /**
+     * Feed paginado de trabajos publicados, con banderas is_reacted/is_saved calculadas
+     * para el usuario autenticado (si lo hay).
+     */
     public function feed(Request $request): JsonResponse
     {
         $works = Work::query()
@@ -48,6 +56,9 @@ class SocialController extends Controller
         ]);
     }
 
+    /**
+     * Alterna (toggle) el "me gusta" del usuario autenticado sobre un trabajo.
+     */
     public function react(Request $request, Work $work): JsonResponse
     {
         $user = $request->user();
@@ -76,6 +87,9 @@ class SocialController extends Controller
         ]);
     }
 
+    /**
+     * Alterna (toggle) el guardado del trabajo en la lista de favoritos del usuario autenticado.
+     */
     public function save(Request $request, Work $work): JsonResponse
     {
         $user = $request->user();
@@ -102,6 +116,9 @@ class SocialController extends Controller
         ]);
     }
 
+    /**
+     * Publica un comentario del usuario autenticado en un trabajo.
+     */
     public function comment(Request $request, Work $work): JsonResponse
     {
         $user = $request->user();

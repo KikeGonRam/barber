@@ -119,6 +119,7 @@ class InventoryController extends Controller
         ]);
     }
 
+    // Crea un producto nuevo (solo administrador); sube la imagen a storage público si se envía
     public function storeProduct(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -149,6 +150,7 @@ class InventoryController extends Controller
         ], 201);
     }
 
+    // Actualiza un producto (solo administrador); todos los campos son "sometimes" para permitir updates parciales
     public function updateProduct(Request $request, Product $product): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -180,6 +182,7 @@ class InventoryController extends Controller
         ]);
     }
 
+    // Elimina un producto (solo administrador)
     public function destroyProduct(Request $request, Product $product): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -191,10 +194,12 @@ class InventoryController extends Controller
         ]);
     }
 
+    // Registra un movimiento de stock; delega el ajuste de stock_actual y validación de stock suficiente al servicio
     public function storeMovement(Request $request): JsonResponse
     {
         $this->authorizeStaff($request);
 
+        // La recepción solo puede registrar salidas (consumo de productos), no entradas (reposición de stock)
         $typeRules = ['required', 'in:entrada,salida'];
         if ($request->user()?->hasRole('recepcionista')) {
             $typeRules = ['required', 'in:salida'];
@@ -246,6 +251,7 @@ class InventoryController extends Controller
         ], 201);
     }
 
+    // Aborta con 403 si no hay usuario autenticado o no tiene rol administrador
     private function authorizeAdmin(Request $request): void
     {
         $user = $request->user();
@@ -253,6 +259,7 @@ class InventoryController extends Controller
         abort_if(! $user || ! $user->hasRole('administrador'), 403, 'No autorizado.');
     }
 
+    // Aborta con 403 si no hay usuario autenticado o no tiene rol administrador/recepcionista
     private function authorizeStaff(Request $request): void
     {
         $user = $request->user();
@@ -260,6 +267,7 @@ class InventoryController extends Controller
         abort_if(! $user || ! $user->hasAnyRole(['administrador', 'recepcionista']), 403, 'No autorizado.');
     }
 
+    // Serializa un producto a array de respuesta; low_stock e imagen_url se calculan aquí para no repetirlo en cada endpoint
     private function productPayload(Product $product): array
     {
         return [

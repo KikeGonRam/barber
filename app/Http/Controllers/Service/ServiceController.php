@@ -12,10 +12,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
+/**
+ * Controlador de catálogo de servicios: gestión (admin/recepción) del CRUD
+ * de servicios y listado público para clientes.
+ */
 class ServiceController extends Controller
 {
     public function __construct(private readonly ServiceService $serviceService) {}
 
+    /**
+     * Listado administrativo de servicios con filtros de búsqueda,
+     * categoría y estado (activo/inactivo).
+     */
     public function index(Request $request): View
     {
         $filters = $request->only(['q', 'categoria', 'activo']);
@@ -34,6 +42,9 @@ class ServiceController extends Controller
         return view('services.index', compact('services', 'categories', 'filters'));
     }
 
+    /**
+     * Catálogo público de servicios activos, visible sin autenticación.
+     */
     public function publicIndex(): View
     {
         $services = Service::where('activo', true)->get();
@@ -46,6 +57,9 @@ class ServiceController extends Controller
         return view('services.create');
     }
 
+    /**
+     * Crea el servicio; la imagen es opcional y se sube antes de delegar al servicio de dominio.
+     */
     public function store(StoreServiceRequest $request): RedirectResponse
     {
         $data = $request->validated();
@@ -62,6 +76,11 @@ class ServiceController extends Controller
         return view('services.edit', compact('service'));
     }
 
+    /**
+     * Actualiza el servicio. Si se sube una nueva imagen, borra la anterior
+     * para no acumular archivos huérfanos; si no se envía imagen, se
+     * descarta la clave para no sobreescribir la existente con null.
+     */
     public function update(UpdateServiceRequest $request, Service $service): RedirectResponse
     {
         $data = $request->validated();

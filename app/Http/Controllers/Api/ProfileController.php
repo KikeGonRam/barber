@@ -176,6 +176,9 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * Devuelve solo especialidades y descripción del barbero autenticado (versión ligera de showBarberProfile).
+     */
     public function showBarberBio(Request $request): JsonResponse
     {
         $barber = $request->user()->barberProfile;
@@ -190,6 +193,9 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * Actualiza especialidades y descripción del perfil del barbero autenticado.
+     */
     public function updateBarberBio(Request $request): JsonResponse
     {
         $barber = $request->user()->barberProfile;
@@ -212,6 +218,10 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * Guarda/actualiza el token de push de Expo del usuario autenticado (app móvil)
+     * para poder enviarle notificaciones push.
+     */
     public function savePushToken(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -225,6 +235,10 @@ class ProfileController extends Controller
         return response()->json(['message' => 'Token registrado']);
     }
 
+    /**
+     * Elimina (soft delete) la cuenta del usuario autenticado tras confirmar su contraseña
+     * y revoca todos sus tokens de la API móvil.
+     */
     public function destroy(Request $request): JsonResponse
     {
         $validated = $request->validate([

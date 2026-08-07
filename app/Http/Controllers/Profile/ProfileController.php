@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
+/**
+ * Controlador de perfil de cuenta (cualquier rol autenticado): edición de
+ * datos propios, actualización y eliminación de la propia cuenta.
+ */
 class ProfileController extends Controller
 {
     public function edit(Request $request): View
@@ -19,6 +23,10 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * Actualiza el perfil del usuario autenticado. Si cambia el email,
+     * exige reverificarlo (invalida email_verified_at).
+     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->user()->fill($request->validated());
@@ -32,6 +40,10 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
+    /**
+     * Elimina la cuenta del propio usuario, tras confirmar su contraseña actual.
+     * Cierra sesión y regenera el token CSRF para evitar fijación de sesión.
+     */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [

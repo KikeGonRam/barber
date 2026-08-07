@@ -13,6 +13,10 @@ use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/**
+ * Controlador de reportes (panel de administración): genera reportes de
+ * ingresos, citas, inventario y clientes con exportación a Excel/PDF/CSV.
+ */
 class ReportController extends Controller
 {
     // DomPDF no puede manejar miles de filas — limitar a 500 en PDF
@@ -20,6 +24,10 @@ class ReportController extends Controller
 
     public function __construct(private readonly ReportService $reportService) {}
 
+    /**
+     * Pantalla principal de reportes: precalcula la gráfica de cada tipo
+     * de reporte para mostrarlas todas de un vistazo.
+     */
     public function index(Request $request)
     {
         $barbers = Barber::query()->with('user:id,name')->get(['id', 'user_id']);
@@ -34,6 +42,9 @@ class ReportController extends Controller
         return view('reports.index', compact('barbers', 'charts'));
     }
 
+    /**
+     * Exporta un tipo de reporte al formato solicitado (excel/pdf/csv).
+     */
     public function export(Request $request, string $type, string $format)
     {
         // Tiempo y memoria extra para reportes grandes
@@ -54,6 +65,10 @@ class ReportController extends Controller
 
     // ── Formatos ─────────────────────────────────────────────────────────────
 
+    /**
+     * Genera el Excel del reporte reordenando cada fila según las claves
+     * declaradas por el reporte (mismo orden que los encabezados).
+     */
     private function downloadExcel(array $report, string $filename): BinaryFileResponse
     {
         $rows = $report['rows']->map(
@@ -66,6 +81,10 @@ class ReportController extends Controller
         );
     }
 
+    /**
+     * Genera el PDF del reporte, truncando a PDF_ROW_LIMIT filas si el
+     * reporte es demasiado grande para que DomPDF lo renderice.
+     */
     private function downloadPdf(array $report, string $filename): Response
     {
         $rows = $report['rows'];
@@ -93,6 +112,10 @@ class ReportController extends Controller
         return $pdf->download("{$filename}.pdf");
     }
 
+    /**
+     * Genera el CSV en streaming (sin cargar todo en memoria) con BOM UTF-8
+     * para que Excel muestre correctamente los acentos.
+     */
     private function downloadCsv(array $report, string $filename): StreamedResponse
     {
         $headers = [

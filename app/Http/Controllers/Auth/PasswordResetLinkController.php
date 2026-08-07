@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Inicia el flujo de "olvidé mi contraseña" enviando el enlace de recuperación por correo.
+ */
 class PasswordResetLinkController extends Controller
 {
     /**
-     * Display the password reset link request view.
+     * Muestra el formulario para solicitar el enlace de recuperación.
      */
     public function create(): View
     {
@@ -20,7 +23,7 @@ class PasswordResetLinkController extends Controller
     }
 
     /**
-     * Handle an incoming password reset link request.
+     * Envía el enlace de recuperación al correo indicado, si corresponde a un usuario existente.
      *
      * @throws ValidationException
      */

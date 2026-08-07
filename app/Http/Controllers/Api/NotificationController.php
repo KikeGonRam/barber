@@ -6,8 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * API de notificaciones del usuario autenticado (cualquier rol).
+ * Usa el sistema de notificaciones nativo de Laravel (tabla notifications de MongoDB).
+ */
 class NotificationController extends Controller
 {
+    /**
+     * Lista paginada de notificaciones del usuario autenticado, con conteo de no leídas.
+     */
     public function index(Request $request): JsonResponse
     {
         $notifications = $request->user()->notifications()->paginate(20)->withQueryString();
@@ -31,6 +38,9 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * Marca como leídas todas las notificaciones pendientes del usuario autenticado.
+     */
     public function markAllRead(Request $request): JsonResponse
     {
         $request->user()->unreadNotifications->markAsRead();
@@ -41,8 +51,12 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * Marca una notificación puntual como leída, validando que pertenezca al usuario autenticado.
+     */
     public function markOneRead(Request $request, string $id): JsonResponse
     {
+        // _id es el identificador nativo de MongoDB (las notificaciones no usan uuid propio)
         $notification = $request->user()
             ->notifications()
             ->where('_id', $id)
@@ -60,6 +74,9 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * Elimina una notificación puntual del usuario autenticado.
+     */
     public function destroy(Request $request, string $id): JsonResponse
     {
         $notification = $request->user()

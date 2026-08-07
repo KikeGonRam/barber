@@ -12,6 +12,11 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Controlador de administración de clientes (panel admin).
+ * Expone listado con filtros/paginación, detalle con historial de citas,
+ * segmentación (vip/new/active/inactive), alta/edición/baja y exportación CSV.
+ */
 class ClientAdminController
 {
     // El segmento (activo/inactivo/leal) se calcula en PHP a partir del
@@ -21,6 +26,7 @@ class ClientAdminController
     // sí pagina de verdad a nivel de base de datos.
     private const SEGMENT_FILTER_SCAN_LIMIT = 1000;
 
+    // Lista clientes con búsqueda y paginación; si se filtra por segmento, pagina en memoria (ver constante arriba)
     public function getClients(Request $request): JsonResponse
     {
         $search = $request->query('search', '');
@@ -72,6 +78,7 @@ class ClientAdminController
         ]);
     }
 
+    // Devuelve el perfil completo de un cliente: historial de citas, gasto total y barbero preferido
     public function show(Client $client): JsonResponse
     {
         $client->load('user');
@@ -127,6 +134,7 @@ class ClientAdminController
         ]);
     }
 
+    // Cuenta clientes por segmento (vip/new/active/inactive) para el dashboard de segmentación
     public function getSegmentation(): JsonResponse
     {
         $clients = Client::with('user')->get();
@@ -158,6 +166,7 @@ class ClientAdminController
         ]);
     }
 
+    // Crea el User (con rol cliente) y su perfil Client asociado
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -189,6 +198,7 @@ class ClientAdminController
         ], 201);
     }
 
+    // Actualiza datos del cliente y, opcionalmente, del usuario asociado (nombre/email)
     public function update(Client $client, Request $request): JsonResponse
     {
         $client->load('user');
@@ -223,6 +233,7 @@ class ClientAdminController
         ]);
     }
 
+    // Elimina el cliente y su usuario asociado (solo si no tiene citas registradas)
     public function destroy(Client $client): JsonResponse
     {
         // Bloquear el borrado si el cliente tiene citas: son registros
@@ -245,6 +256,7 @@ class ClientAdminController
         ]);
     }
 
+    // Exporta el listado completo de clientes a CSV en streaming (evita cargar todo en memoria de golpe)
     public function export(Request $request)
     {
         $clients = Client::with('user')->get();
@@ -279,7 +291,7 @@ class ClientAdminController
         ]);
     }
 
-    // Enriches a client using pre-loaded batch appointments — zero extra queries
+    // Enriquece un cliente usando citas precargadas en lote — cero queries extra
     private function enrichFromBatch(Client $client, Collection $allApptsByClient, Carbon $now): array
     {
         $appts = $allApptsByClient->get((string) $client->id, collect());
@@ -305,7 +317,7 @@ class ClientAdminController
         ];
     }
 
-    // Pure computation — no DB queries
+    // Cálculo puro en memoria — sin queries a la base de datos
     private function computeSegment(Client $client, int $apptCount, mixed $lastFecha): string
     {
         if ($apptCount > 10) {

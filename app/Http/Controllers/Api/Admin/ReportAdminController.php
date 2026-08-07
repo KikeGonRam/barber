@@ -11,8 +11,14 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador de reportes del panel admin.
+ * Genera reportes de ingresos, citas, inventario y clientes agregados por
+ * periodo, además de reportes personalizados y exportación.
+ */
 class ReportAdminController
 {
+    // Ingresos totales/diarios/por barbero dentro del periodo (dia/semana/mes/trimestre/año)
     public function generateRevenueReport(Request $request): JsonResponse
     {
         $period = $request->query('period', 'mes');
@@ -69,6 +75,7 @@ class ReportAdminController
         ]);
     }
 
+    // Desglose de citas por estado y por barbero dentro del periodo, con tasa de ocupación/finalización
     public function generateAppointmentsReport(Request $request): JsonResponse
     {
         $period = $request->query('period', 'mes');
@@ -120,6 +127,7 @@ class ReportAdminController
         ]);
     }
 
+    // Estado del inventario: valor total, productos por categoría y movimientos recientes del último mes
     public function generateInventoryReport(Request $request): JsonResponse
     {
         $products = Product::all(['nombre', 'categoria', 'stock_actual', 'stock_minimo', 'precio_venta', 'precio_compra']);
@@ -154,6 +162,7 @@ class ReportAdminController
         ]);
     }
 
+    // Conteos de clientes nuevos/activos/inactivos/leales dentro del periodo y retención
     public function generateClientsReport(Request $request): JsonResponse
     {
         $period = $request->query('period', 'mes');
@@ -188,6 +197,7 @@ class ReportAdminController
         ]);
     }
 
+    // Valida los parámetros de un reporte personalizado y devuelve su metadata (no genera el contenido real)
     public function generateCustomReport(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -213,6 +223,7 @@ class ReportAdminController
         ]);
     }
 
+    // Placeholder: confirma la exportación pero no genera ni adjunta ningún archivo real
     public function exportReport(Request $request): JsonResponse
     {
         $format = $request->query('format', 'pdf');
@@ -224,6 +235,7 @@ class ReportAdminController
         ]);
     }
 
+    // Placeholder: siempre devuelve lista vacía, no hay persistencia de reportes generados aún
     public function listReports(Request $request): JsonResponse
     {
         return response()->json([
@@ -232,6 +244,7 @@ class ReportAdminController
         ]);
     }
 
+    // Traduce el nombre del periodo a la fecha de inicio correspondiente (mes por defecto)
     private function getStartDate(string $period): Carbon
     {
         return match ($period) {

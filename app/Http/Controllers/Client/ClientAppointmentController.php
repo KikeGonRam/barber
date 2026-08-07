@@ -21,6 +21,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
+/**
+ * Gestión de citas desde el panel del cliente (rol cliente): listar, crear,
+ * reprogramar y cancelar sus propias citas, con reglas de política de
+ * cancelación y ventana de edición aplicadas del lado del cliente.
+ */
 class ClientAppointmentController extends Controller
 {
     public function __construct(
@@ -28,6 +33,7 @@ class ClientAppointmentController extends Controller
         private readonly OrderService $orders,
     ) {}
 
+    // Lista las citas del cliente con estadísticas y la próxima cita destacada.
     public function index(): View
     {
         $client = $this->currentClient();
@@ -68,6 +74,7 @@ class ClientAppointmentController extends Controller
         return view('client.appointments.index', compact('appointments', 'stats', 'nextAppointment', 'policyHours'));
     }
 
+    // Formulario de nueva cita: barberos/servicios/productos activos, con preselección opcional de barbero.
     public function create(Request $request): View
     {
         $barbers = Barber::query()->with('user:id,name')->where('activo', true)->get();
@@ -87,6 +94,7 @@ class ClientAppointmentController extends Controller
         return view('client.appointments.create', compact('barbers', 'services', 'products', 'preselectedBarber', 'settings'));
     }
 
+    // Crea la cita y, si el cliente eligió productos en el wizard, un pedido asociado (best-effort).
     public function store(StoreClientAppointmentRequest $request): RedirectResponse
     {
         $client = $this->currentClient();
@@ -136,6 +144,7 @@ class ClientAppointmentController extends Controller
         return redirect()->route('client.appointments.index')->with('status', 'Cita agendada correctamente.');
     }
 
+    // Formulario de edición; bloqueado si la cita ya no está en un estado editable por el cliente.
     public function edit(Appointment $appointment): View|RedirectResponse
     {
         $client = auth()->user()->clientProfile;
@@ -153,6 +162,7 @@ class ClientAppointmentController extends Controller
         return view('client.appointments.edit', compact('appointment', 'barbers', 'services'));
     }
 
+    // Reprograma la cita (fecha/hora/servicio); conserva estados terminales (completada/cancelada/no_asistio).
     public function update(UpdateClientAppointmentRequest $request, Appointment $appointment): RedirectResponse
     {
         $client = $request->user()->clientProfile;
@@ -187,6 +197,7 @@ class ClientAppointmentController extends Controller
         return redirect()->route('client.appointments.index')->with('status', 'Cita reprogramada correctamente.');
     }
 
+    // Cancela la cita si el cliente aún puede gestionarla y respeta la ventana de política de cancelación.
     public function destroy(Appointment $appointment): RedirectResponse
     {
         $client = auth()->user()->clientProfile;
@@ -201,6 +212,7 @@ class ClientAppointmentController extends Controller
 
         $policyHours = $this->cancellationPolicyHours();
         $appointmentDateTime = Carbon::parse($appointment->fecha->format('Y-m-d').' '.$appointment->hora_inicio);
+        // diffInHours con $absolute=false: negativo si la cita ya pasó, lo que también bloquea la cancelación.
         $hoursDiff = now()->diffInHours($appointmentDateTime, false);
 
         if ($hoursDiff < $policyHours) {
@@ -217,6 +229,7 @@ class ClientAppointmentController extends Controller
         return redirect()->route('client.appointments.index')->with('status', 'Cita cancelada correctamente.');
     }
 
+    // Obtiene (o crea perezosamente) el perfil de cliente del usuario autenticado con rol cliente.
     private function currentClient(): ?Client
     {
         $user = auth()->user();
@@ -234,6 +247,7 @@ class ClientAppointmentController extends Controller
         return $client;
     }
 
+    // El cliente solo puede editar/cancelar citas pendientes o confirmadas que aún no hayan iniciado.
     private function canClientManage(Appointment $appointment): bool
     {
         return in_array($appointment->estado, ['pendiente', 'confirmada'], true)
@@ -245,6 +259,7 @@ class ClientAppointmentController extends Controller
         return Carbon::parse($appointment->fecha->format('Y-m-d').' '.$appointment->hora_inicio);
     }
 
+    // Horas de anticipación requeridas para cancelar sin penalización (configurable por el negocio).
     private function cancellationPolicyHours(): int
     {
         return (int) (BarbershopSetting::cached()?->politica_cancelacion ?? 24);

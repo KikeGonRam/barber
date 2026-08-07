@@ -5,6 +5,11 @@ namespace App\Http\Requests\Appointment;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Validación para creación de citas desde el panel (admin/recepción). No
+ * exige rol específico: authorize() solo pide un usuario autenticado porque
+ * el control fino de quién puede crear citas se hace en el controlador/rutas.
+ */
 class StoreAppointmentRequest extends FormRequest
 {
     public function authorize(): bool
@@ -20,7 +25,10 @@ class StoreAppointmentRequest extends FormRequest
             'service_id' => ['required', 'string', 'exists:services,id'],
             'fecha' => ['required', 'date', 'after_or_equal:today'],
             'hora_inicio' => ['required', 'date_format:H:i'],
+            // "after:hora_inicio" evita citas con hora de fin igual o menor al inicio.
             'hora_fin' => ['required', 'date_format:H:i', 'after:hora_inicio'],
+            // 'estado' es opcional aquí (nullable) porque al crear una cita nueva
+            // normalmente se asume "pendiente" por defecto en el modelo/servicio.
             'estado' => ['nullable', Rule::in(['pendiente', 'confirmada', 'en_proceso', 'completada', 'cancelada', 'no_asistio'])],
             'notas' => ['nullable', 'string', 'max:1000'],
             'precio_cobrado' => ['nullable', 'numeric', 'min:0'],

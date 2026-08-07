@@ -8,10 +8,17 @@ use App\Services\Service\ServiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * API de administración del catálogo de servicios (crear/editar/eliminar/listar),
+ * exclusiva para administradores.
+ */
 class ServiceManagementController extends Controller
 {
     public function __construct(private readonly ServiceService $serviceService) {}
 
+    /**
+     * Lista paginada de servicios con filtros por categoría/activo, más el catálogo de categorías.
+     */
     public function index(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -39,6 +46,9 @@ class ServiceManagementController extends Controller
         ]);
     }
 
+    /**
+     * Crea un nuevo servicio en el catálogo.
+     */
     public function store(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -70,6 +80,9 @@ class ServiceManagementController extends Controller
         ], 201);
     }
 
+    /**
+     * Actualiza los datos de un servicio existente.
+     */
     public function update(Request $request, Service $service): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -102,6 +115,9 @@ class ServiceManagementController extends Controller
         ]);
     }
 
+    /**
+     * Elimina un servicio del catálogo.
+     */
     public function destroy(Request $request, Service $service): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -113,6 +129,9 @@ class ServiceManagementController extends Controller
         ]);
     }
 
+    /**
+     * Restringe el acceso solo a administradores; el resto recibe 403.
+     */
     private function authorizeAdmin(Request $request): void
     {
         $user = $request->user();

@@ -5,6 +5,11 @@ namespace App\Http\Requests\Client;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Edición del perfil de un cliente ya existente. A diferencia de
+ * StoreClientProfileRequest, no valida password aquí (el cambio de
+ * contraseña tiene su propio flujo).
+ */
 class UpdateClientProfileRequest extends FormRequest
 {
     public function authorize(): bool
@@ -14,6 +19,8 @@ class UpdateClientProfileRequest extends FormRequest
 
     public function rules(): array
     {
+        // El unique de email ignora al propio usuario del cliente para no
+        // rechazar el guardado cuando el email no cambió.
         $client = $this->route('client');
         $userId = $client?->user_id;
 

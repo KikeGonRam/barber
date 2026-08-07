@@ -5,6 +5,11 @@ namespace App\Http\Requests\Client;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Reserva de cita hecha por el propio cliente (self-service, no incluye
+ * client_id: se infiere del usuario autenticado, a diferencia de
+ * StoreAppointmentRequest usado por admin/recepción).
+ */
 class StoreClientAppointmentRequest extends FormRequest
 {
     public function authorize(): bool
@@ -21,6 +26,8 @@ class StoreClientAppointmentRequest extends FormRequest
             'hora_inicio' => ['required', 'date_format:H:i'],
             'notas' => ['nullable', 'string', 'max:1000'],
             'metodo_pago' => ['nullable', Rule::in(['efectivo', 'tarjeta', 'transferencia'])],
+            // Add-on de productos opcional: el cliente puede agregar productos
+            // de la tienda a la reserva (ver project_shop_orders).
             'productos' => ['nullable', 'array'],
             'productos.*.product_id' => ['required', 'string'],
             'productos.*.nombre' => ['required', 'string'],
@@ -31,6 +38,9 @@ class StoreClientAppointmentRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // El formulario envía "productos" como JSON string (campo oculto de
+        // un formulario normal, no un array anidado real); se decodifica
+        // antes de validar para que las reglas "productos.*.x" apliquen.
         if ($this->has('productos') && is_string($this->productos)) {
             $decoded = json_decode($this->productos, true);
             $this->merge(['productos' => is_array($decoded) ? $decoded : []]);

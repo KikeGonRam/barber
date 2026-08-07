@@ -10,8 +10,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
+/**
+ * Controlador de administración de inventario (panel admin).
+ * Expone CRUD de productos, registro de movimientos de stock (entradas/salidas),
+ * resumen agregado y alertas de stock bajo/crítico.
+ */
 class InventoryAdminController
 {
+    // Lista productos con filtros de búsqueda/categoría/status (status se filtra en PHP porque depende del ProductResource)
     public function getProducts(Request $request): JsonResponse
     {
         $search = $request->query('search', '');
@@ -41,6 +47,7 @@ class InventoryAdminController
         ]);
     }
 
+    // Detalle de un producto: incluye consumo mensual, estimación de días hasta agotarse y últimos 20 movimientos
     public function show($productId): JsonResponse
     {
         $product = Product::findOrFail($productId);
@@ -65,6 +72,7 @@ class InventoryAdminController
         ]);
     }
 
+    // Crea un producto nuevo (normalizePayload homogeniza los alias activo/active y demás campos)
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -89,6 +97,7 @@ class InventoryAdminController
         ], 201);
     }
 
+    // Actualiza un producto existente (todos los campos son opcionales para permitir updates parciales)
     public function update($productId, Request $request): JsonResponse
     {
         $product = Product::findOrFail($productId);
@@ -114,6 +123,7 @@ class InventoryAdminController
         ]);
     }
 
+    // Elimina un producto por id
     public function destroy($productId): JsonResponse
     {
         Product::findOrFail($productId)->delete();
@@ -124,6 +134,7 @@ class InventoryAdminController
         ]);
     }
 
+    // Registra un movimiento de stock (entrada/salida) y ajusta el stock_actual del producto en consecuencia
     public function recordMovement($productId, Request $request): JsonResponse
     {
         $product = Product::findOrFail($productId);
@@ -167,6 +178,7 @@ class InventoryAdminController
         ]);
     }
 
+    // Lista movimientos de stock dentro de un rango de fechas (por defecto, el último mes)
     public function getMovements(Request $request): JsonResponse
     {
         $startDate = $request->query('startDate', Carbon::now()->subMonth()->toDateTimeString());
@@ -192,6 +204,7 @@ class InventoryAdminController
         ]);
     }
 
+    // Resumen agregado del inventario: valor total, conteos de stock bajo/crítico y desglose por categoría
     public function getSummary(): JsonResponse
     {
         $products = Product::all(['nombre', 'categoria', 'stock_actual', 'stock_minimo', 'precio_venta', 'precio_compra']);
@@ -212,8 +225,10 @@ class InventoryAdminController
         ]);
     }
 
+    // Lista productos con stock en o por debajo del mínimo, con estimación de días hasta agotarse
     public function getLowStockProducts(): JsonResponse
     {
+        // Comparación entre dos campos del mismo documento: requiere $expr, no un where() normal
         $products = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->get();
         $productIds = $products->pluck('id')->map(fn ($id) => (string) $id)->all();
 
@@ -250,6 +265,7 @@ class InventoryAdminController
         ]);
     }
 
+    // Clasifica el estado de stock de un producto: empty/critical/low/ok
     private function getStockStatus(Product $product): string
     {
         $stock = (int) ($product->stock_actual ?? 0);
@@ -268,6 +284,7 @@ class InventoryAdminController
         return 'ok';
     }
 
+    // Suma las salidas de stock del producto en el último mes
     private function getMonthlyConsumption(string $productId): int
     {
         return (int) InventoryMovement::where('product_id', $productId)
@@ -276,6 +293,7 @@ class InventoryAdminController
             ->sum('cantidad');
     }
 
+    // Estima días restantes de stock según el consumo promedio diario del último mes (null si no hay consumo)
     private function calculateDaysUntilStockOut(Product $product): ?int
     {
         $monthlyConsumption = $this->getMonthlyConsumption((string) $product->id);

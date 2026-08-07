@@ -5,6 +5,12 @@ namespace App\Http\Requests\Payment;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Registro de pago de una cita. El gate real de "solo se puede cobrar una
+ * cita confirmada" vive en la máquina de estados de la cita (ver
+ * project_appointment_flow), no aquí: este request solo valida forma de los
+ * datos del pago.
+ */
 class StorePaymentRequest extends FormRequest
 {
     public function authorize(): bool
@@ -24,6 +30,8 @@ class StorePaymentRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // Normaliza 'propina' a 0 si no se envía, para que el resto del
+        // flujo (cálculo de totales) no tenga que lidiar con null.
         $this->merge([
             'propina' => $this->input('propina', 0),
         ]);

@@ -9,8 +9,13 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
+/**
+ * Facturas/comprobantes de pago del cliente (rol cliente): historial de pagos
+ * de sus citas y descarga del PDF del comprobante (generado bajo demanda si no existe aún).
+ */
 class ClientInvoiceController extends Controller
 {
+    // Historial de pagos del cliente con total pagado y total de citas.
     public function index(): View
     {
         $client = auth()->user()->clientProfile;
@@ -37,6 +42,7 @@ class ClientInvoiceController extends Controller
         return view('client.invoices.index', compact('payments', 'totalPagado', 'totalCitas'));
     }
 
+    // Descarga el comprobante en PDF, generándolo y cacheándolo en storage si aún no existe.
     public function download(Payment $payment)
     {
         $client = auth()->user()->clientProfile;
@@ -50,6 +56,7 @@ class ClientInvoiceController extends Controller
 
         $pdfPath = $payment->comprobante_pdf;
 
+        // Generación perezosa: el PDF se crea la primera vez que se pide, no al momento del pago.
         if (! $pdfPath || ! Storage::disk('public')->exists($pdfPath)) {
             $pdf = Pdf::loadView('payments.receipt', [
                 'payment' => $payment->load([

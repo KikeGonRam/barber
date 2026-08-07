@@ -7,6 +7,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * Edición de usuario existente desde el panel de administración.
+ */
 class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
@@ -16,6 +19,8 @@ class UpdateUserRequest extends FormRequest
 
     public function rules(): array
     {
+        // Ignora el propio id en el unique de email (editar sin cambiar el
+        // email no debe fallar validación).
         $user = $this->route('user');
 
         return [
@@ -28,6 +33,8 @@ class UpdateUserRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user?->id),
             ],
+            // password es nullable: dejar el campo vacío significa "no
+            // cambiar la contraseña actual" (a diferencia del alta, donde es obligatorio).
             'password' => ['nullable', 'confirmed', Password::min(8)],
             'role' => [
                 'required',

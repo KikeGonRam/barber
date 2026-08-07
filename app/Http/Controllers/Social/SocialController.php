@@ -9,8 +9,15 @@ use App\Models\Work;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador del feed social (cualquier usuario autenticado): ver el
+ * feed de trabajos de los barberos, reaccionar, guardar y comentar.
+ */
 class SocialController extends Controller
 {
+    /**
+     * Feed principal con los trabajos más recientes de todos los barberos.
+     */
     public function feed()
     {
         $works = Work::with(['barberUser.barberProfile', 'images', 'comments.user', 'reactions', 'saves'])
@@ -20,6 +27,10 @@ class SocialController extends Controller
         return view('social.feed', compact('works'));
     }
 
+    /**
+     * Alterna el "like" del usuario sobre un trabajo (toggle: si ya existe
+     * la reacción la quita, si no existe la crea).
+     */
     public function react(Request $request, Work $work): JsonResponse
     {
         $user = auth()->user();
@@ -46,6 +57,9 @@ class SocialController extends Controller
         ]);
     }
 
+    /**
+     * Alterna el guardado de un trabajo para el usuario (toggle igual que react()).
+     */
     public function save(Request $request, Work $work): JsonResponse
     {
         $user = auth()->user();
@@ -72,6 +86,10 @@ class SocialController extends Controller
         ]);
     }
 
+    /**
+     * Publica un comentario en un trabajo. Responde JSON si la petición lo
+     * pide (AJAX) o redirige de vuelta si es un envío de formulario normal.
+     */
     public function comment(Request $request, Work $work)
     {
         $request->validate([

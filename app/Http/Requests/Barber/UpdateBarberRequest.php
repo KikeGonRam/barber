@@ -5,6 +5,11 @@ namespace App\Http\Requests\Barber;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Edición administrativa del barbero (incluye datos de la cuenta de usuario
+ * asociada: name/email). authorize() delega el control de acceso al
+ * middleware de rol en la ruta, por eso siempre devuelve true aquí.
+ */
 class UpdateBarberRequest extends FormRequest
 {
     public function authorize(): bool
@@ -14,6 +19,9 @@ class UpdateBarberRequest extends FormRequest
 
     public function rules(): array
     {
+        // El unique de email debe ignorar al propio usuario del barbero que
+        // se está editando; si no, guardar sin cambiar el email fallaría
+        // porque "ya existe" (es el mismo registro).
         $barber = $this->route('barber');
         $userId = $barber?->user_id;
 

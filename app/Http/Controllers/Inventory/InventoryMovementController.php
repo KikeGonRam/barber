@@ -13,10 +13,15 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Movimientos de inventario (entradas/salidas) para administración/recepción:
+ * historial filtrable, registro de nuevos movimientos con validación de stock.
+ */
 class InventoryMovementController extends Controller
 {
     public function __construct(private readonly InventoryService $inventoryService) {}
 
+    // Historial de movimientos con filtros de tipo, producto, rango de fecha y búsqueda libre.
     public function index(Request $request): View
     {
         $filters = $request->only(['tipo', 'product_id', 'fecha_desde', 'fecha_hasta', 'q']);
@@ -45,6 +50,7 @@ class InventoryMovementController extends Controller
         return view('inventory.movements.index', compact('movements', 'products', 'filters', 'stats'));
     }
 
+    // Formulario de nuevo movimiento: productos y últimas 50 citas (para vincular consumos a una cita).
     public function create(): View
     {
         $products = Product::query()->orderBy('nombre')->get();
@@ -57,11 +63,13 @@ class InventoryMovementController extends Controller
         return view('inventory.movements.create', compact('products', 'appointments'));
     }
 
+    // Registra el movimiento (entrada/salida) y ajusta el stock del producto vía InventoryService.
     public function store(StoreInventoryMovementRequest $request): RedirectResponse
     {
         try {
             $this->inventoryService->registerMovement($request->validated(), (string) $request->user()->id);
         } catch (InsufficientStockException $exception) {
+            // Salida mayor al stock disponible: se rechaza antes de escribir el movimiento.
             return back()->withInput()->withErrors(['cantidad' => $exception->getMessage()]);
         }
 

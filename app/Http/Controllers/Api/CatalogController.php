@@ -12,8 +12,14 @@ use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador del catálogo público (clientes/visitantes).
+ * Expone servicios activos, listado de barberos con rating agregado,
+ * perfil público de barbero con portafolio/reseñas, y creación de reseñas.
+ */
 class CatalogController extends Controller
 {
+    // Lista servicios activos ordenados alfabéticamente
     public function services(): JsonResponse
     {
         $services = Service::query()
@@ -26,6 +32,7 @@ class CatalogController extends Controller
         ]);
     }
 
+    // Lista barberos activos con rating promedio y total de reseñas precalculados en lote
     public function barbers(): JsonResponse
     {
         $barbers = Barber::query()
@@ -59,6 +66,7 @@ class CatalogController extends Controller
         return response()->json(['data' => $payload]);
     }
 
+    // Perfil público de un barbero: portafolio, reseñas y si el cliente actual puede reseñarlo
     public function showBarber(Barber $barber, Request $request): JsonResponse
     {
         $barber->load('user:id,name,email,created_at');
@@ -89,6 +97,7 @@ class CatalogController extends Controller
                 ->where('client_id', (string) $client->id)
                 ->exists();
 
+            // Solo puede reseñar si aún no lo hizo y tuvo al menos una cita completada con este barbero
             if (! $alreadyReviewed) {
                 $canReview = Appointment::where('barber_id', (string) $barber->id)
                     ->where('client_id', (string) $client->id)
@@ -127,6 +136,7 @@ class CatalogController extends Controller
         ]);
     }
 
+    // Crea una reseña de cliente para un barbero (requiere cita completada previa, una sola reseña por cliente/barbero)
     public function storeReview(Barber $barber, Request $request): JsonResponse
     {
         $client = $request->user()->clientProfile;

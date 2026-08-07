@@ -7,8 +7,14 @@ use App\Models\Activity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador de auditoría/logs de actividad (solo administrador).
+ * Expone el listado paginado de registros de Spatie Activitylog con
+ * búsqueda, filtro por log_name y datos del causante de cada evento.
+ */
 class LogController extends Controller
 {
+    // Lista logs de actividad con búsqueda y filtro por log_name, paginados
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();

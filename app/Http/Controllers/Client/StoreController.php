@@ -7,8 +7,13 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Vitrina pública/cliente de la tienda de productos: listado filtrable por
+ * nombre y categoría, solo productos disponibles para venta.
+ */
 class StoreController extends Controller
 {
+    // Catálogo de productos disponibles con filtros de búsqueda y categoría.
     public function index(Request $request): View
     {
         $search = trim((string) $request->query('q', ''));

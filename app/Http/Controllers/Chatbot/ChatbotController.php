@@ -21,9 +21,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 
+/**
+ * Controlador del asistente conversacional del sitio (endpoints públicos/cliente).
+ * Orquesta una cascada de fuentes de respuesta en orden de costo/latencia creciente:
+ * historial local -> respuesta inteligente contextual -> lógica manual por palabras clave
+ * -> datos externos (Wikipedia/OSM) -> IA (Ollama local o Gemini) -> fallback genérico.
+ * También expone endpoints de historial, perfil de usuario y estadísticas de aprendizaje.
+ */
 class ChatbotController extends Controller
 {
-    // Fallback manual knowledge base
+    // Base de conocimiento manual de respaldo (última línea antes de usar IA)
     private array $fallbackKnowledgeBase = [
         'sistema' => [
             'puntos' => 'Cada cita completada te otorga 10 Puntos de Estilo. Puedes verlos en tu Dashboard.',
@@ -47,6 +54,10 @@ class ChatbotController extends Controller
         private BusinessEventService $businessEventService
     ) {}
 
+    /**
+     * Endpoint principal del chat: recibe un mensaje y recorre la cascada de
+     * fuentes de respuesta, registrando telemetría de qué proveedor respondió.
+     */
     public function query(Request $request): JsonResponse
     {
         $requestStartedAt = hrtime(true);
@@ -289,6 +300,10 @@ class ChatbotController extends Controller
         ]);
     }
 
+    /**
+     * Arma el contexto (servicios, barberos, datos del usuario) que se inyecta
+     * tanto en las respuestas manuales como en el prompt de la IA.
+     */
     private function gatherContext($user): array
     {
         // Servicios
@@ -327,6 +342,10 @@ class ChatbotController extends Controller
         ];
     }
 
+    /**
+     * Motor de reglas por palabras clave: responde sin costo de API cuando el
+     * mensaje encaja en una categoría conocida (servicios, citas, pagos, etc.).
+     */
     private function manualLogic($message, $user, $data)
     {
         // BASE DE CONOCIMIENTO EXPANDIDA - RESPUESTAS POR CATEGORÍA
@@ -433,7 +452,10 @@ class ChatbotController extends Controller
     }
 
     /**
-     * Busca múltiples palabras clave en el mensaje
+     * Expone el reporte de aprendizaje del chatbot (estadísticas y categorías
+     * top) para el usuario actual. Nota: este docblock estaba copiado por error
+     * de matchesKeywords() en el código original ("Busca múltiples palabras
+     * clave en el mensaje"); se corrige aquí solo el texto del comentario.
      */
     public function getLearningStats(Request $request): JsonResponse
     {
@@ -448,6 +470,10 @@ class ChatbotController extends Controller
         ]);
     }
 
+    /**
+     * Reentrena el modelo de aprendizaje local a partir del historial de
+     * conversación reciente del usuario (no llama a la IA externa).
+     */
     public function trainFromHistory(Request $request): JsonResponse
     {
         $userId = auth()->id();
@@ -481,6 +507,11 @@ class ChatbotController extends Controller
         return false;
     }
 
+    /**
+     * Detecta si la respuesta manual fue el fallback genérico ("no estoy
+     * seguro"), señal usada para decidir si vale la pena intentar datos
+     * externos o IA en vez de devolver esa respuesta tal cual.
+     */
     private function isManualFallbackResponse(string $response): bool
     {
         $normalizedResponse = strtolower($response);
@@ -489,6 +520,10 @@ class ChatbotController extends Controller
             || str_contains($normalizedResponse, 'no estoy completamente seguro');
     }
 
+    /**
+     * Registra un evento de negocio con la latencia y el proveedor que atendió
+     * la consulta, con muestreo configurable para no saturar el log de eventos.
+     */
     private function recordProviderTelemetry(mixed $userId, string $source, string $status, int $requestStartedAt, array $extraProperties = []): void
     {
         if (! (bool) config('chatbot.telemetry.enabled', true)) {
@@ -512,11 +547,17 @@ class ChatbotController extends Controller
         ], $extraProperties));
     }
 
+    // Estimación aproximada (no tokenización real): ~4 caracteres por token,
+    // suficiente para fines de telemetría/costo, no para facturación exacta.
     private function estimateTokenCount(string $text): int
     {
         return (int) ceil(max(strlen(trim($text)), 1) / 4);
     }
 
+    /**
+     * Calcula el costo estimado en USD de una llamada a la IA según el precio
+     * por 1000 tokens configurado; 0 si no hay precio configurado.
+     */
     private function estimateAiCostUsd(int $totalTokens): float
     {
         $costPer1kTokens = (float) config('chatbot.telemetry.ai_cost_per_1k_tokens', 0.0);

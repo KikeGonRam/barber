@@ -11,6 +11,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Carrito de compras del cliente (rol cliente). El carrito vive en sesión
+ * (via CartService); este controlador solo valida y delega en CartService/OrderService,
+ * convirtiendo el carrito en un Order real al hacer checkout.
+ */
 class CartController extends Controller
 {
     public function __construct(
@@ -26,6 +31,7 @@ class CartController extends Controller
         ]);
     }
 
+    // Agrega un producto al carrito, validando que siga disponible para venta.
     public function add(Request $request, Product $product): RedirectResponse
     {
         $validated = $request->validate([
@@ -41,6 +47,7 @@ class CartController extends Controller
         return back()->with('status', 'Producto agregado al carrito.');
     }
 
+    // Actualiza la cantidad de un item; cantidad 0 lo elimina (delegado a CartService).
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -60,6 +67,7 @@ class CartController extends Controller
         return back()->with('status', 'Producto eliminado del carrito.');
     }
 
+    // Convierte el carrito en sesión en un Order real (canal 'tienda') y lo vacía si tiene éxito.
     public function checkout(Request $request): RedirectResponse
     {
         $client = $request->user()->clientProfile;
@@ -79,6 +87,7 @@ class CartController extends Controller
         try {
             $order = $this->orders->place($client, $items, 'tienda');
         } catch (InsufficientStockException $e) {
+            // Stock insuficiente detectado al confirmar (pudo cambiar desde que se agregó al carrito).
             return redirect()->route('client.carrito.index')->withErrors(['cart' => $e->getMessage()]);
         } catch (\Throwable $e) {
             return redirect()->route('client.carrito.index')->withErrors(['cart' => 'No se pudo completar el pedido. Intenta de nuevo.']);

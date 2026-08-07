@@ -5,6 +5,9 @@ namespace App\Http\Requests\Inventory;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Registro manual de movimiento de inventario (entrada/salida de stock).
+ */
 class StoreInventoryMovementRequest extends FormRequest
 {
     public function authorize(): bool
@@ -16,6 +19,9 @@ class StoreInventoryMovementRequest extends FormRequest
 
     public function rules(): array
     {
+        // Recepción solo puede registrar salidas (venta/consumo de producto);
+        // solo el admin puede registrar entradas (reposición/compra de stock),
+        // para evitar que recepción infle el inventario sin control.
         $typeRules = ['required', Rule::in(['entrada', 'salida'])];
 
         if ($this->user()?->hasRole('recepcionista')) {

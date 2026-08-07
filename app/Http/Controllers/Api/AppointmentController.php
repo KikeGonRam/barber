@@ -124,12 +124,15 @@ class AppointmentController extends Controller
 
         $validated = $request->validate($rules);
 
+        // El cliente reserva para sí mismo (creando su perfil Client si aún no existe);
+        // admin/recepción reservan a nombre de un cliente existente indicado en el request
         $client = $user->hasRole('cliente')
             ? ($user->clientProfile ?? $user->clientProfile()->create())
             : Client::findOrFail($validated['client_id']);
 
         $service = Service::findOrFail($validated['service_id']);
 
+        // hora_fin se calcula a partir de la duración del servicio, nunca la envía el cliente
         $start = Carbon::parse($validated['fecha'].' '.$validated['hora_inicio']);
         $end = $start->copy()->addMinutes((int) $service->duracion_min);
 
@@ -162,6 +165,10 @@ class AppointmentController extends Controller
         ], 201);
     }
 
+    /**
+     * Edita una cita completa (todos los campos). Reservado a administración/recepción;
+     * el barbero solo puede cambiar el estado vía updateStatus().
+     */
     public function update(Request $request, Appointment $appointment): JsonResponse
     {
         $user = $request->user();
@@ -210,9 +217,14 @@ class AppointmentController extends Controller
         ]);
     }
 
+    /**
+     * Permite al barbero dueño de la cita cambiar su estado (respetando la máquina de estados
+     * validada en AppointmentStatusService).
+     */
     public function updateStatus(Request $request, Appointment $appointment): JsonResponse
     {
         $user = $request->user();
+        // Solo el barbero asignado a esta cita puede cambiar su estado — se compara como string por los IDs de MongoDB
         abort_if(! $user || ! $user->hasRole('barbero') || ! $user->barberProfile || (string) $appointment->barber_id !== (string) $user->barberProfile->id, 403);
 
         $validated = $request->validate([
@@ -238,6 +250,10 @@ class AppointmentController extends Controller
         ]);
     }
 
+    /**
+     * Cancela una cita (soft-cancel: cambia estado a "cancelada", no elimina el registro).
+     * Permitido al cliente dueño de la cita o a un administrador.
+     */
     public function destroy(Request $request, Appointment $appointment): JsonResponse
     {
         $user = $request->user();

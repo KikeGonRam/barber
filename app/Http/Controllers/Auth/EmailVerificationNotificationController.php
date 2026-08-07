@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Reenvía el correo/código de verificación de email al usuario autenticado que aún no lo confirmó.
+ */
 class EmailVerificationNotificationController extends Controller
 {
     /**
-     * Send a new email verification notification.
+     * Dispara un nuevo envío de verificación, salvo que el email ya esté verificado.
      */
     public function store(Request $request): RedirectResponse
     {

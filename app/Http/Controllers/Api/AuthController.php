@@ -57,6 +57,7 @@ class AuthController extends Controller
 
         $user = User::query()->where('email', $credentials['email'])->first();
 
+        // No revelar si falló por email o por password, para no filtrar qué correos existen
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             return response()->json([
                 'message' => 'Las credenciales no son válidas.',
@@ -165,6 +166,9 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * Devuelve los datos del usuario autenticado (según el token Bearer enviado).
+     */
     public function me(Request $request): JsonResponse
     {
         return response()->json([
@@ -210,12 +214,12 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            // Check if user has an existing valid token
+            // Se elimina cualquier token previo "Dashboard Web" para no acumular tokens huérfanos
             MobileApiToken::where('user_id', $user->id)
                 ->where('name', 'Dashboard Web')
                 ->delete();
 
-            // Create new token that expires in 30 days
+            // Nuevo token que expira en 30 días
             $issued = $user->issueMobileApiToken(
                 'Dashboard Web',
                 ['*'],
@@ -242,6 +246,9 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Revoca el token móvil actual (el middleware de auth lo deja en request->attributes).
+     */
     public function logout(Request $request): JsonResponse
     {
         $token = $request->attributes->get('mobile_token');

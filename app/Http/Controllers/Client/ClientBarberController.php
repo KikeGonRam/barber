@@ -13,8 +13,13 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Vitrina pública/cliente de barberos: listado, perfil con trabajos y reseñas,
+ * y creación de reseñas por clientes que ya tuvieron una cita completada.
+ */
 class ClientBarberController extends Controller
 {
+    // Lista barberos activos con su conteo de citas completadas (calculado en PHP, no withCount).
     public function index(): View
     {
         $barbers = Barber::query()
@@ -37,6 +42,7 @@ class ClientBarberController extends Controller
         return view('client.barbers.index', compact('barbers'));
     }
 
+    // Perfil público del barbero: trabajos, reseñas, disponibilidad de hoy y si el cliente actual puede reseñar.
     public function show(Barber $barber): View
     {
         $barber->load('user:id,name,email,created_at');
@@ -91,6 +97,7 @@ class ClientBarberController extends Controller
         ));
     }
 
+    // Crea una reseña; exige cita completada previa y evita duplicados (1 reseña por cliente/barbero).
     public function storeReview(Request $request, Barber $barber): RedirectResponse
     {
         $client = $request->user()->clientProfile;

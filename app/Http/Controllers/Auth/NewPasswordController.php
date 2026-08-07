@@ -14,10 +14,14 @@ use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Completa el flujo de "olvidé mi contraseña": recibe el token enviado por correo
+ * y establece la nueva contraseña del usuario (cualquier rol).
+ */
 class NewPasswordController extends Controller
 {
     /**
-     * Display the password reset view.
+     * Muestra el formulario de nueva contraseña, precargando el token recibido por email.
      */
     public function create(Request $request): View
     {
@@ -25,7 +29,7 @@ class NewPasswordController extends Controller
     }
 
     /**
-     * Handle an incoming new password request.
+     * Valida el token de recuperación y, si es válido, actualiza la contraseña del usuario.
      *
      * @throws ValidationException
      */

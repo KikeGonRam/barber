@@ -4,6 +4,9 @@ namespace App\Http\Requests\Service;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Alta de servicio del catálogo (corte, barba, etc.).
+ */
 class StoreServiceRequest extends FormRequest
 {
     public function authorize(): bool
@@ -26,6 +29,8 @@ class StoreServiceRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // Un servicio nuevo se activa por defecto (true) si el formulario no
+        // envía el checkbox 'activo' explícitamente.
         $this->merge([
             'activo' => $this->boolean('activo', true),
         ]);

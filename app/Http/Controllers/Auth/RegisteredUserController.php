@@ -15,10 +15,14 @@ use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Registro de nuevos usuarios desde el dashboard web. El primer usuario del sistema
+ * puede auto-asignarse como administrador (bootstrap); el resto queda como "cliente".
+ */
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Muestra el formulario de registro.
      */
     public function create(): View
     {
@@ -26,7 +30,8 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Handle an incoming registration request.
+     * Crea el usuario, le asigna rol (admin en bootstrap o cliente por defecto)
+     * y arranca su sesión autenticada.
      *
      * @throws ValidationException
      */
@@ -38,6 +43,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Se cuenta antes de crear para saber si este es el primer usuario del sistema
         $userCountBefore = User::count();
 
         $user = User::create([
@@ -46,10 +52,12 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // En tests no hay envío real de correo de verificación, así que se marca directo
         if (app()->environment('testing')) {
             $user->markEmailAsVerified();
         }
 
+        // Bootstrap: solo si la tabla de usuarios estaba vacía y el flag está habilitado en config
         $canBootstrapAdmin = $userCountBefore === 0
             && (bool) config('auth.first_user_admin_enabled', false);
 
@@ -67,6 +75,7 @@ class RegisteredUserController extends Controller
             ]);
 
             $user->assignRole('cliente');
+            // Todo usuario con rol cliente necesita su perfil Client con preferencias de notificación por defecto
             Client::firstOrCreate([
                 'user_id' => $user->id,
             ], [

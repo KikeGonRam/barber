@@ -7,8 +7,13 @@ use App\Models\Barber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador de gestión de barberos (solo administrador).
+ * Expone listado paginado con búsqueda/filtro y edición de perfil de barbero.
+ */
 class BarberManagementController extends Controller
 {
+    // Lista barberos con búsqueda por nombre/email y filtro por estado activo, paginado
     public function index(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -56,6 +61,7 @@ class BarberManagementController extends Controller
         ]);
     }
 
+    // Actualiza datos del usuario asociado (name/email) y del perfil de barbero en dos updates separados
     public function update(Request $request, Barber $barber): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -100,6 +106,7 @@ class BarberManagementController extends Controller
         ]);
     }
 
+    // Aborta con 403 si no hay usuario autenticado o no tiene rol administrador
     private function authorizeAdmin(Request $request): void
     {
         $user = $request->user();

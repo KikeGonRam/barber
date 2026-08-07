@@ -60,6 +60,7 @@ Route::get('/mantenimiento', function () {
     return view('errors.maintenance');
 })->name('maintenance');
 
+// Perfil público de un barbero (portafolio, reseñas) y catálogo público de servicios.
 Route::get('/equipo/{barber}', [BarberController::class, 'show'])->name('barbers.public.show');
 Route::get('/servicios', [ServiceController::class, 'publicIndex'])->name('services.public.index');
 

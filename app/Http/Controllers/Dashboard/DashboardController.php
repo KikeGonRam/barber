@@ -12,6 +12,11 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
+/**
+ * Dashboard principal, con una vista distinta por rol (administrador, barbero,
+ * recepcionista, cliente) renderizada desde la misma plantilla 'dashboard'
+ * pero con datos y flags (adminMode/isBarberMode/...) específicos de cada rol.
+ */
 class DashboardController extends Controller
 {
     public function __construct(
@@ -19,6 +24,7 @@ class DashboardController extends Controller
         private readonly AnalyticsInsightService $analyticsInsightService,
     ) {}
 
+    // Determina el rol del usuario autenticado y arma el payload de métricas correspondiente.
     public function index(): View
     {
         $user = request()->user();

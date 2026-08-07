@@ -8,8 +8,15 @@ use App\Models\BarbershopSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * API de configuración general de la barbería (horarios, contacto, redes sociales,
+ * política de cancelación, modo mantenimiento). Solo administradores.
+ */
 class SettingController extends Controller
 {
+    /**
+     * Devuelve la configuración actual de la barbería (única fila, se crea si no existe).
+     */
     public function show(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -21,6 +28,9 @@ class SettingController extends Controller
         ]);
     }
 
+    /**
+     * Actualiza la configuración general de la barbería.
+     */
     public function update(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -58,6 +68,9 @@ class SettingController extends Controller
         ]);
     }
 
+    /**
+     * Activa/desactiva el modo mantenimiento del sistema (invierte el valor actual).
+     */
     public function toggleMaintenance(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -79,6 +92,9 @@ class SettingController extends Controller
         ]);
     }
 
+    /**
+     * Obtiene la fila única de configuración; la crea con valores por defecto si aún no existe.
+     */
     private function getSetting(): BarbershopSetting
     {
         return BarbershopSetting::query()->firstOrCreate(
@@ -87,6 +103,9 @@ class SettingController extends Controller
         );
     }
 
+    /**
+     * Restringe el acceso solo a administradores; el resto recibe 403.
+     */
     private function authorizeAdmin(Request $request): void
     {
         $user = $request->user();

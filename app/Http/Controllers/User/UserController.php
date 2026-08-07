@@ -15,8 +15,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
+/**
+ * Controlador de gestión de usuarios (panel de administración): CRUD de
+ * cuentas y asignación de roles, con creación/sincronización automática
+ * de los perfiles de dominio asociados (Barber/Client).
+ */
 class UserController extends Controller
 {
+    /**
+     * Listado paginado de usuarios con búsqueda por nombre/email y filtros
+     * de rol y estado de verificación de email.
+     */
     public function index(Request $request): View
     {
         $search = trim((string) $request->query('q', ''));
@@ -51,6 +60,12 @@ class UserController extends Controller
         return view('users.create', compact('roles'));
     }
 
+    /**
+     * Crea el usuario y su perfil de dominio correspondiente al rol elegido
+     * (Barber/Client) dentro de una transacción para que ambas escrituras
+     * sean atómicas. email_verified_at se marca de inmediato porque el
+     * usuario es dado de alta manualmente por un administrador.
+     */
     public function store(StoreUserRequest $request): RedirectResponse
     {
         $data = $request->validated();
@@ -80,6 +95,10 @@ class UserController extends Controller
         return view('users.edit', compact('user', 'roles'));
     }
 
+    /**
+     * Actualiza el usuario y re-sincroniza rol y perfil de dominio.
+     * La contraseña es opcional: solo se rehashea si se envió una nueva.
+     */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         $data = $request->validated();
@@ -102,6 +121,10 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('status', 'Usuario actualizado correctamente.');
     }
 
+    /**
+     * Elimina un usuario, impidiendo que un administrador se autoelimine
+     * (evitaría quedarse sin sesión ni forma de revertirlo).
+     */
     public function destroy(User $user): RedirectResponse
     {
         if (auth()->id() === $user->id) {
@@ -115,6 +138,11 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('status', 'Usuario eliminado correctamente.');
     }
 
+    /**
+     * Crea el perfil de dominio (Barber o Client) asociado al rol si aún
+     * no existe. firstOrCreate evita duplicar el perfil al reasignar el
+     * mismo rol en una actualización.
+     */
     private function syncRoleProfiles(User $user, string $role): void
     {
         if ($role === 'barbero') {

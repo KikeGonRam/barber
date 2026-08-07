@@ -7,10 +7,16 @@ use App\Services\Dashboard\DashboardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador del dashboard unificado.
+ * Devuelve métricas distintas según el rol del usuario autenticado
+ * (administrador/barbero/recepcionista/cliente), delegando el cálculo a DashboardService.
+ */
 class DashboardController extends Controller
 {
     public function __construct(private readonly DashboardService $dashboardService) {}
 
+    // Enruta al set de métricas correspondiente según el rol del usuario autenticado
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();

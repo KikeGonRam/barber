@@ -126,6 +126,8 @@ const analyticsCenterTextPlugin = {
     },
 };
 
+// Lee la configuración del gráfico desde el <script type="application/json"> cuyo
+// id está referenciado en data-chart-config (evita inyectar JSON gigante como atributo HTML).
 function parseConfig(canvas) {
     const node = document.getElementById(canvas.dataset.chartConfig);
 
@@ -138,6 +140,7 @@ function parseConfig(canvas) {
     }
 }
 
+// Convierte valores del backend (a veces strings con comas de miles, ej. "1,234") a number.
 function toValues(values) {
     return (values || []).map((value) => {
         const numeric = Number(String(value).replace(/,/g, ''));
@@ -145,6 +148,8 @@ function toValues(values) {
     });
 }
 
+// Trunca etiquetas largas para que no rompan el layout de los ejes/leyenda;
+// en modo "mini" (miniaturas de dashboard) se ocultan por completo.
 function shortLabel(label, mini) {
     const text = String(label ?? '').replace(/\n/g, ' · ');
 
@@ -153,6 +158,8 @@ function shortLabel(label, mini) {
     return text.length > 30 ? `${text.slice(0, 28)}…` : text;
 }
 
+// Formatea números para ejes/tooltips: compacto (1.2k) si son grandes, y agrega
+// "%" cuando el tipo de insight ya representa un porcentaje (ver percentInsightTypes).
 function formatTick(value, insightType) {
     const numeric = Number(value);
 
@@ -163,16 +170,22 @@ function formatTick(value, insightType) {
     return percentInsightTypes.has(insightType) ? `${formatted}%` : formatted;
 }
 
+// Determina el tipo "conceptual" del insight (puede venir del config JSON del
+// canvas o del campo "tipo" que manda el backend en español).
 function normalizeVisualType(config, graph) {
     return config.type || graph.tipo || 'bar';
 }
 
+// Traduce el tipo conceptual (heatmap, matrix, etc.) al tipo real de Chart.js,
+// usando chartJsTypeMap; si no hay mapeo ni es un tipo soportado, cae a 'bar'.
 function toChartJsType(visualType) {
     const mappedType = chartJsTypeMap[visualType] || visualType || 'bar';
 
     return supportedChartTypes.has(mappedType) ? mappedType : 'bar';
 }
 
+// Genera un color con opacidad proporcional al valor (usado en heatmap/factor-list
+// para que las barras/celdas "más intensas" resalten visualmente).
 function colorByIntensity(value, max, accent = '#d4af37') {
     const alpha = Math.max(0.24, Math.min(0.92, Number(value || 0) / Math.max(max, 1)));
 
@@ -187,6 +200,8 @@ function colorByIntensity(value, max, accent = '#d4af37') {
     return `rgba(212,175,55,${alpha})`;
 }
 
+// Colorea celdas de una matriz de confusión: verde si la etiqueta suena a
+// "acierto/verdadero" o está en la diagonal (índices 0 y 3 de una 2x2), rojo si no.
 function matrixColors(labels, values) {
     return values.map((_value, index) => {
         const label = String(labels[index] || '').toLowerCase();
@@ -199,6 +214,8 @@ function matrixColors(labels, values) {
     });
 }
 
+// Construye el dataset de Chart.js (colores, grosor de barra/línea, gradiente, etc.)
+// aplicando reglas distintas según el tipo de gráfico (bar/line/radar/doughnut).
 function buildDataset(ctx, canvas, type, visualType, labels, values, accent, mini) {
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.parentElement?.clientHeight || 240);
     gradient.addColorStop(0, `${accent}33`);
@@ -256,6 +273,8 @@ function buildDataset(ctx, canvas, type, visualType, labels, values, accent, min
     return dataset;
 }
 
+// Configura los ejes x/y (o el eje radial en radar). Gráficos "mini" ocultan los
+// ejes por completo, y en modo horizontal se invierte cuál eje formatea valores vs. etiquetas.
 function buildScales(type, visualType, horizontal, mini, insightType) {
     if (['doughnut', 'polarArea'].includes(type)) return {};
 
@@ -305,6 +324,8 @@ function buildScales(type, visualType, horizontal, mini, insightType) {
     };
 }
 
+// Arma el objeto "options" completo de Chart.js: animación (respeta prefers-reduced-motion),
+// leyenda, tooltip con formato español, y activa los plugins propios (value labels / center text).
 function chartOptions(type, visualType, labels, values, horizontal, mini, insightType) {
     const total = values.reduce((sum, value) => sum + Number(value || 0), 0);
     const isPercentInsight = percentInsightTypes.has(insightType);

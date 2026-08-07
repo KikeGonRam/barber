@@ -16,8 +16,16 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
+/**
+ * Panel web de administración de barberos (alta administrativa se hace en otro flujo):
+ * listado, rendimiento, ficha pública y edición de perfil. Uso de administración/recepción.
+ */
 class BarberController extends Controller
 {
+    /**
+     * Listado paginado de barberos con filtros (nombre/email, activo, especialidad)
+     * y conteo de citas completadas del mes calculado en PHP (MongoDB no soporta withCount).
+     */
     public function index(Request $request): View
     {
         $filters = $request->only(['q', 'activo', 'especialidad']);
@@ -54,6 +62,10 @@ class BarberController extends Controller
         return view('barbers.index', compact('barbers', 'filters', 'search', 'status', 'stats'));
     }
 
+    /**
+     * Ficha de rendimiento de un barbero: estadísticas del mes, top de servicios,
+     * últimas citas y gráfica de citas completadas de las últimas 4 semanas.
+     */
     public function performance(Barber $barber): View
     {
         $barber->load('user');
@@ -100,6 +112,9 @@ class BarberController extends Controller
         return view('barbers.performance', compact('barber', 'stats', 'topServices', 'recentAppointments', 'weeklyChart'));
     }
 
+    /**
+     * Formulario de edición de datos de un barbero.
+     */
     public function edit(Barber $barber): View
     {
         $barber->load('user:id,name,email');
@@ -107,6 +122,10 @@ class BarberController extends Controller
         return view('barbers.edit', compact('barber'));
     }
 
+    /**
+     * Ficha pública del barbero (portafolio de trabajos, rating, disponibilidad de hoy)
+     * mostrada a clientes.
+     */
     public function show(Barber $barber): View
     {
         $barber->load([
@@ -144,6 +163,10 @@ class BarberController extends Controller
         ));
     }
 
+    /**
+     * Actualiza los datos del usuario y perfil del barbero, incluyendo el reemplazo
+     * de su foto en el disco público si se sube una nueva.
+     */
     public function update(UpdateBarberRequest $request, Barber $barber): RedirectResponse
     {
         $data = $request->validated();

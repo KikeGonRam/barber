@@ -15,8 +15,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
+/**
+ * Administración de clientes (admin/recepción): listado con filtros y
+ * estadísticas, ficha detallada, alta manual, edición y baja (bloqueada si
+ * el cliente tiene historial de citas).
+ */
 class ClientController extends Controller
 {
+    // Listado de clientes con filtros de búsqueda/citas/fecha de alta y estadísticas agregadas.
     public function index(Request $request): View
     {
         $filters = $request->only(['q', 'sin_citas', 'fecha_desde', 'fecha_hasta']);
@@ -64,6 +70,7 @@ class ClientController extends Controller
         return view('clients.index', compact('clients', 'filters', 'search', 'stats'));
     }
 
+    // Ficha del cliente con estadísticas de gasto/citas y barbero/servicio favorito (calculados en PHP).
     public function show(Client $client): View
     {
         $client->load(['user', 'appointments.service', 'appointments.barber.user', 'appointments.payments']);
@@ -96,6 +103,7 @@ class ClientController extends Controller
         return view('clients.create');
     }
 
+    // Crea el usuario + perfil de cliente en una transacción; genera password aleatoria si no se envía una.
     public function store(StoreClientProfileRequest $request): RedirectResponse
     {
         $data = $request->validated();
@@ -133,6 +141,7 @@ class ClientController extends Controller
         return view('clients.edit', compact('client'));
     }
 
+    // Actualiza datos de usuario (nombre/email) y perfil de cliente (teléfono, preferencias, etc.).
     public function update(UpdateClientProfileRequest $request, Client $client): RedirectResponse
     {
         $data = $request->validated();

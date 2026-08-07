@@ -10,8 +10,14 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador del dashboard principal del panel admin.
+ * Expone estadísticas del día, próximas citas, ingresos por periodo,
+ * alertas operativas y métricas generales del negocio.
+ */
 class DashboardAdminController
 {
+    // Métricas rápidas del día: ingresos, citas completadas, ocupación y clientes nuevos
     public function getStats(Request $request): JsonResponse
     {
         $today = now()->toDateString();
@@ -40,6 +46,7 @@ class DashboardAdminController
         ]);
     }
 
+    // Próximas 10 citas pendientes a partir de ahora, ordenadas por fecha/hora
     public function getUpcomingAppointments(Request $request): JsonResponse
     {
         $appointments = Appointment::where('fecha', '>=', now())
@@ -56,6 +63,7 @@ class DashboardAdminController
         ]);
     }
 
+    // Ingresos agrupados por día dentro del periodo pedido (week/month/year)
     public function getRevenue(Request $request): JsonResponse
     {
         $period = $request->get('period', 'week');
@@ -95,6 +103,7 @@ class DashboardAdminController
         ]);
     }
 
+    // Genera alertas operativas: citas próximas, stock bajo y baja ocupación de barberos
     public function getAlerts(Request $request): JsonResponse
     {
         $alerts = [];
@@ -115,6 +124,7 @@ class DashboardAdminController
         }
 
         try {
+            // Comparación entre dos campos del mismo documento: requiere $expr, no un where() normal
             $lowStock = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->count();
 
             if ($lowStock > 0) {
@@ -153,6 +163,7 @@ class DashboardAdminController
         return response()->json(['alerts' => $alerts]);
     }
 
+    // Métricas globales del negocio: clientes, barberos activos, tasa de cancelación e ingresos
     public function getMetrics(Request $request): JsonResponse
     {
         $totalClients = Client::count();

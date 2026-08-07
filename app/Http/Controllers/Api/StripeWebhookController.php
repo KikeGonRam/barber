@@ -11,8 +11,15 @@ use Illuminate\Support\Facades\Log;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Webhook;
 
+/**
+ * Recibe webhooks de Stripe (sin autenticación de usuario; Stripe valida por firma)
+ * para conciliar pagos con PaymentIntents creados desde la app y completar citas automáticamente.
+ */
 class StripeWebhookController extends Controller
 {
+    /**
+     * Punto de entrada del webhook: valida la firma de Stripe y despacha según el tipo de evento.
+     */
     public function handle(Request $request): Response
     {
         $payload = $request->getContent();
@@ -40,6 +47,10 @@ class StripeWebhookController extends Controller
         return response('OK', 200);
     }
 
+    /**
+     * Al confirmarse el pago en Stripe: completa la cita asociada y registra el pago local
+     * (idempotente — evita duplicar el Payment si el webhook se reenvía).
+     */
     private function onSucceeded(object $intent): void
     {
         $appointmentId = $intent->metadata->appointment_id ?? null;
@@ -77,6 +88,10 @@ class StripeWebhookController extends Controller
         }
     }
 
+    /**
+     * Al fallar el pago en Stripe: solo se registra en log para diagnóstico,
+     * no se modifica el estado de la cita ni se crea un Payment.
+     */
     private function onFailed(object $intent): void
     {
         $appointmentId = $intent->metadata->appointment_id ?? null;

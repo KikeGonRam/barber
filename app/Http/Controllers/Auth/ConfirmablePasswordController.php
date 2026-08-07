@@ -9,10 +9,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Reconfirma la contraseña del usuario ya autenticado antes de dejarlo entrar
+ * a zonas sensibles del dashboard (protegidas por el middleware "password.confirm").
+ */
 class ConfirmablePasswordController extends Controller
 {
     /**
-     * Show the confirm password view.
+     * Muestra el formulario para reingresar la contraseña.
      */
     public function show(): View
     {
@@ -20,7 +24,7 @@ class ConfirmablePasswordController extends Controller
     }
 
     /**
-     * Confirm the user's password.
+     * Valida la contraseña actual del usuario autenticado y marca la confirmación en sesión.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -33,6 +37,7 @@ class ConfirmablePasswordController extends Controller
             ]);
         }
 
+        // Timestamp que el middleware "password.confirm" usa para saber si aún es válida la confirmación
         $request->session()->put('auth.password_confirmed_at', time());
 
         return redirect()->intended(route('dashboard', absolute: false));
