@@ -120,7 +120,7 @@
                     ];
                 @endphp
 
-                <article class="{{ $isWide ? 'xl:col-span-2' : '' }} ub-analytics-card group overflow-hidden rounded-[8px] border {{ $c['border'] }} {{ $c['bg'] }} p-4 transition duration-300 hover:-translate-y-0.5 hover:border-white/15 sm:p-5">
+                <article class="{{ $isWide ? 'xl:col-span-2' : '' }} ub-analytics-card group overflow-hidden rounded-2xl border {{ $c['border'] }} {{ $c['bg'] }} p-4 transition duration-300 hover:-translate-y-0.5 hover:border-white/15 sm:p-5">
                     <div class="{{ $isWide ? 'grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_320px]' : 'space-y-4' }}">
                         <div class="min-w-0">
                             <div class="mb-4 flex items-start justify-between gap-4">
@@ -134,13 +134,13 @@
                                     <p class="text-[10px] font-black uppercase tracking-[0.18em] {{ $c['texto'] }}">{{ $tit }}</p>
                                     <p class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl">{{ $dato }}</p>
                                 </div>
-                                <span class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-white/[0.08] bg-white/[0.035]">
+                                <span class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035]">
                                     <span class="h-2 w-2 rounded-full {{ $c['dot'] }}"></span>
                                 </span>
                             </div>
 
                             @if($isMatrix)
-                                <div class="rounded-[8px] border border-white/[0.07] bg-black/20 p-4" aria-label="Matriz de resultados">
+                                <div class="rounded-xl border border-white/[0.07] bg-black/20 p-4" aria-label="Matriz de resultados">
                                     <div class="mb-3 flex items-center justify-between gap-3">
                                         <p class="text-[9px] font-black uppercase tracking-[0.18em] text-white/38">Resultado del modelo</p>
                                         <span class="rounded-full border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[9px] font-black text-white/45">
@@ -150,8 +150,8 @@
 
                                     <div class="grid grid-cols-[74px_1fr_1fr] gap-2 text-center">
                                         <div></div>
-                                        <div class="rounded-[8px] border border-emerald-400/12 bg-emerald-500/[0.045] px-2 py-2 text-[9px] font-black uppercase tracking-wider text-emerald-300">Acierto</div>
-                                        <div class="rounded-[8px] border border-rose-400/12 bg-rose-500/[0.045] px-2 py-2 text-[9px] font-black uppercase tracking-wider text-rose-300">Revisar</div>
+                                        <div class="rounded-xl border border-emerald-400/12 bg-emerald-500/[0.045] px-2 py-2 text-[9px] font-black uppercase tracking-wider text-emerald-300">Acierto</div>
+                                        <div class="rounded-xl border border-rose-400/12 bg-rose-500/[0.045] px-2 py-2 text-[9px] font-black uppercase tracking-wider text-rose-300">Revisar</div>
 
                                         @foreach($labels as $label)
                                             @php
@@ -167,10 +167,10 @@
                                             @endphp
 
                                             @if($loop->index === 0)
-                                                <div class="row-span-2 grid place-items-center rounded-[8px] border border-white/[0.06] bg-white/[0.025] px-2 text-[9px] font-black uppercase tracking-wider text-white/42 [writing-mode:vertical-rl] rotate-180">Real</div>
+                                                <div class="row-span-2 grid place-items-center rounded-xl border border-white/[0.06] bg-white/[0.025] px-2 text-[9px] font-black uppercase tracking-wider text-white/42 [writing-mode:vertical-rl] rotate-180">Real</div>
                                             @endif
 
-                                            <div class="rounded-[8px] border {{ $cellClass }} p-3 text-left">
+                                            <div class="rounded-xl border {{ $cellClass }} p-3 text-left">
                                                 <p class="text-2xl font-black text-white">{{ number_format($value, 0) }}</p>
                                                 <p class="mt-1 whitespace-pre-line text-[9px] font-bold uppercase tracking-wider opacity-70">{{ $label }}</p>
                                             </div>
@@ -199,21 +199,21 @@
                                     $heatmapColumns = min(max($heatmapPoints->count(), 1), 14);
                                 @endphp
 
-                                <div class="ub-heatmap-board rounded-[8px] border border-amber-300/15 bg-black/20 p-4" aria-label="Mapa de calor de demanda">
+                                <div class="ub-heatmap-board rounded-xl border border-amber-300/15 bg-black/20 p-4" aria-label="Mapa de calor de demanda">
                                     <div class="grid gap-2 sm:grid-cols-3">
-                                        <div class="rounded-[8px] border border-white/[0.07] bg-white/[0.035] p-3">
+                                        <div class="rounded-xl border border-white/[0.07] bg-white/[0.035] p-3">
                                             <p class="text-[9px] font-black uppercase tracking-[0.16em] text-amber-300">Mayor demanda</p>
                                             <p class="mt-1 text-xl font-black text-white">{{ $peak['label'] ?? $dato }}</p>
                                             <p class="text-[10px] font-bold text-white/42">
                                                 {{ $heatmapIsFallback ? 'Horario detectado por Spark' : number_format((float) ($peak['value'] ?? 0), 0).' citas detectadas' }}
                                             </p>
                                         </div>
-                                        <div class="rounded-[8px] border border-white/[0.07] bg-white/[0.035] p-3">
+                                        <div class="rounded-xl border border-white/[0.07] bg-white/[0.035] p-3">
                                             <p class="text-[9px] font-black uppercase tracking-[0.16em] text-white/38">Promedio</p>
                                             <p class="mt-1 text-xl font-black text-white">{{ $heatmapIsFallback ? 'N/D' : number_format($heatmapAverage, 1) }}</p>
                                             <p class="text-[10px] font-bold text-white/42">{{ $heatmapIsFallback ? 'serie no disponible' : 'citas por bloque' }}</p>
                                         </div>
-                                        <div class="rounded-[8px] border border-white/[0.07] bg-white/[0.035] p-3">
+                                        <div class="rounded-xl border border-white/[0.07] bg-white/[0.035] p-3">
                                             <p class="text-[9px] font-black uppercase tracking-[0.16em] text-white/38">Volumen leído</p>
                                             <p class="mt-1 text-xl font-black text-white">{{ $heatmapIsFallback ? 'Punto clave' : number_format($heatmapTotal, 0) }}</p>
                                             <p class="text-[10px] font-bold text-white/42">{{ $heatmapIsFallback ? 'sin inventar volumen' : $heatmapPoints->count().' bloques analizados' }}</p>
@@ -261,7 +261,7 @@
                                     </div>
                                 </div>
                             @elseif($isFactorList)
-                                <div class="space-y-3 rounded-[8px] border border-white/[0.06] bg-black/15 p-4" aria-label="Importancia de factores">
+                                <div class="space-y-3 rounded-xl border border-white/[0.06] bg-black/15 p-4" aria-label="Importancia de factores">
                                     @foreach($labels as $label)
                                         @php
                                             $value = (float) ($values[$loop->index] ?? 0);
@@ -291,7 +291,7 @@
                                     </script>
                                 </div>
                             @else
-                                <div class="rounded-[8px] border border-white/[0.06] bg-black/15 p-4">
+                                <div class="rounded-xl border border-white/[0.06] bg-black/15 p-4">
                                     @if($progressValue !== null)
                                         <div class="mb-4 h-2 overflow-hidden rounded-full bg-white/[0.07]">
                                             <span class="block h-full rounded-full {{ $c['dot'] }}" style="width: {{ $progressValue }}%"></span>
@@ -314,7 +314,7 @@
                             @endif
 
                             @if($estaTruncado)
-                                <details class="group rounded-[8px] border border-white/[0.07] bg-white/[0.025] px-3 py-2">
+                                <details class="group rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2">
                                     <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/45 transition-colors hover:text-gold">
                                         <span>Ver hallazgo</span>
                                         <svg class="h-3.5 w-3.5 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

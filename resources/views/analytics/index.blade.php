@@ -71,7 +71,7 @@
     @endphp
 
     <div
-        class="ub-analytics-shell font-analytics space-y-6"
+        class="ub-analytics-shell space-y-6"
         x-data="{
             tab: '{{ $visibles->first() ?? 'resumen' }}',
             diagnosticoOpen: false,
@@ -90,7 +90,7 @@
         }"
     >
         @if($insights->isEmpty())
-            <div class="rounded-[8px] border border-white/[0.08] bg-[#101010] p-10 text-center">
+            <div class="rounded-2xl border border-white/[0.08] bg-[#101010] p-10 text-center">
                 <p class="text-sm font-black uppercase text-white">Aún no hay resultados disponibles</p>
                 <p class="mt-2 text-xs text-white/45">El sistema actualizará este espacio cuando termine su siguiente revisión.</p>
             </div>
@@ -105,7 +105,7 @@
                  apretado, y con copy que no aplica (ej. "Ocupación del
                  equipo" cuando es la ocupación de UN barbero). Ambos roles
                  comparten esta vista simple de una sola columna. --}}
-            <section class="ub-analytics-panel rounded-[8px] p-5 sm:p-6">
+            <section class="ub-analytics-panel rounded-2xl p-5 sm:p-6">
                 <span class="rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-gold">
                     {{ $rolLabel === 'cliente' ? 'Recomendado para ti' : 'Tu analítica personal' }}
                 </span>
@@ -120,7 +120,7 @@
 
             <x-analytics-insights :insights="$insights" titulo="Para ti" :showCharts="true" idPrefix="role-chart" />
         @else
-            <section class="ub-analytics-panel rounded-[8px] p-4 sm:p-5">
+            <section class="ub-analytics-panel rounded-2xl p-4 sm:p-5">
                 <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                     <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
@@ -136,7 +136,7 @@
                     <div class="grid gap-2 sm:grid-cols-2 xl:min-w-[520px] xl:grid-cols-[140px_160px_auto]">
                         <label class="block">
                             <span class="mb-1 block text-[9px] font-black uppercase tracking-widest text-white/35">Rango</span>
-                            <select class="h-9 w-full rounded-[8px] border-white/[0.08] bg-white/[0.035] px-2 text-[11px] font-bold text-white/70 focus:border-gold focus:ring-gold/25">
+                            <select class="h-9 w-full rounded-xl border-white/[0.08] bg-white/[0.035] px-2 text-[11px] font-bold text-white/70 focus:border-gold focus:ring-gold/25">
                                 <option>Últimos 30 días</option>
                                 <option>Últimos 90 días</option>
                                 <option>Histórico</option>
@@ -145,13 +145,13 @@
 
                         <label class="block">
                             <span class="mb-1 block text-[9px] font-black uppercase tracking-widest text-white/35">Sucursal</span>
-                            <select class="h-9 w-full rounded-[8px] border-white/[0.08] bg-white/[0.035] px-2 text-[11px] font-bold text-white/70 focus:border-gold focus:ring-gold/25">
+                            <select class="h-9 w-full rounded-xl border-white/[0.08] bg-white/[0.035] px-2 text-[11px] font-bold text-white/70 focus:border-gold focus:ring-gold/25">
                                 <option>Sucursal principal</option>
                             </select>
                         </label>
 
                         <div class="flex items-end gap-2">
-                            <a href="{{ route('analytics.index', ['actualizar' => 1]) }}" title="Actualizar resultados" class="inline-flex h-9 items-center justify-center gap-2 rounded-[8px] bg-gold px-3 text-[10px] font-black uppercase tracking-wider text-black shadow-[0_10px_24px_rgba(212,175,55,.18)] transition hover:bg-[#f0cc55]">
+                            <a href="{{ route('analytics.index', ['actualizar' => 1]) }}" title="Actualizar resultados" class="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-gold px-3 text-[10px] font-black uppercase tracking-wider text-black shadow-[0_10px_24px_rgba(212,175,55,.18)] transition hover:bg-[#f0cc55]">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M5.6 15A7 7 0 0 0 17.5 17.5L20 15M18.4 9A7 7 0 0 0 6.5 6.5L4 9"/>
                                 </svg>
@@ -159,7 +159,7 @@
                             </a>
 
                             @if($rolLabel === 'administrador')
-                                <a href="{{ route('reports.export', ['type' => 'ingresos', 'format' => 'pdf']) }}" title="Exportar PDF" class="inline-flex h-9 items-center justify-center gap-2 rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 text-[10px] font-black uppercase tracking-wider text-white/60 transition hover:border-gold/35 hover:text-gold">
+                                <a href="{{ route('reports.export', ['type' => 'ingresos', 'format' => 'pdf']) }}" title="Exportar PDF" class="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 text-[10px] font-black uppercase tracking-wider text-white/60 transition hover:border-gold/35 hover:text-gold">
                                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                         <path d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm6 1.5V7A1.5 1.5 0 0 0 12 8.5h3.5v8h-11v-13h6Z"/>
                                         <path d="M6.5 11.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75Z"/>
@@ -167,7 +167,7 @@
                                     <span class="hidden 2xl:inline">PDF</span>
                                 </a>
 
-                                <a href="{{ route('reports.export', ['type' => 'ingresos', 'format' => 'excel']) }}" title="Exportar Excel" class="inline-flex h-9 items-center justify-center gap-2 rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 text-[10px] font-black uppercase tracking-wider text-white/60 transition hover:border-emerald-400/35 hover:text-emerald-300">
+                                <a href="{{ route('reports.export', ['type' => 'ingresos', 'format' => 'excel']) }}" title="Exportar Excel" class="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 text-[10px] font-black uppercase tracking-wider text-white/60 transition hover:border-emerald-400/35 hover:text-emerald-300">
                                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                         <path d="M4 3.5A1.5 1.5 0 0 1 5.5 2h7.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12A1.5 1.5 0 0 1 17 5.622V16.5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 4 16.5v-13ZM6.6 7.8l2.1 2.2-2.1 2.2 1.1 1.05L9.8 11l2.1 2.25L13 12.2 10.9 10 13 7.8l-1.1-1.05L9.8 9 7.7 6.75 6.6 7.8Z"/>
                                     </svg>
@@ -189,7 +189,7 @@
 
             <section x-data="{ coverageOpen: false }" aria-label="Cobertura del análisis">
                 <button type="button" @click="coverageOpen = !coverageOpen"
-                        class="ub-analytics-panel flex w-full items-center justify-between gap-3 rounded-[8px] p-4 text-left transition hover:bg-white/[0.03]">
+                        class="ub-analytics-panel flex w-full items-center justify-between gap-3 rounded-2xl p-4 text-left transition hover:bg-white/[0.03]">
                     <div>
                         <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gold">Cómo se calculan estos datos</p>
                         <p class="mt-1 text-sm text-white/55">Del dato crudo a una recomendación accionable — detalle técnico opcional.</p>
@@ -202,7 +202,7 @@
                      x-transition:enter-start="opacity-0 -translate-y-1"
                      x-transition:enter-end="opacity-100 translate-y-0"
                      class="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,.75fr)]">
-                <article class="ub-analytics-panel rounded-[8px] p-4 sm:p-5">
+                <article class="ub-analytics-panel rounded-2xl p-4 sm:p-5">
                     <div class="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gold">Flujo analítico aplicado</p>
@@ -216,9 +216,9 @@
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-5">
                         @foreach(($sparkFlow ?? collect()) as $paso)
                             @php $style = $flowStyles[$paso['color'] ?? 'gold'] ?? $flowStyles['gold']; @endphp
-                            <div class="rounded-[8px] border {{ $style['border'] }} {{ $style['bg'] }} p-3">
+                            <div class="rounded-xl border {{ $style['border'] }} {{ $style['bg'] }} p-3">
                                 <div class="mb-3 flex items-center justify-between gap-2">
-                                    <span class="grid h-7 w-7 place-items-center rounded-[8px] border border-white/[0.08] bg-black/20 text-[10px] font-black {{ $style['text'] }}">{{ $loop->iteration }}</span>
+                                    <span class="grid h-7 w-7 place-items-center rounded-lg border border-white/[0.08] bg-black/20 text-[10px] font-black {{ $style['text'] }}">{{ $loop->iteration }}</span>
                                     <span class="text-[10px] font-black {{ $style['text'] }}">{{ $paso['count'] }}/{{ $paso['total'] }}</span>
                                 </div>
                                 <p class="text-[11px] font-black uppercase tracking-wide text-white">{{ $paso['titulo'] }}</p>
@@ -231,7 +231,7 @@
                     </div>
                 </article>
 
-                <article class="ub-analytics-panel rounded-[8px] p-4 sm:p-5">
+                <article class="ub-analytics-panel rounded-2xl p-4 sm:p-5">
                     <div class="mb-4">
                         <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gold">Tipos de gráfica activos</p>
                         <p class="mt-1 text-sm text-white/55">Cada visual se elige según lo que el usuario necesita interpretar.</p>
@@ -240,7 +240,7 @@
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         @foreach(($visualCoverage ?? collect()) as $visual)
                             @php $style = $flowStyles[$visual['color'] ?? 'gold'] ?? $flowStyles['gold']; @endphp
-                            <div class="rounded-[8px] border border-white/[0.07] bg-white/[0.025] p-3 transition hover:bg-white/[0.045]">
+                            <div class="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3 transition hover:bg-white/[0.045]">
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
                                         <p class="text-[10px] font-black uppercase tracking-wide {{ $style['text'] }}">{{ $visual['titulo'] }}</p>
@@ -277,7 +277,7 @@
                             }
                         @endphp
 
-                        <article class="ub-analytics-card ub-analytics-kpi overflow-hidden rounded-[8px] border {{ $style['border'] }} {{ $style['bg'] }} p-4 transition duration-300 hover:-translate-y-0.5">
+                        <article class="ub-analytics-card ub-analytics-kpi overflow-hidden rounded-2xl border {{ $style['border'] }} {{ $style['bg'] }} p-4 transition duration-300 hover:-translate-y-0.5">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <p class="text-[9px] font-black uppercase tracking-[0.16em] {{ $style['text'] }}">{{ $kpi['label'] }}</p>
@@ -318,7 +318,7 @@
             {{-- sticky solo desde sm: en movil los 4 botones se apilan a pantalla
                  completa (una columna) y, al quedar fijos mientras se hace scroll,
                  tapan gran parte del contenido -- se ve como una superposicion. --}}
-            <section class="ub-analytics-panel sm:sticky sm:top-3 z-20 rounded-[8px] p-2 backdrop-blur-xl">
+            <section class="ub-analytics-panel sm:sticky sm:top-3 z-20 rounded-2xl p-2 backdrop-blur-xl">
                 <nav class="grid grid-cols-1 gap-1 sm:grid-cols-2 xl:grid-cols-4" aria-label="Secciones de analítica">
                     @foreach($visibles as $seccion)
                         @php
@@ -330,7 +330,7 @@
                             type="button"
                             @click="selectTab('{{ $seccion }}')"
                             :class="tab === '{{ $seccion }}' ? '{{ $activeStyle }} shadow-[0_10px_28px_rgba(0,0,0,.18)]' : 'border-transparent bg-transparent text-white/48 hover:bg-white/[0.045] hover:text-white/72'"
-                            class="rounded-[8px] border px-4 py-3 text-left transition"
+                            class="rounded-xl border px-4 py-3 text-left transition"
                         >
                             <span class="block text-[12px] font-black">{{ $meta['titulo'] }}</span>
                             <span class="mt-0.5 block text-[10px] font-bold opacity-55">{{ $meta['subtitulo'] }}</span>
@@ -342,16 +342,16 @@
             <section class="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label="Acciones de análisis">
                 @foreach($quickActions as $accion)
                     @if($accion['mode'] ?? null)
-                        <button type="button" @click="openDiagnostic()" class="ub-analytics-card group rounded-[8px] border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-left transition {{ $accion['classes'] }}">
-                            <span class="mb-3 flex h-8 w-8 items-center justify-center rounded-[8px] border border-white/[0.07] bg-black/20 text-gold">
+                        <button type="button" @click="openDiagnostic()" class="ub-analytics-card group rounded-2xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-left transition {{ $accion['classes'] }}">
+                            <span class="mb-3 flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.07] bg-black/20 text-gold">
                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $accion['icon'] }}"/></svg>
                             </span>
                             <span class="block text-[10px] font-black uppercase tracking-[0.16em] text-gold">{{ $accion['label'] }}</span>
                             <span class="mt-1 block text-[11px] text-white/42">{{ $accion['detail'] }}</span>
                         </button>
                     @elseif($visibles->contains($accion['tab']))
-                        <button type="button" @click="selectTab('{{ $accion['tab'] }}')" class="ub-analytics-card group rounded-[8px] border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-left transition {{ $accion['classes'] }}">
-                            <span class="mb-3 flex h-8 w-8 items-center justify-center rounded-[8px] border border-white/[0.07] bg-black/20 text-gold">
+                        <button type="button" @click="selectTab('{{ $accion['tab'] }}')" class="ub-analytics-card group rounded-2xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-left transition {{ $accion['classes'] }}">
+                            <span class="mb-3 flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.07] bg-black/20 text-gold">
                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $accion['icon'] }}"/></svg>
                             </span>
                             <span class="block text-[10px] font-black uppercase tracking-[0.16em] text-gold">{{ $accion['label'] }}</span>
@@ -379,7 +379,7 @@
                     <x-analytics-insights :insights="$seccionInsights" titulo="Hallazgos relevantes" :showCharts="true" :idPrefix="'section-chart-'.$seccion" />
 
                     @if($seccion === 'resumen' && $diagnosticoInsights->isNotEmpty())
-                        <details id="diagnostico-datos" :open="diagnosticoOpen" class="ub-analytics-panel group rounded-[8px] p-4">
+                        <details id="diagnostico-datos" :open="diagnosticoOpen" class="ub-analytics-panel group rounded-2xl p-4">
                             <summary @click="diagnosticoOpen = !diagnosticoOpen" class="flex cursor-pointer list-none items-center justify-between gap-4 text-[10px] font-black uppercase tracking-[0.16em] text-white/60">
                                 <span class="flex items-center gap-2">
                                     <span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.35)]"></span>

@@ -980,7 +980,7 @@ html.dark {
     .ub-chart-frame {
         position: relative;
         overflow: hidden;
-        border-radius: 8px;
+        border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.06);
         background:
             linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
@@ -1034,7 +1034,7 @@ html.dark {
         position: relative;
         min-height: 104px;
         overflow: hidden;
-        border-radius: 8px;
+        border-radius: 12px;
         border: 1px solid rgba(251, 191, 36, calc(0.10 + (var(--heat) * 0.22)));
         padding: 0.75rem;
         background:
