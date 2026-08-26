@@ -53,7 +53,7 @@ class BarberPortfolioController extends Controller
     public function store(Request $request, ?User $barber = null): RedirectResponse
     {
         $barberId = $barber?->id ?? auth()->id();
-        abort_if($barberId !== auth()->id(), 403);
+        abort_if((string) $barberId !== (string) auth()->id(), 403);
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -109,7 +109,7 @@ class BarberPortfolioController extends Controller
      */
     public function destroy(Work $work): RedirectResponse
     {
-        abort_if($work->barbero_id !== auth()->id(), 403);
+        abort_if((string) $work->barbero_id !== (string) auth()->id(), 403);
         $work->delete();
 
         return back()->with('status', 'Trabajo eliminado.');

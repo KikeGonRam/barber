@@ -67,7 +67,7 @@ Route::get('/servicios', [ServiceController::class, 'publicIndex'])->name('servi
 // Seguimiento de campanas (publico: los golpea el cliente de correo).
 Route::get('/t/o/{campaign}/{user}', [TrackingController::class, 'open'])->name('track.open');
 Route::get('/t/c/{campaign}/{user}', [TrackingController::class, 'click'])->name('track.click');
-Route::post('/chatbot/query', [ChatbotController::class, 'query'])->name('chatbot.query');
+Route::post('/chatbot/query', [ChatbotController::class, 'query'])->middleware('throttle:20,1')->name('chatbot.query');
 // Rutas del chatbot que requieren sesión (historial, perfil, estadísticas de aprendizaje).
 // Cualquier usuario autenticado puede usarlas; solo "train-history" se restringe a administrador.
 Route::middleware(['auth'])->group(function () {
