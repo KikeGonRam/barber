@@ -193,6 +193,11 @@ class ChatbotController extends Controller
             $aiProvider = config('chatbot.ai.provider', 'gemini');
             if ($this->aiService->isEnabled()) {
                 try {
+                    // Ollama en CPU (sin GPU) puede tardar mas que el
+                    // max_execution_time por defecto de PHP-FPM (30s); el
+                    // propio cliente HTTP ya espera hasta OLLAMA_TIMEOUT (90s
+                    // por defecto), asi que el limite de PHP debe ser mayor.
+                    set_time_limit(120);
                     $basePrompt = $this->aiService->buildSystemPrompt($contextData);
                     $augmentedPrompt = $this->contextService->generateAugmentedPrompt($message, $basePrompt, $userId);
                     $aiResponse = $this->aiService->generateResponseWithPrompt($augmentedPrompt);
