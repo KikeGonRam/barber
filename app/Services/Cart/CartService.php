@@ -14,6 +14,7 @@ class CartService
 
     /**
      * Devuelve las lineas actuales del carrito, indexadas por product_id.
+     *
      * @return array<string, array{product_id:string,nombre:string,precio:float,imagen:?string,cantidad:int}>
      */
     public function items(): array

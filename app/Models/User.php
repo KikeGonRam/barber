@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\EmailVerificationCodeNotification;
 use BackedEnum;
 use Carbon\Carbon;
 use Database\Factories\UserFactory;
@@ -86,7 +87,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'verification_code_expires_at' => now()->addMinutes(10),
         ])->save();
 
-        $this->notify(new \App\Notifications\EmailVerificationCodeNotification($code));
+        $this->notify(new EmailVerificationCodeNotification($code));
     }
 
     // Configura Activitylog: solo registra cambios en name/email.

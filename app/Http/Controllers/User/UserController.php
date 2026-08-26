@@ -31,7 +31,7 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
-        $search = trim((string) $request->query('q', '')); 
+        $search = trim((string) $request->query('q', ''));
         $roleFilter = (string) $request->query('role', '');
         $verified = $request->query('verified', '');
 

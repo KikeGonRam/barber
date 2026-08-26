@@ -3,6 +3,7 @@
 namespace App\Services\Appointment;
 
 use App\Models\Appointment;
+use App\Models\Payment;
 use App\Models\User;
 use App\Notifications\AppointmentNotification;
 use App\Notifications\ReviewRequestNotification;
@@ -153,7 +154,7 @@ class AppointmentNotifier
      * El cliente subio un comprobante de transferencia pendiente de revision.
      * Avisa a recepcion/admin para que lo revisen.
      */
-    public function transferReceiptUploaded(Appointment $appointment, \App\Models\Payment $payment): void
+    public function transferReceiptUploaded(Appointment $appointment, Payment $payment): void
     {
         $cliente = $appointment->client?->user?->name ?? 'Un cliente';
         $servicio = $appointment->service?->nombre ?? 'un servicio';

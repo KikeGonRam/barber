@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Concerns;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 /**
@@ -86,7 +87,7 @@ trait Sortable
      * carga de la pantalla), usa el orden por defecto que ya tenia el
      * controlador antes de este cambio.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder|\MongoDB\Laravel\Eloquent\Builder  $query
+     * @param  Builder|\MongoDB\Laravel\Eloquent\Builder  $query
      * @param  array<string>  $allowedColumns  columnas que se pueden ordenar en este listado
      * @param  string  $defaultColumn  columna usada si no hay `sort` en la URL
      * @param  string  $defaultDirection  'asc' o 'desc', usada si no hay `dir` en la URL
