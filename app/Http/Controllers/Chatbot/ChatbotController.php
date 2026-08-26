@@ -106,7 +106,7 @@ class ChatbotController extends Controller
 
         // 0. APRENDIZAJE AUTOMÁTICO - Detectar intención real
         $realIntent = $this->learningService->detectRealIntent($message);
-        $this->learningService->learnQuestion($message, $realIntent, 0.9);
+        $this->learningService->learnQuestion($message, $realIntent, 0.9, $userId);
 
         // GUARDAR CONTEXTO DEL USUARIO
         $this->profileService->updateTopics($message, $userId);
