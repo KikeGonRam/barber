@@ -118,9 +118,14 @@
                             <th>Cliente</th>
                             <th>Email</th>
                             <x-sortable-th column="telefono">Teléfono</x-sortable-th>
-                            {{-- Ordena por total_citas (contador guardado en el cliente),
-                                 aunque el numero que se ve en la columna es appointments_count
-                                 (recalculado tras paginar) — en la práctica coinciden. --}}
+                            {{-- Ordena por total_citas (contador de citas COMPLETADAS que
+                                 mantiene LoyaltyService, usado para el nivel de lealtad),
+                                 mientras que el numero mostrado en esta columna es
+                                 appointments_count (TODAS las citas del cliente, sin
+                                 importar su estado, recalculado tras paginar). Son dos
+                                 metricas distintas a propósito — no van a coincidir para
+                                 clientes con citas pendientes/canceladas, y eso es
+                                 esperado. --}}
                             <x-sortable-th column="total_citas" align="center">Citas</x-sortable-th>
                             <x-sortable-th column="fecha_nacimiento">Nacimiento</x-sortable-th>
                             <x-sortable-th column="id">Registrado</x-sortable-th>

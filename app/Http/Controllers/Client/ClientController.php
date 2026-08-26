@@ -55,7 +55,9 @@ class ClientController extends Controller
         //   - fecha_nacimiento -> cronologico (mas joven / mas grande primero)
         //   - nivel            -> alfabetico (nuevo, regular, vip, leyenda)
         //   - puntos           -> numerico (puntos de lealtad acumulados)
-        //   - total_citas      -> numerico (citas totales registradas en el cliente)
+        //   - total_citas      -> numerico (citas COMPLETADAS, contador de lealtad;
+        //                         distinto del appointments_count mostrado en la tabla,
+        //                         que cuenta TODAS las citas sin importar su estado)
         //   - id               -> orden de alta (antiguedad de registro), es el default
         $clients = $this->applySort(
             $query,
