@@ -50,14 +50,16 @@ class ClientAppointmentController extends Controller
         $todayStr = $today->toDateString();
         $stats = [
             'total' => $allEstados->count(),
-            'proximas' => $allEstados->filter(fn ($a) => ! in_array($a->estado, ['cancelada', 'completada'], true)
+            // Mismos estados excluidos que $upcoming en client/appointments/index.blade.php:
+            // si no coinciden, el numero de esta tarjeta no coincide con las citas listadas.
+            'proximas' => $allEstados->filter(fn ($a) => ! in_array($a->estado, ['cancelada', 'completada', 'no_asistio'], true)
                                 && substr((string) $a->fecha, 0, 10) >= $todayStr)->count(),
             'completadas' => $allEstados->where('estado', 'completada')->count(),
             'canceladas' => $allEstados->where('estado', 'cancelada')->count(),
         ];
 
         $nextAppointment = Appointment::where('client_id', $clientId)
-            ->whereNotIn('estado', ['cancelada', 'completada'])
+            ->whereNotIn('estado', ['cancelada', 'completada', 'no_asistio'])
             ->where('fecha', '>=', $today)
             ->with(['barber.user', 'service'])
             ->orderBy('fecha', 'asc')

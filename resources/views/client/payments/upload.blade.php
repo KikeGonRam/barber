@@ -23,7 +23,7 @@
                         <span>{{ $appointment->barber->user->name }}</span>
                     @endif
                     @if($appointment->fecha)
-                        <span>{{ $appointment->fecha->translatedFormat('d M Y') }}</span>
+                        <span>{{ $appointment->fecha->translatedFormat('d M, Y') }}</span>
                     @endif
                     <span class="text-gold">${{ number_format($appointment->service?->precio ?? 0, 2) }}</span>
                 </div>

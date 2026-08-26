@@ -91,7 +91,7 @@
                                         @if($appt?->fecha)
                                             <span class="flex items-center gap-1">
                                                 <svg class="h-3 w-3 text-gold/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                                {{ $appt->fecha->translatedFormat('d M Y') }}
+                                                {{ $appt->fecha->translatedFormat('d M, Y') }}
                                                 @if($appt->hora_inicio) · {{ substr($appt->hora_inicio, 0, 5) }} @endif
                                             </span>
                                         @endif

@@ -69,7 +69,7 @@
                             <div>
                                 <p class="text-[9px] font-black text-muted uppercase tracking-widest">Fecha</p>
                                 <p class="text-sm font-black text-white mt-0.5">
-                                    {{ \Carbon\Carbon::parse($nextAppointment->fecha)->translatedFormat('d F, Y') }}
+                                    {{ \Carbon\Carbon::parse($nextAppointment->fecha)->translatedFormat('d M, Y') }}
                                 </p>
                             </div>
                             <div class="h-8 w-px bg-white/10"></div>
