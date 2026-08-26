@@ -117,10 +117,13 @@
                         <tr>
                             <th>Cliente</th>
                             <th>Email</th>
-                            <th>Teléfono</th>
-                            <th class="text-center">Citas</th>
-                            <th>Nacimiento</th>
-                            <th>Registrado</th>
+                            <x-sortable-th column="telefono">Teléfono</x-sortable-th>
+                            {{-- Ordena por total_citas (contador guardado en el cliente),
+                                 aunque el numero que se ve en la columna es appointments_count
+                                 (recalculado tras paginar) — en la práctica coinciden. --}}
+                            <x-sortable-th column="total_citas" align="center">Citas</x-sortable-th>
+                            <x-sortable-th column="fecha_nacimiento">Nacimiento</x-sortable-th>
+                            <x-sortable-th column="id">Registrado</x-sortable-th>
                             <th class="text-right">Acciones</th>
                         </tr>
                     </thead>

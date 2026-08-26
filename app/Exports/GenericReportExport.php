@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Chart\Axis;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
@@ -161,9 +162,33 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
         // y la leyenda solo repetia "Valor" ocupando espacio.
         $title = new Title($this->chart['title'] ?? 'Gráfica');
 
-        $chartObj = new Chart('chart_'.substr(md5($sheetTitle), 0, 8), $title, null, $plotArea);
+        // Encabezados de eje: sin esto Excel solo muestra numeros/etiquetas
+        // sueltas sin decir a que se refieren.
+        $xAxisLabel = new Title($this->chart['x_label'] ?? 'Categoría');
+        $yAxisLabel = new Title($this->chart['y_label'] ?? 'Valor');
+
+        $chartObj = new Chart(
+            'chart_'.substr(md5($sheetTitle), 0, 8),
+            $title,
+            null,
+            $plotArea,
+            true,
+            DataSeries::EMPTY_AS_GAP,
+            $xAxisLabel,
+            $yAxisLabel
+        );
         $chartObj->setTopLeftPosition('AD2');
         $chartObj->setBottomRightPosition('AO22');
+
+        // Formato de moneda explicito en el eje de valores: sin esto Excel
+        // abrevia automaticamente montos grandes como "12K" en vez de mostrar
+        // el peso completo — importante porque estos valores son pesos
+        // mexicanos, no una cifra generica.
+        if (($this->chart['unit'] ?? null) === 'MXN') {
+            $chartObj->getChartAxisY()->setAxisNumberProperties('"$"#,##0', false);
+        } else {
+            $chartObj->getChartAxisY()->setAxisNumberProperties('#,##0', false);
+        }
 
         return [$chartObj];
     }

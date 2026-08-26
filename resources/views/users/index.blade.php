@@ -113,11 +113,11 @@
                 <table class="ui-table">
                     <thead>
                         <tr>
-                            <th>Usuario</th>
-                            <th>Email</th>
+                            <x-sortable-th column="name">Usuario</x-sortable-th>
+                            <x-sortable-th column="email">Email</x-sortable-th>
                             <th>Roles</th>
                             <th>Verificación</th>
-                            <th>Registrado</th>
+                            <x-sortable-th column="id">Registrado</x-sortable-th>
                             <th class="text-right">Acciones</th>
                         </tr>
                     </thead>

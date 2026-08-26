@@ -39,6 +39,14 @@
                 <option value="entregado" @selected($estado==='entregado')>Entregados</option>
                 <option value="cancelado" @selected($estado==='cancelado')>Cancelados</option>
             </select>
+            {{-- Sin tabla en esta pantalla (tarjetas), asi que el orden se
+                 elige aqui en vez de columnas clicables. --}}
+            <select name="sort" class="ui-input sm:w-52" onchange="this.form.submit()">
+                <option value="created_at" @selected(request('sort', 'created_at') === 'created_at')>Más recientes</option>
+                <option value="total" @selected(request('sort') === 'total')>Monto (mayor a menor)</option>
+                <option value="folio" @selected(request('sort') === 'folio')>Folio (alfabético)</option>
+            </select>
+            <input type="hidden" name="dir" value="{{ request('dir', 'desc') }}">
             <button type="submit" class="ui-btn px-8 py-3 text-[11px] tracking-widest">Filtrar</button>
         </form>
 

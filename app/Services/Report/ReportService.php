@@ -100,6 +100,9 @@ class ReportService
                 'title' => 'Ingresos por día',
                 'labels' => $chartValues->keys()->values()->all(),
                 'values' => $chartValues->values()->map(fn ($v) => round($v, 2))->all(),
+                'unit' => 'MXN',
+                'x_label' => 'Fecha',
+                'y_label' => 'Ingresos (MXN)',
             ],
         ];
     }
@@ -148,6 +151,9 @@ class ReportService
                 'title' => 'Citas por estado',
                 'labels' => $chartValues->keys()->values()->all(),
                 'values' => $chartValues->values()->all(),
+                'unit' => 'citas',
+                'x_label' => 'Estado',
+                'y_label' => 'Cantidad de citas',
             ],
         ];
     }
@@ -204,6 +210,9 @@ class ReportService
                 'title' => 'Stock más bajo (top 8)',
                 'labels' => $chartRows->pluck('producto')->all(),
                 'values' => $chartRows->pluck('stock_actual')->all(),
+                'unit' => 'unidades',
+                'x_label' => 'Producto',
+                'y_label' => 'Stock actual (unidades)',
             ],
         ];
     }
@@ -244,6 +253,9 @@ class ReportService
                 'title' => 'Clientes con más visitas (top 8)',
                 'labels' => $chartRows->pluck('cliente')->all(),
                 'values' => $chartRows->pluck('visitas')->all(),
+                'unit' => 'visitas',
+                'x_label' => 'Cliente',
+                'y_label' => 'Visitas',
             ],
         ];
     }

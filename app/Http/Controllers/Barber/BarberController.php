@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Barber;
 
+use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Barber\UpdateBarberRequest;
 use App\Models\Appointment;
@@ -22,6 +23,8 @@ use Illuminate\View\View;
  */
 class BarberController extends Controller
 {
+    use Sortable;
+
     /**
      * Listado paginado de barberos con filtros (nombre/email, activo, especialidad)
      * y conteo de citas completadas del mes calculado en PHP (MongoDB no soporta withCount).
@@ -32,12 +35,14 @@ class BarberController extends Controller
         $search = trim((string) ($filters['q'] ?? ''));
         $status = (string) ($filters['activo'] ?? '');
 
-        $barbers = Barber::query()
+        $query = Barber::query()
             ->with(['user:id,name,email'])
             ->when($search !== '', fn ($q) => $q->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")))
             ->when($status !== '', fn ($q) => $q->where('activo', $status === '1'))
-            ->when(! empty($filters['especialidad']), fn ($q) => $q->where('especialidades', 'like', '%'.$filters['especialidad'].'%'))
-            ->latest('id')
+            ->when(! empty($filters['especialidad']), fn ($q) => $q->where('especialidades', 'like', '%'.$filters['especialidad'].'%'));
+
+        // nombre/especialidades = alfabetico, id = orden de alta (antiguedad).
+        $barbers = $this->applySort($query, $request, ['nombre', 'especialidades', 'id'], 'id', 'desc')
             ->paginate(15)
             ->withQueryString();
 

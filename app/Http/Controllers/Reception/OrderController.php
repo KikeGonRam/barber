@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reception;
 
+use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Notifications\OrderDeliveredNotification;
@@ -19,6 +20,8 @@ use Illuminate\View\View;
  */
 class OrderController extends Controller
 {
+    use Sortable;
+
     public function __construct(private readonly OrderService $orders) {}
 
     /**
@@ -30,11 +33,13 @@ class OrderController extends Controller
         $estado = (string) $request->query('estado', '');
         $search = trim((string) $request->query('q', ''));
 
-        $orders = Order::query()
+        $query = Order::query()
             ->with('client.user:id,name')
             ->when($estado !== '', fn ($q) => $q->where('estado', $estado))
-            ->when($search !== '', fn ($q) => $q->where('folio', 'like', '%'.strtoupper($search).'%'))
-            ->latest()
+            ->when($search !== '', fn ($q) => $q->where('folio', 'like', '%'.strtoupper($search).'%'));
+
+        // created_at = cronologico, total = numerico, folio = alfabetico.
+        $orders = $this->applySort($query, $request, ['created_at', 'total', 'folio'], 'created_at', 'desc')
             ->paginate(20)
             ->withQueryString();
 

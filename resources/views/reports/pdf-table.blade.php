@@ -105,6 +105,11 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #d4af37;
+            margin: 0 0 2px;
+        }
+        .chart-subtitle {
+            font-size: 8px;
+            color: #888;
             margin: 0 0 14px;
         }
         .chart-row { margin-bottom: 8px; }
@@ -132,7 +137,7 @@
         }
         .chart-value {
             display: inline-block;
-            width: 90px;
+            width: 110px;
             text-align: right;
             font-size: 9px;
             font-weight: bold;
@@ -165,15 +170,27 @@
 
                     return \Illuminate\Support\Str::limit($label, 22);
                 };
+
+                // Los montos son pesos mexicanos: se muestran con "$" y
+                // separador de miles completo, nunca abreviados (12,000, no 12k).
+                $chartIsCurrency = ($chart['unit'] ?? null) === 'MXN';
+                $chartValueFmt = fn ($v) => $chartIsCurrency
+                    ? '$'.number_format($v ?? 0).' MXN'
+                    : number_format($v ?? 0);
             @endphp
             <div class="chart-box">
                 <p class="chart-title">{{ $chart['title'] ?? 'Gráfica' }}</p>
+                @if(!empty($chart['x_label']) || !empty($chart['y_label']))
+                    <p class="chart-subtitle">
+                        {{ $chart['x_label'] ?? '' }}{{ !empty($chart['x_label']) && !empty($chart['y_label']) ? ' vs. ' : '' }}{{ $chart['y_label'] ?? '' }}
+                    </p>
+                @endif
                 @foreach($chart['labels'] as $i => $label)
                     @php $pct = round((($chart['values'][$i] ?? 0) / $chartMax) * 100); @endphp
                     <div class="chart-row">
                         <span class="chart-label">{{ $chartLabelFmt($label) }}</span>
                         <span class="chart-track"><span class="chart-bar" style="width: {{ $pct }}%;"></span></span>
-                        <span class="chart-value">{{ number_format($chart['values'][$i] ?? 0) }}</span>
+                        <span class="chart-value">{{ $chartValueFmt($chart['values'][$i] ?? 0) }}</span>
                     </div>
                 @endforeach
             </div>

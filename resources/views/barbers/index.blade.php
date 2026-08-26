@@ -68,6 +68,25 @@
                             </select>
                         </div>
                     </div>
+                    {{-- Sin tabla en esta pantalla (tarjetas), asi que el orden se
+                         elige aqui en vez de columnas clicables. --}}
+                    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <div>
+                            <label class="ui-label">Ordenar por</label>
+                            <select name="sort" class="ui-input mt-1">
+                                <option value="id" @selected(request('sort', 'id') === 'id')>Fecha de alta</option>
+                                <option value="nombre" @selected(request('sort') === 'nombre')>Nombre (alfabético)</option>
+                                <option value="especialidades" @selected(request('sort') === 'especialidades')>Especialidad (alfabético)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="ui-label">Dirección</label>
+                            <select name="dir" class="ui-input mt-1">
+                                <option value="desc" @selected(request('dir', 'desc') === 'desc')>Descendente</option>
+                                <option value="asc" @selected(request('dir') === 'asc')>Ascendente</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="mt-5 flex items-center gap-3">
                         <button type="submit" class="ui-btn py-2.5 px-6 text-[11px] tracking-widest">Aplicar Filtros</button>
                         @if(count($activeFilters) > 0)

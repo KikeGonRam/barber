@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Inventory;
 
+use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Inventory\StoreProductRequest;
 use App\Http\Requests\Inventory\UpdateProductRequest;
@@ -17,6 +18,8 @@ use Illuminate\View\View;
  */
 class ProductController extends Controller
 {
+    use Sortable;
+
     public function __construct(private readonly InventoryService $inventoryService) {}
 
     // Listado de productos con filtros; el filtro de bajo stock compara dos columnas del propio documento.
@@ -24,7 +27,7 @@ class ProductController extends Controller
     {
         $filters = $request->only(['q', 'categoria', 'tipo', 'bajo_stock']);
 
-        $products = Product::query()
+        $query = Product::query()
             ->when(! empty($filters['q']), fn ($q) => $q
                 ->where('nombre', 'like', '%'.$filters['q'].'%')
                 ->orWhere('descripcion', 'like', '%'.$filters['q'].'%'))
@@ -32,8 +35,16 @@ class ProductController extends Controller
             ->when(! empty($filters['tipo']), fn ($q) => $q->where('tipo', $filters['tipo']))
             // whereRaw con $expr: comparar stock_actual <= stock_minimo (dos campos del mismo
             // documento) no se puede expresar con los operadores where() normales de MongoDB.
-            ->when(! empty($filters['bajo_stock']), fn ($q) => $q->whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]]))
-            ->orderBy('nombre')
+            ->when(! empty($filters['bajo_stock']), fn ($q) => $q->whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]]));
+
+        // nombre = alfabetico, stock_actual/precio_compra/precio_venta = numerico.
+        $products = $this->applySort(
+            $query,
+            $request,
+            ['nombre', 'stock_actual', 'precio_compra', 'precio_venta'],
+            'nombre',
+            'asc'
+        )
             ->paginate(20)
             ->withQueryString();
 

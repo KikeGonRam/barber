@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Appointment;
 
 use App\Exceptions\Domain\AppointmentConflictException;
 use App\Exceptions\Domain\InvalidAppointmentTransitionException;
+use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Appointment\StoreAppointmentRequest;
 use App\Http\Requests\Appointment\UpdateAppointmentRequest;
@@ -26,6 +27,8 @@ use Illuminate\View\View;
  */
 class AppointmentController extends Controller
 {
+    use Sortable;
+
     public function __construct(
         private readonly AppointmentService $appointmentService,
         private readonly AppointmentNotifier $notifier,
@@ -40,7 +43,7 @@ class AppointmentController extends Controller
     {
         $filters = $request->only(['q', 'estado', 'barber_id', 'fecha_desde', 'fecha_hasta']);
 
-        $appointments = Appointment::query()
+        $query = Appointment::query()
             ->with(['client.user', 'barber.user', 'service'])
             ->when(! empty($filters['q']), function ($query) use ($filters) {
                 $q = $filters['q'];
@@ -51,9 +54,13 @@ class AppointmentController extends Controller
             ->when(! empty($filters['estado']), fn ($q) => $q->where('estado', $filters['estado']))
             ->when(! empty($filters['barber_id']), fn ($q) => $q->where('barber_id', $filters['barber_id']))
             ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereDate('fecha', '>=', $filters['fecha_desde']))
-            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereDate('fecha', '<=', $filters['fecha_hasta']))
-            ->latest('fecha')
-            ->latest('hora_inicio')
+            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereDate('fecha', '<=', $filters['fecha_hasta']));
+
+        // Solo se exponen columnas propias de la cita (no relaciones como
+        // cliente/barbero/servicio, que en MongoDB requerirían agregación
+        // para ordenar). `fecha` es cronológico, `estado`/`precio_cobrado`
+        // son alfabético/numérico respectivamente.
+        $appointments = $this->applySort($query, $request, ['fecha', 'estado', 'precio_cobrado'], 'fecha', 'desc')
             ->paginate(20)
             ->withQueryString();
 

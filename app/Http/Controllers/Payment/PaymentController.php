@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Payment;
 
 use App\Exceptions\Domain\PaymentException;
+use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Models\Appointment;
@@ -22,6 +23,8 @@ use Illuminate\View\View;
  */
 class PaymentController extends Controller
 {
+    use Sortable;
+
     public function __construct(private readonly PaymentService $paymentService) {}
 
     /**
@@ -32,7 +35,7 @@ class PaymentController extends Controller
     {
         $filters = $request->only(['q', 'metodo_pago', 'fecha_desde', 'fecha_hasta', 'barbero_id']);
 
-        $payments = Payment::query()
+        $query = Payment::query()
             ->with(['appointment.client.user', 'appointment.barber.user', 'appointment.service', 'creator'])
             ->when(! empty($filters['q']), function ($query) use ($filters) {
                 $q = $filters['q'];
@@ -42,8 +45,10 @@ class PaymentController extends Controller
             ->when(! empty($filters['metodo_pago']), fn ($q) => $q->where('metodo_pago', $filters['metodo_pago']))
             ->when(! empty($filters['barbero_id']), fn ($q) => $q->whereHas('appointment', fn ($a) => $a->where('barber_id', $filters['barbero_id'])))
             ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereDate('created_at', '>=', $filters['fecha_desde']))
-            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereDate('created_at', '<=', $filters['fecha_hasta']))
-            ->latest()
+            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereDate('created_at', '<=', $filters['fecha_hasta']));
+
+        // created_at = cronologico, monto/propina = numerico, metodo_pago = alfabetico.
+        $payments = $this->applySort($query, $request, ['created_at', 'monto', 'propina', 'metodo_pago'], 'created_at', 'desc')
             ->paginate(20)
             ->withQueryString();
 

@@ -181,8 +181,8 @@
                             <th>Cliente</th>
                             <th>Servicio</th>
                             <th>Barbero</th>
-                            <th>Fecha & Hora</th>
-                            <th>Estado</th>
+                            <x-sortable-th column="fecha">Fecha & Hora</x-sortable-th>
+                            <x-sortable-th column="estado">Estado</x-sortable-th>
                             <th class="text-right">Acciones</th>
                         </tr>
                     </thead>

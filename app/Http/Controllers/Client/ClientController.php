@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StoreClientProfileRequest;
 use App\Http\Requests\Client\UpdateClientProfileRequest;
@@ -22,6 +23,8 @@ use Illuminate\View\View;
  */
 class ClientController extends Controller
 {
+    use Sortable;
+
     // Listado de clientes con filtros de búsqueda/citas/fecha de alta y estadísticas agregadas.
     public function index(Request $request): View
     {
@@ -36,14 +39,31 @@ class ClientController extends Controller
             Appointment::raw(fn ($collection) => $collection->distinct('client_id'))
         )->filter()->map(fn ($id) => (string) $id)->values();
 
-        $clients = Client::query()
+        $query = Client::query()
             ->with('user:id,name,email')
             ->when($search !== '', fn ($query) => $query->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")
             ))
             ->when(! empty($filters['sin_citas']), fn ($q) => $q->whereNotIn('_id', $clientIdsWithAppointments))
             ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereHas('user', fn ($u) => $u->whereDate('created_at', '>=', $filters['fecha_desde'])))
-            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereHas('user', fn ($u) => $u->whereDate('created_at', '<=', $filters['fecha_hasta'])))
-            ->latest('id')
+            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereHas('user', fn ($u) => $u->whereDate('created_at', '<=', $filters['fecha_hasta'])));
+
+        // Columnas ordenables de este listado. Nombre/email viven en el
+        // usuario relacionado (no se puede ordenar por ahi sin agregacion
+        // en MongoDB), asi que solo se exponen columnas propias del
+        // documento Client:
+        //   - telefono         -> alfanumerico (como texto: "55..." antes que "56...")
+        //   - fecha_nacimiento -> cronologico (mas joven / mas grande primero)
+        //   - nivel            -> alfabetico (nuevo, regular, vip, leyenda)
+        //   - puntos           -> numerico (puntos de lealtad acumulados)
+        //   - total_citas      -> numerico (citas totales registradas en el cliente)
+        //   - id               -> orden de alta (antiguedad de registro), es el default
+        $clients = $this->applySort(
+            $query,
+            $request,
+            ['telefono', 'fecha_nacimiento', 'nivel', 'puntos', 'total_citas', 'id'],
+            'id',
+            'desc'
+        )
             ->paginate(20)
             ->withQueryString();
 

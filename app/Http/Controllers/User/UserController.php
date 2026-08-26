@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
@@ -22,24 +23,28 @@ use Illuminate\View\View;
  */
 class UserController extends Controller
 {
+    use Sortable;
+
     /**
      * Listado paginado de usuarios con búsqueda por nombre/email y filtros
      * de rol y estado de verificación de email.
      */
     public function index(Request $request): View
     {
-        $search = trim((string) $request->query('q', ''));
+        $search = trim((string) $request->query('q', '')); 
         $roleFilter = (string) $request->query('role', '');
         $verified = $request->query('verified', '');
 
-        $users = User::query()
+        $query = User::query()
             ->when($search !== '', fn ($q) => $q->where(fn ($s) => $s
                 ->where('name', 'like', "%{$search}%")
                 ->orWhere('email', 'like', "%{$search}%")))
             ->when($roleFilter !== '', fn ($q) => $q->whereRoleName($roleFilter))
             ->when($verified === '1', fn ($q) => $q->whereNotNull('email_verified_at'))
-            ->when($verified === '0', fn ($q) => $q->whereNull('email_verified_at'))
-            ->latest('id')
+            ->when($verified === '0', fn ($q) => $q->whereNull('email_verified_at'));
+
+        // name/email = alfabetico, id = orden de registro (antiguedad).
+        $users = $this->applySort($query, $request, ['name', 'email', 'id'], 'id', 'desc')
             ->paginate(20)
             ->withQueryString();
 

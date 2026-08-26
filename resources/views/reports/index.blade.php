@@ -130,8 +130,16 @@
                             </div>
 
                             @if(!empty($charts[$card['type']]['labels'] ?? []))
-                                <div class="mt-4 h-44">
-                                    <canvas id="chart-{{ $card['type'] }}"></canvas>
+                                <div class="mt-4">
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-white/40">
+                                        {{ $charts[$card['type']]['title'] ?? '' }}
+                                        @if(($charts[$card['type']]['unit'] ?? null) === 'MXN')
+                                            <span class="text-white/25">(pesos mexicanos)</span>
+                                        @endif
+                                    </p>
+                                    <div class="h-40">
+                                        <canvas id="chart-{{ $card['type'] }}"></canvas>
+                                    </div>
                                 </div>
                             @endif
 
@@ -188,7 +196,9 @@
         function reportValueLabel(type, value) {
             const n = Number(value ?? 0);
             return type === 'ingresos'
-                ? '$' + n.toLocaleString('es-MX', { maximumFractionDigits: 0 })
+                // Peso mexicano completo (nunca abreviado a "k"/"K") para que
+                // el monto se lea sin ambigüedad, tal como en el dashboard.
+                ? '$' + n.toLocaleString('es-MX', { maximumFractionDigits: 0 }) + ' MXN'
                 : n.toLocaleString('es-MX', { maximumFractionDigits: 0 });
         }
 
@@ -232,8 +242,26 @@
                                 },
                             },
                             scales: {
-                                y: { ...reportScale, ticks: { ...reportScale.ticks, callback: (v) => reportValueLabel('{{ $type }}', v) } },
-                                x: { ...reportScale, ticks: { ...reportScale.ticks, maxRotation: 45, minRotation: 0, callback: function (val) { return reportTickLabel(this.getLabelForValue(val)); } } },
+                                y: {
+                                    ...reportScale,
+                                    ticks: { ...reportScale.ticks, callback: (v) => reportValueLabel('{{ $type }}', v) },
+                                    title: {
+                                        display: true,
+                                        text: @json($chart['y_label'] ?? 'Valor'),
+                                        color: 'rgba(255,255,255,0.35)',
+                                        font: { size: 9, weight: 'bold' },
+                                    },
+                                },
+                                x: {
+                                    ...reportScale,
+                                    ticks: { ...reportScale.ticks, maxRotation: 45, minRotation: 0, callback: function (val) { return reportTickLabel(this.getLabelForValue(val)); } },
+                                    title: {
+                                        display: true,
+                                        text: @json($chart['x_label'] ?? ''),
+                                        color: 'rgba(255,255,255,0.35)',
+                                        font: { size: 9, weight: 'bold' },
+                                    },
+                                },
                             },
                         },
                     });

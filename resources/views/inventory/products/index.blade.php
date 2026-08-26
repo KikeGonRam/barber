@@ -151,11 +151,11 @@
                 <table class="ui-table">
                     <thead>
                         <tr>
-                            <th>Producto</th>
+                            <x-sortable-th column="nombre">Producto</x-sortable-th>
                             <th>Categoría</th>
-                            <th>Stock</th>
-                            <th>Precio Compra</th>
-                            <th>Precio Venta</th>
+                            <x-sortable-th column="stock_actual">Stock</x-sortable-th>
+                            <x-sortable-th column="precio_compra">Precio Compra</x-sortable-th>
+                            <x-sortable-th column="precio_venta">Precio Venta</x-sortable-th>
                             <th class="text-right">Acciones</th>
                         </tr>
                     </thead>
