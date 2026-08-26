@@ -268,12 +268,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('portfolio/{work}', [BarberPortfolioController::class, 'destroy'])->name('portfolio.destroy');
     });
 
-    // Ruta suelta fuera del prefijo 'barbero.' (nombre distinto: 'barbers.works.store')
-    // usada por otra vista que espera ese nombre de ruta específico.
-    Route::middleware(['verified', 'role.custom:barbero'])->group(function () {
-        Route::post('/barbero/{barber}/works', [BarberPortfolioController::class, 'store'])->name('barbers.works.store');
-    });
-
 });
 
 require __DIR__.'/auth.php';
