@@ -36,6 +36,7 @@ class Payment extends Model
         'revisado_por',
         'revisado_en',
         'motivo_rechazo',
+        'monto_total',
     ];
 
     protected function casts(): array
@@ -45,7 +46,19 @@ class Payment extends Model
             'propina' => 'decimal:2',
             'ocr_monto_detectado' => 'decimal:2',
             'revisado_en' => 'datetime',
+            'monto_total' => 'decimal:2',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // monto_total se mantiene en el propio documento (en vez de calcularse
+        // solo en la vista) para poder ordenar el listado de pagos por el total
+        // real cobrado (monto + propina) — MongoDB no puede ordenar por un
+        // campo derivado que no existe en el documento.
+        static::saving(function (self $payment): void {
+            $payment->monto_total = (float) $payment->monto + (float) $payment->propina;
+        });
     }
 
     // Cita a la que corresponde este pago.

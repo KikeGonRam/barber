@@ -47,8 +47,11 @@ class PaymentController extends Controller
             ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereDate('created_at', '>=', $filters['fecha_desde']))
             ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereDate('created_at', '<=', $filters['fecha_hasta']));
 
-        // created_at = cronologico, monto/propina = numerico, metodo_pago = alfabetico.
-        $payments = $this->applySort($query, $request, ['created_at', 'monto', 'propina', 'metodo_pago'], 'created_at', 'desc')
+        // created_at = cronologico, monto/propina/monto_total = numerico, metodo_pago = alfabetico.
+        // monto_total (monto + propina, mantenido por Payment::booted()) es lo que
+        // se muestra como "Total" en la tabla — ordenar por eso en vez de por monto
+        // solo evita que el orden no coincida con el numero que ve el usuario.
+        $payments = $this->applySort($query, $request, ['created_at', 'monto', 'propina', 'monto_total', 'metodo_pago'], 'created_at', 'desc')
             ->paginate(20)
             ->withQueryString();
 

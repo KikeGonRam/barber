@@ -309,7 +309,7 @@
                         <div class="grid grid-cols-2 gap-3 text-xs border-t border-white/5 pt-3">
                             <div>
                                 <p class="text-[9px] font-bold uppercase tracking-wider text-muted mb-0.5">Fecha</p>
-                                <p class="font-bold text-white">{{ \Carbon\Carbon::parse($appt->fecha)->format('d/m/Y') }}</p>
+                                <p class="font-bold text-white">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M, Y') }}</p>
                                 <p class="text-muted">{{ substr($appt->hora_inicio, 0, 5) }} – {{ substr($appt->hora_fin, 0, 5) }}</p>
                             </div>
                             <div>

@@ -202,7 +202,7 @@
                             <th>Cliente & Servicio</th>
                             <th>Barbero</th>
                             <x-sortable-th column="metodo_pago">Método</x-sortable-th>
-                            <x-sortable-th column="monto" align="right">Total</x-sortable-th>
+                            <x-sortable-th column="monto_total" align="right">Total</x-sortable-th>
                             <th class="text-right">Acciones</th>
                         </tr>
                     </thead>

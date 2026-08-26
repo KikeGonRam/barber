@@ -151,7 +151,7 @@
                                     </span>
                                 </td>
                                 <td class="text-muted text-sm">{{ $client->fecha_nacimiento?->translatedFormat('d M, Y') ?: '—' }}</td>
-                                <td class="text-muted text-xs">{{ $client->created_at?->format('d/m/Y') }}</td>
+                                <td class="text-muted text-xs">{{ $client->created_at?->translatedFormat('d M, Y') }}</td>
                                 <td class="text-right">
                                     <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         @if($client->slug)
@@ -206,7 +206,7 @@
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-xs border-t border-white/5 pt-3">
                             <div><p class="text-muted text-[9px] uppercase font-bold mb-0.5">Teléfono</p><p class="text-white">{{ $client->telefono ?: '—' }}</p></div>
-                            <div><p class="text-muted text-[9px] uppercase font-bold mb-0.5">Registrado</p><p class="text-white">{{ $client->created_at?->format('d/m/Y') }}</p></div>
+                            <div><p class="text-muted text-[9px] uppercase font-bold mb-0.5">Registrado</p><p class="text-white">{{ $client->created_at?->translatedFormat('d M, Y') }}</p></div>
                         </div>
                         <div class="mt-3 flex justify-end gap-3 border-t border-white/5 pt-3">
                             @if($client->slug)
