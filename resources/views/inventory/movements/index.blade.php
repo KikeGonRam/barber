@@ -183,7 +183,7 @@
                         <div class="flex items-start justify-between mb-3">
                             <div>
                                 <p class="font-bold text-white text-sm">{{ $mov->product?->nombre ?? '—' }}</p>
-                                <p class="text-[10px] text-muted">{{ \Carbon\Carbon::parse($mov->fecha)->format('d/m/Y') }}</p>
+                                <p class="text-[10px] text-muted">{{ \Carbon\Carbon::parse($mov->fecha)->translatedFormat('d M, Y') }}</p>
                             </div>
                             <span class="text-xl font-black {{ $isEntry ? 'text-emerald-400' : 'text-red-400' }}">
                                 {{ $isEntry ? '+' : '-' }}{{ $mov->cantidad }}

@@ -81,7 +81,7 @@
                                     <option value="">Sin vinculación a cita</option>
                                     @foreach($appointments as $appointment)
                                         <option value="{{ $appointment->id }}" @selected(old('appointment_id') == $appointment->id)>
-                                            {{ $appointment->fecha }} - {{ $appointment->client?->user?->name }}
+                                            {{ $appointment->fecha?->translatedFormat('d M, Y') }} - {{ $appointment->client?->user?->name }}
                                         </option>
                                     @endforeach
                                 </select>
