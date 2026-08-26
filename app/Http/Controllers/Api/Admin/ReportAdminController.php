@@ -18,9 +18,17 @@ use Illuminate\Http\Request;
  */
 class ReportAdminController
 {
+    // Defensa en profundidad: aunque la ruta ya exige role.custom:administrador,
+    // este guard evita que un descuido en routes/api.php exponga reportes financieros.
+    private function authorizeAdmin(): void
+    {
+        abort_if(! request()->user()?->hasRole('administrador'), 403, 'Solo administradores pueden acceder a este recurso.');
+    }
+
     // Ingresos totales/diarios/por barbero dentro del periodo (dia/semana/mes/trimestre/año)
     public function generateRevenueReport(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $period = $request->query('period', 'mes');
         $startDate = $this->getStartDate($period);
         $endDate = Carbon::now();
@@ -78,6 +86,7 @@ class ReportAdminController
     // Desglose de citas por estado y por barbero dentro del periodo, con tasa de ocupación/finalización
     public function generateAppointmentsReport(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $period = $request->query('period', 'mes');
         $startDate = $this->getStartDate($period);
         $endDate = Carbon::now();
@@ -130,6 +139,7 @@ class ReportAdminController
     // Estado del inventario: valor total, productos por categoría y movimientos recientes del último mes
     public function generateInventoryReport(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $products = Product::all(['nombre', 'categoria', 'stock_actual', 'stock_minimo', 'precio_venta', 'precio_compra']);
         $movements = InventoryMovement::where('created_at', '>=', Carbon::now()->subMonth())
             ->with('product:id,nombre')
@@ -165,6 +175,7 @@ class ReportAdminController
     // Conteos de clientes nuevos/activos/inactivos/leales dentro del periodo y retención
     public function generateClientsReport(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $period = $request->query('period', 'mes');
         $startDate = $this->getStartDate($period);
 
@@ -200,6 +211,7 @@ class ReportAdminController
     // Valida los parámetros de un reporte personalizado y devuelve su metadata (no genera el contenido real)
     public function generateCustomReport(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $validated = $request->validate([
             'type' => 'required|in:ingresos,citas,inventario,clientes',
             'period' => 'required|in:dia,semana,mes,trimestre,año,personalizado',

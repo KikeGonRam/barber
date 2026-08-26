@@ -17,9 +17,17 @@ use Illuminate\Http\Request;
  */
 class BarberAdminController
 {
+    // Defensa en profundidad: aunque la ruta ya exige role.custom:administrador,
+    // este guard evita que un descuido en routes/api.php exponga datos de barberos.
+    private function authorizeAdmin(): void
+    {
+        abort_if(! request()->user()?->hasRole('administrador'), 403, 'Solo administradores pueden acceder a este recurso.');
+    }
+
     // Devuelve el listado de barberos activos con métricas del día (citas, ingresos, clientes totales)
     public function getBarbers(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $barbers = Barber::with('user')->where('activo', true)->get();
         $barberIds = $barbers->pluck('id')->map(fn ($id) => (string) $id)->all();
         $today = Carbon::today()->toDateString();
@@ -64,6 +72,7 @@ class BarberAdminController
     // Devuelve el perfil completo de un barbero con estadísticas del mes actual
     public function show(Barber $barber): JsonResponse
     {
+        $this->authorizeAdmin();
         $barber->load('user');
         $barberId = (string) $barber->id;
         $monthStart = Carbon::now()->startOfMonth()->toDateString();
@@ -96,6 +105,7 @@ class BarberAdminController
     // Devuelve la agenda de citas de un barbero para una fecha específica (por defecto hoy)
     public function getSchedule(Barber $barber, Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $barberId = (string) $barber->id;
         $date = $request->query('date', Carbon::today()->toDateString());
 
@@ -125,6 +135,7 @@ class BarberAdminController
     // Devuelve hasta 20 clientes recurrentes del barbero, con total de citas y gasto acumulado
     public function getRegularClients(Barber $barber): JsonResponse
     {
+        $this->authorizeAdmin();
         $barberId = (string) $barber->id;
         // Se limita a 20 clientes para evitar cargar el historial completo cuando hay muchos
         $clientIds = Appointment::where('barber_id', $barberId)
@@ -165,6 +176,7 @@ class BarberAdminController
     // Actualiza datos del perfil de barbero y, opcionalmente, datos del usuario asociado (nombre/email)
     public function update(Barber $barber, Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $barber->load('user');
         $validated = $request->validate([
             'especialidades' => 'nullable|string|max:255',
@@ -189,6 +201,7 @@ class BarberAdminController
     // Compara el número de citas del mes actual contra el mes anterior y calcula el % de crecimiento
     public function getPerformanceStats(Barber $barber): JsonResponse
     {
+        $this->authorizeAdmin();
         $barberId = (string) $barber->id;
         $thisMonthStart = Carbon::now()->startOfMonth()->toDateString();
         $lastMonthStart = Carbon::now()->subMonth()->startOfMonth()->toDateString();

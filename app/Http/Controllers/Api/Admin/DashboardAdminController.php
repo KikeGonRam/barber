@@ -17,9 +17,17 @@ use Illuminate\Http\Request;
  */
 class DashboardAdminController
 {
+    // Defensa en profundidad: aunque la ruta ya exige role.custom:administrador,
+    // este guard evita que un descuido en routes/api.php exponga métricas del negocio.
+    private function authorizeAdmin(): void
+    {
+        abort_if(! request()->user()?->hasRole('administrador'), 403, 'Solo administradores pueden acceder a este recurso.');
+    }
+
     // Métricas rápidas del día: ingresos, citas completadas, ocupación y clientes nuevos
     public function getStats(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $today = now()->toDateString();
 
         $revenueToday = Appointment::whereDate('fecha', $today)
@@ -49,6 +57,7 @@ class DashboardAdminController
     // Próximas 10 citas pendientes a partir de ahora, ordenadas por fecha/hora
     public function getUpcomingAppointments(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $appointments = Appointment::where('fecha', '>=', now())
             ->where('hora_inicio', '>=', now()->format('H:i:s'))
             ->where('estado', 'pendiente')
@@ -66,6 +75,7 @@ class DashboardAdminController
     // Ingresos agrupados por día dentro del periodo pedido (week/month/year)
     public function getRevenue(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $period = $request->get('period', 'week');
 
         $query = Appointment::where('estado', 'completada');
@@ -106,6 +116,7 @@ class DashboardAdminController
     // Genera alertas operativas: citas próximas, stock bajo y baja ocupación de barberos
     public function getAlerts(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $alerts = [];
 
         $upcomingAppointments = Appointment::whereDate('fecha', now()->toDateString())
@@ -166,6 +177,7 @@ class DashboardAdminController
     // Métricas globales del negocio: clientes, barberos activos, tasa de cancelación e ingresos
     public function getMetrics(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $totalClients = Client::count();
         $activeBarbers = Barber::where('activo', true)->count();
 

@@ -257,7 +257,7 @@ class AppointmentController extends Controller
     public function destroy(Request $request, Appointment $appointment): JsonResponse
     {
         $user = $request->user();
-        $isOwner = $user?->hasRole('cliente') && $user->clientProfile && $appointment->client_id === $user->clientProfile->id;
+        $isOwner = $user?->hasRole('cliente') && $user->clientProfile && (string) $appointment->client_id === (string) $user->clientProfile->id;
         $isAdmin = $user?->hasRole('administrador');
 
         abort_if(! $isOwner && ! $isAdmin, 403);

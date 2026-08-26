@@ -145,7 +145,7 @@ class BarberPortfolioController extends Controller
         }
 
         // Verificar que el trabajo pertenezca al barbero
-        if ($work->barbero_id !== $barber->user_id) {
+        if ((string) $work->barbero_id !== (string) $barber->user_id) {
             return response()->json([
                 'message' => 'No autorizado para eliminar este trabajo.',
             ], 403);

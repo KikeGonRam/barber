@@ -17,9 +17,17 @@ use Illuminate\Validation\Rule;
  */
 class InventoryAdminController
 {
+    // Defensa en profundidad: aunque la ruta ya exige role.custom:administrador,
+    // este guard evita que un descuido en routes/api.php exponga/mute el inventario.
+    private function authorizeAdmin(): void
+    {
+        abort_if(! request()->user()?->hasRole('administrador'), 403, 'Solo administradores pueden acceder a este recurso.');
+    }
+
     // Lista productos con filtros de búsqueda/categoría/status (status se filtra en PHP porque depende del ProductResource)
     public function getProducts(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $search = $request->query('search', '');
         $category = $request->query('category');
         $status = $request->query('status');
@@ -50,6 +58,7 @@ class InventoryAdminController
     // Detalle de un producto: incluye consumo mensual, estimación de días hasta agotarse y últimos 20 movimientos
     public function show($productId): JsonResponse
     {
+        $this->authorizeAdmin();
         $product = Product::findOrFail($productId);
         $movements = InventoryMovement::where('product_id', $productId)
             ->orderBy('created_at', 'desc')
@@ -75,6 +84,7 @@ class InventoryAdminController
     // Crea un producto nuevo (normalizePayload homogeniza los alias activo/active y demás campos)
     public function store(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'categoria' => 'required|string',
@@ -100,6 +110,7 @@ class InventoryAdminController
     // Actualiza un producto existente (todos los campos son opcionales para permitir updates parciales)
     public function update($productId, Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $product = Product::findOrFail($productId);
         $validated = $request->validate([
             'nombre' => 'string|max:255',
@@ -126,6 +137,7 @@ class InventoryAdminController
     // Elimina un producto por id
     public function destroy($productId): JsonResponse
     {
+        $this->authorizeAdmin();
         Product::findOrFail($productId)->delete();
 
         return response()->json([
@@ -137,6 +149,7 @@ class InventoryAdminController
     // Registra un movimiento de stock (entrada/salida) y ajusta el stock_actual del producto en consecuencia
     public function recordMovement($productId, Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $product = Product::findOrFail($productId);
         $validated = $request->validate([
             'tipo' => 'required|in:entrada,salida',
@@ -181,6 +194,7 @@ class InventoryAdminController
     // Lista movimientos de stock dentro de un rango de fechas (por defecto, el último mes)
     public function getMovements(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $startDate = $request->query('startDate', Carbon::now()->subMonth()->toDateTimeString());
         $endDate = $request->query('endDate', Carbon::now()->toDateTimeString());
 
@@ -207,6 +221,7 @@ class InventoryAdminController
     // Resumen agregado del inventario: valor total, conteos de stock bajo/crítico y desglose por categoría
     public function getSummary(): JsonResponse
     {
+        $this->authorizeAdmin();
         $products = Product::all(['nombre', 'categoria', 'stock_actual', 'stock_minimo', 'precio_venta', 'precio_compra']);
 
         return response()->json([
@@ -228,6 +243,7 @@ class InventoryAdminController
     // Lista productos con stock en o por debajo del mínimo, con estimación de días hasta agotarse
     public function getLowStockProducts(): JsonResponse
     {
+        $this->authorizeAdmin();
         // Comparación entre dos campos del mismo documento: requiere $expr, no un where() normal
         $products = Product::whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])->get();
         $productIds = $products->pluck('id')->map(fn ($id) => (string) $id)->all();

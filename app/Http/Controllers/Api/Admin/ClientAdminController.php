@@ -26,9 +26,17 @@ class ClientAdminController
     // sí pagina de verdad a nivel de base de datos.
     private const SEGMENT_FILTER_SCAN_LIMIT = 1000;
 
+    // Defensa en profundidad: aunque la ruta ya exige role.custom:administrador,
+    // este guard evita que un descuido en routes/api.php exponga datos de clientes.
+    private function authorizeAdmin(): void
+    {
+        abort_if(! request()->user()?->hasRole('administrador'), 403, 'Solo administradores pueden acceder a este recurso.');
+    }
+
     // Lista clientes con búsqueda y paginación; si se filtra por segmento, pagina en memoria (ver constante arriba)
     public function getClients(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $search = $request->query('search', '');
         $segment = $request->query('segment');
         $perPage = min((int) $request->query('per_page', 15), 50);
@@ -81,6 +89,7 @@ class ClientAdminController
     // Devuelve el perfil completo de un cliente: historial de citas, gasto total y barbero preferido
     public function show(Client $client): JsonResponse
     {
+        $this->authorizeAdmin();
         $client->load('user');
         $clientId = (string) $client->id;
 
@@ -137,6 +146,7 @@ class ClientAdminController
     // Cuenta clientes por segmento (vip/new/active/inactive) para el dashboard de segmentación
     public function getSegmentation(): JsonResponse
     {
+        $this->authorizeAdmin();
         $clients = Client::with('user')->get();
         $clientIds = $clients->pluck('id')->map(fn ($id) => (string) $id)->all();
 
@@ -169,6 +179,7 @@ class ClientAdminController
     // Crea el User (con rol cliente) y su perfil Client asociado
     public function store(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -201,6 +212,7 @@ class ClientAdminController
     // Actualiza datos del cliente y, opcionalmente, del usuario asociado (nombre/email)
     public function update(Client $client, Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $client->load('user');
 
         $validated = $request->validate([
@@ -236,6 +248,7 @@ class ClientAdminController
     // Elimina el cliente y su usuario asociado (solo si no tiene citas registradas)
     public function destroy(Client $client): JsonResponse
     {
+        $this->authorizeAdmin();
         // Bloquear el borrado si el cliente tiene citas: son registros
         // historicos/financieros que apuntan a client_id y quedarian huerfanos.
         if ($client->appointments()->exists()) {
@@ -259,6 +272,7 @@ class ClientAdminController
     // Exporta el listado completo de clientes a CSV en streaming (evita cargar todo en memoria de golpe)
     public function export(Request $request)
     {
+        $this->authorizeAdmin();
         $clients = Client::with('user')->get();
         $clientIds = $clients->pluck('id')->map(fn ($id) => (string) $id)->all();
 

@@ -13,11 +13,20 @@ class PredictionController
 {
     public function __construct(private PredictionService $predictionService) {}
 
+    // Defensa en profundidad: aunque la ruta ya exige role.custom:administrador,
+    // este guard evita que un descuido en routes/api.php exponga proyecciones de ingresos.
+    private function authorizeAdmin(): void
+    {
+        abort_if(! request()->user()?->hasRole('administrador'), 403, 'Solo administradores pueden acceder a este recurso.');
+    }
+
     /**
      * Proyección de ingresos futuros a N días calculada por el servicio de predicción.
      */
     public function incomeForecasting(int $days = 7): JsonResponse
     {
+        $this->authorizeAdmin();
+
         return response()->json([
             'type' => 'income_forecast',
             'data' => $this->predictionService->predictIncome($days),
@@ -29,6 +38,8 @@ class PredictionController
      */
     public function appointmentForecast(int $days = 7): JsonResponse
     {
+        $this->authorizeAdmin();
+
         return response()->json([
             'type' => 'appointment_forecast',
             'data' => $this->predictionService->predictAppointments($days),
@@ -40,6 +51,8 @@ class PredictionController
      */
     public function serviceAnalysis(): JsonResponse
     {
+        $this->authorizeAdmin();
+
         return response()->json([
             'type' => 'service_analysis',
             'data' => $this->predictionService->predictPopularServices(),
@@ -51,6 +64,8 @@ class PredictionController
      */
     public function peakHoursAnalysis(): JsonResponse
     {
+        $this->authorizeAdmin();
+
         return response()->json([
             'type' => 'peak_hours',
             'data' => $this->predictionService->predictPeakHours(),
@@ -63,6 +78,8 @@ class PredictionController
      */
     public function insights(): JsonResponse
     {
+        $this->authorizeAdmin();
+
         return response()->json([
             'type' => 'insights',
             'data' => $this->predictionService->generateInsights(),
