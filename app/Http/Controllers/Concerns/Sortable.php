@@ -107,6 +107,7 @@ trait Sortable
         // ordenar por cualquier cosa.
         if (! in_array($column, $allowedColumns, true)) {
             $column = $defaultColumn;
+            $direction = strtolower($defaultDirection) === 'desc' ? 'desc' : 'asc';
         }
 
         return $query->orderBy($column, $direction);

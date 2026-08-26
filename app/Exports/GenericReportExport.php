@@ -184,10 +184,10 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
         // abrevia automaticamente montos grandes como "12K" en vez de mostrar
         // el peso completo — importante porque estos valores son pesos
         // mexicanos, no una cifra generica.
-        if (($this->chart['unit'] ?? null) === 'MXN') {
-            $chartObj->getChartAxisY()->setAxisNumberProperties('"$"#,##0', false);
-        } else {
-            $chartObj->getChartAxisY()->setAxisNumberProperties('#,##0', false);
+        $yAxis = $chartObj->getChartAxisY();
+        if ($yAxis !== null) {
+            $format = ($this->chart['unit'] ?? null) === 'MXN' ? '"$"#,##0' : '#,##0';
+            $yAxis->setAxisNumberProperties($format, false);
         }
 
         return [$chartObj];
