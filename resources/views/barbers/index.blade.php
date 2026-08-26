@@ -13,7 +13,6 @@
     </x-slot>
 
     <div class="space-y-5 py-4">
-        <x-auth-session-status :status="session('status')" />
 
         {{-- ── STATS ──────────────────────────────────── --}}
         <section class="grid grid-cols-3 gap-4">

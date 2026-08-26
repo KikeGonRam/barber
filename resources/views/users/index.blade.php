@@ -23,7 +23,6 @@
     </x-slot>
 
     <div class="space-y-5 py-4">
-        <x-auth-session-status :status="session('status')" />
 
         @if($errors->any())
             <div class="rounded-2xl border border-red-500/25 bg-red-500/8 p-4">

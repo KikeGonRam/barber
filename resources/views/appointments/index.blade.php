@@ -39,7 +39,6 @@
     </x-slot>
 
     <div class="space-y-5 py-4">
-        <x-auth-session-status :status="session('status')" />
 
         {{-- ── STATS ROW ──────────────────────────────── --}}
         <section class="grid grid-cols-2 gap-4 sm:grid-cols-4">

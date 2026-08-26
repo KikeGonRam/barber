@@ -17,7 +17,6 @@
     <div class="py-8">
         <div class="mx-auto max-w-5xl space-y-10 px-4 sm:px-6 lg:px-8">
 
-            <x-auth-session-status :status="session('status')" />
 
             @if ($errors->any())
                 <div class="rounded-xl border border-red-900/50 bg-red-950/20 p-4 text-sm text-red-400">

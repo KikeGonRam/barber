@@ -24,7 +24,6 @@
     </x-slot>
 
     <div class="space-y-5 py-4">
-        <x-auth-session-status :status="session('status')" />
 
         {{-- ── ALERTA STOCK BAJO ────────────────────────── --}}
         @if($stats['bajo_stock'] > 0)
@@ -206,8 +205,8 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="text-muted text-sm">${{ number_format($product->precio_compra, 2) }}</td>
-                                <td class="font-black text-emerald-400 text-base">${{ number_format($product->precio_venta, 2) }}</td>
+                                <td class="text-muted text-sm">${{ number_format($product->precio_compra, 0) }}</td>
+                                <td class="font-black text-emerald-400 text-base">${{ number_format($product->precio_venta, 0) }}</td>
                                 <td class="text-right">
                                     <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         <a href="{{ route('inventory.products.edit', $product) }}"

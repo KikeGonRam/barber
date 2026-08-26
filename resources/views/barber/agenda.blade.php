@@ -33,7 +33,6 @@
     </x-slot>
 
     <div class="space-y-5 py-4" x-data="{ vista: 'lista' }">
-        <x-auth-session-status :status="session('status')" />
 
         {{-- ── STATS ROW ──────────────────────────────────── --}}
         <section class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">

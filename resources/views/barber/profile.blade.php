@@ -15,7 +15,6 @@
     </x-slot>
 
     <div class="space-y-6 py-4">
-        <x-auth-session-status :status="session('status')" />
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 

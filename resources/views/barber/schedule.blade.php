@@ -14,7 +14,6 @@
     </x-slot>
 
     <div class="space-y-5 py-4" x-data="scheduleManager()">
-        <x-auth-session-status :status="session('status')" />
 
         {{-- ── ACCIONES RÁPIDAS ────────────────────────────── --}}
         <section class="flex flex-wrap items-center gap-3">

@@ -10,7 +10,6 @@
 
     <div class="py-6">
         <div class="mx-auto max-w-5xl space-y-8 px-4 sm:px-6 lg:px-8">
-            <x-auth-session-status class="mb-4" :status="session('status')" />
 
             <section class="ui-surface">
                 <form method="POST" action="{{ route('settings.update') }}" class="space-y-10">

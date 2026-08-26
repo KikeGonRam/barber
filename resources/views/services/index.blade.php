@@ -28,7 +28,6 @@
     </x-slot>
 
     <div class="space-y-5 py-4">
-        <x-auth-session-status :status="session('status')" />
 
         {{-- ── FILTROS ─────────────────────────────────── --}}
         <section x-data="{ open: {{ count($activeFilters) > 0 ? 'true' : 'false' }} }" class="ui-card-premium overflow-hidden">

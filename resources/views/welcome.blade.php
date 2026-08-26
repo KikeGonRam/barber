@@ -274,7 +274,7 @@
                         <x-service-desc :text="$service->descripcion ?: 'Una experiencia diseñada para resaltar tu mejor versión con técnica clásica.'"
                                         class="mt-4 text-sm text-muted font-medium leading-relaxed" />
                         <div class="mt-8 flex items-center justify-between">
-                            <span class="text-2xl font-black text-white">${{ number_format($service->precio, 2) }}</span>
+                            <span class="text-2xl font-black text-white">${{ number_format($service->precio, 0) }}</span>
                             <span class="text-[10px] font-black uppercase tracking-widest text-gold bg-gold/5 px-3 py-1.5 rounded-full border border-gold/10">
                                 {{ $service->duracion_min }} min
                             </span>
@@ -630,9 +630,7 @@
     </footer>
 
     <!-- Chatbot -->
-    <div class="fixed bottom-6 right-6 z-50">
-        <x-chatbot />
-    </div>
+    <x-chatbot />
 
 </div>
 

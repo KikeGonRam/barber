@@ -22,7 +22,6 @@
 
     <div class="py-4">
         <div class="mx-auto max-w-5xl">
-            <x-auth-session-status :status="session('status')" />
 
             <form method="POST"
                   action="{{ route('barbers.update', $barber) }}"
