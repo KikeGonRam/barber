@@ -95,6 +95,30 @@ services:
     networks:
       - internal
 
+  # Ollama (LLM local): sirve las predicciones de PredictionService
+  # (App\Services\Prediction\PredictionService, hostname 'ollama' hardcodeado
+  # ahi) y, opcionalmente, al chatbot si CHATBOT_AI_PROVIDER=ollama en .env.
+  # Nota: el comentario de "app" arriba menciona Ollama nativo en el host (GPU)
+  # para el chatbot -- ese sigue siendo un camino valido via
+  # host.docker.internal, pero PredictionService siempre esperaba este
+  # contenedor Docker (nunca existia antes, por eso sus endpoints daban 504).
+  # Corre en CPU dentro del contenedor (sin passthrough de GPU); el modelo
+  # qwen2.5:0.5b es chico y suficientemente rapido en CPU para este uso.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: barber-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - internal
+
   # Servidor de correo de pruebas
   mailpit:
     image: axllent/mailpit
@@ -125,3 +149,4 @@ networks:
 
 volumes:
   vendor_data:
+  ollama_data:
