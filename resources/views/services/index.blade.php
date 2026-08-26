@@ -154,7 +154,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="font-black text-white text-base">${{ number_format((float)$service->precio, 2) }}</span>
+                                    <span class="font-black text-white text-base">${{ number_format((float)$service->precio, 0) }}</span>
                                 </td>
                                 <td>
                                     @if($service->activo)

@@ -313,7 +313,7 @@
                             @endif
 
                             <!-- Price tag -->
-                            <div class="price-tag">${{ number_format($service->precio, 2) }}</div>
+                            <div class="price-tag">${{ number_format($service->precio, 0) }}</div>
                         </div>
 
                         <!-- CONTENIDO -->

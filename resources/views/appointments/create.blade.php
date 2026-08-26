@@ -32,7 +32,7 @@
                                 <select id="client_id" name="client_id" class="ui-input !bg-panel border-white/10 text-white" required>
                                     <option value="">Seleccionar cliente...</option>
                                     @foreach($clients as $client)
-                                        <option value="{{ $client->id }}" @selected((int) old('client_id') === $client->id)>{{ $client->user?->name }}</option>
+                                        <option value="{{ $client->id }}" @selected((string) old('client_id') === (string) $client->id)>{{ $client->user?->name }}</option>
                                     @endforeach
                                 </select>
                                 @error('client_id') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
@@ -43,7 +43,7 @@
                                 <select id="service_id" name="service_id" class="ui-input !bg-panel border-white/10 text-white" required>
                                     <option value="">Seleccionar servicio...</option>
                                     @foreach($services as $service)
-                                        <option value="{{ $service->id }}" @selected((int) old('service_id') === $service->id)>
+                                        <option value="{{ $service->id }}" @selected((string) old('service_id') === (string) $service->id)>
                                             {{ $service->nombre }} ({{ $service->duracion_min }} min)
                                         </option>
                                     @endforeach
@@ -68,7 +68,7 @@
                                 <select id="barber_id" name="barber_id" class="ui-input !bg-panel border-white/10 text-white" required>
                                     <option value="">Asignar profesional...</option>
                                     @foreach($barbers as $barber)
-                                        <option value="{{ $barber->id }}" @selected((int) old('barber_id') === $barber->id)>{{ $barber->user?->name }}</option>
+                                        <option value="{{ $barber->id }}" @selected((string) old('barber_id') === (string) $barber->id)>{{ $barber->user?->name }}</option>
                                     @endforeach
                                 </select>
                                 @error('barber_id') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
