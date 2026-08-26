@@ -235,7 +235,10 @@
                 if (mins <= 0) return '—';
                 const h = Math.floor(mins / 60);
                 const m = mins % 60;
-                return h + (m ? `.${m}` : '') + 'h';
+                // Minutos como fraccion decimal de hora (igual que totalWeeklyHours):
+                // sin esto, 8h30min se mostraba como "8.30h" (parece 8h18min) en vez
+                // de "8.5h".
+                return h + (m ? `.${Math.round(m / 60 * 10)}` : '') + 'h';
             },
 
             workingDaysCount() {

@@ -140,7 +140,7 @@
                                         {{ $work->saves->count() }}
                                     </span>
                                 </div>
-                                <span class="text-[9px] text-muted/50">{{ $work->created_at->format('d/m/Y') }}</span>
+                                <span class="text-[9px] text-muted/50">{{ $work->created_at->translatedFormat('d M, Y') }}</span>
                             </div>
                             {{-- Delete button (mobile only) --}}
                             <form action="{{ route('barber.portfolio.destroy', $work) }}" method="POST"
