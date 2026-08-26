@@ -89,7 +89,7 @@
     </table>
 
     <table class="items" style="margin-top:0;">
-        <tr class="totrow"><td class="tk">Subtotal</td><td class="tv">${{ number_format($monto + $propina, 2) }}</td></tr>
+        <tr class="totrow"><td class="tk">Subtotal</td><td class="tv">${{ number_format($monto, 2) }}</td></tr>
         <tr class="totrow grand"><td class="tk">Total</td><td class="tv">${{ number_format($monto + $propina, 2) }}</td></tr>
     </table>
 

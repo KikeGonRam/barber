@@ -905,7 +905,9 @@
         $faltan   = $loy['citas_faltan'] ?? 0;
         $nextLvl  = $loy['next_nivel'] ?? null;
         $progPct  = $loy['progress_pct'] ?? 0;
-        $lvlLabels= ['nuevo'=>'Caballero','regular'=>'Regular','vip'=>'V.I.P','leyenda'=>'Leyenda'];
+        // Usa la misma fuente de verdad que LoyaltyService en vez de duplicar
+        // los labels aqui (se desincronizarian si alguien cambia uno y no el otro).
+        $lvlLabels= \App\Services\Loyalty\LoyaltyService::LEVEL_LABELS;
         $lvlLabel = $lvlLabels[$lvl] ?? strtoupper($lvl);
         $nextLabel= $nextLvl ? ($lvlLabels[$nextLvl] ?? '') : null;
         $wonRaffle= $loy['won_raffle'] ?? null;
