@@ -61,7 +61,7 @@
 
                                 @if($type === 'appointment' && !empty($notification->data['fecha']))
                                     <p class="mt-1.5 text-[10px] text-muted font-bold">
-                                        {{ \Carbon\Carbon::parse($notification->data['fecha'])->format('d/m/Y') }}
+                                        {{ \Carbon\Carbon::parse($notification->data['fecha'])->translatedFormat('d M, Y') }}
                                         @if(!empty($notification->data['hora_inicio']))
                                             · {{ substr($notification->data['hora_inicio'], 0, 5) }}
                                         @endif
