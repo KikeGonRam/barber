@@ -26,6 +26,10 @@ class PredictionController
     public function incomeForecasting(int $days = 7): JsonResponse
     {
         $this->authorizeAdmin();
+        // Ollama en CPU puede tardar mas que max_execution_time por defecto
+        // de PHP-FPM (30s); el cliente HTTP ya espera hasta OLLAMA_TIMEOUT
+        // (90s por defecto), asi que el limite de PHP debe ser mayor.
+        set_time_limit(120);
 
         return response()->json([
             'type' => 'income_forecast',
@@ -39,6 +43,10 @@ class PredictionController
     public function appointmentForecast(int $days = 7): JsonResponse
     {
         $this->authorizeAdmin();
+        // Ollama en CPU puede tardar mas que max_execution_time por defecto
+        // de PHP-FPM (30s); el cliente HTTP ya espera hasta OLLAMA_TIMEOUT
+        // (90s por defecto), asi que el limite de PHP debe ser mayor.
+        set_time_limit(120);
 
         return response()->json([
             'type' => 'appointment_forecast',
@@ -52,6 +60,10 @@ class PredictionController
     public function serviceAnalysis(): JsonResponse
     {
         $this->authorizeAdmin();
+        // Ollama en CPU puede tardar mas que max_execution_time por defecto
+        // de PHP-FPM (30s); el cliente HTTP ya espera hasta OLLAMA_TIMEOUT
+        // (90s por defecto), asi que el limite de PHP debe ser mayor.
+        set_time_limit(120);
 
         return response()->json([
             'type' => 'service_analysis',
@@ -65,6 +77,10 @@ class PredictionController
     public function peakHoursAnalysis(): JsonResponse
     {
         $this->authorizeAdmin();
+        // Ollama en CPU puede tardar mas que max_execution_time por defecto
+        // de PHP-FPM (30s); el cliente HTTP ya espera hasta OLLAMA_TIMEOUT
+        // (90s por defecto), asi que el limite de PHP debe ser mayor.
+        set_time_limit(120);
 
         return response()->json([
             'type' => 'peak_hours',
@@ -79,6 +95,10 @@ class PredictionController
     public function insights(): JsonResponse
     {
         $this->authorizeAdmin();
+        // Ollama en CPU puede tardar mas que max_execution_time por defecto
+        // de PHP-FPM (30s); el cliente HTTP ya espera hasta OLLAMA_TIMEOUT
+        // (90s por defecto), asi que el limite de PHP debe ser mayor.
+        set_time_limit(120);
 
         return response()->json([
             'type' => 'insights',
