@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Services\Inventory\InventoryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 /**
@@ -92,7 +93,10 @@ class ProductController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('imagen')) {
-            // TODO: la imagen anterior no se borra de storage al reemplazarla (posible fuga de archivos huérfanos).
+            if (! empty($product->imagen) && Storage::disk('public')->exists($product->imagen)) {
+                Storage::disk('public')->delete($product->imagen);
+            }
+
             $data['imagen'] = $request->file('imagen')->store('products', 'public');
         }
 

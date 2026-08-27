@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Repositories\Contracts\InventoryMovementRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Orquesta el inventario de productos (tienda) y sus movimientos de stock
@@ -65,6 +66,10 @@ class InventoryService
      */
     public function deleteProduct(Product $product): bool
     {
+        if (! empty($product->imagen) && Storage::disk('public')->exists($product->imagen)) {
+            Storage::disk('public')->delete($product->imagen);
+        }
+
         return $this->products->delete($product->id);
     }
 
