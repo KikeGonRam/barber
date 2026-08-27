@@ -10,6 +10,7 @@ use App\Http\Middleware\Role\EnsureUserHasRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Sentry\Laravel\Integration;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -34,6 +35,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Sin esto Sentry no reporta las excepciones no capturadas -- el DSN
+        // solo no basta en Laravel 11+ (el pipeline de excepciones cambio).
+        // Si SENTRY_LARAVEL_DSN esta vacio, el SDK simplemente no envia nada.
+        Integration::handles($exceptions);
+
         $exceptions->render(function (Throwable $exception, $request) {
             $domainExceptions = [
                 AppointmentConflictException::class,
