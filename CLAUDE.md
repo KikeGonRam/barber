@@ -61,7 +61,12 @@ App: http://localhost:8000, Mailpit: http://localhost:8025
 Integration/Feature tests run against a **local** MongoDB container
 (`mongo-test` service in `docker-compose.yml`, port 27018 on the host),
 never against the Atlas `barber_db` shared with `spark/`. Config lives in
-`.env.testing` (`MONGO_DATABASE=barber_db_test`).
+`.env.testing` (`MONGO_DATABASE=barber_db_test`). `mongo-test` runs as a
+single-node **replica set** (not standalone), initialized by the one-shot
+`mongo-test-init` service (`rs.initiate()`, idempotent — safe on every
+`docker compose up`): `PaymentService`/`InventoryService` wrap writes in
+`DB::transaction()`, and MongoDB only supports multi-document transactions
+inside a replica set.
 
 **Always run tests via `.\test.ps1`**, not bare `docker exec barber-app php
 artisan test` or `php artisan test`. Reason: `docker compose`'s
@@ -71,3 +76,12 @@ overrides an already-set environment variable, so `.env.testing` is silently
 ignored unless the override happens at the `docker exec` layer itself
 (`--env-file .env.testing`). `test.ps1` does this for you. Skipping it means
 tests run against the shared Atlas database.
+
+## CI
+
+`.github/workflows/ci.yml` runs on every push/PR to `main`: `backend` job
+(Mongo as a single-node replica set + Redis, `pint --test`, `php artisan
+test`) and `frontend` job (`eslint`, `npm run build`, `npm audit
+--audit-level=high`). Unlike local dev, the runner starts clean with no
+baked-in `.env`, so env vars are set directly in the workflow (no
+`--env-file` dance needed there).
