@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend (Pint + PHPUnit)
+    runs-on: ubuntu-latest
+
+    # Estos valores replican tests/.env.testing pero apuntando a localhost
+    # (el runner de GitHub Actions no vive en la red interna de Docker
+    # Compose), y se pasan como variables de entorno reales en vez de un
+    # archivo .env: aquí no existe el problema de "env_file: .env horneado
+    # en el contenedor" que obliga a usar --env-file en local (ver
+    # test.ps1 / CLAUDE.md), porque el runner arranca limpio, sin ningún
+    # .env con credenciales de Atlas ya presente.
+    env:
+      APP_NAME: UrbanBlade
+      APP_ENV: testing
+      APP_KEY: base64:3tmJ2lribjQ+hBlJrPj8euKIWSImIqTBRGAzXPUFz/0=
+      APP_DEBUG: true
+      DB_CONNECTION: mongodb
+      MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+      MONGO_DATABASE: barber_db_test
+      SESSION_DRIVER: array
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+      BCRYPT_ROUNDS: 4
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Mongo va como contenedor manual (no como "services:") porque
+      # necesita arrancar con --replSet y despues un rs.initiate(): las
+      # pruebas de integracion de Payment/Inventory usan DB::transaction(),
+      # que Mongo solo soporta dentro de un replica set (nunca en un
+      # standalone). Mismo esquema que mongo-test/mongo-test-init en
+      # docker-compose.yml.
+      - name: Start MongoDB (single-node replica set)
+        run: |
+          docker run -d --name mongo-ci -p 27017:27017 mongo:7 --replSet rs0 --bind_ip_all
+
+          echo "Esperando a que mongod acepte conexiones..."
+          for i in $(seq 1 30); do
+            docker exec mongo-ci mongosh --quiet --eval "db.adminCommand('ping')" >/dev/null 2>&1 && break
+            sleep 1
+          done
+
+          docker exec mongo-ci mongosh --quiet --eval "
+            try { rs.status().ok } catch (e) {
+              rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})
+            }
+          "
+
+          echo "Esperando a que el nodo se elija primario..."
+          for i in $(seq 1 30); do
+            primary=$(docker exec mongo-ci mongosh --quiet --eval "db.hello().isWritablePrimary")
+            [ "$primary" = "true" ] && break
+            sleep 1
+          done
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, curl, bcmath, zip, exif, pcntl, gd, intl, mongodb, redis
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Laravel Pint (dry-run)
+        run: vendor/bin/pint --test
+
+      - name: PHPUnit
+        run: php artisan test
+
+  frontend:
+    name: Frontend (build + audit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: ESLint
+        run: npx eslint resources/js
+
+      - name: Build assets
+        run: npm run build
+
+      - name: npm audit (high/critical)
+        run: npm audit --audit-level=high
