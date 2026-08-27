@@ -213,6 +213,53 @@ endpoints:
   -
     custom: []
     httpMethods:
+      - POST
+    uri: api/v1/profile/push-token
+    metadata:
+      custom: []
+      groupName: 'Gestión de Perfil'
+      groupDescription: |-
+
+        Endpoints para gestionar el perfil del usuario autenticado.
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Guarda/actualiza el token de push de Expo del usuario autenticado (app móvil)
+        para poder enviarle notificaciones push.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      token:
+        custom: []
+        name: token
+        description: 'El campo value no debe tener más de 255 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      token: b
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
       - DELETE
     uri: api/v1/profile
     metadata:
@@ -223,8 +270,10 @@ endpoints:
         Endpoints para gestionar el perfil del usuario autenticado.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Eliminar Cuenta'
-      description: 'Elimina permanentemente la cuenta del usuario autenticado.'
+      title: |-
+        Elimina (soft delete) la cuenta del usuario autenticado tras confirmar su contraseña
+        y revoca todos sus tokens de la API móvil.
+      description: ''
       authenticated: false
       deprecated: false
     headers:
@@ -238,36 +287,159 @@ endpoints:
       password:
         custom: []
         name: password
-        description: 'Contraseña actual para confirmar eliminación.'
+        description: ''
         required: true
-        example: password123
+        example: architecto
         type: string
         enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      password: password123
+      password: architecto
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/barber/me
+    metadata:
+      custom: []
+      groupName: 'Gestión de Perfil'
+      groupDescription: |-
+
+        Endpoints para gestionar el perfil del usuario autenticado.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Perfil completo del Barbero autenticado'
+      description: 'Devuelve bio, rating y estadísticas de actividad del barbero en una sola llamada.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
     fileParameters: []
     responses:
       -
         custom: []
-        status: 200
-        content: |-
-          {
-           "message": "Cuenta eliminada exitosamente"
-          }
-        headers: []
-        description: ''
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/barber/bio
+    metadata:
+      custom: []
+      groupName: 'Gestión de Perfil'
+      groupDescription: |-
+
+        Endpoints para gestionar el perfil del usuario autenticado.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Devuelve solo especialidades y descripción del barbero autenticado (versión ligera de showBarberProfile).'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
       -
         custom: []
-        status: 422
-        content: |-
-          {
-           "message": "Contraseña incorrecta."
-          }
-        headers: []
-        description: ''
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: api/v1/barber/bio
+    metadata:
+      custom: []
+      groupName: 'Gestión de Perfil'
+      groupDescription: |-
+
+        Endpoints para gestionar el perfil del usuario autenticado.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Actualiza especialidades y descripción del perfil del barbero autenticado.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      especialidades:
+        custom: []
+        name: especialidades
+        description: 'El campo value no debe tener más de 255 caracteres.'
+        required: false
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      descripcion:
+        custom: []
+        name: descripcion
+        description: 'El campo value no debe tener más de 1000 caracteres.'
+        required: false
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      especialidades: b
+      descripcion: 'n'
+    fileParameters: []
+    responses: []
     responseFields: []
     auth: []
     controller: null

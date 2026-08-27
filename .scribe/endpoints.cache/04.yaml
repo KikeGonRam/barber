@@ -108,7 +108,7 @@ endpoints:
       nombre:
         custom: []
         name: nombre
-        description: validation.max.
+        description: 'El campo value no debe tener más de 120 caracteres.'
         required: true
         example: b
         type: string
@@ -119,7 +119,7 @@ endpoints:
       categoria:
         custom: []
         name: categoria
-        description: validation.max.
+        description: 'El campo value no debe tener más de 100 caracteres.'
         required: true
         example: 'n'
         type: string
@@ -130,7 +130,7 @@ endpoints:
       descripcion:
         custom: []
         name: descripcion
-        description: validation.max.
+        description: 'El campo value no debe tener más de 2000 caracteres.'
         required: false
         example: g
         type: string
@@ -141,7 +141,7 @@ endpoints:
       precio_compra:
         custom: []
         name: precio_compra
-        description: validation.min.
+        description: 'El campo value debe ser al menos 0.'
         required: true
         example: 12
         type: number
@@ -152,7 +152,7 @@ endpoints:
       precio_venta:
         custom: []
         name: precio_venta
-        description: validation.min.
+        description: 'El campo value debe ser al menos 0.'
         required: true
         example: 77
         type: number
@@ -163,7 +163,7 @@ endpoints:
       stock_actual:
         custom: []
         name: stock_actual
-        description: validation.min.
+        description: 'El campo value debe ser al menos 0.'
         required: true
         example: 8
         type: integer
@@ -174,7 +174,7 @@ endpoints:
       stock_minimo:
         custom: []
         name: stock_minimo
-        description: validation.min.
+        description: 'El campo value debe ser al menos 0.'
         required: true
         example: 76
         type: integer
@@ -187,18 +187,16 @@ endpoints:
         name: tipo
         description: ''
         required: true
-        example: venta_cliente
+        example: architecto
         type: string
-        enumValues:
-          - venta_cliente
-          - insumo_trabajo
+        enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
       imagen:
         custom: []
         name: imagen
-        description: 'validation.image validation.max.'
+        description: 'El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes.'
         required: false
         example: null
         type: file
@@ -217,6 +215,17 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      activo:
+        custom: []
+        name: activo
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
     cleanBodyParameters:
       nombre: b
       categoria: 'n'
@@ -225,8 +234,9 @@ endpoints:
       precio_venta: 77
       stock_actual: 8
       stock_minimo: 76
-      tipo: venta_cliente
+      tipo: architecto
       active: true
+      activo: false
     fileParameters:
       imagen: null
     responses: []
@@ -261,21 +271,21 @@ endpoints:
         name: product_id
         description: 'The ID of the product.'
         required: true
-        example: 16
-        type: integer
+        example: 6a57b2da9f3b687fea0bc926
+        type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      product_id: 16
+      product_id: 6a57b2da9f3b687fea0bc926
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
       nombre:
         custom: []
         name: nombre
-        description: validation.max.
+        description: 'El campo value no debe tener más de 120 caracteres.'
         required: false
         example: b
         type: string
@@ -286,7 +296,7 @@ endpoints:
       categoria:
         custom: []
         name: categoria
-        description: validation.max.
+        description: 'El campo value no debe tener más de 100 caracteres.'
         required: false
         example: 'n'
         type: string
@@ -297,7 +307,7 @@ endpoints:
       descripcion:
         custom: []
         name: descripcion
-        description: validation.max.
+        description: 'El campo value no debe tener más de 2000 caracteres.'
         required: false
         example: g
         type: string
@@ -308,7 +318,7 @@ endpoints:
       precio_compra:
         custom: []
         name: precio_compra
-        description: validation.min.
+        description: 'El campo value debe ser al menos 0.'
         required: false
         example: 12
         type: number
@@ -319,7 +329,7 @@ endpoints:
       precio_venta:
         custom: []
         name: precio_venta
-        description: validation.min.
+        description: 'El campo value debe ser al menos 0.'
         required: false
         example: 77
         type: number
@@ -330,7 +340,7 @@ endpoints:
       stock_actual:
         custom: []
         name: stock_actual
-        description: validation.min.
+        description: 'El campo value debe ser al menos 0.'
         required: false
         example: 8
         type: integer
@@ -341,7 +351,7 @@ endpoints:
       stock_minimo:
         custom: []
         name: stock_minimo
-        description: validation.min.
+        description: 'El campo value debe ser al menos 0.'
         required: false
         example: 76
         type: integer
@@ -354,18 +364,16 @@ endpoints:
         name: tipo
         description: ''
         required: false
-        example: venta_cliente
+        example: null
         type: string
-        enumValues:
-          - venta_cliente
-          - insumo_trabajo
+        enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
       imagen:
         custom: []
         name: imagen
-        description: 'validation.image validation.max.'
+        description: 'El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes.'
         required: false
         example: null
         type: file
@@ -384,6 +392,17 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      activo:
+        custom: []
+        name: activo
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
     cleanBodyParameters:
       nombre: b
       categoria: 'n'
@@ -392,8 +411,8 @@ endpoints:
       precio_venta: 77
       stock_actual: 8
       stock_minimo: 76
-      tipo: venta_cliente
       active: true
+      activo: false
     fileParameters:
       imagen: null
     responses: []
@@ -428,14 +447,14 @@ endpoints:
         name: product_id
         description: 'The ID of the product.'
         required: true
-        example: 16
-        type: integer
+        example: 6a57b2da9f3b687fea0bc926
+        type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      product_id: 16
+      product_id: 6a57b2da9f3b687fea0bc926
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -527,10 +546,10 @@ endpoints:
       product_id:
         custom: []
         name: product_id
-        description: 'The <code>id</code> of an existing record in the products table.'
+        description: 'Must match an existing stored value.'
         required: true
-        example: 16
-        type: integer
+        example: architecto
+        type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
@@ -549,7 +568,7 @@ endpoints:
       cantidad:
         custom: []
         name: cantidad
-        description: validation.min.
+        description: 'El campo value debe ser al menos 1.'
         required: true
         example: 22
         type: integer
@@ -560,7 +579,7 @@ endpoints:
       motivo:
         custom: []
         name: motivo
-        description: validation.max.
+        description: 'El campo value no debe tener más de 255 caracteres.'
         required: false
         example: g
         type: string
@@ -571,10 +590,10 @@ endpoints:
       appointment_id:
         custom: []
         name: appointment_id
-        description: 'The <code>id</code> of an existing record in the appointments table.'
+        description: 'Must match an existing stored value.'
         required: false
-        example: 16
-        type: integer
+        example: architecto
+        type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: true
@@ -582,20 +601,20 @@ endpoints:
       fecha:
         custom: []
         name: fecha
-        description: validation.date.
+        description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-05-08T22:53:11'
+        example: '2026-08-26T18:29:43'
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      product_id: 16
+      product_id: architecto
       cantidad: 22
       motivo: g
-      appointment_id: 16
-      fecha: '2026-05-08T22:53:11'
+      appointment_id: architecto
+      fecha: '2026-08-26T18:29:43'
     fileParameters: []
     responses: []
     responseFields: []

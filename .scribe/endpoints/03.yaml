@@ -213,7 +213,7 @@ endpoints:
     custom: []
     httpMethods:
       - PUT
-    uri: 'api/v1/appointments/{appointment_id}'
+    uri: 'api/v1/appointments/{appointment_code}'
     metadata:
       custom: []
       groupName: Citas
@@ -222,7 +222,9 @@ endpoints:
         Gestión de citas para clientes, barberos y administración.
       subgroup: ''
       subgroupDescription: ''
-      title: ''
+      title: |-
+        Edita una cita completa (todos los campos). Reservado a administración/recepción;
+        el barbero solo puede cambiar el estado vía updateStatus().
       description: ''
       authenticated: false
       deprecated: false
@@ -230,26 +232,26 @@ endpoints:
       Content-Type: application/json
       Accept: application/json
     urlParameters:
-      appointment_id:
+      appointment_code:
         custom: []
-        name: appointment_id
-        description: 'The ID of the appointment.'
+        name: appointment_code
+        description: ''
         required: true
-        example: 8
-        type: integer
+        example: yse8krwr
+        type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_id: 8
+      appointment_code: yse8krwr
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
       client_id:
         custom: []
         name: client_id
-        description: 'The <code>id</code> of an existing record in the clients table.'
+        description: 'Must match an existing stored value.'
         required: true
         example: architecto
         type: string
@@ -260,7 +262,7 @@ endpoints:
       barber_id:
         custom: []
         name: barber_id
-        description: 'The <code>id</code> of an existing record in the barbers table.'
+        description: 'Must match an existing stored value.'
         required: true
         example: architecto
         type: string
@@ -271,7 +273,7 @@ endpoints:
       service_id:
         custom: []
         name: service_id
-        description: 'The <code>id</code> of an existing record in the services table.'
+        description: 'Must match an existing stored value.'
         required: true
         example: architecto
         type: string
@@ -282,9 +284,9 @@ endpoints:
       fecha:
         custom: []
         name: fecha
-        description: 'validation.date validation.after_or_equal.'
+        description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-05-31'
+        example: '2052-09-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -295,7 +297,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '22:53'
+        example: '18:29'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -306,7 +308,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: confirmada
+        example: en_proceso
         type: string
         enumValues:
           - pendiente
@@ -321,7 +323,7 @@ endpoints:
       notas:
         custom: []
         name: notas
-        description: validation.max.
+        description: 'El campo value no debe tener más de 1000 caracteres.'
         required: false
         example: 'n'
         type: string
@@ -333,9 +335,9 @@ endpoints:
       client_id: architecto
       barber_id: architecto
       service_id: architecto
-      fecha: '2052-05-31'
-      hora_inicio: '22:53'
-      estado: confirmada
+      fecha: '2052-09-18'
+      hora_inicio: '18:29'
+      estado: en_proceso
       notas: 'n'
     fileParameters: []
     responses: []
@@ -348,7 +350,7 @@ endpoints:
     custom: []
     httpMethods:
       - PATCH
-    uri: 'api/v1/appointments/{appointment_id}/status'
+    uri: 'api/v1/appointments/{appointment_code}/status'
     metadata:
       custom: []
       groupName: Citas
@@ -357,7 +359,9 @@ endpoints:
         Gestión de citas para clientes, barberos y administración.
       subgroup: ''
       subgroupDescription: ''
-      title: ''
+      title: |-
+        Permite al barbero dueño de la cita cambiar su estado (respetando la máquina de estados
+        validada en AppointmentStatusService).
       description: ''
       authenticated: false
       deprecated: false
@@ -365,19 +369,19 @@ endpoints:
       Content-Type: application/json
       Accept: application/json
     urlParameters:
-      appointment_id:
+      appointment_code:
         custom: []
-        name: appointment_id
-        description: 'The ID of the appointment.'
+        name: appointment_code
+        description: ''
         required: true
-        example: 8
-        type: integer
+        example: yse8krwr
+        type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_id: 8
+      appointment_code: yse8krwr
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -401,7 +405,7 @@ endpoints:
       notas:
         custom: []
         name: notas
-        description: validation.max.
+        description: 'El campo value no debe tener más de 1000 caracteres.'
         required: false
         example: b
         type: string
@@ -423,7 +427,7 @@ endpoints:
     custom: []
     httpMethods:
       - DELETE
-    uri: 'api/v1/appointments/{appointment_id}'
+    uri: 'api/v1/appointments/{appointment_code}'
     metadata:
       custom: []
       groupName: Citas
@@ -432,27 +436,27 @@ endpoints:
         Gestión de citas para clientes, barberos y administración.
       subgroup: ''
       subgroupDescription: ''
-      title: ''
-      description: ''
+      title: 'Cancela una cita (soft-cancel: cambia estado a "cancelada", no elimina el registro).'
+      description: 'Permitido al cliente dueño de la cita o a un administrador.'
       authenticated: false
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
     urlParameters:
-      appointment_id:
+      appointment_code:
         custom: []
-        name: appointment_id
-        description: 'The ID of the appointment.'
+        name: appointment_code
+        description: ''
         required: true
-        example: 8
-        type: integer
+        example: yse8krwr
+        type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_id: 8
+      appointment_code: yse8krwr
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
