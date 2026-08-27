@@ -7,99 +7,138 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    SISTEMA DE TOKENS DE COLOR — UrbanBlade Design System
    ───────────────────────────────────────────────────────────────────────────
-   Todos los colores del UI se definen aquí como variables CSS.
-   Para cambiar un color en todo el sistema, solo modifica el valor aquí.
+   Todos los colores del UI se definen aquí como variables CSS. Cuatro temas
+   completos, elegidos por cada usuario en /profile (ver ProfileController::
+   updateTheme() y profile/partials/update-theme-form.blade.php) y aplicados
+   vía data-theme="..." en <html> — renderizado en servidor en
+   layouts/app.blade.php, así que no hay flash ni JS de por medio.
 
-   MODO CLARO  →  :root  (se aplica cuando <html> NO tiene la clase "dark")
-   MODO OSCURO →  html.dark  (se aplica cuando <html> tiene la clase "dark")
+   :root                       → tema por defecto ("noir": negro + oro)
+   html[data-theme="acero"]    → grafito + cobre  ("Taller de Acero")
+   html[data-theme="salon"]    → verde inglés + latón ("Salón Inglés")
+   html[data-theme="libreta"]  → único tema CLARO: marfil + tinta + oro
 
-   El toggle de tema está en:  resources/views/components/dark-mode-toggle.blade.php
-   El script anti-flash está en: resources/views/layouts/app.blade.php  <head>
+   --gold-rgb / --gold-dim-rgb son los mismos colores que --gold / --gold-dim
+   pero como canales "R G B" (sin comas): así los alimenta tailwind.config.js
+   con rgb(var(--gold-rgb) / <alpha-value>), lo que permite que utilidades
+   como bg-gold/10 o border-gold/30 (usadas en toda la app) cambien de color
+   con el tema, no solo bg-gold/border-gold a opacidad completa.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── MODO BORGOÑA — Alternativo UrbanBlade ────────────────────────────────────
-   Negro vino profundo. Inspirado en la silla de cuero rojo del barbero clásico,
-   el poste tricolor y el terciopelo de las barberías de lujo.
-   El gold sobre borgoña oscuro es la combinación más premium del mundo barbería.
-   Compatible con todos los valores hardcodeados del dashboard.
-   ─────────────────────────────────────────────────────────────────────────── */
+/* ── "Sastrería Nocturna" (default) — negro + oro, el más cercano al login ── */
 :root {
-    /* ── Fondos ─────────────────────────────────────────────
-       Para cambiar el fondo general del sitio → --bg-main
-       Para cambiar el fondo de tarjetas       → --bg-card
-       Para cambiar el fondo de hover/acordeón → --bg-accent
-       Para cambiar el fondo de tablas/panel   → --panel       */
-    --bg-main:   #0e0608;   /* negro vino — casi negro con tinte rojo */
-    --bg-card:   #180c0f;   /* vino oscuro — tarjetas                 */
-    --bg-accent: #221218;   /* burdeos — hover / acento               */
-    --panel:     #120709;   /* vino muy oscuro — tablas               */
-
-    /* ── Texto ──────────────────────────────────────────────
-       Para cambiar el texto principal   → --ink
-       Para cambiar el texto secundario  → --muted             */
-    --ink:   #f5eaec;       /* blanco cálido con tinte rosado suave   */
-    --muted: #b07880;       /* rosa vino apagado — texto secundario   */
-
-    /* ── Bordes ─────────────────────────────────────────────
-       Para cambiar el color de todos los bordes → --line      */
-    --line:  #2e1520;       /* borde borgoña oscuro                   */
-
-    /* ── Oro (MARCA — el gold BRILLA sobre borgoña) ─────────
-       Para cambiar el color de los BOTONES DORADOS → --gold
-       También cambiar 'gold': '#d4af37' en tailwind.config.js */
-    --gold:      #d4af37;
-    --gold-dim:  #aa8c2c;
-    --gold-glow: rgba(212, 175, 55, 0.30);   /* más intenso — contraste perfecto */
-
-    /* ── Gradientes de componentes premium ──────────────────
-       Para cambiar .ui-card-premium → --card-premium-from / --card-premium-to
-       Para cambiar .ui-panel        → --panel-from / --panel-to             */
-    --card-premium-from: #1f0e14;
-    --card-premium-to:   #0e0608;
-    --panel-from:        #180c10;
-    --panel-to:          #0a0406;
-
-    /* ── Barra superior y nav inferior móvil ────────────────
-       Para cambiar el color de la barra top móvil → --bg-topbar
-       Para cambiar el nav inferior móvil          → --bg-bottomnav */
-    --bg-topbar:    rgba(14, 6, 8, 0.93);
-    --bg-bottomnav: rgba(14, 6, 8, 0.97);
-
-    /* ── Punto del patrón de fondo ──────────────────────────
-       Para cambiar la intensidad del patrón de puntos → --dot-color */
-    --dot-color: rgba(212, 100, 100, 0.03);
-}
-
-/* ── MODO OSCURO (cuando <html class="dark">) ────────────────────────────── */
-html.dark {
-    /* Fondos */
-    --bg-main:   #0a0a0a;   /* negro profundo */
-    --bg-card:   #141414;
-    --bg-accent: #1e1e1e;
+    --bg-main:   #0a0a0a;
+    --bg-card:   #161616;
+    --bg-accent: #1f1f1f;
     --panel:     #111111;
 
-    /* Texto */
-    --ink:   #ffffff;
-    --muted: #b0b0b0;
+    --ink:   #f2f2f2;
+    --muted: #9c9c9c;
 
-    /* Bordes */
-    --line:  #333333;
+    --line:  #2c2c2c;
 
-    /* Oro */
-    --gold-glow: rgba(212, 175, 55, 0.25);
+    --gold:          #d4af37;
+    --gold-dim:      #a8842c;
+    --gold-rgb:      212 175 55;
+    --gold-dim-rgb:  168 132 44;
+    --gold-glow:     rgba(212, 175, 55, 0.28);
 
-    /* Gradientes premium */
-    --card-premium-from: #181818;
-    --card-premium-to:   #0f0f0f;
-    --panel-from:        #161616;
+    --card-premium-from: #1b1b1b;
+    --card-premium-to:   #0d0d0d;
+    --panel-from:        #151515;
     --panel-to:          #0a0a0a;
 
-    /* Móvil */
-    --bg-topbar:    rgba(10, 10, 10, 0.88);
-    --bg-bottomnav: rgba(10, 10, 10, 0.92);
+    --bg-topbar:    rgba(10, 10, 10, 0.93);
+    --bg-bottomnav: rgba(10, 10, 10, 0.97);
 
-    /* Patrón de fondo */
-    --dot-color: rgba(255, 255, 255, 0.02);
+    --dot-color: rgba(255, 255, 255, 0.03);
+}
+
+/* ── "Taller de Acero" — grafito frío + cobre. Navajas, tijeras, metal. ── */
+html[data-theme="acero"] {
+    --bg-main:   #111317;
+    --bg-card:   #1a1d22;
+    --bg-accent: #22262c;
+    --panel:     #14171b;
+
+    --ink:   #eef0f2;
+    --muted: #8f95a0;
+
+    --line:  #2c3038;
+
+    --gold:          #c1703d;
+    --gold-dim:      #9c5a30;
+    --gold-rgb:      193 112 61;
+    --gold-dim-rgb:  156 90 48;
+    --gold-glow:     rgba(193, 112, 61, 0.28);
+
+    --card-premium-from: #1d2026;
+    --card-premium-to:   #121418;
+    --panel-from:        #191c21;
+    --panel-to:          #0f1114;
+
+    --bg-topbar:    rgba(17, 19, 23, 0.93);
+    --bg-bottomnav: rgba(17, 19, 23, 0.97);
+
+    --dot-color: rgba(193, 112, 61, 0.04);
+}
+
+/* ── "Salón Inglés" — verde inglés muy oscuro + latón. Club de caballeros. ── */
+html[data-theme="salon"] {
+    --bg-main:   #0b1210;
+    --bg-card:   #141c19;
+    --bg-accent: #1c2621;
+    --panel:     #0f1614;
+
+    --ink:   #eef2ee;
+    --muted: #93a49b;
+
+    --line:  #26332c;
+
+    --gold:          #c9a24a;
+    --gold-dim:      #a1813a;
+    --gold-rgb:      201 162 74;
+    --gold-dim-rgb:  161 129 58;
+    --gold-glow:     rgba(201, 162, 74, 0.28);
+
+    --card-premium-from: #17201c;
+    --card-premium-to:   #0d1310;
+    --panel-from:        #131c18;
+    --panel-to:          #0a0f0d;
+
+    --bg-topbar:    rgba(11, 18, 16, 0.93);
+    --bg-bottomnav: rgba(11, 18, 16, 0.97);
+
+    --dot-color: rgba(201, 162, 74, 0.04);
+}
+
+/* ── "Libreta de Barbero" — único tema claro. Marfil + tinta + oro. ── */
+html[data-theme="libreta"] {
+    --bg-main:   #f3ede0;
+    --bg-card:   #fffbf3;
+    --bg-accent: #ece2cc;
+    --panel:     #f7f1e4;
+
+    --ink:   #241e18;
+    --muted: #7a6f60;
+
+    --line:  #e2d5b8;
+
+    --gold:          #b8860b;
+    --gold-dim:      #8a6608;
+    --gold-rgb:      184 134 11;
+    --gold-dim-rgb:  138 102 8;
+    --gold-glow:     rgba(184, 134, 11, 0.20);
+
+    --card-premium-from: #fffdf8;
+    --card-premium-to:   #f3ede0;
+    --panel-from:        #fbf6ea;
+    --panel-to:          #efe6d2;
+
+    --bg-topbar:    rgba(243, 237, 224, 0.92);
+    --bg-bottomnav: rgba(243, 237, 224, 0.96);
+
+    --dot-color: rgba(30, 42, 60, 0.035);
 }
 
 
@@ -339,7 +378,7 @@ html.dark {
         content: "";
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212, 175, 55, 0.1), transparent 50%);
+        background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), color-mix(in srgb, var(--gold) 10%, transparent), transparent 50%);
         opacity: 0;
         transition: opacity 300ms ease-out;
         border-radius: 1.25rem;
@@ -354,7 +393,7 @@ html.dark {
     }
 
     .ui-kpi-card:hover .ui-kpi-value {
-        text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        text-shadow: 0 0 20px color-mix(in srgb, var(--gold) 30%, transparent);
     }
 
     /* ── Estado vacío ── */
@@ -377,7 +416,7 @@ html.dark {
     }
 
     .ui-list-item:hover {
-        border-color: rgba(212, 175, 55, 0.3);
+        border-color: color-mix(in srgb, var(--gold) 30%, transparent);
         background-color: var(--bg-accent);
     }
 
@@ -420,7 +459,7 @@ html.dark {
 
     .ui-table tr:hover {
         background-color: color-mix(in srgb, var(--bg-accent) 60%, transparent);
-        box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.04);
+        box-shadow: inset 0 0 20px color-mix(in srgb, var(--gold) 4%, transparent);
     }
 
     /* ── Scrollbar personalizado ── */
@@ -441,8 +480,8 @@ html.dark {
     }
 
     /* ── Gold glow helpers ── */
-    .gold-glow       { box-shadow: 0 0 20px rgba(212, 175, 55, 0.15); }
-    .gold-glow-hover:hover { box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); }
+    .gold-glow       { box-shadow: 0 0 20px color-mix(in srgb, var(--gold) 15%, transparent); }
+    .gold-glow-hover:hover { box-shadow: 0 0 30px color-mix(in srgb, var(--gold) 30%, transparent); }
 
     /* ── Animaciones ── */
     .animate-float {
@@ -466,8 +505,8 @@ html.dark {
 
     .animate-pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
     @keyframes pulse-gold {
-        0%, 100% { box-shadow: 0 0 0 0  rgba(212, 175, 55, 0.7); }
-        50%       { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+        0%, 100% { box-shadow: 0 0 0 0  color-mix(in srgb, var(--gold) 70%, transparent); }
+        50%       { box-shadow: 0 0 0 10px transparent; }
     }
 
     .animate-slide-up { animation: slide-up 400ms cubic-bezier(0.4, 0, 0.2, 1); }
@@ -489,7 +528,7 @@ html.dark {
     }
 
     .text-gradient-gold {
-        background: linear-gradient(to right, #d4af37, #f7ef8a, #aa8c2c);
+        background: linear-gradient(to right, var(--gold-dim), var(--gold), var(--gold-dim));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
@@ -520,7 +559,7 @@ html.dark {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 50% 0%, rgba(212,175,55,0.04), transparent 60%);
+    background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--gold) 4%, transparent), transparent 60%);
     pointer-events: none;
     border-radius: inherit;
 }
@@ -539,13 +578,13 @@ html.dark {
 
 /* ─── Nav link active glow ───────────────────────── */
 .nav-active-glow {
-    box-shadow: inset 0 0 0 1px rgba(212,175,55,0.15), 0 0 12px rgba(212,175,55,0.05);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 15%, transparent), 0 0 12px color-mix(in srgb, var(--gold) 5%, transparent);
 }
 
 /* ─── Border pulse ───────────────────────────────── */
 @keyframes borderPulse {
-    0%,100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.4); }
-    50%      { box-shadow: 0 0 0 6px rgba(212,175,55,0); }
+    0%,100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gold) 40%, transparent); }
+    50%      { box-shadow: 0 0 0 6px transparent; }
 }
 .border-pulse { animation: borderPulse 2.5s ease-in-out infinite; }
 
@@ -666,8 +705,8 @@ html.dark {
     width: 34px;
     height: 34px;
     border-radius: 10px;
-    background: linear-gradient(135deg, rgba(212,175,55,0.3), rgba(212,175,55,0.1));
-    border: 1px solid rgba(212,175,55,0.25);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 30%, transparent), color-mix(in srgb, var(--gold) 10%, transparent));
+    border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
     font-size: 11px;
     font-weight: 900;
     color: var(--gold);
@@ -675,7 +714,7 @@ html.dark {
     transition: border-color 200ms ease, background 200ms ease, transform 150ms ease;
     -webkit-tap-highlight-color: transparent;
 }
-.mob-topbar-avatar:hover  { border-color: var(--gold); background: rgba(212,175,55,0.2); }
+.mob-topbar-avatar:hover  { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 20%, transparent); }
 .mob-topbar-avatar:active { transform: scale(0.9); }
 
 .mob-notif-badge {
@@ -830,7 +869,7 @@ html.dark {
     content: '';
     position: absolute;
     inset: -7px;
-    background: radial-gradient(circle, rgba(212,175,55,0.18) 0%, transparent 70%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--gold) 18%, transparent) 0%, transparent 70%);
     border-radius: 50%;
     animation: icon-halo 2.5s ease-in-out infinite;
 }
@@ -925,7 +964,7 @@ html.dark {
         height: min(42vw, 520px);
         pointer-events: none;
         background:
-            radial-gradient(circle at 30% 30%, rgba(212, 175, 55, 0.10), transparent 62%),
+            radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 62%),
             radial-gradient(circle at 70% 65%, rgba(56, 189, 248, 0.08), transparent 60%);
         filter: blur(24px);
         opacity: 0.72;
@@ -994,7 +1033,7 @@ html.dark {
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08), transparent 48%);
+        background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--gold) 8%, transparent), transparent 48%);
     }
 
     .ub-chart-frame canvas {

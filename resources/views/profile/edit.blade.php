@@ -18,6 +18,13 @@
                 </div>
             </section>
 
+            <!-- Appearance / Theme -->
+            <section class="ui-surface">
+                <div class="max-w-2xl">
+                    @include('profile.partials.update-theme-form')
+                </div>
+            </section>
+
             <!-- Update Password -->
             <section class="ui-surface">
                 <div class="max-w-2xl">

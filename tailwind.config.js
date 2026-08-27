@@ -38,12 +38,16 @@ export default {
                 'ink':    'var(--ink)',       // texto principal
 
                 /*
-                 * ORO — valor estático porque nunca cambia entre temas
-                 * y necesitamos soporte de opacidad: border-gold/30, bg-gold/10, etc.
-                 * Para cambiar el color de los botones dorados, cambia AQUÍ y en --gold de app.css.
+                 * ACENTO DE MARCA — apunta a --gold-rgb/--gold-dim-rgb (canales
+                 * "R G B" separados por espacio, ver app.css) envueltos en
+                 * rgb(... / <alpha-value>): así SÍ admite opacidad (bg-gold/10,
+                 * border-gold/30, etc.) Y cambia con el tema elegido en /profile,
+                 * a diferencia de un hex estático. Los 4 temas usan el nombre
+                 * "gold" para su propio acento (oro, cobre, latón...) aunque no
+                 * todos sean oro literal.
                  */
-                'gold':     '#d4af37',
-                'gold-dim': '#aa8c2c',
+                'gold':     'rgb(var(--gold-rgb) / <alpha-value>)',
+                'gold-dim': 'rgb(var(--gold-dim-rgb) / <alpha-value>)',
             },
         },
     },

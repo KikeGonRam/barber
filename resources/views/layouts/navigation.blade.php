@@ -8,7 +8,7 @@
 @endphp
 
 <nav :class="open ? 'translate-x-0 shadow-[12px_0_50px_rgba(0,0,0,0.7)]' : '-translate-x-full'"
-    class="ui-panel ui-mobile-drawer ui-mobile-drawer-panel fixed inset-y-0 left-0 z-40 m-0 flex h-screen w-[min(88vw,320px)] flex-col p-3 bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border-[#2a2a2a] overflow-hidden transition-[transform,box-shadow] duration-[380ms] ease-[cubic-bezier(0.32,0.72,0,1)] md:sticky md:top-6 md:z-auto md:m-4 md:h-[calc(100vh-2rem)] md:w-auto md:translate-x-0 md:shadow-none md:transition-none">
+    class="ui-panel ui-mobile-drawer ui-mobile-drawer-panel fixed inset-y-0 left-0 z-40 m-0 flex h-screen w-[min(88vw,320px)] flex-col p-3 overflow-hidden transition-[transform,box-shadow] duration-[380ms] ease-[cubic-bezier(0.32,0.72,0,1)] md:sticky md:top-6 md:z-auto md:m-4 md:h-[calc(100vh-2rem)] md:w-auto md:translate-x-0 md:shadow-none md:transition-none">
     <!-- Brand Section (Fixed) -->
     <div class="flex items-center justify-between px-2 pb-8 pt-4 flex-shrink-0 md:flex-col md:justify-center md:gap-3"
         :class="!railCollapsed ? 'lg:flex-row lg:justify-between lg:gap-0' : ''">

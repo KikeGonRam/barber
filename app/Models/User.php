@@ -48,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'notification_preferences',
         'verification_code',
         'verification_code_expires_at',
+        'theme',
     ];
 
     /**

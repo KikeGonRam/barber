@@ -41,6 +41,22 @@ class ProfileController extends Controller
     }
 
     /**
+     * Cambia el tema visual del usuario autenticado (ver resources/css/app.css
+     * para las 4 variantes). Se aplica en el siguiente request vía data-theme
+     * en <html> (layouts/app.blade.php), renderizado en servidor.
+     */
+    public function updateTheme(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'theme' => ['required', 'string', 'in:noir,acero,salon,libreta'],
+        ]);
+
+        $request->user()->update(['theme' => $request->string('theme')->toString()]);
+
+        return back()->with('status', 'theme-updated');
+    }
+
+    /**
      * Elimina la cuenta del propio usuario, tras confirmar su contraseña actual.
      * Cierra sesión y regenera el token CSRF para evitar fijación de sesión.
      */
