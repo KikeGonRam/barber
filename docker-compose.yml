@@ -119,6 +119,24 @@ services:
     networks:
       - internal
 
+  # MongoDB local para tests de integracion (Feature/DB). Aislado de Atlas
+  # a proposito: los tests nunca deben tocar barber_db (compartida con
+  # spark/). tests/.env.testing apunta aqui via MONGODB_URI=mongodb://mongo-test:27017.
+  mongo-test:
+    image: mongo:7
+    container_name: barber-mongo-test
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - internal
+
   # Servidor de correo de pruebas
   mailpit:
     image: axllent/mailpit
