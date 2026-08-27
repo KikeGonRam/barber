@@ -427,7 +427,15 @@ class DashboardService
 
         $appointmentStates = Appointment::where('client_id', $clientId)->get(['estado']);
         $totalAppointments = $appointmentStates->count();
-        $completedAppointments = $client?->total_citas ?? $appointmentStates->where('estado', 'completada')->count();
+        // OJO: "?? " no basta aquí. El cast 'integer' de Client::total_citas
+        // convierte un campo ausente en el documento (cliente nunca migrado a
+        // este contador) en 0, no en null — así que "$client?->total_citas ?? X"
+        // nunca cae a X mientras $client exista, incluso si el contador nunca
+        // se sembró. Se revisa el atributo crudo para distinguir "ausente" de
+        // "presente y en cero" y sí recontar en vivo en el primer caso.
+        $completedAppointments = ($client && array_key_exists('total_citas', $client->getAttributes()))
+            ? (int) $client->total_citas
+            : $appointmentStates->where('estado', 'completada')->count();
         $canceledAppointments = $appointmentStates->where('estado', 'cancelada')->count();
         $completedForRate = min($completedAppointments, $totalAppointments);
         $completionRate = $totalAppointments > 0 ? ($completedForRate / $totalAppointments) * 100 : 0;
