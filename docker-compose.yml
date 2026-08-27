@@ -121,11 +121,17 @@ services:
 
   # MongoDB local para tests de integracion (Feature/DB). Aislado de Atlas
   # a proposito: los tests nunca deben tocar barber_db (compartida con
-  # spark/). tests/.env.testing apunta aqui via MONGODB_URI=mongodb://mongo-test:27017.
+  # spark/). .env.testing apunta aqui via MONGODB_URI=mongodb://mongo-test:27017/?replicaSet=rs0.
+  # Corre como replica set de un solo nodo (no standalone) porque
+  # PaymentService/InventoryService envuelven sus escrituras en
+  # DB::transaction(), y MongoDB solo soporta transacciones multi-documento
+  # dentro de un replica set (o mongos) -- un mongod standalone las rechaza
+  # con "Transaction numbers are only allowed on a replica set member or mongos".
   mongo-test:
     image: mongo:7
     container_name: barber-mongo-test
     restart: unless-stopped
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27018:27017"
     healthcheck:
@@ -134,6 +140,29 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+    networks:
+      - internal
+
+  # Inicializa el replica set de un solo nodo de mongo-test (rs.initiate())
+  # una sola vez; idempotente (si ya esta inicializado, no hace nada) asi
+  # que es seguro que corra en cada "docker compose up". No hay volumen
+  # persistente para mongo-test a proposito (base de datos de test efimera),
+  # asi que este contenedor debe re-inicializar el replica set cada vez que
+  # mongo-test se recrea desde cero.
+  mongo-test-init:
+    image: mongo:7
+    container_name: barber-mongo-test-init
+    restart: "no"
+    depends_on:
+      mongo-test:
+        condition: service_healthy
+    entrypoint:
+      - mongosh
+      - --host
+      - mongo-test
+      - --quiet
+      - --eval
+      - "try { rs.status().ok } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongo-test:27017'}]}) }"
     networks:
       - internal
 
