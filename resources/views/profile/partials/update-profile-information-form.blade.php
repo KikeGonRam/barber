@@ -1,6 +1,6 @@
 <section>
     <header class="mb-6">
-        <h2 class="text-lg font-black text-white uppercase tracking-tight">
+        <h2 class="text-lg font-black text-ink uppercase tracking-tight">
             {{ __('Información del Perfil') }}
         </h2>
 
@@ -19,13 +19,13 @@
 
         <div class="group">
             <x-input-label for="name" :value="__('Nombre')" class="ui-label" />
-            <x-text-input id="name" name="name" type="text" class="ui-input !bg-panel border-white/10 focus:border-gold/50 text-white" :value="old('name', $user->name)" required autofocus autocomplete="name" />
+            <x-text-input id="name" name="name" type="text" class="ui-input !bg-panel border-ink/10 focus:border-gold/50 text-ink" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2 text-[10px] font-black text-red-500 uppercase" :messages="$errors->get('name')" />
         </div>
 
         <div class="group">
             <x-input-label for="email" :value="__('Correo Electrónico')" class="ui-label" />
-            <x-text-input id="email" name="email" type="email" class="ui-input !bg-panel border-white/10 focus:border-gold/50 text-white" :value="old('email', $user->email)" required autocomplete="username" />
+            <x-text-input id="email" name="email" type="email" class="ui-input !bg-panel border-ink/10 focus:border-gold/50 text-ink" :value="old('email', $user->email)" required autocomplete="username" />
             <x-input-error class="mt-2 text-[10px] font-black text-red-500 uppercase" :messages="$errors->get('email')" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
@@ -33,7 +33,7 @@
                     <p class="text-xs text-gold font-bold">
                         {{ __('Tu dirección de correo electrónico no está verificada.') }}
 
-                        <button form="send-verification" class="ml-2 underline hover:text-white transition">
+                        <button form="send-verification" class="ml-2 underline hover:text-ink transition">
                             {{ __('Haz clic aquí para volver a enviar el correo de verificación.') }}
                         </button>
                     </p>
@@ -47,7 +47,7 @@
             @endif
         </div>
 
-        <div class="flex items-center gap-4 pt-4 border-t border-white/5">
+        <div class="flex items-center gap-4 pt-4 border-t border-ink/5">
             <button type="submit" class="ui-btn px-10">
                 {{ __('Guardar Cambios') }}
             </button>

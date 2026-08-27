@@ -30,8 +30,8 @@
        class="inline-flex items-center gap-1 hover:text-gold transition-colors {{ $isActive ? 'text-gold' : '' }}">
         {{ $slot }}
         <span class="inline-flex flex-col leading-none text-[8px] -space-y-0.5">
-            <svg class="h-2 w-2 {{ $isActive && $currentDir === 'asc' ? 'text-gold' : 'text-white/20' }}" viewBox="0 0 12 12" fill="currentColor"><path d="M6 2l4 5H2z"/></svg>
-            <svg class="h-2 w-2 {{ $isActive && $currentDir === 'desc' ? 'text-gold' : 'text-white/20' }}" viewBox="0 0 12 12" fill="currentColor"><path d="M6 10L2 5h8z"/></svg>
+            <svg class="h-2 w-2 {{ $isActive && $currentDir === 'asc' ? 'text-gold' : 'text-ink/20' }}" viewBox="0 0 12 12" fill="currentColor"><path d="M6 2l4 5H2z"/></svg>
+            <svg class="h-2 w-2 {{ $isActive && $currentDir === 'desc' ? 'text-gold' : 'text-ink/20' }}" viewBox="0 0 12 12" fill="currentColor"><path d="M6 10L2 5h8z"/></svg>
         </span>
     </a>
 </th>

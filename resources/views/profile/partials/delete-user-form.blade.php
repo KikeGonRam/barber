@@ -1,6 +1,6 @@
 <section class="space-y-6">
     <header>
-        <h2 class="text-lg font-black text-white uppercase tracking-tight">
+        <h2 class="text-lg font-black text-ink uppercase tracking-tight">
             {{ __('Eliminar Cuenta') }}
         </h2>
 
@@ -20,7 +20,7 @@
             @csrf
             @method('delete')
 
-            <h2 class="text-lg font-black text-white uppercase tracking-tight">
+            <h2 class="text-lg font-black text-ink uppercase tracking-tight">
                 {{ __('¿Estás seguro de que quieres eliminar tu cuenta?') }}
             </h2>
 
@@ -35,7 +35,7 @@
                     id="password"
                     name="password"
                     type="password"
-                    class="ui-input !bg-panel border-white/10 focus:border-red-500/50 text-white"
+                    class="ui-input !bg-panel border-ink/10 focus:border-red-500/50 text-ink"
                     placeholder="{{ __('Introduce tu contraseña') }}"
                 />
 
@@ -43,7 +43,7 @@
             </div>
 
             <div class="mt-8 flex justify-end gap-4">
-                <button type="button" class="text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition" x-on:click="$dispatch('close')">
+                <button type="button" class="text-[10px] font-black uppercase tracking-widest text-muted hover:text-ink transition" x-on:click="$dispatch('close')">
                     {{ __('Cancelar') }}
                 </button>
 

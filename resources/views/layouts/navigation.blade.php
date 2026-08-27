@@ -12,7 +12,7 @@
     <!-- Brand Section (Fixed) -->
     <div class="flex items-center justify-between px-2 pb-8 pt-4 flex-shrink-0 md:flex-col md:justify-center md:gap-3"
         :class="!railCollapsed ? 'lg:flex-row lg:justify-between lg:gap-0' : ''">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-sm font-semibold tracking-wide text-white group">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-sm font-semibold tracking-wide text-ink group">
             <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-10 w-10 object-contain group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
             <div class="hidden" :class="!railCollapsed ? 'lg:block' : ''">
                 <span class="block text-lg font-black uppercase tracking-tighter leading-tight">Urban<span class="text-gold">Blade</span></span>
@@ -41,7 +41,7 @@
 
                 {{-- Divisor entre grupos (solo modo rail) --}}
                 @unless($loop->first)
-                    <div x-show="railView" x-cloak class="mx-auto my-2 h-px w-6 bg-white/10"></div>
+                    <div x-show="railView" x-cloak class="mx-auto my-2 h-px w-6 bg-ink/10"></div>
                 @endunless
 
                 {{-- Encabezado de sección --}}
@@ -75,7 +75,7 @@
     </div>
 
     <!-- User Footer Section (Fixed) -->
-    <div :class="open ? 'block' : 'hidden'" class="space-y-4 pt-4 md:block border-t border-white/10 flex-shrink-0">
+    <div :class="open ? 'block' : 'hidden'" class="space-y-4 pt-4 md:block border-t border-ink/10 flex-shrink-0">
         <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.*')" title="Notificaciones">
             <svg class="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="flex items-center gap-2 w-full justify-between md:hidden" :class="!railCollapsed ? 'lg:flex' : ''">
@@ -97,12 +97,12 @@
             @endif
         </x-nav-link>
 
-        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-2 rounded-xl py-2 hover:bg-white/5 transition-colors group justify-center md:justify-start" :class="!railCollapsed ? 'lg:justify-start' : ''" title="{{ $user?->name }}">
+        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-2 rounded-xl py-2 hover:bg-ink/5 transition-colors group justify-center md:justify-start" :class="!railCollapsed ? 'lg:justify-start' : ''" title="{{ $user?->name }}">
             <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-gold/30 to-gold/10 border border-gold/20 flex items-center justify-center text-[11px] font-black text-gold shrink-0 group-hover:from-gold/50 group-hover:to-gold/20 transition-all">
                 {{ strtoupper(mb_substr($user?->name ?? 'U', 0, 2)) }}
             </div>
             <div class="flex-1 min-w-0 md:hidden" :class="!railCollapsed ? 'lg:block' : ''">
-                <p class="truncate text-xs font-bold text-white">{{ $user?->name }}</p>
+                <p class="truncate text-xs font-bold text-ink">{{ $user?->name }}</p>
                 <p class="truncate text-[9px] font-bold text-muted uppercase tracking-wider">
                     @if($isAdmin) Administrador
                     @elseif($isBarber) Barbero
@@ -116,7 +116,7 @@
 
         <form method="POST" action="{{ route('logout') }}" class="px-2">
             @csrf
-            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20" title="Cerrar Sesión">
+            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl border border-ink/10 bg-ink/5 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-ink transition hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20" title="Cerrar Sesión">
                 <svg class="h-3 w-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 <span class="md:hidden" :class="!railCollapsed ? 'lg:inline' : ''">Cerrar Sesion</span>
             </button>

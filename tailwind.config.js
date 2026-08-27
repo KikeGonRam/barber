@@ -24,10 +24,15 @@ export default {
             colors: {
                 /*
                  * TOKENS DE TEMA — apuntan a variables CSS en app.css.
-                 * Los valores cambian automáticamente al agregar/quitar class="dark" en <html>.
+                 * Los valores cambian según el tema elegido en /profile (data-theme en <html>).
                  *
-                 * NOTA: estas clases NO admiten opacidad directa (ej. bg-card/50).
-                 *    Para opacidad usa bg-white/10, bg-black/20, etc.
+                 * NOTA: main/card/accent/panel/line/muted NO admiten opacidad directa
+                 * (ej. bg-card/50) porque son hex planos. "ink" SÍ la admite (ver abajo) —
+                 * úsala para cualquier wash/borde/texto translúcido en vez de bg-white/N,
+                 * text-white/N, border-white/N: "white" es SIEMPRE blanco puro sin
+                 * importar el tema (se ve mal en "libreta", el único tema claro), mientras
+                 * que bg-ink/N, text-ink/N, border-ink/N se adaptan (casi blanco en los 3
+                 * temas oscuros, tinta oscura en el claro).
                  */
                 'main':   'var(--bg-main)',   // fondo general (body)
                 'card':   'var(--bg-card)',   // fondo de tarjetas .ui-card
@@ -35,7 +40,7 @@ export default {
                 'panel':  'var(--panel)',     // fondo de paneles / tablas
                 'line':   'var(--line)',      // color de bordes / separadores
                 'muted':  'var(--muted)',     // texto secundario / etiquetas
-                'ink':    'var(--ink)',       // texto principal
+                'ink':    'rgb(var(--ink-rgb) / <alpha-value>)', // texto principal — admite opacidad (bg-ink/10, text-ink/50...)
 
                 /*
                  * ACENTO DE MARCA — apunta a --gold-rgb/--gold-dim-rgb (canales

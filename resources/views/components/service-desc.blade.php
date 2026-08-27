@@ -23,7 +23,7 @@
         .'queratina|navaja/iu';
     $safe = preg_replace_callback(
         $terms,
-        fn ($m) => '<strong class="font-semibold text-white/90">'.$m[0].'</strong>',
+        fn ($m) => '<strong class="font-semibold text-ink/90">'.$m[0].'</strong>',
         $safe
     );
 @endphp

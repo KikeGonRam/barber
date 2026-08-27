@@ -24,12 +24,12 @@
     role="status"
     aria-live="polite"
 >
-    <div class="ui-card-premium p-4 flex items-center gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border-white/10 glass-dark">
+    <div class="ui-card-premium p-4 flex items-center gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border-ink/10 glass-dark">
         <div :class="{
             'bg-green-500/20 text-green-400': type === 'success',
             'bg-red-500/20 text-red-400': type === 'error',
             'bg-gold/20 text-gold': type === 'info'
-        }" class="h-10 w-10 rounded-full flex items-center justify-center border border-white/5">
+        }" class="h-10 w-10 rounded-full flex items-center justify-center border border-ink/5">
             <template x-if="type === 'success'">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
             </template>
@@ -42,9 +42,9 @@
         </div>
         <div class="flex-1">
             <p class="text-[10px] font-black uppercase tracking-widest text-gold mb-0.5" x-text="type === 'success' ? 'Éxito' : (type === 'error' ? 'Error' : 'Notificación')"></p>
-            <p class="text-sm font-bold text-white leading-tight" x-text="message"></p>
+            <p class="text-sm font-bold text-ink leading-tight" x-text="message"></p>
         </div>
-        <button @click="show = false" class="text-muted hover:text-white transition" aria-label="Cerrar notificación">
+        <button @click="show = false" class="text-muted hover:text-ink transition" aria-label="Cerrar notificación">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
     </div>

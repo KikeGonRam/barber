@@ -18,11 +18,15 @@
    html[data-theme="salon"]    → verde inglés + latón ("Salón Inglés")
    html[data-theme="libreta"]  → único tema CLARO: marfil + tinta + oro
 
-   --gold-rgb / --gold-dim-rgb son los mismos colores que --gold / --gold-dim
-   pero como canales "R G B" (sin comas): así los alimenta tailwind.config.js
-   con rgb(var(--gold-rgb) / <alpha-value>), lo que permite que utilidades
-   como bg-gold/10 o border-gold/30 (usadas en toda la app) cambien de color
-   con el tema, no solo bg-gold/border-gold a opacidad completa.
+   --gold-rgb / --gold-dim-rgb / --ink-rgb son los mismos colores que --gold /
+   --gold-dim / --ink pero como canales "R G B" (sin comas): así los alimenta
+   tailwind.config.js con rgb(var(--x-rgb) / <alpha-value>), lo que permite
+   que utilidades con opacidad (bg-gold/10, border-ink/[0.06], text-ink/50...)
+   cambien de color con el tema, no solo a opacidad completa. --ink-rgb en
+   particular reemplaza usos sueltos de "white" (bg-white/[0.06], text-white/50,
+   border-white/10...): en los 3 temas oscuros --ink es casi blanco, así que
+   se ven igual que antes; en "libreta" (el único tema claro) se vuelve tinta
+   oscura en vez de quedarse blanco sobre un fondo claro.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── "Sastrería Nocturna" (default) — negro + oro, el más cercano al login ── */
@@ -32,8 +36,9 @@
     --bg-accent: #1f1f1f;
     --panel:     #111111;
 
-    --ink:   #f2f2f2;
-    --muted: #9c9c9c;
+    --ink:      #f2f2f2;
+    --ink-rgb:  242 242 242;
+    --muted:    #9c9c9c;
 
     --line:  #2c2c2c;
 
@@ -61,8 +66,9 @@ html[data-theme="acero"] {
     --bg-accent: #22262c;
     --panel:     #14171b;
 
-    --ink:   #eef0f2;
-    --muted: #8f95a0;
+    --ink:      #eef0f2;
+    --ink-rgb:  238 240 242;
+    --muted:    #8f95a0;
 
     --line:  #2c3038;
 
@@ -90,8 +96,9 @@ html[data-theme="salon"] {
     --bg-accent: #1c2621;
     --panel:     #0f1614;
 
-    --ink:   #eef2ee;
-    --muted: #93a49b;
+    --ink:      #eef2ee;
+    --ink-rgb:  238 242 238;
+    --muted:    #93a49b;
 
     --line:  #26332c;
 
@@ -119,8 +126,9 @@ html[data-theme="libreta"] {
     --bg-accent: #ece2cc;
     --panel:     #f7f1e4;
 
-    --ink:   #241e18;
-    --muted: #7a6f60;
+    --ink:      #241e18;
+    --ink-rgb:  36 30 24;
+    --muted:    #7a6f60;
 
     --line:  #e2d5b8;
 

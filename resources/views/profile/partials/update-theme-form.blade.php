@@ -1,6 +1,6 @@
 <section>
     <header class="mb-6">
-        <h2 class="text-lg font-black text-white uppercase tracking-tight">
+        <h2 class="text-lg font-black text-ink uppercase tracking-tight">
             {{ __('Apariencia') }}
         </h2>
 
@@ -36,13 +36,13 @@
                     >
                     <div
                         class="rounded-xl border-2 p-3 transition-all peer-checked:border-gold peer-checked:shadow-lg peer-checked:shadow-gold/10"
-                        style="border-color: {{ $currentTheme === $value ? '' : 'rgba(255,255,255,0.08)' }};"
+                        style="border-color: {{ $currentTheme === $value ? '' : 'rgb(var(--ink-rgb) / 0.08)' }};"
                     >
                         <div class="flex h-14 overflow-hidden rounded-lg" style="background: {{ $t['bg'] }};">
                             <div class="flex-1" style="background: {{ $t['card'] }};"></div>
                             <div class="w-3" style="background: {{ $t['accent'] }};"></div>
                         </div>
-                        <p class="mt-2.5 text-[11px] font-black uppercase tracking-wide text-white">{{ $t['name'] }}</p>
+                        <p class="mt-2.5 text-[11px] font-black uppercase tracking-wide text-ink">{{ $t['name'] }}</p>
                         <p class="text-[10px] text-muted">{{ $t['desc'] }}</p>
                     </div>
                     @if ($currentTheme === $value)
@@ -51,15 +51,5 @@
                 </label>
             @endforeach
         </div>
-
-        @if (session('status') === 'theme-updated')
-            <p
-                x-data="{ show: true }"
-                x-show="show"
-                x-transition
-                x-init="setTimeout(() => show = false, 2000)"
-                class="mt-4 text-[10px] font-black uppercase text-gold tracking-widest"
-            >{{ __('Tema actualizado.') }}</p>
-        @endif
     </form>
 </section>

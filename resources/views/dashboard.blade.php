@@ -7,14 +7,14 @@
         @endphp
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50 mb-1">UrbanBlade · Dashboard</p>
-                <h2 class="text-xl font-black text-white uppercase tracking-tight">
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-ink/50 mb-1">UrbanBlade · Dashboard</p>
+                <h2 class="text-xl font-black text-ink uppercase tracking-tight">
                     Panel <span class="{{ $modeColors[$mode] }}">{{ $modeLabels[$mode] }}</span>
                 </h2>
-                <p class="text-[10px] text-white/50 font-bold mt-0.5 uppercase tracking-wider">{{ now()->translatedFormat('l d \d\e F, Y') }}</p>
+                <p class="text-[10px] text-ink/50 font-bold mt-0.5 uppercase tracking-wider">{{ now()->translatedFormat('l d \d\e F, Y') }}</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-                <span class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/8 bg-white/[0.03] text-[9px] font-black uppercase tracking-widest text-white/40">
+                <span class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-ink/8 bg-ink/[0.03] text-[9px] font-black uppercase tracking-widest text-ink/40">
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     Sistema Activo
                 </span>
@@ -25,7 +25,7 @@
                             <button type="submit" title="{{ ($maintenanceMode ?? false) ? 'Mantenimiento activado' : 'Activar modo mantenimiento' }}"
                                 aria-label="Modo mantenimiento"
                                 class="flex h-8 w-8 items-center justify-center rounded-xl border transition-all
-                                    {{ ($maintenanceMode ?? false) ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-white/[0.03] border-white/8 text-white/35 hover:text-white hover:border-white/20' }}">
+                                    {{ ($maintenanceMode ?? false) ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-ink/[0.03] border-ink/8 text-ink/35 hover:text-ink hover:border-ink/20' }}">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             </button>
                         </form>
@@ -75,11 +75,11 @@
             ['href'=>route('reports.index'),       'label'=>'Reportes',      'link'=>'hover:border-purple-500/30 hover:bg-purple-500/[0.04]',   'box'=>'bg-purple-500/10',  'text'=>'text-purple-400',  'icon'=>'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
         ] as $a)
             <a href="{{ $a['href'] }}"
-               class="group flex items-center gap-3 rounded-[8px] border border-white/[0.06] bg-[#111] px-4 py-3.5 {{ $a['link'] }} transition-all">
+               class="group flex items-center gap-3 rounded-[8px] border border-ink/[0.06] bg-card px-4 py-3.5 {{ $a['link'] }} transition-all">
                 <div class="h-8 w-8 rounded-[8px] {{ $a['box'] }} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <svg class="h-4 w-4 {{ $a['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $a['icon'] }}"/></svg>
                 </div>
-                <span class="text-[11px] font-black text-white uppercase tracking-wide">{{ $a['label'] }}</span>
+                <span class="text-[11px] font-black text-ink uppercase tracking-wide">{{ $a['label'] }}</span>
             </a>
         @endforeach
     </section>
@@ -87,23 +87,23 @@
     {{-- ── ZONA 1: RESUMEN ───────────────────────────────────── --}}
     <div class="flex items-center gap-3 px-1 pt-1">
         <span class="text-[10px] font-black uppercase tracking-[0.22em] text-gold">Resumen</span>
-        <span class="h-px flex-1 bg-white/[0.06]"></span>
+        <span class="h-px flex-1 bg-ink/[0.06]"></span>
     </div>
 
     {{-- ── KPIs ──────────────────────────────────────────────── --}}
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
         {{-- Citas --}}
-        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden">
+        <div class="rounded-2xl border border-ink/[0.06] bg-card p-5 relative overflow-hidden">
             <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-blue-500/60 to-transparent"></div>
             <div class="flex items-start justify-between mb-4">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/35">Citas Hoy</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/35">Citas Hoy</p>
                 <div class="h-7 w-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
                     <svg class="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
             </div>
-            <p class="text-3xl font-black text-white leading-none">{{ $kpis['appointments_today'] }}</p>
-            <div class="mt-3 flex items-center gap-2 text-[9px] font-black text-white/50">
+            <p class="text-3xl font-black text-ink leading-none">{{ $kpis['appointments_today'] }}</p>
+            <div class="mt-3 flex items-center gap-2 text-[9px] font-black text-ink/50">
                 <span class="text-blue-400/80">Sem {{ $kpis['appointments_week'] }}</span>
                 <span>·</span>
                 <span>Mes {{ $kpis['appointments_month'] }}</span>
@@ -116,10 +116,10 @@
         </div>
 
         {{-- Ingresos --}}
-        <a href="{{ route('payments.index') }}" class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden hover:border-emerald-500/25 transition-all group">
+        <a href="{{ route('payments.index') }}" class="rounded-2xl border border-ink/[0.06] bg-card p-5 relative overflow-hidden hover:border-emerald-500/25 transition-all group">
             <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-emerald-500/60 to-transparent"></div>
             <div class="flex items-start justify-between mb-4">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/35">Ingresos Hoy</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/35">Ingresos Hoy</p>
                 <div class="h-7 w-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                     <svg class="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
@@ -131,7 +131,7 @@
                 </svg>
             @else <div class="h-5 my-2"></div>
             @endif
-            <div class="flex items-center gap-2 text-[9px] font-black text-white/50">
+            <div class="flex items-center gap-2 text-[9px] font-black text-ink/50">
                 <span class="text-emerald-400/80">Sem ${{ number_format($kpis['income_week'],0) }}</span>
                 <span>·</span>
                 <span>Mes ${{ number_format($kpis['income_month'],0) }}</span>
@@ -144,39 +144,39 @@
         </a>
 
         {{-- Clientes --}}
-        <a href="{{ route('clients.index') }}" class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden hover:border-cyan-500/25 transition-all">
+        <a href="{{ route('clients.index') }}" class="rounded-2xl border border-ink/[0.06] bg-card p-5 relative overflow-hidden hover:border-cyan-500/25 transition-all">
             <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-cyan-500/60 to-transparent"></div>
             <div class="flex items-start justify-between mb-4">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/35">Clientes</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/35">Clientes</p>
                 <div class="h-7 w-7 rounded-lg bg-cyan-500/10 flex items-center justify-center">
                     <svg class="h-3.5 w-3.5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </div>
             </div>
-            <p class="text-3xl font-black text-white leading-none">{{ $kpis['active_clients'] }}</p>
+            <p class="text-3xl font-black text-ink leading-none">{{ $kpis['active_clients'] }}</p>
             @php $ratio = $kpis['total_clients'] > 0 ? round(($kpis['active_clients']/$kpis['total_clients'])*100) : 0; @endphp
-            <div class="mt-3 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+            <div class="mt-3 h-1 w-full bg-ink/5 rounded-full overflow-hidden">
                 <div class="h-full bg-cyan-400 rounded-full" style="width:{{ $ratio }}%"></div>
             </div>
-            <div class="mt-2 flex items-center gap-2 text-[9px] font-black text-white/50">
+            <div class="mt-2 flex items-center gap-2 text-[9px] font-black text-ink/50">
                 <span class="text-cyan-400/80">{{ $ratio }}% activos</span>
                 <span>de {{ $kpis['total_clients'] }} totales</span>
             </div>
         </a>
 
         {{-- Retención --}}
-        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden">
+        <div class="rounded-2xl border border-ink/[0.06] bg-card p-5 relative overflow-hidden">
             <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-purple-500/60 to-transparent"></div>
             <div class="flex items-start justify-between mb-4">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/35">Retención</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/35">Retención</p>
                 <div class="h-7 w-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
                     <svg class="h-3.5 w-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 </div>
             </div>
-            <p class="text-3xl font-black text-purple-400 leading-none">{{ number_format($kpis['retention_rate'],1) }}<span class="text-lg text-white/40">%</span></p>
-            <div class="mt-3 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+            <p class="text-3xl font-black text-purple-400 leading-none">{{ number_format($kpis['retention_rate'],1) }}<span class="text-lg text-ink/40">%</span></p>
+            <div class="mt-3 h-1 w-full bg-ink/5 rounded-full overflow-hidden">
                 <div class="h-full bg-purple-400 rounded-full" style="width:{{ min(100,$kpis['retention_rate']) }}%"></div>
             </div>
-            <div class="mt-2 flex items-center gap-2 text-[9px] font-black text-white/50">
+            <div class="mt-2 flex items-center gap-2 text-[9px] font-black text-ink/50">
                 <span class="text-purple-400/80">{{ $kpis['recurring_clients'] }} recurrentes</span>
                 @if(($kpis['low_stock_count'] ?? 0) > 0)
                     <a href="{{ route('inventory.products.index') }}" class="ml-auto flex items-center gap-1 text-amber-400/80 hover:text-amber-400 transition-colors">
@@ -197,7 +197,7 @@
                 <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0013 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                 <h3 class="text-[11px] font-black uppercase tracking-widest text-gold">Insights del análisis de datos</h3>
                 <span class="text-[9px] text-muted">· UrbanBlade Analytics</span>
-                <a href="{{ route('analytics.index') }}" class="ml-auto flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-gold transition-colors">
+                <a href="{{ route('analytics.index') }}" class="ml-auto flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-ink/50 hover:text-gold transition-colors">
                     Ver todo <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </a>
             </div>
@@ -205,7 +205,7 @@
                 @foreach($insights as $insight)
                     <article class="rounded-2xl border border-gold/15 bg-gold/[0.03] p-4">
                         <p class="text-[9px] font-black uppercase tracking-widest text-gold/70">{{ $insight['titulo'] }}</p>
-                        <p class="text-2xl font-black text-white mt-1">{{ $insight['dato'] }}</p>
+                        <p class="text-2xl font-black text-ink mt-1">{{ $insight['dato'] }}</p>
                         <p class="text-[11px] text-muted mt-1.5 leading-snug">{{ $insight['detalle'] }}</p>
                     </article>
                 @endforeach
@@ -225,43 +225,43 @@
     {{-- ── ZONA 2: OPERACIÓN DE HOY ──────────────────────────── --}}
     <div class="flex items-center gap-3 px-1 pt-2">
         <span class="text-[10px] font-black uppercase tracking-[0.22em] text-gold">Operación de hoy</span>
-        <span class="h-px flex-1 bg-white/[0.06]"></span>
+        <span class="h-px flex-1 bg-ink/[0.06]"></span>
     </div>
 
     {{-- ── CUERPO PRINCIPAL ──────────────────────────────────── --}}
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
         {{-- Agenda de hoy --}}
-        <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="lg:col-span-7 rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Agenda</p>
-                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Citas de Hoy</h3>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Agenda</p>
+                    <h3 class="text-sm font-black text-ink uppercase mt-0.5">Citas de Hoy</h3>
                 </div>
-                <a href="{{ route('appointments.index') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-gold transition-colors">
+                <a href="{{ route('appointments.index') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-ink/50 hover:text-gold transition-colors">
                     Ver todo <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </a>
             </div>
 
             @if($todayAppointments->isEmpty())
-                <div class="flex flex-col items-center justify-center py-12 border border-dashed border-white/[0.06] rounded-xl">
-                    <svg class="h-8 w-8 text-white/10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <p class="text-xs font-bold text-white/45 uppercase tracking-widest">Sin citas hoy</p>
+                <div class="flex flex-col items-center justify-center py-12 border border-dashed border-ink/[0.06] rounded-xl">
+                    <svg class="h-8 w-8 text-ink/10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <p class="text-xs font-bold text-ink/45 uppercase tracking-widest">Sin citas hoy</p>
                     <a href="{{ route('appointments.create') }}" class="mt-3 text-[9px] font-black uppercase tracking-widest text-gold/60 hover:text-gold transition-colors">+ Crear cita</a>
                 </div>
             @else
                 <div class="space-y-2">
                     @foreach($todayAppointments as $appt)
-                        @php $st = $statusMap[$appt->estado] ?? ['cls'=>'border-white/10 bg-white/5 text-white/40','dot'=>'bg-white/30','label'=>'—']; @endphp
-                        <div class="flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] hover:border-white/10 hover:bg-white/[0.02] transition-all">
+                        @php $st = $statusMap[$appt->estado] ?? ['cls'=>'border-ink/10 bg-ink/5 text-ink/40','dot'=>'bg-ink/30','label'=>'—']; @endphp
+                        <div class="flex items-center gap-3 p-3 rounded-xl border border-ink/[0.05] hover:border-ink/10 hover:bg-ink/[0.02] transition-all">
                             <div class="w-10 text-center shrink-0">
-                                <p class="text-[11px] font-black text-white">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
-                                <p class="text-[8px] text-white/45 font-bold">{{ substr($appt->hora_fin ?? '',0,5) }}</p>
+                                <p class="text-[11px] font-black text-ink">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
+                                <p class="text-[8px] text-ink/45 font-bold">{{ substr($appt->hora_fin ?? '',0,5) }}</p>
                             </div>
-                            <div class="w-px h-7 bg-white/[0.06] shrink-0"></div>
+                            <div class="w-px h-7 bg-ink/[0.06] shrink-0"></div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-xs font-black text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
-                                <p class="text-[9px] text-white/35 font-bold truncate">{{ $appt->service?->nombre ?? '—' }} · {{ $appt->barber?->user?->name ?? '—' }}</p>
+                                <p class="text-xs font-black text-ink truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
+                                <p class="text-[9px] text-ink/35 font-bold truncate">{{ $appt->service?->nombre ?? '—' }} · {{ $appt->barber?->user?->name ?? '—' }}</p>
                             </div>
                             <span class="shrink-0 flex items-center gap-1 text-[8px] font-black uppercase tracking-wider border rounded-full px-2 py-0.5 {{ $st['cls'] }}">
                                 <span class="h-1.5 w-1.5 rounded-full {{ $st['dot'] }}"></span>
@@ -275,14 +275,14 @@
 
         {{-- Panel derecho con tabs --}}
         <div class="lg:col-span-5" x-data="{ tab: 'activity' }">
-            <div class="rounded-2xl border border-white/[0.06] bg-[#111] overflow-hidden h-full flex flex-col">
+            <div class="rounded-2xl border border-ink/[0.06] bg-card overflow-hidden h-full flex flex-col">
 
                 {{-- Tab headers --}}
-                <div class="flex border-b border-white/[0.06]">
+                <div class="flex border-b border-ink/[0.06]">
                     @foreach([['id'=>'activity','label'=>'Actividad'],['id'=>'stations','label'=>'Estaciones'],['id'=>'topbarber','label'=>'Top Mes']] as $tab)
                         <button type="button" @click="tab='{{ $tab['id'] }}'"
                             class="flex-1 py-3 text-[9px] font-black uppercase tracking-[0.2em] transition-all"
-                            :class="tab==='{{ $tab['id'] }}' ? 'text-gold border-b-2 border-gold -mb-px' : 'text-white/50 hover:text-white/60'">
+                            :class="tab==='{{ $tab['id'] }}' ? 'text-gold border-b-2 border-gold -mb-px' : 'text-ink/50 hover:text-ink/60'">
                             {{ $tab['label'] }}
                         </button>
                     @endforeach
@@ -294,19 +294,19 @@
                     <div x-show="tab==='activity'" x-transition>
                         <div class="space-y-3">
                             @forelse($recentAppointments->take(6) as $appt)
-                                @php $st = $statusMap[$appt->estado] ?? ['cls'=>'border-white/10 bg-white/5 text-white/40','dot'=>'bg-white/30','label'=>'—']; @endphp
+                                @php $st = $statusMap[$appt->estado] ?? ['cls'=>'border-ink/10 bg-ink/5 text-ink/40','dot'=>'bg-ink/30','label'=>'—']; @endphp
                                 <div class="flex items-center gap-3">
-                                    <div class="h-8 w-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-[10px] font-black text-gold shrink-0">
+                                    <div class="h-8 w-8 rounded-lg bg-ink/[0.04] border border-ink/[0.06] flex items-center justify-center text-[10px] font-black text-gold shrink-0">
                                         {{ strtoupper(mb_substr($appt->barber?->user?->name ?? 'B',0,1)) }}
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-[11px] font-bold text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
-                                        <p class="text-[9px] text-white/50 truncate">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M') }} · {{ substr($appt->hora_inicio,0,5) }}</p>
+                                        <p class="text-[11px] font-bold text-ink truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
+                                        <p class="text-[9px] text-ink/50 truncate">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M') }} · {{ substr($appt->hora_inicio,0,5) }}</p>
                                     </div>
                                     <span class="shrink-0 text-[8px] font-black uppercase border rounded-full px-2 py-0.5 {{ $st['cls'] }}">{{ $st['label'] }}</span>
                                 </div>
                             @empty
-                                <p class="text-xs text-white/45 italic text-center py-8">Sin actividad reciente</p>
+                                <p class="text-xs text-ink/45 italic text-center py-8">Sin actividad reciente</p>
                             @endforelse
                         </div>
                     </div>
@@ -318,7 +318,7 @@
                     @endphp
                     <div x-show="tab==='stations'" x-transition x-data="{ showFree: false }">
                         <div class="flex items-center justify-between mb-4">
-                            <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Ocupación en tiempo real</p>
+                            <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Ocupación en tiempo real</p>
                             <span class="flex items-center gap-1 text-[8px] font-black uppercase text-emerald-400">
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Live
                             </span>
@@ -340,26 +340,26 @@
                                     @foreach($busyStatuses as $st)
                                         <div class="rounded-xl border border-red-500/20 bg-red-500/[0.04] p-3 text-center">
                                             <div class="relative inline-flex mb-2">
-                                                <div class="h-9 w-9 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[11px] font-black text-gold">
+                                                <div class="h-9 w-9 rounded-lg bg-ink/[0.05] border border-ink/[0.08] flex items-center justify-center text-[11px] font-black text-gold">
                                                     {{ strtoupper(mb_substr($st['name'],0,2)) }}
                                                 </div>
                                                 <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#111] bg-red-500"></span>
                                             </div>
-                                            <p class="text-[10px] font-black text-white truncate">{{ explode(' ',$st['name'])[0] }}</p>
+                                            <p class="text-[10px] font-black text-ink truncate">{{ explode(' ',$st['name'])[0] }}</p>
                                             <p class="text-[8px] font-black uppercase text-red-400">Ocupado</p>
-                                            <div class="mt-1.5 h-0.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                            <div class="mt-1.5 h-0.5 w-full bg-ink/5 rounded-full overflow-hidden">
                                                 <div class="h-full bg-gold rounded-full" style="width:{{ $st['progress'] }}%"></div>
                                             </div>
                                         </div>
                                     @endforeach
                                 </div>
                             @else
-                                <p class="text-xs text-white/45 italic text-center py-4">Nadie está atendiendo ahora mismo.</p>
+                                <p class="text-xs text-ink/45 italic text-center py-4">Nadie está atendiendo ahora mismo.</p>
                             @endif
 
                             @if($freeStatuses->isNotEmpty())
                                 <button type="button" @click="showFree = !showFree"
-                                        class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] py-2.5 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-white/70 transition">
+                                        class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-ink/[0.06] bg-ink/[0.02] py-2.5 text-[9px] font-black uppercase tracking-widest text-ink/50 hover:text-ink/70 transition">
                                     <span x-text="showFree ? 'Ocultar libres' : 'Ver {{ $freeStatuses->count() }} libres'"></span>
                                     <svg class="h-3 w-3 transition-transform" :class="showFree ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
@@ -367,19 +367,19 @@
                                     @foreach($freeStatuses as $st)
                                         <div class="rounded-xl border border-emerald-500/15 bg-emerald-500/[0.04] p-3 text-center">
                                             <div class="relative inline-flex mb-2">
-                                                <div class="h-9 w-9 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[11px] font-black text-gold">
+                                                <div class="h-9 w-9 rounded-lg bg-ink/[0.05] border border-ink/[0.08] flex items-center justify-center text-[11px] font-black text-gold">
                                                     {{ strtoupper(mb_substr($st['name'],0,2)) }}
                                                 </div>
                                                 <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#111] bg-emerald-500"></span>
                                             </div>
-                                            <p class="text-[10px] font-black text-white truncate">{{ explode(' ',$st['name'])[0] }}</p>
+                                            <p class="text-[10px] font-black text-ink truncate">{{ explode(' ',$st['name'])[0] }}</p>
                                             <p class="text-[8px] font-black uppercase text-emerald-400">Libre</p>
                                         </div>
                                     @endforeach
                                 </div>
                             @endif
                         @else
-                            <p class="text-xs text-white/45 italic text-center py-8">Sin barberos activos</p>
+                            <p class="text-xs text-ink/45 italic text-center py-8">Sin barberos activos</p>
                         @endif
                     </div>
 
@@ -390,19 +390,19 @@
                                 <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center text-2xl font-black text-gold mb-3">
                                     {{ strtoupper(mb_substr($kpis['top_barber_name'],0,2)) }}
                                 </div>
-                                <p class="text-base font-black text-white uppercase">{{ $kpis['top_barber_name'] }}</p>
-                                <p class="text-[9px] text-white/50 font-bold uppercase tracking-widest mt-0.5">Mejor del mes</p>
+                                <p class="text-base font-black text-ink uppercase">{{ $kpis['top_barber_name'] }}</p>
+                                <p class="text-[9px] text-ink/50 font-bold uppercase tracking-widest mt-0.5">Mejor del mes</p>
                                 <div class="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gold/15 bg-gold/[0.06]">
                                     <svg class="h-3.5 w-3.5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                     <p class="text-sm font-black text-gold">{{ $kpis['top_barber_total'] }}</p>
-                                    <p class="text-[9px] text-white/50 font-bold uppercase tracking-wider">citas</p>
+                                    <p class="text-[9px] text-ink/50 font-bold uppercase tracking-wider">citas</p>
                                 </div>
                                 <div class="flex gap-0.5 mt-3">
                                     @for($s=0;$s<5;$s++)<svg class="h-3.5 w-3.5 text-gold" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>@endfor
                                 </div>
                             </div>
                         @else
-                            <p class="text-xs text-white/45 italic text-center py-8">Sin datos este mes</p>
+                            <p class="text-xs text-ink/45 italic text-center py-8">Sin datos este mes</p>
                         @endif
                     </div>
 
@@ -421,12 +421,12 @@
             toggle() { this.open = !this.open; localStorage.setItem('adminAnalytics', this.open); this.boot(); },
         }" x-init="boot()">
         <button type="button" @click="toggle()"
-            class="w-full flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-[#111] px-5 py-4 hover:border-white/12 transition-all"
+            class="w-full flex items-center gap-3 rounded-2xl border border-ink/[0.06] bg-card px-5 py-4 hover:border-ink/12 transition-all"
             :aria-expanded="open.toString()">
             <svg class="h-4 w-4 text-gold shrink-0 transition-transform duration-200" :class="open ? 'rotate-90' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             <div class="text-left">
-                <p class="text-[11px] font-black uppercase tracking-widest text-white">Analítica avanzada</p>
-                <p class="text-[9px] text-white/45 font-bold">4 gráficas · predicciones IA · telemetría chatbot</p>
+                <p class="text-[11px] font-black uppercase tracking-widest text-ink">Analítica avanzada</p>
+                <p class="text-[9px] text-ink/45 font-bold">4 gráficas · predicciones IA · telemetría chatbot</p>
             </div>
             <span class="ml-auto text-[9px] font-black uppercase tracking-widest text-gold/70" x-text="open ? 'Ocultar' : 'Ver'"></span>
         </button>
@@ -436,35 +436,35 @@
     {{-- ── GRÁFICAS ──────────────────────────────────────────── --}}
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimas 8 semanas</p>
-                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Tendencia de Ingresos</h3>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Últimas 8 semanas</p>
+                    <h3 class="text-sm font-black text-ink uppercase mt-0.5">Tendencia de Ingresos</h3>
                 </div>
                 <div class="h-2 w-2 rounded-full bg-emerald-400" title="Ingresos ($)"></div>
             </div>
             @if(!empty(array_filter($incomeChart['values'] ?? [])))
                 <div class="h-52"><canvas id="incomeChart"></canvas></div>
             @else
-                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin ingresos aún</p>
+                <div class="h-52 flex items-center justify-center border border-dashed border-ink/[0.06] rounded-xl">
+                    <p class="text-xs text-ink/45 uppercase tracking-widest font-bold">Sin ingresos aún</p>
                 </div>
             @endif
         </div>
 
-        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Distribución</p>
-                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Demanda de Servicios</h3>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Distribución</p>
+                    <h3 class="text-sm font-black text-ink uppercase mt-0.5">Demanda de Servicios</h3>
                 </div>
             </div>
             @if(!empty(array_filter($servicesChart['values'] ?? [])))
                 <div class="h-52"><canvas id="servicesChart"></canvas></div>
             @else
-                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin servicios registrados</p>
+                <div class="h-52 flex items-center justify-center border border-dashed border-ink/[0.06] rounded-xl">
+                    <p class="text-xs text-ink/45 uppercase tracking-widest font-bold">Sin servicios registrados</p>
                 </div>
             @endif
         </div>
@@ -473,13 +473,13 @@
             mini-gráficas independientes, cada una con su propia escala. Un
             solo eje compartido entre ambas unidades aplastaba la barra de
             "Citas" a un hilo invisible junto a "Ingresos". --}}
-        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Este mes</p>
-                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Desempeño Barberos</h3>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Este mes</p>
+                    <h3 class="text-sm font-black text-ink uppercase mt-0.5">Desempeño Barberos</h3>
                 </div>
-                <div class="flex gap-3 text-[8px] font-black uppercase text-white/45">
+                <div class="flex gap-3 text-[8px] font-black uppercase text-ink/45">
                     <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-blue-500"></span>Citas</span>
                     <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-emerald-500"></span>Ingresos</span>
                 </div>
@@ -490,25 +490,25 @@
                     <div class="min-w-0"><canvas id="barberPerformanceIngresosChart"></canvas></div>
                 </div>
             @else
-                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin datos de desempeño</p>
+                <div class="h-52 flex items-center justify-center border border-dashed border-ink/[0.06] rounded-xl">
+                    <p class="text-xs text-ink/45 uppercase tracking-widest font-bold">Sin datos de desempeño</p>
                 </div>
             @endif
         </div>
 
-        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Mes actual</p>
-                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Tendencia de Clientes</h3>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Mes actual</p>
+                    <h3 class="text-sm font-black text-ink uppercase mt-0.5">Tendencia de Clientes</h3>
                 </div>
                 <div class="h-2 w-2 rounded-full bg-purple-400"></div>
             </div>
             @if(!empty(array_filter($clientTrends['values'] ?? [])))
                 <div class="h-52"><canvas id="clientTrendsChart"></canvas></div>
             @else
-                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin datos de tendencias</p>
+                <div class="h-52 flex items-center justify-center border border-dashed border-ink/[0.06] rounded-xl">
+                    <p class="text-xs text-ink/45 uppercase tracking-widest font-bold">Sin datos de tendencias</p>
                 </div>
             @endif
         </div>
@@ -518,11 +518,11 @@
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
         {{-- Predicciones IA --}}
-        <div class="lg:col-span-5 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="lg:col-span-5 rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Próximos 7 días</p>
-                    <h3 class="text-sm font-black text-white uppercase mt-0.5 flex items-center gap-2">
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Próximos 7 días</p>
+                    <h3 class="text-sm font-black text-ink uppercase mt-0.5 flex items-center gap-2">
                         Predicciones IA
                         <span class="text-[8px] font-black uppercase tracking-widest border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded-full">Beta</span>
                     </h3>
@@ -535,8 +535,8 @@
                     ['id'=>'appointment-forecast', 'label'=>'Citas Est.',     'text'=>'text-blue-400',    'pulse'=>'bg-blue-500/25'],
                     ['id'=>'ai-confidence',        'label'=>'Confianza',      'text'=>'text-indigo-400',  'pulse'=>'bg-indigo-500/25'],
                 ] as $ai)
-                    <div class="rounded-[8px] border border-white/[0.05] bg-white/[0.02] p-3 text-center">
-                        <p class="text-[8px] font-black uppercase tracking-wider text-white/50 mb-2">{{ $ai['label'] }}</p>
+                    <div class="rounded-[8px] border border-ink/[0.05] bg-ink/[0.02] p-3 text-center">
+                        <p class="text-[8px] font-black uppercase tracking-wider text-ink/50 mb-2">{{ $ai['label'] }}</p>
                         <p id="{{ $ai['id'] }}" class="text-lg font-black {{ $ai['text'] }}">
                             <span class="inline-block w-8 h-1 {{ $ai['pulse'] }} rounded animate-pulse"></span>
                         </p>
@@ -545,22 +545,22 @@
             </div>
 
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/45 mb-3">Insights</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-ink/45 mb-3">Insights</p>
                 <div id="ai-insights" class="space-y-2">
-                    <div class="flex items-start gap-2 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02] animate-pulse">
+                    <div class="flex items-start gap-2 p-3 rounded-xl border border-ink/[0.05] bg-ink/[0.02] animate-pulse">
                         <div class="h-1.5 w-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></div>
-                        <p class="text-[10px] text-white/45">Cargando análisis...</p>
+                        <p class="text-[10px] text-ink/45">Cargando análisis...</p>
                     </div>
                 </div>
             </div>
         </div>
 
         {{-- Telemetría Chatbot --}}
-        <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="lg:col-span-7 rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimos {{ $chatbotTelemetry['window_days'] ?? 7 }} días</p>
-                    <h3 class="text-sm font-black text-white uppercase mt-0.5 flex items-center gap-2">
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Últimos {{ $chatbotTelemetry['window_days'] ?? 7 }} días</p>
+                    <h3 class="text-sm font-black text-ink uppercase mt-0.5 flex items-center gap-2">
                         Telemetría Chatbot
                         <span class="flex items-center gap-1 text-[8px] font-black uppercase text-emerald-400">
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>OK
@@ -576,8 +576,8 @@
                     ['label'=>'Latencia Prom.', 'val'=> ($chatbotTelemetry['avg_latency_ms'] ?? 0).'ms',                   'text'=>'text-sky-400'],
                     ['label'=>'Costo Est.',     'val'=> '$'.number_format($chatbotTelemetry['estimated_cost_usd'] ?? 0,4), 'text'=>'text-emerald-400'],
                 ] as $tel)
-                    <div class="rounded-[8px] border border-white/[0.05] bg-white/[0.02] p-3">
-                        <p class="text-[8px] font-black uppercase tracking-wider text-white/50 mb-1.5">{{ $tel['label'] }}</p>
+                    <div class="rounded-[8px] border border-ink/[0.05] bg-ink/[0.02] p-3">
+                        <p class="text-[8px] font-black uppercase tracking-wider text-ink/50 mb-1.5">{{ $tel['label'] }}</p>
                         <p class="text-lg font-black {{ $tel['text'] }}">{{ $tel['val'] }}</p>
                     </div>
                 @endforeach
@@ -585,11 +585,11 @@
 
             @if(!empty($chatbotTelemetry['top_sources']))
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/45 mb-3">Top Fuentes</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-ink/45 mb-3">Top Fuentes</p>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         @foreach($chatbotTelemetry['top_sources'] as $source => $count)
-                            <div class="rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2 flex items-center justify-between">
-                                <span class="text-[9px] font-bold text-white uppercase truncate">{{ str_replace('_',' ',$source) }}</span>
+                            <div class="rounded-xl border border-ink/[0.05] bg-ink/[0.02] px-3 py-2 flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-ink uppercase truncate">{{ str_replace('_',' ',$source) }}</span>
                                 <span class="text-[9px] font-black text-gold ml-2 shrink-0">{{ $count }}</span>
                             </div>
                         @endforeach
@@ -616,26 +616,26 @@
             'en_proceso' => ['border-blue-500/25 bg-blue-500/10 text-blue-300','En proceso'],
             'confirmada' => ['border-gold/25 bg-gold/10 text-gold','Confirmada'],
             'cancelada'  => ['border-red-500/25 bg-red-500/10 text-red-400','Cancelada'],
-            'no_asistio' => ['border-white/10 bg-white/5 text-white/40','No asistió'],
+            'no_asistio' => ['border-ink/10 bg-ink/5 text-ink/40','No asistió'],
         ];
         $bNext = $barberToday->first(fn ($a) => in_array($a->estado, ['confirmada','en_proceso','pendiente'], true));
     @endphp
 
     {{-- Bienvenida --}}
-    <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-6 relative overflow-hidden">
+    <section class="rounded-2xl border border-ink/[0.06] bg-card p-6 relative overflow-hidden">
         <div class="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/5 blur-3xl pointer-events-none"></div>
         <div class="relative flex flex-col sm:flex-row items-center gap-6">
             <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-gold to-amber-600 flex items-center justify-center text-black shrink-0">
                 <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50">Bienvenido de vuelta</p>
-                <h3 class="text-xl font-black text-white uppercase mt-0.5">Maestro <span class="text-gold">{{ explode(' ', auth()->user()->name)[0] }}</span></h3>
-                <p class="text-xs text-white/40 mt-1">Tienes <strong class="text-white">{{ $kpis['appointments_today'] }}</strong> servicio{{ $kpis['appointments_today'] !== 1 ? 's' : '' }} hoy{!! $pendCount > 0 ? ' · <strong class="text-amber-300">'.$pendCount.'</strong> por aprobar' : '' !!}.</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-ink/50">Bienvenido de vuelta</p>
+                <h3 class="text-xl font-black text-ink uppercase mt-0.5">Maestro <span class="text-gold">{{ explode(' ', auth()->user()->name)[0] }}</span></h3>
+                <p class="text-xs text-ink/40 mt-1">Tienes <strong class="text-ink">{{ $kpis['appointments_today'] }}</strong> servicio{{ $kpis['appointments_today'] !== 1 ? 's' : '' }} hoy{!! $pendCount > 0 ? ' · <strong class="text-amber-300">'.$pendCount.'</strong> por aprobar' : '' !!}.</p>
             </div>
             <div class="sm:ml-auto flex gap-3">
                 <a href="{{ route('barber.agenda') }}" class="ui-btn px-6 py-3 text-[10px]">Mi Agenda</a>
-                <a href="{{ route('barber.profile.edit') }}" class="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white hover:border-white/20 transition-all">Mi Perfil</a>
+                <a href="{{ route('barber.profile.edit') }}" class="flex items-center gap-2 px-6 py-3 rounded-xl border border-ink/10 bg-ink/[0.03] text-[10px] font-black uppercase tracking-widest text-ink/60 hover:text-ink hover:border-ink/20 transition-all">Mi Perfil</a>
             </div>
         </div>
     </section>
@@ -647,10 +647,10 @@
             ['label'=>'Por Aprobar',  'val'=>$pendCount,                                     'text'=>'text-amber-300'],
             ['label'=>'Ingresos Mes', 'val'=>'$'.number_format($kpis['income_month'],0),     'text'=>'text-emerald-400'],
             ['label'=>'Propinas Mes', 'val'=>'$'.number_format($kpis['tips_month'] ?? 0,0),  'text'=>'text-gold'],
-            ['label'=>'Rating',       'val'=>$kpis['rating'],                                'text'=>'text-white'],
+            ['label'=>'Rating',       'val'=>$kpis['rating'],                                'text'=>'text-ink'],
         ] as $kpi)
-            <div class="rounded-[8px] border border-white/[0.06] bg-[#111] p-5 text-center">
-                <p class="text-[9px] font-black uppercase tracking-[0.22em] text-white/50 mb-3">{{ $kpi['label'] }}</p>
+            <div class="rounded-[8px] border border-ink/[0.06] bg-card p-5 text-center">
+                <p class="text-[9px] font-black uppercase tracking-[0.22em] text-ink/50 mb-3">{{ $kpi['label'] }}</p>
                 <p class="text-2xl font-black {{ $kpi['text'] }}">{{ $kpi['val'] }}</p>
             </div>
         @endforeach
@@ -675,12 +675,12 @@
                 @foreach($barberPending as $appt)
                     <div class="flex flex-wrap items-center gap-3 p-3 rounded-xl border border-amber-500/10 bg-black/20">
                         <div class="w-14 text-center shrink-0">
-                            <p class="text-[11px] font-black text-white">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
-                            <p class="text-[8px] text-white/45 font-bold">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M') }}</p>
+                            <p class="text-[11px] font-black text-ink">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
+                            <p class="text-[8px] text-ink/45 font-bold">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M') }}</p>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-xs font-black text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
-                            <p class="text-[9px] text-white/40 font-bold truncate">{{ $appt->service?->nombre ?? '—' }}</p>
+                            <p class="text-xs font-black text-ink truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
+                            <p class="text-[9px] text-ink/40 font-bold truncate">{{ $appt->service?->nombre ?? '—' }}</p>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
                             <form method="POST" action="{{ route('barber.appointments.status', $appt) }}">
@@ -691,7 +691,7 @@
                             <form method="POST" action="{{ route('barber.appointments.status', $appt) }}" onsubmit="return confirm('¿Rechazar esta solicitud de cita?')">
                                 @csrf @method('PATCH')
                                 <input type="hidden" name="estado" value="cancelada">
-                                <button type="submit" class="text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-red-400 transition px-2">Rechazar</button>
+                                <button type="submit" class="text-[9px] font-black uppercase tracking-widest text-ink/40 hover:text-red-400 transition px-2">Rechazar</button>
                             </form>
                         </div>
                     </div>
@@ -701,36 +701,36 @@
     @endif
 
     {{-- Citas de hoy --}}
-    <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+    <section class="rounded-2xl border border-ink/[0.06] bg-card p-5">
         <div class="flex items-center justify-between mb-5">
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Agenda</p>
-                <h3 class="text-sm font-black text-white uppercase mt-0.5">Citas de Hoy</h3>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Agenda</p>
+                <h3 class="text-sm font-black text-ink uppercase mt-0.5">Citas de Hoy</h3>
             </div>
-            <a href="{{ route('barber.agenda') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-gold transition-colors">
+            <a href="{{ route('barber.agenda') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-ink/50 hover:text-gold transition-colors">
                 Ver agenda <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
             </a>
         </div>
         @if($barberToday->isEmpty())
-            <div class="flex flex-col items-center justify-center py-12 border border-dashed border-white/[0.06] rounded-xl">
-                <svg class="h-8 w-8 text-white/10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                <p class="text-xs font-bold text-white/45 uppercase tracking-widest">Sin citas hoy</p>
+            <div class="flex flex-col items-center justify-center py-12 border border-dashed border-ink/[0.06] rounded-xl">
+                <svg class="h-8 w-8 text-ink/10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <p class="text-xs font-bold text-ink/45 uppercase tracking-widest">Sin citas hoy</p>
             </div>
         @else
             <div class="space-y-2">
                 @foreach($barberToday as $appt)
-                    @php $sc = $bStatus[$appt->estado] ?? ['border-white/10 bg-white/5 text-white/40','—']; $isNext = $bNext && (string)$bNext->id === (string)$appt->id; @endphp
-                    <div class="flex items-center gap-3 p-3 rounded-xl border transition-all {{ $isNext ? 'border-gold/30 bg-gold/[0.04]' : 'border-white/[0.05] hover:border-white/10' }}">
+                    @php $sc = $bStatus[$appt->estado] ?? ['border-ink/10 bg-ink/5 text-ink/40','—']; $isNext = $bNext && (string)$bNext->id === (string)$appt->id; @endphp
+                    <div class="flex items-center gap-3 p-3 rounded-xl border transition-all {{ $isNext ? 'border-gold/30 bg-gold/[0.04]' : 'border-ink/[0.05] hover:border-ink/10' }}">
                         <div class="w-12 text-center shrink-0">
-                            <p class="text-[11px] font-black {{ $isNext ? 'text-gold' : 'text-white' }}">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
-                            <p class="text-[8px] text-white/45 font-bold">{{ substr($appt->hora_fin ?? '',0,5) }}</p>
+                            <p class="text-[11px] font-black {{ $isNext ? 'text-gold' : 'text-ink' }}">{{ substr($appt->hora_inicio ?? '--:--',0,5) }}</p>
+                            <p class="text-[8px] text-ink/45 font-bold">{{ substr($appt->hora_fin ?? '',0,5) }}</p>
                         </div>
-                        <div class="w-px h-7 bg-white/[0.06] shrink-0"></div>
+                        <div class="w-px h-7 bg-ink/[0.06] shrink-0"></div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-xs font-black text-white truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}
+                            <p class="text-xs font-black text-ink truncate">{{ $appt->client?->user?->name ?? 'Cliente' }}
                                 @if($isNext)<span class="ml-1 text-[8px] font-black uppercase tracking-wider text-gold">· Siguiente</span>@endif
                             </p>
-                            <p class="text-[9px] text-white/35 font-bold truncate">{{ $appt->service?->nombre ?? '—' }}</p>
+                            <p class="text-[9px] text-ink/35 font-bold truncate">{{ $appt->service?->nombre ?? '—' }}</p>
                         </div>
                         <span class="shrink-0 text-[8px] font-black uppercase tracking-wider border rounded-full px-2 py-0.5 {{ $sc[0] }}">{{ $sc[1] }}</span>
                     </div>
@@ -741,29 +741,29 @@
 
     {{-- Gráficas --}}
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="mb-5">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimos 7 días</p>
-                <h3 class="text-sm font-black text-white uppercase mt-0.5">Productividad Semanal</h3>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Últimos 7 días</p>
+                <h3 class="text-sm font-black text-ink uppercase mt-0.5">Productividad Semanal</h3>
             </div>
             @if(!empty(array_filter($performanceChart['values'] ?? [])))
                 <div class="h-52"><canvas id="performanceChart"></canvas></div>
             @else
-                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin datos suficientes</p>
+                <div class="h-52 flex items-center justify-center border border-dashed border-ink/[0.06] rounded-xl">
+                    <p class="text-xs text-ink/45 uppercase tracking-widest font-bold">Sin datos suficientes</p>
                 </div>
             @endif
         </div>
-        <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="mb-5">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Último año</p>
-                <h3 class="text-sm font-black text-white uppercase mt-0.5">Top Especialidades</h3>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Último año</p>
+                <h3 class="text-sm font-black text-ink uppercase mt-0.5">Top Especialidades</h3>
             </div>
             @if(!empty(array_filter($servicesChart['values'] ?? [])))
                 <div class="h-52"><canvas id="servicesChart"></canvas></div>
             @else
-                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin especialidades aún</p>
+                <div class="h-52 flex items-center justify-center border border-dashed border-ink/[0.06] rounded-xl">
+                    <p class="text-xs text-ink/45 uppercase tracking-widest font-bold">Sin especialidades aún</p>
                 </div>
             @endif
         </div>
@@ -777,18 +777,18 @@
     @php $pendingOrdersList = $pending_orders_list ?? collect(); @endphp
 
     {{-- Bienvenida --}}
-    <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden">
+    <section class="rounded-2xl border border-ink/[0.06] bg-card p-5 relative overflow-hidden">
         <div class="absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-indigo-500/5 blur-2xl"></div>
         <div class="relative flex flex-col sm:flex-row sm:items-center gap-4">
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/50">Recepción</p>
-                <h3 class="text-base font-black text-white uppercase mt-0.5">Hola, <span class="text-indigo-400">{{ explode(' ',auth()->user()->name)[0] }}</span></h3>
-                <p class="text-[10px] text-white/50 mt-1">Centro de mando activo.</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-ink/50">Recepción</p>
+                <h3 class="text-base font-black text-ink uppercase mt-0.5">Hola, <span class="text-indigo-400">{{ explode(' ',auth()->user()->name)[0] }}</span></h3>
+                <p class="text-[10px] text-ink/50 mt-1">Centro de mando activo.</p>
             </div>
             <div class="sm:ml-auto flex flex-wrap gap-2">
                 <a href="{{ route('appointments.create') }}" class="ui-btn px-4 py-2 text-[9px]">+ Cita (walk-in)</a>
-                <a href="{{ route('payments.create') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Cobrar</a>
-                <a href="{{ route('orders.index') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-all">Pedidos</a>
+                <a href="{{ route('payments.create') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-ink/10 bg-ink/[0.03] text-[9px] font-black uppercase tracking-widest text-ink/50 hover:text-ink transition-all">Cobrar</a>
+                <a href="{{ route('orders.index') }}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-ink/10 bg-ink/[0.03] text-[9px] font-black uppercase tracking-widest text-ink/50 hover:text-ink transition-all">Pedidos</a>
             </div>
         </div>
     </section>
@@ -803,9 +803,9 @@
             ['label'=>'Nuevos Clientes',  'val'=>$kpis['new_clients_today'],                        'text'=>'text-indigo-400',  'line'=>'from-indigo-500/60',  'hover'=>'hover:border-indigo-500/25',  'href'=>route('clients.index')],
             ['label'=>'Stock Crítico',    'val'=>$kpis['low_stock_count'],                          'text'=>'text-red-400',     'line'=>'from-red-500/60',     'hover'=>'hover:border-red-500/25',     'href'=>route('inventory.products.index')],
         ] as $kpi)
-            <a href="{{ $kpi['href'] }}" class="rounded-[8px] border border-white/[0.06] bg-[#111] p-5 relative overflow-hidden {{ $kpi['hover'] }} transition-all group">
+            <a href="{{ $kpi['href'] }}" class="rounded-[8px] border border-ink/[0.06] bg-card p-5 relative overflow-hidden {{ $kpi['hover'] }} transition-all group">
                 <div class="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r {{ $kpi['line'] }} to-transparent"></div>
-                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/50 mb-3">{{ $kpi['label'] }}</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-ink/50 mb-3">{{ $kpi['label'] }}</p>
                 <p class="text-2xl font-black {{ $kpi['text'] }}">{{ $kpi['val'] }}</p>
             </a>
         @endforeach
@@ -821,74 +821,74 @@
 
     {{-- Próximas llegadas + Flujo --}}
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        <div class="lg:col-span-7 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="lg:col-span-7 rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Hoy</p>
-                    <h3 class="text-sm font-black text-white uppercase mt-0.5">Próximas Llegadas</h3>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Hoy</p>
+                    <h3 class="text-sm font-black text-ink uppercase mt-0.5">Próximas Llegadas</h3>
                 </div>
-                <a href="{{ route('appointments.index') }}" class="text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-gold transition-colors">Agenda completa →</a>
+                <a href="{{ route('appointments.index') }}" class="text-[9px] font-black uppercase tracking-widest text-ink/50 hover:text-gold transition-colors">Agenda completa →</a>
             </div>
             <div class="space-y-2">
                 @forelse($nextAppointments as $appt)
-                    <div class="flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] hover:border-indigo-500/20 hover:bg-indigo-500/[0.03] transition-all">
+                    <div class="flex items-center gap-3 p-3 rounded-xl border border-ink/[0.05] hover:border-indigo-500/20 hover:bg-indigo-500/[0.03] transition-all">
                         <div class="h-9 w-9 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-black text-xs shrink-0">
                             {{ substr($appt->hora_inicio,0,2) }}
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-xs font-black text-white truncate uppercase">{{ $appt->client?->user?->name }}</p>
-                            <p class="text-[9px] text-white/50 truncate">{{ $appt->service?->nombre }} · {{ $appt->barber?->user?->name }}</p>
+                            <p class="text-xs font-black text-ink truncate uppercase">{{ $appt->client?->user?->name }}</p>
+                            <p class="text-[9px] text-ink/50 truncate">{{ $appt->service?->nombre }} · {{ $appt->barber?->user?->name }}</p>
                         </div>
-                        <p class="text-xs font-black text-white shrink-0">{{ substr($appt->hora_inicio,0,5) }}</p>
+                        <p class="text-xs font-black text-ink shrink-0">{{ substr($appt->hora_inicio,0,5) }}</p>
                     </div>
                 @empty
-                    <div class="py-12 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                        <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin llegadas próximas</p>
+                    <div class="py-12 flex items-center justify-center border border-dashed border-ink/[0.06] rounded-xl">
+                        <p class="text-xs text-ink/45 uppercase tracking-widest font-bold">Sin llegadas próximas</p>
                     </div>
                 @endforelse
             </div>
         </div>
 
-        <div class="lg:col-span-5 rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+        <div class="lg:col-span-5 rounded-2xl border border-ink/[0.06] bg-card p-5">
             <div class="mb-5">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Distribución horaria</p>
-                <h3 class="text-sm font-black text-white uppercase mt-0.5">Flujo Operativo</h3>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Distribución horaria</p>
+                <h3 class="text-sm font-black text-ink uppercase mt-0.5">Flujo Operativo</h3>
             </div>
             @if(!empty(array_filter($flow_chart['values'] ?? [])))
                 <div class="h-52"><canvas id="flowChart"></canvas></div>
             @else
-                <div class="h-52 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin flujo registrado hoy</p>
+                <div class="h-52 flex items-center justify-center border border-dashed border-ink/[0.06] rounded-xl">
+                    <p class="text-xs text-ink/45 uppercase tracking-widest font-bold">Sin flujo registrado hoy</p>
                 </div>
             @endif
         </div>
     </section>
 
     {{-- Pedidos por entregar --}}
-    <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+    <section class="rounded-2xl border border-ink/[0.06] bg-card p-5">
         <div class="flex items-center justify-between mb-5">
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Tienda</p>
-                <h3 class="text-sm font-black text-white uppercase mt-0.5">Pedidos por Entregar</h3>
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Tienda</p>
+                <h3 class="text-sm font-black text-ink uppercase mt-0.5">Pedidos por Entregar</h3>
             </div>
-            <a href="{{ route('orders.index') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-gold transition-colors">
+            <a href="{{ route('orders.index') }}" class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-ink/50 hover:text-gold transition-colors">
                 Ir a la bandeja <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
             </a>
         </div>
         @forelse($pendingOrdersList as $order)
-            <a href="{{ route('orders.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] hover:border-cyan-500/20 hover:bg-cyan-500/[0.03] transition-all mb-2 last:mb-0">
+            <a href="{{ route('orders.index') }}" class="flex items-center gap-3 p-3 rounded-xl border border-ink/[0.05] hover:border-cyan-500/20 hover:bg-cyan-500/[0.03] transition-all mb-2 last:mb-0">
                 <div class="h-9 w-9 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-xs font-black text-white truncate">{{ $order->folio }} · {{ $order->client?->user?->name ?? 'Cliente' }}</p>
-                    <p class="text-[9px] text-white/45 font-bold truncate">{{ optional($order->created_at)->translatedFormat('d M, H:i') }} · {{ count($order->items ?? []) }} artículo{{ count($order->items ?? []) !== 1 ? 's' : '' }}</p>
+                    <p class="text-xs font-black text-ink truncate">{{ $order->folio }} · {{ $order->client?->user?->name ?? 'Cliente' }}</p>
+                    <p class="text-[9px] text-ink/45 font-bold truncate">{{ optional($order->created_at)->translatedFormat('d M, H:i') }} · {{ count($order->items ?? []) }} artículo{{ count($order->items ?? []) !== 1 ? 's' : '' }}</p>
                 </div>
                 <p class="text-sm font-black text-gold shrink-0">${{ number_format($order->total, 2) }}</p>
             </a>
         @empty
-            <div class="py-12 flex items-center justify-center border border-dashed border-white/[0.06] rounded-xl">
-                <p class="text-xs text-white/45 uppercase tracking-widest font-bold">Sin pedidos pendientes</p>
+            <div class="py-12 flex items-center justify-center border border-dashed border-ink/[0.06] rounded-xl">
+                <p class="text-xs text-ink/45 uppercase tracking-widest font-bold">Sin pedidos pendientes</p>
             </div>
         @endforelse
     </section>
@@ -945,7 +945,7 @@
     @endphp
 
     {{-- Bienvenida + acciones rápidas --}}
-    <section class="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#111] p-5 sm:p-6">
+    <section class="relative overflow-hidden rounded-[28px] border border-ink/[0.08] bg-card p-5 sm:p-6">
         <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-gold/10 blur-3xl pointer-events-none"></div>
         <div class="absolute -left-24 bottom-0 h-56 w-56 rounded-full bg-sky-500/10 blur-3xl pointer-events-none"></div>
         <div class="relative grid gap-6 xl:grid-cols-[1fr_360px] xl:items-center">
@@ -955,10 +955,10 @@
                 </div>
                 <div class="min-w-0">
                     <p class="text-[9px] font-black uppercase tracking-[0.32em] text-gold/70">Tu panel personal</p>
-                    <h3 class="mt-1 text-2xl font-black uppercase leading-tight text-white sm:text-3xl">
+                    <h3 class="mt-1 text-2xl font-black uppercase leading-tight text-ink sm:text-3xl">
                         Hola, <span class="text-gold">{{ $firstName }}</span>
                     </h3>
-                    <p class="mt-2 max-w-2xl text-sm text-white/50">
+                    <p class="mt-2 max-w-2xl text-sm text-ink/50">
                         Reserva, revisa tu próxima visita, consulta tus puntos y encuentra productos recomendados sin perderte entre pantallas.
                     </p>
                 </div>
@@ -966,9 +966,9 @@
 
             <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap xl:justify-end">
                 <a href="{{ route('client.appointments.create') }}" class="ui-btn justify-center px-5 py-3 text-[10px]">Reservar</a>
-                <a href="{{ route('client.appointments.index') }}" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white/60 transition-all hover:border-gold/30 hover:text-white">Mis citas</a>
-                <a href="{{ route('client.barberos.index') }}" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white/60 transition-all hover:border-sky-400/30 hover:text-white">Barberos</a>
-                <a href="{{ route('client.tienda.index') }}" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white/60 transition-all hover:border-emerald-400/30 hover:text-white">Tienda</a>
+                <a href="{{ route('client.appointments.index') }}" class="rounded-xl border border-ink/10 bg-ink/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-ink/60 transition-all hover:border-gold/30 hover:text-ink">Mis citas</a>
+                <a href="{{ route('client.barberos.index') }}" class="rounded-xl border border-ink/10 bg-ink/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-ink/60 transition-all hover:border-sky-400/30 hover:text-ink">Barberos</a>
+                <a href="{{ route('client.tienda.index') }}" class="rounded-xl border border-ink/10 bg-ink/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-ink/60 transition-all hover:border-emerald-400/30 hover:text-ink">Tienda</a>
             </div>
         </div>
     </section>
@@ -976,19 +976,19 @@
     {{-- KPIs visuales --}}
     <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach($clientSummaryCards as $card)
-            <article class="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111] p-5 transition-all hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.035]">
+            <article class="group relative overflow-hidden rounded-2xl border border-ink/[0.08] bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-ink/15 hover:bg-ink/[0.035]">
                 <div class="absolute inset-x-0 top-0 h-0.5 opacity-80" style="background: linear-gradient(90deg, {{ $card['accent'] }}, transparent);"></div>
                 <div class="mb-4 flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/40">{{ $card['label'] }}</p>
-                        <p class="mt-2 truncate text-3xl font-black leading-none text-white">{{ $card['value'] }}</p>
+                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/40">{{ $card['label'] }}</p>
+                        <p class="mt-2 truncate text-3xl font-black leading-none text-ink">{{ $card['value'] }}</p>
                     </div>
                     <span class="h-2.5 w-2.5 rounded-full shadow-[0_0_18px_currentColor]" style="color: {{ $card['accent'] }}; background: {{ $card['accent'] }};"></span>
                 </div>
-                <div class="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                <div class="h-1.5 overflow-hidden rounded-full bg-ink/[0.06]">
                     <div class="h-full rounded-full transition-all duration-700" style="width: {{ max(2, min(100, (float) $card['progress'])) }}%; background: {{ $card['accent'] }};"></div>
                 </div>
-                <p class="mt-3 text-[11px] font-bold text-white/45">{{ $card['caption'] }}</p>
+                <p class="mt-3 text-[11px] font-bold text-ink/45">{{ $card['caption'] }}</p>
             </article>
         @endforeach
     </section>
@@ -998,11 +998,11 @@
 
     {{-- Próxima cita + recomendación personalizada --}}
     <section class="grid grid-cols-1 gap-5 xl:grid-cols-12">
-        <article class="relative overflow-hidden rounded-2xl border {{ $nextAppointment ? 'border-gold/25' : 'border-dashed border-gold/20' }} bg-[#0d0d0d] xl:col-span-7">
+        <article class="relative overflow-hidden rounded-2xl border {{ $nextAppointment ? 'border-gold/25' : 'border-dashed border-gold/20' }} bg-card xl:col-span-7">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.13),transparent_36%)] pointer-events-none"></div>
             @if($nextAppointment)
                 <div class="relative grid gap-0 md:grid-cols-[180px_1fr]">
-                    <div class="flex flex-row items-center gap-4 border-b border-white/[0.06] bg-gradient-to-br from-gold to-amber-600 p-5 text-black md:flex-col md:justify-center md:border-b-0 md:border-r md:border-black/10">
+                    <div class="flex flex-row items-center gap-4 border-b border-ink/[0.06] bg-gradient-to-br from-gold to-amber-600 p-5 text-black md:flex-col md:justify-center md:border-b-0 md:border-r md:border-black/10">
                         <div class="text-center">
                             <p class="text-[8px] font-black uppercase tracking-[0.22em] opacity-60">Próxima cita</p>
                             <p class="mt-1 text-4xl font-black leading-none">{{ $nextApptAt?->format('d') }}</p>
@@ -1015,15 +1015,15 @@
                         <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                             <div class="min-w-0">
                                 <p class="text-[9px] font-black uppercase tracking-[0.25em] text-gold/70">Agenda confirmable</p>
-                                <h3 class="mt-2 text-2xl font-black uppercase leading-tight text-white">{{ $nextAppointment['service']['nombre'] ?? 'Servicio' }}</h3>
-                                <p class="mt-1 text-sm font-bold text-white/45">Con <span class="text-gold">{{ $nextAppointment['barber']['user']['name'] ?? 'Maestro UrbanBlade' }}</span></p>
+                                <h3 class="mt-2 text-2xl font-black uppercase leading-tight text-ink">{{ $nextAppointment['service']['nombre'] ?? 'Servicio' }}</h3>
+                                <p class="mt-1 text-sm font-bold text-ink/45">Con <span class="text-gold">{{ $nextAppointment['barber']['user']['name'] ?? 'Maestro UrbanBlade' }}</span></p>
                                 <div class="mt-4 flex flex-wrap gap-2">
-                                    <span class="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-white/55">{{ $nextApptAt?->translatedFormat('d F Y') }}</span>
+                                    <span class="rounded-full border border-ink/10 bg-ink/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-ink/55">{{ $nextApptAt?->translatedFormat('d F Y') }}</span>
                                     <span class="rounded-full border border-emerald-500/20 bg-emerald-500/[0.05] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-300">{{ $nextAppointment['estado'] ?? 'pendiente' }}</span>
                                 </div>
                             </div>
                             <div class="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col">
-                                <a href="{{ route('client.appointments.index') }}" class="rounded-xl border border-white/10 bg-white/[0.05] px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white transition-all hover:border-gold/30 hover:bg-gold/[0.06]">Ver detalles</a>
+                                <a href="{{ route('client.appointments.index') }}" class="rounded-xl border border-ink/10 bg-ink/[0.05] px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-ink transition-all hover:border-gold/30 hover:bg-gold/[0.06]">Ver detalles</a>
                                 @if($canManageNextFromDashboard)
                                     <a href="{{ route('client.appointments.edit', $nextAppointment['id']) }}" class="rounded-xl border border-sky-500/20 bg-sky-500/[0.05] px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-sky-300 transition-all hover:border-sky-400/40">Reagendar</a>
                                 @endif
@@ -1035,8 +1035,8 @@
                 <div class="relative flex flex-col gap-4 p-7 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p class="text-[9px] font-black uppercase tracking-[0.28em] text-gold/70">Agenda libre</p>
-                        <h3 class="mt-1 text-xl font-black uppercase text-white">Sin citas próximas</h3>
-                        <p class="mt-1 text-sm text-white/45">Reserva tu siguiente visita y mantén tu estilo impecable.</p>
+                        <h3 class="mt-1 text-xl font-black uppercase text-ink">Sin citas próximas</h3>
+                        <p class="mt-1 text-sm text-ink/45">Reserva tu siguiente visita y mantén tu estilo impecable.</p>
                     </div>
                     <a href="{{ route('client.appointments.create') }}" class="ui-btn shrink-0 justify-center px-8 py-3">Reservar ahora →</a>
                 </div>
@@ -1052,17 +1052,17 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="text-[9px] font-black uppercase tracking-widest text-sky-300/80">Sugerencia inteligente</p>
-                        <p class="mt-1 text-xl font-black leading-tight text-white">{{ $clienteReco->valor_destacado }}</p>
-                        <p class="mt-2 line-clamp-3 text-xs leading-relaxed text-white/50">{{ $clienteReco->mensaje }}</p>
+                        <p class="mt-1 text-xl font-black leading-tight text-ink">{{ $clienteReco->valor_destacado }}</p>
+                        <p class="mt-2 line-clamp-3 text-xs leading-relaxed text-ink/50">{{ $clienteReco->mensaje }}</p>
                     </div>
-                    <svg class="h-4 w-4 shrink-0 text-white/35 transition-colors group-hover:text-sky-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    <svg class="h-4 w-4 shrink-0 text-ink/35 transition-colors group-hover:text-sky-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                 </div>
             </a>
         @else
-            <article class="rounded-2xl border border-white/[0.08] bg-[#111] p-6 xl:col-span-5">
-                <p class="text-[9px] font-black uppercase tracking-widest text-white/40">Recomendaciones</p>
-                <p class="mt-2 text-lg font-black text-white">Aún no hay patrón suficiente</p>
-                <p class="mt-2 text-xs leading-relaxed text-white/45">Cuando tengas más visitas, el sistema podrá sugerirte servicios y productos acordes a tu historial.</p>
+            <article class="rounded-2xl border border-ink/[0.08] bg-card p-6 xl:col-span-5">
+                <p class="text-[9px] font-black uppercase tracking-widest text-ink/40">Recomendaciones</p>
+                <p class="mt-2 text-lg font-black text-ink">Aún no hay patrón suficiente</p>
+                <p class="mt-2 text-xs leading-relaxed text-ink/45">Cuando tengas más visitas, el sistema podrá sugerirte servicios y productos acordes a tu historial.</p>
             </article>
         @endif
     </section>
@@ -1071,30 +1071,30 @@
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
         {{-- Gráfica de visitas --}}
-        <div class="lg:col-span-7 rounded-2xl border border-white/[0.08] bg-[#111] p-5">
+        <div class="lg:col-span-7 rounded-2xl border border-ink/[0.08] bg-card p-5">
             <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">Últimos 6 meses</p>
-                    <h3 class="text-lg font-black text-white uppercase mt-0.5">Ritmo de visitas</h3>
-                    <p class="mt-1 text-xs text-white/45">Visualiza cuándo vienes más y qué tan constante es tu historial.</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">Últimos 6 meses</p>
+                    <h3 class="text-lg font-black text-ink uppercase mt-0.5">Ritmo de visitas</h3>
+                    <p class="mt-1 text-xs text-ink/45">Visualiza cuándo vienes más y qué tan constante es tu historial.</p>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-right sm:min-w-56">
-                    <div class="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2">
-                        <p class="text-[8px] font-black uppercase tracking-widest text-white/35">Periodo</p>
+                    <div class="rounded-xl border border-ink/[0.06] bg-ink/[0.03] px-3 py-2">
+                        <p class="text-[8px] font-black uppercase tracking-widest text-ink/35">Periodo</p>
                         <p class="mt-0.5 text-sm font-black text-gold">{{ $visitTotal6 }} visitas</p>
                     </div>
-                    <div class="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2">
-                        <p class="text-[8px] font-black uppercase tracking-widest text-white/35">Mejor mes</p>
-                        <p class="mt-0.5 text-sm font-black text-white">{{ $visitPeakLbl }}</p>
+                    <div class="rounded-xl border border-ink/[0.06] bg-ink/[0.03] px-3 py-2">
+                        <p class="text-[8px] font-black uppercase tracking-widest text-ink/35">Mejor mes</p>
+                        <p class="mt-0.5 text-sm font-black text-ink">{{ $visitPeakLbl }}</p>
                     </div>
                 </div>
             </div>
             @if(!empty(array_filter($visit_chart['values'] ?? [])))
                 <div class="h-64"><canvas id="visitChart"></canvas></div>
             @else
-                <div class="h-64 flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] text-center">
-                    <p class="text-xs font-black uppercase tracking-widest text-white/45">Sin historial aún</p>
-                    <p class="mt-2 max-w-xs text-xs text-white/35">Después de tus primeras visitas, aquí aparecerá tu tendencia mensual.</p>
+                <div class="h-64 flex flex-col items-center justify-center rounded-2xl border border-dashed border-ink/[0.08] bg-ink/[0.02] text-center">
+                    <p class="text-xs font-black uppercase tracking-widest text-ink/45">Sin historial aún</p>
+                    <p class="mt-2 max-w-xs text-xs text-ink/35">Después de tus primeras visitas, aquí aparecerá tu tendencia mensual.</p>
                 </div>
             @endif
         </div>
@@ -1113,21 +1113,21 @@
                 :qr="$memberQr" />
 
             {{-- Progreso + beneficios + movimientos --}}
-            <div class="rounded-2xl border border-white/[0.08] bg-[#0d0d0d] p-5 space-y-4">
+            <div class="rounded-2xl border border-ink/[0.08] bg-card p-5 space-y-4">
 
                 {{-- Progreso --}}
-                <div class="grid grid-cols-[86px_1fr] items-center gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
+                <div class="grid grid-cols-[86px_1fr] items-center gap-4 rounded-2xl border border-ink/[0.06] bg-ink/[0.025] p-4">
                     <div class="grid h-20 w-20 place-items-center rounded-full"
                          style="background: conic-gradient({{ $lvlColor }} {{ round($safeProgress) }}%, rgba(255,255,255,0.08) 0);">
-                        <div class="grid h-14 w-14 place-items-center rounded-full bg-[#0d0d0d]">
-                            <span class="text-sm font-black text-white">{{ round($safeProgress) }}%</span>
+                        <div class="grid h-14 w-14 place-items-center rounded-full bg-card">
+                            <span class="text-sm font-black text-ink">{{ round($safeProgress) }}%</span>
                         </div>
                     </div>
                     <div>
-                        <p class="text-[8px] font-black uppercase tracking-[0.22em] text-white/40">Lealtad</p>
-                        <p class="mt-1 text-lg font-black uppercase text-white">{{ $lvlLabel }}</p>
+                        <p class="text-[8px] font-black uppercase tracking-[0.22em] text-ink/40">Lealtad</p>
+                        <p class="mt-1 text-lg font-black uppercase text-ink">{{ $lvlLabel }}</p>
                         @if($nextLvl)
-                            <p class="mt-1 text-xs font-bold text-white/45">
+                            <p class="mt-1 text-xs font-bold text-ink/45">
                                 Próximo nivel: <span class="text-gold">{{ $nextLabel }}</span> ·
                                 {{ $faltan > 0 ? "faltan {$faltan} visita".($faltan !== 1 ? 's' : '') : 'listo para subir' }}
                             </p>
@@ -1145,7 +1145,7 @@
                         ['active'=>in_array($lvl,['regular','vip','leyenda']), 'label'=>in_array($lvl,['regular','vip','leyenda'])?'Reserva prio.':'Requiere Regular', 'icon'=>'M13 10V3L4 14h7v7l9-11h-7z'],
                         ['active'=>$lvl==='leyenda', 'label'=>$lvl==='leyenda'?'Prod. gratis/mes':'Requiere Leyenda', 'icon'=>'M20 12v10H4V12M22 7H2v5h20V7zM12 22V7m0 0a2 2 0 10-4 0m4 0a2 2 0 114 0'],
                     ] as $ben)
-                        <div class="flex items-center gap-2 rounded-xl p-2.5 transition-all hover:bg-white/[0.04]"
+                        <div class="flex items-center gap-2 rounded-xl p-2.5 transition-all hover:bg-ink/[0.04]"
                              style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
                             <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="{{ $ben['active'] ? '#d4af37' : 'rgba(255,255,255,0.18)' }}" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $ben['icon'] }}"/></svg>
                             <span class="text-[9px] font-bold leading-tight" style="color:{{ $ben['active'] ? '#d4af37' : 'rgba(255,255,255,0.24)' }};">{{ $ben['label'] }}</span>
@@ -1156,7 +1156,7 @@
                 {{-- Últimas transacciones --}}
                 @if($recentTx->isNotEmpty())
                     <div>
-                        <p class="text-[8px] font-black uppercase tracking-[0.22em] text-white/45 mb-2">Últimos movimientos</p>
+                        <p class="text-[8px] font-black uppercase tracking-[0.22em] text-ink/45 mb-2">Últimos movimientos</p>
                         <div class="space-y-1.5">
                             @foreach($recentTx->take(4) as $tx)
                                 <div class="flex items-center justify-between gap-2">
@@ -1164,7 +1164,7 @@
                                         <svg class="h-2.5 w-2.5 shrink-0" fill="none" stroke="{{ $tx->puntos > 0 ? '#4ade80' : '#f87171' }}" stroke-width="2.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="{{ $tx->puntos > 0 ? 'M12 19V5m0 0l-7 7m7-7l7 7' : 'M12 5v14m0 0l7-7m-7 7l-7-7' }}"/>
                                         </svg>
-                                        <span class="text-[9px] text-white/50">{{ $tx->descripcion }}</span>
+                                        <span class="text-[9px] text-ink/50">{{ $tx->descripcion }}</span>
                                     </div>
                                     <span class="text-[9px] font-black shrink-0" style="color:{{ $tx->puntos > 0 ? '#4ade80' : '#f87171' }};">{{ $tx->puntos > 0 ? '+' : '' }}{{ $tx->puntos }} pts</span>
                                 </div>
@@ -1179,7 +1179,7 @@
                         <svg class="h-3.5 w-3.5 shrink-0" style="fill:rgba(232,121,249,0.8);" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                         <div>
                             <p class="text-[9px] font-black" style="color:rgba(232,121,249,0.8);">Ganaste el sorteo de {{ $wonRaffle->mes }}</p>
-                            <p class="text-[8px] text-white/50">{{ $wonRaffle->premio }}</p>
+                            <p class="text-[8px] text-ink/50">{{ $wonRaffle->premio }}</p>
                         </div>
                     </div>
                 @endif
@@ -1189,9 +1189,9 @@
     </section>
 
     @else
-        <section class="rounded-2xl border border-white/[0.06] bg-[#111] p-8">
-            <h3 class="text-sm font-black text-white uppercase tracking-widest">Panel no disponible</h3>
-            <p class="mt-2 text-xs text-white/50">Tu perfil no tiene un rol configurado. Contacta a un administrador.</p>
+        <section class="rounded-2xl border border-ink/[0.06] bg-card p-8">
+            <h3 class="text-sm font-black text-ink uppercase tracking-widest">Panel no disponible</h3>
+            <p class="mt-2 text-xs text-ink/50">Tu perfil no tiene un rol configurado. Contacta a un administrador.</p>
         </section>
     @endif
 
@@ -1376,8 +1376,8 @@
                     document.getElementById('ai-insights').innerHTML = Object.values(ins).map(i=>`
                         <div class="flex items-start gap-2 p-3 rounded-xl border ${colors[i.status]||colors.neutral}">
                             <div class="h-1.5 w-1.5 rounded-full ${dots[i.status]||dots.neutral} mt-1.5 shrink-0"></div>
-                            <p class="text-[10px] text-white/60">${i.message}</p>
-                        </div>`).join('') || '<p class="text-[10px] text-white/45 italic">Sin insights disponibles.</p>';
+                            <p class="text-[10px] text-ink/60">${i.message}</p>
+                        </div>`).join('') || '<p class="text-[10px] text-ink/45 italic">Sin insights disponibles.</p>';
                 }
             } catch(e) {
                 ['income-forecast','appointment-forecast','ai-confidence'].forEach(id => {

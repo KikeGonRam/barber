@@ -53,7 +53,7 @@ class ProfileController extends Controller
 
         $request->user()->update(['theme' => $request->string('theme')->toString()]);
 
-        return back()->with('status', 'theme-updated');
+        return back()->with('status', 'Tema actualizado correctamente.');
     }
 
     /**
