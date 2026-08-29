@@ -130,13 +130,14 @@ class ReportController extends Controller
             // BOM UTF-8 para que Excel abra el CSV con tildes correctamente
             fwrite($handle, "\xEF\xBB\xBF");
 
-            // Encabezados
-            fputcsv($handle, $report['headings'], ',', '"');
+            // Encabezados. $escape='' (PHP 8.4+): sin escapado con backslash,
+            // solo duplicado de comillas — el default previo queda deprecated.
+            fputcsv($handle, $report['headings'], ',', '"', '');
 
             // Filas
             foreach ($report['rows'] as $row) {
                 $line = array_map(fn ($key) => $row[$key] ?? '', $report['keys']);
-                fputcsv($handle, $line, ',', '"');
+                fputcsv($handle, $line, ',', '"', '');
             }
 
             fclose($handle);

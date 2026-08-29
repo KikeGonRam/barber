@@ -286,7 +286,9 @@ class ClientAdminController
 
         return response()->stream(function () use ($clients, $apptCounts) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['ID', 'Nombre', 'Email', 'Teléfono', 'Total Citas']);
+            // $escape='' (PHP 8.4+): sin escapado con backslash, solo duplicado
+            // de comillas — el default previo queda deprecated.
+            fputcsv($handle, ['ID', 'Nombre', 'Email', 'Teléfono', 'Total Citas'], ',', '"', '');
 
             foreach ($clients as $client) {
                 fputcsv($handle, [
@@ -295,7 +297,7 @@ class ClientAdminController
                     $client->user?->email,
                     $client->telefono,
                     $apptCounts->get((string) $client->id, 0),
-                ]);
+                ], ',', '"', '');
             }
 
             fclose($handle);
