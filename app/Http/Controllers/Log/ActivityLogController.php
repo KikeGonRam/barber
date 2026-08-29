@@ -37,8 +37,10 @@ class ActivityLogController extends Controller
             ->withQueryString();
 
         // Catálogos para los selects de filtro (valores distintos ya existentes en los logs).
-        $logNames = Activity::query()->select('log_name')->distinct()->orderBy('log_name')->pluck('log_name')->filter();
-        $events = Activity::query()->select('event')->distinct()->orderBy('event')->pluck('event')->filter();
+        // distinct()->pluck() no funciona con el driver de MongoDB (devuelve solo null
+        // por cada documento en vez de los valores únicos); se deduplica en PHP con unique().
+        $logNames = Activity::query()->pluck('log_name')->filter()->unique()->sort()->values();
+        $events = Activity::query()->pluck('event')->filter()->unique()->sort()->values();
 
         $stats = [
             'total' => Activity::count(),

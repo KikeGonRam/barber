@@ -51,8 +51,11 @@ class ProductController extends Controller
 
         $lowStockCount = $this->inventoryService->lowStockCount();
 
-        $categorias = Product::distinct()->pluck('categoria')->filter()->sort()->values();
-        $tipos = Product::distinct()->pluck('tipo')->filter()->sort()->values();
+        // distinct()->pluck() no funciona con el driver de MongoDB (devuelve
+        // solo null por cada documento en vez de los valores únicos); se
+        // deduplica en PHP con unique() en su lugar.
+        $categorias = Product::pluck('categoria')->filter()->unique()->sort()->values();
+        $tipos = Product::pluck('tipo')->filter()->unique()->sort()->values();
 
         $stats = [
             'total' => Product::count(),

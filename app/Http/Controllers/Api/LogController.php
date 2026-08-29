@@ -39,11 +39,14 @@ class LogController extends Controller
             ->paginate(20)
             ->withQueryString();
 
+        // distinct()->pluck() no funciona con el driver de MongoDB (devuelve
+        // solo null por cada documento en vez de los valores únicos); se
+        // deduplica en PHP con unique() en su lugar.
         $logNames = Activity::query()
-            ->select('log_name')
-            ->distinct()
-            ->orderBy('log_name')
             ->pluck('log_name')
+            ->filter()
+            ->unique()
+            ->sort()
             ->values();
 
         return response()->json([

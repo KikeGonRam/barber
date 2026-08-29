@@ -14,12 +14,14 @@ class ServiceRepository extends BaseRepository implements ServiceRepositoryInter
 
     public function getCategories(): array
     {
+        // distinct()->pluck() no funciona con el driver de MongoDB (devuelve
+        // solo null por cada documento en vez de los valores únicos); se
+        // deduplica en PHP con unique() en su lugar.
         return $this->model->newQuery()
-            ->select('categoria')
-            ->distinct()
-            ->orderBy('categoria')
             ->pluck('categoria')
             ->filter()
+            ->unique()
+            ->sort()
             ->values()
             ->all();
     }
