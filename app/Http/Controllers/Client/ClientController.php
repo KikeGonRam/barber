@@ -35,8 +35,11 @@ class ClientController extends Controller
         // MongoDB (~90s con 112k citas: laravel-mongodb los resuelve con un exists-check
         // por cada cliente, no con un JOIN real). En su lugar, se saca el set de client_id
         // con al menos una cita via distinct() nativo de Mongo (~2s) y se compara en PHP.
+        // distinct() vía raw() salta el global scope de SoftDeletes, así que se excluye
+        // deleted_at a mano (si no, citas borradas siguen sumando client_id aquí, e
+        // inflan "con_citas" muy por encima de "total", volviendo "sin_citas" negativo).
         $clientIdsWithAppointments = collect(
-            Appointment::raw(fn ($collection) => $collection->distinct('client_id'))
+            Appointment::raw(fn ($collection) => $collection->distinct('client_id', ['deleted_at' => null]))
         )->filter()->map(fn ($id) => (string) $id)->values();
 
         $query = Client::query()
