@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Appointment;
 
 use App\Exceptions\Domain\AppointmentConflictException;
+use App\Exceptions\Domain\ClientAlreadyBookedException;
 use App\Exceptions\Domain\InvalidAppointmentTransitionException;
 use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
@@ -150,6 +151,8 @@ class AppointmentController extends Controller
                 'notas' => 'Walk-in registrado en recepción.',
                 'servicio_iniciado_en' => $inicio,
             ]);
+        } catch (ClientAlreadyBookedException $exception) {
+            return back()->withErrors(['walkin' => $exception->getMessage()]);
         } catch (AppointmentConflictException $exception) {
             return back()->withErrors(['walkin' => $exception->getMessage()]);
         }
@@ -178,6 +181,10 @@ class AppointmentController extends Controller
     {
         try {
             $this->appointmentService->createAppointment($request->validated());
+        } catch (ClientAlreadyBookedException $exception) {
+            return back()
+                ->withInput()
+                ->withErrors(['fecha' => $exception->getMessage()]);
         } catch (AppointmentConflictException $exception) {
             return back()
                 ->withInput()
@@ -208,6 +215,10 @@ class AppointmentController extends Controller
     {
         try {
             $this->appointmentService->updateAppointment($appointment->id, $request->validated());
+        } catch (ClientAlreadyBookedException $exception) {
+            return back()
+                ->withInput()
+                ->withErrors(['fecha' => $exception->getMessage()]);
         } catch (AppointmentConflictException $exception) {
             return back()
                 ->withInput()

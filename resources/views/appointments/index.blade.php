@@ -99,7 +99,7 @@
                             <label class="ui-label">Estado</label>
                             <select name="estado" class="ui-input mt-1">
                                 <option value="">Todos los estados</option>
-                                @foreach(['pendiente'=>'Pendiente','confirmada'=>'Confirmada','completada'=>'Completada','cancelada'=>'Cancelada','en_proceso'=>'En Proceso'] as $val => $lbl)
+                                @foreach($estadoLabels as $val => $lbl)
                                     <option value="{{ $val }}" @selected(($filters['estado'] ?? '') === $val)>{{ $lbl }}</option>
                                 @endforeach
                             </select>

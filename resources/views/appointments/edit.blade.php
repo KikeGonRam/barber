@@ -42,7 +42,7 @@
                                 <label class="ui-label" for="service_id">Servicio</label>
                                 <select id="service_id" name="service_id" class="ui-input !bg-panel border-ink/10 text-ink" required>
                                     @foreach($services as $service)
-                                        <option value="{{ $service->id }}" @selected((string) old('service_id', $appointment->service_id) === (string) $service->id)>
+                                        <option value="{{ $service->id }}" data-duracion="{{ $service->duracion_min }}" @selected((string) old('service_id', $appointment->service_id) === (string) $service->id)>
                                             {{ $service->nombre }} ({{ $service->duracion_min }} min)
                                         </option>
                                     @endforeach
@@ -111,4 +111,32 @@
             </section>
         </div>
     </div>
+
+    <script>
+        // Sugiere hora_fin a partir de la duracion del servicio elegido, para
+        // que recepcion/admin no tenga que calcularla a mano (y evitar citas
+        // con una duracion que no corresponde al servicio real). Solo actua
+        // si el staff cambia servicio/hora_inicio; no toca el valor precargado
+        // si no los toca. Sigue siendo un input normal editable.
+        (function () {
+            const serviceSelect = document.getElementById('service_id');
+            const startInput = document.getElementById('hora_inicio');
+            const endInput = document.getElementById('hora_fin');
+
+            function autoFillEnd() {
+                const opt = serviceSelect.options[serviceSelect.selectedIndex];
+                const duracion = parseInt(opt?.dataset.duracion || '', 10);
+                if (!duracion || !startInput.value) return;
+
+                const [h, m] = startInput.value.split(':').map(Number);
+                const totalMin = h * 60 + m + duracion;
+                const endH = String(Math.floor(totalMin / 60) % 24).padStart(2, '0');
+                const endM = String(totalMin % 60).padStart(2, '0');
+                endInput.value = `${endH}:${endM}`;
+            }
+
+            serviceSelect.addEventListener('change', autoFillEnd);
+            startInput.addEventListener('change', autoFillEnd);
+        })();
+    </script>
 </x-app-layout>
