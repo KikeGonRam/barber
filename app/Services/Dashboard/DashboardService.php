@@ -44,6 +44,10 @@ class DashboardService
      * (aggregation pipeline) en vez de traer todos los documentos a PHP.
      * Necesario para ventanas grandes (p.ej. "último año") sobre ~100k+ citas,
      * donde un ->get() completo puede agotar el timeout del socket hacia Atlas.
+     * Appointment::raw() salta el global scope de SoftDeletes, así que el
+     * $match excluye deleted_at a mano; si no, citas borradas (soft-delete)
+     * siguen contando aquí, inflando totales como retention_rate por encima
+     * de 100%.
      */
     private function aggregateCountsBy(string $groupField, Carbon $since): Collection
     {
@@ -51,7 +55,7 @@ class DashboardService
 
         $rows = Appointment::raw(function ($collection) use ($groupField, $sinceUtc) {
             return $collection->aggregate([
-                ['$match' => ['fecha' => ['$gte' => $sinceUtc]]],
+                ['$match' => ['fecha' => ['$gte' => $sinceUtc], 'deleted_at' => null]],
                 ['$group' => ['_id' => '$'.$groupField, 'total' => ['$sum' => 1]]],
             ]);
         });
