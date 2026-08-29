@@ -34,7 +34,7 @@
                 @endif
                 <div class="flex-1 min-w-0">
                     <p class="text-[9px] font-black uppercase tracking-[0.25em] text-gold/70">Barbero seleccionado</p>
-                    <p class="text-sm font-black text-white uppercase mt-0.5">{{ $preselectedBarber->user?->name }}</p>
+                    <p class="text-sm font-black text-ink uppercase mt-0.5">{{ $preselectedBarber->user?->name }}</p>
                 </div>
                 <span class="flex items-center gap-1.5 text-[9px] font-black uppercase text-green-400 border border-green-500/20 bg-green-950/30 rounded-lg px-2.5 py-1.5">
                     <span class="h-1.5 w-1.5 rounded-full bg-green-400"></span> Listo
@@ -53,13 +53,13 @@
                               :class="{
                                   'text-gold': currentStep >= step,
                                   'text-muted': currentStep < step,
-                                  'cursor-pointer hover:text-white underline decoration-gold/40 underline-offset-4': step < currentStep,
+                                  'cursor-pointer hover:text-ink underline decoration-gold/40 underline-offset-4': step < currentStep,
                                   'cursor-default': step >= currentStep
                               }"
                               x-text="'Paso 0' + step"></button>
                     </template>
                 </div>
-                <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                <div class="h-1 w-full bg-ink/5 rounded-full overflow-hidden border border-ink/5">
                     <div class="h-full bg-gold transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.5)]"
                          :style="'width: ' + ((currentStep - 1) / 4 * 100) + '%'"></div>
                 </div>
@@ -69,7 +69,7 @@
                  selección, para que el cliente nunca pierda de vista qué lleva elegido.
                  Cada chip regresa al paso correspondiente. -->
             <div x-show="selectedService || selectedBarber" x-transition
-                 class="mb-10 flex flex-wrap items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+                 class="mb-10 flex flex-wrap items-center gap-2 rounded-2xl border border-ink/8 bg-ink/[0.03] px-4 py-3">
                 <span class="text-[9px] font-black uppercase tracking-widest text-muted mr-1">Tu reserva:</span>
                 <template x-if="selectedService">
                     <button type="button" @click="goToStep(1)"
@@ -80,19 +80,19 @@
                 </template>
                 <template x-if="selectedBarber">
                     <button type="button" @click="goToStep(2)"
-                            class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white hover:border-gold/40 transition-all">
+                            class="inline-flex items-center gap-1.5 rounded-full border border-ink/15 bg-ink/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-ink hover:border-gold/40 transition-all">
                         <span x-text="selectedBarber.name"></span>
                     </button>
                 </template>
                 <template x-if="selectedDate">
                     <button type="button" @click="goToStep(3)"
-                            class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white hover:border-gold/40 transition-all">
+                            class="inline-flex items-center gap-1.5 rounded-full border border-ink/15 bg-ink/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-ink hover:border-gold/40 transition-all">
                         <span x-text="formattedDate"></span>
                     </button>
                 </template>
                 <template x-if="selectedSlot">
                     <button type="button" @click="goToStep(4)"
-                            class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white hover:border-gold/40 transition-all">
+                            class="inline-flex items-center gap-1.5 rounded-full border border-ink/15 bg-ink/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-ink hover:border-gold/40 transition-all">
                         <span x-text="selectedSlot"></span>
                     </button>
                 </template>
@@ -113,7 +113,7 @@
                 ───────────────────────────────────────────────── -->
                 <section x-show="currentStep === 1" x-transition class="space-y-8">
                     <div class="text-center">
-                        <h3 class="text-2xl font-black text-white uppercase tracking-tighter">¿Qué servicio deseas hoy?</h3>
+                        <h3 class="text-2xl font-black text-ink uppercase tracking-tighter">¿Qué servicio deseas hoy?</h3>
                         <p class="text-muted mt-2">Selecciona la experiencia que mejor se adapte a tu estilo.</p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -125,7 +125,7 @@
                             @endphp
                             <article
                                 @click="selectService({ id: '{{ $service->id }}', name: '{{ addslashes($service->nombre) }}', duration: {{ $service->duracion_min }}, precio: {{ (float) $service->precio }} })"
-                                :class="selectedService?.id === '{{ $service->id }}' ? 'border-gold bg-gold/5 gold-glow' : 'border-white/5 bg-white/5'"
+                                :class="selectedService?.id === '{{ $service->id }}' ? 'border-gold bg-gold/5 gold-glow' : 'border-ink/5 bg-ink/5'"
                                 class="ui-card-premium cursor-pointer transition-all hover:border-gold/30 group overflow-hidden"
                             >
                                 <div class="relative h-36 overflow-hidden">
@@ -147,11 +147,11 @@
                                 <div class="p-6">
                                     <div class="flex justify-between items-start mb-3">
                                         <span></span>
-                                        <span class="text-xl font-black text-white">${{ number_format($service->precio, 2) }}</span>
+                                        <span class="text-xl font-black text-ink">${{ number_format($service->precio, 2) }}</span>
                                     </div>
-                                    <h4 class="text-lg font-black text-white uppercase group-hover:text-gold transition-colors">{{ $service->nombre }}</h4>
+                                    <h4 class="text-lg font-black text-ink uppercase group-hover:text-gold transition-colors">{{ $service->nombre }}</h4>
                                     <p class="mt-2 text-xs text-muted font-medium line-clamp-2">{{ $service->descripcion ?: 'Servicio premium de alta precisión.' }}</p>
-                                    <div class="mt-4 pt-3 border-t border-white/5 flex items-center gap-2 text-[10px] font-bold text-muted uppercase">
+                                    <div class="mt-4 pt-3 border-t border-ink/5 flex items-center gap-2 text-[10px] font-bold text-muted uppercase">
                                         <svg class="h-3.5 w-3.5 text-gold/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"/>
                                         </svg>
@@ -168,7 +168,7 @@
                 ───────────────────────────────────────────────── -->
                 <section x-show="currentStep === 2" x-transition class="space-y-8">
                     <div class="text-center">
-                        <h3 class="text-2xl font-black text-white uppercase tracking-tighter">Elige a tu Maestro</h3>
+                        <h3 class="text-2xl font-black text-ink uppercase tracking-tighter">Elige a tu Maestro</h3>
                         <p class="text-muted mt-2">Cada barbero tiene un estilo único. Elige a tu favorito.</p>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -191,7 +191,7 @@
                             @endphp
                             <article
                                 @click="selectBarber({ id: '{{ $barber->id }}', name: '{{ addslashes($barberName) }}', foto: '{{ $barberFoto }}' })"
-                                :class="selectedBarber?.id === '{{ $barber->id }}' ? 'border-gold bg-gold/5 gold-glow' : 'border-white/5 bg-white/5'"
+                                :class="selectedBarber?.id === '{{ $barber->id }}' ? 'border-gold bg-gold/5 gold-glow' : 'border-ink/5 bg-ink/5'"
                                 class="ui-card-premium cursor-pointer text-center group overflow-hidden transition-all"
                             >
                                 <div class="relative h-44 overflow-hidden">
@@ -209,7 +209,7 @@
                                     </div>
                                 </div>
                                 <div class="p-5">
-                                    <h4 class="text-sm font-black text-white uppercase tracking-tight">{{ $barberName }}</h4>
+                                    <h4 class="text-sm font-black text-ink uppercase tracking-tight">{{ $barberName }}</h4>
                                     @if($barber->especialidad)
                                         <p class="text-[9px] font-bold text-gold/60 uppercase tracking-widest mt-1">{{ $barber->especialidad }}</p>
                                     @else
@@ -224,7 +224,7 @@
                     </div>
                     <div class="flex justify-center pt-8">
                         <button type="button" @click="currentStep = 1"
-                            class="text-xs font-black uppercase text-muted hover:text-white transition">
+                            class="text-xs font-black uppercase text-muted hover:text-ink transition">
                             &larr; Volver a Servicios
                         </button>
                     </div>
@@ -235,7 +235,7 @@
                 ───────────────────────────────────────────────── -->
                 <section x-show="currentStep === 3" x-transition class="space-y-8">
                     <div class="text-center">
-                        <h3 class="text-2xl font-black text-white uppercase tracking-tighter">¿Cuándo nos vemos?</h3>
+                        <h3 class="text-2xl font-black text-ink uppercase tracking-tighter">¿Cuándo nos vemos?</h3>
                         <p class="text-muted mt-2">Selecciona una fecha disponible para tu sesión.</p>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
@@ -246,7 +246,7 @@
                                 :disabled="day.isSunday"
                                 :class="{
                                     'border-gold bg-gold text-black gold-glow': selectedDate === day.date,
-                                    'border-white/5 bg-white/5 text-white hover:border-gold/30': selectedDate !== day.date && !day.isSunday,
+                                    'border-ink/5 bg-ink/5 text-ink hover:border-gold/30': selectedDate !== day.date && !day.isSunday,
                                     'border-red-500/10 bg-red-500/5 text-red-400/50 cursor-not-allowed': day.isSunday
                                 }"
                                 class="flex flex-col items-center p-4 rounded-2xl border transition-all"
@@ -259,7 +259,7 @@
                     </div>
                     <div class="flex justify-center pt-8">
                         <button type="button" @click="preselectedBarberId ? currentStep = 1 : currentStep = 2"
-                            class="text-xs font-black uppercase text-muted hover:text-white transition"
+                            class="text-xs font-black uppercase text-muted hover:text-ink transition"
                             x-text="preselectedBarberId ? '← Volver a Servicios' : '← Volver a Barberos'">
                         </button>
                     </div>
@@ -270,7 +270,7 @@
                 ───────────────────────────────────────────────── -->
                 <section x-show="currentStep === 4" x-transition class="space-y-8">
                     <div class="text-center">
-                        <h3 class="text-2xl font-black text-white uppercase tracking-tighter">Define la hora</h3>
+                        <h3 class="text-2xl font-black text-ink uppercase tracking-tighter">Define la hora</h3>
                         <p class="text-muted mt-2" x-text="'Horarios disponibles para el ' + formattedDate"></p>
                     </div>
 
@@ -286,7 +286,7 @@
                                 @click="selectedSlot = slot.time"
                                 :class="selectedSlot === slot.time
                                     ? 'border-gold bg-gold text-black shadow-[0_0_20px_rgba(212,175,55,0.3)]'
-                                    : 'border-white/5 bg-white/[0.03] text-white hover:border-gold/30 hover:bg-white/[0.06]'"
+                                    : 'border-ink/5 bg-ink/[0.03] text-ink hover:border-gold/30 hover:bg-ink/[0.06]'"
                                 class="py-4 px-3 rounded-xl border transition-all text-left group"
                             >
                                 <span class="block text-sm font-black" x-text="slot.label"></span>
@@ -316,7 +316,7 @@
                             Continuar &rarr;
                         </button>
                         <button type="button" @click="currentStep = 3"
-                            class="text-xs font-black uppercase text-muted hover:text-white transition">
+                            class="text-xs font-black uppercase text-muted hover:text-ink transition">
                             &larr; Cambiar Fecha
                         </button>
                     </div>
@@ -328,20 +328,20 @@
                 <section x-show="currentStep === 5" x-transition class="space-y-10">
 
                     <!-- Summary -->
-                    <div class="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+                    <div class="rounded-2xl border border-ink/5 bg-ink/[0.02] p-6">
                         <p class="text-[9px] font-black uppercase tracking-[0.35em] text-gold mb-4">Resumen de tu reserva</p>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                             <div>
                                 <p class="text-[9px] font-black text-muted uppercase">Servicio</p>
-                                <p class="text-sm font-black text-white mt-1 uppercase" x-text="selectedService?.name"></p>
+                                <p class="text-sm font-black text-ink mt-1 uppercase" x-text="selectedService?.name"></p>
                             </div>
                             <div>
                                 <p class="text-[9px] font-black text-muted uppercase">Barbero</p>
-                                <p class="text-sm font-black text-white mt-1" x-text="selectedBarber?.name"></p>
+                                <p class="text-sm font-black text-ink mt-1" x-text="selectedBarber?.name"></p>
                             </div>
                             <div>
                                 <p class="text-[9px] font-black text-muted uppercase">Fecha</p>
-                                <p class="text-sm font-black text-white mt-1" x-text="formattedDate"></p>
+                                <p class="text-sm font-black text-ink mt-1" x-text="formattedDate"></p>
                             </div>
                             <div>
                                 <p class="text-[9px] font-black text-muted uppercase">Hora</p>
@@ -354,7 +354,7 @@
                     <!-- Products -->
                     <div class="space-y-5">
                         <div>
-                            <h3 class="text-sm font-black text-white uppercase tracking-widest">Agrega productos</h3>
+                            <h3 class="text-sm font-black text-ink uppercase tracking-widest">Agrega productos</h3>
                             <p class="text-xs text-muted mt-1">Opcional — añade productos para llevar o usar durante tu sesión.</p>
                         </div>
 
@@ -366,7 +366,7 @@
                                         : SmartImageHelper::forProduct($product->nombre, $product->categoria ?? '', 'sm');
                                 @endphp
                                 <div
-                                    :class="isSelected('{{ $product->id }}') ? 'border-gold/40 bg-gold/[0.04]' : 'border-white/5 bg-white/[0.02]'"
+                                    :class="isSelected('{{ $product->id }}') ? 'border-gold/40 bg-gold/[0.04]' : 'border-ink/5 bg-ink/[0.02]'"
                                     class="rounded-2xl border overflow-hidden transition-all"
                                 >
                                     <div class="h-28 overflow-hidden relative">
@@ -385,7 +385,7 @@
                                     </div>
 
                                     <div class="p-3">
-                                        <p class="text-xs font-black text-white uppercase leading-tight line-clamp-1">{{ $product->nombre }}</p>
+                                        <p class="text-xs font-black text-ink uppercase leading-tight line-clamp-1">{{ $product->nombre }}</p>
                                         <p class="text-[9px] font-bold text-muted uppercase mt-0.5">{{ $product->categoria }}</p>
                                         <p class="text-base font-black text-gold mt-1">${{ number_format($product->precio_venta, 2) }}</p>
 
@@ -394,7 +394,7 @@
                                             <template x-if="!isSelected('{{ $product->id }}')">
                                                 <button type="button"
                                                     @click="addProduct({ id: '{{ $product->id }}', nombre: '{{ addslashes($product->nombre) }}', precio: {{ (float) $product->precio_venta }} })"
-                                                    class="w-full rounded-lg border border-white/10 bg-white/5 py-1.5 text-[9px] font-black uppercase text-muted hover:border-gold/30 hover:text-gold transition-all">
+                                                    class="w-full rounded-lg border border-ink/10 bg-ink/5 py-1.5 text-[9px] font-black uppercase text-muted hover:border-gold/30 hover:text-gold transition-all">
                                                     + Agregar
                                                 </button>
                                             </template>
@@ -402,13 +402,13 @@
                                                 <div class="flex items-center justify-between gap-1">
                                                     <button type="button"
                                                         @click="adjustQty('{{ $product->id }}', -1)"
-                                                        class="h-7 w-7 rounded-lg border border-white/10 bg-white/5 text-white font-black text-lg flex items-center justify-center hover:border-red-500/30 hover:text-red-400 transition-all">
+                                                        class="h-7 w-7 rounded-lg border border-ink/10 bg-ink/5 text-ink font-black text-lg flex items-center justify-center hover:border-red-500/30 hover:text-red-400 transition-all">
                                                         −
                                                     </button>
                                                     <span class="text-sm font-black text-gold" x-text="getQty('{{ $product->id }}')"></span>
                                                     <button type="button"
                                                         @click="adjustQty('{{ $product->id }}', 1)"
-                                                        class="h-7 w-7 rounded-lg border border-white/10 bg-white/5 text-white font-black text-lg flex items-center justify-center hover:border-gold/30 hover:text-gold transition-all">
+                                                        class="h-7 w-7 rounded-lg border border-ink/10 bg-ink/5 text-ink font-black text-lg flex items-center justify-center hover:border-gold/30 hover:text-gold transition-all">
                                                         +
                                                     </button>
                                                 </div>
@@ -428,27 +428,27 @@
                             x-model="notas"
                             rows="3"
                             placeholder="Ej: tengo alergia a ciertos productos, quiero un look específico..."
-                            class="ui-input !bg-panel border-white/10 text-white leading-relaxed w-full"
+                            class="ui-input !bg-panel border-ink/10 text-ink leading-relaxed w-full"
                         ></textarea>
                     </div>
 
                     <!-- Total & Submit -->
-                    <div class="rounded-2xl border border-white/5 bg-white/[0.02] p-6 space-y-4">
+                    <div class="rounded-2xl border border-ink/5 bg-ink/[0.02] p-6 space-y-4">
                         <div class="flex justify-between text-sm">
                             <span class="text-muted font-bold">Servicio</span>
-                            <span class="text-white font-black" x-text="'$' + (selectedService?.precio ?? 0).toFixed(2)"></span>
+                            <span class="text-ink font-black" x-text="'$' + (selectedService?.precio ?? 0).toFixed(2)"></span>
                         </div>
                         <template x-if="selectedProducts.length > 0">
                             <div>
                                 <template x-for="p in selectedProducts" :key="p.id">
                                     <div class="flex justify-between text-sm py-1">
                                         <span class="text-muted" x-text="p.nombre + ' ×' + p.cantidad"></span>
-                                        <span class="text-white/70" x-text="'$' + (p.precio * p.cantidad).toFixed(2)"></span>
+                                        <span class="text-ink/70" x-text="'$' + (p.precio * p.cantidad).toFixed(2)"></span>
                                     </div>
                                 </template>
                             </div>
                         </template>
-                        <div class="pt-3 border-t border-white/10 flex justify-between">
+                        <div class="pt-3 border-t border-ink/10 flex justify-between">
                             <span class="text-[11px] font-black uppercase tracking-widest text-muted">Total estimado</span>
                             <span class="text-xl font-black text-gold" x-text="'$' + grandTotal.toFixed(2)"></span>
                         </div>
@@ -457,7 +457,7 @@
 
                     <div class="flex flex-col sm:flex-row items-center gap-4 justify-between pt-4">
                         <button type="button" @click="currentStep = 4"
-                            class="text-xs font-black uppercase text-muted hover:text-white transition">
+                            class="text-xs font-black uppercase text-muted hover:text-ink transition">
                             &larr; Cambiar Horario
                         </button>
                         <button
@@ -495,16 +495,16 @@
                     x-transition:leave="transition ease-in duration-150"
                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    class="relative w-full sm:max-w-lg rounded-3xl border border-white/10 bg-[#0d0d0d] shadow-2xl shadow-black/60 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]"
+                    class="relative w-full sm:max-w-lg rounded-3xl border border-ink/10 bg-card shadow-2xl shadow-black/60 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]"
                 >
                     <!-- Header -->
-                    <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5">
+                    <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-ink/5">
                         <div>
                             <p class="text-[9px] font-black uppercase tracking-[0.3em] text-gold">Último paso</p>
-                            <h3 class="text-lg font-black text-white uppercase mt-0.5">¿Cómo deseas pagar?</h3>
+                            <h3 class="text-lg font-black text-ink uppercase mt-0.5">¿Cómo deseas pagar?</h3>
                         </div>
                         <button type="button" @click="paymentModal = false" aria-label="Cerrar"
-                            class="h-8 w-8 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-white hover:border-white/20 transition-all">
+                            class="h-8 w-8 rounded-xl border border-ink/10 bg-ink/5 flex items-center justify-center text-muted hover:text-ink hover:border-ink/20 transition-all">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -512,9 +512,9 @@
                     </div>
 
                     <!-- Mini summary -->
-                    <div class="px-6 py-4 flex items-center gap-3 bg-white/[0.02] border-b border-white/5 text-xs">
+                    <div class="px-6 py-4 flex items-center gap-3 bg-ink/[0.02] border-b border-ink/5 text-xs">
                         <div class="flex-1 min-w-0">
-                            <span class="font-black text-white uppercase" x-text="selectedService?.name"></span>
+                            <span class="font-black text-ink uppercase" x-text="selectedService?.name"></span>
                             <span class="text-muted"> · </span>
                             <span class="text-muted" x-text="selectedBarber?.name"></span>
                         </div>
@@ -524,7 +524,7 @@
                             <span class="font-black text-gold" x-text="selectedSlot"></span>
                         </div>
                         <div class="flex-shrink-0 text-right">
-                            <span class="font-black text-white" x-text="'$' + grandTotal.toFixed(2)"></span>
+                            <span class="font-black text-ink" x-text="'$' + grandTotal.toFixed(2)"></span>
                         </div>
                     </div>
 
@@ -536,8 +536,8 @@
 
                             <button type="button" @click="metodoPago = 'efectivo'"
                                 :class="metodoPago === 'efectivo'
-                                    ? 'border-gold bg-gold/[0.08] text-white shadow-[0_0_18px_rgba(212,175,55,0.12)]'
-                                    : 'border-white/5 bg-white/[0.02] text-muted hover:border-gold/20'"
+                                    ? 'border-gold bg-gold/[0.08] text-ink shadow-[0_0_18px_rgba(212,175,55,0.12)]'
+                                    : 'border-ink/5 bg-ink/[0.02] text-muted hover:border-gold/20'"
                                 class="flex flex-col items-center gap-2 py-5 rounded-2xl border transition-all">
                                 <svg class="h-6 w-6" :class="metodoPago === 'efectivo' ? 'text-gold' : 'text-muted/40'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -547,8 +547,8 @@
 
                             <button type="button" @click="metodoPago = 'transferencia'"
                                 :class="metodoPago === 'transferencia'
-                                    ? 'border-gold bg-gold/[0.08] text-white shadow-[0_0_18px_rgba(212,175,55,0.12)]'
-                                    : 'border-white/5 bg-white/[0.02] text-muted hover:border-gold/20'"
+                                    ? 'border-gold bg-gold/[0.08] text-ink shadow-[0_0_18px_rgba(212,175,55,0.12)]'
+                                    : 'border-ink/5 bg-ink/[0.02] text-muted hover:border-gold/20'"
                                 class="flex flex-col items-center gap-2 py-5 rounded-2xl border transition-all">
                                 <svg class="h-6 w-6" :class="metodoPago === 'transferencia' ? 'text-gold' : 'text-muted/40'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
@@ -558,8 +558,8 @@
 
                             <button type="button" @click="metodoPago = 'tarjeta'"
                                 :class="metodoPago === 'tarjeta'
-                                    ? 'border-gold bg-gold/[0.08] text-white shadow-[0_0_18px_rgba(212,175,55,0.12)]'
-                                    : 'border-white/5 bg-white/[0.02] text-muted hover:border-gold/20'"
+                                    ? 'border-gold bg-gold/[0.08] text-ink shadow-[0_0_18px_rgba(212,175,55,0.12)]'
+                                    : 'border-ink/5 bg-ink/[0.02] text-muted hover:border-gold/20'"
                                 class="flex flex-col items-center gap-2 py-5 rounded-2xl border transition-all relative">
                                 <svg class="h-6 w-6" :class="metodoPago === 'tarjeta' ? 'text-gold' : 'text-muted/40'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
@@ -576,9 +576,9 @@
                     </div>
 
                     <!-- Footer -->
-                    <div class="px-6 pb-6 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0">
+                    <div class="px-6 pb-6 pt-4 border-t border-ink/5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0">
                         <button type="button" @click="paymentModal = false"
-                            class="flex-1 py-3.5 rounded-xl border border-white/10 bg-white/5 text-[10px] font-black uppercase tracking-widest text-muted hover:text-white hover:border-white/20 transition-all">
+                            class="flex-1 py-3.5 rounded-xl border border-ink/10 bg-ink/5 text-[10px] font-black uppercase tracking-widest text-muted hover:text-ink hover:border-ink/20 transition-all">
                             Cancelar
                         </button>
                         <button type="button" @click="$refs.bookingForm.submit()"

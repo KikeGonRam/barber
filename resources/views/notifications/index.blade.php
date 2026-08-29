@@ -33,11 +33,11 @@
                             default                                                       => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
                         };
                     @endphp
-                    <article class="ui-card-premium p-5 group {{ $isUnread ? 'border-gold/20' : 'border-white/5 bg-white/[0.01]' }}">
+                    <article class="ui-card-premium p-5 group {{ $isUnread ? 'border-gold/20' : 'border-ink/5 bg-ink/[0.01]' }}">
                         <div class="flex items-start gap-5">
                             <!-- Icon -->
                             <div class="h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0
-                                {{ $isUnread ? 'bg-gold/10 text-gold shadow-[0_0_16px_rgba(212,175,55,0.1)]' : 'bg-white/5 text-muted' }}">
+                                {{ $isUnread ? 'bg-gold/10 text-gold shadow-[0_0_16px_rgba(212,175,55,0.1)]' : 'bg-ink/5 text-muted' }}">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $icon }}"/>
                                 </svg>
@@ -46,7 +46,7 @@
                             <!-- Content -->
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-start justify-between gap-3 mb-1">
-                                    <h3 class="text-sm font-black text-white uppercase tracking-tight leading-tight">
+                                    <h3 class="text-sm font-black text-ink uppercase tracking-tight leading-tight">
                                         {{ $notification->data['title'] ?? $notification->data['subject'] ?? 'Actualización del Sistema' }}
                                     </h3>
                                     <span class="text-[9px] font-black uppercase tracking-[0.2em] text-muted flex-shrink-0">
@@ -85,7 +85,7 @@
                                         <form method="POST" action="{{ route('notifications.read-one', $notification->id) }}">
                                             @csrf
                                             <button type="submit"
-                                                class="px-4 py-2 rounded-lg border border-white/10 text-[9px] font-black uppercase tracking-widest text-muted hover:text-white hover:border-white/20 transition-all">
+                                                class="px-4 py-2 rounded-lg border border-ink/10 text-[9px] font-black uppercase tracking-widest text-muted hover:text-ink hover:border-ink/20 transition-all">
                                                 Marcar como leída
                                             </button>
                                         </form>
@@ -95,8 +95,8 @@
                         </div>
                     </article>
                 @empty
-                    <div class="ui-card-premium py-20 text-center border-dashed border-white/10 bg-transparent">
-                        <svg class="h-12 w-12 text-white/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="ui-card-premium py-20 text-center border-dashed border-ink/10 bg-transparent">
+                        <svg class="h-12 w-12 text-ink/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                         </svg>
                         <p class="text-sm font-black text-muted/50 uppercase tracking-widest">Bandeja vacía</p>

@@ -5,7 +5,7 @@
                 <h2 class="ui-title">Publicar <span class="text-gold">Nuevo Trabajo</span></h2>
                 <p class="ui-subtitle">Muestra tu talento — sube fotos y videos de tu mejor obra.</p>
             </div>
-            <a href="{{ route('barber.portfolio.index') }}" class="text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white transition self-start sm:self-auto">
+            <a href="{{ route('barber.portfolio.index') }}" class="text-[10px] font-black uppercase tracking-widest text-ink/50 hover:text-ink transition self-start sm:self-auto">
                 &larr; Volver
             </a>
         </div>
@@ -18,31 +18,31 @@
                 @csrf
 
                 {{-- Título --}}
-                <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+                <div class="rounded-2xl border border-ink/[0.06] bg-card p-5">
                     <div class="space-y-4">
                         <div>
                             <label class="ui-label" for="title">Título del trabajo</label>
                             <input id="title" name="title" value="{{ old('title') }}"
-                                   class="ui-input !bg-black/30 border-white/10 text-white mt-1"
+                                   class="ui-input !bg-black/30 border-ink/10 text-ink mt-1"
                                    placeholder="Ej: Fade Clásico con Diseño" required>
                             @error('title') <p class="mt-1 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="ui-label" for="description">Descripción <span class="text-white/45 normal-case font-normal">(opcional)</span></label>
+                            <label class="ui-label" for="description">Descripción <span class="text-ink/45 normal-case font-normal">(opcional)</span></label>
                             <textarea id="description" name="description" rows="3"
-                                      class="ui-input !bg-black/30 border-white/10 text-white leading-relaxed mt-1"
+                                      class="ui-input !bg-black/30 border-ink/10 text-ink leading-relaxed mt-1"
                                       placeholder="Describe la técnica, productos o estilo utilizado...">{{ old('description') }}</textarea>
                         </div>
                     </div>
                 </div>
 
                 {{-- Upload Zone --}}
-                <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
+                <div class="rounded-2xl border border-ink/[0.06] bg-card p-5">
                     <div class="flex items-center justify-between mb-4">
-                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50">
+                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50">
                             Fotos & Videos
                         </p>
-                        <p class="text-[9px] font-bold text-white/50 uppercase tracking-wider"
+                        <p class="text-[9px] font-bold text-ink/50 uppercase tracking-wider"
                            x-text="`${files.length} / 10 archivos`"></p>
                     </div>
 
@@ -50,7 +50,7 @@
                     <label
                         for="media-input"
                         class="relative flex flex-col items-center justify-center w-full rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200"
-                        :class="dragging ? 'border-gold/60 bg-gold/5' : 'border-white/10 hover:border-gold/30 hover:bg-white/[0.02]'"
+                        :class="dragging ? 'border-gold/60 bg-gold/5' : 'border-ink/10 hover:border-gold/30 hover:bg-ink/[0.02]'"
                         @dragover.prevent="dragging = true"
                         @dragleave.prevent="dragging = false"
                         @drop.prevent="handleDrop($event)">
@@ -62,11 +62,11 @@
                                 </svg>
                             </div>
                             <div class="text-center">
-                                <p class="text-sm font-black text-white uppercase tracking-tight">Arrastra o haz clic para subir</p>
-                                <p class="text-[10px] text-white/50 font-medium mt-1">
+                                <p class="text-sm font-black text-ink uppercase tracking-tight">Arrastra o haz clic para subir</p>
+                                <p class="text-[10px] text-ink/50 font-medium mt-1">
                                     Fotos: JPG, PNG, WEBP &nbsp;·&nbsp; Videos: MP4, WEBM, MOV
                                 </p>
-                                <p class="text-[9px] text-white/45 font-bold uppercase mt-1">Máx. 10 archivos · 100 MB por archivo</p>
+                                <p class="text-[9px] text-ink/45 font-bold uppercase mt-1">Máx. 10 archivos · 100 MB por archivo</p>
                             </div>
                         </div>
 
@@ -89,8 +89,8 @@
                                 <div x-show="file.type === 'video'" class="h-full w-full flex flex-col items-center justify-center bg-black/60">
                                     <video :src="file.preview" class="h-full w-full object-cover absolute inset-0" muted playsinline></video>
                                     <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                                        <div class="h-8 w-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                            <svg class="h-4 w-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                        <div class="h-8 w-8 rounded-full bg-ink/20 backdrop-blur-sm flex items-center justify-center">
+                                            <svg class="h-4 w-4 text-ink ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M8 5v14l11-7z"/>
                                             </svg>
                                         </div>
@@ -105,7 +105,7 @@
 
                                 {{-- Video badge --}}
                                 <div x-show="file.type === 'video' && index > 0"
-                                     class="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-purple-500/80 text-white text-[7px] font-black uppercase">
+                                     class="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-purple-500/80 text-ink text-[7px] font-black uppercase">
                                     Video
                                 </div>
 
@@ -113,7 +113,7 @@
                                 <button type="button"
                                         @click="removeFile(index)"
                                         aria-label="Quitar imagen"
-                                        class="absolute top-1 right-1 h-5 w-5 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        class="absolute top-1 right-1 h-5 w-5 rounded-full bg-red-500/80 text-ink flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
@@ -123,8 +123,8 @@
 
                         {{-- Add more button --}}
                         <template x-if="files.length < 10">
-                            <label for="media-input" class="aspect-square rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center cursor-pointer hover:border-gold/30 transition-colors">
-                                <svg class="h-6 w-6 text-white/45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <label for="media-input" class="aspect-square rounded-xl border-2 border-dashed border-ink/10 flex items-center justify-center cursor-pointer hover:border-gold/30 transition-colors">
+                                <svg class="h-6 w-6 text-ink/45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
                             </label>
@@ -138,7 +138,7 @@
                 {{-- Submit --}}
                 <div class="flex justify-end gap-3">
                     <a href="{{ route('barber.portfolio.index') }}"
-                       class="px-6 py-3 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all">
+                       class="px-6 py-3 rounded-xl border border-ink/10 text-[10px] font-black uppercase tracking-widest text-ink/40 hover:text-ink transition-all">
                         Cancelar
                     </a>
                     <button type="submit"

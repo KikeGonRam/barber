@@ -12,12 +12,12 @@
             @if($ultimoRechazo)
                 <div class="rounded-2xl border border-red-500/25 bg-red-500/8 p-4">
                     <p class="text-[10px] font-black uppercase tracking-wider text-red-300">Comprobante anterior rechazado</p>
-                    <p class="text-sm text-white/80 mt-1">{{ $ultimoRechazo->motivo_rechazo ?? 'No cumplió con lo esperado.' }}</p>
+                    <p class="text-sm text-ink/80 mt-1">{{ $ultimoRechazo->motivo_rechazo ?? 'No cumplió con lo esperado.' }}</p>
                 </div>
             @endif
 
-            <div class="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
-                <p class="text-sm font-black text-white uppercase leading-tight">{{ $appointment->service?->nombre ?? 'Servicio' }}</p>
+            <div class="rounded-2xl border border-ink/5 bg-ink/[0.02] p-5">
+                <p class="text-sm font-black text-ink uppercase leading-tight">{{ $appointment->service?->nombre ?? 'Servicio' }}</p>
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted font-bold mt-1">
                     @if($appointment->barber?->user)
                         <span>{{ $appointment->barber->user->name }}</span>

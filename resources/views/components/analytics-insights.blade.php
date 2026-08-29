@@ -58,7 +58,7 @@
                 <span class="h-2 w-2 rounded-full bg-gold shadow-[0_0_16px_rgba(212,175,55,.45)]"></span>
                 <h3 class="text-[11px] font-black uppercase tracking-[0.18em] text-gold">{{ $titulo }}</h3>
             </div>
-            <span class="hidden text-[10px] font-bold text-white/35 sm:inline">{{ $items->count() }} resultados</span>
+            <span class="hidden text-[10px] font-bold text-ink/35 sm:inline">{{ $items->count() }} resultados</span>
         </div>
 
         <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
@@ -120,30 +120,30 @@
                     ];
                 @endphp
 
-                <article class="{{ $isWide ? 'xl:col-span-2' : '' }} ub-analytics-card group overflow-hidden rounded-2xl border {{ $c['border'] }} {{ $c['bg'] }} p-4 transition duration-300 hover:-translate-y-0.5 hover:border-white/15 sm:p-5">
+                <article class="{{ $isWide ? 'xl:col-span-2' : '' }} ub-analytics-card group overflow-hidden rounded-2xl border {{ $c['border'] }} {{ $c['bg'] }} p-4 transition duration-300 hover:-translate-y-0.5 hover:border-ink/15 sm:p-5">
                     <div class="{{ $isWide ? 'grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_320px]' : 'space-y-4' }}">
                         <div class="min-w-0">
                             <div class="mb-4 flex items-start justify-between gap-4">
                                 <div class="min-w-0">
                                     <div class="mb-2 flex flex-wrap items-center gap-2">
-                                        <span class="rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.16em] text-white/42">{{ $visualLabel }}</span>
+                                        <span class="rounded-full border border-ink/[0.08] bg-ink/[0.04] px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.16em] text-ink/42">{{ $visualLabel }}</span>
                                         @if($hasVisual)
                                             <span class="rounded-full border {{ $c['border'] }} px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.16em] {{ $c['texto'] }}">Con gráfica</span>
                                         @endif
                                     </div>
                                     <p class="text-[10px] font-black uppercase tracking-[0.18em] {{ $c['texto'] }}">{{ $tit }}</p>
-                                    <p class="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl">{{ $dato }}</p>
+                                    <p class="mt-1 text-2xl font-black leading-tight text-ink sm:text-3xl">{{ $dato }}</p>
                                 </div>
-                                <span class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035]">
+                                <span class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-ink/[0.08] bg-ink/[0.035]">
                                     <span class="h-2 w-2 rounded-full {{ $c['dot'] }}"></span>
                                 </span>
                             </div>
 
                             @if($isMatrix)
-                                <div class="rounded-xl border border-white/[0.07] bg-black/20 p-4" aria-label="Matriz de resultados">
+                                <div class="rounded-xl border border-ink/[0.07] bg-black/20 p-4" aria-label="Matriz de resultados">
                                     <div class="mb-3 flex items-center justify-between gap-3">
-                                        <p class="text-[9px] font-black uppercase tracking-[0.18em] text-white/38">Resultado del modelo</p>
-                                        <span class="rounded-full border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[9px] font-black text-white/45">
+                                        <p class="text-[9px] font-black uppercase tracking-[0.18em] text-ink/38">Resultado del modelo</p>
+                                        <span class="rounded-full border border-ink/[0.08] bg-ink/[0.035] px-2 py-0.5 text-[9px] font-black text-ink/45">
                                             {{ number_format((float) $values->sum(), 0) }} casos
                                         </span>
                                     </div>
@@ -167,11 +167,11 @@
                                             @endphp
 
                                             @if($loop->index === 0)
-                                                <div class="row-span-2 grid place-items-center rounded-xl border border-white/[0.06] bg-white/[0.025] px-2 text-[9px] font-black uppercase tracking-wider text-white/42 [writing-mode:vertical-rl] rotate-180">Real</div>
+                                                <div class="row-span-2 grid place-items-center rounded-xl border border-ink/[0.06] bg-ink/[0.025] px-2 text-[9px] font-black uppercase tracking-wider text-ink/42 [writing-mode:vertical-rl] rotate-180">Real</div>
                                             @endif
 
                                             <div class="rounded-xl border {{ $cellClass }} p-3 text-left">
-                                                <p class="text-2xl font-black text-white">{{ number_format($value, 0) }}</p>
+                                                <p class="text-2xl font-black text-ink">{{ number_format($value, 0) }}</p>
                                                 <p class="mt-1 whitespace-pre-line text-[9px] font-bold uppercase tracking-wider opacity-70">{{ $label }}</p>
                                             </div>
                                         @endforeach
@@ -201,22 +201,22 @@
 
                                 <div class="ub-heatmap-board rounded-xl border border-amber-300/15 bg-black/20 p-4" aria-label="Mapa de calor de demanda">
                                     <div class="grid gap-2 sm:grid-cols-3">
-                                        <div class="rounded-xl border border-white/[0.07] bg-white/[0.035] p-3">
+                                        <div class="rounded-xl border border-ink/[0.07] bg-ink/[0.035] p-3">
                                             <p class="text-[9px] font-black uppercase tracking-[0.16em] text-amber-300">Mayor demanda</p>
-                                            <p class="mt-1 text-xl font-black text-white">{{ $peak['label'] ?? $dato }}</p>
-                                            <p class="text-[10px] font-bold text-white/42">
+                                            <p class="mt-1 text-xl font-black text-ink">{{ $peak['label'] ?? $dato }}</p>
+                                            <p class="text-[10px] font-bold text-ink/42">
                                                 {{ $heatmapIsFallback ? 'Horario detectado por Spark' : number_format((float) ($peak['value'] ?? 0), 0).' citas detectadas' }}
                                             </p>
                                         </div>
-                                        <div class="rounded-xl border border-white/[0.07] bg-white/[0.035] p-3">
-                                            <p class="text-[9px] font-black uppercase tracking-[0.16em] text-white/38">Promedio</p>
-                                            <p class="mt-1 text-xl font-black text-white">{{ $heatmapIsFallback ? 'N/D' : number_format($heatmapAverage, 1) }}</p>
-                                            <p class="text-[10px] font-bold text-white/42">{{ $heatmapIsFallback ? 'serie no disponible' : 'citas por bloque' }}</p>
+                                        <div class="rounded-xl border border-ink/[0.07] bg-ink/[0.035] p-3">
+                                            <p class="text-[9px] font-black uppercase tracking-[0.16em] text-ink/38">Promedio</p>
+                                            <p class="mt-1 text-xl font-black text-ink">{{ $heatmapIsFallback ? 'N/D' : number_format($heatmapAverage, 1) }}</p>
+                                            <p class="text-[10px] font-bold text-ink/42">{{ $heatmapIsFallback ? 'serie no disponible' : 'citas por bloque' }}</p>
                                         </div>
-                                        <div class="rounded-xl border border-white/[0.07] bg-white/[0.035] p-3">
-                                            <p class="text-[9px] font-black uppercase tracking-[0.16em] text-white/38">Volumen leído</p>
-                                            <p class="mt-1 text-xl font-black text-white">{{ $heatmapIsFallback ? 'Punto clave' : number_format($heatmapTotal, 0) }}</p>
-                                            <p class="text-[10px] font-bold text-white/42">{{ $heatmapIsFallback ? 'sin inventar volumen' : $heatmapPoints->count().' bloques analizados' }}</p>
+                                        <div class="rounded-xl border border-ink/[0.07] bg-ink/[0.035] p-3">
+                                            <p class="text-[9px] font-black uppercase tracking-[0.16em] text-ink/38">Volumen leído</p>
+                                            <p class="mt-1 text-xl font-black text-ink">{{ $heatmapIsFallback ? 'Punto clave' : number_format($heatmapTotal, 0) }}</p>
+                                            <p class="text-[10px] font-bold text-ink/42">{{ $heatmapIsFallback ? 'sin inventar volumen' : $heatmapPoints->count().' bloques analizados' }}</p>
                                         </div>
                                     </div>
 
@@ -226,15 +226,15 @@
                                                 @php $isPeak = abs($point['value'] - (float) ($peak['value'] ?? -1)) < 0.0001; @endphp
                                                 <div class="ub-heatmap-cell {{ $isPeak ? 'is-peak' : '' }}" style="--heat: {{ $point['alpha'] }}; --heat-percent: {{ $point['intensity'] }}%;">
                                                     <div class="flex items-center justify-between gap-2">
-                                                        <span class="truncate text-[10px] font-black text-white">{{ $point['label'] }}</span>
+                                                        <span class="truncate text-[10px] font-black text-ink">{{ $point['label'] }}</span>
                                                         @if($isPeak)
                                                             <span class="rounded-full bg-black/45 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-amber-200">Pico</span>
                                                         @endif
                                                     </div>
-                                                    <p class="mt-3 text-2xl font-black text-white">{{ $point['display'] }}</p>
-                                                    <p class="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-white/52">{{ $point['caption'] }}</p>
+                                                    <p class="mt-3 text-2xl font-black text-ink">{{ $point['display'] }}</p>
+                                                    <p class="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-ink/52">{{ $point['caption'] }}</p>
                                                     <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-black/35">
-                                                        <span class="block h-full rounded-full bg-white/85" style="width: {{ $point['intensity'] }}%"></span>
+                                                        <span class="block h-full rounded-full bg-ink/85" style="width: {{ $point['intensity'] }}%"></span>
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -244,7 +244,7 @@
                                     <div class="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                                         <div>
                                             <div class="h-2 rounded-full bg-[linear-gradient(90deg,rgba(245,158,11,.18),rgba(245,158,11,.52),rgba(245,158,11,.95))]"></div>
-                                            <div class="mt-1 flex justify-between text-[9px] font-black uppercase tracking-wider text-white/35">
+                                            <div class="mt-1 flex justify-between text-[9px] font-black uppercase tracking-wider text-ink/35">
                                                 <span>Baja</span>
                                                 <span>Media</span>
                                                 <span>Alta</span>
@@ -261,7 +261,7 @@
                                     </div>
                                 </div>
                             @elseif($isFactorList)
-                                <div class="space-y-3 rounded-xl border border-white/[0.06] bg-black/15 p-4" aria-label="Importancia de factores">
+                                <div class="space-y-3 rounded-xl border border-ink/[0.06] bg-black/15 p-4" aria-label="Importancia de factores">
                                     @foreach($labels as $label)
                                         @php
                                             $value = (float) ($values[$loop->index] ?? 0);
@@ -269,10 +269,10 @@
                                         @endphp
                                         <div>
                                             <div class="mb-1 flex items-center justify-between gap-3">
-                                                <span class="truncate text-[11px] font-bold text-white/62">{{ $label }}</span>
+                                                <span class="truncate text-[11px] font-bold text-ink/62">{{ $label }}</span>
                                                 <span class="text-[11px] font-black text-amber-300">{{ number_format($value, 1) }}%</span>
                                             </div>
-                                            <div class="h-2 overflow-hidden rounded-full bg-white/[0.07]">
+                                            <div class="h-2 overflow-hidden rounded-full bg-ink/[0.07]">
                                                 <span class="block h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-400" style="width: {{ $width }}%"></span>
                                             </div>
                                         </div>
@@ -291,9 +291,9 @@
                                     </script>
                                 </div>
                             @else
-                                <div class="rounded-xl border border-white/[0.06] bg-black/15 p-4">
+                                <div class="rounded-xl border border-ink/[0.06] bg-black/15 p-4">
                                     @if($progressValue !== null)
-                                        <div class="mb-4 h-2 overflow-hidden rounded-full bg-white/[0.07]">
+                                        <div class="mb-4 h-2 overflow-hidden rounded-full bg-ink/[0.07]">
                                             <span class="block h-full rounded-full {{ $c['dot'] }}" style="width: {{ $progressValue }}%"></span>
                                         </div>
                                     @else
@@ -303,25 +303,25 @@
                                             <span class="h-1.5 flex-1 rounded-full {{ $c['dot'] }} opacity-40"></span>
                                         </div>
                                     @endif
-                                    <p class="max-w-2xl text-sm leading-relaxed text-white/58">{{ $brief }}</p>
+                                    <p class="max-w-2xl text-sm leading-relaxed text-ink/58">{{ $brief }}</p>
                                 </div>
                             @endif
                         </div>
 
-                        <div class="{{ $isWide ? 'lg:border-l lg:border-white/[0.07] lg:pl-5' : '' }} flex flex-col justify-between gap-3">
+                        <div class="{{ $isWide ? 'lg:border-l lg:border-ink/[0.07] lg:pl-5' : '' }} flex flex-col justify-between gap-3">
                             @if($hasVisual)
-                                <p class="text-sm leading-relaxed text-white/58">{{ $brief }}</p>
+                                <p class="text-sm leading-relaxed text-ink/58">{{ $brief }}</p>
                             @endif
 
                             @if($estaTruncado)
-                                <details class="group rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2">
-                                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/45 transition-colors hover:text-gold">
+                                <details class="group rounded-xl border border-ink/[0.07] bg-ink/[0.025] px-3 py-2">
+                                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.16em] text-ink/45 transition-colors hover:text-gold">
                                         <span>Ver hallazgo</span>
                                         <svg class="h-3.5 w-3.5 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
                                         </svg>
                                     </summary>
-                                    <p class="mt-3 text-[12px] leading-relaxed text-white/62">{{ $msg }}</p>
+                                    <p class="mt-3 text-[12px] leading-relaxed text-ink/62">{{ $msg }}</p>
                                 </details>
                             @elseif(!$hasVisual)
                                 {{-- Mensaje corto sin gráfica: ya se muestra completo arriba, no hay nada que expandir. --}}

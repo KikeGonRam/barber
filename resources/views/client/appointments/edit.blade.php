@@ -25,11 +25,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <!-- Summary -->
                         <div class="space-y-6">
-                            <h3 class="text-sm font-black text-white uppercase tracking-widest border-b border-white/5 pb-4">Detalles Actuales</h3>
+                            <h3 class="text-sm font-black text-ink uppercase tracking-widest border-b border-ink/5 pb-4">Detalles Actuales</h3>
                             <div class="space-y-4">
                                 <div>
                                     <p class="text-[10px] font-bold text-muted uppercase">Servicio</p>
-                                    <p class="text-lg font-black text-white uppercase">{{ $appointment->service->nombre }}</p>
+                                    <p class="text-lg font-black text-ink uppercase">{{ $appointment->service->nombre }}</p>
                                 </div>
                                 <div>
                                     <p class="text-[10px] font-bold text-muted uppercase">Barbero</p>
@@ -40,14 +40,14 @@
 
                         <!-- Date Selection -->
                         <div class="space-y-6">
-                            <h3 class="text-sm font-black text-white uppercase tracking-widest border-b border-white/5 pb-4">Nueva Fecha</h3>
-                            <input type="date" name="fecha_picker" x-model="selectedDate" @change="fetchSlots()" class="ui-input !bg-panel border-white/10 text-white" min="{{ date('Y-m-d') }}">
+                            <h3 class="text-sm font-black text-ink uppercase tracking-widest border-b border-ink/5 pb-4">Nueva Fecha</h3>
+                            <input type="date" name="fecha_picker" x-model="selectedDate" @change="fetchSlots()" class="ui-input !bg-panel border-ink/10 text-ink" min="{{ date('Y-m-d') }}">
                         </div>
                     </div>
 
                     <!-- Time Slots -->
                     <div class="space-y-6">
-                        <h3 class="text-sm font-black text-white uppercase tracking-widest border-b border-white/5 pb-4">Horarios Disponibles</h3>
+                        <h3 class="text-sm font-black text-ink uppercase tracking-widest border-b border-ink/5 pb-4">Horarios Disponibles</h3>
                         
                         <div x-show="loadingSlots" class="flex justify-center py-8">
                             <div class="h-6 w-6 border-2 border-gold border-t-transparent rounded-full animate-spin"></div>
@@ -58,19 +58,19 @@
                                 <button 
                                     type="button"
                                     @click="selectedSlot = slot.time"
-                                    :class="selectedSlot === slot.time ? 'border-gold bg-gold text-black' : 'border-white/5 bg-white/5 text-white hover:border-gold/30'"
+                                    :class="selectedSlot === slot.time ? 'border-gold bg-gold text-black' : 'border-ink/5 bg-ink/5 text-ink hover:border-gold/30'"
                                     class="py-2.5 rounded-xl border font-black text-[10px] transition-all"
                                     x-text="slot.label"
                                 ></button>
                             </template>
                         </div>
 
-                        <div x-show="!loadingSlots && slots.length === 0" class="text-center py-8 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                        <div x-show="!loadingSlots && slots.length === 0" class="text-center py-8 bg-ink/5 rounded-2xl border border-dashed border-ink/10">
                             <p class="text-xs text-muted">No hay horarios para este día.</p>
                         </div>
                     </div>
 
-                    <div class="pt-8 border-t border-white/5 flex justify-end">
+                    <div class="pt-8 border-t border-ink/5 flex justify-end">
                         <button type="submit" :disabled="!selectedSlot" :class="!selectedSlot ? 'opacity-20 cursor-not-allowed' : 'gold-glow'" class="ui-btn px-16 py-4">
                             Confirmar Reprogramación
                         </button>

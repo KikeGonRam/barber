@@ -26,9 +26,9 @@
                 ['label'=>'Sin Citas',       'val'=>$stats['sin_citas'], 'color'=>'amber',   'sub'=>'Sin historial'],
                 ['label'=>'Este Mes',        'val'=>$stats['este_mes'],  'color'=>'blue',    'sub'=>'Nuevos en ' . now()->translatedFormat('M')],
             ] as $stat)
-                <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+                <div class="rounded-2xl border border-ink/8 bg-card p-4">
                     <p class="text-[10px] font-black uppercase tracking-wider text-muted mb-1">{{ $stat['label'] }}</p>
-                    <p class="text-2xl font-black {{ $stat['color'] === 'white' ? 'text-white' : 'text-'.$stat['color'].'-400' }}">{{ $stat['val'] }}</p>
+                    <p class="text-2xl font-black {{ $stat['color'] === 'white' ? 'text-ink' : 'text-'.$stat['color'].'-400' }}">{{ $stat['val'] }}</p>
                     <p class="text-[10px] text-muted/60 mt-0.5">{{ $stat['sub'] }}</p>
                 </div>
             @endforeach
@@ -36,10 +36,10 @@
 
         {{-- ── FILTROS ─────────────────────────────────── --}}
         <section x-data="{ open: {{ count($activeFilters) > 0 ? 'true' : 'false' }} }" class="ui-card-premium overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-white/6" @click="open = !open">
+            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-ink/6" @click="open = !open">
                 <div class="flex items-center gap-3">
                     <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                    <span class="text-sm font-black text-white uppercase tracking-widest">Filtros Avanzados</span>
+                    <span class="text-sm font-black text-ink uppercase tracking-widest">Filtros Avanzados</span>
                     @if(count($activeFilters) > 0)
                         <span class="flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[9px] font-black text-black">{{ count($activeFilters) }}</span>
                     @endif
@@ -72,9 +72,9 @@
                         <label class="flex items-center gap-3 cursor-pointer w-fit group">
                             <div class="relative flex items-center">
                                 <input type="checkbox" name="sin_citas" value="1" @checked(!empty($filters['sin_citas']))
-                                       class="h-4 w-4 rounded border-white/20 bg-black/40 text-gold focus:ring-gold/30 focus:ring-offset-0 transition-all">
+                                       class="h-4 w-4 rounded border-ink/20 bg-black/40 text-gold focus:ring-gold/30 focus:ring-offset-0 transition-all">
                             </div>
-                            <span class="text-[11px] font-bold uppercase tracking-widest text-muted group-hover:text-white transition-colors">
+                            <span class="text-[11px] font-bold uppercase tracking-widest text-muted group-hover:text-ink transition-colors">
                                 Mostrar solo clientes sin citas
                             </span>
                         </label>
@@ -82,7 +82,7 @@
                     <div class="mt-5 flex items-center gap-3">
                         <button type="submit" class="ui-btn py-2.5 px-6 text-[11px] tracking-widest">Aplicar Filtros</button>
                         @if(count($activeFilters) > 0)
-                            <a href="{{ route('clients.index') }}" class="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition-all">
+                            <a href="{{ route('clients.index') }}" class="flex items-center gap-1.5 rounded-xl border border-ink/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-ink transition-all">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                 Limpiar
                             </a>
@@ -136,16 +136,16 @@
                             <tr class="group">
                                 <td>
                                     <div class="flex items-center gap-3">
-                                        <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center text-[11px] font-black text-white shrink-0">
+                                        <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-ink/10 to-ink/5 border border-ink/10 flex items-center justify-center text-[11px] font-black text-ink shrink-0">
                                             {{ strtoupper(mb_substr($client->user?->name ?? 'CL', 0, 2)) }}
                                         </div>
-                                        <span class="font-bold text-white text-sm">{{ $client->user?->name ?? 'Sin usuario' }}</span>
+                                        <span class="font-bold text-ink text-sm">{{ $client->user?->name ?? 'Sin usuario' }}</span>
                                     </div>
                                 </td>
                                 <td class="text-muted text-sm">{{ $client->user?->email ?: '—' }}</td>
                                 <td class="text-muted text-sm">{{ $client->telefono ?: '—' }}</td>
                                 <td class="text-center">
-                                    <span class="inline-flex items-center justify-center min-w-[2rem] rounded-full border {{ ($client->appointments_count ?? 0) > 0 ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' : 'border-white/10 bg-white/5 text-muted' }} px-2 py-0.5 text-[11px] font-black">
+                                    <span class="inline-flex items-center justify-center min-w-[2rem] rounded-full border {{ ($client->appointments_count ?? 0) > 0 ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' : 'border-ink/10 bg-ink/5 text-muted' }} px-2 py-0.5 text-[11px] font-black">
                                         {{ $client->appointments_count ?? 0 }}
                                     </span>
                                 </td>
@@ -155,11 +155,11 @@
                                     <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         @if($client->slug)
                                         <a href="{{ route('clients.show', $client) }}"
-                                           class="h-8 px-3 rounded-lg border border-white/10 bg-white/5 flex items-center text-[9px] font-black uppercase tracking-widest text-muted hover:text-gold hover:border-gold/30 transition-all" title="Ver Perfil">
+                                           class="h-8 px-3 rounded-lg border border-ink/10 bg-ink/5 flex items-center text-[9px] font-black uppercase tracking-widest text-muted hover:text-gold hover:border-gold/30 transition-all" title="Ver Perfil">
                                             Perfil
                                         </a>
                                         <a href="{{ route('clients.edit', $client) }}"
-                                           class="h-8 w-8 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all">
+                                           class="h-8 w-8 rounded-lg border border-ink/10 bg-ink/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </a>
                                         <form action="{{ route('clients.destroy', $client) }}" method="POST"
@@ -176,7 +176,7 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="px-6 py-16 text-center">
-                                    <svg class="h-12 w-12 text-white/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    <svg class="h-12 w-12 text-ink/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                     <p class="text-sm font-bold text-muted uppercase tracking-widest">Sin clientes que mostrar</p>
                                 </td>
                             </tr>
@@ -188,28 +188,28 @@
             {{-- Mobile --}}
             <div class="space-y-3 md:hidden">
                 @forelse($clients as $client)
-                    <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+                    <div class="rounded-2xl border border-ink/8 bg-card p-4">
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-3">
-                                <div class="h-10 w-10 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-sm font-black text-white">
+                                <div class="h-10 w-10 rounded-xl bg-ink/8 border border-ink/10 flex items-center justify-center text-sm font-black text-ink">
                                     {{ strtoupper(mb_substr($client->user?->name ?? 'CL', 0, 2)) }}
                                 </div>
                                 <div>
-                                    <p class="text-sm font-bold text-white">{{ $client->user?->name ?? 'Sin usuario' }}</p>
+                                    <p class="text-sm font-bold text-ink">{{ $client->user?->name ?? 'Sin usuario' }}</p>
                                     <p class="text-[10px] text-muted">{{ $client->user?->email ?: '—' }}</p>
                                 </div>
                             </div>
-                            <span class="text-[9px] font-black border rounded-full px-2 py-0.5 {{ ($client->appointments_count ?? 0) > 0 ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' : 'border-white/10 bg-white/5 text-muted' }}">
+                            <span class="text-[9px] font-black border rounded-full px-2 py-0.5 {{ ($client->appointments_count ?? 0) > 0 ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' : 'border-ink/10 bg-ink/5 text-muted' }}">
                                 {{ $client->appointments_count ?? 0 }} citas
                             </span>
                         </div>
-                        <div class="grid grid-cols-2 gap-3 text-xs border-t border-white/5 pt-3">
-                            <div><p class="text-muted text-[9px] uppercase font-bold mb-0.5">Teléfono</p><p class="text-white">{{ $client->telefono ?: '—' }}</p></div>
-                            <div><p class="text-muted text-[9px] uppercase font-bold mb-0.5">Registrado</p><p class="text-white">{{ $client->created_at?->translatedFormat('d M, Y') }}</p></div>
+                        <div class="grid grid-cols-2 gap-3 text-xs border-t border-ink/5 pt-3">
+                            <div><p class="text-muted text-[9px] uppercase font-bold mb-0.5">Teléfono</p><p class="text-ink">{{ $client->telefono ?: '—' }}</p></div>
+                            <div><p class="text-muted text-[9px] uppercase font-bold mb-0.5">Registrado</p><p class="text-ink">{{ $client->created_at?->translatedFormat('d M, Y') }}</p></div>
                         </div>
-                        <div class="mt-3 flex justify-end gap-3 border-t border-white/5 pt-3">
+                        <div class="mt-3 flex justify-end gap-3 border-t border-ink/5 pt-3">
                             @if($client->slug)
-                            <a href="{{ route('clients.edit', $client) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Editar</a>
+                            <a href="{{ route('clients.edit', $client) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-ink transition">Editar</a>
                             <form action="{{ route('clients.destroy', $client) }}" method="POST" onsubmit="return confirm('¿Eliminar cliente?');">
                                 @csrf @method('DELETE')
                                 <button class="text-[10px] font-black uppercase tracking-widest text-red-500">Eliminar</button>
@@ -218,7 +218,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="rounded-2xl border border-dashed border-white/10 p-12 text-center">
+                    <div class="rounded-2xl border border-dashed border-ink/10 p-12 text-center">
                         <p class="text-sm text-muted">Sin clientes.</p>
                     </div>
                 @endforelse

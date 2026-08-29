@@ -38,20 +38,20 @@
 
         {{-- Catálogo --}}
         @if($products->isEmpty())
-            <div class="rounded-2xl border border-dashed border-white/10 p-12 text-center">
+            <div class="rounded-2xl border border-dashed border-ink/10 p-12 text-center">
                 <p class="text-sm font-bold text-muted">No hay productos disponibles con esos filtros.</p>
             </div>
         @else
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 @foreach($products as $product)
                     <article class="ui-card-premium p-0 overflow-hidden group flex flex-col">
-                        <div class="aspect-square bg-[#0f0f0f] relative overflow-hidden">
+                        <div class="aspect-square bg-card relative overflow-hidden">
                             @if($product->imagen)
                                 <img src="{{ \Illuminate\Support\Facades\Storage::url($product->imagen) }}" alt="{{ $product->nombre }}" loading="lazy"
                                      class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500">
                             @else
                                 <div class="h-full w-full flex items-center justify-center">
-                                    <svg class="h-12 w-12 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                    <svg class="h-12 w-12 text-ink/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                                 </div>
                             @endif
                             @if($product->categoria)
@@ -59,7 +59,7 @@
                             @endif
                         </div>
                         <div class="p-4 flex flex-col flex-1">
-                            <h3 class="text-sm font-black text-white line-clamp-1">{{ $product->nombre }}</h3>
+                            <h3 class="text-sm font-black text-ink line-clamp-1">{{ $product->nombre }}</h3>
                             <p class="text-[11px] text-muted mt-0.5 line-clamp-2 flex-1">{{ $product->descripcion ?: 'Producto premium de barbería.' }}</p>
                             <div class="mt-3 flex items-center justify-between">
                                 <span class="text-lg font-black text-gold">${{ number_format($product->precio_venta, 2) }}</span>

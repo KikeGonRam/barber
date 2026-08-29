@@ -24,7 +24,7 @@
         <section class="ui-card-premium p-0 overflow-hidden">
             <div class="flex flex-col sm:flex-row">
                 {{-- Avatar --}}
-                <div class="flex flex-col items-center justify-center p-8 sm:w-56 border-b sm:border-b-0 sm:border-r border-white/6 bg-[#0f0f0f] relative overflow-hidden">
+                <div class="flex flex-col items-center justify-center p-8 sm:w-56 border-b sm:border-b-0 sm:border-r border-ink/6 bg-card relative overflow-hidden">
                     <div class="absolute inset-0 bg-gradient-to-br from-gold/4 to-transparent pointer-events-none"></div>
                     @if($barber->foto)
                         <img src="{{ str_starts_with($barber->foto, 'http') ? $barber->foto : \Illuminate\Support\Facades\Storage::url($barber->foto) }}"
@@ -35,10 +35,10 @@
                             {{ strtoupper(mb_substr($barber->user?->name ?? 'B', 0, 2)) }}
                         </div>
                     @endif
-                    <h3 class="text-base font-black text-white text-center relative z-10">{{ $barber->user?->name }}</h3>
+                    <h3 class="text-base font-black text-ink text-center relative z-10">{{ $barber->user?->name }}</h3>
                     <p class="text-[9px] text-muted text-center mt-0.5 relative z-10">{{ $barber->user?->email }}</p>
-                    <span class="mt-3 inline-flex items-center gap-1.5 rounded-full border {{ $barber->activo ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' : 'border-white/10 text-muted' }} px-3 py-1 text-[9px] font-black uppercase tracking-wider relative z-10">
-                        <span class="h-1.5 w-1.5 rounded-full {{ $barber->activo ? 'bg-emerald-400 animate-pulse' : 'bg-white/30' }}"></span>
+                    <span class="mt-3 inline-flex items-center gap-1.5 rounded-full border {{ $barber->activo ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' : 'border-ink/10 text-muted' }} px-3 py-1 text-[9px] font-black uppercase tracking-wider relative z-10">
+                        <span class="h-1.5 w-1.5 rounded-full {{ $barber->activo ? 'bg-emerald-400 animate-pulse' : 'bg-ink/30' }}"></span>
                         {{ $barber->activo ? 'Activo' : 'Inactivo' }}
                     </span>
                 </div>
@@ -62,7 +62,7 @@
                     @if($barber->descripcion)
                         <div>
                             <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-2">Descripción</p>
-                            <p class="text-sm text-white/70 leading-relaxed">{{ $barber->descripcion }}</p>
+                            <p class="text-sm text-ink/70 leading-relaxed">{{ $barber->descripcion }}</p>
                         </div>
                     @endif
                 </div>
@@ -91,7 +91,7 @@
             {{-- Chart: actividad 28 días --}}
             <div class="lg:col-span-2 ui-card-premium p-6">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-sm font-black text-white uppercase tracking-widest">Actividad Últimas 4 Semanas</h3>
+                    <h3 class="text-sm font-black text-ink uppercase tracking-widest">Actividad Últimas 4 Semanas</h3>
                     <span class="text-[10px] font-bold text-muted uppercase">Citas completadas</span>
                 </div>
                 <div class="h-[200px]">
@@ -101,7 +101,7 @@
 
             {{-- Top servicios --}}
             <div class="ui-card-premium p-6">
-                <h3 class="text-sm font-black text-white uppercase tracking-widest mb-6">Top Servicios</h3>
+                <h3 class="text-sm font-black text-ink uppercase tracking-widest mb-6">Top Servicios</h3>
                 @if($topServices->isEmpty())
                     <p class="text-sm text-muted italic text-center py-8">Sin datos</p>
                 @else
@@ -110,10 +110,10 @@
                             @php $max = $topServices->first()->total; $pct = $max > 0 ? ($svc->total / $max) * 100 : 0; @endphp
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
-                                    <span class="text-xs font-bold text-white truncate flex-1 pr-3">{{ $svc->service?->nombre ?? '—' }}</span>
+                                    <span class="text-xs font-bold text-ink truncate flex-1 pr-3">{{ $svc->service?->nombre ?? '—' }}</span>
                                     <span class="text-xs font-black text-gold shrink-0">{{ $svc->total }}</span>
                                 </div>
-                                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div class="h-1.5 w-full bg-ink/5 rounded-full overflow-hidden">
                                     <div class="h-full bg-gradient-to-r from-gold to-gold-dim rounded-full transition-all duration-700" style="width:{{ $pct }}%"></div>
                                 </div>
                             </div>
@@ -126,12 +126,12 @@
         {{-- ── CITAS RECIENTES ──────────────────────────────── --}}
         <section class="ui-card-premium p-6 sm:p-8">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-sm font-black text-white uppercase tracking-widest">Citas Recientes</h3>
+                <h3 class="text-sm font-black text-ink uppercase tracking-widest">Citas Recientes</h3>
                 <span class="text-[10px] font-bold text-muted uppercase">Últimas {{ $recentAppointments->count() }}</span>
             </div>
 
             @if($recentAppointments->isEmpty())
-                <div class="py-12 text-center border border-dashed border-white/10 rounded-2xl">
+                <div class="py-12 text-center border border-dashed border-ink/10 rounded-2xl">
                     <p class="text-sm font-bold text-muted">Sin citas registradas</p>
                 </div>
             @else
@@ -153,14 +153,14 @@
                                         'pendiente'  => 'bg-amber-500/15 text-amber-300 border-amber-500/25',
                                         'cancelada'  => 'bg-red-500/15 text-red-400 border-red-500/25',
                                     ];
-                                    $pill = $statusCfg[$appt->estado] ?? 'bg-white/8 text-white/50 border-white/10';
+                                    $pill = $statusCfg[$appt->estado] ?? 'bg-ink/8 text-ink/50 border-ink/10';
                                 @endphp
                                 <tr>
                                     <td>
-                                        <p class="font-bold text-white text-sm">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M, Y') }}</p>
+                                        <p class="font-bold text-ink text-sm">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M, Y') }}</p>
                                         <p class="text-[10px] text-muted">{{ substr($appt->hora_inicio, 0, 5) }}</p>
                                     </td>
-                                    <td class="text-white text-sm font-bold">{{ $appt->client?->user?->name ?? '—' }}</td>
+                                    <td class="text-ink text-sm font-bold">{{ $appt->client?->user?->name ?? '—' }}</td>
                                     <td class="text-muted text-sm">{{ $appt->service?->nombre ?? '—' }}</td>
                                     <td>
                                         <span class="inline-flex items-center rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest {{ $pill }}">
@@ -176,16 +176,16 @@
                 {{-- Mobile --}}
                 <div class="space-y-2 md:hidden">
                     @foreach($recentAppointments as $appt)
-                        <div class="flex items-center gap-3 p-3 rounded-xl border border-white/5">
+                        <div class="flex items-center gap-3 p-3 rounded-xl border border-ink/5">
                             <div class="text-center w-10 shrink-0">
-                                <p class="text-sm font-black text-white">{{ \Carbon\Carbon::parse($appt->fecha)->format('d') }}</p>
+                                <p class="text-sm font-black text-ink">{{ \Carbon\Carbon::parse($appt->fecha)->format('d') }}</p>
                                 <p class="text-[9px] text-muted">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('M') }}</p>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-xs font-bold text-white truncate">{{ $appt->client?->user?->name ?? '—' }}</p>
+                                <p class="text-xs font-bold text-ink truncate">{{ $appt->client?->user?->name ?? '—' }}</p>
                                 <p class="text-[9px] text-muted truncate">{{ $appt->service?->nombre ?? '—' }}</p>
                             </div>
-                            <span class="text-[9px] font-black border rounded-full px-2 py-0.5 shrink-0 {{ $statusCfg[$appt->estado] ?? 'bg-white/8 text-white/50 border-white/10' }}">
+                            <span class="text-[9px] font-black border rounded-full px-2 py-0.5 shrink-0 {{ $statusCfg[$appt->estado] ?? 'bg-ink/8 text-ink/50 border-ink/10' }}">
                                 {{ $appt->estado }}
                             </span>
                         </div>

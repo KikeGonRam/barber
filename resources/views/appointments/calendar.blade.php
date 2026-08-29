@@ -60,14 +60,14 @@
         <div id="event-modal"
              class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
              style="display:none !important;">
-            <div class="relative w-full max-w-md rounded-3xl border border-white/10 bg-[#111] p-8 shadow-[0_30px_80px_rgba(0,0,0,0.7)]">
-                <button id="modal-close" aria-label="Cerrar" class="absolute top-4 right-4 text-muted hover:text-white transition">
+            <div class="relative w-full max-w-md rounded-3xl border border-ink/10 bg-card p-8 shadow-[0_30px_80px_rgba(0,0,0,0.7)]">
+                <button id="modal-close" aria-label="Cerrar" class="absolute top-4 right-4 text-muted hover:text-ink transition">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
                 <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent rounded-t-3xl"></div>
 
                 <div id="modal-status-dot" class="h-3 w-3 rounded-full mb-4"></div>
-                <h3 id="modal-title" class="text-xl font-black text-white uppercase tracking-tight mb-1"></h3>
+                <h3 id="modal-title" class="text-xl font-black text-ink uppercase tracking-tight mb-1"></h3>
                 <p id="modal-time" class="text-[10px] font-bold text-muted uppercase tracking-widest mb-6"></p>
 
                 <div class="space-y-4">
@@ -77,7 +77,7 @@
                         </div>
                         <div>
                             <p class="text-[9px] text-muted uppercase font-bold tracking-widest">Cliente</p>
-                            <p id="modal-cliente" class="text-sm font-bold text-white"></p>
+                            <p id="modal-cliente" class="text-sm font-bold text-ink"></p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -86,7 +86,7 @@
                         </div>
                         <div>
                             <p class="text-[9px] text-muted uppercase font-bold tracking-widest">Servicio</p>
-                            <p id="modal-servicio" class="text-sm font-bold text-white"></p>
+                            <p id="modal-servicio" class="text-sm font-bold text-ink"></p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -95,7 +95,7 @@
                         </div>
                         <div>
                             <p class="text-[9px] text-muted uppercase font-bold tracking-widest">Barbero</p>
-                            <p id="modal-barbero" class="text-sm font-bold text-white"></p>
+                            <p id="modal-barbero" class="text-sm font-bold text-ink"></p>
                         </div>
                     </div>
                 </div>
@@ -106,7 +106,7 @@
                         Editar Cita
                     </a>
                     <button id="modal-close-btn"
-                            class="px-5 py-3 rounded-xl border border-white/10 bg-white/5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition-all">
+                            class="px-5 py-3 rounded-xl border border-ink/10 bg-ink/5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-ink transition-all">
                         Cerrar
                     </button>
                 </div>

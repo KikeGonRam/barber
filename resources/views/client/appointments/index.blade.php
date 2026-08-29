@@ -26,8 +26,8 @@
 
             <!-- Stats Row -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-center">
-                    <p class="text-3xl font-black text-white">{{ $stats['total'] }}</p>
+                <div class="rounded-2xl border border-ink/5 bg-ink/[0.02] p-5 text-center">
+                    <p class="text-3xl font-black text-ink">{{ $stats['total'] }}</p>
                     <p class="text-[9px] font-black text-muted uppercase tracking-[0.2em] mt-1">Total Citas</p>
                 </div>
                 <div class="rounded-2xl border border-gold/20 bg-gold/[0.03] p-5 text-center">
@@ -57,30 +57,30 @@
                     <div>
                         <p class="text-[9px] font-black uppercase tracking-[0.35em] text-gold mb-4">Tu Próxima Cita</p>
 
-                        <h3 class="text-3xl font-black text-white uppercase tracking-tight leading-tight">
+                        <h3 class="text-3xl font-black text-ink uppercase tracking-tight leading-tight">
                             {{ $nextAppointment->service?->nombre }}
                         </h3>
                         <p class="mt-2 text-muted font-bold text-sm">
-                            con <span class="text-white font-black">{{ $nextAppointment->barber?->user?->name }}</span>
+                            con <span class="text-ink font-black">{{ $nextAppointment->barber?->user?->name }}</span>
                         </p>
 
                         <div class="mt-6 flex items-center gap-6">
                             <div>
                                 <p class="text-[9px] font-black text-muted uppercase tracking-widest">Fecha</p>
-                                <p class="text-sm font-black text-white mt-0.5">
+                                <p class="text-sm font-black text-ink mt-0.5">
                                     {{ \Carbon\Carbon::parse($nextAppointment->fecha)->translatedFormat('d M, Y') }}
                                 </p>
                             </div>
-                            <div class="h-8 w-px bg-white/10"></div>
+                            <div class="h-8 w-px bg-ink/10"></div>
                             <div>
                                 <p class="text-[9px] font-black text-muted uppercase tracking-widest">Hora</p>
-                                <p class="text-sm font-black text-white mt-0.5">{{ substr($nextAppointment->hora_inicio, 0, 5) }}</p>
+                                <p class="text-sm font-black text-ink mt-0.5">{{ substr($nextAppointment->hora_inicio, 0, 5) }}</p>
                             </div>
                             @if($nextAppointment->service?->duracion_min)
-                            <div class="h-8 w-px bg-white/10"></div>
+                            <div class="h-8 w-px bg-ink/10"></div>
                             <div>
                                 <p class="text-[9px] font-black text-muted uppercase tracking-widest">Duración</p>
-                                <p class="text-sm font-black text-white mt-0.5">{{ $nextAppointment->service->duracion_min }} min</p>
+                                <p class="text-sm font-black text-ink mt-0.5">{{ $nextAppointment->service->duracion_min }} min</p>
                             </div>
                             @endif
                         </div>
@@ -94,7 +94,7 @@
                             @endphp
                             @if($canManageNext)
                                 <a href="{{ route('client.appointments.edit', $nextAppointment) }}"
-                                   class="rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-muted hover:border-gold/30 hover:text-gold transition-all">
+                                   class="rounded-xl border border-ink/10 bg-ink/5 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-muted hover:border-gold/30 hover:text-gold transition-all">
                                     Reagendar
                                 </a>
                             @endif
@@ -116,7 +116,7 @@
                     </div>
 
                     <!-- Countdown -->
-                    <div class="text-center md:border-l md:border-white/5 md:pl-8">
+                    <div class="text-center md:border-l md:border-ink/5 md:pl-8">
                         <p class="text-[9px] font-black uppercase tracking-[0.35em] text-muted mb-4">Faltan</p>
                         <div x-show="daysLeft > 0" class="space-y-1">
                             <span class="text-7xl font-black text-gold block leading-none" x-text="daysLeft"></span>
@@ -171,7 +171,7 @@
 
             @if($appointments->isEmpty())
                 <!-- Empty state -->
-                <div class="py-20 text-center rounded-3xl border border-dashed border-white/5 bg-white/[0.01]">
+                <div class="py-20 text-center rounded-3xl border border-dashed border-ink/5 bg-ink/[0.01]">
                     <div class="h-16 w-16 rounded-3xl bg-gold/5 border border-gold/10 flex items-center justify-center mx-auto mb-6">
                         <svg class="h-8 w-8 text-gold/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -189,26 +189,26 @@
                 @if($upcoming->isNotEmpty())
                 <section class="space-y-5">
                     <div class="flex items-center gap-3">
-                        <div class="h-px flex-1 bg-white/5"></div>
+                        <div class="h-px flex-1 bg-ink/5"></div>
                         <span class="text-[9px] font-black uppercase tracking-[0.35em] text-gold">Próximas</span>
-                        <div class="h-px flex-1 bg-white/5"></div>
+                        <div class="h-px flex-1 bg-ink/5"></div>
                     </div>
 
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         @foreach($upcoming as $appointment)
                             @php
                                 $estado = strtolower((string) $appointment->estado);
-                                $sc = $statusConfig[$estado] ?? ['badge' => 'border-white/10 bg-white/5 text-muted', 'bar' => 'bg-muted'];
+                                $sc = $statusConfig[$estado] ?? ['badge' => 'border-ink/10 bg-ink/5 text-muted', 'bar' => 'bg-muted'];
                                 $startsAt = \Carbon\Carbon::parse($appointment->fecha->format('Y-m-d').' '.$appointment->hora_inicio);
                                 $canManage = in_array($estado, ['pendiente', 'confirmada'], true) && $startsAt->isFuture();
                                 $canCancelAppointment = $canManage && now()->diffInHours($startsAt, false) >= ($policyHours ?? 24);
                             @endphp
-                            <article class="group relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] transition-all hover:border-gold/20 hover:bg-white/[0.04]">
+                            <article class="group relative overflow-hidden rounded-2xl border border-ink/5 bg-ink/[0.02] transition-all hover:border-gold/20 hover:bg-ink/[0.04]">
                                 <div class="absolute left-0 top-0 h-full w-1 {{ $sc['bar'] }} opacity-70 rounded-l-2xl"></div>
                                 <div class="p-6 pl-8">
                                     <div class="flex items-start justify-between mb-4">
                                         <div>
-                                            <p class="text-base font-black text-white uppercase leading-tight">{{ $appointment->service?->nombre }}</p>
+                                            <p class="text-base font-black text-ink uppercase leading-tight">{{ $appointment->service?->nombre }}</p>
                                             <p class="text-[11px] font-bold text-muted mt-0.5">con {{ $appointment->barber?->user?->name }}</p>
                                         </div>
                                         <span class="inline-flex rounded-full border px-2.5 py-1 text-[8px] font-black uppercase tracking-wider {{ $sc['badge'] }}">
@@ -234,17 +234,17 @@
                                     @if(!empty($appointment->productos))
                                     <div class="mt-3 flex flex-wrap gap-1.5">
                                         @foreach($appointment->productos as $prod)
-                                            <span class="inline-flex items-center gap-1 rounded-lg border border-white/5 bg-white/[0.03] px-2 py-0.5 text-[9px] font-bold text-muted">
+                                            <span class="inline-flex items-center gap-1 rounded-lg border border-ink/5 bg-ink/[0.03] px-2 py-0.5 text-[9px] font-bold text-muted">
                                                 {{ $prod['nombre'] ?? '' }} ×{{ $prod['cantidad'] ?? 1 }}
                                             </span>
                                         @endforeach
                                     </div>
                                     @endif
 
-                                    <div class="mt-5 flex items-center gap-2 pt-4 border-t border-white/5">
+                                    <div class="mt-5 flex items-center gap-2 pt-4 border-t border-ink/5">
                                         @if($canManage)
                                             <a href="{{ route('client.appointments.edit', $appointment) }}"
-                                               class="flex-1 text-center rounded-xl border border-white/10 bg-white/5 py-2 text-[9px] font-black uppercase tracking-widest text-muted hover:border-gold/30 hover:text-gold transition-all">
+                                               class="flex-1 text-center rounded-xl border border-ink/10 bg-ink/5 py-2 text-[9px] font-black uppercase tracking-widest text-muted hover:border-gold/30 hover:text-gold transition-all">
                                                 Reagendar
                                             </a>
                                         @endif
@@ -263,7 +263,7 @@
                                                 Cancelación: {{ $policyHours ?? 24 }}h mín.
                                             </div>
                                         @else
-                                            <div class="w-full rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-center text-[9px] font-bold text-white/35">
+                                            <div class="w-full rounded-xl border border-ink/[0.06] bg-ink/[0.025] px-3 py-2 text-center text-[9px] font-bold text-ink/35">
                                                 Solo seguimiento
                                             </div>
                                         @endif
@@ -279,20 +279,20 @@
                 @if($history->isNotEmpty())
                 <section class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="h-px flex-1 bg-white/5"></div>
+                        <div class="h-px flex-1 bg-ink/5"></div>
                         <span class="text-[9px] font-black uppercase tracking-[0.35em] text-muted/60">Historial</span>
-                        <div class="h-px flex-1 bg-white/5"></div>
+                        <div class="h-px flex-1 bg-ink/5"></div>
                     </div>
 
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         @foreach($history as $appointment)
-                            @php $sc = $statusConfig[strtolower($appointment->estado)] ?? ['badge' => 'border-white/10 bg-white/5 text-muted', 'bar' => 'bg-muted']; @endphp
-                            <article class="group relative overflow-hidden rounded-2xl border border-white/[0.04] bg-white/[0.01] transition-all hover:opacity-80">
+                            @php $sc = $statusConfig[strtolower($appointment->estado)] ?? ['badge' => 'border-ink/10 bg-ink/5 text-muted', 'bar' => 'bg-muted']; @endphp
+                            <article class="group relative overflow-hidden rounded-2xl border border-ink/[0.04] bg-ink/[0.01] transition-all hover:opacity-80">
                                 <div class="absolute left-0 top-0 h-full w-1 {{ $sc['bar'] }} opacity-25 rounded-l-2xl"></div>
                                 <div class="p-5 pl-8">
                                     <div class="flex items-start justify-between mb-2">
                                         <div>
-                                            <p class="text-sm font-black text-white/60 uppercase">{{ $appointment->service?->nombre }}</p>
+                                            <p class="text-sm font-black text-ink/60 uppercase">{{ $appointment->service?->nombre }}</p>
                                             <p class="text-[10px] font-bold text-muted/60 mt-0.5">con {{ $appointment->barber?->user?->name }}</p>
                                         </div>
                                         <span class="inline-flex rounded-full border px-2 py-0.5 text-[8px] font-black uppercase tracking-wider opacity-60 {{ $sc['badge'] }}">

@@ -36,7 +36,7 @@
         'barba'       => ['pill' => 'bg-amber-500/20 text-amber-300 border-amber-500/30','dot' => 'bg-amber-400'],
         'combo'       => ['pill' => 'bg-purple-500/20 text-purple-300 border-purple-500/30','dot'=>'bg-purple-400'],
         'tratamiento' => ['pill' => 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30','dot'=>'bg-emerald-400'],
-        'general'     => ['pill' => 'bg-white/10 text-white/60 border-white/15',          'dot' => 'bg-white/40'],
+        'general'     => ['pill' => 'bg-ink/10 text-ink/60 border-ink/15',          'dot' => 'bg-ink/40'],
     ];
 
     // Agrupar servicios por tipo detectado
@@ -180,12 +180,12 @@
     </style>
 </head>
 
-<body class="font-sans antialiased text-white bg-[#050505]">
+<body class="font-sans antialiased text-ink bg-card">
 
 <!-- ══════════════════════════════════════════════ -->
 <!-- NAVBAR                                         -->
 <!-- ══════════════════════════════════════════════ -->
-<nav class="sticky top-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-b border-white/[0.06]">
+<nav class="sticky top-0 z-50 bg-card/95 backdrop-blur-xl border-b border-ink/[0.06]">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-20 items-center justify-between">
             <a href="/" class="flex items-center gap-3 group">
@@ -196,7 +196,7 @@
             <div class="flex items-center gap-5">
                 @auth
                     <a href="{{ route('dashboard') }}"
-                       class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition flex items-center gap-2">
+                       class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-ink transition flex items-center gap-2">
                         <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l9-8 9 8v8a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>
                         Mi Panel
                     </a>
@@ -235,7 +235,7 @@
             Carta de Experiencias
             <span class="h-px w-8 bg-gold inline-block"></span>
         </p>
-        <h1 class="font-black uppercase tracking-tighter leading-[.88] text-white mb-6"
+        <h1 class="font-black uppercase tracking-tighter leading-[.88] text-ink mb-6"
             style="font-size:clamp(3.5rem,9vw,7rem);">
             Servicios<br><span class="text-gradient-gold italic font-serif lowercase normal-case" style="font-size:clamp(3rem,8vw,6.5rem);">de élite</span>
         </h1>
@@ -269,10 +269,10 @@
                 <div class="section-divider-line"></div>
                 <div class="flex items-center gap-2.5 shrink-0">
                     <span class="h-2 w-2 rounded-full {{ $palette['dot'] }}"></span>
-                    <span class="text-[10px] font-black uppercase tracking-[0.35em] text-white">
+                    <span class="text-[10px] font-black uppercase tracking-[0.35em] text-ink">
                         {{ $typeLabels[$tipo] ?? $tipo }}
                     </span>
-                    <span class="text-[9px] font-bold text-muted/50 border border-white/10 rounded-full px-2.5 py-0.5">
+                    <span class="text-[9px] font-bold text-muted/50 border border-ink/10 rounded-full px-2.5 py-0.5">
                         {{ $tipoServices->count() }}
                     </span>
                 </div>
@@ -325,7 +325,7 @@
                             </span>
 
                             <!-- Nombre -->
-                            <h3 class="text-2xl font-black text-white uppercase leading-tight group-hover:text-gold transition-colors mb-3">
+                            <h3 class="text-2xl font-black text-ink uppercase leading-tight group-hover:text-gold transition-colors mb-3">
                                 {{ $service->nombre }}
                             </h3>
 
@@ -343,7 +343,7 @@
                                     </div>
                                     {{ $service->duracion_min }} min
                                 </div>
-                                <div class="h-3 w-px bg-white/10"></div>
+                                <div class="h-3 w-px bg-ink/10"></div>
                                 <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-muted">
                                     <div class="h-6 w-6 rounded-lg bg-gold/10 border border-gold/15 flex items-center justify-center">
                                         <svg class="h-3 w-3 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -356,7 +356,7 @@
 
                             <!-- Precio visible en contenido -->
                             <div class="flex items-baseline gap-2 mb-6">
-                                <span class="text-3xl font-black text-white leading-none">${{ number_format($service->precio, 0) }}</span>
+                                <span class="text-3xl font-black text-ink leading-none">${{ number_format($service->precio, 0) }}</span>
                                 <span class="text-sm text-muted font-bold">MXN</span>
                                 <div class="ml-auto text-right">
                                     <div class="flex gap-0.5">
@@ -393,7 +393,7 @@
 <!-- ══════════════════════════════════════════════ -->
 <!-- CTA FINAL                                      -->
 <!-- ══════════════════════════════════════════════ -->
-<section class="py-28 relative overflow-hidden border-t border-white/[0.05]">
+<section class="py-28 relative overflow-hidden border-t border-ink/[0.05]">
     <div class="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_50%,rgba(212,175,55,0.07),transparent)]"></div>
     <div class="absolute inset-0 opacity-[0.03]" style="background-image:linear-gradient(rgba(212,175,55,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,.5) 1px,transparent 1px);background-size:60px 60px;"></div>
 
@@ -403,7 +403,7 @@
             Reserva Ahora
             <span class="h-px w-6 bg-gold"></span>
         </p>
-        <h2 class="font-black text-white uppercase tracking-tighter leading-none mb-5"
+        <h2 class="font-black text-ink uppercase tracking-tighter leading-none mb-5"
             style="font-size:clamp(2.5rem,7vw,4.5rem);">
             ¿Listo para tu<br>
             <span class="text-gradient-gold italic font-serif lowercase normal-case"
@@ -421,8 +421,8 @@
 </section>
 
 <!-- FOOTER -->
-<footer class="border-t border-white/[0.05] py-10 text-center bg-[#030303]">
-    <p class="text-[9px] font-black uppercase tracking-[.3em] text-white/15">
+<footer class="border-t border-ink/[0.05] py-10 text-center bg-card">
+    <p class="text-[9px] font-black uppercase tracking-[.3em] text-ink/15">
         &copy; {{ date('Y') }} UrbanBlade Grooming &bull; Todos los derechos reservados
     </p>
 </footer>

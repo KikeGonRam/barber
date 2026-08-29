@@ -71,18 +71,18 @@
                 </div>
 
                 {{-- Envío: ahora o programado --}}
-                <div class="pt-2 border-t border-white/5">
+                <div class="pt-2 border-t border-ink/5">
                     <label class="ui-label">Envío</label>
                     <div class="grid grid-cols-2 gap-3">
                         <label class="flex items-center gap-2.5 rounded-xl border px-4 py-3 cursor-pointer transition-all"
-                               :class="modo === 'ahora' ? 'border-gold/50 bg-gold/5' : 'border-white/10'">
+                               :class="modo === 'ahora' ? 'border-gold/50 bg-gold/5' : 'border-ink/10'">
                             <input type="radio" name="modo" value="ahora" x-model="modo" class="accent-gold">
-                            <span class="text-xs font-bold text-white">Enviar ahora</span>
+                            <span class="text-xs font-bold text-ink">Enviar ahora</span>
                         </label>
                         <label class="flex items-center gap-2.5 rounded-xl border px-4 py-3 cursor-pointer transition-all"
-                               :class="modo === 'programar' ? 'border-gold/50 bg-gold/5' : 'border-white/10'">
+                               :class="modo === 'programar' ? 'border-gold/50 bg-gold/5' : 'border-ink/10'">
                             <input type="radio" name="modo" value="programar" x-model="modo" class="accent-gold">
-                            <span class="text-xs font-bold text-white">Programar</span>
+                            <span class="text-xs font-bold text-ink">Programar</span>
                         </label>
                     </div>
                     <div x-show="modo === 'programar'" x-cloak class="mt-3">
@@ -91,7 +91,7 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between gap-4 pt-2 border-t border-white/5">
+                <div class="flex items-center justify-between gap-4 pt-2 border-t border-ink/5">
                     <p class="text-[11px] text-muted">
                         Destinatarios del segmento:
                         <span class="text-gold font-black text-base" x-text="recipientes"></span>
@@ -110,9 +110,9 @@
                 <h3 class="text-[11px] font-black uppercase tracking-widest text-muted mb-4">Últimas campañas</h3>
                 @forelse($campaigns as $c)
                     @php $programada = $c->estado === 'programada'; @endphp
-                    <div class="py-3 border-b border-white/5 last:border-0">
+                    <div class="py-3 border-b border-ink/5 last:border-0">
                         <div class="flex items-start justify-between gap-2">
-                            <p class="text-sm font-bold text-white line-clamp-1">{{ $c->titulo }}</p>
+                            <p class="text-sm font-bold text-ink line-clamp-1">{{ $c->titulo }}</p>
                             <span class="shrink-0 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border
                                 {{ $programada ? 'text-amber-300 border-amber-500/30 bg-amber-500/10' : 'text-emerald-300 border-emerald-500/25 bg-emerald-500/10' }}">
                                 {{ $programada ? 'Programada' : 'Enviada' }}
@@ -130,16 +130,16 @@
                         @unless($programada)
                             @php $opens = $c->opensCount(); $clicks = $c->clicksCount(); @endphp
                             <div class="grid grid-cols-3 gap-2 mt-2.5">
-                                <div class="rounded-lg bg-white/[0.03] border border-white/5 px-2 py-1.5 text-center">
-                                    <p class="text-sm font-black text-white leading-none">{{ $c->destinatarios }}</p>
+                                <div class="rounded-lg bg-ink/[0.03] border border-ink/5 px-2 py-1.5 text-center">
+                                    <p class="text-sm font-black text-ink leading-none">{{ $c->destinatarios }}</p>
                                     <p class="text-[8px] font-black uppercase tracking-wider text-muted mt-1">Enviados</p>
                                 </div>
-                                <div class="rounded-lg bg-white/[0.03] border border-white/5 px-2 py-1.5 text-center">
-                                    <p class="text-sm font-black text-white leading-none">{{ $opens }} <span class="text-[9px] text-gold">{{ $c->rate($opens) }}%</span></p>
+                                <div class="rounded-lg bg-ink/[0.03] border border-ink/5 px-2 py-1.5 text-center">
+                                    <p class="text-sm font-black text-ink leading-none">{{ $opens }} <span class="text-[9px] text-gold">{{ $c->rate($opens) }}%</span></p>
                                     <p class="text-[8px] font-black uppercase tracking-wider text-muted mt-1">Aperturas</p>
                                 </div>
-                                <div class="rounded-lg bg-white/[0.03] border border-white/5 px-2 py-1.5 text-center">
-                                    <p class="text-sm font-black text-white leading-none">{{ $clicks }} <span class="text-[9px] text-gold">{{ $c->rate($clicks) }}%</span></p>
+                                <div class="rounded-lg bg-ink/[0.03] border border-ink/5 px-2 py-1.5 text-center">
+                                    <p class="text-sm font-black text-ink leading-none">{{ $clicks }} <span class="text-[9px] text-gold">{{ $c->rate($clicks) }}%</span></p>
                                     <p class="text-[8px] font-black uppercase tracking-wider text-muted mt-1">Clics</p>
                                 </div>
                             </div>

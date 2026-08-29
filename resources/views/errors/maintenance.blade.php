@@ -8,7 +8,7 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,900&display=swap" rel="stylesheet" />
     @safeVite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased text-white bg-[#0a0a0a]">
+<body class="font-sans antialiased text-ink bg-card">
     <div class="relative min-h-screen flex items-center justify-center overflow-hidden">
         <!-- Tech Decorative Background -->
         <div class="absolute inset-0 z-0 opacity-20">
@@ -19,7 +19,7 @@
             <!-- Professional Logo Display -->
             <div class="flex items-center justify-center gap-3 mb-12">
                 <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-12 w-12 object-contain animate-pulse">
-                <span class="text-2xl font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span> <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded ml-2 text-muted">v2.0</span></span>
+                <span class="text-2xl font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span> <span class="text-[10px] bg-ink/10 px-2 py-0.5 rounded ml-2 text-muted">v2.0</span></span>
             </div>
 
             <span class="ui-badge border-gold/40 bg-gold/10 text-gold mb-8 px-6 py-2">Deployment en Progreso</span>
@@ -31,12 +31,12 @@
             </p>
 
             <!-- Deployment Progress Mockup -->
-            <div class="ui-card-premium p-8 border-white/5 bg-black/40 backdrop-blur-md mb-12">
+            <div class="ui-card-premium p-8 border-ink/5 bg-black/40 backdrop-blur-md mb-12">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-[10px] font-black uppercase text-gold tracking-widest">Estado del Despliegue</span>
-                    <span class="text-[10px] font-black text-white">94%</span>
+                    <span class="text-[10px] font-black text-ink">94%</span>
                 </div>
-                <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/10">
+                <div class="w-full h-1.5 bg-ink/5 rounded-full overflow-hidden border border-ink/10">
                     <div class="h-full bg-gold shadow-[0_0_15px_rgba(212,175,55,0.5)] animate-shimmer" style="width: 94%"></div>
                 </div>
                 <div class="mt-6 grid grid-cols-2 gap-4">
@@ -57,7 +57,7 @@
             
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" class="text-[10px] font-black uppercase tracking-[0.3em] text-muted hover:text-white transition underline underline-offset-8">
+                <button type="submit" class="text-[10px] font-black uppercase tracking-[0.3em] text-muted hover:text-ink transition underline underline-offset-8">
                     Cerrar sesión y volver más tarde
                 </button>
             </form>

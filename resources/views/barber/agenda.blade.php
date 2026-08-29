@@ -9,19 +9,19 @@
             <div class="flex items-center gap-3">
                 {{-- Prev --}}
                 <a href="{{ route('barber.agenda', ['period'=>$period,'estado'=>$estadoFilter,'offset'=>$dateOffset-($period==='week'?7:1)]) }}"
-                   class="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-white hover:border-white/20 transition-all">
+                   class="h-9 w-9 rounded-xl border border-ink/10 bg-ink/5 flex items-center justify-center text-muted hover:text-ink hover:border-ink/20 transition-all">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                 </a>
                 {{-- Period toggle --}}
-                <div class="flex h-9 items-center rounded-xl bg-white/5 border border-white/10 p-0.5">
+                <div class="flex h-9 items-center rounded-xl bg-ink/5 border border-ink/10 p-0.5">
                     <a href="{{ route('barber.agenda', ['period'=>'day','estado'=>$estadoFilter,'offset'=>0]) }}"
-                       class="px-4 h-full flex items-center text-[10px] font-black uppercase tracking-widest transition-all rounded-lg {{ $period==='day' ? 'bg-gold text-black' : 'text-muted hover:text-white' }}">Hoy</a>
+                       class="px-4 h-full flex items-center text-[10px] font-black uppercase tracking-widest transition-all rounded-lg {{ $period==='day' ? 'bg-gold text-black' : 'text-muted hover:text-ink' }}">Hoy</a>
                     <a href="{{ route('barber.agenda', ['period'=>'week','estado'=>$estadoFilter,'offset'=>0]) }}"
-                       class="px-4 h-full flex items-center text-[10px] font-black uppercase tracking-widest transition-all rounded-lg {{ $period==='week' ? 'bg-gold text-black' : 'text-muted hover:text-white' }}">Semana</a>
+                       class="px-4 h-full flex items-center text-[10px] font-black uppercase tracking-widest transition-all rounded-lg {{ $period==='week' ? 'bg-gold text-black' : 'text-muted hover:text-ink' }}">Semana</a>
                 </div>
                 {{-- Next --}}
                 <a href="{{ route('barber.agenda', ['period'=>$period,'estado'=>$estadoFilter,'offset'=>$dateOffset+($period==='week'?7:1)]) }}"
-                   class="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-white hover:border-white/20 transition-all">
+                   class="h-9 w-9 rounded-xl border border-ink/10 bg-ink/5 flex items-center justify-center text-muted hover:text-ink hover:border-ink/20 transition-all">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </a>
                 @if($dateOffset !== 0)
@@ -37,9 +37,9 @@
         {{-- ── STATS ROW ──────────────────────────────────── --}}
         <section class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {{-- Total período --}}
-            <div class="rounded-2xl border border-white/8 bg-[#111] p-4 text-center">
+            <div class="rounded-2xl border border-ink/8 bg-card p-4 text-center">
                 <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-1">{{ $period==='day' ? 'Hoy' : 'Semana' }}</p>
-                <p class="text-3xl font-black text-white">{{ $stats['total_period'] }}</p>
+                <p class="text-3xl font-black text-ink">{{ $stats['total_period'] }}</p>
                 <p class="text-[9px] text-muted mt-0.5">citas</p>
             </div>
             {{-- Pendientes --}}
@@ -96,9 +96,9 @@
                         <p class="text-5xl font-black leading-none">{{ substr($nextAppt->hora_inicio,0,5) }}</p>
                         <p class="text-[9px] font-bold opacity-60 mt-2 uppercase tracking-wider">{{ \Carbon\Carbon::parse($nextAppt->fecha)->translatedFormat('d M') }}</p>
                     </div>
-                    <div class="flex-1 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 bg-gradient-to-r from-white/[0.03] to-transparent">
+                    <div class="flex-1 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 bg-gradient-to-r from-ink/[0.03] to-transparent">
                         <div>
-                            <h3 class="text-xl font-black text-white uppercase tracking-tight">{{ $nextAppt->client?->user?->name ?? '—' }}</h3>
+                            <h3 class="text-xl font-black text-ink uppercase tracking-tight">{{ $nextAppt->client?->user?->name ?? '—' }}</h3>
                             <p class="text-gold font-bold uppercase tracking-widest text-[11px] mt-1">{{ $nextAppt->service?->nombre ?? '—' }}</p>
                             <div class="mt-3 flex flex-wrap gap-4 text-[10px] font-bold text-muted uppercase tracking-wider">
                                 @if($nextAppt->service?->duracion_min)
@@ -128,7 +128,7 @@
                                       onsubmit="return confirm('¿Rechazar esta solicitud de cita?')">
                                     @csrf @method('PATCH')
                                     <input type="hidden" name="estado" value="cancelada">
-                                    <button type="submit" class="px-5 py-3.5 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-400 hover:border-red-500/30 transition">
+                                    <button type="submit" class="px-5 py-3.5 rounded-xl border border-ink/10 text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-400 hover:border-red-500/30 transition">
                                         Rechazar
                                     </button>
                                 </form>
@@ -152,13 +152,13 @@
             <span class="text-[9px] font-black uppercase tracking-widest text-muted mr-1">Filtrar:</span>
             @php
                 $estadoOpts = [
-                    ''           => ['label'=>'Todas',       'cls'=>'border-white/15 text-muted hover:text-white'],
+                    ''           => ['label'=>'Todas',       'cls'=>'border-ink/15 text-muted hover:text-ink'],
                     'pendiente'  => ['label'=>'Pendiente',   'cls'=>'border-amber-500/30 text-amber-300 bg-amber-500/8'],
                     'confirmada' => ['label'=>'Confirmada',  'cls'=>'border-cyan-500/30 text-cyan-300 bg-cyan-500/8'],
                     'en_proceso' => ['label'=>'En proceso',  'cls'=>'border-blue-500/30 text-blue-300 bg-blue-500/8'],
                     'completada' => ['label'=>'Completada',  'cls'=>'border-emerald-500/30 text-emerald-300 bg-emerald-500/8'],
                     'cancelada'  => ['label'=>'Cancelada',   'cls'=>'border-red-500/30 text-red-400 bg-red-500/8'],
-                    'no_asistio' => ['label'=>'No asistió',  'cls'=>'border-white/20 text-white/60 bg-white/5'],
+                    'no_asistio' => ['label'=>'No asistió',  'cls'=>'border-ink/20 text-ink/60 bg-ink/5'],
                 ];
             @endphp
             @foreach($estadoOpts as $val => $opt)
@@ -177,10 +177,10 @@
                             default      => 0,
                         }; @endphp
                         @if($count > 0)
-                            <span class="flex h-4 w-4 items-center justify-center rounded-full {{ $estadoFilter === $val ? 'bg-black/20 text-black' : 'bg-white/10 text-white' }} text-[8px] font-black">{{ $count }}</span>
+                            <span class="flex h-4 w-4 items-center justify-center rounded-full {{ $estadoFilter === $val ? 'bg-black/20 text-black' : 'bg-ink/10 text-ink' }} text-[8px] font-black">{{ $count }}</span>
                         @endif
                     @else
-                        <span class="flex h-4 w-4 items-center justify-center rounded-full {{ $estadoFilter === '' ? 'bg-black/20 text-black' : 'bg-white/10 text-white' }} text-[8px] font-black">{{ $stats['total_period'] }}</span>
+                        <span class="flex h-4 w-4 items-center justify-center rounded-full {{ $estadoFilter === '' ? 'bg-black/20 text-black' : 'bg-ink/10 text-ink' }} text-[8px] font-black">{{ $stats['total_period'] }}</span>
                     @endif
                 </a>
             @endforeach
@@ -192,11 +192,11 @@
              un vistazo, cosa que la lista no puede. Solo en período día
              (en semana las citas de días distintos se encimarían). --}}
         @if($period === 'day')
-        <section x-show="vista === 'timeline'" x-cloak class="rounded-2xl border border-white/8 bg-[#111] p-5">
+        <section x-show="vista === 'timeline'" x-cloak class="rounded-2xl border border-ink/8 bg-card p-5">
             <div class="relative" style="height: 720px;">
                 {{-- Líneas y etiquetas de hora --}}
                 @for($h = 9; $h <= 21; $h++)
-                    <div class="absolute left-0 right-0 border-t border-white/5" style="top: {{ ($h - 9) * 60 }}px;">
+                    <div class="absolute left-0 right-0 border-t border-ink/5" style="top: {{ ($h - 9) * 60 }}px;">
                         <span class="absolute -top-2.5 left-0 w-12 text-[9px] font-black text-muted">{{ sprintf('%02d:00', $h) }}</span>
                     </div>
                 @endfor
@@ -212,8 +212,8 @@
                             'en_proceso' => 'border-blue-500/40 bg-blue-500/15 text-blue-200',
                             'completada' => 'border-emerald-500/40 bg-emerald-500/15 text-emerald-200',
                             'cancelada'  => 'border-red-500/30 bg-red-500/10 text-red-300 opacity-50',
-                            'no_asistio' => 'border-white/20 bg-white/5 text-white/50 opacity-50',
-                        ][$appt->estado] ?? 'border-white/15 bg-white/5 text-white';
+                            'no_asistio' => 'border-ink/20 bg-ink/5 text-ink/50 opacity-50',
+                        ][$appt->estado] ?? 'border-ink/15 bg-ink/5 text-ink';
                     @endphp
                     <div class="absolute left-14 right-2 rounded-lg border px-3 py-1 overflow-hidden {{ $tlCfg }}"
                          style="top: {{ $top }}px; height: {{ min($dur, 720 - $top) }}px;"
@@ -238,12 +238,12 @@
             <div class="px-1 flex items-center justify-between">
                 <p class="text-[11px] font-bold text-muted uppercase tracking-wider">{{ $agenda->count() }} cita{{ $agenda->count() !== 1 ? 's' : '' }}{{ $estadoFilter ? ' · '.ucfirst(str_replace('_',' ',$estadoFilter)) : '' }}</p>
                 @if($period === 'day')
-                    <div class="flex h-8 items-center rounded-lg bg-white/5 border border-white/10 p-0.5">
+                    <div class="flex h-8 items-center rounded-lg bg-ink/5 border border-ink/10 p-0.5">
                         <button type="button" @click="vista = 'lista'"
-                                :class="vista === 'lista' ? 'bg-gold text-black' : 'text-muted hover:text-white'"
+                                :class="vista === 'lista' ? 'bg-gold text-black' : 'text-muted hover:text-ink'"
                                 class="px-3 h-full flex items-center text-[9px] font-black uppercase tracking-widest rounded-md transition-all">Lista</button>
                         <button type="button" @click="vista = 'timeline'"
-                                :class="vista === 'timeline' ? 'bg-gold text-black' : 'text-muted hover:text-white'"
+                                :class="vista === 'timeline' ? 'bg-gold text-black' : 'text-muted hover:text-ink'"
                                 class="px-3 h-full flex items-center text-[9px] font-black uppercase tracking-widest rounded-md transition-all">Timeline</button>
                     </div>
                 @endif
@@ -258,19 +258,19 @@
                         'en_proceso' => ['pill'=>'border-blue-500/30 bg-blue-500/10 text-blue-300',     'dot'=>'bg-blue-400 animate-pulse',  'bar'=>'bg-blue-400'],
                         'completada' => ['pill'=>'border-emerald-500/30 bg-emerald-500/10 text-emerald-300','dot'=>'bg-emerald-400',         'bar'=>'bg-emerald-400'],
                         'cancelada'  => ['pill'=>'border-red-500/30 bg-red-500/10 text-red-400',         'dot'=>'bg-red-400',               'bar'=>'bg-red-400'],
-                        'no_asistio' => ['pill'=>'border-white/20 bg-white/10 text-white/60',            'dot'=>'bg-white/40',               'bar'=>'bg-white/30'],
+                        'no_asistio' => ['pill'=>'border-ink/20 bg-ink/10 text-ink/60',            'dot'=>'bg-ink/40',               'bar'=>'bg-ink/30'],
                     ];
-                    $sc = $stCfg[$appointment->estado] ?? ['pill'=>'border-white/10 bg-white/5 text-muted','dot'=>'bg-white/30','bar'=>'bg-white/20'];
+                    $sc = $stCfg[$appointment->estado] ?? ['pill'=>'border-ink/10 bg-ink/5 text-muted','dot'=>'bg-ink/30','bar'=>'bg-ink/20'];
                 @endphp
-                <article class="group rounded-2xl border border-white/8 bg-[#111] overflow-hidden hover:border-white/15 transition-all duration-300">
+                <article class="group rounded-2xl border border-ink/8 bg-card overflow-hidden hover:border-ink/15 transition-all duration-300">
                     {{-- Estado accent bar --}}
                     <div class="h-0.5 w-full {{ $sc['bar'] }} opacity-50"></div>
                     <div class="flex flex-col lg:flex-row">
                         {{-- Time block --}}
-                        <div class="flex flex-row lg:flex-col justify-between lg:justify-center items-center lg:w-40 px-5 py-4 lg:py-6 border-b lg:border-b-0 lg:border-r border-white/5 bg-black/20 shrink-0">
+                        <div class="flex flex-row lg:flex-col justify-between lg:justify-center items-center lg:w-40 px-5 py-4 lg:py-6 border-b lg:border-b-0 lg:border-r border-ink/5 bg-black/20 shrink-0">
                             <div class="lg:text-center">
                                 <p class="text-[9px] font-bold text-muted uppercase tracking-wider">{{ \Carbon\Carbon::parse($appointment->fecha)->translatedFormat('d M') }}</p>
-                                <p class="text-2xl font-black text-white mt-0.5">{{ substr($appointment->hora_inicio,0,5) }}</p>
+                                <p class="text-2xl font-black text-ink mt-0.5">{{ substr($appointment->hora_inicio,0,5) }}</p>
                                 @if($appointment->service?->duracion_min)
                                     <p class="text-[9px] text-muted mt-1 uppercase tracking-wider">{{ $appointment->service->duracion_min }} min</p>
                                 @endif
@@ -288,7 +288,7 @@
                                     {{ strtoupper(mb_substr($appointment->client?->user?->name ?? 'C', 0, 2)) }}
                                 </div>
                                 <div>
-                                    <p class="font-black text-white text-base">{{ $appointment->client?->user?->name ?? '—' }}</p>
+                                    <p class="font-black text-ink text-base">{{ $appointment->client?->user?->name ?? '—' }}</p>
                                     <p class="text-[11px] font-bold text-gold uppercase tracking-wider mt-0.5">{{ $appointment->service?->nombre ?? '—' }}</p>
                                     @if($appointment->service?->precio)
                                         <p class="text-[10px] text-muted mt-0.5">${{ number_format($appointment->service->precio, 0) }}</p>
@@ -324,7 +324,7 @@
                                               onsubmit="return confirm('¿Rechazar esta solicitud de cita?')">
                                             @csrf @method('PATCH')
                                             <input type="hidden" name="estado" value="cancelada">
-                                            <button type="submit" class="h-11 px-4 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-400 hover:border-red-500/30 transition-all">
+                                            <button type="submit" class="h-11 px-4 rounded-xl border border-ink/10 text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-400 hover:border-red-500/30 transition-all">
                                                 Rechazar
                                             </button>
                                         </form>
@@ -345,12 +345,12 @@
                     </div>
                 </article>
             @empty
-                <div class="rounded-2xl border border-dashed border-white/10 py-20 text-center">
-                    <svg class="h-12 w-12 text-white/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <div class="rounded-2xl border border-dashed border-ink/10 py-20 text-center">
+                    <svg class="h-12 w-12 text-ink/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     <p class="text-sm font-bold text-muted uppercase tracking-widest">Sin citas para este período</p>
                     @if($estadoFilter)
                         <a href="{{ route('barber.agenda', ['period'=>$period,'offset'=>$dateOffset]) }}"
-                           class="mt-3 inline-block text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Ver todas</a>
+                           class="mt-3 inline-block text-[10px] font-black uppercase tracking-widest text-gold hover:text-ink transition">Ver todas</a>
                     @endif
                 </div>
             @endforelse

@@ -16,8 +16,8 @@
 
         {{-- ── STATS ──────────────────────────────────────── --}}
         <section class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div class="rounded-2xl border border-white/8 bg-[#111] p-5 text-center">
-                <p class="text-3xl font-black text-white">{{ $stats['total_works'] }}</p>
+            <div class="rounded-2xl border border-ink/8 bg-card p-5 text-center">
+                <p class="text-3xl font-black text-ink">{{ $stats['total_works'] }}</p>
                 <p class="text-[9px] font-black uppercase tracking-widest text-muted mt-1">Trabajos</p>
             </div>
             <div class="rounded-2xl border border-red-500/20 bg-red-500/5 p-5 text-center">
@@ -36,8 +36,8 @@
 
         {{-- ── GALERÍA ─────────────────────────────────────── --}}
         @if($works->isEmpty())
-            <section class="rounded-2xl border border-dashed border-white/10 py-24 text-center">
-                <svg class="h-14 w-14 text-white/5 mx-auto mb-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <section class="rounded-2xl border border-dashed border-ink/10 py-24 text-center">
+                <svg class="h-14 w-14 text-ink/5 mx-auto mb-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 <p class="text-sm font-bold text-muted uppercase tracking-widest">Aún no has publicado trabajos</p>
@@ -49,7 +49,7 @@
         @else
             <section class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @foreach($works as $work)
-                    <article class="group rounded-2xl border border-white/8 bg-[#111] overflow-hidden hover:border-white/15 transition-all duration-300">
+                    <article class="group rounded-2xl border border-ink/8 bg-card overflow-hidden hover:border-ink/15 transition-all duration-300">
                         {{-- Image --}}
                         @php
                             $firstMedia  = $work->images->first();
@@ -57,7 +57,7 @@
                             $hasVideo    = $work->images->contains(fn($i) => ($i->type ?? 'image') === 'video');
                             $mediaCount  = $work->images->count();
                         @endphp
-                        <div class="aspect-square relative overflow-hidden bg-[#0d0d0d]">
+                        <div class="aspect-square relative overflow-hidden bg-card">
                             @if($firstMedia)
                                 @php $firstMediaUrl = str_starts_with($firstMedia->image, 'http') ? $firstMedia->image : \Illuminate\Support\Facades\Storage::url($firstMedia->image); @endphp
                                 @if($isFirstVideo)
@@ -65,8 +65,8 @@
                                            class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
                                            muted preload="metadata" playsinline></video>
                                     <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
-                                        <div class="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                            <svg class="h-5 w-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        <div class="h-10 w-10 rounded-full bg-ink/20 backdrop-blur-sm flex items-center justify-center">
+                                            <svg class="h-5 w-5 text-ink ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                                         </div>
                                     </div>
                                 @else
@@ -76,7 +76,7 @@
                                 @endif
                             @else
                                 <div class="h-full w-full flex items-center justify-center">
-                                    <svg class="h-12 w-12 text-white/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg class="h-12 w-12 text-ink/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                 </div>
@@ -88,15 +88,15 @@
                             {{-- Top badges --}}
                             <div class="absolute top-3 left-3 flex items-center gap-1.5">
                                 @if($hasVideo)
-                                    <div class="flex items-center gap-1 rounded-lg bg-black/70 backdrop-blur-sm px-1.5 py-1 border border-white/10">
+                                    <div class="flex items-center gap-1 rounded-lg bg-black/70 backdrop-blur-sm px-1.5 py-1 border border-ink/10">
                                         <svg class="h-3 w-3 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                                         <span class="text-[8px] font-black text-purple-300">Video</span>
                                     </div>
                                 @endif
                                 @if($mediaCount > 1)
-                                    <div class="flex items-center gap-1 rounded-lg bg-black/70 backdrop-blur-sm px-1.5 py-1 border border-white/10">
-                                        <svg class="h-3 w-3 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
-                                        <span class="text-[8px] font-black text-white/60">{{ $mediaCount }}</span>
+                                    <div class="flex items-center gap-1 rounded-lg bg-black/70 backdrop-blur-sm px-1.5 py-1 border border-ink/10">
+                                        <svg class="h-3 w-3 text-ink/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                                        <span class="text-[8px] font-black text-ink/60">{{ $mediaCount }}</span>
                                     </div>
                                 @endif
                             </div>
@@ -116,12 +116,12 @@
 
                         {{-- Info --}}
                         <div class="p-4">
-                            <h3 class="text-sm font-black text-white uppercase tracking-tight truncate">{{ $work->title }}</h3>
+                            <h3 class="text-sm font-black text-ink uppercase tracking-tight truncate">{{ $work->title }}</h3>
                             @if($work->description)
                                 <p class="text-[10px] text-muted mt-1 line-clamp-2">{{ $work->description }}</p>
                             @endif
 
-                            <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+                            <div class="mt-4 pt-3 border-t border-ink/5 flex items-center justify-between">
                                 <div class="flex items-center gap-3 text-[10px] font-black uppercase tracking-wider">
                                     {{-- Reactions --}}
                                     <span class="flex items-center gap-1 text-red-400">

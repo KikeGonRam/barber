@@ -43,16 +43,16 @@
              }"
              class="ui-card-premium p-6 sm:p-8 mb-6">
             <p class="text-[10px] font-black uppercase tracking-widest text-muted mb-2">Sonido</p>
-            <div class="flex items-center justify-between py-2 border-b border-white/5">
+            <div class="flex items-center justify-between py-2 border-b border-ink/5">
                 <div>
-                    <p class="text-sm font-bold text-white">Sonido de notificaciones</p>
+                    <p class="text-sm font-bold text-ink">Sonido de notificaciones</p>
                     <p class="text-[11px] text-muted mt-0.5" x-text="soundEnabled ? 'Activado' : 'Desactivado'"></p>
                 </div>
                 <button @click="toggleSound()"
-                        :class="soundEnabled ? 'bg-gold' : 'bg-white/10'"
+                        :class="soundEnabled ? 'bg-gold' : 'bg-ink/10'"
                         class="relative h-5 w-9 rounded-full transition-colors duration-250 focus:outline-none shrink-0">
                     <span :class="soundEnabled ? 'translate-x-4' : 'translate-x-0.5'"
-                          class="absolute top-0.5 left-0 h-4 w-4 rounded-full bg-white shadow-md transition-transform duration-200 block"></span>
+                          class="absolute top-0.5 left-0 h-4 w-4 rounded-full bg-ink shadow-md transition-transform duration-200 block"></span>
                 </button>
             </div>
             <div x-show="soundEnabled" class="pt-4">
@@ -63,7 +63,7 @@
                             @click="setSoundType(s.key)"
                             :class="soundType === s.key
                                 ? 'border-gold/50 bg-gold/10 text-gold'
-                                : 'border-white/10 text-muted hover:border-white/25 hover:text-white/80'"
+                                : 'border-ink/10 text-muted hover:border-ink/25 hover:text-ink/80'"
                             class="flex flex-col items-center gap-0.5 px-2 py-2 rounded-xl border text-center transition"
                         >
                             <span class="w-1.5 h-1.5 rounded-full bg-current opacity-60 mb-0.5"></span>
@@ -93,16 +93,16 @@
 
             <p class="text-[10px] font-black uppercase tracking-widest text-muted mb-2">Canales</p>
             @foreach($channels as $ch)
-                <label for="pref_{{ $ch['key'] }}" class="flex items-center justify-between gap-4 py-3.5 border-b border-white/5 cursor-pointer group">
+                <label for="pref_{{ $ch['key'] }}" class="flex items-center justify-between gap-4 py-3.5 border-b border-ink/5 cursor-pointer group">
                     <div class="min-w-0">
-                        <p class="text-sm font-bold text-white">{{ $ch['label'] }}</p>
+                        <p class="text-sm font-bold text-ink">{{ $ch['label'] }}</p>
                         <p class="text-[11px] text-muted mt-0.5">{{ $ch['desc'] }}</p>
                     </div>
                     <div class="relative shrink-0">
                         <input type="checkbox" id="pref_{{ $ch['key'] }}" name="{{ $ch['key'] }}" value="1"
                                class="peer sr-only" @checked($prefs[$ch['key']] ?? false)>
-                        <div class="h-6 w-11 rounded-full bg-white/10 border border-white/10 peer-checked:bg-gold/80 peer-checked:border-gold transition-all"></div>
-                        <div class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-all peer-checked:translate-x-5"></div>
+                        <div class="h-6 w-11 rounded-full bg-ink/10 border border-ink/10 peer-checked:bg-gold/80 peer-checked:border-gold transition-all"></div>
+                        <div class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-ink transition-all peer-checked:translate-x-5"></div>
                     </div>
                 </label>
             @endforeach
@@ -110,14 +110,14 @@
             <p class="text-[10px] font-black uppercase tracking-widest text-muted pt-5 pb-2">Marketing</p>
             <label for="pref_promociones" class="flex items-center justify-between gap-4 py-3.5 cursor-pointer group">
                 <div class="min-w-0">
-                    <p class="text-sm font-bold text-white">Promociones y ofertas</p>
+                    <p class="text-sm font-bold text-ink">Promociones y ofertas</p>
                     <p class="text-[11px] text-muted mt-0.5">Novedades, descuentos y campañas. Puedes darte de baja cuando quieras.</p>
                 </div>
                 <div class="relative shrink-0">
                     <input type="checkbox" id="pref_promociones" name="promociones" value="1"
                            class="peer sr-only" @checked($prefs['promociones'] ?? false)>
-                    <div class="h-6 w-11 rounded-full bg-white/10 border border-white/10 peer-checked:bg-gold/80 peer-checked:border-gold transition-all"></div>
-                    <div class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-all peer-checked:translate-x-5"></div>
+                    <div class="h-6 w-11 rounded-full bg-ink/10 border border-ink/10 peer-checked:bg-gold/80 peer-checked:border-gold transition-all"></div>
+                    <div class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-ink transition-all peer-checked:translate-x-5"></div>
                 </div>
             </label>
 

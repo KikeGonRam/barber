@@ -23,12 +23,12 @@
                     'pendiente' => ['Pendiente', 'text-amber-300 border-amber-500/30 bg-amber-500/10'],
                     'entregado' => ['Entregado', 'text-emerald-300 border-emerald-500/25 bg-emerald-500/10'],
                     'cancelado' => ['Cancelado', 'text-red-400 border-red-500/25 bg-red-500/10'],
-                ][$order->estado] ?? [$order->estado, 'text-white/50 border-white/10'];
+                ][$order->estado] ?? [$order->estado, 'text-ink/50 border-ink/10'];
             @endphp
             <div class="ui-card-premium p-5">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-sm font-black text-white">{{ $order->folio }}
+                        <p class="text-sm font-black text-ink">{{ $order->folio }}
                             @if($order->tipo === 'cita')<span class="text-[9px] text-gold uppercase tracking-wider ml-1">· con tu cita</span>@endif
                         </p>
                         <p class="text-[10px] font-bold uppercase tracking-wider text-muted mt-0.5">{{ optional($order->created_at)->translatedFormat('d M Y, H:i') }}</p>
@@ -36,16 +36,16 @@
                     <span class="text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border {{ $estadoCfg[1] }}">{{ $estadoCfg[0] }}</span>
                 </div>
 
-                <div class="mt-3 space-y-1.5 border-t border-white/5 pt-3">
+                <div class="mt-3 space-y-1.5 border-t border-ink/5 pt-3">
                     @foreach($order->items ?? [] as $it)
                         <div class="flex items-center justify-between text-xs">
-                            <span class="text-muted"><span class="text-white font-bold">{{ $it['cantidad'] }}×</span> {{ $it['nombre'] }}</span>
-                            <span class="text-white font-bold">${{ number_format($it['subtotal'] ?? ($it['precio'] * $it['cantidad']), 2) }}</span>
+                            <span class="text-muted"><span class="text-ink font-bold">{{ $it['cantidad'] }}×</span> {{ $it['nombre'] }}</span>
+                            <span class="text-ink font-bold">${{ number_format($it['subtotal'] ?? ($it['precio'] * $it['cantidad']), 2) }}</span>
                         </div>
                     @endforeach
                 </div>
 
-                <div class="mt-3 flex items-center justify-between border-t border-white/5 pt-3">
+                <div class="mt-3 flex items-center justify-between border-t border-ink/5 pt-3">
                     <span class="text-[10px] font-black uppercase tracking-widest text-muted">Total</span>
                     <span class="text-lg font-black text-gold">${{ number_format($order->total, 2) }}</span>
                 </div>
@@ -60,7 +60,7 @@
             </div>
         @empty
             <div class="ui-card-premium p-12 text-center">
-                <p class="text-sm font-bold text-white">Aún no tienes pedidos</p>
+                <p class="text-sm font-bold text-ink">Aún no tienes pedidos</p>
                 <p class="text-xs text-muted mt-1">Cuando compres en la tienda, aparecerán aquí.</p>
             </div>
         @endforelse

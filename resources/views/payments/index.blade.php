@@ -34,23 +34,23 @@
 
         {{-- ── STATS ──────────────────────────────────── --}}
         <section class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+            <div class="rounded-2xl border border-ink/8 bg-card p-4">
                 <p class="text-[10px] font-black uppercase tracking-wider text-muted mb-1">Facturación Hoy</p>
                 <p class="text-2xl font-black text-emerald-400">${{ number_format($stats['total_hoy'], 2) }}</p>
             </div>
-            <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+            <div class="rounded-2xl border border-ink/8 bg-card p-4">
                 <p class="text-[10px] font-black uppercase tracking-wider text-muted mb-1">Este Mes</p>
-                <p class="text-2xl font-black text-white">${{ number_format($stats['total_mes'], 2) }}</p>
+                <p class="text-2xl font-black text-ink">${{ number_format($stats['total_mes'], 2) }}</p>
             </div>
-            <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+            <div class="rounded-2xl border border-ink/8 bg-card p-4">
                 <p class="text-[10px] font-black uppercase tracking-wider text-muted mb-1">Total Cobros</p>
-                <p class="text-2xl font-black text-white">{{ $stats['count'] }}</p>
+                <p class="text-2xl font-black text-ink">{{ $stats['count'] }}</p>
             </div>
-            <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+            <div class="rounded-2xl border border-ink/8 bg-card p-4">
                 <p class="text-[10px] font-black uppercase tracking-wider text-muted mb-2">Por Método</p>
                 <div class="flex flex-wrap gap-1.5">
                     @foreach($stats['metodos'] as $metodo => $cnt)
-                        <span class="text-[9px] font-black bg-white/8 border border-white/10 rounded-full px-2 py-0.5 text-white/70 uppercase">
+                        <span class="text-[9px] font-black bg-ink/8 border border-ink/10 rounded-full px-2 py-0.5 text-ink/70 uppercase">
                             {{ $metodo }}: {{ $cnt }}
                         </span>
                     @endforeach
@@ -60,10 +60,10 @@
 
         {{-- ── FILTROS ─────────────────────────────────── --}}
         <section x-data="{ open: {{ count($activeFilters) > 0 ? 'true' : 'false' }} }" class="ui-card-premium overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-white/6" @click="open = !open">
+            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-ink/6" @click="open = !open">
                 <div class="flex items-center gap-3">
                     <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                    <span class="text-sm font-black text-white uppercase tracking-widest">Filtros Avanzados</span>
+                    <span class="text-sm font-black text-ink uppercase tracking-widest">Filtros Avanzados</span>
                     @if(count($activeFilters) > 0)
                         <span class="flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[9px] font-black text-black">{{ count($activeFilters) }}</span>
                     @endif
@@ -113,7 +113,7 @@
                     <div class="mt-5 flex items-center gap-3">
                         <button type="submit" class="ui-btn py-2.5 px-6 text-[11px] tracking-widest">Aplicar Filtros</button>
                         @if(count($activeFilters) > 0)
-                            <a href="{{ route('payments.index') }}" class="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition-all">
+                            <a href="{{ route('payments.index') }}" class="flex items-center gap-1.5 rounded-xl border border-ink/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-ink transition-all">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                 Limpiar
                             </a>
@@ -145,10 +145,10 @@
             {{-- Mobile cards --}}
             <div class="space-y-3 md:hidden">
                 @forelse($payments as $payment)
-                <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+                <div class="rounded-2xl border border-ink/8 bg-card p-4">
                     <div class="flex items-start justify-between mb-3">
                         <div>
-                            <p class="text-xs font-black text-white">#{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}</p>
+                            <p class="text-xs font-black text-ink">#{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}</p>
                             <p class="text-[10px] text-muted">{{ $payment->created_at?->translatedFormat('d M, Y · H:i') }}</p>
                         </div>
                         <div class="text-right">
@@ -163,17 +163,17 @@
                             {{ strtoupper(mb_substr($payment->appointment?->client?->user?->name ?? 'C', 0, 2)) }}
                         </div>
                         <div class="min-w-0">
-                            <p class="font-bold text-white text-sm truncate">{{ $payment->appointment?->client?->user?->name ?? 'N/A' }}</p>
+                            <p class="font-bold text-ink text-sm truncate">{{ $payment->appointment?->client?->user?->name ?? 'N/A' }}</p>
                             <p class="text-[10px] font-bold text-gold uppercase tracking-widest truncate">{{ $payment->appointment?->service?->nombre ?? 'General' }}</p>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between border-t border-white/5 pt-3 gap-3">
-                        <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-muted shrink-0">
+                    <div class="flex items-center justify-between border-t border-ink/5 pt-3 gap-3">
+                        <span class="inline-flex items-center rounded-full border border-ink/10 bg-ink/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-muted shrink-0">
                             {{ $metodoPagoLabels[$payment->metodo_pago] ?? $payment->metodo_pago }}
                         </span>
                         <div class="flex items-center gap-4">
                             <a href="{{ route('payments.receipt.download', $payment) }}"
-                               class="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">
+                               class="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-gold hover:text-ink transition">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                 PDF
                             </a>
@@ -186,7 +186,7 @@
                     </div>
                 </div>
                 @empty
-                <div class="rounded-2xl border border-dashed border-white/10 p-10 text-center">
+                <div class="rounded-2xl border border-dashed border-ink/10 p-10 text-center">
                     <p class="text-sm text-muted">Sin comprobantes.</p>
                 </div>
                 @endforelse
@@ -210,13 +210,13 @@
                             <tr class="group">
                                 <td>
                                     <div class="flex flex-col">
-                                        <span class="font-black text-white text-xs">#{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}</span>
+                                        <span class="font-black text-ink text-xs">#{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}</span>
                                         <span class="text-[10px] text-muted font-bold uppercase">{{ $payment->created_at?->translatedFormat('d M, Y · H:i') }}</span>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="flex flex-col">
-                                        <span class="text-white font-bold text-sm">{{ $payment->appointment?->client?->user?->name ?? 'N/A' }}</span>
+                                        <span class="text-ink font-bold text-sm">{{ $payment->appointment?->client?->user?->name ?? 'N/A' }}</span>
                                         <span class="text-[10px] uppercase tracking-widest text-gold font-black">{{ $payment->appointment?->service?->nombre ?? 'General' }}</span>
                                     </div>
                                 </td>
@@ -226,14 +226,14 @@
                                             <div class="h-6 w-6 rounded-lg bg-gold/10 border border-gold/15 flex items-center justify-center text-[9px] font-black text-gold">
                                                 {{ strtoupper(mb_substr($payment->appointment->barber->user->name, 0, 2)) }}
                                             </div>
-                                            <span class="text-sm text-white/80">{{ $payment->appointment->barber->user->name }}</span>
+                                            <span class="text-sm text-ink/80">{{ $payment->appointment->barber->user->name }}</span>
                                         </div>
                                     @else
                                         <span class="text-muted text-xs italic">—</span>
                                     @endif
                                 </td>
                                 <td>
-                                    <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-muted">
+                                    <span class="inline-flex items-center rounded-full border border-ink/10 bg-ink/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-muted">
                                         {{ $metodoPagoLabels[$payment->metodo_pago] ?? $payment->metodo_pago }}
                                     </span>
                                 </td>
@@ -248,7 +248,7 @@
                                 <td class="text-right">
                                     <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         <a href="{{ route('payments.receipt.download', $payment) }}"
-                                           class="h-8 px-3 rounded-lg border border-white/10 bg-white/5 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-muted hover:text-gold hover:border-gold/30 transition-all">
+                                           class="h-8 px-3 rounded-lg border border-ink/10 bg-ink/5 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-muted hover:text-gold hover:border-gold/30 transition-all">
                                             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                             PDF
                                         </a>
@@ -266,7 +266,7 @@
                             <tr>
                                 <td colspan="6" class="px-6 py-20 text-center">
                                     <div class="flex flex-col items-center">
-                                        <svg class="h-12 w-12 text-white/5 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <svg class="h-12 w-12 text-ink/5 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                         <p class="text-sm font-bold text-muted uppercase tracking-widest">Sin comprobantes</p>
                                     </div>
                                 </td>

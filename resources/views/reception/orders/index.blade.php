@@ -60,12 +60,12 @@
                     'pendiente' => ['Pendiente', 'text-amber-300 border-amber-500/30 bg-amber-500/10'],
                     'entregado' => ['Entregado', 'text-emerald-300 border-emerald-500/25 bg-emerald-500/10'],
                     'cancelado' => ['Cancelado', 'text-red-400 border-red-500/25 bg-red-500/10'],
-                ][$order->estado] ?? [$order->estado, 'text-white/50 border-white/10'];
+                ][$order->estado] ?? [$order->estado, 'text-ink/50 border-ink/10'];
             @endphp
             <div class="ui-card-premium p-5">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                        <p class="text-sm font-black text-white">{{ $order->folio }}
+                        <p class="text-sm font-black text-ink">{{ $order->folio }}
                             @if($order->tipo === 'cita')<span class="text-[9px] text-gold uppercase tracking-wider ml-1">· add-on de cita</span>@endif
                         </p>
                         <p class="text-[11px] text-muted mt-0.5">{{ $order->client?->user?->name ?? 'Cliente' }} · {{ optional($order->created_at)->translatedFormat('d M Y, H:i') }}</p>
@@ -73,16 +73,16 @@
                     <span class="text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border {{ $estadoCfg[1] }}">{{ $estadoCfg[0] }}</span>
                 </div>
 
-                <div class="mt-3 border-t border-white/5 pt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
+                <div class="mt-3 border-t border-ink/5 pt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
                     @foreach($order->items ?? [] as $it)
                         <div class="flex items-center justify-between text-xs">
-                            <span class="text-muted"><span class="text-white font-bold">{{ $it['cantidad'] }}×</span> {{ $it['nombre'] }}</span>
-                            <span class="text-white font-bold">${{ number_format($it['subtotal'] ?? ($it['precio'] * $it['cantidad']), 2) }}</span>
+                            <span class="text-muted"><span class="text-ink font-bold">{{ $it['cantidad'] }}×</span> {{ $it['nombre'] }}</span>
+                            <span class="text-ink font-bold">${{ number_format($it['subtotal'] ?? ($it['precio'] * $it['cantidad']), 2) }}</span>
                         </div>
                     @endforeach
                 </div>
 
-                <div class="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-3">
+                <div class="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-ink/5 pt-3">
                     <div class="flex items-baseline gap-2">
                         <span class="text-[10px] font-black uppercase tracking-widest text-muted">Total</span>
                         <span class="text-lg font-black text-gold">${{ number_format($order->total, 2) }}</span>
@@ -110,7 +110,7 @@
                         </div>
                     @elseif($order->estado === 'entregado')
                         <a href="{{ route('orders.receipt', $order) }}" target="_blank" rel="noopener"
-                           class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition inline-flex items-center gap-1.5">
+                           class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-ink transition inline-flex items-center gap-1.5">
                             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             Descargar recibo
                         </a>
@@ -119,7 +119,7 @@
             </div>
         @empty
             <div class="ui-card-premium p-12 text-center">
-                <p class="text-sm font-bold text-white">Sin pedidos</p>
+                <p class="text-sm font-bold text-ink">Sin pedidos</p>
                 <p class="text-xs text-muted mt-1">Cuando los clientes compren en la tienda, aparecerán aquí.</p>
             </div>
         @endforelse

@@ -12,8 +12,8 @@
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 space-y-6">
 
             @if($appointments->isEmpty())
-                <div class="py-24 text-center rounded-3xl border border-dashed border-white/5">
-                    <svg class="h-12 w-12 text-white/10 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="py-24 text-center rounded-3xl border border-dashed border-ink/5">
+                    <svg class="h-12 w-12 text-ink/10 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     <p class="text-sm font-black text-muted/50 uppercase tracking-widest">No tienes pagos pendientes</p>
@@ -25,9 +25,9 @@
                         @php
                             $rechazado = $appointment->payments->firstWhere('estado', \App\Models\Payment::ESTADO_RECHAZADO);
                         @endphp
-                        <div class="rounded-2xl border border-white/5 bg-white/[0.02] p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div class="rounded-2xl border border-ink/5 bg-ink/[0.02] p-5 flex flex-col sm:flex-row sm:items-center gap-4">
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-black text-white uppercase leading-tight">{{ $appointment->service?->nombre ?? 'Servicio' }}</p>
+                                <p class="text-sm font-black text-ink uppercase leading-tight">{{ $appointment->service?->nombre ?? 'Servicio' }}</p>
                                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted font-bold mt-1">
                                     @if($appointment->barber?->user)
                                         <span>{{ $appointment->barber->user->name }}</span>

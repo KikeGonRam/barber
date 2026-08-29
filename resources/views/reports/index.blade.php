@@ -18,24 +18,24 @@
         <div class="mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
 
             <!-- Filtros -->
-            <div class="rounded-2xl border border-white/[0.06] bg-[#111] p-5">
-                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/50 mb-4">Filtros de reporte</p>
+            <div class="rounded-2xl border border-ink/[0.06] bg-card p-5">
+                <p class="text-[9px] font-black uppercase tracking-[0.25em] text-ink/50 mb-4">Filtros de reporte</p>
                 <form method="GET" action="{{ route('reports.index') }}"
                       class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
                       onsubmit="const s=this.start_date.value,e=this.end_date.value;if(s&&e&&e<s){alert('La fecha fin no puede ser anterior a la fecha inicio.');return false;}">
                     <div>
                         <label class="ui-label">Fecha inicio</label>
                         <input type="date" name="start_date" value="{{ request('start_date') }}"
-                               class="ui-input !bg-black/30 border-white/10 focus:border-gold/50 transition-all text-white">
+                               class="ui-input !bg-black/30 border-ink/10 focus:border-gold/50 transition-all text-ink">
                     </div>
                     <div>
                         <label class="ui-label">Fecha fin</label>
                         <input type="date" name="end_date" value="{{ request('end_date') }}"
-                               class="ui-input !bg-black/30 border-white/10 focus:border-gold/50 transition-all text-white">
+                               class="ui-input !bg-black/30 border-ink/10 focus:border-gold/50 transition-all text-ink">
                     </div>
                     <div>
                         <label class="ui-label">Barbero</label>
-                        <select name="barber_id" class="ui-input !bg-black/30 border-white/10 focus:border-gold/50 transition-all text-white">
+                        <select name="barber_id" class="ui-input !bg-black/30 border-ink/10 focus:border-gold/50 transition-all text-ink">
                             <option value="">Todos</option>
                             @foreach($barbers as $barber)
                                 <option value="{{ $barber->id }}" @selected(request('barber_id') == $barber->id)>{{ $barber->user?->name }}</option>
@@ -44,17 +44,17 @@
                     </div>
                     <div>
                         <label class="ui-label">Método de pago</label>
-                        <select name="metodo_pago" class="ui-input !bg-black/30 border-white/10 focus:border-gold/50 transition-all text-white">
+                        <select name="metodo_pago" class="ui-input !bg-black/30 border-ink/10 focus:border-gold/50 transition-all text-ink">
                             <option value="">Todos</option>
                             @foreach(['efectivo','tarjeta','transferencia','qr','stripe'] as $metodo)
                                 <option value="{{ $metodo }}" @selected(request('metodo_pago') === $metodo)>{{ ucfirst($metodo) }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="sm:col-span-2 lg:col-span-4 flex items-center justify-end gap-4 pt-2 border-t border-white/[0.06]">
+                    <div class="sm:col-span-2 lg:col-span-4 flex items-center justify-end gap-4 pt-2 border-t border-ink/[0.06]">
                         @if(request()->anyFilled(['start_date', 'end_date', 'barber_id', 'metodo_pago']))
                             <a href="{{ route('reports.index') }}"
-                               class="text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white transition">
+                               class="text-[10px] font-black uppercase tracking-widest text-ink/50 hover:text-ink transition">
                                 Limpiar
                             </a>
                         @endif
@@ -111,7 +111,7 @@
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 @foreach($exportCards as $card)
                     @php $c = $colorMap[$card['color']]; @endphp
-                    <div class="relative rounded-2xl border border-white/[0.06] bg-[#111] overflow-hidden group"
+                    <div class="relative rounded-2xl border border-ink/[0.06] bg-card overflow-hidden group"
                          x-data="{ loading: null }">
                         <!-- Top accent -->
                         <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r {{ $c['grad'] }} to-transparent"></div>
@@ -119,8 +119,8 @@
                         <div class="p-5">
                             <div class="flex items-start justify-between gap-4">
                                 <div class="flex-1 min-w-0">
-                                    <h4 class="text-sm font-black text-white uppercase tracking-tight leading-tight">{{ $card['title'] }}</h4>
-                                    <p class="text-[10px] text-white/40 font-medium mt-1.5 leading-relaxed">{{ $card['desc'] }}</p>
+                                    <h4 class="text-sm font-black text-ink uppercase tracking-tight leading-tight">{{ $card['title'] }}</h4>
+                                    <p class="text-[10px] text-ink/40 font-medium mt-1.5 leading-relaxed">{{ $card['desc'] }}</p>
                                 </div>
                                 <div class="{{ $c['bg'] }} p-2.5 rounded-xl {{ $c['border'] }} border flex-shrink-0 group-hover:scale-105 transition-transform">
                                     <svg class="h-5 w-5 {{ $c['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -131,10 +131,10 @@
 
                             @if(!empty($charts[$card['type']]['labels'] ?? []))
                                 <div class="mt-4">
-                                    <p class="text-[9px] font-black uppercase tracking-widest text-white/40">
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-ink/40">
                                         {{ $charts[$card['type']]['title'] ?? '' }}
                                         @if(($charts[$card['type']]['unit'] ?? null) === 'MXN')
-                                            <span class="text-white/25">(pesos mexicanos)</span>
+                                            <span class="text-ink/25">(pesos mexicanos)</span>
                                         @endif
                                     </p>
                                     <div class="h-40">
@@ -147,7 +147,7 @@
                                 <a href="{{ route('reports.export', ['type' => $card['type'], 'format' => 'pdf'] + $filterQuery) }}"
                                    @click="loading='pdf'; setTimeout(() => loading=null, 2500)"
                                    :class="loading==='pdf' ? 'opacity-50 pointer-events-none' : ''"
-                                   class="flex-1 rounded-xl border border-white/[0.06] bg-white/[0.03] py-2.5 text-[9px] font-black text-white/60 uppercase tracking-widest text-center hover:bg-white/[0.07] hover:text-white transition-all">
+                                   class="flex-1 rounded-xl border border-ink/[0.06] bg-ink/[0.03] py-2.5 text-[9px] font-black text-ink/60 uppercase tracking-widest text-center hover:bg-ink/[0.07] hover:text-ink transition-all">
                                     <span x-text="loading==='pdf' ? 'Generando…' : 'PDF'">PDF</span>
                                 </a>
                                 <a href="{{ route('reports.export', ['type' => $card['type'], 'format' => 'excel'] + $filterQuery) }}"

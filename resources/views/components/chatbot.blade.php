@@ -34,11 +34,11 @@
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-            class="fixed z-[199] flex flex-col rounded-2xl border border-white/[0.08] bg-[#0d0d0d] shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden bottom-[152px] right-6 md:bottom-[88px] md:right-6"
+            class="fixed z-[199] flex flex-col rounded-2xl border border-ink/[0.08] bg-card shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden bottom-[152px] right-6 md:bottom-[88px] md:right-6"
             style="width: min(390px, calc(100vw - 48px)); height: min(540px, calc(100dvh - 184px)); display: none;"
         >
             {{-- Header --}}
-            <div class="px-5 py-4 border-b border-white/[0.06] bg-white/[0.03] flex items-center justify-between shrink-0">
+            <div class="px-5 py-4 border-b border-ink/[0.06] bg-ink/[0.03] flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="h-9 w-9 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
                         <svg class="h-5 w-5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,23 +47,23 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-[11px] font-black text-white uppercase tracking-widest">Concierge UrbanBlade</h3>
+                        <h3 class="text-[11px] font-black text-ink uppercase tracking-widest">Concierge UrbanBlade</h3>
                         <div class="flex items-center gap-1.5 mt-0.5">
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span class="text-[8px] font-bold text-white/50 uppercase tracking-widest">Asistente IA · En línea</span>
+                            <span class="text-[8px] font-bold text-ink/50 uppercase tracking-widest">Asistente IA · En línea</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-1">
                     <button @click="clearConversation()" title="Nueva conversación" aria-label="Nueva conversación"
-                            class="h-7 w-7 rounded-lg flex items-center justify-center text-white/45 hover:text-white/60 hover:bg-white/5 transition-all">
+                            class="h-7 w-7 rounded-lg flex items-center justify-center text-ink/45 hover:text-ink/60 hover:bg-ink/5 transition-all">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
                     </button>
                     <button @click="toggle()" aria-label="Cerrar chat"
-                            class="h-7 w-7 rounded-lg flex items-center justify-center text-white/45 hover:text-white/60 hover:bg-white/5 transition-all">
+                            class="h-7 w-7 rounded-lg flex items-center justify-center text-ink/45 hover:text-ink/60 hover:bg-ink/5 transition-all">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -84,7 +84,7 @@
                         <div
                             :class="msg.role === 'user'
                                 ? 'bg-gold text-black rounded-2xl rounded-tr-sm max-w-[78%] px-3.5 py-2.5 text-[12px] font-medium leading-relaxed'
-                                : 'bg-white/[0.06] text-white/90 border border-white/[0.06] rounded-2xl rounded-tl-sm max-w-[82%] px-3.5 py-2.5 text-[12px] leading-relaxed'"
+                                : 'bg-ink/[0.06] text-ink/90 border border-ink/[0.06] rounded-2xl rounded-tl-sm max-w-[82%] px-3.5 py-2.5 text-[12px] leading-relaxed'"
                             style="white-space: pre-line; word-break: break-word;"
                             x-text="msg.text">
                         </div>
@@ -94,10 +94,10 @@
                 {{-- Typing --}}
                 <div x-show="typing" class="flex justify-start gap-2" style="display:none">
                     <div class="h-6 w-6 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0"></div>
-                    <div class="bg-white/[0.06] border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3 flex gap-1.5 items-center">
-                        <span class="h-1.5 w-1.5 bg-white/40 rounded-full animate-bounce" style="animation-delay:0s"></span>
-                        <span class="h-1.5 w-1.5 bg-white/40 rounded-full animate-bounce" style="animation-delay:0.15s"></span>
-                        <span class="h-1.5 w-1.5 bg-white/40 rounded-full animate-bounce" style="animation-delay:0.3s"></span>
+                    <div class="bg-ink/[0.06] border border-ink/[0.06] rounded-2xl rounded-tl-sm px-4 py-3 flex gap-1.5 items-center">
+                        <span class="h-1.5 w-1.5 bg-ink/40 rounded-full animate-bounce" style="animation-delay:0s"></span>
+                        <span class="h-1.5 w-1.5 bg-ink/40 rounded-full animate-bounce" style="animation-delay:0.15s"></span>
+                        <span class="h-1.5 w-1.5 bg-ink/40 rounded-full animate-bounce" style="animation-delay:0.3s"></span>
                     </div>
                 </div>
             </div>
@@ -130,7 +130,7 @@
             </div>
 
             {{-- Input --}}
-            <div class="px-4 pb-4 pt-2 border-t border-white/[0.06] shrink-0">
+            <div class="px-4 pb-4 pt-2 border-t border-ink/[0.06] shrink-0">
                 <div class="flex items-end gap-2">
                     <textarea
                         x-model="input"
@@ -140,7 +140,7 @@
                         :disabled="typing"
                         rows="1"
                         placeholder="Escribe tu consulta…"
-                        class="flex-1 bg-white/[0.05] border border-white/10 rounded-xl px-3.5 py-2.5 text-[12px] text-white placeholder-white/20 focus:ring-1 focus:ring-gold/40 focus:border-gold/40 transition-all resize-none overflow-hidden leading-relaxed"
+                        class="flex-1 bg-ink/[0.05] border border-ink/10 rounded-xl px-3.5 py-2.5 text-[12px] text-ink placeholder-ink/20 focus:ring-1 focus:ring-gold/40 focus:border-gold/40 transition-all resize-none overflow-hidden leading-relaxed"
                         style="min-height:40px; max-height:100px;"
                     ></textarea>
                     <button
@@ -154,7 +154,7 @@
                         </svg>
                     </button>
                 </div>
-                <p class="text-[8px] font-bold text-white/15 uppercase mt-2 tracking-widest text-center">
+                <p class="text-[8px] font-bold text-ink/15 uppercase mt-2 tracking-widest text-center">
                     Enter para enviar · Shift+Enter nueva línea
                 </p>
             </div>

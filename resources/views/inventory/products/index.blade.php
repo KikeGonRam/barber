@@ -36,7 +36,7 @@
                     <p class="text-[10px] text-amber-400/70 mt-0.5">Usa el filtro "Stock bajo" para verlos todos</p>
                 </div>
                 <a href="{{ route('inventory.products.index', ['bajo_stock' => '1']) }}"
-                   class="text-[10px] font-black uppercase tracking-widest text-amber-300 hover:text-white border border-amber-500/30 rounded-lg px-3 py-1.5 hover:bg-amber-500/10 transition-all shrink-0">
+                   class="text-[10px] font-black uppercase tracking-widest text-amber-300 hover:text-ink border border-amber-500/30 rounded-lg px-3 py-1.5 hover:bg-amber-500/10 transition-all shrink-0">
                     Ver ahora
                 </a>
             </div>
@@ -44,9 +44,9 @@
 
         {{-- ── STATS ──────────────────────────────────── --}}
         <section class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div class="rounded-2xl border border-white/8 bg-[#111] p-5">
+            <div class="rounded-2xl border border-ink/8 bg-card p-5">
                 <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-2">Total Productos</p>
-                <p class="text-3xl font-black text-white">{{ $stats['total'] }}</p>
+                <p class="text-3xl font-black text-ink">{{ $stats['total'] }}</p>
             </div>
             <div class="rounded-2xl border {{ $stats['bajo_stock'] > 0 ? 'border-amber-500/25 bg-amber-500/5' : 'border-emerald-500/20 bg-emerald-500/5' }} p-5">
                 <p class="text-[9px] font-black uppercase tracking-widest {{ $stats['bajo_stock'] > 0 ? 'text-amber-400/70' : 'text-emerald-400/70' }} mb-2">Bajo Stock</p>
@@ -56,18 +56,18 @@
                 <p class="text-[9px] font-black uppercase tracking-widest text-gold/60 mb-2">Valor Inventario</p>
                 <p class="text-3xl font-black text-gold">${{ number_format($stats['valor_total'], 0) }}</p>
             </div>
-            <div class="rounded-2xl border border-white/8 bg-[#111] p-5">
+            <div class="rounded-2xl border border-ink/8 bg-card p-5">
                 <p class="text-[9px] font-black uppercase tracking-widest text-muted mb-2">Categorías</p>
-                <p class="text-3xl font-black text-white">{{ count($categorias) }}</p>
+                <p class="text-3xl font-black text-ink">{{ count($categorias) }}</p>
             </div>
         </section>
 
         {{-- ── FILTROS ─────────────────────────────────── --}}
         <section x-data="{ open: {{ count($activeFilters) > 0 ? 'true' : 'false' }} }" class="ui-card-premium overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-white/6" @click="open = !open">
+            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-ink/6" @click="open = !open">
                 <div class="flex items-center gap-3">
                     <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                    <span class="text-sm font-black text-white uppercase tracking-widest">Filtros</span>
+                    <span class="text-sm font-black text-ink uppercase tracking-widest">Filtros</span>
                     @if(count($activeFilters) > 0)
                         <span class="flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[9px] font-black text-black">{{ count($activeFilters) }}</span>
                     @endif
@@ -109,7 +109,7 @@
                     <div class="mt-4">
                         <label class="flex items-center gap-3 cursor-pointer w-fit group">
                             <input type="checkbox" name="bajo_stock" value="1" @checked(!empty($filters['bajo_stock']))
-                                   class="h-4 w-4 rounded border-white/20 bg-black/40 text-gold focus:ring-gold/30 focus:ring-offset-0">
+                                   class="h-4 w-4 rounded border-ink/20 bg-black/40 text-gold focus:ring-gold/30 focus:ring-offset-0">
                             <span class="text-[11px] font-bold uppercase tracking-widest text-muted group-hover:text-amber-400 transition-colors">
                                 Solo productos con stock bajo
                             </span>
@@ -118,7 +118,7 @@
                     <div class="mt-5 flex items-center gap-3">
                         <button type="submit" class="ui-btn py-2.5 px-6 text-[11px] tracking-widest">Aplicar Filtros</button>
                         @if(count($activeFilters) > 0)
-                            <a href="{{ route('inventory.products.index') }}" class="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition-all">
+                            <a href="{{ route('inventory.products.index') }}" class="flex items-center gap-1.5 rounded-xl border border-ink/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-ink transition-all">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                 Limpiar
                             </a>
@@ -169,7 +169,7 @@
                             <tr class="group">
                                 <td>
                                     <div class="flex items-center gap-3">
-                                        <div class="h-12 w-12 rounded-xl overflow-hidden shrink-0 border border-white/8">
+                                        <div class="h-12 w-12 rounded-xl overflow-hidden shrink-0 border border-ink/8">
                                             <img src="{{ $prodImg }}"
                                                  alt="{{ $product->nombre }}"
                                                  class="h-full w-full object-cover"
@@ -177,20 +177,20 @@
                                                  onerror="this.src='https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?w=120&h=120&auto=format&fit=crop&q=70'">
                                         </div>
                                         <div>
-                                            <p class="font-bold text-white text-sm">{{ $product->nombre }}</p>
+                                            <p class="font-bold text-ink text-sm">{{ $product->nombre }}</p>
                                             <p class="text-[10px] text-muted uppercase tracking-wider">{{ $product->tipo }}</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-muted">
+                                    <span class="inline-flex items-center rounded-full border border-ink/10 bg-ink/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-muted">
                                         {{ $product->categoria }}
                                     </span>
                                 </td>
                                 <td>
                                     <div class="flex flex-col gap-1.5">
                                         <div class="flex items-center gap-2">
-                                            <span class="font-black text-sm {{ $isLow ? 'text-amber-400' : 'text-white' }}">
+                                            <span class="font-black text-sm {{ $isLow ? 'text-amber-400' : 'text-ink' }}">
                                                 {{ $product->stock_actual }}
                                             </span>
                                             <span class="text-[10px] text-muted">/ mín {{ $product->stock_minimo }}</span>
@@ -200,7 +200,7 @@
                                         </div>
                                         {{-- Mini barra de stock --}}
                                         @php $pct = $product->stock_minimo > 0 ? min(100, ($product->stock_actual / ($product->stock_minimo * 2)) * 100) : 100; @endphp
-                                        <div class="h-1 w-24 bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-1 w-24 bg-ink/5 rounded-full overflow-hidden">
                                             <div class="h-full {{ $isLow ? 'bg-amber-400' : 'bg-emerald-400' }} rounded-full transition-all" style="width: {{ $pct }}%"></div>
                                         </div>
                                     </div>
@@ -210,7 +210,7 @@
                                 <td class="text-right">
                                     <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                         <a href="{{ route('inventory.products.edit', $product) }}"
-                                           class="h-8 w-8 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all">
+                                           class="h-8 w-8 rounded-lg border border-ink/10 bg-ink/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </a>
                                         <form action="{{ route('inventory.products.destroy', $product) }}" method="POST"
@@ -243,9 +243,9 @@
                             ? \Illuminate\Support\Facades\Storage::url($product->imagen)
                             : SmartImageHelper::forProduct($product->nombre, $product->categoria ?? '', 'sm');
                     @endphp
-                    <div class="rounded-2xl border {{ $isLow ? 'border-amber-500/20' : 'border-white/8' }} bg-[#111] p-4">
+                    <div class="rounded-2xl border {{ $isLow ? 'border-amber-500/20' : 'border-ink/8' }} bg-card p-4">
                         <div class="flex items-start gap-4 mb-3">
-                            <div class="h-16 w-16 rounded-xl overflow-hidden shrink-0 border border-white/8">
+                            <div class="h-16 w-16 rounded-xl overflow-hidden shrink-0 border border-ink/8">
                                 <img src="{{ $mProdImg }}"
                                      alt="{{ $product->nombre }}"
                                      class="h-full w-full object-cover"
@@ -253,19 +253,19 @@
                                      onerror="this.src='https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?w=120&h=120&auto=format&fit=crop&q=70'">
                             </div>
                             <div class="flex-1">
-                                <p class="font-bold text-white text-sm">{{ $product->nombre }}</p>
+                                <p class="font-bold text-ink text-sm">{{ $product->nombre }}</p>
                                 <p class="text-[10px] text-muted uppercase">{{ $product->categoria }} · {{ $product->tipo }}</p>
                             </div>
                             <span class="font-black text-emerald-400 text-base shrink-0">${{ number_format($product->precio_venta, 0) }}</span>
                         </div>
-                        <div class="flex items-center justify-between border-t border-white/5 pt-3">
+                        <div class="flex items-center justify-between border-t border-ink/5 pt-3">
                             <div class="flex items-center gap-2 text-xs">
-                                <span class="font-black {{ $isLow ? 'text-amber-400' : 'text-white' }}">{{ $product->stock_actual }}</span>
+                                <span class="font-black {{ $isLow ? 'text-amber-400' : 'text-ink' }}">{{ $product->stock_actual }}</span>
                                 <span class="text-muted">/ {{ $product->stock_minimo }} mín</span>
                                 @if($isLow)<span class="text-[9px] font-black text-amber-400 border border-amber-500/25 rounded-full px-1.5">bajo</span>@endif
                             </div>
                             <div class="flex items-center gap-4">
-                                <a href="{{ route('inventory.products.edit', $product) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Editar</a>
+                                <a href="{{ route('inventory.products.edit', $product) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-ink transition">Editar</a>
                                 <form action="{{ route('inventory.products.destroy', $product) }}" method="POST"
                                       onsubmit="return confirm('¿Eliminar {{ addslashes($product->nombre) }}?');">
                                     @csrf @method('DELETE')
@@ -275,7 +275,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="rounded-2xl border border-dashed border-white/10 p-10 text-center"><p class="text-sm text-muted">Sin productos.</p></div>
+                    <div class="rounded-2xl border border-dashed border-ink/10 p-10 text-center"><p class="text-sm text-muted">Sin productos.</p></div>
                 @endforelse
             </div>
 

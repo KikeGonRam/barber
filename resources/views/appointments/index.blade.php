@@ -43,18 +43,18 @@
         {{-- ── STATS ROW ──────────────────────────────── --}}
         <section class="grid grid-cols-2 gap-4 sm:grid-cols-4">
             @foreach([
-                ['label'=>'Total Citas',   'val'=>$stats['total'],      'iconClasses'=>'bg-white/10 text-white/60',            'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
+                ['label'=>'Total Citas',   'val'=>$stats['total'],      'iconClasses'=>'bg-ink/10 text-ink/60',            'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
                 ['label'=>'Hoy',           'val'=>$stats['today'],      'iconClasses'=>'bg-blue-500/10 text-blue-400',         'icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
                 ['label'=>'Pendientes',    'val'=>$stats['pendiente'],  'iconClasses'=>'bg-amber-500/10 text-amber-400',       'icon'=>'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
                 ['label'=>'Completadas',   'val'=>$stats['completada'], 'iconClasses'=>'bg-emerald-500/10 text-emerald-400',   'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
             ] as $stat)
-                <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+                <div class="rounded-2xl border border-ink/8 bg-card p-4">
                     <div class="flex items-center gap-3">
                         <div class="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 {{ $stat['iconClasses'] }}">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $stat['icon'] }}"/></svg>
                         </div>
                         <div>
-                            <p class="text-xl font-black text-white leading-none">{{ $stat['val'] }}</p>
+                            <p class="text-xl font-black text-ink leading-none">{{ $stat['val'] }}</p>
                             <p class="text-[10px] font-bold uppercase tracking-wider text-muted mt-0.5">{{ $stat['label'] }}</p>
                         </div>
                     </div>
@@ -65,11 +65,11 @@
         {{-- ── FILTROS AVANZADOS ──────────────────────── --}}
         <section x-data="{ open: {{ count($activeFilters) > 0 ? 'true' : 'false' }} }" class="ui-card-premium overflow-hidden">
             {{-- Header del panel --}}
-            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-white/6"
+            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-ink/6"
                  @click="open = !open">
                 <div class="flex items-center gap-3">
                     <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                    <span class="text-sm font-black text-white uppercase tracking-widest">Filtros Avanzados</span>
+                    <span class="text-sm font-black text-ink uppercase tracking-widest">Filtros Avanzados</span>
                     @if(count($activeFilters) > 0)
                         <span class="flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[9px] font-black text-black">{{ count($activeFilters) }}</span>
                     @endif
@@ -137,7 +137,7 @@
                             Aplicar Filtros
                         </button>
                         @if(count($activeFilters) > 0)
-                            <a href="{{ route('appointments.index') }}" class="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white hover:border-white/20 transition-all">
+                            <a href="{{ route('appointments.index') }}" class="flex items-center gap-1.5 rounded-xl border border-ink/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-ink hover:border-ink/20 transition-all">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                 Limpiar
                             </a>
@@ -187,14 +187,14 @@
                     </thead>
                     <tbody>
                         @forelse($appointments as $appt)
-                            @php $sc = $statusConfig[$appt->estado] ?? ['pill'=>'bg-white/8 text-white/50 border-white/10','dot'=>'bg-white/30','label'=>$appt->estado]; @endphp
+                            @php $sc = $statusConfig[$appt->estado] ?? ['pill'=>'bg-ink/8 text-ink/50 border-ink/10','dot'=>'bg-ink/30','label'=>$appt->estado]; @endphp
                             <tr class="group">
                                 <td>
                                     <div class="flex items-center gap-3">
-                                        <div class="h-8 w-8 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-[10px] font-black text-gold shrink-0">
+                                        <div class="h-8 w-8 rounded-xl bg-ink/5 border border-ink/8 flex items-center justify-center text-[10px] font-black text-gold shrink-0">
                                             {{ strtoupper(mb_substr($appt->client?->user?->name ?? 'C', 0, 2)) }}
                                         </div>
-                                        <span class="font-bold text-white text-sm">{{ $appt->client?->user?->name ?? 'Desconocido' }}</span>
+                                        <span class="font-bold text-ink text-sm">{{ $appt->client?->user?->name ?? 'Desconocido' }}</span>
                                     </div>
                                 </td>
                                 <td>
@@ -206,7 +206,7 @@
                                             <div class="h-6 w-6 rounded-lg bg-gold/10 border border-gold/15 flex items-center justify-center text-[9px] font-black text-gold">
                                                 {{ strtoupper(mb_substr($appt->barber->user->name, 0, 2)) }}
                                             </div>
-                                            <span class="text-sm text-white/80">{{ $appt->barber->user->name }}</span>
+                                            <span class="text-sm text-ink/80">{{ $appt->barber->user->name }}</span>
                                         </div>
                                     @else
                                         <span class="text-muted italic text-xs">Sin asignar</span>
@@ -214,7 +214,7 @@
                                 </td>
                                 <td>
                                     <div class="flex flex-col">
-                                        <span class="font-bold text-white text-sm">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M, Y') }}</span>
+                                        <span class="font-bold text-ink text-sm">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M, Y') }}</span>
                                         <span class="text-[10px] text-muted font-bold">{{ substr($appt->hora_inicio, 0, 5) }} – {{ substr($appt->hora_fin, 0, 5) }}</span>
                                     </div>
                                 </td>
@@ -229,7 +229,7 @@
                                                     title="Cambiar estado" aria-label="Cambiar estado de la cita">
                                                 @foreach($opsT as $val)
                                                     <option value="{{ $val }}" @selected($appt->estado === $val)
-                                                            class="bg-[#111] text-white normal-case tracking-normal font-bold">
+                                                            class="bg-card text-ink normal-case tracking-normal font-bold">
                                                         {{ $estadoLabels[$val] ?? $val }}
                                                     </option>
                                                 @endforeach
@@ -256,7 +256,7 @@
                                             </button>
                                         @endif
                                         <a href="{{ route('appointments.edit', $appt) }}"
-                                           class="h-8 w-8 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all" title="Editar">
+                                           class="h-8 w-8 rounded-lg border border-ink/10 bg-ink/5 flex items-center justify-center text-muted hover:text-gold hover:border-gold/30 transition-all" title="Editar">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </a>
                                         <form action="{{ route('appointments.destroy', $appt) }}" method="POST"
@@ -274,7 +274,7 @@
                             <tr>
                                 <td colspan="6" class="px-6 py-20 text-center">
                                     <div class="flex flex-col items-center">
-                                        <svg class="h-12 w-12 text-white/5 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        <svg class="h-12 w-12 text-ink/5 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                         <p class="text-sm font-bold text-muted uppercase tracking-widest">Sin resultados</p>
                                         <p class="text-xs text-muted/60 mt-1">Prueba ajustando los filtros de búsqueda</p>
                                     </div>
@@ -288,15 +288,15 @@
             {{-- Mobile cards --}}
             <div class="space-y-3 md:hidden">
                 @forelse($appointments as $appt)
-                    @php $sc = $statusConfig[$appt->estado] ?? ['pill'=>'bg-white/8 text-white/50 border-white/10','dot'=>'bg-white/30','label'=>$appt->estado]; @endphp
-                    <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+                    @php $sc = $statusConfig[$appt->estado] ?? ['pill'=>'bg-ink/8 text-ink/50 border-ink/10','dot'=>'bg-ink/30','label'=>$appt->estado]; @endphp
+                    <div class="rounded-2xl border border-ink/8 bg-card p-4">
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-3">
                                 <div class="h-10 w-10 rounded-xl bg-gold/10 border border-gold/15 flex items-center justify-center text-sm font-black text-gold">
                                     {{ strtoupper(mb_substr($appt->client?->user?->name ?? 'C', 0, 2)) }}
                                 </div>
                                 <div>
-                                    <p class="text-sm font-black text-white">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
+                                    <p class="text-sm font-black text-ink">{{ $appt->client?->user?->name ?? 'Cliente' }}</p>
                                     <p class="text-[10px] font-bold text-gold uppercase tracking-wider">{{ $appt->service?->nombre ?? '—' }}</p>
                                 </div>
                             </div>
@@ -305,15 +305,15 @@
                                 {{ $sc['label'] }}
                             </span>
                         </div>
-                        <div class="grid grid-cols-2 gap-3 text-xs border-t border-white/5 pt-3">
+                        <div class="grid grid-cols-2 gap-3 text-xs border-t border-ink/5 pt-3">
                             <div>
                                 <p class="text-[9px] font-bold uppercase tracking-wider text-muted mb-0.5">Fecha</p>
-                                <p class="font-bold text-white">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M, Y') }}</p>
+                                <p class="font-bold text-ink">{{ \Carbon\Carbon::parse($appt->fecha)->translatedFormat('d M, Y') }}</p>
                                 <p class="text-muted">{{ substr($appt->hora_inicio, 0, 5) }} – {{ substr($appt->hora_fin, 0, 5) }}</p>
                             </div>
                             <div>
                                 <p class="text-[9px] font-bold uppercase tracking-wider text-muted mb-0.5">Barbero</p>
-                                <p class="font-bold text-white">{{ $appt->barber?->user?->name ?? 'Sin asignar' }}</p>
+                                <p class="font-bold text-ink">{{ $appt->barber?->user?->name ?? 'Sin asignar' }}</p>
                             </div>
                         </div>
                         {{-- Estado inline (mobile): solo transiciones validas --}}
@@ -322,17 +322,17 @@
                         <form method="POST" action="{{ route('appointments.update-status', $appt) }}" class="mt-3">
                             @csrf @method('PATCH')
                             <div class="flex gap-2">
-                                <select name="estado" class="flex-1 h-9 rounded-xl border border-white/10 bg-black/40 px-3 text-[10px] font-black uppercase tracking-wider text-white focus:border-gold/50 focus:outline-none transition-all">
+                                <select name="estado" class="flex-1 h-9 rounded-xl border border-ink/10 bg-black/40 px-3 text-[10px] font-black uppercase tracking-wider text-ink focus:border-gold/50 focus:outline-none transition-all">
                                     @foreach($opsC as $val)
-                                        <option value="{{ $val }}" @selected($appt->estado === $val) class="bg-[#111] normal-case font-bold">{{ $estadoLabels[$val] ?? $val }}</option>
+                                        <option value="{{ $val }}" @selected($appt->estado === $val) class="bg-card normal-case font-bold">{{ $estadoLabels[$val] ?? $val }}</option>
                                     @endforeach
                                 </select>
                                 <button type="submit" class="h-9 px-3 rounded-xl border border-gold/30 bg-gold/10 text-[10px] font-black uppercase text-gold hover:bg-gold hover:text-black transition-all shrink-0">OK</button>
                             </div>
                         </form>
                         @endif
-                        <div class="mt-3 flex justify-end gap-3 border-t border-white/5 pt-3">
-                            <a href="{{ route('appointments.edit', $appt) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">Editar</a>
+                        <div class="mt-3 flex justify-end gap-3 border-t border-ink/5 pt-3">
+                            <a href="{{ route('appointments.edit', $appt) }}" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-ink transition">Editar</a>
                             <form action="{{ route('appointments.destroy', $appt) }}" method="POST" onsubmit="return confirm('¿Cancelar?');">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition">Anular</button>
@@ -340,7 +340,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="rounded-2xl border border-dashed border-white/10 p-12 text-center">
+                    <div class="rounded-2xl border border-dashed border-ink/10 p-12 text-center">
                         <p class="text-sm text-muted">Sin citas que mostrar.</p>
                     </div>
                 @endforelse
@@ -366,15 +366,15 @@
         {{-- Backdrop --}}
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="open = false"></div>
 
-        <div class="relative w-full max-w-lg rounded-3xl border border-white/10 bg-[#141414] p-6 shadow-2xl"
+        <div class="relative w-full max-w-lg rounded-3xl border border-ink/10 bg-card p-6 shadow-2xl"
              x-show="open" x-transition>
             <div class="mb-5 flex items-center justify-between">
                 <div>
-                    <h3 class="text-lg font-black text-white uppercase tracking-tight">Walk-in</h3>
+                    <h3 class="text-lg font-black text-ink uppercase tracking-tight">Walk-in</h3>
                     <p class="text-[11px] text-muted mt-0.5">Cliente en recepción — el servicio inicia ahora mismo.</p>
                 </div>
                 <button type="button" @click="open = false"
-                        class="h-8 w-8 rounded-lg border border-white/10 text-muted hover:text-white transition flex items-center justify-center">&times;</button>
+                        class="h-8 w-8 rounded-lg border border-ink/10 text-muted hover:text-ink transition flex items-center justify-center">&times;</button>
             </div>
 
             @if($errors->has('walkin'))
@@ -395,13 +395,13 @@
                             <input type="text" x-ref="searchInput" x-model="query"
                                    @input.debounce.300ms="search()"
                                    placeholder="Ej. 5512345678 o Juan..."
-                                   class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-4 text-sm text-white placeholder-white/25 focus:border-gold/50 focus:outline-none">
+                                   class="w-full h-11 rounded-xl border border-ink/10 bg-black/40 px-4 text-sm text-ink placeholder-ink/25 focus:border-gold/50 focus:outline-none">
                             <div x-show="results.length > 0"
-                                 class="absolute z-10 mt-1 w-full rounded-xl border border-white/10 bg-[#1b1b1b] shadow-xl overflow-hidden">
+                                 class="absolute z-10 mt-1 w-full rounded-xl border border-ink/10 bg-card shadow-xl overflow-hidden">
                                 <template x-for="c in results" :key="c.id">
                                     <button type="button" @click="selectedClient = c; results = []; query = ''"
                                             class="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-gold/10 transition">
-                                        <span class="text-sm font-bold text-white" x-text="c.name"></span>
+                                        <span class="text-sm font-bold text-ink" x-text="c.name"></span>
                                         <span class="text-[10px] text-muted" x-text="c.telefono"></span>
                                     </button>
                                 </template>
@@ -417,7 +417,7 @@
                                 <span class="ml-2 text-[10px] text-muted" x-text="selectedClient.telefono"></span>
                             </div>
                             <button type="button" @click="selectedClient = null"
-                                    class="text-[10px] font-black uppercase text-muted hover:text-white transition">Cambiar</button>
+                                    class="text-[10px] font-black uppercase text-muted hover:text-ink transition">Cambiar</button>
                         </div>
                     </template>
                 </div>
@@ -426,7 +426,7 @@
                 <div>
                     <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">2 · Servicio</label>
                     <select name="service_id" required
-                            class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-3 text-sm text-white focus:border-gold/50 focus:outline-none">
+                            class="w-full h-11 rounded-xl border border-ink/10 bg-black/40 px-3 text-sm text-ink focus:border-gold/50 focus:outline-none">
                         <option value="">Selecciona…</option>
                         @foreach($services as $service)
                             <option value="{{ $service->id }}">
@@ -440,7 +440,7 @@
                 <div>
                     <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">3 · Barbero</label>
                     <select name="barber_id" required
-                            class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-3 text-sm text-white focus:border-gold/50 focus:outline-none">
+                            class="w-full h-11 rounded-xl border border-ink/10 bg-black/40 px-3 text-sm text-ink focus:border-gold/50 focus:outline-none">
                         <option value="">Selecciona…</option>
                         @foreach($barbers as $barber)
                             <option value="{{ $barber->id }}">{{ $barber->user?->name ?? 'Barbero' }}</option>
@@ -449,7 +449,7 @@
                 </div>
 
                 <button type="submit" :disabled="!selectedClient"
-                        :class="selectedClient ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-400 hover:text-black' : 'bg-white/5 border-white/10 text-muted cursor-not-allowed'"
+                        :class="selectedClient ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-400 hover:text-black' : 'bg-ink/5 border-ink/10 text-muted cursor-not-allowed'"
                         class="w-full h-12 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all">
                     Iniciar servicio ahora &rarr;
                 </button>
@@ -470,18 +470,18 @@
          style="display: none;">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="open = false"></div>
 
-        <div class="relative w-full max-w-md rounded-3xl border border-white/10 bg-[#141414] p-6 shadow-2xl"
+        <div class="relative w-full max-w-md rounded-3xl border border-ink/10 bg-card p-6 shadow-2xl"
              x-show="open" x-transition>
             <div class="mb-5 flex items-center justify-between">
                 <div>
-                    <h3 class="text-lg font-black text-white uppercase tracking-tight">Cobrar y completar</h3>
+                    <h3 class="text-lg font-black text-ink uppercase tracking-tight">Cobrar y completar</h3>
                     <p class="text-[11px] text-muted mt-0.5">
-                        <span class="text-white font-bold" x-text="appt.cliente"></span>
+                        <span class="text-ink font-bold" x-text="appt.cliente"></span>
                         · <span x-text="appt.servicio"></span>
                     </p>
                 </div>
                 <button type="button" @click="open = false"
-                        class="h-8 w-8 rounded-lg border border-white/10 text-muted hover:text-white transition flex items-center justify-center">&times;</button>
+                        class="h-8 w-8 rounded-lg border border-ink/10 text-muted hover:text-ink transition flex items-center justify-center">&times;</button>
             </div>
 
             <form method="POST" action="{{ route('payments.store') }}" class="space-y-4">
@@ -492,14 +492,14 @@
                 <div>
                     <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">Monto</label>
                     <input type="number" name="monto" step="0.01" min="0.01" required x-model="appt.monto"
-                           class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-4 text-sm text-white focus:border-gold/50 focus:outline-none">
+                           class="w-full h-11 rounded-xl border border-ink/10 bg-black/40 px-4 text-sm text-ink focus:border-gold/50 focus:outline-none">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">Método</label>
                         <select name="metodo_pago" required
-                                class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-3 text-sm text-white focus:border-gold/50 focus:outline-none">
+                                class="w-full h-11 rounded-xl border border-ink/10 bg-black/40 px-3 text-sm text-ink focus:border-gold/50 focus:outline-none">
                             <option value="efectivo">Efectivo</option>
                             <option value="tarjeta">Tarjeta</option>
                             <option value="transferencia">Transferencia</option>
@@ -509,7 +509,7 @@
                     <div>
                         <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">Propina (opcional)</label>
                         <input type="number" name="propina" step="0.01" min="0" placeholder="0"
-                               class="w-full h-11 rounded-xl border border-white/10 bg-black/40 px-4 text-sm text-white placeholder-white/25 focus:border-gold/50 focus:outline-none">
+                               class="w-full h-11 rounded-xl border border-ink/10 bg-black/40 px-4 text-sm text-ink placeholder-ink/25 focus:border-gold/50 focus:outline-none">
                     </div>
                 </div>
 

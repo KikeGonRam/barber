@@ -16,23 +16,23 @@
 
         @if(empty($items))
             <div class="ui-card-premium p-12 text-center">
-                <p class="text-sm font-bold text-white">Tu carrito está vacío</p>
+                <p class="text-sm font-bold text-ink">Tu carrito está vacío</p>
                 <p class="text-xs text-muted mt-1">Explora la tienda y agrega productos.</p>
                 <a href="{{ route('client.tienda.index') }}" class="ui-btn px-8 py-3 mt-5 inline-block text-[11px] tracking-widest">Ir a la tienda</a>
             </div>
         @else
-            <div class="ui-card-premium divide-y divide-white/5">
+            <div class="ui-card-premium divide-y divide-ink/5">
                 @foreach($items as $item)
                     <div class="p-4 flex items-center gap-4">
-                        <div class="h-16 w-16 rounded-xl bg-[#0f0f0f] overflow-hidden shrink-0 flex items-center justify-center">
+                        <div class="h-16 w-16 rounded-xl bg-card overflow-hidden shrink-0 flex items-center justify-center">
                             @if($item['imagen'])
                                 <img src="{{ \Illuminate\Support\Facades\Storage::url($item['imagen']) }}" alt="" class="h-full w-full object-cover">
                             @else
-                                <svg class="h-7 w-7 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7"/></svg>
+                                <svg class="h-7 w-7 text-ink/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7"/></svg>
                             @endif
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h3 class="text-sm font-black text-white line-clamp-1">{{ $item['nombre'] }}</h3>
+                            <h3 class="text-sm font-black text-ink line-clamp-1">{{ $item['nombre'] }}</h3>
                             <p class="text-xs text-gold font-bold mt-0.5">${{ number_format($item['precio'], 2) }} c/u</p>
                         </div>
                         <form method="POST" action="{{ route('client.carrito.update') }}" class="flex items-center gap-2 shrink-0">
@@ -42,7 +42,7 @@
                                    class="ui-input w-16 text-center px-2 py-1.5" onchange="this.form.submit()">
                         </form>
                         <div class="w-20 text-right shrink-0">
-                            <p class="text-sm font-black text-white">${{ number_format($item['precio'] * $item['cantidad'], 2) }}</p>
+                            <p class="text-sm font-black text-ink">${{ number_format($item['precio'] * $item['cantidad'], 2) }}</p>
                         </div>
                         <form method="POST" action="{{ route('client.carrito.remove', $item['product_id']) }}" class="shrink-0">
                             @csrf @method('DELETE')

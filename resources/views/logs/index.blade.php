@@ -15,9 +15,9 @@
             'badge' => 'border-red-500/25 bg-red-500/10 text-red-400'],
     ];
     $defaultEventConfig = ['icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
-        'ring' => 'hover:border-white/25 hover:bg-white/[0.02]',
-        'iconBg' => 'bg-white/10 text-white/40',
-        'badge' => 'border-white/25 bg-white/10 text-white/50'];
+        'ring' => 'hover:border-ink/25 hover:bg-ink/[0.02]',
+        'iconBg' => 'bg-ink/10 text-ink/40',
+        'badge' => 'border-ink/25 bg-ink/10 text-ink/50'];
 @endphp
 
 <x-app-layout>
@@ -34,9 +34,9 @@
 
         {{-- ── STATS ──────────────────────────────────── --}}
         <section class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
-            <div class="rounded-2xl border border-white/8 bg-[#111] p-4">
+            <div class="rounded-2xl border border-ink/8 bg-card p-4">
                 <p class="text-[10px] font-black uppercase tracking-wider text-muted mb-1">Total</p>
-                <p class="text-2xl font-black text-white">{{ $stats['total'] }}</p>
+                <p class="text-2xl font-black text-ink">{{ $stats['total'] }}</p>
             </div>
             <div class="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-4">
                 <p class="text-[10px] font-black uppercase tracking-wider text-blue-400/70 mb-1">Hoy</p>
@@ -58,10 +58,10 @@
 
         {{-- ── FILTROS ─────────────────────────────────── --}}
         <section x-data="{ open: {{ count($activeFilters) > 0 ? 'true' : 'false' }} }" class="ui-card-premium overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-white/6" @click="open = !open">
+            <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-ink/6" @click="open = !open">
                 <div class="flex items-center gap-3">
                     <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                    <span class="text-sm font-black text-white uppercase tracking-widest">Filtros</span>
+                    <span class="text-sm font-black text-ink uppercase tracking-widest">Filtros</span>
                     @if(count($activeFilters) > 0)
                         <span class="flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[9px] font-black text-black">{{ count($activeFilters) }}</span>
                     @endif
@@ -110,7 +110,7 @@
                     <div class="mt-5 flex items-center gap-3">
                         <button type="submit" class="ui-btn py-2.5 px-6 text-[11px] tracking-widest">Aplicar Filtros</button>
                         @if(count($activeFilters) > 0)
-                            <a href="{{ route('logs.index') }}" class="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition-all">
+                            <a href="{{ route('logs.index') }}" class="flex items-center gap-1.5 rounded-xl border border-ink/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-ink transition-all">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                 Limpiar
                             </a>
@@ -131,7 +131,7 @@
                     @php
                         $ec = ($eventConfig[$log->event ?? ''] ?? $defaultEventConfig) + ['label' => $log->event ?? 'Sistema'];
                     @endphp
-                    <div class="group flex items-start gap-4 rounded-2xl border border-white/6 bg-[#111] p-4 {{ $ec['ring'] }} transition-all duration-300">
+                    <div class="group flex items-start gap-4 rounded-2xl border border-ink/6 bg-card p-4 {{ $ec['ring'] }} transition-all duration-300">
                         {{-- Icono de tipo evento --}}
                         <div class="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform {{ $ec['iconBg'] }}">
                             <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -142,9 +142,9 @@
                         {{-- Contenido --}}
                         <div class="flex-1 min-w-0">
                             <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                                <h3 class="text-sm font-black text-white">{{ $log->description ?: 'Operación del Sistema' }}</h3>
+                                <h3 class="text-sm font-black text-ink">{{ $log->description ?: 'Operación del Sistema' }}</h3>
                                 @if($log->log_name)
-                                    <span class="text-[9px] font-black border border-white/10 bg-white/5 rounded-full px-2 py-0.5 uppercase tracking-wider text-muted">
+                                    <span class="text-[9px] font-black border border-ink/10 bg-ink/5 rounded-full px-2 py-0.5 uppercase tracking-wider text-muted">
                                         {{ $log->log_name }}
                                     </span>
                                 @endif
@@ -168,13 +168,13 @@
 
                         {{-- Fecha --}}
                         <div class="text-right shrink-0">
-                            <p class="text-xs font-black text-white">{{ $log->created_at?->format('H:i:s') }}</p>
+                            <p class="text-xs font-black text-ink">{{ $log->created_at?->format('H:i:s') }}</p>
                             <p class="text-[10px] text-muted uppercase tracking-wider mt-0.5">{{ $log->created_at?->translatedFormat('d M, Y') }}</p>
                         </div>
                     </div>
                 @empty
-                    <div class="rounded-2xl border border-dashed border-white/10 py-20 text-center">
-                        <svg class="h-12 w-12 text-white/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <div class="rounded-2xl border border-dashed border-ink/10 py-20 text-center">
+                        <svg class="h-12 w-12 text-ink/5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                         <p class="text-sm font-bold text-muted uppercase tracking-widest">Sin registros de actividad</p>
                     </div>
                 @endforelse

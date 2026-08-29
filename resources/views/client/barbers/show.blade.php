@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-center gap-4">
             <a href="{{ route('client.barberos.index') }}"
-               class="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-muted hover:border-gold/30 hover:text-gold transition-all">
+               class="h-9 w-9 rounded-xl border border-ink/10 bg-ink/5 flex items-center justify-center text-muted hover:border-gold/30 hover:text-gold transition-all">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
@@ -28,7 +28,7 @@
         {{-- ═══════════════════════════════════════════
              HERO — Banner + Perfil
         ════════════════════════════════════════════ --}}
-        <div class="rounded-3xl border border-white/10 overflow-hidden" style="background:#0d0d0d;">
+        <div class="rounded-3xl border border-ink/10 overflow-hidden" style="background:#0d0d0d;">
 
             {{-- Banner foto --}}
             <div class="relative overflow-hidden" style="height:220px; background:#000;">
@@ -46,8 +46,8 @@
 
                 {{-- Badge disponibilidad (esquina superior derecha) --}}
                 <div class="absolute top-4 right-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-widest backdrop-blur-sm border
-                    {{ $disponibleHoy ? 'border-green-500/30 bg-green-950/50 text-green-400' : 'border-white/10 bg-black/50 text-white/40' }}">
-                    <span class="h-1.5 w-1.5 rounded-full {{ $disponibleHoy ? 'bg-green-400 animate-pulse' : 'bg-white/20' }}"></span>
+                    {{ $disponibleHoy ? 'border-green-500/30 bg-green-950/50 text-green-400' : 'border-ink/10 bg-black/50 text-ink/40' }}">
+                    <span class="h-1.5 w-1.5 rounded-full {{ $disponibleHoy ? 'bg-green-400 animate-pulse' : 'bg-ink/20' }}"></span>
                     {{ $disponibleHoy ? 'Disponible hoy' : 'No disponible hoy' }}
                 </div>
             </div>
@@ -168,7 +168,7 @@
                         $img = $work->images->first();
                         $imgUrl = $img ? (str_starts_with($img->image, 'http') ? $img->image : Storage::url($img->image)) : null;
                     @endphp
-                    <div class="group relative rounded-2xl overflow-hidden border border-white/5 aspect-square" style="background:#111;">
+                    <div class="group relative rounded-2xl overflow-hidden border border-ink/5 aspect-square" style="background:#111;">
                         @if($imgUrl)
                             <img src="{{ $imgUrl }}" alt="{{ $work->title }}"
                                  style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s;">
@@ -218,7 +218,7 @@
 
                     {{-- Resumen de ratings --}}
                     @if($totalReviews > 0)
-                    <div class="rounded-2xl border border-white/8 p-5" style="background:#0d0d0d;">
+                    <div class="rounded-2xl border border-ink/8 p-5" style="background:#0d0d0d;">
                         <div class="flex items-center gap-4 mb-4">
                             <div>
                                 <p style="font-size:3rem;font-weight:900;color:#d4af37;line-height:1;">{{ $avgRating }}</p>
@@ -313,7 +313,7 @@
                     </div>
 
                     @else
-                    <div class="rounded-2xl border border-white/6 p-5" style="background:#0d0d0d;">
+                    <div class="rounded-2xl border border-ink/6 p-5" style="background:#0d0d0d;">
                         <svg style="width:20px;height:20px;fill:rgba(212,175,55,0.3);margin-bottom:8px;" viewBox="0 0 24 24">
                             <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
                         </svg>
@@ -331,7 +331,7 @@
                 {{-- Columna derecha: lista de reseñas --}}
                 <div class="lg:col-span-2">
                     @if($reviews->isEmpty())
-                        <div class="flex flex-col items-center justify-center py-16 rounded-2xl border border-dashed border-white/6">
+                        <div class="flex flex-col items-center justify-center py-16 rounded-2xl border border-dashed border-ink/6">
                             <svg style="width:32px;height:32px;fill:rgba(212,175,55,0.15);margin-bottom:12px;" viewBox="0 0 24 24">
                                 <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
                             </svg>
@@ -347,7 +347,7 @@
                                     $timeAgo = $review->created_at?->diffForHumans() ?? '';
                                 @endphp
 
-                                <div class="rounded-2xl border border-white/6 p-4 sm:p-5" style="background:#0d0d0d;">
+                                <div class="rounded-2xl border border-ink/6 p-4 sm:p-5" style="background:#0d0d0d;">
                                     <div class="flex items-start gap-3">
                                         {{-- Avatar del reviewer --}}
                                         <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,rgba(212,175,55,0.15) 0%,rgba(212,175,55,0.04) 100%);border:1px solid rgba(212,175,55,0.15);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;color:#d4af37;flex-shrink:0;">
