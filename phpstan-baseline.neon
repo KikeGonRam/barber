@@ -2083,48 +2083,6 @@ parameters:
 			path: app/Services/Report/ReportService.php
 
 		-
-			message: '#^Call to static method delete\(\) on an unknown class Route\.$#'
-			identifier: class.notFound
-			count: 3
-			path: routes/web.php
-
-		-
-			message: '#^Call to static method get\(\) on an unknown class Route\.$#'
-			identifier: class.notFound
-			count: 46
-			path: routes/web.php
-
-		-
-			message: '#^Call to static method middleware\(\) on an unknown class Route\.$#'
-			identifier: class.notFound
-			count: 19
-			path: routes/web.php
-
-		-
-			message: '#^Call to static method patch\(\) on an unknown class Route\.$#'
-			identifier: class.notFound
-			count: 9
-			path: routes/web.php
-
-		-
-			message: '#^Call to static method post\(\) on an unknown class Route\.$#'
-			identifier: class.notFound
-			count: 19
-			path: routes/web.php
-
-		-
-			message: '#^Call to static method put\(\) on an unknown class Route\.$#'
-			identifier: class.notFound
-			count: 3
-			path: routes/web.php
-
-		-
-			message: '#^Call to static method resource\(\) on an unknown class Route\.$#'
-			identifier: class.notFound
-			count: 9
-			path: routes/web.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
