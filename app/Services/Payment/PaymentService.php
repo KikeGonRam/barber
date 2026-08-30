@@ -11,6 +11,7 @@ use App\Notifications\TransferReceiptNotification;
 use App\Repositories\Contracts\PaymentRepositoryInterface;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentStatusService;
+use App\Services\Loyalty\LoyaltyService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,7 @@ class PaymentService
     public function __construct(
         private readonly PaymentRepositoryInterface $payments,
         private readonly AppointmentNotifier $notifier,
+        private readonly LoyaltyService $loyalty,
     ) {}
 
     /**
@@ -187,12 +189,31 @@ class PaymentService
      */
     private function completeCharge(Payment $payment, Appointment $appointment, float $monto): Payment
     {
+        // 'completada' ya es un estado cobrable (CHARGEABLE incluye
+        // 'completada' para permitir cobrar una cita que el barbero ya
+        // marco como terminada) — hay que capturar el estado ANTES de
+        // actualizarlo para no otorgar puntos de lealtad dos veces si la
+        // cita ya habia sido completada por otra via (agenda del barbero o
+        // el dropdown de estado de recepcion/admin).
+        $wasCompletada = $appointment->estado === 'completada';
+
         // Efecto secundario: transiciona la cita a "completada" (fin del
         // flujo de estados) y fija el precio realmente cobrado.
         $appointment->update([
             'estado' => 'completada',
             'precio_cobrado' => $monto,
         ]);
+
+        // Otorga puntos de lealtad la primera vez que la cita se completa.
+        // Antes solo pasaba si se completaba desde el dropdown de estado o
+        // la agenda del barbero; el flujo de cobro (el mas comun en la
+        // practica) nunca lo disparaba.
+        if (! $wasCompletada) {
+            $client = $appointment->client;
+            if ($client) {
+                $this->loyalty->awardCitaPoints($client, (string) $appointment->id);
+            }
+        }
 
         // Genera el PDF del recibo/factura con DomPDF a partir de una vista Blade.
         $pdf = Pdf::loadView('payments.receipt', [
