@@ -1,43 +1,39 @@
 # UrbanBlade
 
-Dashboard administrativo y sistema operativo para barbería, construido con Laravel, MongoDB, Docker, Redis y Chart.js. Incluye paneles por rol, gestión de citas, pagos, clientes, inventario, reportes, portafolio de barberos, tienda para clientes y centro de análisis con hallazgos exportados desde Spark.
+UrbanBlade es un dashboard administrativo y sistema operativo para barberías, construido con Laravel, MongoDB, Redis, Docker y Vite. El proyecto cubre roles de administrador, recepcionista, barbero y cliente, con gestión operativa, reportes, analítica, pagos, citas, clientes, inventario y experiencia del cliente.
+
+## Stack
+
+- PHP 8.2+
+- Laravel 12
+- MongoDB con mongodb/laravel-mongodb
+- Redis para caché, sesiones y cola
+- Vite, Tailwind CSS 3, Alpine.js, Chart.js, FullCalendar
+- Docker Compose para entorno local
 
 ## Requisitos
 
 - Docker Desktop
 - Git
 - Node.js 20+ y npm
-- Acceso a MongoDB Atlas o a una instancia MongoDB compatible
-- Opcional: Ollama local si se usará el chatbot con IA local
+- Acceso a MongoDB Atlas o una instancia MongoDB compatible
+- Opcional: Ollama local para chatbot con IA
 
-## Clonar y levantar en Docker
+## Estado del repositorio
+
+- Rama actual: main
+- El proyecto usa una base MongoDB compartida con Spark para datos operativos
+- Las pruebas de integración NO se ejecutan contra Atlas; usan la base local de pruebas configurada en .env.testing
+
+## Arranque rápido
 
 ```powershell
 git clone https://github.com/KikeGonRam/barber.git
 cd barber
-git checkout feature/mongodb-migration
 Copy-Item .env.example .env
 ```
 
-Edita `.env` antes de levantar contenedores:
-
-```env
-APP_NAME=UrbanBlade
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-DB_CONNECTION=mongodb
-MONGODB_URI=mongodb+srv://USUARIO:PASSWORD@CLUSTER.mongodb.net/
-MONGO_DATABASE=barber_db
-
-REDIS_HOST=redis
-CACHE_STORE=redis
-QUEUE_CONNECTION=redis
-SESSION_DRIVER=database
-```
-
-Levanta el proyecto:
+Edita el archivo .env con los valores locales de tu entorno y luego levanta el proyecto:
 
 ```powershell
 docker compose up -d --build
@@ -46,13 +42,60 @@ npm run build
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan storage:link
 docker compose exec app php artisan migrate --seed
-docker compose exec app php artisan optimize:clear
 ```
 
-Abre:
+Abre la aplicación en:
 
-- Aplicación: http://localhost:8000
+- http://localhost:8000
 - Mailpit: http://localhost:8025
+
+## Demo y acceso
+
+El proyecto ya viene sembrado con usuarios demo listos para usar. Revisa la documentación de accesos en [docs/ACCESOS.md](docs/ACCESOS.md) y la guía de presentación en [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md).
+
+### Vista previa visual
+
+![Landing de UrbanBlade](docs/assets/landing.png)
+
+![Login de UrbanBlade](docs/assets/login.png)
+
+![Dashboard administrativo](docs/assets/dashboard-admin.png)
+
+Ruta de login:
+
+- http://localhost:8000/login
+
+### Credenciales demo
+
+| Rol           | Correo                              | Contraseña      |
+| ------------- | ----------------------------------- | --------------- |
+| Administrador | kikermairez160418@gmail.com         | UrbanBlade2026! |
+| Recepción     | manuela.andres78@gmail.com          | UrbanBlade2026! |
+| Barbero       | omar.tamayo.juan.b1@outlook.com     | UrbanBlade2026! |
+| Cliente       | jordi.curiel.medina.c1@yahoo.com.mx | UrbanBlade2026! |
+
+## Roles principales
+
+| Rol           | Funciones principales                                                                                |
+| ------------- | ---------------------------------------------------------------------------------------------------- |
+| Administrador | Dashboard global, analítica, reportes, clientes, pagos, inventario, configuración y gestión general. |
+| Recepcionista | Agenda, citas del turno, clientes, cobros, pedidos y flujo operativo.                                |
+| Barbero       | Mi agenda, estado de citas, perfil, horario, portafolio y analítica personal.                        |
+| Cliente       | Reserva citas, historial, tienda, carrito, facturas y membresía.                                     |
+
+## Centro de análisis
+
+La vista /analitica presenta insights generados por el proyecto Spark, adaptados al rol del usuario. Los datos se leen desde la colección analytics_insights y se muestran con formato claro para decisiones operativas.
+
+## Tests y validación
+
+Importante: no ejecutes pruebas con php artisan test directo en este proyecto. La configuración real del repositorio usa la base de pruebas local y la forma recomendada es:
+
+```powershell
+./test.ps1
+```
+
+Esto evita que Laravel use la base Atlas compartida por error.
 
 ## Comandos útiles
 
@@ -60,7 +103,6 @@ Abre:
 docker compose ps
 docker compose logs -f app
 docker compose logs -f web
-docker compose exec app php artisan test
 docker compose exec app php artisan validate:user-roles
 docker compose exec app composer audit
 docker compose exec app ./vendor/bin/pint --test
@@ -76,30 +118,9 @@ make logs
 make shell
 ```
 
-## Roles principales
+## Configuración extra
 
-| Rol | Funciones principales |
-| --- | --- |
-| Administrador | Dashboard completo, analítica, reportes, usuarios, barberos, servicios, inventario, pagos, clientes, logs y configuración. |
-| Recepcionista | Citas, calendario, clientes, pagos, pedidos, movimientos de inventario y analítica operativa recortada. |
-| Barbero | Agenda propia, estado de citas, perfil, horario, portafolio y analítica personal. |
-| Cliente | Reserva de citas, tienda, carrito, pedidos, facturas, membresía, barberos disponibles y recomendaciones. |
-
-## Centro de análisis
-
-La ruta `/analitica` muestra los resultados calculados por Spark en lenguaje claro para usuarios finales. Los datos se leen desde la colección `analytics_insights` y se filtran por rol desde Laravel:
-
-- resumen ejecutivo;
-- operación y equipo;
-- clientes y ventas;
-- predicción y cancelaciones;
-- diagnóstico de datos.
-
-Laravel no recalcula esos hallazgos: solo los presenta, filtra y visualiza. La lógica de análisis viene del proyecto Spark.
-
-## Chatbot con Ollama
-
-Si vas a usar Ollama desde Docker, ejecuta Ollama en el host y configura:
+### Chatbot con Ollama
 
 ```env
 CHATBOT_AI_PROVIDER=ollama
@@ -107,12 +128,10 @@ OLLAMA_URL=http://host.docker.internal:11434
 OLLAMA_MODEL=qwen2.5:3b
 ```
 
-## Validación antes de entregar
-
-Antes de hacer commit o entregar una demo, ejecuta:
+### Validación antes de entregar
 
 ```powershell
-docker compose exec app php artisan test
+./test.ps1
 docker compose exec app php artisan validate:user-roles
 docker compose exec app php artisan view:cache
 docker compose exec app composer audit
@@ -122,3 +141,10 @@ npm run build
 ```
 
 Si todo queda en verde, el proyecto está listo para demo local.
+
+## Documentación relevante
+
+- [docs/ACCESOS.md](docs/ACCESOS.md)
+- [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md)
+- [docs/DOCUMENTACION_TECNICA.md](docs/DOCUMENTACION_TECNICA.md)
+- [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md)
