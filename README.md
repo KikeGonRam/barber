@@ -1,31 +1,49 @@
 # UrbanBlade
 
-UrbanBlade es un dashboard administrativo y sistema operativo para barberías, construido con Laravel, MongoDB, Redis, Docker y Vite. El proyecto cubre roles de administrador, recepcionista, barbero y cliente, con gestión operativa, reportes, analítica, pagos, citas, clientes, inventario y experiencia del cliente.
+<p align="center">
+  <img src="docs/assets/landing.png" alt="UrbanBlade landing" width="1000" />
+</p>
 
-## Stack
+UrbanBlade es una plataforma operativa y analítica para barberías, pensada para centralizar administración, atención al cliente, agenda, pagos, inventario y decisiones basadas en datos. El sistema combina un dashboard premium para el negocio con experiencias diferenciadas para administrador, recepcionista, barbero y cliente.
+
+## ✨ ¿Qué hace UrbanBlade?
+
+- Gestiona citas, clientes, pagos e inventario desde un mismo panel.
+- Separa flujos por rol para cada perfil del negocio.
+- Ofrece analítica accionable con insights operativos y de negocio.
+- Alinea la experiencia del cliente con reservas, historial, tienda y membresía.
+- Está preparado para demo local, validación y presentación comercial.
+
+## 🏗️ Stack
 
 - PHP 8.2+
 - Laravel 12
 - MongoDB con mongodb/laravel-mongodb
 - Redis para caché, sesiones y cola
-- Vite, Tailwind CSS 3, Alpine.js, Chart.js, FullCalendar
+- Vite + Tailwind CSS 3 + Alpine.js
+- Chart.js, FullCalendar y componentes de dashboard premium
 - Docker Compose para entorno local
 
-## Requisitos
+## 🧭 Roles del sistema
 
-- Docker Desktop
-- Git
-- Node.js 20+ y npm
-- Acceso a MongoDB Atlas o una instancia MongoDB compatible
-- Opcional: Ollama local para chatbot con IA
+| Rol | Visión principal |
+| --- | --- |
+| Administrador | Dashboard global, reportes, KPIs, clientes, pagos, inventario y control operativo. |
+| Recepcionista | Agenda del día, atención rápida, cobros y gestión de clientes. |
+| Barbero | Horario personal, citas, perfil, portafolio y seguimiento de actividad. |
+| Cliente | Reservas, historial, tienda, facturas y membresía. |
 
-## Estado del repositorio
+## 📸 Vista previa
 
-- Rama actual: main
-- El proyecto usa una base MongoDB compartida con Spark para datos operativos
-- Las pruebas de integración NO se ejecutan contra Atlas; usan la base local de pruebas configurada en .env.testing
+<p align="center">
+  <img src="docs/assets/login.png" alt="Login UrbanBlade" width="900" />
+</p>
 
-## Arranque rápido
+<p align="center">
+  <img src="docs/assets/dashboard-admin.png" alt="Dashboard UrbanBlade" width="1000" />
+</p>
+
+## 🚀 Arranque rápido
 
 ```powershell
 git clone https://github.com/KikeGonRam/barber.git
@@ -33,7 +51,7 @@ cd barber
 Copy-Item .env.example .env
 ```
 
-Edita el archivo .env con los valores locales de tu entorno y luego levanta el proyecto:
+Edita el archivo `.env` con los valores locales de tu entorno y luego levanta el proyecto:
 
 ```powershell
 docker compose up -d --build
@@ -49,17 +67,9 @@ Abre la aplicación en:
 - http://localhost:8000
 - Mailpit: http://localhost:8025
 
-## Demo y acceso
+## 🔐 Demo y acceso
 
 El proyecto ya viene sembrado con usuarios demo listos para usar. Revisa la documentación de accesos en [docs/ACCESOS.md](docs/ACCESOS.md) y la guía de presentación en [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md).
-
-### Vista previa visual
-
-![Landing de UrbanBlade](docs/assets/landing.png)
-
-![Login de UrbanBlade](docs/assets/login.png)
-
-![Dashboard administrativo](docs/assets/dashboard-admin.png)
 
 Ruta de login:
 
@@ -67,37 +77,24 @@ Ruta de login:
 
 ### Credenciales demo
 
-| Rol           | Correo                              | Contraseña      |
-| ------------- | ----------------------------------- | --------------- |
-| Administrador | kikermairez160418@gmail.com         | UrbanBlade2026! |
-| Recepción     | manuela.andres78@gmail.com          | UrbanBlade2026! |
-| Barbero       | omar.tamayo.juan.b1@outlook.com     | UrbanBlade2026! |
-| Cliente       | jordi.curiel.medina.c1@yahoo.com.mx | UrbanBlade2026! |
+| Rol | Correo | Contraseña |
+| --- | --- | --- |
+| Administrador | kikermairez160418@gmail.com | UrbanBlade2026! |
+| Recepción | manuela.andres78@gmail.com | UrbanBlade2026! |
+| Barbero | omar.tamayo.juan.b1@outlook.com | UrbanBlade2026! |
+| Cliente | jordi.curiel.medina.c1@yahoo.com.mx | UrbanBlade2026! |
 
-## Roles principales
+## 🧪 Validación y pruebas
 
-| Rol           | Funciones principales                                                                                |
-| ------------- | ---------------------------------------------------------------------------------------------------- |
-| Administrador | Dashboard global, analítica, reportes, clientes, pagos, inventario, configuración y gestión general. |
-| Recepcionista | Agenda, citas del turno, clientes, cobros, pedidos y flujo operativo.                                |
-| Barbero       | Mi agenda, estado de citas, perfil, horario, portafolio y analítica personal.                        |
-| Cliente       | Reserva citas, historial, tienda, carrito, facturas y membresía.                                     |
-
-## Centro de análisis
-
-La vista /analitica presenta insights generados por el proyecto Spark, adaptados al rol del usuario. Los datos se leen desde la colección analytics_insights y se muestran con formato claro para decisiones operativas.
-
-## Tests y validación
-
-Importante: no ejecutes pruebas con php artisan test directo en este proyecto. La configuración real del repositorio usa la base de pruebas local y la forma recomendada es:
+Importante: en este proyecto no se deben ejecutar pruebas con `php artisan test` directo. La configuración real usa la base local de pruebas y la forma recomendada es:
 
 ```powershell
 ./test.ps1
 ```
 
-Esto evita que Laravel use la base Atlas compartida por error.
+Esto evita que Laravel use accidentalmente la base Atlas compartida con Spark.
 
-## Comandos útiles
+## 🛠️ Comandos útiles
 
 ```powershell
 docker compose ps
@@ -118,7 +115,7 @@ make logs
 make shell
 ```
 
-## Configuración extra
+## ⚙️ Configuración extra
 
 ### Chatbot con Ollama
 
@@ -142,9 +139,19 @@ npm run build
 
 Si todo queda en verde, el proyecto está listo para demo local.
 
-## Documentación relevante
+## 📚 Documentación relevante
 
 - [docs/ACCESOS.md](docs/ACCESOS.md)
 - [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md)
 - [docs/DOCUMENTACION_TECNICA.md](docs/DOCUMENTACION_TECNICA.md)
 - [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md)
+
+## 🧩 Estado del repositorio
+
+- Rama actual: `main`
+- El proyecto comparte datos operativos con `spark` mediante MongoDB
+- Las pruebas de integración usan una base local de pruebas configurada en `.env.testing`
+
+---
+
+UrbanBlade está pensado para presentar una barbería como una operación real, moderna y basada en métricas, no como un simple calendario de citas.
