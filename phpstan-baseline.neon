@@ -1,0 +1,2215 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$titulo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/DispatchDueCampaignsCommand.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$premio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/DrawMonthlyRaffle.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/DrawMonthlyRaffle.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:notify\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Console/Commands/DrawMonthlyRaffle.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$servicio_iniciado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/NotifyServiceOverrunCommand.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$ultimo_aviso_barbero_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/NotifyServiceOverrunCommand.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$duracion_min\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/NotifyServiceOverrunCommand.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>duracion_min" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Console/Commands/NotifyServiceOverrunCommand.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Console/Commands/SendAppointmentRemindersCommand.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/SendDailySummaryCommand.php
+
+		-
+			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/SendDailySummaryCommand.php
+
+		-
+			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/SendLowStockAlertCommand.php
+
+		-
+			message: '#^Offset ''unit'' on array\{title\?\: string, labels\?\: array, values\?\: array\}\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Exports/GenericReportExport.php
+
+		-
+			message: '#^Offset ''x_label'' on array\{title\?\: string, labels\?\: array, values\?\: array\}\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Exports/GenericReportExport.php
+
+		-
+			message: '#^Offset ''y_label'' on array\{title\?\: string, labels\?\: array, values\?\: array\}\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Exports/GenericReportExport.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between PhpOffice\\PhpSpreadsheet\\Chart\\Axis and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Exports/GenericReportExport.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between null and ''MXN'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Exports/GenericReportExport.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Analytics/AnalyticsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
+			identifier: larastan.noUnnecessaryCollectionCall
+			count: 2
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Appointment\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,mixed\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Appointment\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$client of method App\\Http\\Controllers\\Api\\Admin\\ClientAdminController\:\:enrichFromBatch\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+
+		-
+			message: '#^Instanceof between string and Carbon\\Carbon will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: app/Http/Controllers/Api/Admin/DashboardAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$sql of static method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/Admin/DashboardAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/InventoryAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\InventoryMovement\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Admin/InventoryAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$sql of static method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/Admin/InventoryAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\),Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Appointment\>\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 2
+			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\InventoryMovement\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+
+		-
+			message: '#^Parameter \#1 \$value of function optional contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Client\>\|Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/AppointmentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/Api/AppointmentController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:issueMobileApiToken\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Api/AuthController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/BarberManagementController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/BarberManagementController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/BarberManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/BarberManagementController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/BarberPortfolioController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/BarberPortfolioController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/BarberScheduleController.php
+
+		-
+			message: '#^Call to function is_numeric\(\) with int will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Http/Controllers/Api/BarberScheduleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$calificacion_promedio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$total_resenas\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$comment\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$rating\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 7
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\BarberReview\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Parameter \#1 \$client of method App\\Services\\Loyalty\\LoyaltyService\:\:awardResenaPoints\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/CatalogController.php
+
+		-
+			message: '#^Call to an undefined method App\\Services\\Chatbot\\ChatbotContextService\:\:getUserLearningStats\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Api/ChatbotManagementController.php
+
+		-
+			message: '#^Call to an undefined method App\\Services\\Chatbot\\ChatbotContextService\:\:trainFromHistory\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Api/ChatbotManagementController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/ClientController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/ClientController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/ClientController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Client\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/ClientController.php
+
+		-
+			message: '#^Property App\\Models\\Client\:\:\$appointments_count is not writable\.$#'
+			identifier: assign.propertyReadOnly
+			count: 1
+			path: app/Http/Controllers/Api/ClientController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/DashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/LogController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/LogController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$event\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/LogController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$log_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/LogController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$subject_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/LogController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$subject_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/LogController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/LogController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/LogController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/LogController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Activity\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/LogController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/NotificationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$data\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/NotificationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/NotificationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$read_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/NotificationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/NotificationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:markAsRead\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Api/NotificationController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/NotificationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fecha\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$descripcion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/ProfileController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$especialidades\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/ProfileController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Http/Controllers/Api/ProfileController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$comment\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/SocialController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/SocialController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/SocialController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/SocialController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/SocialController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/SocialController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Work\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/SocialController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>message" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/StripeWebhookController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
+			message: '#^Offset ''cancelada''\|''completada''\|''confirmada''\|''en_proceso''\|''no_asistio''\|''pendiente'' on array\{pendiente\: ''\#d97706'', confirmada\: ''\#3b82f6'', en_proceso\: ''\#06b6d4'', completada\: ''\#10b981'', cancelada\: ''\#ef4444'', no_asistio\: ''\#6b7280''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Appointment\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Client\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
+			message: '#^Parameter \#1 \$client of method App\\Services\\Loyalty\\LoyaltyService\:\:awardCitaPoints\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 4
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$verification_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Auth/VerifyEmailCodeController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$verification_code_expires_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Auth/VerifyEmailCodeController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Barber/BarberController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 7
+			path: app/Http/Controllers/Barber/BarberDashboardController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:schedules\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: app/Http/Controllers/Barber/BarberDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$programada_para\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$cta_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Campaign/TrackingController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Chatbot/ChatbotController.php
+
+		-
+			message: '#^Call to static method warning\(\) on an unknown class Log\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Http/Controllers/Chatbot/ChatbotController.php
+
+		-
+			message: '#^Property App\\Http\\Controllers\\Chatbot\\ChatbotController\:\:\$fallbackKnowledgeBase is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Http/Controllers/Chatbot/ChatbotController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/CartController.php
+
+		-
+			message: '#^Parameter \#1 \$client of method App\\Services\\Order\\OrderService\:\:place\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Client/CartController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/ClientAppointmentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/Client/ClientAppointmentController.php
+
+		-
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Controllers/Client/ClientAppointmentController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Client\\ClientAppointmentController\:\:currentClient\(\) should return App\\Models\\Client\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/Client/ClientAppointmentController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>politica_cancelacion" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Client/ClientAppointmentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$citas_completadas\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/ClientBarberController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/ClientBarberController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Http/Controllers/Client/ClientBarberController.php
+
+		-
+			message: '#^Parameter \#1 \$client of method App\\Services\\Loyalty\\LoyaltyService\:\:awardResenaPoints\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Client/ClientBarberController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$barber\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/ClientController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fecha\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/ClientController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/ClientController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Support\\HigherOrderCollectionProxy\<string, Illuminate\\Database\\Eloquent\\Model, Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\>\:\:\$payments\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/ClientController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Client/ClientController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Client/ClientController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/ClientInvoiceController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Client/ClientInvoiceController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Client/ClientPaymentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Client/OrderController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Client/OrderController.php
+
+		-
+			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
+			identifier: larastan.noUnnecessaryCollectionCall
+			count: 1
+			path: app/Http/Controllers/Client/StoreController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Dashboard/DashboardController.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: app/Http/Controllers/Dashboard/DashboardController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Connection\:\:getDatabase\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Dashboard/DatabaseBackupController.php
+
+		-
+			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Inventory/ProductController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$read_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Notification/NotificationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:markAsRead\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Notification/NotificationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$client\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Reception/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Reception/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Reception/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/Reception/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Reception/OrderController.php
+
+		-
+			message: '#^Relation ''client'' is not found in App\\Models\\Order model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Reception/OrderController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Reception/OrderController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Social/BarberPortfolioController.php
+
+		-
+			message: '#^Cannot call method isPast\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Middleware/AuthenticateMobileApiToken.php
+
+		-
+			message: '#^Parameter \#1 \$user of method Illuminate\\Contracts\\Auth\\Guard\:\:setUser\(\) expects Illuminate\\Contracts\\Auth\\Authenticatable, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Middleware/AuthenticateMobileApiToken.php
+
+		-
+			message: '#^Call to function method_exists\(\) with App\\Models\\User and ''hasAnyPermission'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Http/Middleware/Role/EnsureUserHasPermission.php
+
+		-
+			message: '#^Call to function method_exists\(\) with App\\Models\\User and ''hasRoleName'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Http/Middleware/Role/EnsureUserHasRole.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$barber\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$client\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$fecha\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$hora_fin\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$hora_inicio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$notas\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$precio_cobrado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$service\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\BarbershopSettingResource\:\:\$direccion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/BarbershopSettingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\BarbershopSettingResource\:\:\$horario_apertura\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/BarbershopSettingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\BarbershopSettingResource\:\:\$horario_cierre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/BarbershopSettingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\BarbershopSettingResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/BarbershopSettingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\BarbershopSettingResource\:\:\$maintenance_mode\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/BarbershopSettingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\BarbershopSettingResource\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/BarbershopSettingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\BarbershopSettingResource\:\:\$politica_cancelacion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/BarbershopSettingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\BarbershopSettingResource\:\:\$telefono\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/BarbershopSettingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ProductResource\:\:\$categoria\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ProductResource\:\:\$descripcion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ProductResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ProductResource\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ProductResource\:\:\$precio_compra\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ProductResource\:\:\$precio_venta\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ProductResource\:\:\$stock_actual\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ProductResource\:\:\$stock_minimo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ProductResource\:\:\$tipo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ProductResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Call to an undefined method App\\Http\\Resources\\ProductResource\:\:isActive\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\UserResource\:\:\$barberProfile\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\UserResource\:\:\$clientProfile\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\UserResource\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\UserResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\UserResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/UserResource.php
+
+		-
+			message: '#^Call to an undefined method App\\Http\\Resources\\UserResource\:\:roleNames\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Resources/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$comprobante_cliente\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Jobs/RunOcrOnComprobante.php
+
+		-
+			message: '#^Call to an undefined method thiagoalessio\\TesseractOCR\\TesseractOCR\:\:lang\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Jobs/RunOcrOnComprobante.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$properties\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/Activity.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$grafica\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/AnalyticsInsight.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$tipo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/AnalyticsInsight.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$valor_destacado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/AnalyticsInsight.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Appointment.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Barber.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Barber.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/Barber.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$destinatarios\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Campaign.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Client.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Client.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/Client.php
+
+		-
+			message: '#^PHPDoc tag @use has invalid type Database\\Factories\\CommentFactory\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Models/Comment.php
+
+		-
+			message: '#^Type Database\\Factories\\CommentFactory in generic type Illuminate\\Database\\Eloquent\\Factories\\HasFactory\<Database\\Factories\\CommentFactory\> in PHPDoc tag @use is not subtype of template type TFactory of Illuminate\\Database\\Eloquent\\Factories\\Factory of trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Models/Comment.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\DatabaseNotification\:\:\$read_at\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Models/DatabaseNotification.php
+
+		-
+			message: '#^Parameter \#1 \$items of class Illuminate\\Notifications\\DatabaseNotificationCollection constructor expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), TModel of Illuminate\\Notifications\\DatabaseNotification\>\|iterable\<\(int\|string\), TModel of Illuminate\\Notifications\\DatabaseNotification\>\|null, array\<Illuminate\\Database\\Eloquent\\Model\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/DatabaseNotification.php
+
+		-
+			message: '#^Return type \(Illuminate\\Notifications\\DatabaseNotificationCollection\) of method App\\Models\\DatabaseNotification\:\:newCollection\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\), static\(Illuminate\\Database\\Eloquent\\Model\)\>\) of method Illuminate\\Database\\Eloquent\\Model\:\:newCollection\(\)$#'
+			identifier: method.childReturnType
+			count: 1
+			path: app/Models/DatabaseNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$monto_total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Payment.php
+
+		-
+			message: '#^Interface Spatie\\Permission\\Contracts\\Permission requires implementing class to extend Spatie\\Permission\\Models\\Permission, but App\\Models\\Permission does not\.$#'
+			identifier: class.missingExtends
+			count: 1
+			path: app/Models/Permission.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: app/Models/Permission.php
+
+		-
+			message: '#^PHPDoc tag @use has invalid type Database\\Factories\\ReactionFactory\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Models/Reaction.php
+
+		-
+			message: '#^Type Database\\Factories\\ReactionFactory in generic type Illuminate\\Database\\Eloquent\\Factories\\HasFactory\<Database\\Factories\\ReactionFactory\> in PHPDoc tag @use is not subtype of template type TFactory of Illuminate\\Database\\Eloquent\\Factories\\Factory of trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Models/Reaction.php
+
+		-
+			message: '#^Interface Spatie\\Permission\\Contracts\\Role requires implementing class to extend Spatie\\Permission\\Models\\Role, but App\\Models\\Role does not\.$#'
+			identifier: class.missingExtends
+			count: 1
+			path: app/Models/Role.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: app/Models/Role.php
+
+		-
+			message: '#^PHPDoc tag @use has invalid type Database\\Factories\\SavedWorkFactory\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Models/SavedWork.php
+
+		-
+			message: '#^Type Database\\Factories\\SavedWorkFactory in generic type Illuminate\\Database\\Eloquent\\Factories\\HasFactory\<Database\\Factories\\SavedWorkFactory\> in PHPDoc tag @use is not subtype of template type TFactory of Illuminate\\Database\\Eloquent\\Factories\\Factory of trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Models/SavedWork.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Service\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Service.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$notification_preferences\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$preferencias_notificacion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$telefono\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^PHPDoc tag @use has invalid type Database\\Factories\\UserFactory\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Type Database\\Factories\\UserFactory in generic type Illuminate\\Database\\Eloquent\\Factories\\HasFactory\<Database\\Factories\\UserFactory\> in PHPDoc tag @use is not subtype of template type TFactory of Illuminate\\Database\\Eloquent\\Factories\\Factory of trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^PHPDoc tag @use has invalid type Database\\Factories\\WorkFactory\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Models/Work.php
+
+		-
+			message: '#^Type Database\\Factories\\WorkFactory in generic type Illuminate\\Database\\Eloquent\\Factories\\HasFactory\<Database\\Factories\\WorkFactory\> in PHPDoc tag @use is not subtype of template type TFactory of Illuminate\\Database\\Eloquent\\Factories\\Factory of trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Models/Work.php
+
+		-
+			message: '#^PHPDoc tag @use has invalid type Database\\Factories\\WorkImageFactory\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Models/WorkImage.php
+
+		-
+			message: '#^Type Database\\Factories\\WorkImageFactory in generic type Illuminate\\Database\\Eloquent\\Factories\\HasFactory\<Database\\Factories\\WorkImageFactory\> in PHPDoc tag @use is not subtype of template type TFactory of Illuminate\\Database\\Eloquent\\Factories\\Factory of trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Models/WorkImage.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$duracion_min\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/AppointmentNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Notifications/AppointmentNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Notifications/AppointmentNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>duracion_min" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/AppointmentNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 3
+			path: app/Notifications/AppointmentNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 4
+			path: app/Notifications/AppointmentNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Notifications/OrderDeliveredNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/OrderDeliveredNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$barber\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/PaymentReceiptNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fecha\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/PaymentReceiptNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/PaymentReceiptNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/PaymentReceiptNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/ReviewRequestNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/ReviewRequestNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/ReviewRequestNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/ReviewRequestNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/ServiceOverrunNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/ServiceOverrunNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/ServiceOverrunNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/ServiceOverrunNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/TransferReceiptNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/TransferReceiptNotification.php
+
+		-
+			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Repositories/Eloquent/ProductRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$barbero_perfil_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Analytics/AnalyticsInsightService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$barbero_user_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Analytics/AnalyticsInsightService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$tipo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Analytics/AnalyticsInsightService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Appointment/AppointmentNotifier.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 12
+			path: app/Services/Appointment/AppointmentNotifier.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 5
+			path: app/Services/Appointment/AppointmentNotifier.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Appointment/AppointmentNotifier.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$end_time\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Appointment/AppointmentService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_working\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Appointment/AppointmentService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$start_time\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Appointment/AppointmentService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$cta_label\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Campaign/CampaignDispatcher.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$cta_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Campaign/CampaignDispatcher.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$cuerpo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Campaign/CampaignDispatcher.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$segmento\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Campaign/CampaignDispatcher.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$titulo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Campaign/CampaignDispatcher.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$puntuacion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Work\:\:\$descripcion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Work\:\:\$titulo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$barber\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Payment\>\:\:recent\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\),Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Appointment\>\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Appointment\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Comment\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Work\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Parameter \#1 \$string of function str_pad expects string, int\<9, 20\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Chatbot/ChatbotIntelligenceService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$properties\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
+			identifier: larastan.noUnnecessaryCollectionCall
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Method App\\Services\\Dashboard\\DashboardService\:\:sumPayments\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Parameter \#1 \$sql of static method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Relation ''client'' is not found in App\\Models\\Order model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 3
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nivel" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>puntos" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Dashboard/DashboardService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:notify\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Loyalty/LoyaltyService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/Loyalty/LoyaltyService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Order/OrderService.php
+
+		-
+			message: '#^Offset ''cantidad'' on array\{product_id\: string, nombre\: string, precio\: float\|int, cantidad\: int\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Order/OrderService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>user_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Order/OrderService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$client\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Parameter \#1 \$client of method App\\Services\\Loyalty\\LoyaltyService\:\:awardCitaPoints\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>precio" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Prediction/PredictionService.php
+
+		-
+			message: '#^Call to static method warning\(\) on an unknown class Log\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Services/Prediction/PredictionService.php
+
+		-
+			message: '#^Offset 1 on array\{non\-empty\-list\<string\>, non\-empty\-list\<''''\|numeric\-string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Prediction/PredictionService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\),Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Appointment\>\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Prediction/PredictionService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Prediction/PredictionService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$client\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$entregado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$metodo_pago\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$barber\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$client\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Appointment\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Order\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Relation ''client'' is not found in App\\Models\\Order model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Call to static method delete\(\) on an unknown class Route\.$#'
+			identifier: class.notFound
+			count: 3
+			path: routes/web.php
+
+		-
+			message: '#^Call to static method get\(\) on an unknown class Route\.$#'
+			identifier: class.notFound
+			count: 46
+			path: routes/web.php
+
+		-
+			message: '#^Call to static method middleware\(\) on an unknown class Route\.$#'
+			identifier: class.notFound
+			count: 19
+			path: routes/web.php
+
+		-
+			message: '#^Call to static method patch\(\) on an unknown class Route\.$#'
+			identifier: class.notFound
+			count: 9
+			path: routes/web.php
+
+		-
+			message: '#^Call to static method post\(\) on an unknown class Route\.$#'
+			identifier: class.notFound
+			count: 19
+			path: routes/web.php
+
+		-
+			message: '#^Call to static method put\(\) on an unknown class Route\.$#'
+			identifier: class.notFound
+			count: 3
+			path: routes/web.php
+
+		-
+			message: '#^Call to static method resource\(\) on an unknown class Route\.$#'
+			identifier: class.notFound
+			count: 9
+			path: routes/web.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/AppointmentServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Appointment\>\:\:\$servicio_iniciado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/AppointmentStatusServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$activo\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/InventoryServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\LoyaltyTransaction\:\:\$client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/LoyaltyServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\LoyaltyTransaction\:\:\$puntos\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/LoyaltyServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\LoyaltyTransaction\:\:\$tipo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/LoyaltyServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/OrderServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/OrderServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/OrderServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$tipo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/OrderServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/OrderServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Order\>\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 3
+			path: tests/Feature/OrderServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$comprobante_cliente\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PaymentServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 5
+			path: tests/Feature/PaymentServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$motivo_rechazo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PaymentServiceIntegrationTest.php

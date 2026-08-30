@@ -26,12 +26,12 @@ UrbanBlade es una plataforma operativa y analítica para barberías, pensada par
 
 ## 🧭 Roles del sistema
 
-| Rol | Visión principal |
-| --- | --- |
+| Rol           | Visión principal                                                                   |
+| ------------- | ---------------------------------------------------------------------------------- |
 | Administrador | Dashboard global, reportes, KPIs, clientes, pagos, inventario y control operativo. |
-| Recepcionista | Agenda del día, atención rápida, cobros y gestión de clientes. |
-| Barbero | Horario personal, citas, perfil, portafolio y seguimiento de actividad. |
-| Cliente | Reservas, historial, tienda, facturas y membresía. |
+| Recepcionista | Agenda del día, atención rápida, cobros y gestión de clientes.                     |
+| Barbero       | Horario personal, citas, perfil, portafolio y seguimiento de actividad.            |
+| Cliente       | Reservas, historial, tienda, facturas y membresía.                                 |
 
 ## 📸 Vista previa
 
@@ -77,12 +77,12 @@ Ruta de login:
 
 ### Credenciales demo
 
-| Rol | Correo | Contraseña |
-| --- | --- | --- |
-| Administrador | kikermairez160418@gmail.com | UrbanBlade2026! |
-| Recepción | manuela.andres78@gmail.com | UrbanBlade2026! |
-| Barbero | omar.tamayo.juan.b1@outlook.com | UrbanBlade2026! |
-| Cliente | jordi.curiel.medina.c1@yahoo.com.mx | UrbanBlade2026! |
+| Rol           | Correo                              | Contraseña      |
+| ------------- | ----------------------------------- | --------------- |
+| Administrador | kikermairez160418@gmail.com         | UrbanBlade2026! |
+| Recepción     | manuela.andres78@gmail.com          | UrbanBlade2026! |
+| Barbero       | omar.tamayo.juan.b1@outlook.com     | UrbanBlade2026! |
+| Cliente       | jordi.curiel.medina.c1@yahoo.com.mx | UrbanBlade2026! |
 
 ## 🧪 Validación y pruebas
 

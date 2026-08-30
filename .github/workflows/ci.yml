@@ -8,16 +8,9 @@ on:
 
 jobs:
   backend:
-    name: Backend (Pint + PHPUnit)
+    name: Backend (Pint + Larastan + PHPUnit + Coverage)
     runs-on: ubuntu-latest
 
-    # Estos valores replican tests/.env.testing pero apuntando a localhost
-    # (el runner de GitHub Actions no vive en la red interna de Docker
-    # Compose), y se pasan como variables de entorno reales en vez de un
-    # archivo .env: aquí no existe el problema de "env_file: .env horneado
-    # en el contenedor" que obliga a usar --env-file en local (ver
-    # test.ps1 / CLAUDE.md), porque el runner arranca limpio, sin ningún
-    # .env con credenciales de Atlas ya presente.
     env:
       APP_NAME: UrbanBlade
       APP_ENV: testing
@@ -48,12 +41,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Mongo va como contenedor manual (no como "services:") porque
-      # necesita arrancar con --replSet y despues un rs.initiate(): las
-      # pruebas de integracion de Payment/Inventory usan DB::transaction(),
-      # que Mongo solo soporta dentro de un replica set (nunca en un
-      # standalone). Mismo esquema que mongo-test/mongo-test-init en
-      # docker-compose.yml.
       - name: Start MongoDB (single-node replica set)
         run: |
           docker run -d --name mongo-ci -p 27017:27017 mongo:7 --replSet rs0 --bind_ip_all
@@ -82,7 +69,7 @@ jobs:
         with:
           php-version: '8.4'
           extensions: mbstring, dom, curl, bcmath, zip, exif, pcntl, gd, intl, mongodb, redis
-          coverage: none
+          coverage: xdebug
 
       - name: Cache Composer packages
         uses: actions/cache@v4
@@ -94,14 +81,27 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      - name: Composer security audit
+        run: composer audit --no-interaction
+
       - name: Laravel Pint (dry-run)
         run: vendor/bin/pint --test
 
-      - name: PHPUnit
-        run: php artisan test
+      - name: Larastan
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G --configuration=phpstan.neon.dist
+
+      - name: PHPUnit with coverage
+        run: php artisan test --coverage-clover=coverage/coverage.xml
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: php-coverage
+          path: coverage/
 
   frontend:
-    name: Frontend (build + audit)
+    name: Frontend (ESLint + build + audit)
     runs-on: ubuntu-latest
 
     steps:
@@ -117,10 +117,108 @@ jobs:
         run: npm ci
 
       - name: ESLint
-        run: npx eslint resources/js
+        run: npx eslint resources/js --max-warnings=0
 
       - name: Build assets
         run: npm run build
 
       - name: npm audit (high/critical)
         run: npm audit --audit-level=high
+
+  security:
+    name: Security scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+
+  smoke:
+    name: Smoke test (HTTP routes)
+    needs: [backend]
+    runs-on: ubuntu-latest
+
+    env:
+      APP_NAME: UrbanBlade
+      APP_ENV: testing
+      APP_KEY: base64:3tmJ2lribjQ+hBlJrPj8euKIWSImIqTBRGAzXPUFz/0=
+      APP_DEBUG: true
+      DB_CONNECTION: mongodb
+      MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+      MONGO_DATABASE: barber_db_test
+      SESSION_DRIVER: array
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+      BCRYPT_ROUNDS: 4
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start MongoDB (single-node replica set)
+        run: |
+          docker run -d --name mongo-smoke -p 27017:27017 mongo:7 --replSet rs0 --bind_ip_all
+          for i in $(seq 1 30); do
+            docker exec mongo-smoke mongosh --quiet --eval "db.adminCommand('ping')" >/dev/null 2>&1 && break
+            sleep 1
+          done
+
+          docker exec mongo-smoke mongosh --quiet --eval "
+            try { rs.status().ok } catch (e) {
+              rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})
+            }
+          "
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, curl, bcmath, zip, exif, pcntl, gd, intl, mongodb, redis
+          coverage: none
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare Laravel app
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan migrate --force --seed
+
+      - name: Start app and verify routes
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8000 >/tmp/urbanblade.log 2>&1 &
+          for i in $(seq 1 40); do
+            curl -fsS http://127.0.0.1:8000/login >/dev/null && break
+            sleep 1
+          done
+
+          curl -fsS http://127.0.0.1:8000/ >/tmp/index.html
+          curl -fsS http://127.0.0.1:8000/login >/tmp/login.html
+          grep -qi "UrbanBlade\|Bienvenido" /tmp/index.html /tmp/login.html
