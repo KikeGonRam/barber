@@ -85,3 +85,22 @@ test`) and `frontend` job (`eslint`, `npm run build`, `npm audit
 --audit-level=high`). Unlike local dev, the runner starts clean with no
 baked-in `.env`, so env vars are set directly in the workflow (no
 `--env-file` dance needed there).
+
+## Guardrails (read before running tests, migrations, seeders, or `docker compose down`)
+
+- **Never run `php artisan test` directly** (with or without `docker exec`) — only
+  `.\test.ps1`. `docker-compose.yml`'s `env_file: .env` bakes real Atlas credentials into
+  the `app` container, which silently defeats `.env.testing`. This already caused a real
+  incident on 2026-08-28 where the full suite ran against the shared Atlas `barber_db`
+  and deleted real data via test `tearDown()`. See the comment block at the top of
+  `test.ps1`.
+- **`make setup`/`make seed`/`make migrate`/`composer run setup`** all run
+  `migrate`/`db:seed` against the `app` container, which is wired to the real `.env`
+  unless verified otherwise — confirm what `.env` points to before running these.
+- **`make clean`** runs `docker compose down --remove-orphans --volumes` — destructive to
+  local volumes, confirm with the user first.
+- **`setup.ps1` defaults to the wrong branch** (`feature/mongodb-migration` instead of
+  `main`) — pass `-Branch main` explicitly.
+- `barber_db` is shared with the sibling `spark/` repo — coordinate schema changes.
+- Full detail and the cross-repo incident writeup: see
+  `.claude/skills/urbanblade-guardrails/SKILL.md` in this repo.

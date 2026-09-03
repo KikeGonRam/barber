@@ -24,7 +24,7 @@
 
 .EXAMPLE
     .\setup.ps1
-    Usa los valores por defecto (rama feature/mongodb-migration).
+    Usa los valores por defecto (rama main).
 
 .EXAMPLE
     .\setup.ps1 -Branch main -TargetDir C:\Proyectos\barber
@@ -32,7 +32,7 @@
 
 param(
     [string]$RepoUrl   = "https://github.com/KikeGonRam/barber.git",
-    [string]$Branch    = "feature/mongodb-migration",
+    [string]$Branch    = "main",
     [string]$TargetDir = "barber"
 )
 
