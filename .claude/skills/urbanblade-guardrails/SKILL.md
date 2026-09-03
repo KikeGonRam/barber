@@ -9,10 +9,12 @@ description: >
   dependencies", "clean up docker"). Also consult before editing `setup.ps1`, `.env*`, or
   anything touching `PaymentService`/`InventoryService` transactions, and BEFORE any
   `git push` — pushing without a clean, passing `.\test.ps1` run first is against the
-  project owner's explicit rule. This repo shares its production-like MongoDB Atlas
-  database with another AI-editable project, and there is a documented real incident of
-  an AI/automation wiping real data this way — treat every write-capable command here as
-  higher-risk than it looks.
+  project owner's explicit rule. Also consult before changing `routes/api.php` or
+  `app/Http/Controllers/Api/**` — the API is now a real external contract for a native
+  Android app being built separately, not just internal code. This repo shares its
+  production-like MongoDB Atlas database with another AI-editable project, and there is a
+  documented real incident of an AI/automation wiping real data this way — treat every
+  write-capable command here as higher-risk than it looks.
 ---
 
 # UrbanBlade `barber` — guardrails
@@ -116,10 +118,32 @@ suggestion.
 
 ## 10. Active scope: this repo only
 
-As of 2026-09-02, active work is scoped to this repo (`barber`) only. `mobil` and
-`spark` already received their own copy of this guardrails skill and are stable, but
-are not being actively developed alongside `barber` right now — don't propose or start
-work in those repos unless the user explicitly asks. The data-sharing risk in rule 6
-above still applies even while `spark` is paused: `barber_db` still exists on Atlas and
-`spark`'s read-only scripts still point at it, so schema changes here can still make
-`spark` stale for whenever the user returns to it.
+As of 2026-09-02, active work is scoped to this repo (`barber`) only. `spark` is
+paused/no longer being worked on — don't propose or start work there unless the user
+explicitly asks. The data-sharing risk in rule 6 above still applies even while `spark`
+is paused: `barber_db` still exists on Atlas and `spark`'s read-only scripts still point
+at it, so schema changes here can still make `spark` stale for whenever the user returns
+to it.
+
+`mobil` (the Expo app) is **fully discontinued** — the user is rebuilding the mobile
+client from scratch as a native Android Studio app. Don't propose or start work in
+`mobil` at all, even small fixes.
+
+## 11. `routes/api.php` is now a real external contract, not internal-only code
+
+Because the future native Android app will consume this same Laravel API, treat
+`routes/api.php` and its controllers (`app/Http/Controllers/Api/**`) as a stable public
+contract from now on, not code that's free to reshape casually:
+- Don't rename, remove, or change the shape of existing API routes/response fields
+  without calling it out explicitly — a silent breaking change here has no compiler or
+  test to catch it from the consuming app's side, since that app doesn't live in this
+  repo.
+- Prefer additive changes (new fields, new endpoints) over changing what already exists.
+  If a breaking change is genuinely needed, say so and consider versioning
+  (`/api/v2/...`) rather than mutating `/api/v1/...` in place.
+- This repo already has `knuckleswtf/scribe` installed (`config/scribe.php`) for API
+  documentation. When adding or changing an API endpoint, keep its Scribe annotations
+  (`@group`, `@bodyParam`, `@response`, etc.) accurate and regenerate the docs
+  (`php artisan scribe:generate`) rather than letting them drift — the whole point of
+  documenting the API now is that an external client (not yet written) will rely on it
+  being correct.

@@ -106,7 +106,12 @@ baked-in `.env`, so env vars are set directly in the workflow (no
   `pint --test` / `eslint`+`npm run build` for PHP/frontend changes). This is a hard
   rule from the project owner (2026-09-02), not a suggestion — if something fails, fix
   it or ask before pushing anyway.
-- Active work is scoped to this repo only for now — `mobil` and `spark` are paused;
-  don't start work there unprompted.
+- Active work is scoped to this repo only for now. `spark` is paused. `mobil` (the Expo
+  app) is fully discontinued — a native Android Studio app is being built separately to
+  replace it; don't propose or start work in either unprompted.
+- `routes/api.php` / `app/Http/Controllers/Api/**` are now a real external contract for
+  that future native app, not internal-only code — prefer additive changes, avoid
+  silently reshaping existing routes/responses, and keep `knuckleswtf/scribe` docs
+  (`php artisan scribe:generate`) in sync when the API changes.
 - Full detail and the cross-repo incident writeup: see
   `.claude/skills/urbanblade-guardrails/SKILL.md` in this repo.
