@@ -7,10 +7,12 @@ description: >
   `docker compose` command with `down`/volumes in this repo — even if the request looks
   routine ("run the tests", "seed the database", "reset my local env", "reinstall
   dependencies", "clean up docker"). Also consult before editing `setup.ps1`, `.env*`, or
-  anything touching `PaymentService`/`InventoryService` transactions. This repo shares its
-  production-like MongoDB Atlas database with another AI-editable project, and there is a
-  documented real incident of an AI/automation wiping real data this way — treat every
-  write-capable command here as higher-risk than it looks.
+  anything touching `PaymentService`/`InventoryService` transactions, and BEFORE any
+  `git push` — pushing without a clean, passing `.\test.ps1` run first is against the
+  project owner's explicit rule. This repo shares its production-like MongoDB Atlas
+  database with another AI-editable project, and there is a documented real incident of
+  an AI/automation wiping real data this way — treat every write-capable command here as
+  higher-risk than it looks.
 ---
 
 # UrbanBlade `barber` — guardrails
@@ -101,3 +103,23 @@ credentials into commits, logs, or shared output.
 itself (`--replSet rs0`), never Atlas, and has no deploy/publish step. It's fine to let
 CI run freely — the risk in this repo is entirely in local/Docker commands that reuse the
 real `.env`, not in CI.
+
+## 9. Never push without a clean, passing test run first
+
+Before running `git push` on this repo, run `.\test.ps1` and confirm the suite passes
+with no errors. If anything fails, fix it (or ask the user how to proceed) before
+pushing — don't push on the assumption that a failure is unrelated or pre-existing.
+Same goes for `pint --test` and `eslint`/`npm run build` if the change touches PHP or
+frontend code, since those are exactly what CI checks on every push. This is a standing
+rule from the project owner, not just good practice — treat it as a hard gate, not a
+suggestion.
+
+## 10. Active scope: this repo only
+
+As of 2026-09-02, active work is scoped to this repo (`barber`) only. `mobil` and
+`spark` already received their own copy of this guardrails skill and are stable, but
+are not being actively developed alongside `barber` right now — don't propose or start
+work in those repos unless the user explicitly asks. The data-sharing risk in rule 6
+above still applies even while `spark` is paused: `barber_db` still exists on Atlas and
+`spark`'s read-only scripts still point at it, so schema changes here can still make
+`spark` stale for whenever the user returns to it.

@@ -102,5 +102,11 @@ baked-in `.env`, so env vars are set directly in the workflow (no
 - **`setup.ps1` defaults to the wrong branch** (`feature/mongodb-migration` instead of
   `main`) — pass `-Branch main` explicitly.
 - `barber_db` is shared with the sibling `spark/` repo — coordinate schema changes.
+- **Never `git push` without a clean, passing `.\test.ps1` run first** (and
+  `pint --test` / `eslint`+`npm run build` for PHP/frontend changes). This is a hard
+  rule from the project owner (2026-09-02), not a suggestion — if something fails, fix
+  it or ask before pushing anyway.
+- Active work is scoped to this repo only for now — `mobil` and `spark` are paused;
+  don't start work there unprompted.
 - Full detail and the cross-repo incident writeup: see
   `.claude/skills/urbanblade-guardrails/SKILL.md` in this repo.
