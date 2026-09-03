@@ -1869,6 +1869,30 @@ parameters:
 			path: app/Services/Payment/PaymentService.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nivel\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nivel" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$puntos\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Parameter \#1 \$client of method App\\Services\\Loyalty\\LoyaltyService\:\:redeemPoints\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Payment/PaymentService.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 1
@@ -2035,4 +2059,10 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$motivo_rechazo\.$#'
 			identifier: property.notFound
 			count: 1
+			path: tests/Feature/PaymentServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$puntos\.$#'
+			identifier: property.notFound
+			count: 2
 			path: tests/Feature/PaymentServiceIntegrationTest.php
