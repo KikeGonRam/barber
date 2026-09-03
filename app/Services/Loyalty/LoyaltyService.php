@@ -109,7 +109,11 @@ class LoyaltyService
             $client->update(['nivel' => $newNivel]);
 
             $this->notifyLevelUp($client, $previousNivel, $newNivel);
-        } elseif ($client->nivel === null) {
+        } elseif ($client->getRawOriginal('nivel') === null) {
+            // El accessor de Client::nivel ya convierte null -> 'nuevo', así que
+            // $client->nivel nunca es null aquí. Hay que mirar el valor crudo del
+            // documento para detectar clientes viejos/incompletos de Mongo que
+            // nunca tuvieron 'nivel' guardado, y así backfillearlo de una vez.
             $client->update(['nivel' => $newNivel]);
         }
 

@@ -1897,12 +1897,6 @@ parameters:
 			path: app/Services/Loyalty/LoyaltyService.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between string and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Services/Loyalty/LoyaltyService.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 1
