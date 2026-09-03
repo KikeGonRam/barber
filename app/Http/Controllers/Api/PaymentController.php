@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\Payment;
+use App\Services\Loyalty\LoyaltyService;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\StripePaymentService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -68,21 +70,46 @@ class PaymentController extends Controller
     /**
      * Crea un PaymentIntent en Stripe (moneda fija MXN) para que el cliente
      * pague desde la app; no registra el pago local, eso ocurre vía webhook o store().
+     *
+     * El monto NO se recibe del cliente: se calcula aqui mismo (precio base
+     * del servicio -> descuento de nivel -> puntos canjeados) para que lo que
+     * Stripe realmente cobra sea siempre el mismo numero que create()/el
+     * webhook usaran despues para registrar el pago — nunca se confia en un
+     * monto que venga del frontend para mover dinero real.
      */
     public function stripeIntent(Request $request): JsonResponse
     {
         $this->authorizeStaff($request);
 
         $validated = $request->validate([
-            'monto' => ['required', 'numeric', 'min:0.01'],
             'appointment_id' => ['required', 'string', 'exists:appointments,id'],
+            'puntos_canjeados' => ['nullable', 'integer', 'min:0'],
         ]);
+
+        $appointment = Appointment::with('client')->findOrFail($validated['appointment_id']);
+        $client = $appointment->client;
+        $baseMonto = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
+        $monto = LoyaltyService::applyDiscount($baseMonto, $client?->nivel ?? 'nuevo');
+
+        $puntosCanjeados = (int) ($validated['puntos_canjeados'] ?? 0);
+        if ($puntosCanjeados > 0) {
+            $maxCanjeable = $client ? LoyaltyService::maxRedeemablePoints($monto, (int) $client->puntos) : 0;
+            if ($puntosCanjeados > $maxCanjeable) {
+                return response()->json([
+                    'message' => "Solo se pueden canjear hasta {$maxCanjeable} puntos en este cobro.",
+                ], 422);
+            }
+            $monto -= $puntosCanjeados;
+        }
 
         try {
             $data = $this->stripeService->createPaymentIntent(
-                (float) $validated['monto'],
+                $monto,
                 'mxn',
-                ['appointment_id' => $validated['appointment_id']]
+                [
+                    'appointment_id' => $validated['appointment_id'],
+                    'puntos_canjeados' => (string) $puntosCanjeados,
+                ]
             );
 
             return response()->json(['data' => $data]);
@@ -100,8 +127,10 @@ class PaymentController extends Controller
     }
 
     /**
-     * Registra un pago manual (efectivo, tarjeta, transferencia, QR o stripe)
-     * asociado a una cita; la lógica de negocio (transacción, estado de cita) vive en PaymentService.
+     * Registra un pago manual (efectivo, tarjeta o transferencia) asociado a
+     * una cita; la lógica de negocio (transacción, estado de cita) vive en
+     * PaymentService. El pago con tarjeta vía Stripe usa stripeIntent() +
+     * este mismo endpoint (con stripe_payment_id) para completarse.
      */
     public function store(Request $request): JsonResponse
     {
@@ -110,9 +139,10 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'appointment_id' => ['required', 'string', 'exists:appointments,id'],
             'monto' => ['required', 'numeric', 'min:0.01'],
-            'metodo_pago' => ['required', 'in:efectivo,tarjeta,transferencia,qr,stripe'],
+            'metodo_pago' => ['required', 'in:efectivo,tarjeta,transferencia'],
             'propina' => ['nullable', 'numeric', 'min:0'],
-            'stripe_payment_id' => ['nullable', 'string'],
+            'puntos_canjeados' => ['nullable', 'integer', 'min:0'],
+            'stripe_payment_id' => ['required_if:metodo_pago,tarjeta', 'nullable', 'string'],
         ]);
 
         $payment = $this->paymentService->create($validated, (string) $request->user()->id);

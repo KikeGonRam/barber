@@ -103,18 +103,21 @@
                             <label class="ui-label mb-4">Método de Pago</label>
                             <input type="hidden" name="metodo_pago" x-model="metodo">
                             <input type="hidden" name="stripe_payment_id" x-model="stripePaymentId">
-                            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                            <div class="grid grid-cols-3 gap-3">
                                 @foreach([
-                                    'efectivo'      => ['icon'=>'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'label'=>'Efectivo'],
-                                    'tarjeta'       => ['icon'=>'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',                    'label'=>'Tarjeta'],
-                                    'transferencia' => ['icon'=>'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',                                                            'label'=>'Transfer'],
-                                    'qr'            => ['icon'=>'M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z', 'label'=>'QR'],
-                                    'stripe'        => ['icon'=>'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z',           'label'=>'Stripe'],
+                                    'efectivo'      => ['icon'=>'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'label'=>'Efectivo', 'beta'=>false],
+                                    'transferencia' => ['icon'=>'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',                                                            'label'=>'Transfer', 'beta'=>false],
+                                    ...(config('services.stripe.key') ? [
+                                    'tarjeta'       => ['icon'=>'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',                    'label'=>'Tarjeta', 'beta'=>true],
+                                    ] : []),
                                 ] as $id => $opt)
                                     <button type="button"
                                             @click="metodo = '{{ $id }}'"
                                             :class="metodo === '{{ $id }}' ? 'border-gold bg-gold/10 text-gold' : 'border-ink/5 bg-ink/5 text-muted'"
-                                            class="flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all hover:border-gold/30">
+                                            class="relative flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all hover:border-gold/30">
+                                        @if($opt['beta'])
+                                            <span class="absolute -top-2 -right-2 rounded-full bg-gold px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest text-black">Beta</span>
+                                        @endif
                                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $opt['icon'] }}" /></svg>
                                         <span class="text-[9px] font-black uppercase tracking-widest">{{ $opt['label'] }}</span>
                                     </button>
@@ -122,21 +125,23 @@
                             </div>
                         </div>
 
-                        {{-- Stripe card element (visible sólo cuando metodo=stripe) --}}
-                        <div x-show="metodo === 'stripe'" x-cloak class="space-y-4 p-6 rounded-2xl border border-gold/20 bg-ink/3">
+                        @if(config('services.stripe.key'))
+                        {{-- Stripe card element (visible sólo cuando metodo=tarjeta, aun en beta) --}}
+                        <div x-show="metodo === 'tarjeta'" x-cloak class="space-y-4 p-6 rounded-2xl border border-gold/20 bg-ink/3">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gold flex items-center gap-2">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                Pago seguro con Stripe
+                                Pago con tarjeta (beta) — procesado por Stripe
                             </p>
                             <div id="stripe-card-element" class="p-4 rounded-xl bg-card border border-ink/10 min-h-[50px]"></div>
                             <div id="stripe-errors" class="text-[10px] font-black text-red-500 uppercase"></div>
                             <button type="button" id="stripe-pay-btn"
                                     class="ui-btn w-full py-3 text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-gold/20">
-                                Pagar con Stripe
+                                Cobrar con tarjeta
                             </button>
                         </div>
+                        @endif
 
-                        <div x-show="metodo !== 'stripe'" class="pt-6">
+                        <div x-show="metodo !== 'tarjeta'" class="pt-6">
                             <button type="submit" class="ui-btn w-full py-4 text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-gold/20">
                                 Confirmar y Cerrar Servicio
                             </button>
@@ -228,7 +233,10 @@
             const res = await fetch('{{ route('api.payments.stripe-intent') }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
-                body: JSON.stringify({ monto: alpineData.monto, appointment_id: appointmentId })
+                // El monto no se manda: el servidor lo calcula el mismo (precio base
+                // -> descuento de nivel -> puntos canjeados) para que Stripe siempre
+                // cobre exactamente lo mismo que luego registrara payments.store().
+                body: JSON.stringify({ appointment_id: appointmentId, puntos_canjeados: parseInt(alpineData.puntosCanjear) || 0 })
             });
             const json = await res.json();
             if (!res.ok) { document.getElementById('stripe-errors').textContent = json.message || 'Error al conectar con Stripe.'; return; }

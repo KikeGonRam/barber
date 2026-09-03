@@ -44,7 +44,7 @@ class PaymentService
      * cobro (cita completada + PDF + notificacion) dentro de una
      * transaccion DB para evitar estados intermedios inconsistentes.
      */
-    public function create(array $payload, string $createdBy): Payment
+    public function create(array $payload, ?string $createdBy): Payment
     {
         $appointment = Appointment::query()->with(['client.user', 'barber.user', 'service'])->findOrFail($payload['appointment_id']);
 
@@ -91,6 +91,7 @@ class PaymentService
                 'created_by' => $createdBy,
                 'estado' => Payment::ESTADO_VERIFICADO,
                 'puntos_canjeados' => $puntosCanjeados,
+                'stripe_payment_id' => $payload['stripe_payment_id'] ?? null,
             ]);
 
             return $this->completeCharge($payment, $appointment, $monto);
@@ -114,7 +115,11 @@ class PaymentService
 
         $path = $file->store('comprobantes-transferencia', 'public');
 
-        $monto = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
+        // Mismo calculo que ClientPaymentController::create() ya le mostro al
+        // cliente antes de que transfiriera, para que el monto registrado
+        // coincida exactamente con lo que se le pidio transferir.
+        $precioBase = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
+        $monto = LoyaltyService::applyDiscount($precioBase, $appointment->client?->nivel ?? 'nuevo');
 
         $payment = $this->payments->create([
             'appointment_id' => (string) $appointment->id,

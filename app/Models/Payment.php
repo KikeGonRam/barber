@@ -38,6 +38,7 @@ class Payment extends Model
         'motivo_rechazo',
         'monto_total',
         'puntos_canjeados',
+        'stripe_payment_id',
     ];
 
     protected function casts(): array

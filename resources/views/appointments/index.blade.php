@@ -504,10 +504,9 @@
                         <select name="metodo_pago" required
                                 class="w-full h-11 rounded-xl border border-ink/10 bg-black/40 px-3 text-sm text-ink focus:border-gold/50 focus:outline-none">
                             <option value="efectivo">Efectivo</option>
-                            <option value="tarjeta">Tarjeta</option>
                             <option value="transferencia">Transferencia</option>
-                            <option value="qr">QR</option>
                         </select>
+                        <p class="mt-1 text-[9px] text-muted italic">¿Cobras con tarjeta? Usa el <a href="{{ route('payments.create') }}" class="underline hover:text-gold">formulario completo</a> (beta).</p>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">Propina (opcional)</label>

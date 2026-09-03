@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\Domain\PaymentException;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
-use App\Models\Payment;
+use App\Services\Payment\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,8 @@ use Stripe\Webhook;
  */
 class StripeWebhookController extends Controller
 {
+    public function __construct(private readonly PaymentService $paymentService) {}
+
     /**
      * Punto de entrada del webhook: valida la firma de Stripe y despacha según el tipo de evento.
      */
@@ -48,8 +51,17 @@ class StripeWebhookController extends Controller
     }
 
     /**
-     * Al confirmarse el pago en Stripe: completa la cita asociada y registra el pago local
-     * (idempotente — evita duplicar el Payment si el webhook se reenvía).
+     * Al confirmarse el pago en Stripe: registra el pago via PaymentService
+     * (mismo camino que el cobro normal de recepcion, asi que tambien marca
+     * la cita completada, otorga puntos de lealtad, genera el PDF y notifica
+     * al cliente).
+     *
+     * Es un respaldo para cuando el navegador se cierra o falla justo
+     * despues de que Stripe confirma el pago pero antes de que el propio
+     * formulario alcance a enviarse — normalmente ese envio del formulario ya
+     * registro el pago, y PaymentService::create() rechaza con
+     * PaymentException por "la cita ya tiene un pago registrado", lo cual
+     * aqui es exactamente lo esperado (evita duplicar el cobro), no un error.
      */
     private function onSucceeded(object $intent): void
     {
@@ -66,25 +78,25 @@ class StripeWebhookController extends Controller
             return;
         }
 
-        // Marcar la cita como completada si aún está pendiente
-        if ($appointment->estado === 'confirmada' || $appointment->estado === 'pendiente') {
-            $appointment->update(['estado' => 'completada']);
-        }
+        $baseMonto = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
+        $puntosCanjeados = (int) ($intent->metadata->puntos_canjeados ?? 0);
 
-        // Registrar el pago si no existe ya con este payment_intent_id
-        $alreadyPaid = Payment::where('stripe_payment_id', $intent->id)->exists();
-
-        if (! $alreadyPaid) {
-            Payment::create([
+        try {
+            $this->paymentService->create([
                 'appointment_id' => $appointmentId,
-                'monto' => $intent->amount / 100,
+                'monto' => $baseMonto,
+                'metodo_pago' => 'tarjeta',
                 'propina' => 0,
-                'metodo_pago' => 'stripe',
+                'puntos_canjeados' => $puntosCanjeados,
                 'stripe_payment_id' => $intent->id,
-                'created_by' => null, // pago automático vía webhook
-            ]);
+            ], null);
 
             Log::info("Stripe webhook: pago {$intent->id} registrado para cita {$appointmentId}");
+        } catch (PaymentException $e) {
+            Log::info("Stripe webhook: pago para cita {$appointmentId} ya estaba registrado, se omite", [
+                'payment_intent_id' => $intent->id,
+                'reason' => $e->getMessage(),
+            ]);
         }
     }
 

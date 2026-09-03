@@ -23,9 +23,12 @@ class StorePaymentRequest extends FormRequest
         return [
             'appointment_id' => ['required', 'string', 'exists:appointments,id'],
             'monto' => ['required', 'numeric', 'min:0.01'],
-            'metodo_pago' => ['required', Rule::in(['efectivo', 'tarjeta', 'transferencia', 'qr'])],
+            'metodo_pago' => ['required', Rule::in(['efectivo', 'tarjeta', 'transferencia'])],
             'propina' => ['nullable', 'numeric', 'min:0'],
             'puntos_canjeados' => ['nullable', 'integer', 'min:0'],
+            // 'tarjeta' ya no es un registro manual: siempre es un cobro real via
+            // Stripe (beta), asi que exige el id del PaymentIntent ya confirmado.
+            'stripe_payment_id' => ['required_if:metodo_pago,tarjeta', 'nullable', 'string'],
         ];
     }
 

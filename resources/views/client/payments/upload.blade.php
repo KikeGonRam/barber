@@ -25,7 +25,20 @@
                     @if($appointment->fecha)
                         <span>{{ $appointment->fecha->translatedFormat('d M, Y') }}</span>
                     @endif
-                    <span class="text-gold">${{ number_format($appointment->service?->precio ?? 0, 2) }}</span>
+                </div>
+                @if($nivelPct > 0)
+                    <div class="mt-3 flex items-center justify-between text-[11px]">
+                        <span class="text-muted">Precio del servicio</span>
+                        <span class="text-muted line-through">${{ number_format($precioBase, 2) }}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-muted">Tu descuento de nivel ({{ $nivelPct }}%)</span>
+                        <span class="text-green-500 font-bold">-${{ number_format($precioBase - $montoATransferir, 2) }}</span>
+                    </div>
+                @endif
+                <div class="mt-2 flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-muted">Monto a transferir</span>
+                    <span class="text-lg font-black text-gold">${{ number_format($montoATransferir, 2) }}</span>
                 </div>
             </div>
 

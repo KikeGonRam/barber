@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Payment;
 use App\Services\Appointment\AppointmentStatusService;
+use App\Services\Loyalty\LoyaltyService;
 use App\Services\Payment\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,11 +46,18 @@ class ClientPaymentController extends Controller
     {
         $this->authorizeAppointment($appointment);
 
-        $appointment->load(['barber.user', 'service']);
+        $appointment->load(['barber.user', 'service', 'client']);
 
         $ultimoRechazo = $appointment->payments()->where('estado', Payment::ESTADO_RECHAZADO)->latest()->first();
 
-        return view('client.payments.upload', compact('appointment', 'ultimoRechazo'));
+        // Mismo calculo que uploadTransferReceipt() usara al registrar el pago,
+        // para que lo que el cliente ve aqui sea exactamente lo que se cobra.
+        $precioBase = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
+        $nivel = $appointment->client?->nivel ?? 'nuevo';
+        $montoATransferir = LoyaltyService::applyDiscount($precioBase, $nivel);
+        $nivelPct = LoyaltyService::discountPct($nivel);
+
+        return view('client.payments.upload', compact('appointment', 'ultimoRechazo', 'precioBase', 'montoATransferir', 'nivelPct'));
     }
 
     // Valida el archivo (tipo MIME real, no extensión) y delega el guardado en PaymentService.
