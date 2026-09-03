@@ -31,7 +31,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts, WithEvents, WithHeadings, WithStyles, WithTitle
 {
     /**
-     * @param  array{title?: string, labels?: array, values?: array}|null  $chart
+     * @param  array{title?: string, labels?: array, values?: array, unit?: string, x_label?: string, y_label?: string}|null  $chart
      */
     public function __construct(
         private readonly Collection $rows,

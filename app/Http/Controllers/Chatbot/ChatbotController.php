@@ -234,7 +234,7 @@ class ChatbotController extends Controller
                         'error' => $e->getMessage(),
                     ]);
 
-                    \Log::warning('Chatbot AI fallback: '.$e->getMessage());
+                    Log::warning('Chatbot AI fallback: '.$e->getMessage());
                 }
             }
         }

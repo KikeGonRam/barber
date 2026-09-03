@@ -73,32 +73,8 @@ parameters:
 			path: app/Console/Commands/SendLowStockAlertCommand.php
 
 		-
-			message: '#^Offset ''unit'' on array\{title\?\: string, labels\?\: array, values\?\: array\}\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Exports/GenericReportExport.php
-
-		-
-			message: '#^Offset ''x_label'' on array\{title\?\: string, labels\?\: array, values\?\: array\}\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Exports/GenericReportExport.php
-
-		-
-			message: '#^Offset ''y_label'' on array\{title\?\: string, labels\?\: array, values\?\: array\}\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Exports/GenericReportExport.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between PhpOffice\\PhpSpreadsheet\\Chart\\Axis and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: app/Exports/GenericReportExport.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between null and ''MXN'' will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
 			count: 1
 			path: app/Exports/GenericReportExport.php
 
@@ -789,12 +765,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Chatbot/ChatbotController.php
-
-		-
-			message: '#^Call to static method warning\(\) on an unknown class Log\.$#'
-			identifier: class.notFound
 			count: 1
 			path: app/Http/Controllers/Chatbot/ChatbotController.php
 
@@ -1989,12 +1959,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Services/Prediction/PredictionService.php
-
-		-
-			message: '#^Call to static method warning\(\) on an unknown class Log\.$#'
-			identifier: class.notFound
 			count: 1
 			path: app/Services/Prediction/PredictionService.php
 

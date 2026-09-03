@@ -7,6 +7,7 @@ use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Genera predicciones de negocio (ingresos, citas, servicios populares,
@@ -307,7 +308,7 @@ Responde brevemente para optimizar el horario.";
                 return $data['response'] ?? 'No se pudo generar la predicción.';
             }
         } catch (\Exception $e) {
-            \Log::warning('Ollama prediction error: '.$e->getMessage());
+            Log::warning('Ollama prediction error: '.$e->getMessage());
         }
 
         return 'Predicción no disponible en este momento.';
