@@ -26,14 +26,7 @@ use MongoDB\BSON\UTCDateTime;
  */
 class DashboardService
 {
-    // Suma monto + propina de una query de Payment sin resolver (trae solo las columnas necesarias).
-    private function sumPayments($query): float
-    {
-        return $query->get(['monto', 'propina'])
-            ->sum(fn ($p) => (float) ($p->monto ?? 0) + (float) ($p->propina ?? 0));
-    }
-
-    // Igual que sumPayments pero sobre una Collection ya cargada (evita volver a golpear la DB).
+    // Suma monto + propina de una Collection ya cargada (evita volver a golpear la DB).
     private function sumPaymentCollection(Collection $payments): float
     {
         return $payments->sum(fn ($p) => (float) ($p->monto ?? 0) + (float) ($p->propina ?? 0));

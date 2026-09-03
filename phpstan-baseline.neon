@@ -805,12 +805,6 @@ parameters:
 			path: app/Http/Controllers/Client/ClientAppointmentController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Client\\ClientAppointmentController\:\:currentClient\(\) should return App\\Models\\Client\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Client/ClientAppointmentController.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>politica_cancelacion" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
@@ -985,9 +979,9 @@ parameters:
 			path: app/Http/Controllers/Reception/OrderController.php
 
 		-
-			message: '#^Relation ''client'' is not found in App\\Models\\Order model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 2
 			path: app/Http/Controllers/Reception/OrderController.php
 
 		-
@@ -1441,6 +1435,12 @@ parameters:
 			path: app/Models/User.php
 
 		-
+			message: '#^Call to function is_array\(\) with string\|null will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Models/User.php
+
+		-
 			message: '#^Type Database\\Factories\\UserFactory in generic type Illuminate\\Database\\Eloquent\\Factories\\HasFactory\<Database\\Factories\\UserFactory\> in PHPDoc tag @use is not subtype of template type TFactory of Illuminate\\Database\\Eloquent\\Factories\\Factory of trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory\.$#'
 			identifier: generics.notSubtype
 			count: 1
@@ -1843,12 +1843,6 @@ parameters:
 			path: app/Services/Dashboard/DashboardService.php
 
 		-
-			message: '#^Method App\\Services\\Dashboard\\DashboardService\:\:sumPayments\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Services/Dashboard/DashboardService.php
-
-		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
@@ -1860,11 +1854,6 @@ parameters:
 			count: 2
 			path: app/Services/Dashboard/DashboardService.php
 
-		-
-			message: '#^Relation ''client'' is not found in App\\Models\\Order model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Services/Dashboard/DashboardService.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
@@ -2019,7 +2008,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 4
 			path: app/Services/Report/ReportService.php
 
 		-
@@ -2031,12 +2020,6 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Order\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
-			count: 1
-			path: app/Services/Report/ReportService.php
-
-		-
-			message: '#^Relation ''client'' is not found in App\\Models\\Order model\.$#'
-			identifier: larastan.relationExistence
 			count: 1
 			path: app/Services/Report/ReportService.php
 

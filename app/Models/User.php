@@ -115,6 +115,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // Perfil de cliente, si este usuario tiene rol de cliente.
+    /** @return HasOne<Client, $this> */
     public function clientProfile(): HasOne
     {
         return $this->hasOne(Client::class);
