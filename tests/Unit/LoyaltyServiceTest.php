@@ -53,4 +53,22 @@ class LoyaltyServiceTest extends TestCase
         $this->assertSame(85.0, LoyaltyService::applyDiscount(100.0, 'leyenda'));
         $this->assertSame(33.25, LoyaltyService::applyDiscount(35.0, 'regular'));
     }
+
+    public function test_max_redeemable_points_is_capped_at_half_the_total(): void
+    {
+        // Total 200, mitad = 100, pero el cliente solo tiene 40 -> el saldo manda.
+        $this->assertSame(40, LoyaltyService::maxRedeemablePoints(200.0, 40));
+
+        // Total 200, mitad = 100, cliente tiene 500 -> el 50% del total manda.
+        $this->assertSame(100, LoyaltyService::maxRedeemablePoints(200.0, 500));
+
+        // Total impar: floor(201 * 0.5) = 100.
+        $this->assertSame(100, LoyaltyService::maxRedeemablePoints(201.0, 999));
+    }
+
+    public function test_max_redeemable_points_is_never_negative(): void
+    {
+        $this->assertSame(0, LoyaltyService::maxRedeemablePoints(0.0, 50));
+        $this->assertSame(0, LoyaltyService::maxRedeemablePoints(100.0, 0));
+    }
 }

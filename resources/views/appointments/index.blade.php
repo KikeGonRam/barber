@@ -249,7 +249,10 @@
                                                         id: @json((string) $appt->id),
                                                         cliente: @json($appt->client?->user?->name ?? "Cliente"),
                                                         servicio: @json($appt->service?->nombre ?? "—"),
-                                                        monto: @json((float) ($appt->precio_cobrado ?? $appt->service?->precio ?? 0))
+                                                        monto: @json((float) ($appt->precio_cobrado ?? $appt->service?->precio ?? 0)),
+                                                        nivelPct: @json(\App\Services\Loyalty\LoyaltyService::discountPct($appt->client?->nivel ?? "nuevo")),
+                                                        nivelLabel: @json(\App\Services\Loyalty\LoyaltyService::LEVEL_LABELS[$appt->client?->nivel ?? "nuevo"]),
+                                                        puntos: @json((int) ($appt->client?->puntos ?? 0))
                                                     }}))'
                                                     class="h-8 w-8 rounded-lg border border-emerald-500/25 bg-emerald-500/5 flex items-center justify-center text-emerald-400/80 hover:text-emerald-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all" title="Cobrar y completar">
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/></svg>
@@ -508,9 +511,23 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">Propina (opcional)</label>
-                        <input type="number" name="propina" step="0.01" min="0" placeholder="0"
+                        <input type="number" name="propina" step="0.01" min="0" placeholder="0" x-model="propina"
                                class="w-full h-11 rounded-xl border border-ink/10 bg-black/40 px-4 text-sm text-ink placeholder-ink/25 focus:border-gold/50 focus:outline-none">
                     </div>
+                </div>
+
+                <div x-show="appt.nivelLabel" x-cloak class="space-y-2 rounded-xl border border-gold/20 bg-ink/5 p-3">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gold">
+                        <span x-text="appt.nivelLabel"></span>
+                        <span x-show="appt.nivelPct > 0" x-text="' · ' + appt.nivelPct + '% desc.'"></span>
+                    </p>
+                    <div>
+                        <label class="block text-[9px] font-black uppercase tracking-widest text-muted mb-1"
+                               x-text="'Canjear puntos (disp. ' + appt.puntos + ', máx. ' + maxPuntosCanjeables + ')'"></label>
+                        <input type="number" name="puntos_canjeados" step="1" min="0" :max="maxPuntosCanjeables" x-model="puntosCanjear"
+                               class="w-full h-10 rounded-lg border border-ink/10 bg-black/40 px-3 text-sm text-ink focus:border-gold/50 focus:outline-none">
+                    </div>
+                    <p class="text-[10px] text-muted">Total con descuentos: <span class="text-ink font-black" x-text="'$' + total.toFixed(2)"></span></p>
                 </div>
 
                 <button type="submit"
@@ -526,11 +543,19 @@
         function cobroModal() {
             return {
                 open: false,
-                appt: { id: null, cliente: '', servicio: '', monto: 0 },
+                appt: { id: null, cliente: '', servicio: '', monto: 0, nivelPct: 0, nivelLabel: '', puntos: 0 },
+                propina: 0,
+                puntosCanjear: 0,
                 show(detail) {
                     this.appt = detail;
+                    this.propina = 0;
+                    this.puntosCanjear = 0;
                     this.open = true;
                 },
+                get montoConNivel() { return (parseFloat(this.appt.monto) || 0) * (1 - (this.appt.nivelPct || 0) / 100) },
+                get maxPuntosCanjeables() { return Math.max(0, Math.min(this.appt.puntos || 0, Math.floor(this.montoConNivel * 0.5))) },
+                get descuentoPuntos() { return Math.min(parseInt(this.puntosCanjear) || 0, this.maxPuntosCanjeables) },
+                get total() { return Math.max(0, this.montoConNivel - this.descuentoPuntos) + (parseFloat(this.propina) || 0) },
             };
         }
 

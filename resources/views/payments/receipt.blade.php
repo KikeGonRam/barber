@@ -198,6 +198,13 @@
                 <div class="clear"></div>
             </div>
             @endif
+            @if($payment->puntos_canjeados > 0)
+            <div class="totals-row">
+                <div class="totals-label">Puntos de lealtad canjeados</div>
+                <div class="totals-value" style="font-size: 10px; color: #666;">{{ $payment->puntos_canjeados }} pts (-${{ number_format((float) $payment->puntos_canjeados, 2) }} ya incluido en el subtotal)</div>
+                <div class="clear"></div>
+            </div>
+            @endif
             <div class="totals-row">
                 <div class="totals-label">Método de Pago</div>
                 <div class="totals-value" style="font-size: 10px; color: #666;">{{ strtoupper($payment->metodo_pago) }}</div>

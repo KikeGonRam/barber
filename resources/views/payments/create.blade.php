@@ -20,7 +20,14 @@
                     propina: {{ old('propina', 0) }},
                     metodo: '{{ old('metodo_pago', 'efectivo') }}',
                     stripePaymentId: '',
-                    get total() { return (parseFloat(this.monto) || 0) + (parseFloat(this.propina) || 0) }
+                    nivelPct: 0,
+                    nivelLabel: '',
+                    puntosDisponibles: 0,
+                    puntosCanjear: {{ old('puntos_canjeados', 0) }},
+                    get montoConNivel() { return (parseFloat(this.monto) || 0) * (1 - this.nivelPct / 100) },
+                    get maxPuntosCanjeables() { return Math.max(0, Math.min(this.puntosDisponibles, Math.floor(this.montoConNivel * 0.5))) },
+                    get descuentoPuntos() { return Math.min(parseInt(this.puntosCanjear) || 0, this.maxPuntosCanjeables) },
+                    get total() { return Math.max(0, this.montoConNivel - this.descuentoPuntos) + (parseFloat(this.propina) || 0) }
                 }"
                 class="grid grid-cols-1 lg:grid-cols-3 gap-8"
             >
@@ -38,8 +45,11 @@
                             <select id="appointment_id" name="appointment_id" class="ui-input !bg-panel border-ink/10 text-ink" required>
                                 <option value="">Selecciona el servicio a cobrar...</option>
                                 @foreach($appointments as $appointment)
-                                    <option value="{{ $appointment->id }}" 
+                                    <option value="{{ $appointment->id }}"
                                             data-monto="{{ $appointment->service?->precio }}"
+                                            data-nivel-pct="{{ \App\Services\Loyalty\LoyaltyService::discountPct($appointment->client?->nivel ?? 'nuevo') }}"
+                                            data-nivel-label="{{ \App\Services\Loyalty\LoyaltyService::LEVEL_LABELS[$appointment->client?->nivel ?? 'nuevo'] }}"
+                                            data-puntos="{{ $appointment->client?->puntos ?? 0 }}"
                                             @selected(old('appointment_id') == $appointment->id)>
                                         {{ \Carbon\Carbon::parse($appointment->fecha)->format('d/m') }} - {{ $appointment->client?->user?->name }} ({{ $appointment->service?->nombre }})
                                     </option>
@@ -68,6 +78,23 @@
                                            class="ui-input !pl-10 !bg-panel border-ink/10 focus:border-gold/50 text-ink">
                                 </div>
                                 @error('propina') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+
+                        <!-- Loyalty: nivel discount info + points redemption -->
+                        <div x-show="nivelLabel" x-cloak class="p-6 rounded-2xl border border-gold/20 bg-ink/3 space-y-4">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gold flex items-center gap-2">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                Cliente <span x-text="nivelLabel"></span>
+                                <span x-show="nivelPct > 0" x-text="'· ' + nivelPct + '% de descuento'"></span>
+                            </p>
+
+                            <div>
+                                <label class="ui-label">Puntos a canjear <span class="text-muted normal-case font-normal" x-text="'(disponibles: ' + puntosDisponibles + ', máximo en este cobro: ' + maxPuntosCanjeables + ')'"></span></label>
+                                <input type="number" step="1" min="0" :max="maxPuntosCanjeables" name="puntos_canjeados" x-model="puntosCanjear"
+                                       class="ui-input !bg-panel border-ink/10 focus:border-gold/50 text-ink">
+                                @error('puntos_canjeados') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
+                                <p class="mt-2 text-[9px] text-muted leading-relaxed italic">1 punto = $1 MXN. Tope: 50% del total ya con el descuento de nivel aplicado, o el saldo del cliente.</p>
                             </div>
                         </div>
 
@@ -127,6 +154,14 @@
                                 <span class="text-muted font-bold uppercase tracking-widest text-[10px]">Subtotal</span>
                                 <span class="text-ink font-black" x-text="'$' + (parseFloat(monto) || 0).toFixed(2)"></span>
                             </div>
+                            <div class="flex justify-between items-center text-sm" x-show="nivelPct > 0" x-cloak>
+                                <span class="text-muted font-bold uppercase tracking-widest text-[10px]" x-text="'Descuento nivel (' + nivelPct + '%)'"></span>
+                                <span class="text-green-500 font-black" x-text="'-$' + ((parseFloat(monto) || 0) - montoConNivel).toFixed(2)"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm" x-show="descuentoPuntos > 0" x-cloak>
+                                <span class="text-muted font-bold uppercase tracking-widest text-[10px]" x-text="'Puntos canjeados (' + descuentoPuntos + ')'"></span>
+                                <span class="text-green-500 font-black" x-text="'-$' + descuentoPuntos.toFixed(2)"></span>
+                            </div>
                             <div class="flex justify-between items-center text-sm">
                                 <span class="text-muted font-bold uppercase tracking-widest text-[10px]">Propina</span>
                                 <span class="text-gold font-black" x-text="'$' + (parseFloat(propina) || 0).toFixed(2)"></span>
@@ -156,11 +191,18 @@
     <script>
         document.getElementById('appointment_id').addEventListener('change', function() {
             const selected = this.options[this.selectedIndex];
+            const alpineData = Alpine.$data(document.getElementById('paymentForm'));
             if (selected.value) {
-                const monto = selected.getAttribute('data-monto');
-                const alpineData = Alpine.$data(document.getElementById('paymentForm'));
-                alpineData.monto = monto;
+                alpineData.monto = selected.getAttribute('data-monto');
+                alpineData.nivelPct = parseFloat(selected.getAttribute('data-nivel-pct')) || 0;
+                alpineData.nivelLabel = selected.getAttribute('data-nivel-label') || '';
+                alpineData.puntosDisponibles = parseInt(selected.getAttribute('data-puntos')) || 0;
+            } else {
+                alpineData.nivelPct = 0;
+                alpineData.nivelLabel = '';
+                alpineData.puntosDisponibles = 0;
             }
+            alpineData.puntosCanjear = 0;
         });
 
         @if(config('services.stripe.key'))

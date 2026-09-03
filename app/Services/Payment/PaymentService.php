@@ -58,16 +58,42 @@ class PaymentService
         }
 
         return DB::transaction(function () use ($payload, $createdBy, $appointment) {
+            $client = $appointment->client;
+            $puntosCanjeados = (int) ($payload['puntos_canjeados'] ?? 0);
+
+            // El monto que captura recepcion es el precio base del servicio;
+            // el descuento de nivel se aplica aqui, no lo escribe el staff a mano.
+            $monto = LoyaltyService::applyDiscount((float) $payload['monto'], $client?->nivel ?? 'nuevo');
+
+            if ($puntosCanjeados > 0) {
+                if (! $client) {
+                    throw new PaymentException('No se pueden canjear puntos: esta cita no tiene un cliente asociado.');
+                }
+
+                $maxCanjeable = LoyaltyService::maxRedeemablePoints($monto, (int) $client->puntos);
+                if ($puntosCanjeados > $maxCanjeable) {
+                    throw new PaymentException("Solo se pueden canjear hasta {$maxCanjeable} puntos en este cobro (tope: 50% del total o el saldo disponible del cliente).");
+                }
+
+                if (! $this->loyalty->redeemPoints($client, $puntosCanjeados, 'Canje aplicado al cobro de la cita '.$appointment->id)) {
+                    throw new PaymentException('No se pudieron canjear los puntos indicados.');
+                }
+
+                // 1 punto = $1 MXN, ya validado contra el tope de arriba.
+                $monto -= $puntosCanjeados;
+            }
+
             $payment = $this->payments->create([
                 'appointment_id' => $payload['appointment_id'],
-                'monto' => $payload['monto'],
+                'monto' => $monto,
                 'metodo_pago' => $payload['metodo_pago'],
                 'propina' => $payload['propina'] ?? 0,
                 'created_by' => $createdBy,
                 'estado' => Payment::ESTADO_VERIFICADO,
+                'puntos_canjeados' => $puntosCanjeados,
             ]);
 
-            return $this->completeCharge($payment, $appointment, (float) $payload['monto']);
+            return $this->completeCharge($payment, $appointment, $monto);
         });
     }
 

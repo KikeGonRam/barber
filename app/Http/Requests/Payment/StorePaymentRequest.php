@@ -25,15 +25,17 @@ class StorePaymentRequest extends FormRequest
             'monto' => ['required', 'numeric', 'min:0.01'],
             'metodo_pago' => ['required', Rule::in(['efectivo', 'tarjeta', 'transferencia', 'qr'])],
             'propina' => ['nullable', 'numeric', 'min:0'],
+            'puntos_canjeados' => ['nullable', 'integer', 'min:0'],
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        // Normaliza 'propina' a 0 si no se envía, para que el resto del
-        // flujo (cálculo de totales) no tenga que lidiar con null.
+        // Normaliza 'propina'/'puntos_canjeados' a 0 si no se envían, para
+        // que el resto del flujo no tenga que lidiar con null.
         $this->merge([
             'propina' => $this->input('propina', 0),
+            'puntos_canjeados' => $this->input('puntos_canjeados', 0),
         ]);
     }
 

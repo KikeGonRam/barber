@@ -37,6 +37,7 @@ class Payment extends Model
         'revisado_en',
         'motivo_rechazo',
         'monto_total',
+        'puntos_canjeados',
     ];
 
     protected function casts(): array
@@ -47,7 +48,14 @@ class Payment extends Model
             'ocr_monto_detectado' => 'decimal:2',
             'revisado_en' => 'datetime',
             'monto_total' => 'decimal:2',
+            'puntos_canjeados' => 'integer',
         ];
+    }
+
+    // Pagos existentes antes de esta feature no tienen el campo -> 0 puntos canjeados.
+    public function getPuntosCanjeadosAttribute($value): int
+    {
+        return (int) ($value ?? 0);
     }
 
     protected static function booted(): void

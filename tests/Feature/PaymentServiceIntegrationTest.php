@@ -94,6 +94,108 @@ class PaymentServiceIntegrationTest extends TestCase
         $this->assertNotNull(Payment::find($payment->id));
     }
 
+    public function test_create_applies_the_client_level_discount_automatically(): void
+    {
+        Notification::fake();
+        Storage::fake('public');
+
+        $appointment = $this->makeChargeableAppointment();
+        // El nivel se lee del cliente en cobro, no de lo que se manda en el payload.
+        $appointment->client->update(['nivel' => 'vip']); // 10% de descuento
+
+        $payment = $this->service->create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 500,
+            'metodo_pago' => 'efectivo',
+        ], (string) Str::uuid());
+
+        $this->assertEquals(450.0, (float) $payment->monto);
+        $this->assertEquals(450.0, (float) Appointment::find($appointment->id)->precio_cobrado);
+    }
+
+    public function test_create_redeems_points_on_top_of_the_level_discount(): void
+    {
+        Notification::fake();
+        Storage::fake('public');
+
+        $appointment = $this->makeChargeableAppointment();
+        $appointment->client->update(['nivel' => 'vip', 'puntos' => 100]); // 10% desc. + 100 pts disponibles
+
+        $payment = $this->service->create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 500, // -> 450 tras el 10% de nivel
+            'metodo_pago' => 'efectivo',
+            'puntos_canjeados' => 60,
+        ], (string) Str::uuid());
+
+        $this->assertEquals(390.0, (float) $payment->monto); // 450 - 60
+        $this->assertSame(60, (int) $payment->puntos_canjeados);
+        // 100 - 60 canjeados + 10 otorgados por completar esta misma cita (completeCharge -> awardCitaPoints).
+        $this->assertSame(50, (int) $appointment->client->fresh()->puntos);
+    }
+
+    public function test_create_throws_when_puntos_canjeados_exceeds_the_fifty_percent_cap(): void
+    {
+        Notification::fake();
+        Storage::fake('public');
+
+        $appointment = $this->makeChargeableAppointment();
+        // Sin descuento de nivel: total = 500, tope 50% = 250. El cliente tiene de sobra.
+        $appointment->client->update(['puntos' => 1000]);
+
+        $this->expectException(PaymentException::class);
+
+        $this->service->create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 500,
+            'metodo_pago' => 'efectivo',
+            'puntos_canjeados' => 251,
+        ], (string) Str::uuid());
+    }
+
+    public function test_create_throws_when_puntos_canjeados_exceeds_client_balance(): void
+    {
+        Notification::fake();
+        Storage::fake('public');
+
+        $appointment = $this->makeChargeableAppointment();
+        // Tope del 50% (250) es mayor que el saldo real (10) -> el saldo es lo que limita.
+        $appointment->client->update(['puntos' => 10]);
+
+        $this->expectException(PaymentException::class);
+
+        $this->service->create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 500,
+            'metodo_pago' => 'efectivo',
+            'puntos_canjeados' => 11,
+        ], (string) Str::uuid());
+    }
+
+    public function test_create_does_not_deduct_points_when_the_cap_is_exceeded(): void
+    {
+        Notification::fake();
+        Storage::fake('public');
+
+        $appointment = $this->makeChargeableAppointment();
+        $appointment->client->update(['puntos' => 10]);
+
+        try {
+            $this->service->create([
+                'appointment_id' => (string) $appointment->id,
+                'monto' => 500,
+                'metodo_pago' => 'efectivo',
+                'puntos_canjeados' => 11,
+            ], (string) Str::uuid());
+        } catch (PaymentException) {
+            // esperado
+        }
+
+        // El saldo no debe haberse tocado, y no debe haber quedado un pago a medias.
+        $this->assertSame(10, (int) $appointment->client->fresh()->puntos);
+        $this->assertNull(Payment::query()->where('appointment_id', (string) $appointment->id)->first());
+    }
+
     public function test_create_throws_when_appointment_is_not_chargeable(): void
     {
         $appointment = $this->makeChargeableAppointment(['estado' => 'pendiente']);

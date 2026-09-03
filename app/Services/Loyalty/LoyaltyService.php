@@ -95,6 +95,19 @@ class LoyaltyService
         return $pct > 0 ? round($price * (1 - $pct / 100), 2) : $price;
     }
 
+    /**
+     * Máximo de puntos canjeables en una sola visita: 1 punto = $1 MXN, con
+     * tope del 50% del total (ya con el descuento de nivel aplicado) para
+     * que el cliente siempre pague al menos la mitad en efectivo/tarjeta, y
+     * nunca más de lo que tenga acumulado.
+     */
+    public static function maxRedeemablePoints(float $totalDespuesDeNivel, int $puntosDisponibles): int
+    {
+        $topePorMitad = (int) floor($totalDespuesDeNivel * 0.5);
+
+        return max(0, min($topePorMitad, $puntosDisponibles));
+    }
+
     public function awardCitaPoints(Client $client, string $appointmentId): void
     {
         $previousNivel = $client->nivel ?? 'nuevo';
