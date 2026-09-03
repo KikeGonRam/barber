@@ -82,6 +82,22 @@ class OrderServiceIntegrationTest extends TestCase
         $this->assertSame(4, Product::find($productB->id)->stock_actual);
     }
 
+    public function test_place_ignores_a_manipulated_precio_and_uses_the_real_product_price(): void
+    {
+        $client = $this->makeClient();
+        $product = $this->makeProduct(['nombre' => 'Cera', 'precio_venta' => 250, 'stock_actual' => 10]);
+
+        // Simula un request manipulado (ej. devtools/Postman) mandando un
+        // precio muy por debajo del real.
+        $order = $this->service->place($client, [
+            ['product_id' => (string) $product->id, 'nombre' => 'Cera de regalo', 'precio' => 0.01, 'cantidad' => 2],
+        ]);
+
+        $this->assertEquals(500.0, (float) $order->total); // 2 * 250, NO 2 * 0.01
+        $this->assertEquals(250.0, (float) $order->items[0]['precio']);
+        $this->assertSame('Cera', $order->items[0]['nombre']); // tampoco confia en el nombre mandado
+    }
+
     public function test_place_throws_when_all_items_have_zero_or_negative_quantity(): void
     {
         $client = $this->makeClient();

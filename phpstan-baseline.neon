@@ -1913,7 +1913,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/Services/Payment/PaymentService.php
 
 		-
@@ -1931,7 +1931,7 @@ parameters:
 		-
 			message: '#^Using nullsafe property access "\?\-\>precio" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
-			count: 1
+			count: 2
 			path: app/Services/Payment/PaymentService.php
 
 		-
@@ -2088,7 +2088,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$items\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 4
 			path: tests/Feature/OrderServiceIntegrationTest.php
 
 		-
@@ -2100,7 +2100,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: tests/Feature/OrderServiceIntegrationTest.php
 
 		-

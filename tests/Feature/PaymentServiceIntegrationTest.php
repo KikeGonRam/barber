@@ -89,9 +89,29 @@ class PaymentServiceIntegrationTest extends TestCase
 
         $freshAppointment = Appointment::find($appointment->id);
         $this->assertSame('completada', $freshAppointment->estado);
-        $this->assertEquals(500, (float) $freshAppointment->precio_cobrado);
+        // El monto cobrado es el precio real del servicio (300), no el 500
+        // enviado en el payload — ver test_create_ignores_a_manipulated_monto...
+        $this->assertEquals(300, (float) $freshAppointment->precio_cobrado);
 
         $this->assertNotNull(Payment::find($payment->id));
+    }
+
+    public function test_create_ignores_a_manipulated_monto_and_uses_the_real_service_price(): void
+    {
+        Notification::fake();
+        Storage::fake('public');
+
+        $appointment = $this->makeChargeableAppointment(); // servicio de $300
+
+        // Simula un request manipulado mandando un monto muy por debajo del real.
+        $payment = $this->service->create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 0.01,
+            'metodo_pago' => 'efectivo',
+        ], (string) Str::uuid());
+
+        $this->assertEquals(300.0, (float) $payment->monto); // precio real del servicio, NO 0.01
+        $this->assertEquals(300.0, (float) Appointment::find($appointment->id)->precio_cobrado);
     }
 
     public function test_create_applies_the_client_level_discount_automatically(): void
@@ -105,12 +125,12 @@ class PaymentServiceIntegrationTest extends TestCase
 
         $payment = $this->service->create([
             'appointment_id' => (string) $appointment->id,
-            'monto' => 500,
+            'monto' => 500, // ignorado: el precio real del servicio es 300
             'metodo_pago' => 'efectivo',
         ], (string) Str::uuid());
 
-        $this->assertEquals(450.0, (float) $payment->monto);
-        $this->assertEquals(450.0, (float) Appointment::find($appointment->id)->precio_cobrado);
+        $this->assertEquals(270.0, (float) $payment->monto); // 300 - 10%
+        $this->assertEquals(270.0, (float) Appointment::find($appointment->id)->precio_cobrado);
     }
 
     public function test_create_redeems_points_on_top_of_the_level_discount(): void
@@ -123,12 +143,12 @@ class PaymentServiceIntegrationTest extends TestCase
 
         $payment = $this->service->create([
             'appointment_id' => (string) $appointment->id,
-            'monto' => 500, // -> 450 tras el 10% de nivel
+            'monto' => 500, // ignorado: precio real 300 -> 270 tras el 10% de nivel
             'metodo_pago' => 'efectivo',
             'puntos_canjeados' => 60,
         ], (string) Str::uuid());
 
-        $this->assertEquals(390.0, (float) $payment->monto); // 450 - 60
+        $this->assertEquals(210.0, (float) $payment->monto); // 270 - 60
         $this->assertSame(60, (int) $payment->puntos_canjeados);
         // 100 - 60 canjeados + 10 otorgados por completar esta misma cita (completeCharge -> awardCitaPoints).
         $this->assertSame(50, (int) $appointment->client->fresh()->puntos);
@@ -140,7 +160,7 @@ class PaymentServiceIntegrationTest extends TestCase
         Storage::fake('public');
 
         $appointment = $this->makeChargeableAppointment();
-        // Sin descuento de nivel: total = 500, tope 50% = 250. El cliente tiene de sobra.
+        // Sin descuento de nivel: precio real = 300, tope 50% = 150. El cliente tiene de sobra.
         $appointment->client->update(['puntos' => 1000]);
 
         $this->expectException(PaymentException::class);
@@ -149,7 +169,7 @@ class PaymentServiceIntegrationTest extends TestCase
             'appointment_id' => (string) $appointment->id,
             'monto' => 500,
             'metodo_pago' => 'efectivo',
-            'puntos_canjeados' => 251,
+            'puntos_canjeados' => 151,
         ], (string) Str::uuid());
     }
 

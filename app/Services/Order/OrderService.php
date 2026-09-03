@@ -22,7 +22,13 @@ class OrderService
      * Crea un pedido a partir de items, reservando (descontando) stock con
      * trazabilidad. Valida stock de todo antes de descontar.
      *
-     * @param  array<int, array{product_id:string,nombre:string,precio:float|int,cantidad:int}>  $items
+     * El precio de cada linea NUNCA se toma de $items (el llamador puede ser
+     * un request HTTP, p.ej. el wizard de agregar productos a una cita, y no
+     * hay que confiar en un precio que venga del cliente para mover dinero e
+     * inventario reales) — siempre se relee Product::precio_venta aqui mismo,
+     * asi que 'precio' en $items se ignora aunque venga presente.
+     *
+     * @param  array<int, array{product_id:string,nombre?:string,cantidad?:int}>  $items
      */
     public function place(Client $client, array $items, string $tipo = 'tienda', ?string $appointmentId = null): Order
     {
@@ -32,7 +38,10 @@ class OrderService
             throw new \RuntimeException('El pedido no tiene productos.');
         }
 
-        // 1) Validar stock de todos los productos antes de descontar.
+        // 1) Validar stock de todos los productos antes de descontar, y
+        // capturar el precio real y vigente de cada uno (fuente de verdad
+        // unica, sin importar que precio haya mandado el llamador).
+        $products = [];
         foreach ($items as $it) {
             $product = Product::find($it['product_id']);
             if (! $product || ! $product->isSellable()) {
@@ -41,6 +50,7 @@ class OrderService
             if ((int) $product->stock_actual < (int) $it['cantidad']) {
                 throw new InsufficientStockException("Stock insuficiente para {$product->nombre}.");
             }
+            $products[(string) $it['product_id']] = $product;
         }
 
         // 2) Descontar stock (cada movimiento es atomico y deja trazabilidad).
@@ -50,8 +60,9 @@ class OrderService
         $total = 0.0;
 
         foreach ($items as $it) {
+            $product = $products[(string) $it['product_id']];
             $qty = (int) $it['cantidad'];
-            $precio = (float) $it['precio'];
+            $precio = (float) $product->precio_venta;
             $subtotal = $precio * $qty;
 
             // Descuenta stock por cada linea: efecto secundario que persiste
@@ -66,7 +77,7 @@ class OrderService
 
             $lines[] = [
                 'product_id' => (string) $it['product_id'],
-                'nombre' => (string) $it['nombre'],
+                'nombre' => (string) $product->nombre,
                 'precio' => $precio,
                 'cantidad' => $qty,
                 'subtotal' => $subtotal,

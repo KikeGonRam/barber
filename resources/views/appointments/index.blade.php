@@ -493,9 +493,9 @@
                 <input type="hidden" name="stay" value="1">
 
                 <div>
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">Monto</label>
-                    <input type="number" name="monto" step="0.01" min="0.01" required x-model="appt.monto"
-                           class="w-full h-11 rounded-xl border border-ink/10 bg-black/40 px-4 text-sm text-ink focus:border-gold/50 focus:outline-none">
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">Monto <span class="normal-case font-normal">(precio real, no editable)</span></label>
+                    <input type="number" name="monto" step="0.01" min="0.01" required readonly x-model="appt.monto"
+                           class="w-full h-11 rounded-xl border border-ink/10 bg-black/40 px-4 text-sm text-ink/70 cursor-not-allowed focus:outline-none">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">

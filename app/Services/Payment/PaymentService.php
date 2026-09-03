@@ -61,9 +61,13 @@ class PaymentService
             $client = $appointment->client;
             $puntosCanjeados = (int) ($payload['puntos_canjeados'] ?? 0);
 
-            // El monto que captura recepcion es el precio base del servicio;
-            // el descuento de nivel se aplica aqui, no lo escribe el staff a mano.
-            $monto = LoyaltyService::applyDiscount((float) $payload['monto'], $client?->nivel ?? 'nuevo');
+            // El precio base NUNCA se toma de $payload['monto'] (viene de un
+            // formulario web, no hay que confiar en el en un cobro real) —
+            // siempre se relee del servicio de la cita, igual que ya hacen
+            // uploadTransferReceipt() y el intent de Stripe. El campo "Monto
+            // del Servicio" del formulario es solo informativo/legado.
+            $precioBase = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
+            $monto = LoyaltyService::applyDiscount($precioBase, $client?->nivel ?? 'nuevo');
 
             if ($puntosCanjeados > 0) {
                 if (! $client) {

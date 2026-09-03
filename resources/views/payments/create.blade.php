@@ -61,11 +61,11 @@
                         <!-- Amount Inputs -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="group">
-                                <label class="ui-label">Monto del Servicio</label>
+                                <label class="ui-label">Monto del Servicio <span class="text-muted normal-case font-normal">(precio real de la cita, no editable)</span></label>
                                 <div class="relative">
                                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gold font-bold">$</span>
-                                    <input type="number" step="0.01" min="0.01" name="monto" x-model="monto"
-                                           class="ui-input !pl-10 !bg-panel border-ink/10 focus:border-gold/50 text-ink" required>
+                                    <input type="number" step="0.01" min="0.01" name="monto" x-model="monto" readonly
+                                           class="ui-input !pl-10 !bg-panel border-ink/10 text-ink/70 cursor-not-allowed" required>
                                 </div>
                                 @error('monto') <p class="mt-2 text-[10px] font-black text-red-500 uppercase">{{ $message }}</p> @enderror
                             </div>
