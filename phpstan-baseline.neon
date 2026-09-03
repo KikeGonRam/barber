@@ -199,12 +199,6 @@ parameters:
 			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
 
 		-
-			message: '#^Parameter \#1 \$client of method App\\Http\\Controllers\\Api\\Admin\\ClientAdminController\:\:enrichFromBatch\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
@@ -283,15 +277,9 @@ parameters:
 			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Client\>\|Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Api/AppointmentController.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 4
+			count: 2
 			path: app/Http/Controllers/Api/AppointmentController.php
 
 		-
@@ -387,7 +375,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 7
+			count: 2
 			path: app/Http/Controllers/Api/CatalogController.php
 
 		-
@@ -417,12 +405,6 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\BarberReview\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
-			count: 1
-			path: app/Http/Controllers/Api/CatalogController.php
-
-		-
-			message: '#^Parameter \#1 \$client of method App\\Services\\Loyalty\\LoyaltyService\:\:awardResenaPoints\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Api/CatalogController.php
 
@@ -471,7 +453,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/Http/Controllers/Api/DashboardController.php
 
 		-
@@ -609,7 +591,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 5
+			count: 4
 			path: app/Http/Controllers/Api/ProfileController.php
 
 		-
@@ -781,21 +763,9 @@ parameters:
 			path: app/Http/Controllers/Client/CartController.php
 
 		-
-			message: '#^Parameter \#1 \$client of method App\\Services\\Order\\OrderService\:\:place\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Client/CartController.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Client/ClientAppointmentController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 4
 			path: app/Http/Controllers/Client/ClientAppointmentController.php
 
 		-
@@ -819,18 +789,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientBarberController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 5
-			path: app/Http/Controllers/Client/ClientBarberController.php
-
-		-
-			message: '#^Parameter \#1 \$client of method App\\Services\\Loyalty\\LoyaltyService\:\:awardResenaPoints\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Client/ClientBarberController.php
 
@@ -877,18 +835,6 @@ parameters:
 			path: app/Http/Controllers/Client/ClientInvoiceController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/Client/ClientInvoiceController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/Client/ClientPaymentController.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$client_id\.$#'
 			identifier: property.notFound
 			count: 1
@@ -901,12 +847,6 @@ parameters:
 			path: app/Http/Controllers/Client/OrderController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/Client/OrderController.php
-
-		-
 			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
 			identifier: larastan.noUnnecessaryCollectionCall
 			count: 1
@@ -915,7 +855,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/Http/Controllers/Dashboard/DashboardController.php
 
 		-
@@ -948,11 +888,6 @@ parameters:
 			count: 1
 			path: app/Http/Controllers/Notification/NotificationController.php
 
-		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$client\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Reception/OrderController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$created_at\.$#'
@@ -1412,18 +1347,6 @@ parameters:
 
 		-
 			message: '#^Access to an undefined property App\\Models\\User\:\:\$notification_preferences\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$preferencias_notificacion\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$telefono\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Models/User.php
@@ -1892,6 +1815,12 @@ parameters:
 			path: app/Services/Order/OrderService.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Order/OrderService.php
+
+		-
 			message: '#^Offset ''cantidad'' on array\{product_id\: string, nombre\: string, precio\: float\|int, cantidad\: int\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
@@ -1963,11 +1892,6 @@ parameters:
 			count: 1
 			path: app/Services/Prediction/PredictionService.php
 
-		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$client\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/Report/ReportService.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$entregado_en\.$#'
