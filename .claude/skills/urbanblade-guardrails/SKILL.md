@@ -7,14 +7,19 @@ description: >
   `docker compose` command with `down`/volumes in this repo — even if the request looks
   routine ("run the tests", "seed the database", "reset my local env", "reinstall
   dependencies", "clean up docker"). Also consult before editing `setup.ps1`, `.env*`, or
-  anything touching `PaymentService`/`InventoryService` transactions, and BEFORE any
-  `git push` — pushing without a clean, passing `.\test.ps1` run first is against the
-  project owner's explicit rule. Also consult before changing `routes/api.php` or
-  `app/Http/Controllers/Api/**` — the API is now a real external contract for a native
-  Android app being built separately, not just internal code. This repo shares its
-  production-like MongoDB Atlas database with another AI-editable project, and there is a
-  documented real incident of an AI/automation wiping real data this way — treat every
-  write-capable command here as higher-risk than it looks.
+  anything touching `PaymentService`/`InventoryService`/`OrderService` (payment amounts,
+  product prices, transactions), and BEFORE any `git push` — pushing without a clean,
+  passing `.\test.ps1` run first is against the project owner's explicit rule. Also
+  consult before changing `routes/api.php` or `app/Http/Controllers/Api/**` — the API is
+  a real external contract for a native Android app being built separately, not just
+  internal code. ALSO consult before editing or creating ANY `.md` file in this repo
+  (README, docs/*, credentials, setup guides) — this repo has already had real
+  documentation drift (duplicate files, three copies of the same credentials table going
+  stale independently) from an AI editing one file at a time instead of sweeping all
+  related docs first. This repo shares its production-like MongoDB Atlas database with
+  another AI-editable project, and there are TWO documented real incidents of
+  automation/AI wiping or bloating real data this way — treat every write-capable command
+  here as higher-risk than it looks, whether it's code, data, or documentation.
 ---
 
 # UrbanBlade `barber` — guardrails
@@ -147,3 +152,99 @@ contract from now on, not code that's free to reshape casually:
   (`php artisan scribe:generate`) rather than letting them drift — the whole point of
   documenting the API now is that an external client (not yet written) will rely on it
   being correct.
+
+## 12. `barber_db` was fully wiped and reseeded on 2026-09-04 — do not reintroduce mass synthetic data
+
+The shared Atlas database had accumulated **~214,623 synthetic appointments**, **~323,095
+synthetic loyalty transactions**, and **~4,767 extra users** from repeated full-seeder
+runs over time (the exact same failure mode as the incident in guardrail #2 above,
+just discovered later and at even larger scale). The project owner explicitly confirmed
+wiping every collection and starting over. Current real state: only 4 accounts exist
+(one per role: administrador, recepcionista, barbero, cliente — see
+`docs/ACCESOS.md`), zero appointments/payments/products/services/orders. The team is
+now deliberately loading only real business data going forward.
+
+**Never run `php artisan migrate --seed` or the full `DatabaseSeeder`** in this repo
+again without explicit confirmation — it chains `BarberSeeder` (50 fake barbers) and
+`ClientSeeder` (1500 fake clients), plus appointment/payment/loyalty seeders on top,
+which is exactly how the database got this bloated in the first place. If the app needs
+to boot from scratch, seed only `RolePermissionSeeder` + `AdminUserSeeder` (see
+README.md's install steps) and create any additional accounts individually
+(`User::create()` + role via `assignRole()`), never through the mass seeders. A backup
+of what existed before the wipe (30 clients, 8 barbers, 184 payments, 41 products, 330
+real appointments, etc., as JSON) exists outside this repo — point the user to ask for
+it explicitly if it's ever needed, don't assume it's gone forever, but also don't assume
+you can find it in the repo — it isn't there.
+
+## 13. Never trust a client-supplied price/amount for real money or inventory — always reread the source of truth server-side
+
+Found and fixed twice in one session (see commit `be0db3b`): `OrderService::place()`
+used to trust `precio` from its `$items` array as-is (an authenticated client could POST
+`precio: 0.01` and get real products at an arbitrary price, with real stock deducted),
+and `PaymentService::create()` used to trust `payload['monto']` from the reception charge
+form as-is (staff could type any amount, never validated against the appointment's real
+service price). Both are now fixed by always rereading `Product::precio_venta` /
+`Appointment->service->precio` (or `precio_cobrado`) inside the service layer itself,
+never from request input. **When adding any new code path that creates an `Order` or a
+`Payment`, or that otherwise moves money or decrements stock, follow this same pattern**:
+compute the authoritative amount from the database record the request is *about*, and
+treat any amount/price field in the request body as display-only, never as the value
+actually charged or decremented. This applies to the Stripe intent creation too
+(`Api/PaymentController::stripeIntent()`) — the amount sent to Stripe is computed
+server-side from the appointment + client's loyalty level + points, never from a
+client-supplied number.
+
+## 14. Loyalty points redemption + level discount are live, wired into every charge path
+
+`LoyaltyService::applyDiscount()` (nivel %) and `redeemPoints()` / `maxRedeemablePoints()`
+(1 point = $1 MXN, capped at 50% of the post-discount total) are called automatically
+by `PaymentService::create()` (reception charge — efectivo/tarjeta), `uploadTransferReceipt()`
+(client-initiated transfer), and the Stripe flow (`stripeIntent()` +
+`StripeWebhookController::onSucceeded()`, which now also routes through
+`PaymentService::create()` instead of a raw `Payment::create()` so it gets the same
+points/PDF/notification treatment). If you touch any of these paths, keep the discount →
+points-redemption order (discount first, then points on the reduced total) and the 50%
+cap consistent across all of them — don't let one charge path drift from the others
+again. The Alpine.js math that previews this to staff before charging
+(`resources/js/loyalty-charge.js`, `window.UrbanBladeLoyalty.computeCharge`) is shared by
+both `payments/create.blade.php` and the quick "Cobrar" modal in
+`appointments/index.blade.php` — if the business rule changes, update that one file, not
+the Blade templates directly (they were duplicated before and drifted; that's fixed now,
+don't reintroduce the duplication).
+
+## 15. Payment methods are exactly three: efectivo, transferencia, tarjeta (beta)
+
+QR was removed as a payment method entirely (kept only in read-only historical displays
+like the payments index filter, so old records with `metodo_pago: 'qr'` still render).
+"Tarjeta" and the old separate "Stripe" button were merged into one real Stripe-backed
+flow marked BETA in the UI — there is no more "manual card entry with no real charge"
+option. The quick "Cobrar" modal (appointments list) intentionally has no card option at
+all (no card-capture UI there); card payments must go through the full
+`/payments/create` form. Don't reintroduce a QR button or a non-Stripe "tarjeta" option
+without discussing it first.
+
+## 16. Documentation lives in specific places — check before creating a new file
+
+Credentials/access info: **`docs/ACCESOS.md`** is the single source of truth (not the
+repo root, not `README.md`, not `docs/DEMO_DEMOSTRACION.md` — those link to it instead of
+repeating the table; three independent copies is exactly how this drifted the first
+time). Other docs: `docs/DOCUMENTACION_TECNICA.md` (architecture/dataset), `docs/MANUAL_USUARIO.md`
+(end-user guide), `docs/DEMO_DEMOSTRACION.md` (presentation script). **Before creating or
+substantially editing any `.md` file, grep the whole repo for related content first**
+(`grep -rln "<the thing you're about to document>" --include="*.md" .`) — fixing one file
+at a time as a human points out staleness, instead of sweeping everything related in one
+pass, is exactly the mistake that caused this rule to be written. This repo (`KikeGonRam/barber`)
+is **public on GitHub** — `docs/ACCESOS.md` contains real (if low-stakes, rotatable)
+passwords by the project owner's explicit, informed choice, not an oversight; don't
+"fix" that by removing it without asking, but also don't casually add more real secrets
+to any public-repo file without the same explicit confirmation.
+
+## 17. This rule set can go stale within hours — don't treat it as complete
+
+Every guardrail above except #1 was added or corrected on 2026-09-02/03/04, several of
+them because something changed *during the same working session* that wrote them (the
+docs drift in #16, the database wipe in #12, the payment method changes in #15 all
+happened after this file already existed). Treat this skill as a snapshot, not a
+guarantee: if something you observe in the actual code/data/docs contradicts what's
+written here, trust what you observe and say so — don't assume the skill is more
+up-to-date than reality just because it's more recently-sounding or more authoritative-looking than a quick check would be.

@@ -99,8 +99,6 @@ baked-in `.env`, so env vars are set directly in the workflow (no
   unless verified otherwise — confirm what `.env` points to before running these.
 - **`make clean`** runs `docker compose down --remove-orphans --volumes` — destructive to
   local volumes, confirm with the user first.
-- **`setup.ps1` defaults to the wrong branch** (`feature/mongodb-migration` instead of
-  `main`) — pass `-Branch main` explicitly.
 - `barber_db` is shared with the sibling `spark/` repo — coordinate schema changes.
 - **Never `git push` without a clean, passing `.\test.ps1` run first** (and
   `pint --test` / `eslint`+`npm run build` for PHP/frontend changes). This is a hard
@@ -113,5 +111,38 @@ baked-in `.env`, so env vars are set directly in the workflow (no
   that future native app, not internal-only code — prefer additive changes, avoid
   silently reshaping existing routes/responses, and keep `knuckleswtf/scribe` docs
   (`php artisan scribe:generate`) in sync when the API changes.
+- **`barber_db` was fully wiped and reseeded on 2026-09-04** (it had accumulated
+  ~214,623 synthetic appointments, ~323,095 synthetic loyalty transactions, ~4,767
+  extra users from repeated full-seeder runs). Current real state: only 4 accounts
+  (one per role, see `docs/ACCESOS.md`), no operational data. **Never run
+  `php artisan migrate --seed` / the full `DatabaseSeeder`** — it chains
+  `BarberSeeder` (50 fake barbers) + `ClientSeeder` (1500 fake clients) and is exactly
+  how the bloat happened. Seed only `RolePermissionSeeder` + `AdminUserSeeder` for a
+  fresh install; create any other accounts individually.
+- **Never trust a client-supplied price/amount for real money or inventory** — always
+  reread the source of truth server-side (`Product::precio_venta`,
+  `Appointment->service->precio`) inside the service layer, never from request input.
+  Found and fixed twice already (`OrderService::place()`, `PaymentService::create()`,
+  commit `be0db3b`) — follow the same pattern for any new code that creates an `Order`/
+  `Payment` or moves money/stock.
+- Payment methods are exactly three: efectivo, transferencia, tarjeta (beta, real
+  Stripe charge). No QR as an active option (kept only in read-only historical
+  displays). No "manual card, no real charge" option anymore.
+- **Docs live in specific places — check before creating a new file.**
+  `docs/ACCESOS.md` is the single source of truth for credentials (not the repo root,
+  not duplicated in `README.md`/`docs/DEMO_DEMOSTRACION.md` — those link to it).
+  Before editing/creating any `.md`, `grep -rln "<topic>" --include="*.md" .` across
+  the whole repo first — fixing one file at a time as staleness is pointed out (instead
+  of sweeping everything related in one pass) is exactly how three independent copies
+  of the same credentials table drifted out of sync here.
+- This repo (`KikeGonRam/barber`) is **public on GitHub**. `docs/ACCESOS.md` containing
+  real passwords is the project owner's explicit, informed choice — don't remove it
+  without asking, but also don't add more real secrets to any public-repo file without
+  the same explicit confirmation.
+- **This guardrails list itself goes stale within hours** — most of it was written or
+  corrected on 2026-09-02/03/04, several entries because something changed *during the
+  same session that wrote them*. Treat it as a snapshot: if what you observe in the
+  actual code/data/docs contradicts this file, trust what you observe and say so.
 - Full detail and the cross-repo incident writeup: see
-  `.claude/skills/urbanblade-guardrails/SKILL.md` in this repo.
+  `.claude/skills/urbanblade-guardrails/SKILL.md` in this repo (Claude Code only — this
+  `AGENTS.md`/`CLAUDE.md` section is the version any AI provider should read).
