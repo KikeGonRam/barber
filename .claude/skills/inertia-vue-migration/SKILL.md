@@ -131,13 +131,63 @@ con lo existente sin romper nada.
 - Pint (334 archivos), phpstan (0 errores), `.\test.ps1` (201 tests) y
   `npm audit --audit-level=high` (0 vulnerabilidades) — todos en verde.
 
-### ⬜ Fase 2 — `AppLayout.vue` (siguiente, no iniciada)
+### ✅ Fase 2 — `AppLayout.vue` (completa, 2026-09-05)
 
-Prerequisito de cualquier página real: replicar el layout compartido de
-`resources/views/layouts/app.blade.php` (nav con roles, sidebar, header slot) como
-componente Vue reutilizable (`resources/js/Layouts/AppLayout.vue`) con
-[Persistent Layouts de Inertia](https://inertiajs.com/pages#persistent-layouts). Sin esto
-ninguna página Vue tiene navegación coherente con el resto del sitio.
+**Decisión de diseño deliberada (leer antes de tocar el shell):** el sidebar/topbar
+móvil/bottom-nav/widgets globales (`<x-toast/>`, `<x-command-palette/>`, `<x-chatbot/>`,
+`<x-notification-toaster/>`) **NO se reescribieron en Vue**. Se quedan como el mismo
+Blade+Alpine de siempre (`@include('layouts.navigation')`, mismo helper
+`NavigationMenu`), ahora también incluidos en `resources/views/app.blade.php` (el root
+template de Inertia) — literalmente el mismo HTML/Alpine que
+`resources/views/layouts/app.blade.php` usa para las páginas no migradas. Razón: ese
+sidebar tiene bastante estado no trivial (rail colapsable persistido en localStorage,
+acordeón de secciones con localStorage, 3 breakpoints responsive, store de notificaciones
+en tiempo real) — reimplementarlo en Vue ahora es puro riesgo sin beneficio funcional. Se
+puede revisar esta decisión más adelante si el dueño del proyecto lo pide explícitamente,
+pero no asumir que "migrar a Vue" implica reescribir esto sin que lo pida.
+
+Lo que SÍ es Vue: solo la porción de header-card + main que antes proveía
+`<x-app-layout>` (la parte que varía por página). Eso vive en
+`resources/js/Layouts/AppLayout.vue`, y cada página Inertia se envuelve en él —
+exactamente como las páginas Blade se envuelven en `<x-app-layout>`.
+
+**Cambios de esta fase:**
+- `resources/views/app.blade.php` — reescrito para incluir el shell completo (topbar
+  móvil, `@include('layouts.navigation')`, drawer backdrop, bottom-nav, los 4 widgets
+  globales, script de confetti). El `@isset($header)<header>...<main>{{ $slot }}</main>`
+  de la versión Blade se reemplaza por un solo `@inertia` (Vue monta ahí).
+- `resources/js/Layouts/AppLayout.vue` — NUEVO. Slot `#header` (opcional, como
+  `@isset($header)`) + slot default para el contenido. Además hace de puente de
+  notificaciones: escucha `page.props.flash.status`/`.error` (compartidos por
+  `HandleInertiaRequests::share()`) y re-emite el mismo evento
+  `window.dispatchEvent(new CustomEvent('notify', ...))` que ya escucha `<x-toast/>` —
+  así el toast Alpine sigue funcionando sin reimplementarlo, incluso en navegaciones
+  internas de Inertia donde `app.blade.php` no se vuelve a renderizar.
+- `app/Http/Middleware/HandleInertiaRequests.php` — añade la prop compartida `flash`
+  (`status`/`error` desde la sesión) que consume el bridge de arriba.
+- `resources/js/inertia.js` — ahora también inicializa Alpine.js (`Alpine.start()`),
+  porque el shell y los widgets que quedaron en Blade lo necesitan para funcionar en las
+  páginas Inertia.
+- `vite.config.js` — alias `@` → `resources/js` (convención estándar de
+  Inertia/Breeze), para que las páginas importen `AppLayout.vue` como
+  `import AppLayout from '@/Layouts/AppLayout.vue'`.
+- `eslint.config.js` — se añadió soporte real para `.vue` (`eslint-plugin-vue` +
+  `vue-eslint-parser`). Antes de esta fase, `npx eslint resources/js` (el comando exacto
+  que corre CI) **ignoraba silenciosamente cualquier archivo `.vue`** — un hueco real que
+  se cerró antes de que hubiera más código Vue que lintear. `.lintstagedrc` también se
+  actualizó (`*.{js,jsx,ts,tsx,vue}`) para que el hook de pre-commit cubra `.vue` también.
+
+**Verificado:** `npm run build` compila los 3 bundles sin conflicto; se creó una página
+Inertia temporal (`Pages/Dev/LayoutSmoke.vue` + una ruta ad-hoc) SOLO para probar en el
+navegador — confirmé visualmente sidebar, topbar móvil, bottom-nav y header-card/main
+todos con el estilo correcto, en desktop y en viewport mobile (375px), sin errores de
+consola — y se borraron ambas antes de commitear (no quedan en el repo). El dashboard
+Blade clásico (`/dashboard`) se verificó después de borrar el smoke test, para confirmar
+que tocar infraestructura compartida (`vite.config.js`, `tailwind.config.js`,
+`eslint.config.js`) no rompió nada de lo existente. Pint (334 archivos), phpstan
+(0 errores), `.\test.ps1` (201 tests), `npx eslint resources/js --max-warnings=0` (el
+comando exacto de CI, 0 problemas) y `npm audit --audit-level=high` (0 vulnerabilidades)
+— todos en verde.
 
 ### ⬜ Fase 3 — Primera página real: Calendario de Citas
 
@@ -158,6 +208,11 @@ vanilla de `resources/views/appointments/calendar.blade.php` (manipulación dire
 para el modal de detalle) por estado reactivo de Vue (`reactive(modal)`), pero mantiene la
 MISMA lógica de negocio: mismo fetch a `calendarDataUrl`, mismos colores por estado, mismo
 comportamiento de filtro por barbero.
+
+Como toda página real (a diferencia del smoke test descartable de la Fase 2), debe
+envolverse en el layout ya construido: `import AppLayout from '@/Layouts/AppLayout.vue'`
+y usar el slot `#header` para el título de la página — igual que hoy
+`calendar.blade.php` usa `<x-app-layout>` con `<x-slot name="header">`.
 
 ### ⬜ Fases siguientes (a definir según prioridad del dueño del proyecto)
 

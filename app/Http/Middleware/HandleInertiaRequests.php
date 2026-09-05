@@ -37,7 +37,15 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            // Los widgets globales (toast, notificaciones) siguen viviendo en
+            // Blade+Alpine (ver resources/views/app.blade.php); estas props
+            // permiten que una página Vue dispare ese mismo toast con
+            // window.dispatchEvent(new CustomEvent('notify', ...)) en vez de
+            // reimplementar el componente. Ver AppLayout.vue.
+            'flash' => [
+                'status' => fn () => $request->session()->get('status'),
+                'error' => fn () => $request->session()->get('errors')?->first(),
+            ],
         ];
     }
 }

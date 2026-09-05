@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
     plugins: [
@@ -13,4 +14,10 @@ export default defineConfig({
         }),
         vue(),
     ],
+    resolve: {
+        alias: {
+            // Solo para páginas/componentes Inertia+Vue (import '@/Layouts/...').
+            '@': fileURLToPath(new URL('./resources/js', import.meta.url)),
+        },
+    },
 });
