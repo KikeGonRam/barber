@@ -73,6 +73,17 @@ class AppointmentController extends Controller
             abort(403, 'No autorizado para consultar citas.');
         }
 
+        // Filtros opcionales (admin/recepción — para clientes/barberos no
+        // tiene sentido filtrar más allá de "las suyas", ya acotado arriba).
+        // Aditivo: sin estos query params el comportamiento es idéntico al
+        // de antes (últimas 50), no rompe consumidores existentes — ver
+        // guardrail #11 de este repo (routes/api.php es un contrato externo).
+        if ($user->hasAnyRole(['administrador', 'recepcionista'])) {
+            $query->when($request->filled('estado'), fn ($q) => $q->where('estado', $request->query('estado')))
+                ->when($request->filled('barber_id'), fn ($q) => $q->where('barber_id', $request->query('barber_id')))
+                ->when($request->filled('fecha'), fn ($q) => $q->whereDate('fecha', $request->query('fecha')));
+        }
+
         $appointments = $query->limit(50)->get();
 
         return AppointmentResource::collection($appointments)->response();
