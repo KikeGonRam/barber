@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Models\Appointment;
 use App\Models\Barber;
+use App\Models\BarberReview;
 use App\Models\Client;
-use App\Models\Comment;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -56,7 +56,7 @@ class BarberAdminController
                 'email' => $barber->user?->email,
                 'especialidades' => $barber->especialidades,
                 'foto' => $barber->foto,
-                'rating' => $this->calculateRating((string) $barber->user_id),
+                'rating' => $this->calculateRating((string) $barber->id),
                 'appointmentsToday' => $apptCount,
                 'maxAppointments' => 8,
                 'occupancyRate' => $apptCount > 0 ? (int) (($apptCount / 8) * 100) : 0,
@@ -75,8 +75,11 @@ class BarberAdminController
         $this->authorizeAdmin();
         $barber->load('user');
         $barberId = (string) $barber->id;
-        $monthStart = Carbon::now()->startOfMonth()->toDateString();
-        $monthEnd = Carbon::now()->endOfMonth()->toDateString();
+        // Carbon objects, no strings: whereBetween contra 'fecha' (cast 'date',
+        // guardado como BSON UTCDateTime) no hace match si se le pasa un
+        // string — ver el mismo comentario en BarberDashboardController.
+        $monthStart = Carbon::now()->startOfMonth();
+        $monthEnd = Carbon::now()->endOfMonth();
 
         $appointmentsMonth = Appointment::where('barber_id', $barberId)
             ->whereBetween('fecha', [$monthStart, $monthEnd])
@@ -92,7 +95,7 @@ class BarberAdminController
                 'especialidades' => $barber->especialidades,
                 'descripcion' => $barber->descripcion,
                 'foto' => $barber->foto,
-                'rating' => $this->calculateRating((string) $barber->user_id),
+                'rating' => $this->calculateRating((string) $barber->id),
                 'totalAppointments' => Appointment::where('barber_id', $barberId)->count(),
                 'appointmentsThisMonth' => $appointmentsMonth->count(),
                 'revenueThisMonth' => (float) $appointmentsMonth->where('estado', 'completada')->sum('precio_cobrado'),
@@ -203,9 +206,10 @@ class BarberAdminController
     {
         $this->authorizeAdmin();
         $barberId = (string) $barber->id;
-        $thisMonthStart = Carbon::now()->startOfMonth()->toDateString();
-        $lastMonthStart = Carbon::now()->subMonth()->startOfMonth()->toDateString();
-        $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth()->toDateString();
+        // Carbon objects, no strings: ver el comentario equivalente en show().
+        $thisMonthStart = Carbon::now()->startOfMonth();
+        $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+        $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
 
         $thisMonth = Appointment::where('barber_id', $barberId)
             ->where('fecha', '>=', $thisMonthStart)
@@ -223,22 +227,22 @@ class BarberAdminController
                 'growth' => $lastMonth > 0
                     ? (int) ((($thisMonth - $lastMonth) / $lastMonth) * 100)
                     : 0,
-                'averageRating' => $this->calculateRating((string) $barber->user_id),
+                'averageRating' => $this->calculateRating((string) $barber->id),
                 'totalClients' => $this->getTotalClients($barberId),
             ],
         ]);
     }
 
-    // Recibe user_id (barbero_id en works) para evitar llamadas redundantes a Barber::find()
-    private function calculateRating(string $barberUserId): float
+    // Promedio de las reseñas reales del barbero (BarberReview), no de los
+    // comentarios del muro social (Comment): eran dos cosas distintas y esta
+    // función usaba la equivocada (ver App\Models\BarberReview / Comment).
+    private function calculateRating(string $barberId): float
     {
-        if (! $barberUserId) {
+        if (! $barberId) {
             return 0.0;
         }
 
-        $avg = Comment::whereHas('work', fn ($q) => $q->where('barbero_id', $barberUserId))
-            ->whereNotNull('rating')
-            ->avg('rating');
+        $avg = BarberReview::where('barber_id', $barberId)->avg('rating');
 
         return $avg ? round((float) $avg, 1) : 0.0;
     }
