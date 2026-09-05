@@ -119,6 +119,56 @@ endpoints:
   -
     custom: []
     httpMethods:
+      - GET
+    uri: api/v1/appointments/chargeable
+    metadata:
+      custom: []
+      groupName: Citas
+      groupDescription: |-
+
+        Gestión de citas para clientes, barberos y administración.
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Citas cobrables (aprobadas por el barbero, sin pago aun) para el
+        selector de "Nuevo Cobro" — puerto directo de la consulta que usa
+        Payment\PaymentController::create() (web), mas los datos de
+        lealtad/premio de rifa del cliente que esa vista precalcula para el
+        preview de descuento. El monto real cobrado NUNCA se calcula aqui:
+        esto es solo para que el staff vea el precio base y el descuento
+        potencial antes de cobrar; PaymentService::create() vuelve a leer
+        todo del lado servidor al procesar el pago (ver guardrail #13).
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
       - POST
     uri: api/v1/appointments
     metadata:
@@ -349,7 +399,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '17:02'
+        example: '17:58'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -360,7 +410,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: en_proceso
+        example: confirmada
         type: string
         enumValues:
           - pendiente
@@ -388,8 +438,8 @@ endpoints:
       barber_id: architecto
       service_id: architecto
       fecha: '2052-09-28'
-      hora_inicio: '17:02'
-      estado: en_proceso
+      hora_inicio: '17:58'
+      estado: confirmada
       notas: 'n'
     fileParameters: []
     responses: []
@@ -442,7 +492,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: confirmada
+        example: cancelada
         type: string
         enumValues:
           - pendiente
@@ -466,7 +516,7 @@ endpoints:
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      estado: confirmada
+      estado: cancelada
       notas: b
     fileParameters: []
     responses: []

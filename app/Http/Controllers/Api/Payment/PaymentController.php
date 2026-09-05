@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Payment;
 
+use App\Exceptions\Domain\PaymentException;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Payment;
@@ -35,8 +36,8 @@ class PaymentController extends Controller
     {
         $this->authorizeStaff($request);
 
-        $filters = $request->only(['metodo_pago']);
-        $payments = $this->paymentService->list($filters, 50);
+        $filters = $request->only(['metodo_pago', 'q', 'barbero_id', 'fecha_desde', 'fecha_hasta']);
+        $payments = $this->paymentService->list($filters, 20);
 
         return response()->json([
             'data' => collect($payments->items())->map(fn ($payment) => [
@@ -63,7 +64,94 @@ class PaymentController extends Controller
                 'current_page' => $payments->currentPage(),
                 'last_page' => $payments->lastPage(),
                 'total' => $payments->total(),
+                // Estadisticas globales (no del subset filtrado/paginado actual)
+                // y conteo de comprobantes por revisar, igual que la version web
+                // (Payment\PaymentController::index()) para que el "Centro de
+                // Facturacion" de Nuxt no tenga que hacer una segunda llamada.
+                'stats' => [
+                    'total_hoy' => (float) Payment::whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->get(['monto', 'propina'])->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
+                    'total_mes' => (float) Payment::whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])->get(['monto', 'propina'])->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
+                    'count' => Payment::count(),
+                    'metodos' => Payment::get(['metodo_pago'])->groupBy('metodo_pago')->map->count(),
+                ],
+                'pending_count' => Payment::where('estado', Payment::ESTADO_PENDIENTE_VERIFICACION)->count(),
             ],
+        ]);
+    }
+
+    /**
+     * Comprobantes de transferencia subidos por clientes que aun no han
+     * sido aprobados/rechazados por recepcion/administracion.
+     */
+    public function pending(Request $request): JsonResponse
+    {
+        $this->authorizeStaff($request);
+
+        $payments = Payment::query()
+            ->where('estado', Payment::ESTADO_PENDIENTE_VERIFICACION)
+            ->with(['appointment.client.user', 'appointment.barber.user', 'appointment.service'])
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'data' => $payments->map(fn ($payment) => [
+                'id' => $payment->id,
+                'monto' => $payment->monto,
+                'created_at' => optional($payment->created_at)->toIso8601String(),
+                'comprobante_url' => $payment->comprobante_cliente ? Storage::disk('public')->url($payment->comprobante_cliente) : null,
+                'ocr_texto' => $payment->ocr_texto,
+                'ocr_monto_detectado' => $payment->ocr_monto_detectado,
+                'appointment' => [
+                    'id' => $payment->appointment?->id,
+                    'client' => $payment->appointment?->client?->user?->name,
+                    'service' => $payment->appointment?->service?->nombre,
+                    'service_price' => $payment->appointment?->service?->precio,
+                ],
+            ])->values(),
+        ]);
+    }
+
+    /**
+     * Aprueba un comprobante de transferencia en revision: completa el
+     * cobro (cita a completada, PDF de recibo, notificacion al cliente).
+     */
+    public function approve(Request $request, Payment $payment): JsonResponse
+    {
+        $this->authorizeStaff($request);
+
+        try {
+            $payment = $this->paymentService->approveTransfer($payment, (string) $request->user()->id);
+        } catch (PaymentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json([
+            'message' => 'Comprobante aprobado. Cita marcada como completada.',
+            'data' => ['id' => $payment->id, 'estado' => $payment->estado],
+        ]);
+    }
+
+    /**
+     * Rechaza un comprobante de transferencia en revision con un motivo
+     * obligatorio; la cita queda pendiente de que el cliente suba uno nuevo.
+     */
+    public function reject(Request $request, Payment $payment): JsonResponse
+    {
+        $this->authorizeStaff($request);
+
+        $validated = $request->validate([
+            'motivo_rechazo' => ['required', 'string', 'max:500'],
+        ]);
+
+        try {
+            $payment = $this->paymentService->rejectTransfer($payment, (string) $request->user()->id, $validated['motivo_rechazo']);
+        } catch (PaymentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json([
+            'message' => 'Comprobante rechazado. El cliente puede subir uno nuevo.',
+            'data' => ['id' => $payment->id, 'estado' => $payment->estado],
         ]);
     }
 

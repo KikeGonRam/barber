@@ -9,10 +9,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Models\RaffleResult;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
 use App\Services\Appointment\AppointmentStatusService;
+use App\Services\Loyalty\LoyaltyService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -142,6 +144,59 @@ class AppointmentController extends Controller
         });
 
         return response()->json($events);
+    }
+
+    /**
+     * Citas cobrables (aprobadas por el barbero, sin pago aun) para el
+     * selector de "Nuevo Cobro" — puerto directo de la consulta que usa
+     * Payment\PaymentController::create() (web), mas los datos de
+     * lealtad/premio de rifa del cliente que esa vista precalcula para el
+     * preview de descuento. El monto real cobrado NUNCA se calcula aqui:
+     * esto es solo para que el staff vea el precio base y el descuento
+     * potencial antes de cobrar; PaymentService::create() vuelve a leer
+     * todo del lado servidor al procesar el pago (ver guardrail #13).
+     */
+    public function chargeable(Request $request): JsonResponse
+    {
+        abort_unless($request->user()?->hasAnyRole(['administrador', 'recepcionista']), 403, 'No autorizado.');
+
+        $appointments = Appointment::query()
+            ->whereIn('estado', AppointmentStatusService::CHARGEABLE)
+            ->whereDoesntHave('payments')
+            ->with(['client.user', 'barber.user', 'service'])
+            ->orderByDesc('fecha')
+            ->orderByDesc('hora_inicio')
+            ->get();
+
+        $clientIds = $appointments->pluck('client.id')->filter()->map(fn ($id) => (string) $id)->unique()->values()->all();
+        $activePrizes = empty($clientIds) ? collect() : RaffleResult::whereIn('client_id', $clientIds)
+            ->whereNull('reclamado_en')
+            ->where('vence_en', '>=', now())
+            ->get()
+            ->keyBy('client_id');
+
+        return response()->json([
+            'data' => $appointments->map(function (Appointment $appt) use ($activePrizes) {
+                $nivel = $appt->client?->nivel ?? 'nuevo';
+                $premio = $appt->client ? $activePrizes->get((string) $appt->client->id) : null;
+
+                return [
+                    'id' => (string) $appt->id,
+                    'code' => $appt->code,
+                    'fecha' => optional($appt->fecha)->toDateString(),
+                    'hora_inicio' => $appt->hora_inicio,
+                    'client_name' => $appt->client?->user?->name,
+                    'barber_name' => $appt->barber?->user?->name,
+                    'service_name' => $appt->service?->nombre,
+                    'precio' => (float) ($appt->service?->precio ?? 0),
+                    'nivel' => $nivel,
+                    'nivel_label' => LoyaltyService::LEVEL_LABELS[$nivel] ?? $nivel,
+                    'nivel_pct' => LoyaltyService::discountPct($nivel),
+                    'puntos_disponibles' => (int) ($appt->client?->puntos ?? 0),
+                    'premio_rifa' => $premio?->premio,
+                ];
+            })->values(),
+        ]);
     }
 
     /**

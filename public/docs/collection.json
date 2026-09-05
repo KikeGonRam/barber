@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "be0d6dc8-1f5b-4dec-9166-c1f89630528b",
+        "_postman_id": "2151d336-0e54-4f85-b0e1-4bf628a28565",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -425,6 +425,54 @@
                     ]
                 },
                 {
+                    "name": "Citas cobrables (aprobadas por el barbero, sin pago aun) para el\nselector de \"Nuevo Cobro\" \u2014 puerto directo de la consulta que usa\nPayment\\PaymentController::create() (web), mas los datos de\nlealtad\/premio de rifa del cliente que esa vista precalcula para el\npreview de descuento. El monto real cobrado NUNCA se calcula aqui:\nesto es solo para que el staff vea el precio base y el descuento\npotencial antes de cobrar; PaymentService::create() vuelve a leer\ntodo del lado servidor al procesar el pago (ver guardrail #13).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/appointments\/chargeable",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/appointments\/chargeable"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
                     "name": "Crear Cita",
                     "request": {
                         "url": {
@@ -501,7 +549,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-09-28\",\"hora_inicio\":\"17:02\",\"estado\":\"en_proceso\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-09-28\",\"hora_inicio\":\"17:58\",\"estado\":\"confirmada\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -540,7 +588,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"estado\":\"confirmada\",\"notas\":\"b\"}"
+                            "raw": "{\"estado\":\"cancelada\",\"notas\":\"b\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1006,6 +1054,54 @@
                     ]
                 },
                 {
+                    "name": "Comprobantes de transferencia subidos por clientes que aun no han\nsido aprobados\/rechazados por recepcion\/administracion.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/payments\/pending",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/payments\/pending"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
                     "name": "Registra un pago manual (efectivo, tarjeta o transferencia) asociado a\nuna cita; la l\u00f3gica de negocio (transacci\u00f3n, estado de cita) vive en\nPaymentService. El pago con tarjeta v\u00eda Stripe usa stripeIntent() +\neste mismo endpoint (con stripe_payment_id) para completarse.",
                     "request": {
                         "url": {
@@ -1027,7 +1123,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"transferencia\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":false,\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"efectivo\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1061,6 +1157,81 @@
                             "raw": "{\"appointment_id\":\"architecto\",\"puntos_canjeados\":39}"
                         },
                         "description": "El monto NO se recibe del cliente: se calcula aqui mismo (precio base\ndel servicio -> descuento de nivel -> puntos canjeados) para que lo que\nStripe realmente cobra sea siempre el mismo numero que create()\/el\nwebhook usaran despues para registrar el pago \u2014 nunca se confia en un\nmonto que venga del frontend para mover dinero real.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Aprueba un comprobante de transferencia en revision: completa el\ncobro (cita a completada, PDF de recibo, notificacion al cliente).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/payments\/:payment_id\/approve",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/payments\/:payment_id\/approve",
+                            "variable": [
+                                {
+                                    "id": "payment_id",
+                                    "key": "payment_id",
+                                    "value": "architecto",
+                                    "description": "The ID of the payment."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Rechaza un comprobante de transferencia en revision con un motivo\nobligatorio; la cita queda pendiente de que el cliente suba uno nuevo.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/payments\/:payment_id\/reject",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/payments\/:payment_id\/reject",
+                            "variable": [
+                                {
+                                    "id": "payment_id",
+                                    "key": "payment_id",
+                                    "value": "architecto",
+                                    "description": "The ID of the payment."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"motivo_rechazo\":\"b\"}"
+                        },
+                        "description": "",
                         "auth": {
                             "type": "noauth"
                         }
@@ -1229,7 +1400,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-05T17:02:38\",\"pref_in_app\":false,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-05T17:58:55\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -1268,7 +1439,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-05T17:02:38\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-05T17:58:56\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -1545,7 +1716,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -1888,7 +2059,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"17:02\",\"horario_cierre\":\"2052-09-28\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"17:58\",\"horario_cierre\":\"2052-09-28\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2774,7 +2945,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"especialidades\":\"b\",\"descripcion\":\"architecto\",\"activo\":true}"
+                            "raw": "{\"especialidades\":\"b\",\"descripcion\":\"architecto\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -3215,7 +3386,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -3254,7 +3425,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -3329,7 +3500,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tipo\":\"entrada\",\"cantidad\":16,\"motivo\":\"architecto\"}"
+                            "raw": "{\"tipo\":\"salida\",\"cantidad\":16,\"motivo\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3696,7 +3867,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"type\":\"ingresos\",\"period\":\"dia\",\"dateFrom\":\"2026-09-05T17:02:42\",\"dateTo\":\"2026-09-05T17:02:42\",\"detail\":\"detallado\"}"
+                            "raw": "{\"type\":\"citas\",\"period\":\"semana\",\"dateFrom\":\"2026-09-05T17:59:01\",\"dateTo\":\"2026-09-05T17:59:01\",\"detail\":\"muy-detallado\"}"
                         },
                         "description": "",
                         "auth": {
@@ -4879,7 +5050,7 @@
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "1",
+                                    "value": "",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -4978,7 +5149,7 @@
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -5091,7 +5262,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-05T17:02:38\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-05T17:58:56\"}"
                         },
                         "description": "",
                         "auth": {

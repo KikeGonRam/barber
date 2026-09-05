@@ -79,6 +79,7 @@ Route::prefix('v1')->group(function (): void {
         // Citas
         Route::get('appointments', [AppointmentController::class, 'index']);
         Route::get('appointments/calendar-data', [AppointmentController::class, 'calendarData']);
+        Route::get('appointments/chargeable', [AppointmentController::class, 'chargeable']);
         Route::post('appointments', [AppointmentController::class, 'store']);
         Route::put('appointments/{appointment}', [AppointmentController::class, 'update']);
         Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
@@ -88,8 +89,11 @@ Route::prefix('v1')->group(function (): void {
         Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {
             // Pagos (Admin/Recepcionista)
             Route::get('payments', [ApiPaymentController::class, 'index']);
+            Route::get('payments/pending', [ApiPaymentController::class, 'pending']);
             Route::post('payments', [ApiPaymentController::class, 'store']);
             Route::post('payments/stripe-intent', [ApiPaymentController::class, 'stripeIntent'])->name('api.payments.stripe-intent');
+            Route::post('payments/{payment}/approve', [ApiPaymentController::class, 'approve']);
+            Route::post('payments/{payment}/reject', [ApiPaymentController::class, 'reject']);
             Route::delete('payments/{payment}', [ApiPaymentController::class, 'destroy']);
             Route::get('payments/{payment}/receipt', [ApiPaymentController::class, 'receipt']);
 

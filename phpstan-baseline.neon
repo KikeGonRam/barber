@@ -303,19 +303,19 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 3
 			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 5
 			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 3
 			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
 
 		-
@@ -345,6 +345,48 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Appointment\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
+			count: 2
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nivel\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nivel" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>precio" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$puntos\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>puntos" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
 
@@ -675,7 +717,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
@@ -699,7 +741,43 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
 			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$client\.$#'
+			identifier: property.notFound
 			count: 1
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Payment\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$comprobante_cliente\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$ocr_texto\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$ocr_monto_detectado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 2
 			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
