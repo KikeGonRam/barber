@@ -39,6 +39,7 @@ class Payment extends Model
         'monto_total',
         'puntos_canjeados',
         'stripe_payment_id',
+        'raffle_result_id',
     ];
 
     protected function casts(): array

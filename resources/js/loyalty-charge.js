@@ -17,15 +17,24 @@ export function computeLoyaltyCharge({
   puntosDisponibles,
   puntosCanjear,
   propina,
+  usarPremioRifa,
 }) {
   const montoNum = parseFloat(monto) || 0;
+  const propinaNum = parseFloat(propina) || 0;
+
+  // El premio de rifa cubre el servicio completo: no se combina con
+  // descuento de nivel ni puntos (ver PaymentService::create()).
+  if (usarPremioRifa) {
+    return { montoConNivel: 0, maxPuntosCanjeables: 0, descuentoPuntos: 0, total: propinaNum };
+  }
+
   const montoConNivel = montoNum * (1 - (parseFloat(nivelPct) || 0) / 100);
   const maxPuntosCanjeables = Math.max(
     0,
     Math.min(parseInt(puntosDisponibles) || 0, Math.floor(montoConNivel * 0.5)),
   );
   const descuentoPuntos = Math.min(parseInt(puntosCanjear) || 0, maxPuntosCanjeables);
-  const total = Math.max(0, montoConNivel - descuentoPuntos) + (parseFloat(propina) || 0);
+  const total = Math.max(0, montoConNivel - descuentoPuntos) + propinaNum;
 
   return { montoConNivel, maxPuntosCanjeables, descuentoPuntos, total };
 }

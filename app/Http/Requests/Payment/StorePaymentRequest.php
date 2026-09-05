@@ -22,10 +22,14 @@ class StorePaymentRequest extends FormRequest
     {
         return [
             'appointment_id' => ['required', 'string', 'exists:appointments,id'],
-            'monto' => ['required', 'numeric', 'min:0.01'],
+            // Con premio de rifa el cobro real es $0 (el "Monto del Servicio"
+            // del formulario es solo informativo/legado, igual que ya pasa
+            // con el descuento de nivel — ver PaymentService::create()).
+            'monto' => ['required', 'numeric', $this->boolean('usar_premio_rifa') ? 'min:0' : 'min:0.01'],
             'metodo_pago' => ['required', Rule::in(['efectivo', 'tarjeta', 'transferencia'])],
             'propina' => ['nullable', 'numeric', 'min:0'],
             'puntos_canjeados' => ['nullable', 'integer', 'min:0'],
+            'usar_premio_rifa' => ['nullable', 'boolean'],
             // 'tarjeta' ya no es un registro manual: siempre es un cobro real via
             // Stripe (beta), asi que exige el id del PaymentIntent ya confirmado.
             'stripe_payment_id' => ['required_if:metodo_pago,tarjeta', 'nullable', 'string'],
@@ -39,6 +43,7 @@ class StorePaymentRequest extends FormRequest
         $this->merge([
             'propina' => $this->input('propina', 0),
             'puntos_canjeados' => $this->input('puntos_canjeados', 0),
+            'usar_premio_rifa' => $this->boolean('usar_premio_rifa'),
         ]);
     }
 

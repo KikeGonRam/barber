@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Client;
 use App\Models\RaffleResult;
-use App\Notifications\LoyaltyNotification;
+use App\Notifications\RaffleWinNotification;
 use Illuminate\Console\Command;
 
 /**
@@ -52,14 +52,11 @@ class DrawMonthlyRaffle extends Command
             'mes' => $mes,
             'premio' => 'Corte premium gratis',
             'nivel_ganador' => $ganador->nivel,
+            'vence_en' => now()->addDays(RaffleResult::VIGENCIA_DIAS),
         ]);
 
         try {
-            $ganador->user?->notify(new LoyaltyNotification(
-                level: $ganador->nivel,
-                previousLevel: $ganador->nivel,
-                discount: 100,
-            ));
+            $ganador->user?->notify(new RaffleWinNotification($result));
         } catch (\Throwable) {
             // Si falla la notificacion (ej. usuario sin canal configurado), el
             // sorteo ya quedo registrado en BD; no se revierte por un error de aviso.

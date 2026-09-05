@@ -2121,6 +2121,96 @@ parameters:
 			path: app/Services/Payment/PaymentService.php
 
 		-
+			message: '#^Parameter \#1 \$client of method App\\Services\\Loyalty\\RaffleService\:\:activePrizeFor\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$premio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Payment/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Payment/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$premio_rifa_activo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Payment/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$reclamado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/RaffleResult.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$vence_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/RaffleResult.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$premio\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Notifications/RaffleWinNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$vence_en\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Notifications/RaffleWinNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$vence_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/DrawMonthlyRaffleTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/DrawMonthlyRaffleTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$raffle_result_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PaymentServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\RaffleResult\>\:\:\$reclamado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PaymentServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\RaffleResult\>\:\:\$appointment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PaymentServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$vence_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Unit/RaffleResultTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$reclamado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Unit/RaffleResultTest.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 1

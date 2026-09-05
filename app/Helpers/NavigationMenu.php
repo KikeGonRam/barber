@@ -41,6 +41,7 @@ class NavigationMenu
         'notifications' => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
         'analytics' => '<path d="M3 3v18h18"/><path d="M18.7 8.3l-4.2 4.2-2.8-2.8L7 14.4"/>',
         'reviews' => '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+        'raffles' => '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>',
     ];
 
     /**
@@ -106,6 +107,7 @@ class NavigationMenu
                     self::item('Analitica', 'analytics.index', 'analytics', ['analytics.index']),
                     self::item('Reportes', 'reports.index', 'reports', ['reports.*']),
                     self::item('Campanas', 'campaigns.index', 'campaigns', ['campaigns.*']),
+                    self::item('Sorteos', 'raffles.index', 'raffles', ['raffles.*']),
                     self::item('Logs', 'logs.index', 'logs', ['logs.*']),
                 ]),
             ];

@@ -469,8 +469,10 @@ class DashboardService
             ->limit(5)
             ->get();
 
-        // Ganador último sorteo
+        // Último premio de sorteo sin reclamar (una vez reclamado deja de
+        // mostrarse aquí; el historial completo vive en el panel de admin).
         $lastRaffle = RaffleResult::where('client_id', $clientId)
+            ->whereNull('reclamado_en')
             ->latest()
             ->first();
 

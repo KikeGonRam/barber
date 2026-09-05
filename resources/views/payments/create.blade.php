@@ -24,6 +24,8 @@
                     nivelLabel: '',
                     puntosDisponibles: 0,
                     puntosCanjear: {{ old('puntos_canjeados', 0) }},
+                    premioRifa: '',
+                    usarPremioRifa: {{ old('usar_premio_rifa') ? 'true' : 'false' }},
                     get _calc() { return window.UrbanBladeLoyalty.computeCharge(this) },
                     get montoConNivel() { return this._calc.montoConNivel },
                     get maxPuntosCanjeables() { return this._calc.maxPuntosCanjeables },
@@ -51,6 +53,7 @@
                                             data-nivel-pct="{{ \App\Services\Loyalty\LoyaltyService::discountPct($appointment->client?->nivel ?? 'nuevo') }}"
                                             data-nivel-label="{{ \App\Services\Loyalty\LoyaltyService::LEVEL_LABELS[$appointment->client?->nivel ?? 'nuevo'] }}"
                                             data-puntos="{{ $appointment->client?->puntos ?? 0 }}"
+                                            data-premio-rifa="{{ $appointment->client?->premio_rifa_activo ?? '' }}"
                                             @selected(old('appointment_id') == $appointment->id)>
                                         {{ \Carbon\Carbon::parse($appointment->fecha)->format('d/m') }} - {{ $appointment->client?->user?->name }} ({{ $appointment->service?->nombre }})
                                     </option>
@@ -82,8 +85,22 @@
                             </div>
                         </div>
 
+                        <!-- Premio de rifa disponible: cubre el servicio completo, excluye puntos -->
+                        <div x-show="premioRifa" x-cloak class="p-6 rounded-2xl border border-fuchsia-400/25 bg-fuchsia-400/5 space-y-3">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" name="usar_premio_rifa" value="1" x-model="usarPremioRifa"
+                                       @change="if (usarPremioRifa) { puntosCanjear = 0; if (metodo === 'tarjeta') metodo = 'efectivo'; }"
+                                       class="mt-0.5 h-4 w-4 rounded border-ink/20 bg-black/40 text-fuchsia-400 focus:ring-fuchsia-400/30">
+                                <span>
+                                    <span class="block text-[10px] font-black uppercase tracking-widest text-fuchsia-300">Premio de rifa disponible</span>
+                                    <span class="block text-xs text-ink/80 mt-0.5" x-text="premioRifa"></span>
+                                    <span class="block text-[9px] text-muted italic mt-1">Aplica el premio como 100% de descuento en este cobro (no se combina con puntos).</span>
+                                </span>
+                            </label>
+                        </div>
+
                         <!-- Loyalty: nivel discount info + points redemption -->
-                        <div x-show="nivelLabel" x-cloak class="p-6 rounded-2xl border border-gold/20 bg-ink/3 space-y-4">
+                        <div x-show="nivelLabel && !usarPremioRifa" x-cloak class="p-6 rounded-2xl border border-gold/20 bg-ink/3 space-y-4">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gold flex items-center gap-2">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 Cliente <span x-text="nivelLabel"></span>
@@ -114,6 +131,7 @@
                                 ] as $id => $opt)
                                     <button type="button"
                                             @click="metodo = '{{ $id }}'"
+                                            @if($id === 'tarjeta') x-show="!usarPremioRifa" x-cloak @endif
                                             :class="metodo === '{{ $id }}' ? 'border-gold bg-gold/10 text-gold' : 'border-ink/5 bg-ink/5 text-muted'"
                                             class="relative flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all hover:border-gold/30">
                                         @if($opt['beta'])
@@ -160,7 +178,11 @@
                                 <span class="text-muted font-bold uppercase tracking-widest text-[10px]">Subtotal</span>
                                 <span class="text-ink font-black" x-text="'$' + (parseFloat(monto) || 0).toFixed(2)"></span>
                             </div>
-                            <div class="flex justify-between items-center text-sm" x-show="nivelPct > 0" x-cloak>
+                            <div class="flex justify-between items-center text-sm" x-show="usarPremioRifa" x-cloak>
+                                <span class="text-muted font-bold uppercase tracking-widest text-[10px]">Premio de rifa</span>
+                                <span class="text-fuchsia-400 font-black" x-text="'-$' + (parseFloat(monto) || 0).toFixed(2)"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm" x-show="nivelPct > 0 && !usarPremioRifa" x-cloak>
                                 <span class="text-muted font-bold uppercase tracking-widest text-[10px]" x-text="'Descuento nivel (' + nivelPct + '%)'"></span>
                                 <span class="text-green-500 font-black" x-text="'-$' + ((parseFloat(monto) || 0) - montoConNivel).toFixed(2)"></span>
                             </div>
@@ -203,12 +225,15 @@
                 alpineData.nivelPct = parseFloat(selected.getAttribute('data-nivel-pct')) || 0;
                 alpineData.nivelLabel = selected.getAttribute('data-nivel-label') || '';
                 alpineData.puntosDisponibles = parseInt(selected.getAttribute('data-puntos')) || 0;
+                alpineData.premioRifa = selected.getAttribute('data-premio-rifa') || '';
             } else {
                 alpineData.nivelPct = 0;
                 alpineData.nivelLabel = '';
                 alpineData.puntosDisponibles = 0;
+                alpineData.premioRifa = '';
             }
             alpineData.puntosCanjear = 0;
+            alpineData.usarPremioRifa = false;
         });
 
         @if(config('services.stripe.key'))

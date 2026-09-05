@@ -22,6 +22,7 @@ use App\Http\Controllers\Dashboard\DatabaseBackupController;
 use App\Http\Controllers\Inventory\InventoryMovementController;
 use App\Http\Controllers\Inventory\ProductController;
 use App\Http\Controllers\Log\ActivityLogController;
+use App\Http\Controllers\Loyalty\RaffleController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Profile\ProfileController;
@@ -185,6 +186,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
         Route::post('campaigns', [CampaignController::class, 'send'])->name('campaigns.send');
+
+        Route::get('sorteos', [RaffleController::class, 'index'])->name('raffles.index');
 
         // Exportación de reportes (ingresos, citas, inventario, clientes) en varios formatos.
         Route::middleware('permission.custom:reportes.ver')->group(function () {

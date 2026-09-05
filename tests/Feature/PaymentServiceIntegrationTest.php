@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
 use App\Models\Payment;
+use App\Models\RaffleResult;
 use App\Models\Service;
 use App\Services\Payment\PaymentService;
 use Illuminate\Http\UploadedFile;
@@ -37,6 +38,7 @@ class PaymentServiceIntegrationTest extends TestCase
     protected function tearDown(): void
     {
         Payment::query()->delete();
+        RaffleResult::query()->delete();
         Appointment::query()->delete();
         Barber::query()->delete();
         Client::query()->delete();
@@ -214,6 +216,115 @@ class PaymentServiceIntegrationTest extends TestCase
         // El saldo no debe haberse tocado, y no debe haber quedado un pago a medias.
         $this->assertSame(10, (int) $appointment->client->fresh()->puntos);
         $this->assertNull(Payment::query()->where('appointment_id', (string) $appointment->id)->first());
+    }
+
+    public function test_create_applies_raffle_prize_as_full_discount_and_claims_it(): void
+    {
+        Notification::fake();
+        Storage::fake('public');
+
+        $appointment = $this->makeChargeableAppointment();
+        $prize = RaffleResult::create([
+            'client_id' => (string) $appointment->client_id,
+            'mes' => now()->subMonth()->format('Y-m'),
+            'premio' => 'Corte premium gratis',
+            'nivel_ganador' => 'vip',
+            'vence_en' => now()->addDays(30),
+        ]);
+
+        $payment = $this->service->create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 500,
+            'metodo_pago' => 'efectivo',
+            'usar_premio_rifa' => true,
+        ], (string) Str::uuid());
+
+        $this->assertEquals(0.0, (float) $payment->monto);
+        $this->assertSame((string) $prize->id, $payment->raffle_result_id);
+
+        $freshPrize = RaffleResult::find($prize->id);
+        $this->assertNotNull($freshPrize->reclamado_en);
+        $this->assertSame((string) $appointment->id, $freshPrize->appointment_id);
+        $this->assertFalse($freshPrize->isRedeemable());
+    }
+
+    public function test_create_throws_when_using_raffle_prize_the_client_does_not_have(): void
+    {
+        $appointment = $this->makeChargeableAppointment();
+
+        $this->expectException(PaymentException::class);
+
+        $this->service->create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 500,
+            'metodo_pago' => 'efectivo',
+            'usar_premio_rifa' => true,
+        ], (string) Str::uuid());
+    }
+
+    public function test_create_throws_when_using_an_already_claimed_raffle_prize(): void
+    {
+        $appointment = $this->makeChargeableAppointment();
+        RaffleResult::create([
+            'client_id' => (string) $appointment->client_id,
+            'mes' => now()->subMonth()->format('Y-m'),
+            'premio' => 'Corte premium gratis',
+            'nivel_ganador' => 'vip',
+            'vence_en' => now()->addDays(30),
+            'reclamado_en' => now()->subDay(),
+        ]);
+
+        $this->expectException(PaymentException::class);
+
+        $this->service->create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 500,
+            'metodo_pago' => 'efectivo',
+            'usar_premio_rifa' => true,
+        ], (string) Str::uuid());
+    }
+
+    public function test_create_throws_when_using_an_expired_raffle_prize(): void
+    {
+        $appointment = $this->makeChargeableAppointment();
+        RaffleResult::create([
+            'client_id' => (string) $appointment->client_id,
+            'mes' => now()->subMonths(3)->format('Y-m'),
+            'premio' => 'Corte premium gratis',
+            'nivel_ganador' => 'vip',
+            'vence_en' => now()->subDay(),
+        ]);
+
+        $this->expectException(PaymentException::class);
+
+        $this->service->create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 500,
+            'metodo_pago' => 'efectivo',
+            'usar_premio_rifa' => true,
+        ], (string) Str::uuid());
+    }
+
+    public function test_create_throws_when_combining_raffle_prize_with_point_redemption(): void
+    {
+        $appointment = $this->makeChargeableAppointment();
+        RaffleResult::create([
+            'client_id' => (string) $appointment->client_id,
+            'mes' => now()->subMonth()->format('Y-m'),
+            'premio' => 'Corte premium gratis',
+            'nivel_ganador' => 'vip',
+            'vence_en' => now()->addDays(30),
+        ]);
+
+        $this->expectException(PaymentException::class);
+
+        $this->service->create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 500,
+            'metodo_pago' => 'efectivo',
+            'usar_premio_rifa' => true,
+            'puntos_canjeados' => 5,
+        ], (string) Str::uuid());
     }
 
     public function test_create_throws_when_appointment_is_not_chargeable(): void

@@ -9,6 +9,7 @@ use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Payment;
+use App\Models\RaffleResult;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Payment\PaymentService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -82,6 +83,24 @@ class PaymentController extends Controller
             ->orderByDesc('fecha')
             ->orderByDesc('hora_inicio')
             ->get();
+
+        // Premios de rifa vigentes por cliente, en un solo query (evita N+1
+        // si hay muchas citas por cobrar) — se anota en cada Client cargado
+        // para que la vista pueda ofrecer aplicarlo como 100% de descuento.
+        $clientIds = $appointments->pluck('client.id')->filter()->map(fn ($id) => (string) $id)->unique()->values()->all();
+        if (! empty($clientIds)) {
+            $activePrizes = RaffleResult::whereIn('client_id', $clientIds)
+                ->whereNull('reclamado_en')
+                ->where('vence_en', '>=', now())
+                ->get()
+                ->keyBy('client_id');
+
+            $appointments->each(function (Appointment $appointment) use ($activePrizes) {
+                if ($appointment->client) {
+                    $appointment->client->premio_rifa_activo = $activePrizes->get((string) $appointment->client->id)?->premio;
+                }
+            });
+        }
 
         return view('payments.create', compact('appointments'));
     }

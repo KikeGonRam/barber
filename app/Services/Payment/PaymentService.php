@@ -12,6 +12,7 @@ use App\Repositories\Contracts\PaymentRepositoryInterface;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Loyalty\RaffleService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,7 @@ class PaymentService
         private readonly PaymentRepositoryInterface $payments,
         private readonly AppointmentNotifier $notifier,
         private readonly LoyaltyService $loyalty,
+        private readonly RaffleService $raffle,
     ) {}
 
     /**
@@ -60,31 +62,53 @@ class PaymentService
         return DB::transaction(function () use ($payload, $createdBy, $appointment) {
             $client = $appointment->client;
             $puntosCanjeados = (int) ($payload['puntos_canjeados'] ?? 0);
+            $usarPremioRifa = (bool) ($payload['usar_premio_rifa'] ?? false);
 
-            // El precio base NUNCA se toma de $payload['monto'] (viene de un
-            // formulario web, no hay que confiar en el en un cobro real) —
-            // siempre se relee del servicio de la cita, igual que ya hacen
-            // uploadTransferReceipt() y el intent de Stripe. El campo "Monto
-            // del Servicio" del formulario es solo informativo/legado.
-            $precioBase = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
-            $monto = LoyaltyService::applyDiscount($precioBase, $client?->nivel ?? 'nuevo');
+            if ($usarPremioRifa && $puntosCanjeados > 0) {
+                throw new PaymentException('No puedes canjear puntos y usar el premio de la rifa en el mismo cobro.');
+            }
 
-            if ($puntosCanjeados > 0) {
+            $premioRifa = null;
+
+            if ($usarPremioRifa) {
                 if (! $client) {
-                    throw new PaymentException('No se pueden canjear puntos: esta cita no tiene un cliente asociado.');
+                    throw new PaymentException('No se puede aplicar el premio de la rifa: esta cita no tiene un cliente asociado.');
                 }
 
-                $maxCanjeable = LoyaltyService::maxRedeemablePoints($monto, (int) $client->puntos);
-                if ($puntosCanjeados > $maxCanjeable) {
-                    throw new PaymentException("Solo se pueden canjear hasta {$maxCanjeable} puntos en este cobro (tope: 50% del total o el saldo disponible del cliente).");
+                $premioRifa = $this->raffle->activePrizeFor($client);
+                if (! $premioRifa) {
+                    throw new PaymentException('Este cliente no tiene un premio de rifa disponible para reclamar.');
                 }
 
-                if (! $this->loyalty->redeemPoints($client, $puntosCanjeados, 'Canje aplicado al cobro de la cita '.$appointment->id)) {
-                    throw new PaymentException('No se pudieron canjear los puntos indicados.');
-                }
+                // El premio cubre el servicio completo: no se combina con el
+                // descuento de nivel ni con puntos (ya validado arriba).
+                $monto = 0.0;
+            } else {
+                // El precio base NUNCA se toma de $payload['monto'] (viene de un
+                // formulario web, no hay que confiar en el en un cobro real) —
+                // siempre se relee del servicio de la cita, igual que ya hacen
+                // uploadTransferReceipt() y el intent de Stripe. El campo "Monto
+                // del Servicio" del formulario es solo informativo/legado.
+                $precioBase = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
+                $monto = LoyaltyService::applyDiscount($precioBase, $client?->nivel ?? 'nuevo');
 
-                // 1 punto = $1 MXN, ya validado contra el tope de arriba.
-                $monto -= $puntosCanjeados;
+                if ($puntosCanjeados > 0) {
+                    if (! $client) {
+                        throw new PaymentException('No se pueden canjear puntos: esta cita no tiene un cliente asociado.');
+                    }
+
+                    $maxCanjeable = LoyaltyService::maxRedeemablePoints($monto, (int) $client->puntos);
+                    if ($puntosCanjeados > $maxCanjeable) {
+                        throw new PaymentException("Solo se pueden canjear hasta {$maxCanjeable} puntos en este cobro (tope: 50% del total o el saldo disponible del cliente).");
+                    }
+
+                    if (! $this->loyalty->redeemPoints($client, $puntosCanjeados, 'Canje aplicado al cobro de la cita '.$appointment->id)) {
+                        throw new PaymentException('No se pudieron canjear los puntos indicados.');
+                    }
+
+                    // 1 punto = $1 MXN, ya validado contra el tope de arriba.
+                    $monto -= $puntosCanjeados;
+                }
             }
 
             $payment = $this->payments->create([
@@ -95,8 +119,13 @@ class PaymentService
                 'created_by' => $createdBy,
                 'estado' => Payment::ESTADO_VERIFICADO,
                 'puntos_canjeados' => $puntosCanjeados,
+                'raffle_result_id' => $premioRifa?->id,
                 'stripe_payment_id' => $payload['stripe_payment_id'] ?? null,
             ]);
+
+            if ($premioRifa) {
+                $this->raffle->claim($premioRifa, $appointment);
+            }
 
             return $this->completeCharge($payment, $appointment, $monto);
         });
