@@ -1,32 +1,37 @@
 ---
 name: inertia-vue-migration
 description: >
-  Context, decisions, and phase-by-phase progress for the in-flight migration of this
-  repo's frontend from Blade+Alpine.js to Inertia.js+Vue 3, happening entirely on the
-  `feature/inertia-vue-migration` branch (NOT merged to `main` until every phase is done
-  and the project owner explicitly approves). Consult this BEFORE touching anything under
-  `resources/js/Pages/`, `resources/js/inertia.js`, `resources/views/app.blade.php`,
-  `app/Http/Middleware/HandleInertiaRequests.php`, or before adding/removing any
-  Inertia/Vue/FullCalendar-Vue/vue-chartjs package — so work continues from the real
-  state instead of re-deciding things already settled. If you are a fresh session/agent
-  picking this up, read this whole file before writing any code.
+  Context, decisions, and phase-by-phase history of the (now complete and merged to
+  `main`, 2026-09-05) migration of this repo's appointments-calendar and 4 role
+  dashboards from Blade+Alpine.js to Inertia.js+Vue 3. Consult this BEFORE touching
+  anything under `resources/js/Pages/`, `resources/js/inertia.js`,
+  `resources/views/app.blade.php`, `app/Http/Middleware/HandleInertiaRequests.php`, or
+  before adding/removing any Inertia/Vue/FullCalendar-Vue/vue-chartjs package, and BEFORE
+  starting a NEW page migration in this same style (e.g. `/analytics` or any other
+  remaining Blade+Alpine page) — the established pattern, shared components
+  (AppLayout/DashboardHeader/AnalyticsInsights/AnalyticsCta/chart-theme.js), and every
+  gotcha found live here. The rest of the site (outside the calendar and the 4
+  dashboards) is still Blade+Alpine — do not assume otherwise.
 ---
 
 # Migración Blade+Alpine → Inertia.js+Vue 3
 
 ## Por qué existe esto
 
-El proyecto tiene una landing pública, dashboards (Admin/Recepción/Barbero/Cliente),
+El proyecto tenía una landing pública, dashboards (Admin/Recepción/Barbero/Cliente),
 calendario de citas (FullCalendar) y analítica (Chart.js) construidos con Blade + Alpine.js
 + jQuery-style DOM manipulation embebida en `<script>` tags dentro de las vistas. El dueño
 del proyecto pidió migrar a un framework reactivo moderno usando Inertia.js como puente,
 sin perder Laravel como backend ni tocar MongoDB.
 
-**Todo este trabajo vive en la rama `feature/inertia-vue-migration`.** No se mergea a
-`main` hasta que TODAS las fases de este documento estén completas, verificadas, y el
-dueño del proyecto lo confirme explícitamente. Cada fase debe quedar en verde (Pint,
-phpstan, `.\test.ps1`, `npm run build`, `npm audit --audit-level=high`) antes de pasar a
-la siguiente.
+**Migración completa y mergeada a `main` el 2026-09-05.** Las 7 fases (infraestructura,
+`AppLayout.vue`, calendario de citas, y los 4 dashboards por rol) se hicieron en la rama
+`feature/inertia-vue-migration`, cada una verificada en verde (Pint, phpstan,
+`.\test.ps1`, `npm run build`, eslint, `npm audit --audit-level=high`, y una verificación
+visual en navegador con las credenciales reales de cada rol) antes de pasar a la
+siguiente. La rama ya se borró (local y remota) — todo el trabajo vive en `main`. Este
+documento se conserva como referencia del patrón a seguir si se migra otra página Blade
+en el futuro (el resto del sitio sigue siendo Blade+Alpine).
 
 ## Decisión de stack: Vue 3, no React
 
