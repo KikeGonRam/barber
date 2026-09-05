@@ -8,6 +8,8 @@ use App\Models\Order;
 use App\Models\User;
 use App\Services\Analytics\AnalyticsInsightService;
 use App\Services\Dashboard\DashboardService;
+use App\Services\Loyalty\LoyaltyService;
+use App\Services\Member\MemberCardService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,6 +24,7 @@ class DashboardController extends Controller
     public function __construct(
         private readonly DashboardService $dashboardService,
         private readonly AnalyticsInsightService $analyticsInsightService,
+        private readonly MemberCardService $memberCardService,
     ) {}
 
     // Enruta al set de métricas correspondiente según el rol del usuario autenticado
@@ -57,7 +60,7 @@ class DashboardController extends Controller
         if ($user->hasRole('cliente') && $user->clientProfile) {
             return response()->json([
                 'role' => 'cliente',
-                'data' => $this->dashboardService->clientMetrics($user->clientProfile->id),
+                'data' => $this->clientPayload($user),
             ]);
         }
 
@@ -165,6 +168,77 @@ class DashboardController extends Controller
                 ->highlightsForDashboard($sparkInsights, 'barbero')
                 ->map(fn ($insight) => $insight->toDashboardCardArray())
                 ->values(),
+        ];
+    }
+
+    /**
+     * Mismo shape curado que Dashboard\DashboardController::index() (rama
+     * cliente) — ver receptionistPayload() arriba para el porqué de este
+     * patrón. `member.downloadUrl` se omite (null): la tarjeta descargable
+     * en PDF vive en una ruta web de Blade que no existe en este frontend
+     * todavía, así que el botón "Descargar tarjeta" simplemente no se
+     * renderiza (MembershipCard.vue ya lo hace condicional a que exista).
+     */
+    private function clientPayload(User $user): array
+    {
+        $client = $user->clientProfile;
+        $data = $this->dashboardService->clientMetrics((string) $client->id);
+        $sparkInsights = $this->analyticsInsightService->forClient();
+        $loyalty = $data['loyalty'];
+        $nivel = $loyalty['nivel'];
+        $nextNivel = $loyalty['next_nivel'];
+        $wonRaffle = $loyalty['won_raffle'];
+        // Recomendación aplicada: el cliente ve una acción útil, no
+        // análisis crudo — mismo criterio que la versión Inertia.
+        $clienteReco = collect($sparkInsights)->firstWhere('tipo', 'tambien_te_puede_interesar');
+
+        // Campos de fecha en español precalculados aquí (Carbon), igual que
+        // 'todayLabel' — no reimplementar formato de fechas en el frontend.
+        $nextAppt = $data['next_appointment'];
+        if ($nextAppt) {
+            $apptAt = Carbon::parse($nextAppt['fecha'].' '.$nextAppt['hora_inicio']);
+            $nextAppt['day'] = $apptAt->format('d');
+            $nextAppt['monthShort'] = $apptAt->translatedFormat('M');
+            $nextAppt['dateLong'] = $apptAt->translatedFormat('d F Y');
+            $nextAppt['canManage'] = in_array(strtolower((string) $nextAppt['estado']), ['pendiente', 'confirmada'], true)
+                && $apptAt->isFuture();
+        }
+
+        return [
+            'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
+            'kpis' => $data['kpis'],
+            'nextAppointment' => $nextAppt,
+            'visitChart' => $data['visit_chart'],
+            'loyalty' => [
+                'nivel' => $nivel,
+                'nivelLabel' => LoyaltyService::LEVEL_LABELS[$nivel] ?? strtoupper($nivel),
+                'puntos' => $loyalty['puntos'],
+                'discountPct' => $loyalty['discount_pct'],
+                'nextNivel' => $nextNivel,
+                'nextNivelLabel' => $nextNivel ? (LoyaltyService::LEVEL_LABELS[$nextNivel] ?? null) : null,
+                'citasFaltan' => $loyalty['citas_faltan'],
+                'progressPct' => $loyalty['progress_pct'],
+                'recentTransactions' => collect($loyalty['recent_transactions'])->map(fn ($tx) => [
+                    'descripcion' => $tx->descripcion,
+                    'puntos' => (int) $tx->puntos,
+                ])->values(),
+                'wonRaffle' => $wonRaffle ? [
+                    'mes' => $wonRaffle->mes,
+                    'premio' => $wonRaffle->premio,
+                    'isExpired' => $wonRaffle->isExpired(),
+                    'venceEn' => $wonRaffle->vence_en->format('d/m/Y'),
+                ] : null,
+            ],
+            'member' => [
+                'number' => $this->memberCardService->memberNumber($user),
+                'since' => $this->memberCardService->memberSince($user),
+                'qr' => $this->memberCardService->qrDataUri($user),
+                'downloadUrl' => null,
+            ],
+            'recommendation' => $clienteReco ? [
+                'valorDestacado' => $clienteReco->valor_destacado,
+                'mensaje' => $clienteReco->mensaje,
+            ] : null,
         ];
     }
 }

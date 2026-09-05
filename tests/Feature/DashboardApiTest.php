@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Barber;
+use App\Models\Client;
 use App\Models\MobileApiToken;
 use App\Models\Permission;
 use App\Models\Role;
@@ -39,6 +40,7 @@ class DashboardApiTest extends TestCase
         // 401 en corridas repetidas. Ya pasó una vez, ver el commit que
         // agregó este tearDown.
         Barber::query()->delete();
+        Client::query()->delete();
         MobileApiToken::query()->delete();
         User::query()->delete();
         Role::query()->delete();
@@ -95,6 +97,31 @@ class DashboardApiTest extends TestCase
         $response->assertJsonStructure([
             'role',
             'data' => ['todayLabel', 'kpis', 'performanceChart', 'servicesChart', 'barberToday', 'barberPending', 'sparkHighlights'],
+        ]);
+    }
+
+    public function test_cliente_gets_the_curated_dashboard_payload(): void
+    {
+        $role = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
+        $user = User::create(['name' => 'Cliente API', 'email' => 'cliente-api-dash@test.local', 'password' => 'password']);
+        $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+        Client::create(['user_id' => (string) $user->id, 'telefono' => '5551234567', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+
+        $token = 'test-plaintext-token-client-dashboard';
+        MobileApiToken::create([
+            'user_id' => (string) $user->id,
+            'name' => 'test',
+            'token_hash' => hash('sha256', $token),
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/dashboard');
+
+        $response->assertOk();
+        $response->assertJson(['role' => 'cliente']);
+        $response->assertJsonStructure([
+            'role',
+            'data' => ['todayLabel', 'kpis', 'nextAppointment', 'visitChart', 'loyalty', 'member', 'recommendation'],
         ]);
     }
 
