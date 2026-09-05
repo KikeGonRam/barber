@@ -1,7 +1,7 @@
 ---
 name: urbanblade-guardrails
 description: >
-  Safety rules and known incident history for the UrbanBlade "barber" repo (Laravel 12 +
+  Safety rules and known incident history for the UrbanBlade "barber" repo (Laravel 13 +
   MongoDB Atlas, shared with the sibling `spark/` analytics project). Consult this BEFORE
   running tests, migrations, seeders, `make` targets, `composer` setup scripts, or any
   `docker compose` command with `down`/volumes in this repo — even if the request looks

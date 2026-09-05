@@ -14,7 +14,7 @@ under the `UrbanBlade/` parent folder — see `../CLONAR_PROYECTOS.md` and
 
 ## Stack
 
-- PHP 8.2+, Laravel 12
+- PHP 8.3+, Laravel 13
 - Database: MongoDB (via `mongodb/laravel-mongodb` ^5.0), Atlas-hosted `barber_db`,
   shared with the `spark/` analytics project
 - Redis (cache, sessions, queue)

@@ -16,8 +16,8 @@ UrbanBlade es una plataforma operativa y analítica para barberías, pensada par
 
 ## 🏗️ Stack
 
-- PHP 8.2+
-- Laravel 12
+- PHP 8.3+
+- Laravel 13
 - MongoDB con mongodb/laravel-mongodb
 - Redis para caché, sesiones y cola
 - Vite + Tailwind CSS 3 + Alpine.js

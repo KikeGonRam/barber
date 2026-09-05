@@ -28,13 +28,13 @@ use App\Http\Controllers\Api\Setting\SettingController as ApiSettingController;
 use App\Http\Controllers\Api\Social\SocialController as ApiSocialController;
 use App\Http\Controllers\Api\User\UserController as ApiUserController;
 use App\Http\Controllers\Chatbot\ChatbotController;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Route;
 
 // Rutas fuera del prefijo v1: integraciones externas y compatibilidad retro.
 // Stripe webhook — sin auth ni CSRF; Stripe valida con firma HMAC
 Route::post('stripe/webhook', [StripeWebhookController::class, 'handle'])
-    ->withoutMiddleware([VerifyCsrfToken::class]);
+    ->withoutMiddleware([PreventRequestForgery::class]);
 
 // Backward compatibility for older frontend cache that still calls /api/availability/slots
 Route::get('availability/slots', [AvailabilityController::class, 'slots'])

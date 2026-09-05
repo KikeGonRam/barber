@@ -23,7 +23,7 @@ entornos separados: `barber/` en Docker, `spark/` en WSL Ubuntu.
 
 ### 2.1 Stack
 
-- **Backend**: PHP 8.2+, Laravel 12
+- **Backend**: PHP 8.3+, Laravel 13
 - **Base de datos**: MongoDB (paquete `mongodb/laravel-mongodb`) — sin MySQL
 - **Frontend**: TailwindCSS 3/4 + Alpine.js 3 + Vite (sin framework SPA; server-rendered con Blade)
 - **Paquetes clave**:
