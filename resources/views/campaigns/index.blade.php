@@ -61,9 +61,10 @@
                 </div>
 
                 <div>
-                    <label class="ui-label">Segmento (nivel de lealtad)</label>
+                    <label class="ui-label">Segmento</label>
                     <select name="segmento" x-model="segmento" class="ui-input w-full">
                         <option value="todos">Todos los clientes ({{ $segmentCounts['todos'] ?? 0 }})</option>
+                        <option value="inactive">Clientes en riesgo — 30+ días sin cita ({{ $segmentCounts['inactive'] ?? 0 }})</option>
                         @foreach($levels as $key => $label)
                             <option value="{{ $key }}">{{ $label }} ({{ $segmentCounts[$key] ?? 0 }})</option>
                         @endforeach
@@ -119,7 +120,7 @@
                             </span>
                         </div>
                         <div class="flex items-center gap-2 mt-1 text-[10px] font-bold uppercase tracking-wider text-muted">
-                            <span class="text-gold">{{ $c->segmento === 'todos' ? 'Todos' : ($levels[$c->segmento] ?? $c->segmento) }}</span>
+                            <span class="text-gold">{{ match($c->segmento) { 'todos' => 'Todos', 'inactive' => 'Clientes en riesgo', default => $levels[$c->segmento] ?? $c->segmento } }}</span>
                             <span>·</span>
                             @if($programada)
                                 <span>{{ optional($c->programada_para)->translatedFormat('d M, H:i') }}</span>

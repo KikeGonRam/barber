@@ -11,8 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Panel web de campañas de marketing por segmento de fidelidad (nivel de lealtad),
- * envío inmediato o programado. Uso exclusivo de administración.
+ * Panel web de campañas de marketing por segmento (nivel de lealtad, o
+ * 'inactive' = clientes en riesgo, 30+ días sin cita), envío inmediato o
+ * programado. Uso exclusivo de administración.
  */
 class CampaignController extends Controller
 {
@@ -44,7 +45,7 @@ class CampaignController extends Controller
             'cuerpo' => ['required', 'string', 'max:2000'],
             'cta_label' => ['nullable', 'string', 'max:40'],
             'cta_url' => ['nullable', 'url', 'max:300'],
-            'segmento' => ['required', 'in:todos,'.implode(',', $niveles)],
+            'segmento' => ['required', 'in:todos,inactive,'.implode(',', $niveles)],
             'modo' => ['required', 'in:ahora,programar'],
             'programada_para' => ['required_if:modo,programar', 'nullable', 'date', 'after:now'],
         ]);

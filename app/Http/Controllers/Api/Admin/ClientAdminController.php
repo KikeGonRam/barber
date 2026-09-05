@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\User;
+use App\Services\Client\ClientSegmentService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,8 @@ class ClientAdminController
     // evita un escaneo sin fondo en ese caso; el path normal (sin segmento)
     // sí pagina de verdad a nivel de base de datos.
     private const SEGMENT_FILTER_SCAN_LIMIT = 1000;
+
+    public function __construct(private readonly ClientSegmentService $segments) {}
 
     // Defensa en profundidad: aunque la ruta ya exige role.custom:administrador,
     // este guard evita que un descuido en routes/api.php exponga datos de clientes.
@@ -101,7 +104,7 @@ class ClientAdminController
         $totalSpent = (float) $appointments->where('estado', 'completada')
             ->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
 
-        $segment = $this->computeSegment($client, $appointments->count(), $appointments->first()?->fecha);
+        $segment = $this->segments->segment($client, $appointments->count(), $appointments->first()?->fecha);
 
         $preferredBarber = 'N/A';
         $grouped = $appointments->groupBy(fn ($a) => (string) $a->barber_id)->map->count()->sortDesc();
@@ -147,25 +150,8 @@ class ClientAdminController
     public function getSegmentation(): JsonResponse
     {
         $this->authorizeAdmin();
-        $clients = Client::with('user')->get();
-        $clientIds = $clients->pluck('id')->map(fn ($id) => (string) $id)->all();
-
-        // 1 batch query instead of 2N queries
-        $allAppts = Appointment::whereIn('client_id', $clientIds)
-            ->get(['client_id', 'fecha'])
-            ->groupBy(fn ($a) => (string) $a->client_id);
-
-        $now = Carbon::now();
-        $segments = ['vip' => 0, 'new' => 0, 'inactive' => 0, 'active' => 0];
-
-        foreach ($clients as $client) {
-            $appts = $allAppts->get((string) $client->id, collect());
-            $lastFecha = $appts->sortByDesc(fn ($a) => (string) $a->fecha)->first()?->fecha;
-            $seg = $this->computeSegment($client, $appts->count(), $lastFecha);
-            $segments[$seg] = ($segments[$seg] ?? 0) + 1;
-        }
-
-        $total = $clients->count();
+        $segments = $this->segments->counts();
+        $total = array_sum($segments);
 
         return response()->json([
             'success' => true,
@@ -325,30 +311,11 @@ class ClientAdminController
             'name' => $client->user?->name,
             'email' => $client->user?->email,
             'telefono' => $client->telefono,
-            'segment' => $this->computeSegment($client, $appts->count(), $lastFecha),
+            'segment' => $this->segments->segment($client, $appts->count(), $lastFecha),
             'totalAppointments' => $appts->count(),
             'totalSpent' => $totalSpent,
             'lastAppointment' => $lastDate,
             'joinedAt' => optional($client->created_at)->toIso8601String(),
         ];
-    }
-
-    // Cálculo puro en memoria — sin queries a la base de datos
-    private function computeSegment(Client $client, int $apptCount, mixed $lastFecha): string
-    {
-        if ($apptCount > 10) {
-            return 'vip';
-        }
-
-        $daysSinceJoin = (int) optional($client->created_at)->diffInDays(Carbon::now());
-        if ($daysSinceJoin <= 14) {
-            return 'new';
-        }
-
-        $daysSinceLast = $lastFecha
-            ? (int) Carbon::parse($lastFecha)->diffInDays(Carbon::now())
-            : 999;
-
-        return $daysSinceLast > 30 ? 'inactive' : 'active';
     }
 }
