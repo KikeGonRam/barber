@@ -165,7 +165,15 @@ class BarberReviewServiceIntegrationTest extends TestCase
     {
         // Respaldo real del índice único (barber_id, client_id): incluso si
         // el chequeo de aplicación se saltara por una condición de carrera,
-        // la base de datos debe rechazar el duplicado.
+        // la base de datos debe rechazar el duplicado. El job de PHPUnit en
+        // CI corre los tests sin migrar primero (solo el job de "Smoke test"
+        // lo hace), así que el test aplica su propia migración para no
+        // depender de que el entorno ya la haya corrido.
+        $this->artisan('migrate', [
+            '--path' => 'database/migrations/2026_09_05_000000_add_barber_reviews_unique_index.php',
+            '--force' => true,
+        ]);
+
         $barber = $this->makeBarber();
         $client = $this->makeClient();
 
