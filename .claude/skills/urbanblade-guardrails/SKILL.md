@@ -239,9 +239,33 @@ passwords by the project owner's explicit, informed choice, not an oversight; do
 "fix" that by removing it without asking, but also don't casually add more real secrets
 to any public-repo file without the same explicit confirmation.
 
-## 17. This rule set can go stale within hours — don't treat it as complete
+## 18. New sibling repo `frontend-urban` (Nuxt) is decoupling the frontend from this one
 
-Every guardrail above except #1 was added or corrected on 2026-09-02/03/04, several of
+As of 2026-09-04/05, the team decided to migrate off Blade+Inertia to a separate Nuxt 4
+app: `C:\Users\luis1\Documents\UrbanBlade\frontend-urban`
+(`https://github.com/KikeGonRam/frontend_Urbanblade.git`). It consumes this repo's
+existing JSON API (`routes/api.php`) over the same custom Bearer-token system described
+in guardrail #11 (`mobile_api_tokens` / `AuthenticateMobileApiToken`, **not** Sanctum —
+that repo's own plan doc had the same "Sanctum" mislabel initially and was corrected).
+Full plan/architecture: `frontend-urban/.claude/skills/nuxt-migration-plan/SKILL.md`.
+
+Concretely, this means work in **this** repo should expect, as the Nuxt migration
+proceeds:
+- `config/cors.php` needs to be published and configured (it does not exist yet) to
+  allow the Nuxt origin on `api/*` — don't be surprised if a task asks for this.
+- `Api/Dashboard/DashboardController` currently returns raw `DashboardService` output
+  (no computed/formatted fields like the Inertia dashboards have) — expect requests to
+  enrich it to match, per guardrail #11's "keep the API contract additive/stable" rule.
+- The Inertia+Vue pages from the migration in `.claude/skills/inertia-vue-migration/`
+  are **not being removed yet** — they stay live as a fallback until Nuxt reaches
+  feature parity. Don't delete Inertia pages/routes without the user explicitly
+  confirming Nuxt has replaced them.
+- This does NOT reopen `spark`/`mobil` scope (guardrail #10 still applies) — it's a new,
+  separate, currently-active third repo alongside `barber`.
+
+## 19. This rule set can go stale within hours — don't treat it as complete
+
+Every guardrail above except #1 was added or corrected on 2026-09-02/03/04/05, several of
 them because something changed *during the same working session* that wrote them (the
 docs drift in #16, the database wipe in #12, the payment method changes in #15 all
 happened after this file already existed). Treat this skill as a snapshot, not a
