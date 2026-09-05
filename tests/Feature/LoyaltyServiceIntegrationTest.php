@@ -70,4 +70,88 @@ class LoyaltyServiceIntegrationTest extends TestCase
         $this->assertFalse($result);
         $this->assertSame(3, $client->puntos);
     }
+
+    public function test_apply_inactivity_lifecycle_downgrades_level_after_180_days(): void
+    {
+        $client = Client::create([
+            'telefono' => '0000000000',
+            'nivel' => 'vip',
+            'puntos' => 50,
+            'total_citas' => 10,
+        ]);
+
+        $resultado = (new LoyaltyService)->applyInactivityLifecycle($client, 200);
+
+        $client->refresh();
+
+        $this->assertTrue($resultado['downgraded']);
+        $this->assertSame('regular', $resultado['new_level']);
+        $this->assertSame('regular', $client->nivel);
+        $this->assertFalse($resultado['points_expired']);
+        $this->assertSame(50, $client->puntos);
+    }
+
+    public function test_apply_inactivity_lifecycle_expires_points_after_365_days(): void
+    {
+        $client = Client::create([
+            'telefono' => '0000000000',
+            'nivel' => 'vip',
+            'puntos' => 80,
+            'total_citas' => 10,
+        ]);
+
+        $resultado = (new LoyaltyService)->applyInactivityLifecycle($client, 400);
+
+        $client->refresh();
+
+        $this->assertTrue($resultado['points_expired']);
+        $this->assertSame(0, $client->puntos);
+
+        $expiracion = LoyaltyTransaction::query()
+            ->where('client_id', (string) $client->id)
+            ->where('descripcion', 'like', 'Puntos vencidos%')
+            ->first();
+
+        $this->assertNotNull($expiracion);
+        $this->assertSame(-80, $expiracion->puntos);
+    }
+
+    public function test_apply_inactivity_lifecycle_is_idempotent_on_repeated_calls(): void
+    {
+        $client = Client::create([
+            'telefono' => '0000000000',
+            'nivel' => 'leyenda',
+            'puntos' => 20,
+            'total_citas' => 25,
+        ]);
+
+        $loyalty = new LoyaltyService;
+        $primera = $loyalty->applyInactivityLifecycle($client, 400);
+        $client->refresh();
+        $segunda = $loyalty->applyInactivityLifecycle($client, 400);
+        $client->refresh();
+
+        $this->assertTrue($primera['downgraded']);
+        $this->assertFalse($segunda['downgraded']);
+        $this->assertSame($primera['new_level'], $client->nivel);
+    }
+
+    public function test_apply_inactivity_lifecycle_never_upgrades_a_client(): void
+    {
+        // Cliente con pocas citas pero nivel manual mas alto que el que le
+        // corresponde: applyInactivityLifecycle nunca debe subirlo.
+        $client = Client::create([
+            'telefono' => '0000000000',
+            'nivel' => 'nuevo',
+            'puntos' => 0,
+            'total_citas' => 0,
+        ]);
+
+        $resultado = (new LoyaltyService)->applyInactivityLifecycle($client, 400);
+
+        $client->refresh();
+
+        $this->assertFalse($resultado['downgraded']);
+        $this->assertSame('nuevo', $client->nivel);
+    }
 }

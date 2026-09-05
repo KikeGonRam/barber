@@ -71,4 +71,47 @@ class LoyaltyServiceTest extends TestCase
         $this->assertSame(0, LoyaltyService::maxRedeemablePoints(0.0, 50));
         $this->assertSame(0, LoyaltyService::maxRedeemablePoints(100.0, 0));
     }
+
+    public function test_previous_level_progression(): void
+    {
+        $this->assertSame('nuevo', LoyaltyService::previousLevel('regular'));
+        $this->assertSame('regular', LoyaltyService::previousLevel('vip'));
+        $this->assertSame('vip', LoyaltyService::previousLevel('leyenda'));
+        $this->assertNull(LoyaltyService::previousLevel('nuevo'));
+        $this->assertNull(LoyaltyService::previousLevel('nivel_desconocido'));
+    }
+
+    public function test_level_after_inactivity_holds_steady_before_the_threshold(): void
+    {
+        // VIP (>=10 citas) con menos de 180 dias sin visita: conserva su nivel.
+        $this->assertSame('vip', LoyaltyService::levelAfterInactivity(15, 0));
+        $this->assertSame('vip', LoyaltyService::levelAfterInactivity(15, 179));
+    }
+
+    public function test_level_after_inactivity_drops_one_tier_per_full_block(): void
+    {
+        // Leyenda (>=20 citas): 180-359 dias -> vip, 360-539 -> regular, etc.
+        $this->assertSame('vip', LoyaltyService::levelAfterInactivity(25, 180));
+        $this->assertSame('vip', LoyaltyService::levelAfterInactivity(25, 359));
+        $this->assertSame('regular', LoyaltyService::levelAfterInactivity(25, 360));
+        $this->assertSame('nuevo', LoyaltyService::levelAfterInactivity(25, 540));
+    }
+
+    public function test_level_after_inactivity_never_drops_below_nuevo(): void
+    {
+        // Muchos bloques de inactividad no deben producir un indice negativo.
+        $this->assertSame('nuevo', LoyaltyService::levelAfterInactivity(25, 999999));
+        $this->assertSame('nuevo', LoyaltyService::levelAfterInactivity(0, 999999));
+    }
+
+    public function test_level_after_inactivity_is_idempotent_regardless_of_call_frequency(): void
+    {
+        // Correr el calculo varias veces para la misma inactividad no debe
+        // seguir bajando el nivel: es un calculo directo, no un decremento.
+        $primeraLlamada = LoyaltyService::levelAfterInactivity(25, 400);
+        $segundaLlamada = LoyaltyService::levelAfterInactivity(25, 400);
+
+        $this->assertSame($primeraLlamada, $segundaLlamada);
+        $this->assertSame('regular', $primeraLlamada);
+    }
 }

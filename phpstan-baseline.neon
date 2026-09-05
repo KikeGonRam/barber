@@ -1871,7 +1871,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:notify\(\)\.$#'
 			identifier: method.notFound
-			count: 1
+			count: 3
 			path: app/Services/Loyalty/LoyaltyService.php
 
 		-
