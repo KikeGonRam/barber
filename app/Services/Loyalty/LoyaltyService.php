@@ -243,6 +243,26 @@ class LoyaltyService
         ]);
     }
 
+    // Puntos de regalo por cumpleaños, otorgados por SendBirthdayGreetingsCommand.
+    // La descripcion se comparte como constante porque el comando la usa para
+    // detectar si un cliente ya recibio su regalo este mismo año (evita
+    // duplicarlo si el comando se corre dos veces el mismo dia).
+    const BIRTHDAY_POINTS = 20;
+
+    const BIRTHDAY_TRANSACTION_DESCRIPTION = 'Regalo de cumpleaños';
+
+    public function awardBirthdayPoints(Client $client): void
+    {
+        $client->increment('puntos', self::BIRTHDAY_POINTS);
+
+        LoyaltyTransaction::create([
+            'client_id' => (string) $client->id,
+            'tipo' => 'ganado',
+            'puntos' => self::BIRTHDAY_POINTS,
+            'descripcion' => self::BIRTHDAY_TRANSACTION_DESCRIPTION,
+        ]);
+    }
+
     public function awardResenaPoints(Client $client, string $reviewId): void
     {
         $client->increment('puntos', 5);
