@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
 use MongoDB\Laravel\Eloquent\Model;
 
 /**
@@ -146,5 +147,38 @@ class AnalyticsInsight extends Model
 
         return self::visualTypeFor($this->tipo, $this->grafica) === 'heatmap'
             && filled($this->valor_destacado);
+    }
+
+    /**
+     * Payload plano para la tarjeta SIN gráfica (los 4 dashboards por rol
+     * llaman a <x-analytics-insights>/AnalyticsInsights.vue sin showCharts,
+     * que por defecto es false — la variante con matriz/heatmap/canvas de
+     * Chart.js solo la usa resources/views/analytics/index.blade.php, que
+     * sigue sin migrar). Centraliza aquí el truncado/porcentaje que antes
+     * vivía inline en el Blade, para que el frontend (Vue) reciba datos ya
+     * calculados en vez de reimplementar estas reglas de negocio en JS.
+     */
+    public function toDashboardCardArray(): array
+    {
+        $visualType = self::visualTypeFor($this->tipo, $this->grafica);
+        $mensaje = (string) ($this->mensaje ?? '');
+        $briefLimit = 34;
+        $isTruncated = str_word_count(strip_tags($mensaje)) > $briefLimit;
+
+        $progressValue = null;
+        if (preg_match('/([\d]+(?:[.,]\d+)?)\s*%/', (string) $this->valor_destacado, $matches)) {
+            $progressValue = max(3, min(100, (float) str_replace(',', '.', $matches[1])));
+        }
+
+        return [
+            'titulo' => $this->titulo,
+            'dato' => $this->valor_destacado,
+            'color' => $this->color ?: 'gold',
+            'visual_label' => self::VISUAL_LABELS[$visualType] ?? 'Indicador',
+            'mensaje' => $mensaje,
+            'brief' => $isTruncated ? Str::words($mensaje, $briefLimit) : $mensaje,
+            'is_truncated' => $isTruncated,
+            'progress_value' => $progressValue,
+        ];
     }
 }

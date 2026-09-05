@@ -693,7 +693,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
-			count: 5
+			count: 6
 			path: app/Http/Controllers/Appointment/AppointmentController.php
 
 		-
@@ -727,6 +727,12 @@ parameters:
 			path: app/Http/Controllers/Appointment/AppointmentController.php
 
 		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Appointment/AppointmentController.php
+
+		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Client\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
@@ -741,7 +747,7 @@ parameters:
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
-			count: 4
+			count: 5
 			path: app/Http/Controllers/Appointment/AppointmentController.php
 
 		-
@@ -931,15 +937,63 @@ parameters:
 			path: app/Http/Controllers/Client/StoreController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Dashboard/DashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Dashboard/DashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Dashboard/DashboardController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/Dashboard/DashboardController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/Dashboard/DashboardController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 9
+			path: app/Http/Controllers/Dashboard/DashboardController.php
+
+		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 1
+			path: app/Http/Controllers/Dashboard/DashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Appointment\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 3
+			path: app/Http/Controllers/Dashboard/DashboardController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 9
+			path: app/Http/Controllers/Dashboard/DashboardController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 4
 			path: app/Http/Controllers/Dashboard/DashboardController.php
 
 		-
@@ -1291,13 +1345,25 @@ parameters:
 			path: app/Models/Activity.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$color\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/AnalyticsInsight.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$grafica\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Models/AnalyticsInsight.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$tipo\.$#'
 			identifier: property.notFound
 			count: 2
 			path: app/Models/AnalyticsInsight.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$tipo\.$#'
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$titulo\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Models/AnalyticsInsight.php
@@ -1305,7 +1371,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$valor_destacado\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 3
 			path: app/Models/AnalyticsInsight.php
 
 		-

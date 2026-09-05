@@ -3,14 +3,20 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\AnalyticsInsight;
 use App\Models\Appointment;
 use App\Models\BarbershopSetting;
+use App\Models\Order;
 use App\Models\Service;
 use App\Services\Analytics\AnalyticsInsightService;
 use App\Services\Dashboard\DashboardService;
+use App\Services\Loyalty\LoyaltyService;
+use App\Services\Member\MemberCardService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Dashboard principal, con una vista distinta por rol (administrador, barbero,
@@ -25,12 +31,15 @@ class DashboardController extends Controller
     ) {}
 
     // Determina el rol del usuario autenticado y arma el payload de métricas correspondiente.
-    public function index(): View
+    public function index(): InertiaResponse
     {
         $user = request()->user();
 
         if (! $user) {
-            return view('dashboard', ['adminMode' => false]);
+            // Inalcanzable en la práctica: la ruta ya exige el middleware
+            // 'auth'. Se mantiene por seguridad de tipos, misma página que
+            // el fallback "sin rol" de abajo.
+            return Inertia::render('Dashboard/SinRol');
         }
 
         if ($user->hasRoleName('administrador')) {
@@ -50,11 +59,10 @@ class DashboardController extends Controller
                 ->get();
             $sparkInsights = $this->analyticsInsightService->forAdmin();
 
-            return view('dashboard', [
-                'adminMode' => true,
-                'isBarberMode' => false,
-                'isReceptionMode' => false,
-                'isClientMode' => false,
+            // Migrado a Inertia+Vue (ver .claude/skills/inertia-vue-migration/SKILL.md,
+            // Fase 7 — última rama de dashboard.blade.php).
+            return Inertia::render('Dashboard/Administrador', [
+                'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
                 'kpis' => $data['kpis'],
                 'incomeChart' => $data['income_chart'],
                 'servicesChart' => $data['services_chart'],
@@ -62,11 +70,27 @@ class DashboardController extends Controller
                 'clientTrends' => $data['client_trends'],
                 'chatbotTelemetry' => $data['chatbot_telemetry'] ?? [],
                 'maintenanceMode' => $setting?->maintenance_mode ?? false,
-                'todayAppointments' => $todayAppointments,
-                'recentAppointments' => $recentAppointments,
+                'todayAppointments' => $todayAppointments->map(fn (Appointment $appt) => [
+                    'id' => (string) $appt->id,
+                    'estado' => $appt->estado,
+                    'hora_inicio' => $appt->hora_inicio,
+                    'hora_fin' => $appt->hora_fin,
+                    'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                    'servicio' => $appt->service?->nombre ?? '—',
+                    'barbero' => $appt->barber?->user?->name ?? '—',
+                ]),
+                'recentAppointments' => $recentAppointments->map(fn (Appointment $appt) => [
+                    'id' => (string) $appt->id,
+                    'estado' => $appt->estado,
+                    'hora_inicio' => $appt->hora_inicio,
+                    'fecha' => Carbon::parse($appt->fecha)->translatedFormat('d M'),
+                    'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                    'barberoInicial' => mb_strtoupper(mb_substr($appt->barber?->user?->name ?? 'B', 0, 1)),
+                ]),
                 'insights' => $this->analysisInsights(),
-                'sparkInsights' => $sparkInsights,
-                'sparkHighlights' => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'administrador'),
+                'sparkHighlights' => $this->analyticsInsightService
+                    ->highlightsForDashboard($sparkInsights, 'administrador')
+                    ->map(fn (AnalyticsInsight $insight) => $insight->toDashboardCardArray()),
             ]);
         }
 
@@ -90,40 +114,76 @@ class DashboardController extends Controller
                 ->get();
             $sparkInsights = $this->analyticsInsightService->forBarber((string) $user->id, $barberId);
 
-            return view('dashboard', [
-                'adminMode' => false,
-                'isBarberMode' => true,
-                'isReceptionMode' => false,
-                'isClientMode' => false,
+            // El "siguiente" servicio del día: la primera cita de hoy que
+            // todavía no terminó (confirmada/en_proceso/pendiente) — se
+            // calcula aquí (no en Vue) para no duplicar esta regla de
+            // negocio en JS. Ver AnalyticsInsight::toDashboardCardArray()
+            // para el mismo patrón en la Fase 4.
+            $nextAppointment = $barberToday->first(fn (Appointment $a) => in_array($a->estado, ['confirmada', 'en_proceso', 'pendiente'], true));
+            $nextAppointmentId = $nextAppointment ? (string) $nextAppointment->id : null;
+
+            // Migrado a Inertia+Vue (ver .claude/skills/inertia-vue-migration/SKILL.md,
+            // Fase 5). Los otros 2 roles (administrador/cliente) siguen en Blade hasta
+            // su propia fase.
+            return Inertia::render('Dashboard/Barbero', [
+                'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
                 'kpis' => $data['kpis'],
                 'performanceChart' => $data['performance_chart'],
                 'servicesChart' => $data['services_chart'],
-                'chatbotTelemetry' => [],
-                'barberToday' => $barberToday,
-                'barberPending' => $barberPending,
+                'barberToday' => $barberToday->map(fn (Appointment $appt) => [
+                    'id' => (string) $appt->id,
+                    'estado' => $appt->estado,
+                    'hora_inicio' => $appt->hora_inicio,
+                    'hora_fin' => $appt->hora_fin,
+                    'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                    'servicio' => $appt->service?->nombre ?? '—',
+                    'isNext' => (string) $appt->id === $nextAppointmentId,
+                ]),
+                'barberPending' => $barberPending->map(fn (Appointment $appt) => [
+                    'id' => (string) $appt->id,
+                    'fecha' => Carbon::parse($appt->fecha)->translatedFormat('d M'),
+                    'hora_inicio' => $appt->hora_inicio,
+                    'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                    'servicio' => $appt->service?->nombre ?? '—',
+                    'statusUrl' => route('barber.appointments.status', $appt->id),
+                ]),
                 // El barbero solo recibe SUS PROPIOS insights (nunca los de
                 // otro barbero) — ver AnalyticsInsightService::forBarber().
-                'sparkInsights' => $sparkInsights,
-                'sparkHighlights' => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'barbero'),
+                'sparkHighlights' => $this->analyticsInsightService
+                    ->highlightsForDashboard($sparkInsights, 'barbero')
+                    ->map(fn (AnalyticsInsight $insight) => $insight->toDashboardCardArray()),
             ]);
         }
 
         if ($user->hasRoleName('recepcionista')) {
             $data = $this->dashboardService->receptionistMetrics();
             $sparkInsights = $this->analyticsInsightService->forReception();
+            $pendingOrdersList = $data['pending_orders_list'] ?? collect();
 
-            return view('dashboard', [
-                'adminMode' => false,
-                'isBarberMode' => false,
-                'isReceptionMode' => true,
-                'isClientMode' => false,
+            // Migrado a Inertia+Vue (ver .claude/skills/inertia-vue-migration/SKILL.md,
+            // Fase 4). Los otros 3 roles siguen en Blade hasta su propia fase.
+            return Inertia::render('Dashboard/Recepcion', [
+                'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
                 'kpis' => $data['kpis'],
-                'nextAppointments' => $data['next_appointments'],
-                'pending_orders_list' => $data['pending_orders_list'] ?? collect(),
-                'flow_chart' => $data['flow_chart'],
-                'chatbotTelemetry' => [],
-                'sparkInsights' => $sparkInsights,
-                'sparkHighlights' => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'recepcionista'),
+                'nextAppointments' => $data['next_appointments']->map(fn (Appointment $appt) => [
+                    'id' => (string) $appt->id,
+                    'hora_inicio' => $appt->hora_inicio,
+                    'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                    'servicio' => $appt->service?->nombre ?? '—',
+                    'barbero' => $appt->barber?->user?->name ?? '—',
+                ]),
+                'pendingOrders' => $pendingOrdersList->map(fn (Order $order) => [
+                    'id' => (string) $order->id,
+                    'folio' => $order->folio,
+                    'cliente' => $order->client?->user?->name ?? 'Cliente',
+                    'creadoEn' => optional($order->created_at)->translatedFormat('d M, H:i'),
+                    'itemsCount' => count($order->items ?? []),
+                    'total' => (float) $order->total,
+                ]),
+                'flowChart' => $data['flow_chart'],
+                'sparkHighlights' => $this->analyticsInsightService
+                    ->highlightsForDashboard($sparkInsights, 'recepcionista')
+                    ->map(fn (AnalyticsInsight $insight) => $insight->toDashboardCardArray()),
             ]);
         }
 
@@ -135,28 +195,69 @@ class DashboardController extends Controller
 
             $data = $this->dashboardService->clientMetrics((string) $client->id);
             $sparkInsights = $this->analyticsInsightService->forClient();
+            $loyalty = $data['loyalty'];
+            $nivel = $loyalty['nivel'];
+            $nextNivel = $loyalty['next_nivel'];
+            $wonRaffle = $loyalty['won_raffle'];
+            $memberCard = app(MemberCardService::class);
+            // Recomendación aplicada: el cliente ve una acción útil, no
+            // análisis crudo — mismo criterio que dashboard.blade.php.
+            $clienteReco = collect($sparkInsights)->firstWhere('tipo', 'tambien_te_puede_interesar');
 
-            return view('dashboard', [
-                'adminMode' => false,
-                'isBarberMode' => false,
-                'isReceptionMode' => false,
-                'isClientMode' => true,
+            // Campos de fecha en español precalculados aquí (Carbon) para no
+            // reimplementar formato de fechas en español en Vue — mismo
+            // principio que 'todayLabel'.
+            $nextAppt = $data['next_appointment'];
+            if ($nextAppt) {
+                $apptAt = Carbon::parse($nextAppt['fecha'].' '.$nextAppt['hora_inicio']);
+                $nextAppt['day'] = $apptAt->format('d');
+                $nextAppt['monthShort'] = $apptAt->translatedFormat('M');
+                $nextAppt['dateLong'] = $apptAt->translatedFormat('d F Y');
+                $nextAppt['canManage'] = in_array(strtolower((string) $nextAppt['estado']), ['pendiente', 'confirmada'], true)
+                    && $apptAt->isFuture();
+            }
+
+            // Migrado a Inertia+Vue (ver .claude/skills/inertia-vue-migration/SKILL.md,
+            // Fase 6). Solo falta administrador.
+            return Inertia::render('Dashboard/Cliente', [
+                'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
                 'kpis' => $data['kpis'],
-                'loyalty' => $data['loyalty'],
-                'nextAppointment' => $data['next_appointment'],
-                'chatbotTelemetry' => [],
-                'visit_chart' => $data['visit_chart'],
-                'sparkInsights' => $sparkInsights,
-                'sparkHighlights' => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'cliente'),
+                'nextAppointment' => $nextAppt,
+                'visitChart' => $data['visit_chart'],
+                'loyalty' => [
+                    'nivel' => $nivel,
+                    'nivelLabel' => LoyaltyService::LEVEL_LABELS[$nivel] ?? strtoupper($nivel),
+                    'puntos' => $loyalty['puntos'],
+                    'discountPct' => $loyalty['discount_pct'],
+                    'nextNivel' => $nextNivel,
+                    'nextNivelLabel' => $nextNivel ? (LoyaltyService::LEVEL_LABELS[$nextNivel] ?? null) : null,
+                    'citasFaltan' => $loyalty['citas_faltan'],
+                    'progressPct' => $loyalty['progress_pct'],
+                    'recentTransactions' => collect($loyalty['recent_transactions'])->map(fn ($tx) => [
+                        'descripcion' => $tx->descripcion,
+                        'puntos' => (int) $tx->puntos,
+                    ]),
+                    'wonRaffle' => $wonRaffle ? [
+                        'mes' => $wonRaffle->mes,
+                        'premio' => $wonRaffle->premio,
+                        'isExpired' => $wonRaffle->isExpired(),
+                        'venceEn' => $wonRaffle->vence_en->format('d/m/Y'),
+                    ] : null,
+                ],
+                'member' => [
+                    'number' => $memberCard->memberNumber($user),
+                    'since' => $memberCard->memberSince($user),
+                    'qr' => $memberCard->qrDataUri($user),
+                    'downloadUrl' => Route::has('client.membership.card') ? route('client.membership.card') : null,
+                ],
+                'recommendation' => $clienteReco ? [
+                    'valorDestacado' => $clienteReco->valor_destacado,
+                    'mensaje' => $clienteReco->mensaje,
+                ] : null,
             ]);
         }
 
-        return view('dashboard', [
-            'adminMode' => false,
-            'isBarberMode' => false,
-            'isReceptionMode' => false,
-            'isClientMode' => false,
-        ]);
+        return Inertia::render('Dashboard/SinRol');
     }
 
     /**

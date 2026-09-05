@@ -5,6 +5,7 @@ use App\Exceptions\Domain\InsufficientStockException;
 use App\Exceptions\Domain\PaymentException;
 use App\Http\Middleware\AuthenticateMobileApiToken;
 use App\Http\Middleware\CheckMaintenanceMode;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\Role\EnsureUserHasPermission;
 use App\Http\Middleware\Role\EnsureUserHasRole;
 use Illuminate\Foundation\Application;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->web(append: [
             CheckMaintenanceMode::class,
+            HandleInertiaRequests::class,
         ]);
         $middleware->alias([
             'role.custom' => EnsureUserHasRole::class,

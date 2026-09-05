@@ -21,6 +21,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Panel web de gestión de citas para recepción/administración: listado con filtros,
@@ -231,13 +233,22 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Vista de calendario (FullCalendar); los eventos se cargan luego vía calendarData().
+     * Vista de calendario (FullCalendar), migrada a Inertia+Vue (ver
+     * .claude/skills/inertia-vue-migration/SKILL.md, Fase 3). Los eventos se
+     * cargan luego vía calendarData(), que se queda como endpoint JSON plano
+     * a propósito — el componente Vue lo consume con fetch() igual que antes
+     * lo hacía el <script> vanilla.
      */
-    public function calendar(): View
+    public function calendar(): InertiaResponse
     {
         $barbers = Barber::with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
 
-        return view('appointments.calendar', compact('barbers'));
+        return Inertia::render('Appointments/Calendar', [
+            'barbers' => $barbers->map(fn (Barber $b) => [
+                'id' => (string) $b->id,
+                'name' => $b->user?->name ?? 'Barbero',
+            ]),
+        ]);
     }
 
     /**
