@@ -94,21 +94,44 @@ class DashboardController extends Controller
                 ->get();
             $sparkInsights = $this->analyticsInsightService->forBarber((string) $user->id, $barberId);
 
-            return view('dashboard', [
-                'adminMode' => false,
-                'isBarberMode' => true,
-                'isReceptionMode' => false,
-                'isClientMode' => false,
+            // El "siguiente" servicio del día: la primera cita de hoy que
+            // todavía no terminó (confirmada/en_proceso/pendiente) — se
+            // calcula aquí (no en Vue) para no duplicar esta regla de
+            // negocio en JS. Ver AnalyticsInsight::toDashboardCardArray()
+            // para el mismo patrón en la Fase 4.
+            $nextAppointment = $barberToday->first(fn (Appointment $a) => in_array($a->estado, ['confirmada', 'en_proceso', 'pendiente'], true));
+            $nextAppointmentId = $nextAppointment ? (string) $nextAppointment->id : null;
+
+            // Migrado a Inertia+Vue (ver .claude/skills/inertia-vue-migration/SKILL.md,
+            // Fase 5). Los otros 2 roles (administrador/cliente) siguen en Blade hasta
+            // su propia fase.
+            return Inertia::render('Dashboard/Barbero', [
+                'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
                 'kpis' => $data['kpis'],
                 'performanceChart' => $data['performance_chart'],
                 'servicesChart' => $data['services_chart'],
-                'chatbotTelemetry' => [],
-                'barberToday' => $barberToday,
-                'barberPending' => $barberPending,
+                'barberToday' => $barberToday->map(fn (Appointment $appt) => [
+                    'id' => (string) $appt->id,
+                    'estado' => $appt->estado,
+                    'hora_inicio' => $appt->hora_inicio,
+                    'hora_fin' => $appt->hora_fin,
+                    'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                    'servicio' => $appt->service?->nombre ?? '—',
+                    'isNext' => (string) $appt->id === $nextAppointmentId,
+                ]),
+                'barberPending' => $barberPending->map(fn (Appointment $appt) => [
+                    'id' => (string) $appt->id,
+                    'fecha' => Carbon::parse($appt->fecha)->translatedFormat('d M'),
+                    'hora_inicio' => $appt->hora_inicio,
+                    'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                    'servicio' => $appt->service?->nombre ?? '—',
+                    'statusUrl' => route('barber.appointments.status', $appt->id),
+                ]),
                 // El barbero solo recibe SUS PROPIOS insights (nunca los de
                 // otro barbero) — ver AnalyticsInsightService::forBarber().
-                'sparkInsights' => $sparkInsights,
-                'sparkHighlights' => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'barbero'),
+                'sparkHighlights' => $this->analyticsInsightService
+                    ->highlightsForDashboard($sparkInsights, 'barbero')
+                    ->map(fn (AnalyticsInsight $insight) => $insight->toDashboardCardArray()),
             ]);
         }
 
@@ -120,6 +143,7 @@ class DashboardController extends Controller
             // Migrado a Inertia+Vue (ver .claude/skills/inertia-vue-migration/SKILL.md,
             // Fase 4). Los otros 3 roles siguen en Blade hasta su propia fase.
             return Inertia::render('Dashboard/Recepcion', [
+                'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
                 'kpis' => $data['kpis'],
                 'nextAppointments' => $data['next_appointments']->map(fn (Appointment $appt) => [
                     'id' => (string) $appt->id,

@@ -288,17 +288,73 @@ lugar por el test unitario dedicado. Pint (336 archivos), phpstan (0 errores, ba
 regenerado wholesale — ver gotcha abajo), `.\test.ps1` (209 tests, +8 nuevos), eslint
 (0 warnings) y `npm audit` — todos en verde.
 
-### ⬜ Fases siguientes (barbero, cliente, administrador — orden a definir)
+### ✅ Fase 5 — Dashboard de Barbero (completa, 2026-09-05)
+
+Mismo patrón de la Fase 4: `DashboardController::index()` devuelve
+`Inertia::render('Dashboard/Barbero', [...])` solo para la rama `barbero`;
+administrador/cliente siguen en Blade.
+
+**Bug retroactivo encontrado y corregido:** la Fase 4 se lanzó SIN el header compartido
+que las 4 ramas de `dashboard.blade.php` muestran arriba de todo (`<x-slot name="header">`
+con "Panel {Administrativo/Profesional/Operativo/Personal}" + fecha + badge "Sistema
+Activo") — `Recepcion.vue` nunca usó el slot `#header` de `AppLayout.vue`. Se descubrió al
+construir Barbero.vue y notar que el Blade original SÍ lo muestra para los 4 roles. Se
+creó `resources/js/Components/DashboardHeader.vue` (props `label`, `color`, `todayLabel`
+— la fecha en español viene precalculada del controlador vía
+`now()->translatedFormat('l d \\d\\e F, Y')`, no reimplementada en JS) y se retrofiteó en
+`Recepcion.vue` en el MISMO commit de esta fase, no como fix separado después. **Lección:
+al construir la segunda instancia de un patrón compartido (la primera página de un tipo
+casi nunca expone todas las piezas realmente compartidas), revisar la vista Blade
+ORIGINAL completa de arriba a abajo, no solo la sección que ya se leyó en la fase
+anterior.**
+
+`barberToday`/`barberPending` se mapean a arrays planos en el controlador (mismo patrón
+de Fases 3-4); el campo `isNext` (cuál cita es "la siguiente") se calcula en PHP, no en
+Vue — mismo principio que `AnalyticsInsight::toDashboardCardArray()`. Aprobar/Rechazar
+usan `<form method="POST">` NATIVOS (no `router.patch()`/`useForm()` de Inertia): el
+endpoint (`barber.appointments.status`) sigue siendo una redirección Blade clásica, y un
+`<form>` nativo simplemente hace un POST + recarga completa del navegador — evita el
+mismo riesgo de "respuesta inesperada" que ya mordió con `<Link>` en la Fase 3, sin tener
+que razonar si el manejo de redirects de Inertia sería seguro aquí (no se investigó a
+fondo esa alternativa porque el `<form>` nativo es una salida garantizada y ya usada en
+otras partes de este shell, como el logout).
+
+**Bug preexistente encontrado, NO corregido aquí (fuera de alcance):**
+`DashboardService::buildBarberMetrics()` tiene `'rating' => 4.9` hardcodeado — el KPI
+"Rating" del dashboard del barbero siempre muestra 4.9 sin importar sus reseñas reales,
+mientras que `calificacion_promedio` (el campo real, mantenido por
+`BarberReviewService` y sí usado en `Api/Admin/Barber/BarberAdminController` y
+`Api/Profile/ProfileController`) existe y está disponible. Se portó tal cual (mismo bug,
+mismo valor) porque arreglarlo es un cambio de lógica de negocio ajeno a esta migración
+— reportado aparte, no en este commit.
+
+Nuevos paquetes de gráficas usados: `Bar` y `Doughnut` de `vue-chartjs` (ya instalado
+desde la Fase 1) — sin instalar nada nuevo.
+
+**Verificado:** con las credenciales reales de barbero (`docs/ACCESOS.md`) contra Atlas
+— header "Panel Profesional", saludo "Maestro Barbero", 5 KPIs (incluido el 4.9
+hardcodeado, confirmando el puerto fiel del bug), CTA de analítica, "Sin citas hoy" y
+ambas gráficas en su estado vacío ("Sin datos suficientes"/"Sin especialidades aún") se
+ven correctos, consola limpia en pestaña nueva. Se re-verificó también
+`Recepcion.vue` con el header ya corregido. Pint (337 archivos), phpstan (0 errores,
+regenerado wholesale otra vez — mismo criterio de la Fase 4), `.\test.ps1` (210 tests,
++1 nuevo), eslint (0 warnings) y `npm audit` — todos en verde.
+
+### ⬜ Fases siguientes (cliente, administrador — orden a definir)
 
 Mismo patrón ya establecido: controlador → `Inertia::render()` para esa rama únicamente,
-vista Vue reusando `AppLayout.vue`/`AnalyticsInsights.vue`/`AnalyticsCta.vue`/
-`chart-theme.js` ya construidos, **borrar la porción de `dashboard.blade.php` de ese rol
-solo cuando sea la ÚLTIMA rama en migrarse** (las 4 comparten un solo archivo Blade con
-`@elseif` — no se puede borrar hasta que ninguna rama lo use). Cada rol tiene sus propias
-gráficas Chart.js con gradiente (`incomeChart`/`visitChart` usan un gradiente calculado
-sobre el contexto 2D del canvas, a diferencia del `flowChart` plano de recepción) — al
-migrar admin/cliente, revisar si conviene extraer un `GradientLineChart.vue` reutilizable
-en `chart-theme.js` en vez de reimplementar el gradiente en cada página.
+vista Vue reusando `AppLayout.vue`/`DashboardHeader.vue`/`AnalyticsInsights.vue`/
+`AnalyticsCta.vue`/`chart-theme.js` ya construidos, **borrar la porción de
+`dashboard.blade.php` de ese rol solo cuando sea la ÚLTIMA rama en migrarse** (las 4
+comparten un solo archivo Blade con `@elseif` — no se puede borrar hasta que ninguna rama
+lo use). Administrador y cliente tienen gráficas Chart.js con gradiente calculado sobre
+el contexto 2D del canvas (`incomeChart`/`visitChart`), a diferencia del `flowChart`
+plano de recepción o el `performanceChart`/`servicesChart` sin gradiente del barbero —
+revisar si conviene extraer un helper de gradiente en `chart-theme.js` en vez de
+reimplementarlo ad-hoc. Administrador también tiene 2 botones extra en el header
+(mantenimiento/backup) que ningún otro rol muestra — usar el slot por defecto de
+`DashboardHeader.vue` (ya preparado para esto desde la Fase 5) en vez de bifurcar el
+componente.
 
 ### ⬜ Fase final — Merge a `main`
 

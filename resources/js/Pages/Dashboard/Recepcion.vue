@@ -19,8 +19,10 @@ import { chartScale, fmtInt } from '../../chart-theme';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import AnalyticsInsights from '@/Components/AnalyticsInsights.vue';
 import AnalyticsCta from '@/Components/AnalyticsCta.vue';
+import DashboardHeader from '@/Components/DashboardHeader.vue';
 
 const props = defineProps({
+  todayLabel: { type: String, required: true },
   kpis: { type: Object, required: true },
   nextAppointments: { type: Array, required: true },
   pendingOrders: { type: Array, required: true },
@@ -130,6 +132,10 @@ const flowChartOptions = {
   <Head title="Dashboard" />
 
   <AppLayout>
+    <template #header>
+      <DashboardHeader label="Operativo" color="text-indigo-400" :today-label="todayLabel" />
+    </template>
+
     <div class="space-y-5">
       <!-- Bienvenida -->
       <section class="rounded-2xl border border-ink/[0.06] bg-card p-5 relative overflow-hidden">
