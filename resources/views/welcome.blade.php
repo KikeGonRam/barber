@@ -174,7 +174,7 @@
 
         <div class="relative z-10 mx-auto max-w-7xl px-4 text-center">
             <!-- Badge -->
-            <div class="inline-flex float-badge mb-8">
+            <div class="inline-flex float-badge mb-8" data-hero="badge">
                 <span class="ui-badge border-gold/35 bg-gold/8 text-gold px-5 py-2 text-[10px] tracking-[0.25em]">
                     <span class="h-1.5 w-1.5 rounded-full bg-gold animate-pulse mr-2 inline-block"></span>
                     Reservas Disponibles Hoy
@@ -183,19 +183,19 @@
 
             <!-- Headline -->
             <h1 class="font-black tracking-tighter uppercase leading-[0.88]"
-                style="font-size: clamp(3.5rem, 11vw, 9rem);">
+                style="font-size: clamp(3.5rem, 11vw, 9rem);" data-hero="title">
                 LA <span class="text-gradient-gold">EXCELENCIA</span>
             </h1>
             <p class="ui-title-serif lowercase italic opacity-90"
-                style="font-size: clamp(2.5rem, 7vw, 6.5rem);">
+                style="font-size: clamp(2.5rem, 7vw, 6.5rem);" data-hero="subtitle">
                 en cada detalle
             </p>
 
-            <p class="mx-auto mt-10 max-w-xl text-lg text-muted font-medium leading-relaxed">
+            <p class="mx-auto mt-10 max-w-xl text-lg text-muted font-medium leading-relaxed" data-hero="desc">
                 Elevamos el concepto de barbería a un estudio de arte. Un espacio diseñado para el hombre que exige perfección y confort.
             </p>
 
-            <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-5">
+            <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-5" data-hero="cta">
                 <a href="{{ route('register') }}" class="ui-btn w-full sm:w-auto px-12 py-5 text-[13px] tracking-[0.15em] shadow-[0_0_50px_rgba(212,175,55,0.18)]">
                     Agendar Cita Premium
                     <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
@@ -206,7 +206,7 @@
             </div>
 
             <!-- Scroll hint -->
-            <div class="mt-16 flex flex-col items-center gap-2 opacity-40">
+            <div class="mt-16 flex flex-col items-center gap-2 opacity-40" data-hero="scroll">
                 <span class="text-[9px] font-black uppercase tracking-[0.4em] text-muted">Descubrir</span>
                 <div class="scroll-line h-12 w-px bg-gradient-to-b from-gold/60 to-transparent"></div>
             </div>

@@ -10,6 +10,7 @@ import intersect from '@alpinejs/intersect';
 import { Chart, registerables } from 'chart.js';
 import { registerAnalyticsCharts } from './analytics-charts';
 import { computeLoyaltyCharge } from './loyalty-charge';
+import { initHeroAnimation } from './hero-animation';
 
 // Plugin de Alpine que permite usar x-intersect (acciones al entrar en viewport,
 // p. ej. animaciones de aparición o carga perezosa).
@@ -30,5 +31,8 @@ window.UrbanBladeLoyalty = { computeCharge: computeLoyaltyCharge };
 // Inicializa los gráficos de la página de Analítica/Spark buscando canvases
 // marcados con [data-ub-analytics-chart] en el DOM.
 registerAnalyticsCharts(Chart);
+
+// No-op si el hero de la landing pública no está en la página actual.
+initHeroAnimation();
 
 Alpine.start();
