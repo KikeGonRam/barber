@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Prediction;
 
 use App\Services\Prediction\PredictionService;
 use Illuminate\Http\JsonResponse;

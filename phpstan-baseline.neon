@@ -322,61 +322,61 @@ parameters:
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/AppointmentController.php
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:issueMobileApiToken\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: app/Http/Controllers/Api/AuthController.php
+			path: app/Http/Controllers/Api/Auth/AuthController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/BarberManagementController.php
+			path: app/Http/Controllers/Api/Barber/BarberManagementController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/BarberManagementController.php
+			path: app/Http/Controllers/Api/Barber/BarberManagementController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/BarberManagementController.php
+			path: app/Http/Controllers/Api/Barber/BarberManagementController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/BarberManagementController.php
+			path: app/Http/Controllers/Api/Barber/BarberManagementController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/Api/BarberPortfolioController.php
+			path: app/Http/Controllers/Api/Barber/BarberPortfolioController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user_id\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/Api/BarberPortfolioController.php
+			path: app/Http/Controllers/Api/Barber/BarberPortfolioController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/Api/BarberScheduleController.php
+			path: app/Http/Controllers/Api/Barber/BarberScheduleController.php
 
 		-
 			message: '#^Call to function is_numeric\(\) with int will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: app/Http/Controllers/Api/BarberScheduleController.php
+			path: app/Http/Controllers/Api/Barber/BarberScheduleController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$calificacion_promedio\.$#'
@@ -466,7 +466,7 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$total_resenas\.$#'
@@ -478,331 +478,331 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$comment\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$rating\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\BarberReview\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
 			message: '#^Call to an undefined method App\\Services\\Chatbot\\ChatbotContextService\:\:getUserLearningStats\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: app/Http/Controllers/Api/ChatbotManagementController.php
+			path: app/Http/Controllers/Api/Chatbot/ChatbotManagementController.php
 
 		-
 			message: '#^Call to an undefined method App\\Services\\Chatbot\\ChatbotContextService\:\:trainFromHistory\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: app/Http/Controllers/Api/ChatbotManagementController.php
+			path: app/Http/Controllers/Api/Chatbot/ChatbotManagementController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/Api/ClientController.php
+			path: app/Http/Controllers/Api/Client/ClientController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/Api/ClientController.php
+			path: app/Http/Controllers/Api/Client/ClientController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/Api/ClientController.php
+			path: app/Http/Controllers/Api/Client/ClientController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Client\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/ClientController.php
+			path: app/Http/Controllers/Api/Client/ClientController.php
 
 		-
 			message: '#^Property App\\Models\\Client\:\:\$appointments_count is not writable\.$#'
 			identifier: assign.propertyReadOnly
 			count: 1
-			path: app/Http/Controllers/Api/ClientController.php
+			path: app/Http/Controllers/Api/Client/ClientController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/DashboardController.php
+			path: app/Http/Controllers/Api/Dashboard/DashboardController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/LogController.php
+			path: app/Http/Controllers/Api/Log/LogController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$description\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/LogController.php
+			path: app/Http/Controllers/Api/Log/LogController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$event\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/LogController.php
+			path: app/Http/Controllers/Api/Log/LogController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$log_name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/LogController.php
+			path: app/Http/Controllers/Api/Log/LogController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$subject_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/LogController.php
+			path: app/Http/Controllers/Api/Log/LogController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Activity\:\:\$subject_type\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/LogController.php
+			path: app/Http/Controllers/Api/Log/LogController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/LogController.php
+			path: app/Http/Controllers/Api/Log/LogController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/LogController.php
+			path: app/Http/Controllers/Api/Log/LogController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/LogController.php
+			path: app/Http/Controllers/Api/Log/LogController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Activity\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/LogController.php
+			path: app/Http/Controllers/Api/Log/LogController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/NotificationController.php
+			path: app/Http/Controllers/Api/Notification/NotificationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$data\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/NotificationController.php
+			path: app/Http/Controllers/Api/Notification/NotificationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/NotificationController.php
+			path: app/Http/Controllers/Api/Notification/NotificationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$read_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/NotificationController.php
+			path: app/Http/Controllers/Api/Notification/NotificationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$type\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/NotificationController.php
+			path: app/Http/Controllers/Api/Notification/NotificationController.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:markAsRead\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: app/Http/Controllers/Api/NotificationController.php
+			path: app/Http/Controllers/Api/Notification/NotificationController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/NotificationController.php
+			path: app/Http/Controllers/Api/Notification/NotificationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fecha\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/PaymentController.php
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/PaymentController.php
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/PaymentController.php
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/PaymentController.php
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>precio" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/PaymentController.php
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nivel\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/PaymentController.php
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>nivel" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/PaymentController.php
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$puntos\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/PaymentController.php
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$descripcion\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/ProfileController.php
+			path: app/Http/Controllers/Api/Profile/ProfileController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$especialidades\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/ProfileController.php
+			path: app/Http/Controllers/Api/Profile/ProfileController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 4
-			path: app/Http/Controllers/Api/ProfileController.php
+			path: app/Http/Controllers/Api/Profile/ProfileController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$comment\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/SocialController.php
+			path: app/Http/Controllers/Api/Social/SocialController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/SocialController.php
+			path: app/Http/Controllers/Api/Social/SocialController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/SocialController.php
+			path: app/Http/Controllers/Api/Social/SocialController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/SocialController.php
+			path: app/Http/Controllers/Api/Social/SocialController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/SocialController.php
+			path: app/Http/Controllers/Api/Social/SocialController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/SocialController.php
+			path: app/Http/Controllers/Api/Social/SocialController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Work\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/SocialController.php
+			path: app/Http/Controllers/Api/Social/SocialController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>message" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/StripeWebhookController.php
+			path: app/Http/Controllers/Api/Payment/StripeWebhookController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/StripeWebhookController.php
+			path: app/Http/Controllers/Api/Payment/StripeWebhookController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>precio" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/StripeWebhookController.php
+			path: app/Http/Controllers/Api/Payment/StripeWebhookController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'

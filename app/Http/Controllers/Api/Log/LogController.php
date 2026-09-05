@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Log;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;

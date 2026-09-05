@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Payment;
 
 use App\Exceptions\Domain\PaymentException;
 use App\Http\Controllers\Controller;

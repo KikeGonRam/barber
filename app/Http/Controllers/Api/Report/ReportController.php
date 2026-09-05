@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Report;
 
 use App\Exports\GenericReportExport;
 use App\Http\Controllers\Controller;
