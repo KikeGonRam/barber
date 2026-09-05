@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
 use App\Models\MobileApiToken;
@@ -9,6 +10,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Support\Str;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
@@ -39,6 +41,7 @@ class DashboardApiTest extends TestCase
         // middleware resuelva al usuario equivocado (o ninguno), causando
         // 401 en corridas repetidas. Ya pasó una vez, ver el commit que
         // agregó este tearDown.
+        Appointment::query()->delete();
         Barber::query()->delete();
         Client::query()->delete();
         MobileApiToken::query()->delete();
@@ -80,7 +83,14 @@ class DashboardApiTest extends TestCase
         $role = Role::where('name', 'barbero')->where('guard_name', 'web')->firstOrFail();
         $user = User::create(['name' => 'Barbero API', 'email' => 'barbero-api-dash@test.local', 'password' => 'password']);
         $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
-        Barber::create(['user_id' => (string) $user->id, 'nombre' => 'Barbero API', 'activo' => true]);
+        $barber = Barber::create(['user_id' => (string) $user->id, 'nombre' => 'Barbero API', 'activo' => true]);
+
+        $clientUser = User::create(['name' => 'Cliente Pending', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $client = Client::create(['user_id' => (string) $clientUser->id, 'telefono' => '5550009999', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $pendingAppointment = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) Str::uuid(),
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00', 'estado' => 'pendiente',
+        ]);
 
         $token = 'test-plaintext-token-barber-dashboard';
         MobileApiToken::create([
@@ -98,6 +108,11 @@ class DashboardApiTest extends TestCase
             'role',
             'data' => ['todayLabel', 'kpis', 'performanceChart', 'servicesChart', 'barberToday', 'barberPending', 'sparkHighlights'],
         ]);
+        // Regresión: barberPending debe traer 'code' (Appointment usa
+        // HasPublicCode -> getRouteKeyName() = 'code'), no solo 'id' — el
+        // frontend Nuxt necesita 'code' para PATCH /appointments/{code}/status,
+        // 'id' ahí da 404 aunque la cita exista. Ver commit que agregó esto.
+        $response->assertJsonPath('data.barberPending.0.code', $pendingAppointment->code);
     }
 
     public function test_cliente_gets_the_curated_dashboard_payload(): void

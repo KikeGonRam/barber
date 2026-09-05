@@ -505,6 +505,12 @@ parameters:
 			path: app/Http/Controllers/Api/Dashboard/DashboardController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Dashboard/DashboardController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 9

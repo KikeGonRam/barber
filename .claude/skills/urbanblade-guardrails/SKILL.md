@@ -263,6 +263,34 @@ proceeds:
 - This does NOT reopen `spark`/`mobil` scope (guardrail #10 still applies) — it's a new,
   separate, currently-active third repo alongside `barber`.
 
+## 20. Some models bind routes by a pretty key, not `id` — `Client`/`Barber`/`Service` use `slug`, `Appointment` uses `code`
+
+`grep -rl getRouteKeyName app/Models app/Traits` finds exactly two traits:
+`HasSlug` (used by `Client`, `Barber`, `Service` — `getRouteKeyName()` returns `'slug'`)
+and `HasPublicCode` (used only by `Appointment` — returns `'code'`). Every other model
+route-binds by plain `id` as usual. This matters because it's easy to miss: `Model::find($id)`
+and `Model::where('_id', $id)->first()` both succeed for these models regardless of the
+override (confirmed directly — this isn't a "record doesn't exist" bug), but Laravel's
+*implicit route-model binding* on a `PUT`/`PATCH`/`DELETE {model}` route segment uses
+`getRouteKeyName()`, so a URL built with the wrong field 404s with "No query results for
+model" even though the record is real and findable. The JSON payloads for these models
+already include both fields (`id` and `slug`/`code`) — the bug is consuming code picking
+`id` because it looks like the obvious identifier, not because the API is missing anything.
+
+This already caused two real, live-tested bugs while building `frontend-urban`'s Fase 9
+(see that repo's `.claude/skills/nuxt-migration-plan/SKILL.md`): the Clientes CRUD page
+initially used `client.id` for edit/delete URLs (fixed to `client.slug`), and — more
+subtly — `Api/Dashboard/DashboardController::barberPayload()`'s `barberToday`/
+`barberPending` arrays never included `code` at all, so the barbero dashboard's
+Aprobar/Rechazar buttons (built in an earlier phase, before this pattern was known) were
+silently broken end-to-end from the day they shipped — never caught earlier only because
+no real pending appointment existed yet to click-test against. Fixed by adding `'code' =>
+$appt->code` to both arrays. **Before exposing any `Client`/`Barber`/`Service`/
+`Appointment` record's identifier for a consumer to build an edit/delete/status-change
+URL with, use the model's actual route key (`slug`/`code`), not `id`** — and if a payload
+for one of these models doesn't include that field yet, that's the bug to fix, not a
+reason to fall back to `id`.
+
 ## 19. This rule set can go stale within hours — don't treat it as complete
 
 Every guardrail above except #1 was added or corrected on 2026-09-02/03/04/05, several of

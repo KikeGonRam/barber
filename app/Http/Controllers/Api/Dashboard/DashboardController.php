@@ -152,6 +152,7 @@ class DashboardController extends Controller
             'servicesChart' => $data['services_chart'],
             'barberToday' => $barberToday->map(fn (Appointment $appt) => [
                 'id' => (string) $appt->id,
+                'code' => $appt->code,
                 'estado' => $appt->estado,
                 'hora_inicio' => $appt->hora_inicio,
                 'hora_fin' => $appt->hora_fin,
@@ -159,8 +160,12 @@ class DashboardController extends Controller
                 'servicio' => $appt->service?->nombre ?? '—',
                 'isNext' => (string) $appt->id === $nextAppointmentId,
             ])->values(),
+            // 'code' es el identificador real para PATCH /appointments/{code}/status
+            // — Appointment usa HasPublicCode (getRouteKeyName() = 'code'), no 'id'.
+            // Ver .claude/skills/urbanblade-guardrails/SKILL.md.
             'barberPending' => $barberPending->map(fn (Appointment $appt) => [
                 'id' => (string) $appt->id,
+                'code' => $appt->code,
                 'fecha' => Carbon::parse($appt->fecha)->translatedFormat('d M'),
                 'hora_inicio' => $appt->hora_inicio,
                 'cliente' => $appt->client?->user?->name ?? 'Cliente',
