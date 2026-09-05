@@ -967,6 +967,30 @@ parameters:
 			path: app/Services/Inventory/InventoryService.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$reabastecimiento_pedido_en\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/InventoryServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$reabastecimiento_pedido_por\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/InventoryServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/RoleAuthorizationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Unit/ProductRestockOrderTest.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$read_at\.$#'
 			identifier: property.notFound
 			count: 1
@@ -2082,7 +2106,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\LoyaltyTransaction\:\:\$puntos\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: tests/Feature/LoyaltyServiceIntegrationTest.php
 
 		-
