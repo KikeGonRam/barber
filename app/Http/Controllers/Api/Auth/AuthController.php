@@ -22,7 +22,8 @@ use Throwable;
 /**
  * @group Autenticación
  *
- * Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+ * Endpoints para el manejo de sesiones de usuario (token Bearer propio,
+ * tabla mobile_api_tokens — no Sanctum).
  */
 class AuthController extends Controller
 {
