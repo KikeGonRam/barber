@@ -24,10 +24,11 @@
                     nivelLabel: '',
                     puntosDisponibles: 0,
                     puntosCanjear: {{ old('puntos_canjeados', 0) }},
-                    get montoConNivel() { return (parseFloat(this.monto) || 0) * (1 - this.nivelPct / 100) },
-                    get maxPuntosCanjeables() { return Math.max(0, Math.min(this.puntosDisponibles, Math.floor(this.montoConNivel * 0.5))) },
-                    get descuentoPuntos() { return Math.min(parseInt(this.puntosCanjear) || 0, this.maxPuntosCanjeables) },
-                    get total() { return Math.max(0, this.montoConNivel - this.descuentoPuntos) + (parseFloat(this.propina) || 0) }
+                    get _calc() { return window.UrbanBladeLoyalty.computeCharge(this) },
+                    get montoConNivel() { return this._calc.montoConNivel },
+                    get maxPuntosCanjeables() { return this._calc.maxPuntosCanjeables },
+                    get descuentoPuntos() { return this._calc.descuentoPuntos },
+                    get total() { return this._calc.total }
                 }"
                 class="grid grid-cols-1 lg:grid-cols-3 gap-8"
             >

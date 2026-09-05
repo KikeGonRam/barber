@@ -9,6 +9,7 @@ import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
 import { Chart, registerables } from 'chart.js';
 import { registerAnalyticsCharts } from './analytics-charts';
+import { computeLoyaltyCharge } from './loyalty-charge';
 
 // Plugin de Alpine que permite usar x-intersect (acciones al entrar en viewport,
 // p. ej. animaciones de aparición o carga perezosa).
@@ -21,6 +22,10 @@ Chart.register(...registerables);
 // directamente como window.Alpine / window.Chart.
 window.Alpine = Alpine;
 window.Chart = Chart;
+// Formulas de descuento de nivel + canje de puntos, compartidas por los
+// formularios de cobro (payments/create.blade.php y el modal "Cobrar" de
+// appointments/index.blade.php) — ver loyalty-charge.js.
+window.UrbanBladeLoyalty = { computeCharge: computeLoyaltyCharge };
 
 // Inicializa los gráficos de la página de Analítica/Spark buscando canvases
 // marcados con [data-ub-analytics-chart] en el DOM.

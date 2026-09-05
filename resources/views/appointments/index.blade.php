@@ -551,10 +551,19 @@
                     this.puntosCanjear = 0;
                     this.open = true;
                 },
-                get montoConNivel() { return (parseFloat(this.appt.monto) || 0) * (1 - (this.appt.nivelPct || 0) / 100) },
-                get maxPuntosCanjeables() { return Math.max(0, Math.min(this.appt.puntos || 0, Math.floor(this.montoConNivel * 0.5))) },
-                get descuentoPuntos() { return Math.min(parseInt(this.puntosCanjear) || 0, this.maxPuntosCanjeables) },
-                get total() { return Math.max(0, this.montoConNivel - this.descuentoPuntos) + (parseFloat(this.propina) || 0) },
+                get _calc() {
+                    return window.UrbanBladeLoyalty.computeCharge({
+                        monto: this.appt.monto,
+                        nivelPct: this.appt.nivelPct,
+                        puntosDisponibles: this.appt.puntos,
+                        puntosCanjear: this.puntosCanjear,
+                        propina: this.propina,
+                    });
+                },
+                get montoConNivel() { return this._calc.montoConNivel },
+                get maxPuntosCanjeables() { return this._calc.maxPuntosCanjeables },
+                get descuentoPuntos() { return this._calc.descuentoPuntos },
+                get total() { return this._calc.total },
             };
         }
 
