@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Order;
+use App\Models\User;
 use App\Services\Analytics\AnalyticsInsightService;
 use App\Services\Dashboard\DashboardService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -41,7 +43,7 @@ class DashboardController extends Controller
         if ($user->hasRole('barbero') && $user->barberProfile) {
             return response()->json([
                 'role' => 'barbero',
-                'data' => $this->dashboardService->barberMetrics((string) $user->barberProfile->id),
+                'data' => $this->barberPayload($user),
             ]);
         }
 
@@ -101,6 +103,66 @@ class DashboardController extends Controller
             'flowChart' => $data['flow_chart'],
             'sparkHighlights' => $this->analyticsInsightService
                 ->highlightsForDashboard($sparkInsights, 'recepcionista')
+                ->map(fn ($insight) => $insight->toDashboardCardArray())
+                ->values(),
+        ];
+    }
+
+    /**
+     * Mismo shape curado que Dashboard\DashboardController::index() (rama
+     * barbero) — ver receptionistPayload() arriba para el porqué de este
+     * patrón. `statusUrl` de la versión Inertia no aplica aquí: Aprobar/
+     * Rechazar en el frontend Nuxt llaman directo a
+     * PATCH /api/v1/appointments/{id}/status con el Bearer token, así que
+     * el frontend solo necesita el `id` de la cita.
+     */
+    private function barberPayload(User $user): array
+    {
+        $barberId = (string) $user->barberProfile->id;
+        $data = $this->dashboardService->barberMetrics($barberId);
+        $sparkInsights = $this->analyticsInsightService->forBarber((string) $user->id, $barberId);
+
+        $barberToday = Appointment::with(['client.user', 'service'])
+            ->where('barber_id', $barberId)
+            ->whereDate('fecha', Carbon::today())
+            ->orderBy('hora_inicio')
+            ->get();
+
+        $barberPending = Appointment::with(['client.user', 'service'])
+            ->where('barber_id', $barberId)
+            ->where('estado', 'pendiente')
+            ->where('fecha', '>=', Carbon::today())
+            ->orderBy('fecha')->orderBy('hora_inicio')
+            ->get();
+
+        // El "siguiente" servicio del día: la primera cita de hoy que
+        // todavía no terminó — mismo criterio que la versión Inertia.
+        $nextAppointment = $barberToday->first(fn (Appointment $a) => in_array($a->estado, ['confirmada', 'en_proceso', 'pendiente'], true));
+        $nextAppointmentId = $nextAppointment ? (string) $nextAppointment->id : null;
+
+        return [
+            'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
+            'kpis' => $data['kpis'],
+            'performanceChart' => $data['performance_chart'],
+            'servicesChart' => $data['services_chart'],
+            'barberToday' => $barberToday->map(fn (Appointment $appt) => [
+                'id' => (string) $appt->id,
+                'estado' => $appt->estado,
+                'hora_inicio' => $appt->hora_inicio,
+                'hora_fin' => $appt->hora_fin,
+                'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                'servicio' => $appt->service?->nombre ?? '—',
+                'isNext' => (string) $appt->id === $nextAppointmentId,
+            ])->values(),
+            'barberPending' => $barberPending->map(fn (Appointment $appt) => [
+                'id' => (string) $appt->id,
+                'fecha' => Carbon::parse($appt->fecha)->translatedFormat('d M'),
+                'hora_inicio' => $appt->hora_inicio,
+                'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                'servicio' => $appt->service?->nombre ?? '—',
+            ])->values(),
+            'sparkHighlights' => $this->analyticsInsightService
+                ->highlightsForDashboard($sparkInsights, 'barbero')
                 ->map(fn ($insight) => $insight->toDashboardCardArray())
                 ->values(),
         ];
