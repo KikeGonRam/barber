@@ -26,24 +26,25 @@ npm install
 npm run build
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan storage:link
-docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan migrate
+docker compose exec app php artisan db:seed --class=RolePermissionSeeder
+docker compose exec app php artisan db:seed --class=AdminUserSeeder
 ```
+
+> ⚠️ No uses `migrate --seed` — siembra `BarberSeeder`/`ClientSeeder`
+> completos (50 barberos y 1500 clientes falsos) y volvería a llenar la base
+> de datos sintéticos masivos. Ver [ACCESOS.md](ACCESOS.md) para las notas
+> completas.
 
 Luego abre:
 
 - http://localhost:8000/login
 - Mailpit: http://localhost:8025
 
-## Credenciales demo
+## Credenciales
 
-| Rol           | Correo                              | Contraseña      |
-| ------------- | ----------------------------------- | --------------- |
-| Administrador | kikermairez160418@gmail.com         | UrbanBlade2026! |
-| Recepción     | manuela.andres78@gmail.com          | UrbanBlade2026! |
-| Barbero       | omar.tamayo.juan.b1@outlook.com     | UrbanBlade2026! |
-| Cliente       | jordi.curiel.medina.c1@yahoo.com.mx | UrbanBlade2026! |
-
-> Más detalle en [ACCESOS.md](ACCESOS.md).
+Las credenciales reales (una cuenta por rol) viven en un único lugar para no
+desincronizarse: **[ACCESOS.md](ACCESOS.md)**.
 
 ---
 

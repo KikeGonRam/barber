@@ -59,8 +59,18 @@ npm install
 npm run build
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan storage:link
-docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan migrate
+docker compose exec app php artisan db:seed --class=RolePermissionSeeder
+docker compose exec app php artisan db:seed --class=AdminUserSeeder
 ```
+
+> ⚠️ **No uses `migrate --seed`** (siembra el `DatabaseSeeder` completo): eso
+> incluye `BarberSeeder`/`ClientSeeder`, que generan 50 barberos y 1500
+> clientes falsos, además de miles de citas/pagos/transacciones sintéticas —
+> así fue como `barber_db` terminó con más de 200,000 registros de basura que
+> hubo que limpiar. Los dos seeders de arriba son los únicos necesarios para
+> que la app arranque (roles/permisos + una cuenta admin); el resto de
+> cuentas de equipo se documentan en [docs/ACCESOS.md](docs/ACCESOS.md).
 
 Abre la aplicación en:
 
@@ -69,20 +79,19 @@ Abre la aplicación en:
 
 ## 🔐 Demo y acceso
 
-El proyecto ya viene sembrado con usuarios demo listos para usar. Revisa la documentación de accesos en [docs/ACCESOS.md](docs/ACCESOS.md) y la guía de presentación en [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md).
+Las credenciales reales del equipo (una cuenta por rol) viven en un único
+lugar para no desincronizarse: **[docs/ACCESOS.md](docs/ACCESOS.md)**. La
+guía de presentación está en [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md).
 
 Ruta de login:
 
 - http://localhost:8000/login
 
-### Credenciales demo
-
-| Rol           | Correo                              | Contraseña      |
-| ------------- | ----------------------------------- | --------------- |
-| Administrador | kikermairez160418@gmail.com         | UrbanBlade2026! |
-| Recepción     | manuela.andres78@gmail.com          | UrbanBlade2026! |
-| Barbero       | omar.tamayo.juan.b1@outlook.com     | UrbanBlade2026! |
-| Cliente       | jordi.curiel.medina.c1@yahoo.com.mx | UrbanBlade2026! |
+> `barber_db` ya no viene precargada con datos de demo masivos (se limpió por
+> completo el 2026-09-04) — solo existen las 4 cuentas documentadas en
+> [docs/ACCESOS.md](docs/ACCESOS.md). No correr `BarberSeeder`/`ClientSeeder`
+> completos salvo que de verdad se quiera repoblar con datos de prueba a gran
+> escala (crean 50 barberos y 1500 clientes falsos respectivamente).
 
 ## 🧪 Validación y pruebas
 

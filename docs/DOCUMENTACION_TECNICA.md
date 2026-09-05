@@ -11,7 +11,7 @@ UrbanBlade está compuesto por **dos proyectos independientes**:
 
 | Proyecto | Repositorio | Función |
 |---|---|---|
-| **`barber/`** | `KikeGonRam/barber` (rama `feature/mongodb-migration`) | Aplicación web Laravel — la app en producción |
+| **`barber/`** | `KikeGonRam/barber` (rama `main`) | Aplicación web Laravel — la app en producción |
 | **`spark/`** | `KikeGonRam/spark` (rama `urbanblade-analytics`) | Módulo de analítica Big Data (PySpark) — proyecto académico independiente que lee la misma base de datos MongoDB en modo solo-lectura |
 
 Ambos proyectos comparten la misma base de datos MongoDB Atlas, pero corren en
@@ -123,11 +123,21 @@ usuarios (`administrador`, `recepcionista`, `barbers`, `clients`) →
 `barber_schedules` → `appointments` → `payments` → `loyalty_transactions` →
 `orders` → `works` → `work_images` → `comments` → `reactions`.
 
-El dataset de referencia actual: 1 administrador + 1 recepcionista + 50
-barberos + 1500 clientes, ~112,000 citas históricas (2024 → semana actual, con
-la regla de que ninguna cita futura puede estar en un estado distinto de
-`pendiente`), ~19,000 pedidos de tienda, ~200 publicaciones sociales con
-comentarios y reacciones.
+> ⚠️ **`barber_db` se limpió por completo el 2026-09-04** (tenía ~214,623
+> citas y ~323,095 transacciones de lealtad sintéticas acumuladas de siembras
+> masivas repetidas, además de ~4,767 usuarios de sobra). El estado real
+> actual son solo las 4 cuentas de equipo documentadas en
+> [ACCESOS.md](ACCESOS.md) (1 admin, 1 recepcionista, 1 barbero, 1 cliente) y
+> ningún dato operativo (citas, pagos, productos, etc.) — se va cargando con
+> información real conforme el negocio la genera.
+>
+> Si se corre el `DatabaseSeeder` completo (`migrate --seed`, **no
+> recomendado**, ver [README.md](../README.md)), sí generaría un dataset
+> sintético de referencia grande: 1 administrador + 1 recepcionista + 50
+> barberos + 1500 clientes, ~112,000 citas históricas (2024 → semana actual,
+> con la regla de que ninguna cita futura puede estar en un estado distinto
+> de `pendiente`), ~19,000 pedidos de tienda, ~200 publicaciones sociales con
+> comentarios y reacciones — es exactamente ese volumen el que se limpió.
 
 ### 2.6 Rutas
 
