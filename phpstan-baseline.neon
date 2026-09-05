@@ -301,6 +301,48 @@ parameters:
 			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 3
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Offset ''cancelada''\|''completada''\|''confirmada''\|''en_proceso''\|''no_asistio''\|''pendiente'' on array\{pendiente\: ''\#d97706'', confirmada\: ''\#3b82f6'', en_proceso\: ''\#06b6d4'', completada\: ''\#10b981'', cancelada\: ''\#ef4444'', no_asistio\: ''\#6b7280''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Appointment\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:issueMobileApiToken\(\)\.$#'
 			identifier: method.notFound
 			count: 1

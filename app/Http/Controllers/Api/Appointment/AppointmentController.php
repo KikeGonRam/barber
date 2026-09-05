@@ -79,6 +79,61 @@ class AppointmentController extends Controller
     }
 
     /**
+     * Citas del rango de fechas (y barbero opcional) como eventos de
+     * FullCalendar — puerto directo de
+     * Appointment\AppointmentController::calendarData() (web), para el
+     * calendario del frontend Nuxt (ver
+     * frontend-urban/.claude/skills/nuxt-migration-plan/SKILL.md, Fase 7).
+     * Esa versión web solo es alcanzable con sesión + permiso
+     * 'citas.gestionar'; aquí se restringe por rol vía token Bearer,
+     * mismo criterio de admin/recepcionista.
+     */
+    public function calendarData(Request $request): JsonResponse
+    {
+        abort_unless($request->user()?->hasAnyRole(['administrador', 'recepcionista']), 403, 'No autorizado para consultar el calendario.');
+
+        $start = $request->query('start');
+        $end = $request->query('end');
+        $barberId = $request->query('barber_id');
+
+        $appointments = Appointment::with(['client.user:id,name', 'service:id,nombre', 'barber.user:id,name'])
+            ->when($start, fn ($q) => $q->whereDate('fecha', '>=', $start))
+            ->when($end, fn ($q) => $q->whereDate('fecha', '<=', $end))
+            ->when($barberId, fn ($q) => $q->where('barber_id', $barberId))
+            ->get();
+
+        $statusColors = [
+            'pendiente' => '#d97706',
+            'confirmada' => '#3b82f6',
+            'en_proceso' => '#06b6d4',
+            'completada' => '#10b981',
+            'cancelada' => '#ef4444',
+            'no_asistio' => '#6b7280',
+        ];
+
+        $events = $appointments->map(function (Appointment $appt) use ($statusColors) {
+            $color = $statusColors[$appt->estado] ?? '#d4af37';
+
+            return [
+                'id' => (string) $appt->id,
+                'title' => ($appt->client?->user?->name ?? 'Cliente').' — '.($appt->service?->nombre ?? ''),
+                'start' => $appt->fecha->format('Y-m-d').'T'.$appt->hora_inicio,
+                'end' => $appt->fecha->format('Y-m-d').'T'.($appt->hora_fin ?? $appt->hora_inicio),
+                'color' => $color,
+                'textColor' => '#fff',
+                'extendedProps' => [
+                    'cliente' => $appt->client?->user?->name ?? '—',
+                    'servicio' => $appt->service?->nombre ?? '—',
+                    'barbero' => $appt->barber?->user?->name ?? '—',
+                    'estado' => $appt->estado,
+                ],
+            ];
+        });
+
+        return response()->json($events);
+    }
+
+    /**
      * Crear Cita
      *
      * Registra una nueva cita en el sistema validando la disponibilidad del barbero.

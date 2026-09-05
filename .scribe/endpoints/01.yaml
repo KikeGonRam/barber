@@ -1,7 +1,8 @@
 name: Autenticación
 description: |-
 
-  Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+  Endpoints para el manejo de sesiones de usuario (token Bearer propio,
+  tabla mobile_api_tokens — no Sanctum).
 endpoints:
   -
     custom: []
@@ -13,7 +14,8 @@ endpoints:
       groupName: Autenticación
       groupDescription: |-
 
-        Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+        Endpoints para el manejo de sesiones de usuario (token Bearer propio,
+        tabla mobile_api_tokens — no Sanctum).
       subgroup: ''
       subgroupDescription: ''
       title: 'Iniciar Sesión'
@@ -103,7 +105,8 @@ endpoints:
       groupName: Autenticación
       groupDescription: |-
 
-        Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+        Endpoints para el manejo de sesiones de usuario (token Bearer propio,
+        tabla mobile_api_tokens — no Sanctum).
       subgroup: ''
       subgroupDescription: ''
       title: 'Registro de Usuario'
@@ -208,7 +211,8 @@ endpoints:
       groupName: Autenticación
       groupDescription: |-
 
-        Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+        Endpoints para el manejo de sesiones de usuario (token Bearer propio,
+        tabla mobile_api_tokens — no Sanctum).
       subgroup: ''
       subgroupDescription: ''
       title: 'Recuperar Contraseña (Solicitar Enlace)'
@@ -271,7 +275,8 @@ endpoints:
       groupName: Autenticación
       groupDescription: |-
 
-        Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+        Endpoints para el manejo de sesiones de usuario (token Bearer propio,
+        tabla mobile_api_tokens — no Sanctum).
       subgroup: ''
       subgroupDescription: ''
       title: 'Restablecer Contraseña'
@@ -370,7 +375,8 @@ endpoints:
       groupName: Autenticación
       groupDescription: |-
 
-        Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+        Endpoints para el manejo de sesiones de usuario (token Bearer propio,
+        tabla mobile_api_tokens — no Sanctum).
       subgroup: ''
       subgroupDescription: ''
       title: 'Devuelve los datos del usuario autenticado (según el token Bearer enviado).'
@@ -395,7 +401,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: '*'
+          access-control-allow-origin: 'http://localhost:3000'
         description: null
     responseFields: []
     auth: []
@@ -412,7 +418,8 @@ endpoints:
       groupName: Autenticación
       groupDescription: |-
 
-        Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+        Endpoints para el manejo de sesiones de usuario (token Bearer propio,
+        tabla mobile_api_tokens — no Sanctum).
       subgroup: ''
       subgroupDescription: ''
       title: 'Revoca el token móvil actual (el middleware de auth lo deja en request->attributes).'
@@ -445,7 +452,8 @@ endpoints:
       groupName: Autenticación
       groupDescription: |-
 
-        Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+        Endpoints para el manejo de sesiones de usuario (token Bearer propio,
+        tabla mobile_api_tokens — no Sanctum).
       subgroup: ''
       subgroupDescription: ''
       title: 'Renovar Token'
@@ -491,7 +499,8 @@ endpoints:
       groupName: Autenticación
       groupDescription: |-
 
-        Endpoints para el manejo de sesiones de usuario (Sanctum/Mobile API).
+        Endpoints para el manejo de sesiones de usuario (token Bearer propio,
+        tabla mobile_api_tokens — no Sanctum).
       subgroup: ''
       subgroupDescription: ''
       title: 'Obtener Token para Dashboard Web'

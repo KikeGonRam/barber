@@ -78,6 +78,7 @@ Route::prefix('v1')->group(function (): void {
 
         // Citas
         Route::get('appointments', [AppointmentController::class, 'index']);
+        Route::get('appointments/calendar-data', [AppointmentController::class, 'calendarData']);
         Route::post('appointments', [AppointmentController::class, 'store']);
         Route::put('appointments/{appointment}', [AppointmentController::class, 'update']);
         Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);

@@ -67,6 +67,56 @@ endpoints:
   -
     custom: []
     httpMethods:
+      - GET
+    uri: api/v1/appointments/calendar-data
+    metadata:
+      custom: []
+      groupName: Citas
+      groupDescription: |-
+
+        Gestión de citas para clientes, barberos y administración.
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Citas del rango de fechas (y barbero opcional) como eventos de
+        FullCalendar — puerto directo de
+        Appointment\AppointmentController::calendarData() (web), para el
+        calendario del frontend Nuxt (ver
+        frontend-urban/.claude/skills/nuxt-migration-plan/SKILL.md, Fase 7).
+      description: |-
+        Esa versión web solo es alcanzable con sesión + permiso
+        'citas.gestionar'; aquí se restringe por rol vía token Bearer,
+        mismo criterio de admin/recepcionista.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
       - POST
     uri: api/v1/appointments
     metadata:
@@ -237,14 +287,14 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: yse8krwr
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: yse8krwr
+      appointment_code: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -286,7 +336,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-09-18'
+        example: '2052-09-28'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -297,7 +347,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '18:29'
+        example: '16:01'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -308,7 +358,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: en_proceso
+        example: confirmada
         type: string
         enumValues:
           - pendiente
@@ -335,9 +385,9 @@ endpoints:
       client_id: architecto
       barber_id: architecto
       service_id: architecto
-      fecha: '2052-09-18'
-      hora_inicio: '18:29'
-      estado: en_proceso
+      fecha: '2052-09-28'
+      hora_inicio: '16:01'
+      estado: confirmada
       notas: 'n'
     fileParameters: []
     responses: []
@@ -374,14 +424,14 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: yse8krwr
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: yse8krwr
+      appointment_code: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -390,7 +440,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: confirmada
+        example: completada
         type: string
         enumValues:
           - pendiente
@@ -414,7 +464,7 @@ endpoints:
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      estado: confirmada
+      estado: completada
       notas: b
     fileParameters: []
     responses: []
@@ -449,14 +499,14 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: yse8krwr
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: yse8krwr
+      appointment_code: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
