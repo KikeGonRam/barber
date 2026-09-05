@@ -340,21 +340,82 @@ ven correctos, consola limpia en pestaña nueva. Se re-verificó también
 regenerado wholesale otra vez — mismo criterio de la Fase 4), `.\test.ps1` (210 tests,
 +1 nuevo), eslint (0 warnings) y `npm audit` — todos en verde.
 
-### ⬜ Fases siguientes (cliente, administrador — orden a definir)
+### ✅ Fase 6 — Dashboard de Cliente (completa, 2026-09-05)
 
-Mismo patrón ya establecido: controlador → `Inertia::render()` para esa rama únicamente,
-vista Vue reusando `AppLayout.vue`/`DashboardHeader.vue`/`AnalyticsInsights.vue`/
-`AnalyticsCta.vue`/`chart-theme.js` ya construidos, **borrar la porción de
-`dashboard.blade.php` de ese rol solo cuando sea la ÚLTIMA rama en migrarse** (las 4
-comparten un solo archivo Blade con `@elseif` — no se puede borrar hasta que ninguna rama
-lo use). Administrador y cliente tienen gráficas Chart.js con gradiente calculado sobre
-el contexto 2D del canvas (`incomeChart`/`visitChart`), a diferencia del `flowChart`
-plano de recepción o el `performanceChart`/`servicesChart` sin gradiente del barbero —
-revisar si conviene extraer un helper de gradiente en `chart-theme.js` en vez de
-reimplementarlo ad-hoc. Administrador también tiene 2 botones extra en el header
+El más grande de los 4 hasta ahora. `DashboardController::index()` devuelve
+`Inertia::render('Dashboard/Cliente', [...])` solo para la rama `cliente`; solo falta
+administrador.
+
+**Componente nuevo grande:** `resources/js/Components/MembershipCard.vue`, puerto de
+`components/membership-card.blade.php` — tarjeta con tilt 3D al mover el mouse, flip a
+QR, contador de puntos animado y celebración (confetti) al subir de nivel. La versión
+Blade hacía todo esto con manipulación directa del DOM + `data-*` attributes; se
+reimplementó con estado reactivo de Vue (`ref`/`computed` para tilt/flip/contador) en vez
+de tocar el DOM a mano. El evento `celebrate` se sigue disparando igual
+(`window.dispatchEvent(new CustomEvent('celebrate'))`) — lo sigue escuchando el script de
+confetti que YA vive en `resources/views/app.blade.php` desde la Fase 2, no se tocó. Se
+reusó la MISMA clave de `localStorage` (`ub_lvl_rank`) que la versión Blade para no perder
+el estado de "ya vio este nivel" de clientes que ya visitaron el dashboard viejo.
+
+**Gradiente de Chart.js resuelto de forma declarativa:** a diferencia de `flowChart`
+(Fase 4, color plano) y `performanceChart`/`servicesChart` (Fase 5, sin gradiente),
+`visitChart` SÍ necesita un gradiente (igual que `incomeChart` de administrador, todavía
+sin migrar). La versión Blade obtenía el gradiente de forma imperativa
+(`canvas.getContext('2d').createLinearGradient(...)` antes de construir el `Chart`). En
+Vue con `vue-chartjs` eso se resuelve con una **opción scriptable de Chart.js**:
+`backgroundColor` como función `(context) => { const {ctx, chartArea} = context.chart; ...crear gradiente...; return gradiente; }`
+— Chart.js la invoca en cada render con acceso al canvas real, sin necesitar una ref
+manual al elemento `<canvas>`. Se usó `chartArea.top/bottom` en vez del `260` hardcodeado
+del original (más robusto ante cambios de altura). **Cuando llegue la Fase de
+administrador, `incomeChart` puede reusar este mismo patrón** — si para entonces ya son 2
+gráficas con gradiente dorado idéntico, vale la pena extraer un `goldGradient()`
+exportado desde `chart-theme.js` en vez de mantener 2 copias.
+
+Todos los campos que dependían de formato de fecha en español (`nextAppointment.day`,
+`.monthShort`, `.dateLong`) se precalculan en el controlador vía Carbon — mismo principio
+que `todayLabel` (Fase 5) y `AnalyticsInsight::toDashboardCardArray()` (Fase 4). En
+cambio, el "mejor mes" de la gráfica de visitas SÍ se calculó en Vue (`visitPeak`
+computed): es aritmética pura sobre `visitChart.labels`, que YA vienen en español desde
+`DashboardService` — no hay i18n que reimplementar ahí, solo buscar el máximo.
+
+**Verificado:** con las credenciales reales de cliente (`docs/ACCESOS.md`) contra Atlas —
+header "Panel Personal", saludo, 4 KPIs, "Sin citas próximas" + CTA, "Aún no hay patrón
+suficiente", gráfica de visitas en estado vacío, tarjeta de membresía completa (nivel
+Caballero, número de socio real, QR real generado por `MemberCardService`), el flip a QR
+probado en vivo (funciona, cambia el texto del botón a "Ver tarjeta"), progreso de
+lealtad en 0% con "faltan 5 visitas" al siguiente nivel, los 4 beneficios correctamente
+inactivos para nivel nuevo — consola limpia en pestaña nueva. Pint (338 archivos),
+phpstan (0 errores, **sin necesidad de tocar el baseline esta vez** — ver nota abajo),
+`.\test.ps1` (211 tests, +1 nuevo), eslint (0 warnings) y `npm audit` — todos en verde.
+
+**Nota sobre phpstan en esta fase:** a diferencia de las Fases 4-5, aquí NO hizo falta
+tocar `phpstan-baseline.neon`. La razón: `DashboardService::clientMetrics(): array` ya
+devolvía `next_appointment`/`visit_chart` como arrays planos (no Collections de Eloquent)
+y el único `.map()` nuevo en el controlador (`loyalty['recent_transactions']`) opera
+sobre un valor extraído de un array (`$data['loyalty']['recent_transactions']`), no sobre
+una variable con tipo de Collection precisamente conocido — igual que pasó con
+`next_appointments` en la Fase 4, Larastan no puede analizar el tipo del callback lo
+bastante a fondo como para marcarlo. Confirma el patrón: **cuanto más "vago" (`array`) es
+el tipo de retorno de un método de servicio, menos puede quejarse Larastan — no es una
+ventaja real, solo significa que ese análisis no está pasando ahí.**
+
+### ⬜ Fase siguiente — Administrador (última rama, orden ya no aplica)
+
+Mismo patrón ya establecido: controlador → `Inertia::render()`, vista Vue reusando
+`AppLayout.vue`/`DashboardHeader.vue`/`AnalyticsInsights.vue`/`AnalyticsCta.vue`/
+`chart-theme.js`/el patrón de gradiente scriptable de esta fase. Al ser la ÚLTIMA rama de
+`dashboard.blade.php`, esta fase SÍ puede terminar borrando el archivo Blade completo
+(1472 líneas) y el `<script>` de Chart.js al final de él, ya que ninguna rama lo
+necesitará más. También borrar `components/analytics-insights.blade.php` y
+`components/membership-card.blade.php` en ese momento — confirmar primero con
+`grep -rln "x-analytics-insights\|x-membership-card" resources/views/` que de verdad ya
+no los usa nada (recordar que `analytics/index.blade.php` SÍ usa
+`x-analytics-insights` con `showCharts=true`, así que ESE no se borra, solo se
+simplifica si acaso). Administrador tiene 2 botones extra en el header
 (mantenimiento/backup) que ningún otro rol muestra — usar el slot por defecto de
 `DashboardHeader.vue` (ya preparado para esto desde la Fase 5) en vez de bifurcar el
-componente.
+componente. También tiene 4-5 gráficas (income/services/barberPerformance x2/
+clientTrends) — la más grande de las 4 fases de dashboard.
 
 ### ⬜ Fase final — Merge a `main`
 

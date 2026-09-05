@@ -10,8 +10,11 @@ use App\Models\Order;
 use App\Models\Service;
 use App\Services\Analytics\AnalyticsInsightService;
 use App\Services\Dashboard\DashboardService;
+use App\Services\Loyalty\LoyaltyService;
+use App\Services\Member\MemberCardService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -175,19 +178,65 @@ class DashboardController extends Controller
 
             $data = $this->dashboardService->clientMetrics((string) $client->id);
             $sparkInsights = $this->analyticsInsightService->forClient();
+            $loyalty = $data['loyalty'];
+            $nivel = $loyalty['nivel'];
+            $nextNivel = $loyalty['next_nivel'];
+            $wonRaffle = $loyalty['won_raffle'];
+            $memberCard = app(MemberCardService::class);
+            // Recomendación aplicada: el cliente ve una acción útil, no
+            // análisis crudo — mismo criterio que dashboard.blade.php.
+            $clienteReco = collect($sparkInsights)->firstWhere('tipo', 'tambien_te_puede_interesar');
 
-            return view('dashboard', [
-                'adminMode' => false,
-                'isBarberMode' => false,
-                'isReceptionMode' => false,
-                'isClientMode' => true,
+            // Campos de fecha en español precalculados aquí (Carbon) para no
+            // reimplementar formato de fechas en español en Vue — mismo
+            // principio que 'todayLabel'.
+            $nextAppt = $data['next_appointment'];
+            if ($nextAppt) {
+                $apptAt = Carbon::parse($nextAppt['fecha'].' '.$nextAppt['hora_inicio']);
+                $nextAppt['day'] = $apptAt->format('d');
+                $nextAppt['monthShort'] = $apptAt->translatedFormat('M');
+                $nextAppt['dateLong'] = $apptAt->translatedFormat('d F Y');
+                $nextAppt['canManage'] = in_array(strtolower((string) $nextAppt['estado']), ['pendiente', 'confirmada'], true)
+                    && $apptAt->isFuture();
+            }
+
+            // Migrado a Inertia+Vue (ver .claude/skills/inertia-vue-migration/SKILL.md,
+            // Fase 6). Solo falta administrador.
+            return Inertia::render('Dashboard/Cliente', [
+                'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
                 'kpis' => $data['kpis'],
-                'loyalty' => $data['loyalty'],
-                'nextAppointment' => $data['next_appointment'],
-                'chatbotTelemetry' => [],
-                'visit_chart' => $data['visit_chart'],
-                'sparkInsights' => $sparkInsights,
-                'sparkHighlights' => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'cliente'),
+                'nextAppointment' => $nextAppt,
+                'visitChart' => $data['visit_chart'],
+                'loyalty' => [
+                    'nivel' => $nivel,
+                    'nivelLabel' => LoyaltyService::LEVEL_LABELS[$nivel] ?? strtoupper($nivel),
+                    'puntos' => $loyalty['puntos'],
+                    'discountPct' => $loyalty['discount_pct'],
+                    'nextNivel' => $nextNivel,
+                    'nextNivelLabel' => $nextNivel ? (LoyaltyService::LEVEL_LABELS[$nextNivel] ?? null) : null,
+                    'citasFaltan' => $loyalty['citas_faltan'],
+                    'progressPct' => $loyalty['progress_pct'],
+                    'recentTransactions' => collect($loyalty['recent_transactions'])->map(fn ($tx) => [
+                        'descripcion' => $tx->descripcion,
+                        'puntos' => (int) $tx->puntos,
+                    ]),
+                    'wonRaffle' => $wonRaffle ? [
+                        'mes' => $wonRaffle->mes,
+                        'premio' => $wonRaffle->premio,
+                        'isExpired' => $wonRaffle->isExpired(),
+                        'venceEn' => $wonRaffle->vence_en->format('d/m/Y'),
+                    ] : null,
+                ],
+                'member' => [
+                    'number' => $memberCard->memberNumber($user),
+                    'since' => $memberCard->memberSince($user),
+                    'qr' => $memberCard->qrDataUri($user),
+                    'downloadUrl' => Route::has('client.membership.card') ? route('client.membership.card') : null,
+                ],
+                'recommendation' => $clienteReco ? [
+                    'valorDestacado' => $clienteReco->valor_destacado,
+                    'mensaje' => $clienteReco->mensaje,
+                ] : null,
             ]);
         }
 
