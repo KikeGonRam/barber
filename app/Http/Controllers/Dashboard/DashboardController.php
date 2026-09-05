@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\AnalyticsInsight;
 use App\Models\Appointment;
 use App\Models\BarbershopSetting;
+use App\Models\Order;
 use App\Models\Service;
 use App\Services\Analytics\AnalyticsInsightService;
 use App\Services\Dashboard\DashboardService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Dashboard principal, con una vista distinta por rol (administrador, barbero,
@@ -25,7 +29,7 @@ class DashboardController extends Controller
     ) {}
 
     // Determina el rol del usuario autenticado y arma el payload de métricas correspondiente.
-    public function index(): View
+    public function index(): View|InertiaResponse
     {
         $user = request()->user();
 
@@ -111,19 +115,31 @@ class DashboardController extends Controller
         if ($user->hasRoleName('recepcionista')) {
             $data = $this->dashboardService->receptionistMetrics();
             $sparkInsights = $this->analyticsInsightService->forReception();
+            $pendingOrdersList = $data['pending_orders_list'] ?? collect();
 
-            return view('dashboard', [
-                'adminMode' => false,
-                'isBarberMode' => false,
-                'isReceptionMode' => true,
-                'isClientMode' => false,
+            // Migrado a Inertia+Vue (ver .claude/skills/inertia-vue-migration/SKILL.md,
+            // Fase 4). Los otros 3 roles siguen en Blade hasta su propia fase.
+            return Inertia::render('Dashboard/Recepcion', [
                 'kpis' => $data['kpis'],
-                'nextAppointments' => $data['next_appointments'],
-                'pending_orders_list' => $data['pending_orders_list'] ?? collect(),
-                'flow_chart' => $data['flow_chart'],
-                'chatbotTelemetry' => [],
-                'sparkInsights' => $sparkInsights,
-                'sparkHighlights' => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'recepcionista'),
+                'nextAppointments' => $data['next_appointments']->map(fn (Appointment $appt) => [
+                    'id' => (string) $appt->id,
+                    'hora_inicio' => $appt->hora_inicio,
+                    'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                    'servicio' => $appt->service?->nombre ?? '—',
+                    'barbero' => $appt->barber?->user?->name ?? '—',
+                ]),
+                'pendingOrders' => $pendingOrdersList->map(fn (Order $order) => [
+                    'id' => (string) $order->id,
+                    'folio' => $order->folio,
+                    'cliente' => $order->client?->user?->name ?? 'Cliente',
+                    'creadoEn' => optional($order->created_at)->translatedFormat('d M, H:i'),
+                    'itemsCount' => count($order->items ?? []),
+                    'total' => (float) $order->total,
+                ]),
+                'flowChart' => $data['flow_chart'],
+                'sparkHighlights' => $this->analyticsInsightService
+                    ->highlightsForDashboard($sparkInsights, 'recepcionista')
+                    ->map(fn (AnalyticsInsight $insight) => $insight->toDashboardCardArray()),
             ]);
         }
 

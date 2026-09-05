@@ -46,6 +46,13 @@ class HandleInertiaRequests extends Middleware
                 'status' => fn () => $request->session()->get('status'),
                 'error' => fn () => $request->session()->get('errors')?->first(),
             ],
+            // Patrón estándar de Breeze/Inertia: el usuario autenticado como
+            // prop compartida, para no tener que repetirlo en cada
+            // controlador migrado (ej. el saludo con nombre en los
+            // dashboards por rol).
+            'auth' => [
+                'user' => $request->user()?->only(['id', 'name', 'email']),
+            ],
         ];
     }
 }

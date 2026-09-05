@@ -219,14 +219,6 @@ diverjan silenciosamente.
 @fullcalendar/list @fullcalendar/interaction`, todos fijados a la versión exacta
 `6.1.21` (sin `^`) — ver gotcha abajo sobre por qué es exacta y no un rango.
 
-### ⬜ Fases siguientes (a definir según prioridad del dueño del proyecto)
-
-Candidatos evidentes por su uso de Chart.js: `DashboardController` (admin/recepción),
-`BarberDashboardController`. Cada uno sigue el mismo patrón: controlador →
-`Inertia::render()`, vista Blade → componente `.vue`, endpoints JSON de datos (si los hay)
-sin tocar, **borrar la vista Blade vieja una vez migrada**. Migrar de a una página por
-vez, verificar, commitear, repetir.
-
 **Regla que ya mordió en la Fase 3 — leer antes de escribir cualquier `<Link>`:** un
 `<Link>` de Inertia que apunta a una ruta que TODAVÍA es Blade (no migrada) no navega —
 Inertia detecta que la respuesta no trae el header `X-Inertia` y muestra su modal de
@@ -237,12 +229,76 @@ ejemplo) — esos enlaces deben ser `<a href="...">` normales, NUNCA `<Link>`, h
 destino también esté migrado a Inertia. Revisar esto en cada página nueva: ¿el destino de
 este enlace ya es `Inertia::render()`? Si no, `<a>`, no `<Link>`.
 
-### ⬜ Fases siguientes (a definir según prioridad del dueño del proyecto)
+### ✅ Fase 4 — Dashboard de Recepcionista (completa, 2026-09-05)
 
-Candidatos evidentes por su uso de Chart.js: `DashboardController` (admin/recepción),
-`BarberDashboardController`. Cada uno sigue el mismo patrón: controlador →
-`Inertia::render()`, vista Blade → componente `.vue`, endpoints JSON de datos (si los hay)
-sin tocar. Migrar de a una página por vez, verificar, commitear, repetir.
+`DashboardController::index()` es un solo método que arma un dashboard distinto por rol
+(4 ramas: administrador/barbero/recepcionista/cliente, todas antes renderizadas por
+`resources/views/dashboard.blade.php`, 1472 líneas). Dado el tamaño, el dueño del proyecto
+confirmó dividir la migración por rol en vez de todo junto — esta fase migró SOLO la rama
+`recepcionista`; las otras 3 siguen devolviendo `view('dashboard', [...])` sin cambios,
+hasta su propia fase futura. `index()` ahora tiene tipo de retorno `View|InertiaResponse`.
+
+**Hallazgo que amplió el alcance de esta fase:** las 4 ramas del dashboard usan
+`<x-analytics-insights>`, un componente Blade compartido de 335 líneas (matrices, mapas
+de calor, listas de factores, canvases de Chart.js con config JSON dinámica). El dueño
+del proyecto confirmó portarlo a Vue una sola vez ahora (no diferirlo), ya que las
+próximas 3 fases lo van a reusar tal cual. Pero un análisis del propio Blade reveló que
+**las 4 llamadas dentro de `dashboard.blade.php` invocan el componente SIN `showCharts`**
+(el prop que activa matriz/heatmap/canvas) — solo `resources/views/analytics/index.blade.php`
+(página NO migrada, fuera de alcance) lo activa. Eso significa que
+`resources/js/Components/AnalyticsInsights.vue` **solo necesitaba portar la rama simple**
+(título + dato + badge + barra de progreso/puntos + `<details>` "Ver hallazgo") — la
+rama con gráficas NO se portó (se documenta como extensión futura si `/analytics` se
+migra algún día, no se reimplementó especulativamente).
+
+Para no duplicar reglas de negocio (truncado a 34 palabras, extracción de porcentaje,
+mapeo tipo→etiqueta visual) en JS, se centralizaron en PHP:
+`App\Models\AnalyticsInsight::toDashboardCardArray()` (nuevo método) devuelve un array
+plano ya listo para pintar — Vue solo pinta, no decide. Cubierto por
+`tests/Unit/AnalyticsInsightTest.php` (7 casos: color por defecto, mapeo de
+`visual_label`, truncado corto/largo, extracción de porcentaje con/sin match).
+
+**Otros archivos nuevos:**
+- `resources/js/Components/AnalyticsCta.vue` — puerto trivial de `analytics-cta.blade.php`.
+- `resources/js/chart-theme.js` — registra Chart.js UNA vez y exporta los defaults
+  compartidos (fuente, tooltip, `chartScale`, paleta `UB_CATEGORICAL`, `fmtMoney`/`fmtInt`)
+  que hoy vive duplicado inline en el `<script>` de `dashboard.blade.php` — las próximas
+  fases (admin/barbero/cliente) importan esto en vez de reescribirlo.
+- `resources/js/Pages/Dashboard/Recepcion.vue` — usa `vue-chartjs` (`<Line>`) para el
+  "Flujo Operativo" (antes `Chart.js` vía CDN + `makeChart()` inline en Blade).
+
+**Prop compartida nueva:** `HandleInertiaRequests::share()` ahora incluye
+`'auth' => ['user' => $request->user()?->only(['id','name','email'])]` (patrón estándar
+de Breeze/Inertia) — necesaria para el saludo "Hola, {nombre}"; cualquier página futura
+puede leerla vía `usePage().props.auth.user` en vez de pasarla de nuevo como prop propia.
+
+**Datos de `Appointment`/`Order` mapeados a arrays planos en el controlador** (mismo
+patrón que `barbers` en la Fase 3) en vez de pasar los Models/Collections de Eloquent
+directo a Inertia — mantiene consistencia con cómo `calendarData()` ya serializa MongoDB
+a JSON en este repo, y evita sorpresas de serialización de ObjectId.
+
+**Verificado:** con las credenciales reales de recepcionista (`docs/ACCESOS.md`) contra
+la Atlas real (no hay forma de probar esto contra datos falsos sin sembrar la BD
+compartida, que las guías de este repo prohíben) — sidebar, saludo con nombre real
+("Hola, Valeria"), 6 KPIs, CTA de analítica, y los 3 estados vacíos (sin llegadas/sin
+flujo/sin pedidos, reales ya que la BD fue limpiada 2026-09-04) se ven correctos, consola
+limpia en pestaña nueva. La sección "Prioridades del turno" no se pudo ver CON datos
+reales (0 documentos en `analytics_insights`, pipeline de Spark pausado) — cubierto en su
+lugar por el test unitario dedicado. Pint (336 archivos), phpstan (0 errores, baseline
+regenerado wholesale — ver gotcha abajo), `.\test.ps1` (209 tests, +8 nuevos), eslint
+(0 warnings) y `npm audit` — todos en verde.
+
+### ⬜ Fases siguientes (barbero, cliente, administrador — orden a definir)
+
+Mismo patrón ya establecido: controlador → `Inertia::render()` para esa rama únicamente,
+vista Vue reusando `AppLayout.vue`/`AnalyticsInsights.vue`/`AnalyticsCta.vue`/
+`chart-theme.js` ya construidos, **borrar la porción de `dashboard.blade.php` de ese rol
+solo cuando sea la ÚLTIMA rama en migrarse** (las 4 comparten un solo archivo Blade con
+`@elseif` — no se puede borrar hasta que ninguna rama lo use). Cada rol tiene sus propias
+gráficas Chart.js con gradiente (`incomeChart`/`visitChart` usan un gradiente calculado
+sobre el contexto 2D del canvas, a diferencia del `flowChart` plano de recepción) — al
+migrar admin/cliente, revisar si conviene extraer un `GradientLineChart.vue` reutilizable
+en `chart-theme.js` en vez de reimplementar el gradiente en cada página.
 
 ### ⬜ Fase final — Merge a `main`
 
@@ -300,3 +356,20 @@ esa skill: aquí el conteo subió por UNA línea de código nueva, así que se e
 (sumar 1 a los contadores existentes + agregar la entrada nueva para `Barber`), no se
 regeneró el archivo completo — regenerar wholesale es para cuando decenas de entradas
 cambian de golpe por un bump de versión, no para esto.
+
+### A veces SÍ conviene regenerar el baseline wholesale sin que sea un bump de versión (Fase 4)
+
+Contradice a medias el gotcha anterior — matiz importante. En la Fase 4, mover el mapeo de
+`Appointment`/`Order`/`AnalyticsInsight` del Blade (nunca analizado por phpstan) al
+controlador/modelo (sí analizado) disparó ~12 errores nuevos de golpe (3 bumps de contador
++ 9 entradas nuevas, repartidas en 2 archivos). A mano habría sido tedioso y propenso a
+error (calcular cada `count:` exacto). Se usó
+`docker exec barber-app ./vendor/bin/phpstan analyse --generate-baseline --memory-limit=1G`
+y LUEGO se verificó con `git diff --stat phpstan-baseline.neon` +
+`git diff phpstan-baseline.neon | grep "^+.*path:" | sort -u` que el diff tocara
+ÚNICAMENTE los 2 archivos recién editados — si hubiera aparecido un tercer archivo en ese
+diff, habría sido señal de regresión real en otro lado, no de este cambio. Regla real
+(no la de "wholesale solo para bumps de versión"): **usar `--generate-baseline` cuando el
+volumen de entradas nuevas/cambiadas hace el conteo manual poco confiable, sin importar la
+causa — pero SIEMPRE verificar el diff resultante antes de commitear**, nunca confiar el
+regenerado a ciegas.
