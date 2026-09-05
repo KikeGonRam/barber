@@ -41,6 +41,11 @@ class Product extends Model
         'activo' => true,
     ];
 
+    // Ventana de gracia tras marcar un producto como "ya pedido": si sigue con
+    // stock bajo pasado este plazo, vuelve a aparecer en la alerta diaria por
+    // si el pedido nunca llegó o se olvidó dar seguimiento.
+    public const RESTOCK_GRACE_DAYS = 7;
+
     protected $fillable = [
         'nombre',
         'categoria',
@@ -52,6 +57,8 @@ class Product extends Model
         'tipo',
         'imagen',
         'activo',
+        'reabastecimiento_pedido_en',
+        'reabastecimiento_pedido_por',
     ];
 
     protected function casts(): array
@@ -60,7 +67,26 @@ class Product extends Model
             'precio_compra' => 'decimal:2',
             'precio_venta' => 'decimal:2',
             'activo' => 'boolean',
+            'reabastecimiento_pedido_en' => 'datetime',
         ];
+    }
+
+    // Compara stock_actual contra stock_minimo (mismos criterios que el filtro de bajo stock en Mongo).
+    public function isLowStock(): bool
+    {
+        return (int) $this->stock_actual <= (int) $this->stock_minimo;
+    }
+
+    // Si alguien marcó el producto como "ya pedido" hace menos de RESTOCK_GRACE_DAYS,
+    // la alerta diaria/panel de bajo stock lo debe silenciar. Pasado ese plazo (pedido
+    // nunca llegó o se olvidó), vuelve a contar como pendiente de atención.
+    public function hasPendingRestockOrder(): bool
+    {
+        if (! $this->reabastecimiento_pedido_en) {
+            return false;
+        }
+
+        return $this->reabastecimiento_pedido_en->diffInDays(now()) < self::RESTOCK_GRACE_DAYS;
     }
 
     // Activo por defecto si el campo no está presente en el documento (dato legado sin `activo`).
@@ -117,6 +143,22 @@ class Product extends Model
         foreach (['precio_compra', 'precio_venta'] as $decimalField) {
             if (array_key_exists($decimalField, $payload) && $payload[$decimalField] === null) {
                 unset($payload[$decimalField]);
+            }
+        }
+
+        // Las reglas de validación 'boolean'/'integer' de Laravel validan el
+        // formato pero NO transforman el valor: un checkbox de formulario
+        // llega como string "1"/"0", no como bool. MongoDB compara por tipo
+        // BSON, así que guardar "1" en vez de true rompe silenciosamente
+        // cualquier where('activo', true) posterior (alerta de stock bajo,
+        // listado de productos activos, etc.) sin que create()/update() avisen.
+        if (array_key_exists('activo', $payload) && $payload['activo'] !== null) {
+            $payload['activo'] = filter_var($payload['activo'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        foreach (['stock_actual', 'stock_minimo'] as $intField) {
+            if (array_key_exists($intField, $payload) && $payload[$intField] !== null) {
+                $payload[$intField] = (int) $payload[$intField];
             }
         }
 

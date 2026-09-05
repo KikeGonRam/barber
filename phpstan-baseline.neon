@@ -939,8 +939,32 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
 			identifier: argument.type
-			count: 1
+			count: 2
 			path: app/Http/Controllers/Inventory/ProductController.php
+
+		-
+			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Inventory/InventoryMovementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$reabastecimiento_pedido_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/InventoryAdminController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Inventory/InventoryService.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$read_at\.$#'

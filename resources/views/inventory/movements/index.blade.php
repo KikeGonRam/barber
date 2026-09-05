@@ -44,6 +44,8 @@
             </div>
         </section>
 
+        @include('inventory.partials.low-stock-panel')
+
         {{-- ── FILTROS ─────────────────────────────────── --}}
         <section x-data="{ open: {{ count($activeFilters) > 0 ? 'true' : 'false' }} }" class="ui-card-premium overflow-hidden">
             <div class="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-ink/6" @click="open = !open">

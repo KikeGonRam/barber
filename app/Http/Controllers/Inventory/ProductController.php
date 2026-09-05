@@ -51,6 +51,11 @@ class ProductController extends Controller
 
         $lowStockCount = $this->inventoryService->lowStockCount();
 
+        // Productos en o por debajo de su mínimo, para el panel de "marcar como pedido".
+        $lowStockProducts = Product::where('activo', true)
+            ->whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])
+            ->get(['nombre', 'stock_actual', 'stock_minimo', 'reabastecimiento_pedido_en']);
+
         // distinct()->pluck() no funciona con el driver de MongoDB (devuelve
         // solo null por cada documento en vez de los valores únicos); se
         // deduplica en PHP con unique() en su lugar.
@@ -63,7 +68,7 @@ class ProductController extends Controller
             'valor_total' => Product::get(['stock_actual', 'precio_compra'])->sum(fn ($p) => (float) $p->stock_actual * (float) $p->precio_compra),
         ];
 
-        return view('inventory.products.index', compact('products', 'filters', 'lowStockCount', 'categorias', 'tipos', 'stats'));
+        return view('inventory.products.index', compact('products', 'filters', 'lowStockCount', 'categorias', 'tipos', 'stats', 'lowStockProducts'));
     }
 
     public function create(): View
@@ -114,5 +119,14 @@ class ProductController extends Controller
         $this->inventoryService->deleteProduct($product);
 
         return redirect()->route('inventory.products.index')->with('status', 'Producto eliminado correctamente.');
+    }
+
+    // Silencia la alerta diaria de stock bajo para este producto durante Product::RESTOCK_GRACE_DAYS
+    // (accesible a admin y recepción, ver routes/web.php). Se limpia solo al registrar la entrada de stock.
+    public function markOrdered(Request $request, Product $product): RedirectResponse
+    {
+        $this->inventoryService->markProductOrdered($product, (string) $request->user()->id);
+
+        return back()->with('status', "\"{$product->nombre}\" marcado como pedido. No se avisará de nuevo por ".Product::RESTOCK_GRACE_DAYS.' días.');
     }
 }

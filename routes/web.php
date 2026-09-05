@@ -161,6 +161,11 @@ Route::middleware('auth')->group(function () {
             Route::resource('inventory/movements', InventoryMovementController::class)
                 ->only(['index', 'create', 'store'])
                 ->names('inventory.movements');
+
+            // Silencia la alerta diaria de stock bajo para un producto ya pedido
+            // (admin y recepción, igual que el resto del control de movimientos).
+            Route::post('inventory/products/{product}/mark-ordered', [ProductController::class, 'markOrdered'])
+                ->name('inventory.products.mark-ordered');
         });
 
         // CRUD de clientes desde el panel administrativo/recepción.

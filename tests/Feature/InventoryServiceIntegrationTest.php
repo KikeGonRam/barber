@@ -184,6 +184,55 @@ class InventoryServiceIntegrationTest extends TestCase
         $this->assertSame(2, $insumos->total());
     }
 
+    public function test_mark_product_ordered_stamps_who_and_when(): void
+    {
+        $product = $this->makeProduct(['stock_actual' => 1, 'stock_minimo' => 5]);
+        $userId = (string) Str::uuid();
+
+        $result = $this->service->markProductOrdered($product, $userId);
+
+        $this->assertTrue($result);
+
+        $fresh = Product::find($product->id);
+        $this->assertNotNull($fresh->reabastecimiento_pedido_en);
+        $this->assertSame($userId, $fresh->reabastecimiento_pedido_por);
+        $this->assertTrue($fresh->hasPendingRestockOrder());
+    }
+
+    public function test_register_movement_entrada_clears_a_pending_restock_order(): void
+    {
+        $product = $this->makeProduct(['stock_actual' => 1, 'stock_minimo' => 5]);
+        $userId = (string) Str::uuid();
+        $this->service->markProductOrdered($product, $userId);
+
+        $this->service->registerMovement([
+            'product_id' => (string) $product->id,
+            'tipo' => 'entrada',
+            'cantidad' => 10,
+            'motivo' => 'Llego el pedido',
+        ], $userId);
+
+        $fresh = Product::find($product->id);
+        $this->assertNull($fresh->reabastecimiento_pedido_en);
+        $this->assertNull($fresh->reabastecimiento_pedido_por);
+        $this->assertFalse($fresh->hasPendingRestockOrder());
+    }
+
+    public function test_register_movement_salida_does_not_touch_restock_order(): void
+    {
+        $product = $this->makeProduct(['stock_actual' => 10, 'stock_minimo' => 5]);
+        $userId = (string) Str::uuid();
+        $this->service->markProductOrdered($product, $userId);
+
+        $this->service->registerMovement([
+            'product_id' => (string) $product->id,
+            'tipo' => 'salida',
+            'cantidad' => 2,
+        ], $userId);
+
+        $this->assertTrue(Product::find($product->id)->hasPendingRestockOrder());
+    }
+
     public function test_list_movements_filters_by_tipo_and_product(): void
     {
         $productA = $this->makeProduct(['nombre' => 'Producto A']);

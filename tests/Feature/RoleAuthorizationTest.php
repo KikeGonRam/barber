@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Barber;
 use App\Models\Permission;
+use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -158,6 +159,36 @@ class RoleAuthorizationTest extends TestCase
         $this->actingAs($this->admin)->get(route('barber.agenda'))->assertForbidden();
         $this->actingAs($this->recepcionista)->get(route('barber.agenda'))->assertForbidden();
         $this->actingAs($this->cliente)->get(route('barber.agenda'))->assertForbidden();
+    }
+
+    /**
+     * inventory.products.mark-ordered vive junto a inventory.movements bajo
+     * permission.custom:inventario.ver,inventario.gestionar — admin y
+     * recepción, a diferencia del CRUD completo de productos que es admin-only.
+     */
+    public function test_mark_product_ordered_is_reachable_by_admin_and_recepcion(): void
+    {
+        $product = Product::create([
+            'nombre' => 'Producto de prueba',
+            'categoria' => 'cuidado',
+            'stock_actual' => 1,
+            'stock_minimo' => 5,
+            'precio_venta' => 100,
+        ]);
+
+        $this->actingAs($this->recepcionista)
+            ->post(route('inventory.products.mark-ordered', $product))
+            ->assertRedirect();
+        $this->assertNotNull($product->fresh()->reabastecimiento_pedido_en);
+
+        $this->actingAs($this->barbero)
+            ->post(route('inventory.products.mark-ordered', $product))
+            ->assertForbidden();
+        $this->actingAs($this->cliente)
+            ->post(route('inventory.products.mark-ordered', $product))
+            ->assertForbidden();
+
+        $product->delete();
     }
 
     /**

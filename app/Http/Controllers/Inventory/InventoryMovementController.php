@@ -40,6 +40,12 @@ class InventoryMovementController extends Controller
 
         $products = Product::query()->orderBy('nombre')->get(['id', 'nombre']);
 
+        // Productos en o por debajo de su mínimo, para el panel de "marcar como pedido"
+        // que aquí sí ven recepción/admin (a diferencia del catálogo completo, admin-only).
+        $lowStockProducts = Product::where('activo', true)
+            ->whereRaw(['$expr' => ['$lte' => ['$stock_actual', '$stock_minimo']]])
+            ->get(['nombre', 'stock_actual', 'stock_minimo', 'reabastecimiento_pedido_en']);
+
         $stats = [
             'total' => InventoryMovement::count(),
             'entradas' => InventoryMovement::where('tipo', 'entrada')->count(),
@@ -47,7 +53,7 @@ class InventoryMovementController extends Controller
             'hoy' => InventoryMovement::whereDate('fecha', today())->count(),
         ];
 
-        return view('inventory.movements.index', compact('movements', 'products', 'filters', 'stats'));
+        return view('inventory.movements.index', compact('movements', 'products', 'filters', 'stats', 'lowStockProducts'));
     }
 
     // Formulario de nuevo movimiento: productos y últimas 50 citas (para vincular consumos a una cita).

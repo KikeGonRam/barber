@@ -159,6 +159,11 @@ class InventoryAdminController
 
         if ($validated['tipo'] === 'entrada') {
             $product->increment('stock_actual', $validated['cantidad']);
+
+            // El pedido llegó: ya no hace falta silenciar la alerta a mano.
+            if ($product->reabastecimiento_pedido_en) {
+                $product->update(['reabastecimiento_pedido_en' => null, 'reabastecimiento_pedido_por' => null]);
+            }
         } else {
             if ((int) $product->stock_actual < (int) $validated['cantidad']) {
                 return response()->json([

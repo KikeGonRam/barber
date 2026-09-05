@@ -42,6 +42,8 @@
             </div>
         @endif
 
+        @include('inventory.partials.low-stock-panel')
+
         {{-- ── STATS ──────────────────────────────────── --}}
         <section class="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div class="rounded-2xl border border-ink/8 bg-card p-5">

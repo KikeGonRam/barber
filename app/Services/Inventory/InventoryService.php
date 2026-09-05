@@ -62,6 +62,20 @@ class InventoryService
     }
 
     /**
+     * Marca un producto de stock bajo como "ya pedido" para silenciar la alerta
+     * diaria de inventory:low-stock-alert durante Product::RESTOCK_GRACE_DAYS.
+     * Se limpia automáticamente en registerMovement() al registrar una entrada real
+     * de stock, sin necesidad de que nadie la desmarque a mano.
+     */
+    public function markProductOrdered(Product $product, string $userId): bool
+    {
+        return $this->products->update($product->id, [
+            'reabastecimiento_pedido_en' => now(),
+            'reabastecimiento_pedido_por' => $userId,
+        ]);
+    }
+
+    /**
      * Elimina un producto.
      */
     public function deleteProduct(Product $product): bool
@@ -94,6 +108,11 @@ class InventoryService
 
             if ($type === 'entrada') {
                 $product->increment('stock_actual', $quantity);
+
+                // El pedido llegó: ya no hace falta silenciar la alerta a mano.
+                if ($product->reabastecimiento_pedido_en) {
+                    $product->update(['reabastecimiento_pedido_en' => null, 'reabastecimiento_pedido_por' => null]);
+                }
             } else {
                 $product->decrement('stock_actual', $quantity);
             }
