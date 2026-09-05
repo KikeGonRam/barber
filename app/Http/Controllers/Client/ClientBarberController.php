@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Exceptions\Domain\DuplicateReviewException;
+use App\Exceptions\Domain\ReviewNotEligibleException;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarberReview;
 use App\Models\BarberSchedule;
 use App\Models\Work;
-use App\Services\Loyalty\LoyaltyService;
+use App\Services\Barber\BarberReviewService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -19,6 +21,8 @@ use Illuminate\View\View;
  */
 class ClientBarberController extends Controller
 {
+    public function __construct(private readonly BarberReviewService $reviews) {}
+
     // Lista barberos activos con su conteo de citas completadas (calculado en PHP, no withCount).
     public function index(): View
     {
@@ -78,16 +82,8 @@ class ClientBarberController extends Controller
         $canReview = false;
 
         if ($client) {
-            $alreadyReviewed = BarberReview::where('barber_id', (string) $barber->id)
-                ->where('client_id', (string) $client->id)
-                ->exists();
-
-            if (! $alreadyReviewed) {
-                $canReview = Appointment::where('barber_id', (string) $barber->id)
-                    ->where('client_id', (string) $client->id)
-                    ->where('estado', 'completada')
-                    ->exists();
-            }
+            $alreadyReviewed = $this->reviews->alreadyReviewed($client, $barber);
+            $canReview = ! $alreadyReviewed && $this->reviews->hasCompletedAppointment($client, $barber);
         }
 
         return view('client.barbers.show', compact(
@@ -97,38 +93,24 @@ class ClientBarberController extends Controller
         ));
     }
 
-    // Crea una reseña; exige cita completada previa y evita duplicados (1 reseña por cliente/barbero).
+    // Crea una reseña; la elegibilidad, anti-duplicado, puntos de lealtad,
+    // estadísticas del barbero y el aviso a admin por calificación baja
+    // viven en BarberReviewService (compartido con la API móvil).
     public function storeReview(Request $request, Barber $barber): RedirectResponse
     {
         $client = $request->user()->clientProfile;
         abort_if(! $client, 403);
-
-        if (! Appointment::where('barber_id', (string) $barber->id)
-            ->where('client_id', (string) $client->id)
-            ->where('estado', 'completada')
-            ->exists()) {
-            return back()->withErrors(['rating' => 'Solo puedes reseñar barberos con los que hayas tenido una cita completada.']);
-        }
-
-        if (BarberReview::where('barber_id', (string) $barber->id)
-            ->where('client_id', (string) $client->id)
-            ->exists()) {
-            return back()->withErrors(['rating' => 'Ya dejaste una reseña para este barbero.']);
-        }
 
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:500',
         ]);
 
-        $review = BarberReview::create([
-            'barber_id' => (string) $barber->id,
-            'client_id' => (string) $client->id,
-            'rating' => (int) $validated['rating'],
-            'comment' => $validated['comment'] ?? null,
-        ]);
-
-        app(LoyaltyService::class)->awardResenaPoints($client, (string) $review->id);
+        try {
+            $this->reviews->submit($client, $barber, (int) $validated['rating'], $validated['comment'] ?? null);
+        } catch (ReviewNotEligibleException|DuplicateReviewException $e) {
+            return back()->withErrors(['rating' => $e->getMessage()]);
+        }
 
         return back()->with('status', '¡Gracias por tu reseña! +5 puntos de lealtad añadidos.');
     }

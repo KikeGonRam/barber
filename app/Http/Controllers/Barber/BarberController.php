@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Barber\UpdateBarberRequest;
 use App\Models\Appointment;
 use App\Models\Barber;
+use App\Models\BarberReview;
 use App\Models\BarberSchedule;
-use App\Models\Comment;
 use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -145,9 +145,9 @@ class BarberController extends Controller
         $citasCompletadas = Appointment::where('barber_id', $barber->id)
             ->where('estado', 'completada')->count();
 
-        $avgRating = Comment::whereHas('work', fn ($q) => $q->where('barbero_id', $barber->user_id))
-            ->whereNotNull('rating')
-            ->avg('rating');
+        // BarberReview (reseñas reales de clientes), no Comment (comentarios del muro social) —
+        // ver el mismo bug ya corregido en BarberAdminController::calculateRating().
+        $avgRating = BarberReview::where('barber_id', (string) $barber->id)->avg('rating');
         $avgRating = $avgRating ? round((float) $avgRating, 1) : null;
 
         $yearsExp = max(1, (int) $barber->user?->created_at?->diffInYears(now()));

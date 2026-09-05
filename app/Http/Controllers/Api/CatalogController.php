@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\Domain\DuplicateReviewException;
+use App\Exceptions\Domain\ReviewNotEligibleException;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarberReview;
 use App\Models\Service;
 use App\Models\Work;
-use App\Services\Loyalty\LoyaltyService;
+use App\Services\Barber\BarberReviewService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -19,6 +21,8 @@ use Illuminate\Http\Request;
  */
 class CatalogController extends Controller
 {
+    public function __construct(private readonly BarberReviewService $reviews) {}
+
     // Lista servicios activos ordenados alfabéticamente
     public function services(): JsonResponse
     {
@@ -93,17 +97,8 @@ class CatalogController extends Controller
         $canReview = false;
 
         if ($client) {
-            $alreadyReviewed = BarberReview::where('barber_id', (string) $barber->id)
-                ->where('client_id', (string) $client->id)
-                ->exists();
-
-            // Solo puede reseñar si aún no lo hizo y tuvo al menos una cita completada con este barbero
-            if (! $alreadyReviewed) {
-                $canReview = Appointment::where('barber_id', (string) $barber->id)
-                    ->where('client_id', (string) $client->id)
-                    ->where('estado', 'completada')
-                    ->exists();
-            }
+            $alreadyReviewed = $this->reviews->alreadyReviewed($client, $barber);
+            $canReview = ! $alreadyReviewed && $this->reviews->hasCompletedAppointment($client, $barber);
         }
 
         return response()->json([
@@ -136,48 +131,24 @@ class CatalogController extends Controller
         ]);
     }
 
-    // Crea una reseña de cliente para un barbero (requiere cita completada previa, una sola reseña por cliente/barbero)
+    // Crea una reseña de cliente para un barbero. Elegibilidad, anti-duplicado,
+    // estadisticas del barbero, puntos de lealtad y aviso a admin por
+    // calificacion baja viven en BarberReviewService (compartido con la web).
     public function storeReview(Barber $barber, Request $request): JsonResponse
     {
         $client = $request->user()->clientProfile;
         abort_if(! $client, 403, 'No tienes perfil de cliente.');
-
-        if (! Appointment::where('barber_id', (string) $barber->id)
-            ->where('client_id', (string) $client->id)
-            ->where('estado', 'completada')
-            ->exists()) {
-            return response()->json([
-                'message' => 'Solo puedes reseñar barberos con los que hayas tenido una cita completada.',
-            ], 422);
-        }
-
-        if (BarberReview::where('barber_id', (string) $barber->id)
-            ->where('client_id', (string) $client->id)
-            ->exists()) {
-            return response()->json([
-                'message' => 'Ya dejaste una reseña para este barbero.',
-            ], 422);
-        }
 
         $validated = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'comment' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $review = BarberReview::create([
-            'barber_id' => (string) $barber->id,
-            'client_id' => (string) $client->id,
-            'rating' => (int) $validated['rating'],
-            'comment' => $validated['comment'] ?? null,
-        ]);
-
-        // Keep denormalized rating fields on the Barber document in sync
-        $allReviews = BarberReview::where('barber_id', (string) $barber->id)->get('rating');
-        $barber->calificacion_promedio = round($allReviews->avg('rating'), 2);
-        $barber->total_resenas = $allReviews->count();
-        $barber->save();
-
-        app(LoyaltyService::class)->awardResenaPoints($client, (string) $review->id);
+        try {
+            $review = $this->reviews->submit($client, $barber, (int) $validated['rating'], $validated['comment'] ?? null);
+        } catch (ReviewNotEligibleException|DuplicateReviewException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
 
         return response()->json([
             'message' => '¡Gracias por tu reseña! +5 puntos de lealtad añadidos.',

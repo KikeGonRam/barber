@@ -40,6 +40,7 @@ class NavigationMenu
         'invoices' => '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
         'notifications' => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
         'analytics' => '<path d="M3 3v18h18"/><path d="M18.7 8.3l-4.2 4.2-2.8-2.8L7 14.4"/>',
+        'reviews' => '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
     ];
 
     /**
@@ -92,6 +93,7 @@ class NavigationMenu
                 'title' => 'Gestion',
                 'items' => array_filter([
                     self::item('Barberos', 'barbers.index', 'barbers', ['barbers.*']),
+                    self::item('Reseñas', 'reviews.index', 'reviews', ['reviews.*']),
                     self::item('Usuarios', 'users.index', 'users', ['users.*']),
                     self::item('Servicios', 'services.index', 'services', ['services.*']),
                     self::item('Productos', 'inventory.products.index', 'products', ['inventory.products.*']),

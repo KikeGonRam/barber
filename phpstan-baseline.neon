@@ -382,7 +382,85 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$calificacion_promedio\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Services/Barber/BarberReviewService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/BarberReviewFlaggedNotification.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/BarberReviewFlaggedNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Notifications/BarberReviewFlaggedNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/BarberReviewFlaggedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$rating\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/BarberReviewFlaggedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$comment\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/BarberReviewFlaggedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$rating\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/BarberReviewServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$comment\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/BarberReviewServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Barber\>\:\:\$calificacion_promedio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/BarberReviewServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Barber\>\:\:\$total_resenas\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/BarberReviewServiceIntegrationTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Barber\>\:\:\$calificacion_promedio\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/ClientBarberReviewTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Barber\>\:\:\$total_resenas\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/ClientBarberReviewTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/ClientBarberReviewTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
@@ -394,7 +472,7 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$total_resenas\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/CatalogController.php
+			path: app/Services/Barber/BarberReviewService.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$comment\.$#'
@@ -807,7 +885,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 7
+			count: 8
 			path: app/Http/Controllers/Barber/BarberDashboardController.php
 
 		-

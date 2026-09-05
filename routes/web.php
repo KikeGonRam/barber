@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Barber\BarberController;
 use App\Http\Controllers\Barber\BarberDashboardController;
+use App\Http\Controllers\Barber\ReviewController;
 use App\Http\Controllers\Campaign\CampaignController;
 use App\Http\Controllers\Campaign\TrackingController;
 use App\Http\Controllers\Chatbot\ChatbotController;
@@ -211,11 +212,12 @@ Route::middleware('auth')->group(function () {
             Route::resource('users', UserController::class)->except('show');
         });
 
-        // Edición de barberos (no se permite crear/eliminar aquí) y su reporte de desempeño.
+        // Edición de barberos (no se permite crear/eliminar aquí), su reporte de desempeño y sus reseñas.
         Route::middleware('permission.custom:barberos.gestionar')->group(function () {
             Route::resource('barbers', BarberController::class)
                 ->only(['index', 'edit', 'update']);
             Route::get('barbers/{barber}/performance', [BarberController::class, 'performance'])->name('barbers.performance');
+            Route::get('resenas', [ReviewController::class, 'index'])->name('reviews.index');
         });
 
         // Configuración global de la barbería (horarios, datos de negocio, etc.).

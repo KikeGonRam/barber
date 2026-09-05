@@ -71,10 +71,15 @@ class BarberAdminRatingTest extends TestCase
         $barberUser = User::create(['name' => 'Barbero Reseñado', 'email' => 'barbero-resenas@test.local', 'password' => 'password']);
         $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Reseñado', 'activo' => true]);
 
-        $client = Client::create(['user_id' => (string) $this->admin->id, 'telefono' => '5550000000', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        // Dos clientes distintos: un cliente solo puede reseñar una vez a un
+        // mismo barbero (indice unico barber_id+client_id, ver la migracion
+        // add_barber_reviews_unique_index).
+        $clientA = Client::create(['user_id' => (string) $this->admin->id, 'telefono' => '5550000000', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $otherUser = User::create(['name' => 'Otro Cliente', 'email' => 'otro-cliente-resenas@test.local', 'password' => 'password']);
+        $clientB = Client::create(['user_id' => (string) $otherUser->id, 'telefono' => '5550000001', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
 
-        BarberReview::create(['barber_id' => (string) $barber->id, 'client_id' => (string) $client->id, 'rating' => 4]);
-        BarberReview::create(['barber_id' => (string) $barber->id, 'client_id' => (string) $client->id, 'rating' => 2]);
+        BarberReview::create(['barber_id' => (string) $barber->id, 'client_id' => (string) $clientA->id, 'rating' => 4]);
+        BarberReview::create(['barber_id' => (string) $barber->id, 'client_id' => (string) $clientB->id, 'rating' => 2]);
 
         $response = $this->withHeader('Authorization', "Bearer {$this->token}")
             ->getJson('/api/v1/admin/barbers/'.$barber->slug.'/performance');

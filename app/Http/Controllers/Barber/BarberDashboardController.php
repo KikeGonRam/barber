@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Barber\UpdateBarberAppointmentStatusRequest;
 use App\Http\Requests\Barber\UpdateBarberProfileRequest;
 use App\Models\Appointment;
+use App\Models\BarberReview;
 use App\Models\Client;
-use App\Models\Comment;
 use App\Models\Work;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentStatusService;
@@ -149,10 +149,9 @@ class BarberDashboardController extends Controller
         $memberSince = $request->user()->created_at;
         $yearsExp = max(1, (int) $memberSince->diffInYears(now()));
 
-        // Rating promedio desde comentarios de trabajos
-        $avgRating = Comment::whereHas('work', fn ($q) => $q->where('barbero_id', $userId))
-            ->whereNotNull('rating')
-            ->avg('rating');
+        // BarberReview (reseñas reales de clientes), no Comment (comentarios del muro social) —
+        // ver el mismo bug ya corregido en BarberAdminController::calculateRating().
+        $avgRating = BarberReview::where('barber_id', (string) $barber->id)->avg('rating');
         $avgRating = $avgRating ? round((float) $avgRating, 1) : null;
 
         // Últimos 6 trabajos del portfolio
