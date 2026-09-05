@@ -399,35 +399,88 @@ bastante a fondo como para marcarlo. Confirma el patrón: **cuanto más "vago" (
 el tipo de retorno de un método de servicio, menos puede quejarse Larastan — no es una
 ventaja real, solo significa que ese análisis no está pasando ahí.**
 
-### ⬜ Fase siguiente — Administrador (última rama, orden ya no aplica)
+### ✅ Fase 7 — Dashboard de Administrador (completa, 2026-09-05) — última rama
 
-Mismo patrón ya establecido: controlador → `Inertia::render()`, vista Vue reusando
-`AppLayout.vue`/`DashboardHeader.vue`/`AnalyticsInsights.vue`/`AnalyticsCta.vue`/
-`chart-theme.js`/el patrón de gradiente scriptable de esta fase. Al ser la ÚLTIMA rama de
-`dashboard.blade.php`, esta fase SÍ puede terminar borrando el archivo Blade completo
-(1472 líneas) y el `<script>` de Chart.js al final de él, ya que ninguna rama lo
-necesitará más. También borrar `components/analytics-insights.blade.php` y
-`components/membership-card.blade.php` en ese momento — confirmar primero con
-`grep -rln "x-analytics-insights\|x-membership-card" resources/views/` que de verdad ya
-no los usa nada (recordar que `analytics/index.blade.php` SÍ usa
-`x-analytics-insights` con `showCharts=true`, así que ESE no se borra, solo se
-simplifica si acaso). Administrador tiene 2 botones extra en el header
-(mantenimiento/backup) que ningún otro rol muestra — usar el slot por defecto de
-`DashboardHeader.vue` (ya preparado para esto desde la Fase 5) en vez de bifurcar el
-componente. También tiene 4-5 gráficas (income/services/barberPerformance x2/
-clientTrends) — la más grande de las 4 fases de dashboard.
+La fase más grande de las 4: KPIs con sparkline SVG en miniatura, insights de negocio
+precomputados, panel con 3 tabs (Actividad/Estaciones/Top Mes), sección "Analítica
+avanzada" plegable con 4 gráficas + predicciones IA (fetch en vivo a `/api/v1/admin/
+predictions/*` con un token de Sanctum recién pedido) + telemetría del chatbot.
 
-### ⬜ Fase final — Merge a `main`
+**Simplificación real, no solo de estilo:** la versión Blade colapsaba la sección de
+analítica avanzada con `max-height` (nunca `display:none`) específicamente porque los
+`<canvas>` de Chart.js se inicializaban a 0×0 si el contenedor estaba oculto en el
+momento del `new Chart(...)`. Con `vue-chartjs` y `v-if` no hace falta ese truco: el
+`<canvas>` recién se monta cuando el contenedor YA es visible (el `v-if` se vuelve
+verdadero después del click), así que Chart.js mide el tamaño real desde el principio.
+Se usó `v-if` simple + el mismo `localStorage` (`adminAnalytics`) para recordar si estaba
+abierto.
 
-Solo cuando el dueño del proyecto confirme que todas las páginas objetivo están migradas
-y aprobadas:
-1. Verificación completa (checklist de arriba) sobre el HEAD de la rama.
+**Predicciones IA portadas tal cual:** el IIFE async de Blade (pedir un token de Sanctum
+fresco vía `/api/v1/auth/get-api-token`, luego 3 fetches en paralelo a
+`/api/v1/admin/predictions/{income,appointments,insights}`) se portó literalmente a un
+`onMounted` — incluido el `'72%'` de confianza fijo del original (no es una regresión
+introducida aquí, ya estaba hardcodeado). Verificado en vivo con la cuenta real de
+administrador: las 3 métricas (`Ingresos Est. $550`, `Citas Est. 7`, `Confianza 72%`) y
+la telemetría del chatbot (`Eventos 2`, `Latencia 5564ms`, `Top Fuentes: MANUAL 2`)
+cargaron con datos reales — confirma que el flujo completo de token+fetch funciona
+igual desde Vue.
+
+**Limpieza final de Blade, hecha en este mismo commit:**
+- `resources/views/dashboard.blade.php` (1472 líneas) — **borrado**. Era el último
+  archivo que las 4 ramas del controlador compartían; con `administrador` migrado, nada
+  lo referencia más (confirmado con `grep -rn "view('dashboard'"` antes de borrar).
+- `resources/views/components/membership-card.blade.php` — **borrado**. Solo lo usaba
+  la rama `cliente` de `dashboard.blade.php` (Fase 6); quedó huérfano al borrar ese
+  archivo.
+- `resources/views/components/analytics-insights.blade.php` y `analytics-cta.blade.php`
+  — **NO se borraron**. `resources/views/analytics/index.blade.php` (página `/analytics`,
+  todavía sin migrar) sigue usando `<x-analytics-insights :showCharts="true">` — la
+  variante CON gráficas que `AnalyticsInsights.vue` nunca implementó (ver Fase 4). Si
+  `/analytics` se migra en el futuro, ver esa nota antes de tocar esta variante.
+- Dos ramas muertas de `DashboardController::index()` que también devolvían
+  `view('dashboard', ...)` se migraron a una página nueva y mínima,
+  `resources/js/Pages/Dashboard/SinRol.vue`: el fallback real para un usuario autenticado
+  sin ninguno de los 4 roles reconocidos, y un fallback defensivo para `$user === null`
+  que en la práctica es inalcanzable (la ruta ya exige el middleware `auth`) pero seguía
+  necesitando un valor de retorno válido.
+- `phpstan-baseline.neon` — solo bumps de contador (5 patrones ya conocidos en
+  `DashboardController.php`, mismo criterio de las Fases 4-5), sin entradas nuevas.
+
+**Verificado:** con las credenciales reales de administrador contra Atlas — header
+"Panel Administrativo" con AMBOS botones extra (mantenimiento, backup — el de
+mantenimiento se verificó solo visualmente, **no se activó** para no apagar el sitio
+real), 4 acciones rápidas, 4 KPIs, los 3 tabs del panel (Actividad/Estaciones/Top Mes,
+cada uno con sus estados vacíos correctos), el panel de analítica avanzada expandido con
+las 4 gráficas en su estado vacío y las predicciones IA/telemetría chatbot con datos
+reales en vivo — consola limpia en pestaña nueva. Pint (339 archivos), phpstan (0
+errores), `.\test.ps1` (213 tests, +2 nuevos), eslint (0 warnings) y `npm audit` — todos
+en verde.
+
+## Migración completa — las 4 fases de dashboard y las páginas de citas están migradas
+
+A partir de aquí, `resources/views/dashboard.blade.php` ya no existe: los 4 roles
+(administrador/barbero/recepcionista/cliente) tienen su propia página Inertia+Vue, además
+del calendario de citas (Fase 3). Sigue pendiente para un futuro trabajo (fuera de esta
+migración, no iniciar sin que el dueño del proyecto lo pida): el resto de las páginas
+Blade+Alpine del sitio (`/analytics`, listados de citas/clientes/pagos/inventario/etc.) —
+usar exactamente el mismo patrón documentado aquí.
+
+### Merge a `main` (hecho — 2026-09-05)
+
+1. Verificación completa (checklist de arriba) sobre el HEAD de la rama — ya en verde.
 2. `git fetch origin` + revisar que `main` no avanzó de forma incompatible.
-3. Merge (no squash silencioso — preservar el historial de fases para trazabilidad).
+3. Merge de `feature/inertia-vue-migration` a `main` (preservando el historial de fases
+   para trazabilidad, no squash silencioso).
 4. Confirmar CI verde en `main` post-merge.
-5. Solo entonces evaluar si `alpinejs`/plugins asociados pueden retirarse de
-   `package.json` — NUNCA quitar una dependencia sin confirmar primero que ninguna vista
-   Blade restante la sigue usando (`grep -rn "x-data\|x-show\|x-if" resources/views/`).
+5. Rama `feature/inertia-vue-migration` borrada en local y en remoto — todo el trabajo
+   vive ya en `main`.
+
+**Pendiente para una sesión futura, NO hecho en este merge (fuera de alcance, evaluar
+solo si se pide explícitamente):** retirar `alpinejs`/plugins asociados de
+`package.json` — NUNCA quitar esa dependencia sin confirmar primero que ninguna vista
+Blade restante la sigue usando (`grep -rn "x-data\|x-show\|x-if" resources/views/`); el
+resto del sitio (fuera de dashboard/calendario) sigue siendo Blade+Alpine y todavía la
+necesita.
 
 ## Gotchas encontrados
 

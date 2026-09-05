@@ -15,7 +15,6 @@ use App\Services\Member\MemberCardService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
-use Illuminate\View\View;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -32,12 +31,15 @@ class DashboardController extends Controller
     ) {}
 
     // Determina el rol del usuario autenticado y arma el payload de métricas correspondiente.
-    public function index(): View|InertiaResponse
+    public function index(): InertiaResponse
     {
         $user = request()->user();
 
         if (! $user) {
-            return view('dashboard', ['adminMode' => false]);
+            // Inalcanzable en la práctica: la ruta ya exige el middleware
+            // 'auth'. Se mantiene por seguridad de tipos, misma página que
+            // el fallback "sin rol" de abajo.
+            return Inertia::render('Dashboard/SinRol');
         }
 
         if ($user->hasRoleName('administrador')) {
@@ -57,11 +59,10 @@ class DashboardController extends Controller
                 ->get();
             $sparkInsights = $this->analyticsInsightService->forAdmin();
 
-            return view('dashboard', [
-                'adminMode' => true,
-                'isBarberMode' => false,
-                'isReceptionMode' => false,
-                'isClientMode' => false,
+            // Migrado a Inertia+Vue (ver .claude/skills/inertia-vue-migration/SKILL.md,
+            // Fase 7 — última rama de dashboard.blade.php).
+            return Inertia::render('Dashboard/Administrador', [
+                'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
                 'kpis' => $data['kpis'],
                 'incomeChart' => $data['income_chart'],
                 'servicesChart' => $data['services_chart'],
@@ -69,11 +70,27 @@ class DashboardController extends Controller
                 'clientTrends' => $data['client_trends'],
                 'chatbotTelemetry' => $data['chatbot_telemetry'] ?? [],
                 'maintenanceMode' => $setting?->maintenance_mode ?? false,
-                'todayAppointments' => $todayAppointments,
-                'recentAppointments' => $recentAppointments,
+                'todayAppointments' => $todayAppointments->map(fn (Appointment $appt) => [
+                    'id' => (string) $appt->id,
+                    'estado' => $appt->estado,
+                    'hora_inicio' => $appt->hora_inicio,
+                    'hora_fin' => $appt->hora_fin,
+                    'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                    'servicio' => $appt->service?->nombre ?? '—',
+                    'barbero' => $appt->barber?->user?->name ?? '—',
+                ]),
+                'recentAppointments' => $recentAppointments->map(fn (Appointment $appt) => [
+                    'id' => (string) $appt->id,
+                    'estado' => $appt->estado,
+                    'hora_inicio' => $appt->hora_inicio,
+                    'fecha' => Carbon::parse($appt->fecha)->translatedFormat('d M'),
+                    'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                    'barberoInicial' => mb_strtoupper(mb_substr($appt->barber?->user?->name ?? 'B', 0, 1)),
+                ]),
                 'insights' => $this->analysisInsights(),
-                'sparkInsights' => $sparkInsights,
-                'sparkHighlights' => $this->analyticsInsightService->highlightsForDashboard($sparkInsights, 'administrador'),
+                'sparkHighlights' => $this->analyticsInsightService
+                    ->highlightsForDashboard($sparkInsights, 'administrador')
+                    ->map(fn (AnalyticsInsight $insight) => $insight->toDashboardCardArray()),
             ]);
         }
 
@@ -240,12 +257,7 @@ class DashboardController extends Controller
             ]);
         }
 
-        return view('dashboard', [
-            'adminMode' => false,
-            'isBarberMode' => false,
-            'isReceptionMode' => false,
-            'isClientMode' => false,
-        ]);
+        return Inertia::render('Dashboard/SinRol');
     }
 
     /**
