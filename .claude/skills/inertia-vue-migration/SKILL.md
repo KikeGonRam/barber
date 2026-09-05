@@ -489,6 +489,47 @@ necesita.
 
 ## Gotchas encontrados
 
+### `assertInertia()->component(...)` pasaba en local y fallaba en CI por mayúsculas/minúsculas (post-merge, 2026-09-05)
+
+El más peligroso de todos: pasó desapercibido durante las 7 fases enteras (todas
+verificadas en verde localmente, ver [[urbanblade-guardrails]] para el hábito de correr
+`.\test.ps1` siempre) y solo reventó en CI **después del merge a `main`**. Los 4 tests
+`Dashboard*InertiaTest` fallaban en el runner de GitHub Actions con
+`Inertia page component file [Dashboard/Administrador] does not exist.` (y lo mismo para
+Barbero/Cliente/Recepcion/SinRol) — pero pasaban siempre en local.
+
+Causa raíz: `inertiajs/inertia-laravel` trae un default de paquete
+`config('inertia.pages.paths')` = `resource_path('js/pages')` (minúscula) — pero este
+repo usa `resources/js/Pages` (mayúscula, la convención real desde la Fase 1, y la misma
+que usa el resolver de `resources/js/inertia.js`:
+`import.meta.glob('./Pages/**/*.vue')`). `AssertableInertia::component()` valida en disco
+que el archivo exista usando ese path — con la ruta en minúscula, nunca debería haber
+encontrado nada.
+
+Por qué pasaba en local: `barber-app` corre Docker Desktop sobre Windows, y el bind-mount
+del proyecto hereda la insensibilidad a mayúsculas de NTFS —
+`ls /var/www/html/resources/js/pages` y `ls .../js/Pages` **devuelven el mismo
+directorio** dentro del contenedor local (confirmado explícitamente). Un runner real de
+GitHub Actions (Ubuntu, ext4, sí distingue mayúsculas) nunca tuvo ese accidente y detectó
+el problema real de inmediato.
+
+Fix: `php artisan vendor:publish --provider="Inertia\ServiceProvider"` (nunca se había
+publicado `config/inertia.php` en este repo) y corregir `pages.paths` a
+`resource_path('js/Pages')` explícitamente.
+
+**Lección que aplica a todo el resto de este proyecto, no solo a Inertia:** un
+`docker exec barber-app` local en Windows/Docker Desktop NO es una réplica fiel de un
+runner Linux real para temas de sensibilidad a mayúsculas en rutas de archivos — un
+`.\test.ps1` en verde local **no garantiza** que un `require`/`config path`/`glob` con
+mayúsculas incorrectas vaya a fallar donde debería. Si alguna vez se sospecha de un typo
+de mayúsculas en una ruta, verificar con `ls` las dos variantes exactas dentro del
+contenedor (como se hizo aquí) en vez de confiar en que "los tests locales pasaron".
+Además: **este bug se coló hasta el merge a `main` porque nunca se verificó CI en la
+rama `feature/inertia-vue-migration` misma** (el workflow de este repo solo corre en
+push/PR a `main`, no en cualquier rama) — para una migración larga como esta, valdría la
+pena abrir un PR de borrador temprano (aunque no se vaya a mergear todavía) solo para que
+CI corra contra la rama real en cada fase, en vez de descubrir esto hasta el final.
+
 ### `<Link>` de Inertia hacia una ruta todavía-Blade rompe la navegación (Fase 3)
 
 Ver el detalle en la Fase 3 arriba. Regla corta: **`<Link>` solo entre dos páginas
