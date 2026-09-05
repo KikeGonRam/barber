@@ -94,73 +94,73 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Client\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
 			identifier: larastan.noUnnecessaryCollectionCall
 			count: 2
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Appointment\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,mixed\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/Admin/BarberAdminController.php
+			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
@@ -202,121 +202,121 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+			path: app/Http/Controllers/Api/Admin/Client/ClientAdminController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Client\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+			path: app/Http/Controllers/Api/Admin/Client/ClientAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+			path: app/Http/Controllers/Api/Admin/Client/ClientAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+			path: app/Http/Controllers/Api/Admin/Client/ClientAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+			path: app/Http/Controllers/Api/Admin/Client/ClientAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+			path: app/Http/Controllers/Api/Admin/Client/ClientAdminController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Appointment\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+			path: app/Http/Controllers/Api/Admin/Client/ClientAdminController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/Admin/ClientAdminController.php
+			path: app/Http/Controllers/Api/Admin/Client/ClientAdminController.php
 
 		-
 			message: '#^Instanceof between string and Carbon\\Carbon will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 1
-			path: app/Http/Controllers/Api/Admin/DashboardAdminController.php
+			path: app/Http/Controllers/Api/Admin/Dashboard/DashboardAdminController.php
 
 		-
 			message: '#^Parameter \#1 \$sql of static method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Http/Controllers/Api/Admin/DashboardAdminController.php
+			path: app/Http/Controllers/Api/Admin/Dashboard/DashboardAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/Admin/InventoryAdminController.php
+			path: app/Http/Controllers/Api/Admin/Inventory/InventoryAdminController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\InventoryMovement\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/Admin/InventoryAdminController.php
+			path: app/Http/Controllers/Api/Admin/Inventory/InventoryAdminController.php
 
 		-
 			message: '#^Parameter \#1 \$sql of static method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Http/Controllers/Api/Admin/InventoryAdminController.php
+			path: app/Http/Controllers/Api/Admin/Inventory/InventoryAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+			path: app/Http/Controllers/Api/Admin/Report/ReportAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+			path: app/Http/Controllers/Api/Admin/Report/ReportAdminController.php
 
 		-
 			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+			path: app/Http/Controllers/Api/Admin/Report/ReportAdminController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\),Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Appointment\>\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 2
-			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+			path: app/Http/Controllers/Api/Admin/Report/ReportAdminController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\InventoryMovement\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+			path: app/Http/Controllers/Api/Admin/Report/ReportAdminController.php
 
 		-
 			message: '#^Parameter \#1 \$value of function optional contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+			path: app/Http/Controllers/Api/Admin/Report/ReportAdminController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: app/Http/Controllers/Api/Admin/ReportAdminController.php
+			path: app/Http/Controllers/Api/Admin/Report/ReportAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
@@ -1072,7 +1072,7 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$reabastecimiento_pedido_en\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/Api/Admin/InventoryAdminController.php
+			path: app/Http/Controllers/Api/Admin/Inventory/InventoryAdminController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'

@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\Api\Admin\BarberAdminController;
-use App\Http\Controllers\Api\Admin\ClientAdminController;
-use App\Http\Controllers\Api\Admin\DashboardAdminController;
-use App\Http\Controllers\Api\Admin\InventoryAdminController;
-use App\Http\Controllers\Api\Admin\ReportAdminController;
+use App\Http\Controllers\Api\Admin\Barber\BarberAdminController;
+use App\Http\Controllers\Api\Admin\Client\ClientAdminController;
+use App\Http\Controllers\Api\Admin\Dashboard\DashboardAdminController;
+use App\Http\Controllers\Api\Admin\Inventory\InventoryAdminController;
+use App\Http\Controllers\Api\Admin\Report\ReportAdminController;
 use App\Http\Controllers\Api\Appointment\AppointmentController;
 use App\Http\Controllers\Api\Appointment\AvailabilityController;
 use App\Http\Controllers\Api\Auth\AuthController;

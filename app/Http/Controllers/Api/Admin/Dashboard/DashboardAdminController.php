@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\Admin\Dashboard;
 
 use App\Models\Appointment;
 use App\Models\Barber;

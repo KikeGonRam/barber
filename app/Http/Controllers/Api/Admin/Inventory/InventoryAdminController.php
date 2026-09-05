@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\Admin\Inventory;
 
 use App\Http\Resources\ProductResource;
 use App\Models\InventoryMovement;
