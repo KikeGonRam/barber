@@ -189,30 +189,53 @@ que tocar infraestructura compartida (`vite.config.js`, `tailwind.config.js`,
 comando exacto de CI, 0 problemas) y `npm audit --audit-level=high` (0 vulnerabilidades)
 — todos en verde.
 
-### ⬜ Fase 3 — Primera página real: Calendario de Citas
+### ✅ Fase 3 — Primera página real: Calendario de Citas (completa, 2026-09-05)
 
-Candidato ya analizado y con ejemplo de código discutido con el dueño del proyecto:
-`AppointmentController::calendar()` (en
-[app/Http/Controllers/Appointment/AppointmentController.php](../../../app/Http/Controllers/Appointment/AppointmentController.php))
-→ `Inertia::render('Appointments/Calendar', [...])`.
+`AppointmentController::calendar()` ahora devuelve
+`Inertia::render('Appointments/Calendar', ['barbers' => ...])` en vez de `view(...)`.
+`calendarData()` se dejó **exactamente igual** — sigue siendo un endpoint JSON plano, no
+se convirtió en prop de Inertia. Razones: mínimo riesgo (si el render Vue falla, la fuente
+de datos no se ve afectada), y consistencia con `routes/api.php` como contrato estable
+(ver guardrails) — es el mismo tipo de endpoint que eventualmente podría reutilizar la
+futura app Android.
 
-**Decisión de diseño importante:** `calendarData()` (el endpoint que devuelve los eventos
-JSON para FullCalendar) se queda **exactamente igual** — sigue siendo un endpoint JSON
-plano, no se convierte en prop de Inertia. Razones: mínimo riesgo (si el render Vue falla,
-la fuente de datos no se ve afectada), y consistencia con el patrón ya establecido de
-`routes/api.php` como contrato estable (ver guardrails) — es el mismo tipo de endpoint que
-eventualmente podría reutilizar la futura app Android.
+`resources/js/Pages/Appointments/Calendar.vue` reemplaza el `<script>` vanilla de la
+vista Blade (manipulación directa del DOM para el modal de detalle) por estado reactivo
+de Vue (`reactive(modal)`), con la MISMA lógica de negocio: mismo fetch a
+`calendarData()`, mismos colores por estado, mismo comportamiento de filtro por barbero.
+Usa `route()` importado directamente de `ziggy-js` (no como global property — más
+robusto en `<script setup>`) y se envuelve en `AppLayout.vue` vía
+`import AppLayout from '@/Layouts/AppLayout.vue'`.
 
-El componente `resources/js/Pages/Appointments/Calendar.vue` reemplaza el `<script>`
-vanilla de `resources/views/appointments/calendar.blade.php` (manipulación directa del DOM
-para el modal de detalle) por estado reactivo de Vue (`reactive(modal)`), pero mantiene la
-MISMA lógica de negocio: mismo fetch a `calendarDataUrl`, mismos colores por estado, mismo
-comportamiento de filtro por barbero.
+La vista Blade vieja (`resources/views/appointments/calendar.blade.php`) se **borró** —
+quedó huérfana en cuanto el controlador dejó de referenciarla (confirmado con
+`grep -rn "view('appointments.calendar')" app/` antes de borrar). Norma para las
+próximas fases: cuando una página se migra, su Blade vieja se borra en el mismo commit,
+no se deja "por si acaso" — evita que dos fuentes de verdad para la misma página
+diverjan silenciosamente.
 
-Como toda página real (a diferencia del smoke test descartable de la Fase 2), debe
-envolverse en el layout ya construido: `import AppLayout from '@/Layouts/AppLayout.vue'`
-y usar el slot `#header` para el título de la página — igual que hoy
-`calendar.blade.php` usa `<x-app-layout>` con `<x-slot name="header">`.
+**Paquetes de FullCalendar instalados:**
+`@fullcalendar/core @fullcalendar/vue3 @fullcalendar/daygrid @fullcalendar/timegrid
+@fullcalendar/list @fullcalendar/interaction`, todos fijados a la versión exacta
+`6.1.21` (sin `^`) — ver gotcha abajo sobre por qué es exacta y no un rango.
+
+### ⬜ Fases siguientes (a definir según prioridad del dueño del proyecto)
+
+Candidatos evidentes por su uso de Chart.js: `DashboardController` (admin/recepción),
+`BarberDashboardController`. Cada uno sigue el mismo patrón: controlador →
+`Inertia::render()`, vista Blade → componente `.vue`, endpoints JSON de datos (si los hay)
+sin tocar, **borrar la vista Blade vieja una vez migrada**. Migrar de a una página por
+vez, verificar, commitear, repetir.
+
+**Regla que ya mordió en la Fase 3 — leer antes de escribir cualquier `<Link>`:** un
+`<Link>` de Inertia que apunta a una ruta que TODAVÍA es Blade (no migrada) no navega —
+Inertia detecta que la respuesta no trae el header `X-Inertia` y muestra su modal de
+depuración "unexpected response" (un iframe con el HTML crudo) en vez de la página. Toda
+página migrada en esta fase temprana de la migración enlaza inevitablemente a páginas
+hermanas TODAVÍA no migradas (el calendario enlaza a índice/crear/editar de citas, por
+ejemplo) — esos enlaces deben ser `<a href="...">` normales, NUNCA `<Link>`, hasta que el
+destino también esté migrado a Inertia. Revisar esto en cada página nueva: ¿el destino de
+este enlace ya es `Inertia::render()`? Si no, `<a>`, no `<Link>`.
 
 ### ⬜ Fases siguientes (a definir según prioridad del dueño del proyecto)
 
@@ -235,5 +258,45 @@ y aprobadas:
 
 ## Gotchas encontrados
 
-Ninguno todavía (Fase 1 fue limpia). Actualizar esta sección en cuanto aparezca alguno —
-es la parte más valiosa de este documento para quien continúe el trabajo.
+### `<Link>` de Inertia hacia una ruta todavía-Blade rompe la navegación (Fase 3)
+
+Ver el detalle en la Fase 3 arriba. Regla corta: **`<Link>` solo entre dos páginas
+Inertia; `<a>` normal hacia cualquier ruta que siga siendo Blade.** Esto va a repetirse en
+cada fase mientras queden páginas sin migrar — no es un bug puntual, es la naturaleza de
+una migración incremental.
+
+### `@fullcalendar/vue3` publicó un major nuevo (7.x) horas antes de instalarlo, sus paquetes hermanos no (Fase 3)
+
+Al instalar `@fullcalendar/core @fullcalendar/vue3 @fullcalendar/daygrid
+@fullcalendar/timegrid @fullcalendar/list @fullcalendar/interaction` sin versión
+explícita, npm resolvió `core` y `vue3` a `7.1.0` (publicado el mismo 2026-09-05, horas
+antes) pero `daygrid`/`timegrid`/`list`/`interaction` se quedaron en `6.1.21` porque su
+dist-tag `latest` todavía no se había movido a 7.x (sus versiones 7.x solo existen como
+`-rc.0`, ni siquiera estables) — un rollout de release incompleto/inconsistente del lado
+de FullCalendar, no un error de instalación. Síntoma: el calendario renderizaba sin
+NINGÚN estilo (toolbar como texto plano, sin colores) y la consola mostraba
+`TypeError: Class constructor EF cannot be invoked without 'new'`. Diagnóstico:
+`cat node_modules/@fullcalendar/*/package.json | grep version` mostró el desfase 7.1.0 vs
+6.1.21 entre paquetes que deben ser la misma versión siempre. Fix: reinstalar los 6
+paquetes fijados exactamente a `6.1.21` (`npm install ... --save-exact`, sin `^`) — la
+última versión donde TODOS, incluido `vue3`, coinciden. **Si en el futuro se actualiza
+FullCalendar, instalar SIEMPRE los 6 paquetes juntos a la MISMA versión explícita, nunca
+dejar que npm resuelva cada uno por su cuenta** — verificar con el mismo comando `grep
+version` antes de dar por buena la instalación.
+
+### phpstan-baseline.neon necesita una entrada nueva al escribir código similar a uno ya baselineado en el mismo archivo (Fase 3)
+
+`AppointmentController` ya tenía baseline para varios patrones "Larastan no puede resolver
+el tipo de una relación de Eloquent/MongoDB" (`Model::$name` undefined,
+nullsafe-innecesario, `Collection<X>::map() contains unresolvable type`). El nuevo código
+de `calendar()` (`$barbers->map(fn (Barber $b) => ['name' => $b->user?->name ...])`)
+disparó el MISMO tipo de error, no uno nuevo — pero como es un `Collection<Barber>` y las
+entradas existentes eran para `Collection<Appointment>`/`Collection<Client>`, hizo falta
+una entrada NUEVA (no solo subir un contador). Regla práctica: al tocar un archivo que ya
+tiene entradas de baseline por relaciones Eloquent/MongoDB no tipables, esperar necesitar
+tocar el baseline también — no es señal de un bug real, es la firma de trabajo ya conocida
+en este repo (ver [[laravel-13-reference]]). Diferencia con la "regeneración wholesale" de
+esa skill: aquí el conteo subió por UNA línea de código nueva, así que se editó a mano
+(sumar 1 a los contadores existentes + agregar la entrada nueva para `Barber`), no se
+regeneró el archivo completo — regenerar wholesale es para cuando decenas de entradas
+cambian de golpe por un bump de versión, no para esto.
