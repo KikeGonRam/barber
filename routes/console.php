@@ -19,3 +19,4 @@ Schedule::command('appointments:mark-no-show')->hourly(); // Marca citas vencida
 Schedule::command('appointments:notify-service-overrun')->everyFiveMinutes(); // Avisa si un servicio se está alargando más de lo esperado
 Schedule::command('loyalty:apply-inactivity')->dailyAt('04:00'); // Baja de nivel (180+ días) y caducidad de puntos (365+ días) por inactividad
 Schedule::command('barbers:monthly-performance')->monthlyOn(1, '08:30'); // Reporte mensual de desempeño de barberos (mejor mes y caídas fuertes)
+Schedule::command('orders:cancel-expired')->dailyAt('05:00'); // Cancela pedidos pendientes no recogidos en 3+ días y devuelve su stock

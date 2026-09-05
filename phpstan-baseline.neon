@@ -169,6 +169,30 @@ parameters:
 			path: tests/Feature/BarberAdminRatingTest.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/CancelExpiredOrdersCommand.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Notifications/OrderExpiredNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/OrderExpiredNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Order\>\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 4
+			path: tests/Feature/CancelExpiredOrdersCommandTest.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
