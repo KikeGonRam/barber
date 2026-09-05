@@ -103,6 +103,12 @@ parameters:
 			path: app/Http/Controllers/Api/Admin/Barber/BarberAdminController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/DashboardApiTest.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 1
