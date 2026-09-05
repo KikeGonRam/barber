@@ -12,7 +12,7 @@ use App\Models\LoyaltyTransaction;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use App\Notifications\BarberReviewFlaggedNotification;
+use App\Notifications\Barber\BarberReviewFlaggedNotification;
 use App\Services\Barber\BarberReviewService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Notification;

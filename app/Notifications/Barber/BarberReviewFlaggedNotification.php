@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Barber;
 
 use App\Models\BarberReview;
 use Illuminate\Bus\Queueable;

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Reception;
 use App\Http\Controllers\Concerns\Sortable;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Notifications\OrderDeliveredNotification;
+use App\Notifications\Order\OrderDeliveredNotification;
 use App\Services\Order\OrderService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;

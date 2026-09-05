@@ -6,7 +6,7 @@ use App\Models\Permission;
 use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
-use App\Notifications\InventoryLowStockNotification;
+use App\Notifications\Inventory\InventoryLowStockNotification;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\PermissionRegistrar;

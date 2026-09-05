@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Order;
-use App\Notifications\OrderExpiredNotification;
+use App\Notifications\Order\OrderExpiredNotification;
 use App\Services\Order\OrderService;
 use Illuminate\Console\Command;
 

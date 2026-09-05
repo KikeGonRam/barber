@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
-use App\Notifications\BarberPerformanceReportNotification;
+use App\Notifications\Barber\BarberPerformanceReportNotification;
 use App\Services\Barber\BarberPerformanceService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;

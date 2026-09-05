@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Notifications\EmailVerificationCodeNotification;
+use App\Notifications\Auth\EmailVerificationCodeNotification;
 use BackedEnum;
 use Carbon\Carbon;
 use Database\Factories\UserFactory;

@@ -184,13 +184,13 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
 			identifier: property.notFound
 			count: 5
-			path: app/Notifications/OrderExpiredNotification.php
+			path: app/Notifications/Order/OrderExpiredNotification.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Notifications/OrderExpiredNotification.php
+			path: app/Notifications/Order/OrderExpiredNotification.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Order\>\:\:\$estado\.$#'
@@ -388,37 +388,37 @@ parameters:
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/BarberReviewFlaggedNotification.php
+			path: app/Notifications/Barber/BarberReviewFlaggedNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Notifications/BarberReviewFlaggedNotification.php
+			path: app/Notifications/Barber/BarberReviewFlaggedNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: app/Notifications/BarberReviewFlaggedNotification.php
+			path: app/Notifications/Barber/BarberReviewFlaggedNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Notifications/BarberReviewFlaggedNotification.php
+			path: app/Notifications/Barber/BarberReviewFlaggedNotification.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$rating\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/BarberReviewFlaggedNotification.php
+			path: app/Notifications/Barber/BarberReviewFlaggedNotification.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$comment\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/BarberReviewFlaggedNotification.php
+			path: app/Notifications/Barber/BarberReviewFlaggedNotification.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$rating\.$#'
@@ -1631,133 +1631,133 @@ parameters:
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$duracion_min\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/AppointmentNotification.php
+			path: app/Notifications/Appointment/AppointmentNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 4
-			path: app/Notifications/AppointmentNotification.php
+			path: app/Notifications/Appointment/AppointmentNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Notifications/AppointmentNotification.php
+			path: app/Notifications/Appointment/AppointmentNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>duracion_min" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Notifications/AppointmentNotification.php
+			path: app/Notifications/Appointment/AppointmentNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 3
-			path: app/Notifications/AppointmentNotification.php
+			path: app/Notifications/Appointment/AppointmentNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 4
-			path: app/Notifications/AppointmentNotification.php
+			path: app/Notifications/Appointment/AppointmentNotification.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
 			identifier: property.notFound
 			count: 4
-			path: app/Notifications/OrderDeliveredNotification.php
+			path: app/Notifications/Order/OrderDeliveredNotification.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Notifications/OrderDeliveredNotification.php
+			path: app/Notifications/Order/OrderDeliveredNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$barber\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/PaymentReceiptNotification.php
+			path: app/Notifications/Payment/PaymentReceiptNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fecha\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/PaymentReceiptNotification.php
+			path: app/Notifications/Payment/PaymentReceiptNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/PaymentReceiptNotification.php
+			path: app/Notifications/Payment/PaymentReceiptNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Notifications/PaymentReceiptNotification.php
+			path: app/Notifications/Payment/PaymentReceiptNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/ReviewRequestNotification.php
+			path: app/Notifications/Barber/ReviewRequestNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/ReviewRequestNotification.php
+			path: app/Notifications/Barber/ReviewRequestNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Notifications/ReviewRequestNotification.php
+			path: app/Notifications/Barber/ReviewRequestNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Notifications/ReviewRequestNotification.php
+			path: app/Notifications/Barber/ReviewRequestNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/ServiceOverrunNotification.php
+			path: app/Notifications/Appointment/ServiceOverrunNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/ServiceOverrunNotification.php
+			path: app/Notifications/Appointment/ServiceOverrunNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Notifications/ServiceOverrunNotification.php
+			path: app/Notifications/Appointment/ServiceOverrunNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Notifications/ServiceOverrunNotification.php
+			path: app/Notifications/Appointment/ServiceOverrunNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Notifications/TransferReceiptNotification.php
+			path: app/Notifications/Payment/TransferReceiptNotification.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Notifications/TransferReceiptNotification.php
+			path: app/Notifications/Payment/TransferReceiptNotification.php
 
 		-
 			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, array\<string, array\<string, array\<int, string\>\>\> given\.$#'
@@ -2160,13 +2160,13 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$premio\.$#'
 			identifier: property.notFound
 			count: 4
-			path: app/Notifications/RaffleWinNotification.php
+			path: app/Notifications/Loyalty/RaffleWinNotification.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$vence_en\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Notifications/RaffleWinNotification.php
+			path: app/Notifications/Loyalty/RaffleWinNotification.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$vence_en\.$#'

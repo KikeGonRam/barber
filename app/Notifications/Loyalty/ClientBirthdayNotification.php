@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Loyalty;
 
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Bus\Queueable;

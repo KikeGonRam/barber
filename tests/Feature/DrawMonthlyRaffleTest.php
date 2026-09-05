@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Client;
 use App\Models\RaffleResult;
 use App\Models\User;
-use App\Notifications\RaffleWinNotification;
+use App\Notifications\Loyalty\RaffleWinNotification;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 

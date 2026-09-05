@@ -5,9 +5,9 @@ namespace App\Services\Appointment;
 use App\Models\Appointment;
 use App\Models\Payment;
 use App\Models\User;
-use App\Notifications\AppointmentNotification;
-use App\Notifications\ReviewRequestNotification;
-use App\Notifications\ServiceOverrunNotification;
+use App\Notifications\Appointment\AppointmentNotification;
+use App\Notifications\Appointment\ServiceOverrunNotification;
+use App\Notifications\Barber\ReviewRequestNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 

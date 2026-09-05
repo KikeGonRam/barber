@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Appointment;
 
 use App\Models\Appointment;
 use Illuminate\Notifications\Notification;

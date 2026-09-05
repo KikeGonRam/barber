@@ -5,7 +5,7 @@ namespace App\Services\Campaign;
 use App\Models\Campaign;
 use App\Models\Client;
 use App\Models\User;
-use App\Notifications\PromotionNotification;
+use App\Notifications\Campaign\PromotionNotification;
 use App\Services\Client\ClientSegmentService;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Support\Collection;

@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Product;
 use App\Models\User;
-use App\Notifications\InventoryLowStockNotification;
+use App\Notifications\Inventory\InventoryLowStockNotification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
 

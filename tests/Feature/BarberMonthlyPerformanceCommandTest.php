@@ -7,7 +7,7 @@ use App\Models\Barber;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use App\Notifications\BarberPerformanceReportNotification;
+use App\Notifications\Barber\BarberPerformanceReportNotification;
 use Carbon\Carbon;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Notification;

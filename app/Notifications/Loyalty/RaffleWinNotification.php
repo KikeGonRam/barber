@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Loyalty;
 
 use App\Models\RaffleResult;
 use Illuminate\Bus\Queueable;

@@ -7,7 +7,7 @@ use App\Models\InventoryMovement;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
-use App\Notifications\OrderExpiredNotification;
+use App\Notifications\Order\OrderExpiredNotification;
 use App\Services\Order\OrderService;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;

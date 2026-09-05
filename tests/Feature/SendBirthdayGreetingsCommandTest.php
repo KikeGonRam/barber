@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Client;
 use App\Models\LoyaltyTransaction;
 use App\Models\User;
-use App\Notifications\ClientBirthdayNotification;
+use App\Notifications\Loyalty\ClientBirthdayNotification;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;

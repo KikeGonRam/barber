@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Client;
 use App\Models\LoyaltyTransaction;
-use App\Notifications\ClientBirthdayNotification;
+use App\Notifications\Loyalty\ClientBirthdayNotification;
 use App\Services\Loyalty\LoyaltyService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;

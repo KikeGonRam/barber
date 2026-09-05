@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Client;
 use App\Models\RaffleResult;
-use App\Notifications\RaffleWinNotification;
+use App\Notifications\Loyalty\RaffleWinNotification;
 use Illuminate\Console\Command;
 
 /**

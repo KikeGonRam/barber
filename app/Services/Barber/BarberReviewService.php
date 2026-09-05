@@ -9,7 +9,7 @@ use App\Models\Barber;
 use App\Models\BarberReview;
 use App\Models\Client;
 use App\Models\User;
-use App\Notifications\BarberReviewFlaggedNotification;
+use App\Notifications\Barber\BarberReviewFlaggedNotification;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Support\Facades\Notification;
 use MongoDB\Driver\Exception\BulkWriteException;
