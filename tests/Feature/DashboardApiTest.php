@@ -125,6 +125,34 @@ class DashboardApiTest extends TestCase
         ]);
     }
 
+    public function test_administrador_gets_the_curated_dashboard_payload(): void
+    {
+        $role = Role::where('name', 'administrador')->where('guard_name', 'web')->firstOrFail();
+        $user = User::create(['name' => 'Admin API', 'email' => 'admin-api-dash@test.local', 'password' => 'password']);
+        $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+
+        $token = 'test-plaintext-token-admin-dashboard';
+        MobileApiToken::create([
+            'user_id' => (string) $user->id,
+            'name' => 'test',
+            'token_hash' => hash('sha256', $token),
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/dashboard');
+
+        $response->assertOk();
+        $response->assertJson(['role' => 'administrador']);
+        $response->assertJsonStructure([
+            'role',
+            'data' => [
+                'todayLabel', 'kpis', 'incomeChart', 'servicesChart', 'barberPerformance',
+                'clientTrends', 'chatbotTelemetry', 'todayAppointments', 'recentAppointments',
+                'insights', 'sparkHighlights',
+            ],
+        ]);
+    }
+
     public function test_dashboard_endpoint_requires_a_token(): void
     {
         $response = $this->getJson('/api/v1/dashboard');

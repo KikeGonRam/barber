@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Order;
+use App\Models\Service;
 use App\Models\User;
 use App\Services\Analytics\AnalyticsInsightService;
 use App\Services\Dashboard\DashboardService;
@@ -13,6 +14,7 @@ use App\Services\Member\MemberCardService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Controlador del dashboard unificado.
@@ -39,7 +41,7 @@ class DashboardController extends Controller
         if ($user->hasRole('administrador')) {
             return response()->json([
                 'role' => 'administrador',
-                'data' => $this->dashboardService->adminMetrics(),
+                'data' => $this->adminPayload(),
             ]);
         }
 
@@ -240,5 +242,135 @@ class DashboardController extends Controller
                 'mensaje' => $clienteReco->mensaje,
             ] : null,
         ];
+    }
+
+    /**
+     * Mismo shape curado que Dashboard\DashboardController::index() (rama
+     * administrador) — ver receptionistPayload() arriba para el porqué de
+     * este patrón. Omite `maintenanceMode` y los botones de mantenimiento/
+     * backup del header original: sus destinos (`settings.maintenance.toggle`,
+     * `backups.database.download`) son rutas web de Blade que no existen en
+     * este frontend. Las predicciones IA ("Predicciones IA" en la sección
+     * plegable) NO se resuelven aquí: el original necesitaba un puente
+     * (getWebApiToken) porque corría bajo sesión web; este frontend ya trae
+     * su propio Bearer token real desde el login, así que llama
+     * GET /api/v1/admin/predictions/* directo — más simple que el original,
+     * no una limitación.
+     */
+    private function adminPayload(): array
+    {
+        $data = $this->dashboardService->adminMetrics();
+        $sparkInsights = $this->analyticsInsightService->forAdmin();
+
+        $todayAppointments = Appointment::with(['client.user', 'barber.user', 'service'])
+            ->whereDate('fecha', Carbon::today())
+            ->orderBy('hora_inicio')
+            ->limit(6)
+            ->get();
+
+        $recentAppointments = Appointment::with(['client.user', 'barber.user', 'service'])
+            ->orderByDesc('fecha')->orderByDesc('hora_inicio')
+            ->limit(8)
+            ->get();
+
+        return [
+            'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
+            'kpis' => $data['kpis'],
+            'incomeChart' => $data['income_chart'],
+            'servicesChart' => $data['services_chart'],
+            'barberPerformance' => $data['barber_performance'],
+            'clientTrends' => $data['client_trends'],
+            'chatbotTelemetry' => $data['chatbot_telemetry'] ?? [],
+            'todayAppointments' => $todayAppointments->map(fn (Appointment $appt) => [
+                'id' => (string) $appt->id,
+                'estado' => $appt->estado,
+                'hora_inicio' => $appt->hora_inicio,
+                'hora_fin' => $appt->hora_fin,
+                'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                'servicio' => $appt->service?->nombre ?? '—',
+                'barbero' => $appt->barber?->user?->name ?? '—',
+            ])->values(),
+            'recentAppointments' => $recentAppointments->map(fn (Appointment $appt) => [
+                'id' => (string) $appt->id,
+                'estado' => $appt->estado,
+                'hora_inicio' => $appt->hora_inicio,
+                'fecha' => Carbon::parse($appt->fecha)->translatedFormat('d M'),
+                'cliente' => $appt->client?->user?->name ?? 'Cliente',
+                'barberoInicial' => mb_strtoupper(mb_substr($appt->barber?->user?->name ?? 'B', 0, 1)),
+            ])->values(),
+            'insights' => $this->analysisInsights(),
+            'sparkHighlights' => $this->analyticsInsightService
+                ->highlightsForDashboard($sparkInsights, 'administrador')
+                ->map(fn ($insight) => $insight->toDashboardCardArray())
+                ->values(),
+        ];
+    }
+
+    /**
+     * Hallazgos de negocio calculados en vivo — puerto directo de
+     * Dashboard\DashboardController::analysisInsights() (Inertia). Cacheado
+     * 10 min: son agregaciones sobre ~12k citas. Misma clave de caché que la
+     * versión Inertia (comparten el resultado, no tiene sentido calcularlo
+     * dos veces si ambas superficies siguen coexistiendo).
+     */
+    private function analysisInsights(): array
+    {
+        return Cache::remember('dashboard_insights', 600, function () {
+            $insights = [];
+
+            $premium = Service::where('activo', true)->orderByDesc('precio')->first();
+            $totalCitas = Appointment::count();
+            if ($premium && $totalCitas > 0) {
+                $premiumCitas = Appointment::where('service_id', (string) $premium->id)->count();
+                $avgTicket = (float) (Appointment::avg('precio_cobrado') ?: 1);
+                $insights[] = [
+                    'titulo' => 'Segmento premium',
+                    'dato' => sprintf('%.1f%% de las citas', $premiumCitas / $totalCitas * 100),
+                    'detalle' => sprintf(
+                        '"%s" factura %.1fx el ticket promedio ($%s vs $%s) — candidato a upsell.',
+                        $premium->nombre, ((float) $premium->precio) / max($avgTicket, 1),
+                        number_format((float) $premium->precio, 0), number_format($avgTicket, 0)
+                    ),
+                ];
+            }
+
+            $iniMes = now()->startOfMonth();
+            $iniPrev = now()->subMonthNoOverflow()->startOfMonth();
+            $finPrev = $iniMes->copy()->subSecond();
+            $mesTot = Appointment::where('fecha', '>=', $iniMes)->count();
+            $mesCan = Appointment::where('fecha', '>=', $iniMes)->where('estado', 'cancelada')->count();
+            $prevTot = Appointment::whereBetween('fecha', [$iniPrev, $finPrev])->count();
+            $prevCan = Appointment::whereBetween('fecha', [$iniPrev, $finPrev])->where('estado', 'cancelada')->count();
+            if ($mesTot >= 10 && $prevTot >= 10) {
+                $tasaMes = $mesCan / $mesTot * 100;
+                $tasaPrev = $prevCan / $prevTot * 100;
+                $insights[] = [
+                    'titulo' => 'Cancelaciones del mes',
+                    'dato' => sprintf('%.1f%%', $tasaMes),
+                    'detalle' => sprintf(
+                        '%s vs %.1f%% el mes pasado (%d de %d citas).',
+                        $tasaMes > $tasaPrev ? 'Subió' : 'Bajó', $tasaPrev, $mesCan, $mesTot
+                    ),
+                ];
+            }
+
+            $horas = Appointment::where('fecha', '>=', now()->subDays(30))
+                ->pluck('hora_inicio')
+                ->map(fn ($h) => substr((string) $h, 0, 2))
+                ->countBy();
+            if ($horas->isNotEmpty()) {
+                $pico = $horas->sortDesc()->keys()->first();
+                $insights[] = [
+                    'titulo' => 'Hora pico (30 días)',
+                    'dato' => "{$pico}:00",
+                    'detalle' => sprintf(
+                        '%d citas en esa franja — reforzar barberos ahí y promocionar horas valle.',
+                        $horas[$pico]
+                    ),
+                ];
+            }
+
+            return $insights;
+        });
     }
 }
