@@ -412,6 +412,24 @@ accumulates there forever. Two real, confirmed-live incidents from this:
   mongo-test mongo-test-init`) since it holds no real data by design — confirm with the
   user first per the general "destructive local commands" guardrail, but this one is
   genuinely low-risk since `barber_db_test` is disposable by definition.
+- **Deleting the source record does not delete the `Notification`s it triggered.**
+  Found 2026-09-06 during a post-migration "make sure nothing's broken" sweep: live
+  verification across Fases 9.x created real temporary `Appointment`/`Payment`/`Order`/
+  `Campaign` rows against the real Atlas `barber_db` and force-deleted them correctly —
+  but each one had already fired a real `Notification` (email + in-app/database) to a
+  real demo account before being deleted, and nothing ever cleaned those up.
+  `DatabaseNotification::count()` was 11,483 (11,479 unread) against the real
+  `notifications` collection while every actual source collection
+  (appointments/payments/orders/campaigns) sat at 0 — every single one was debris from
+  cleaned-up test data, dating back well past this session. The real client demo account's
+  notification bell showed fake unread alerts (including a campaign literally titled
+  "temporal") as a result. Wiped with `App\Models\DatabaseNotification::query()->delete()`
+  once confirmed (via the same zero-source-records check) that nothing legitimate would be
+  lost. **Any temp record whose creation would plausibly fire a `Notification` (check
+  `app/Services/*/*Notifier.php` and the model's observers/events) needs its resulting
+  `DatabaseNotification` rows cleaned up too, not just the record itself** — verify with
+  `DatabaseNotification::count()` before and after, the same way `withTrashed()->count()`
+  is used for the SoftDeletes gotcha above.
 
 ## 19. This rule set can go stale within hours — don't treat it as complete
 
