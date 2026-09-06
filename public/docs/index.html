@@ -2528,7 +2528,7 @@ el barbero solo puede cambiar el estado vía updateStatus().</h2>
     \"barber_id\": \"architecto\",
     \"service_id\": \"architecto\",
     \"fecha\": \"2052-09-29\",
-    \"hora_inicio\": \"01:32\",
+    \"hora_inicio\": \"02:01\",
     \"estado\": \"completada\",
     \"notas\": \"n\"
 }"
@@ -2550,7 +2550,7 @@ let body = {
     "barber_id": "architecto",
     "service_id": "architecto",
     "fecha": "2052-09-29",
-    "hora_inicio": "01:32",
+    "hora_inicio": "02:01",
     "estado": "completada",
     "notas": "n"
 };
@@ -2705,10 +2705,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="hora_inicio"                data-endpoint="PUTapi-v1-appointments--appointment_code-"
-               value="01:32"
+               value="02:01"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>01:32</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:01</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>estado</code></b>&nbsp;&nbsp;
@@ -2756,7 +2756,7 @@ validada en AppointmentStatusService).</h2>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"estado\": \"completada\",
+    \"estado\": \"no_asistio\",
     \"notas\": \"b\"
 }"
 </code></pre></div>
@@ -2773,7 +2773,7 @@ const headers = {
 };
 
 let body = {
-    "estado": "completada",
+    "estado": "no_asistio",
     "notas": "b"
 };
 
@@ -2879,10 +2879,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="estado"                data-endpoint="PATCHapi-v1-appointments--appointment_code--status"
-               value="completada"
+               value="no_asistio"
                data-component="body">
     <br>
-<p>Example: <code>completada</code></p>
+<p>Example: <code>no_asistio</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>pendiente</code></li> <li><code>confirmada</code></li> <li><code>en_proceso</code></li> <li><code>completada</code></li> <li><code>cancelada</code></li> <li><code>no_asistio</code></li></ul>
         </div>
@@ -3042,8 +3042,8 @@ estadisticas que la vista web de Mi Agenda.</h2>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"period\": \"day\",
-    \"estado\": \"cancelada\",
+    \"period\": \"week\",
+    \"estado\": \"confirmada\",
     \"offset\": -364
 }"
 </code></pre></div>
@@ -3060,8 +3060,8 @@ const headers = {
 };
 
 let body = {
-    "period": "day",
-    "estado": "cancelada",
+    "period": "week",
+    "estado": "confirmada",
     "offset": -364
 };
 
@@ -3170,10 +3170,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="period"                data-endpoint="GETapi-v1-barber-agenda"
-               value="day"
+               value="week"
                data-component="body">
     <br>
-<p>Example: <code>day</code></p>
+<p>Example: <code>week</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>day</code></li> <li><code>week</code></li></ul>
         </div>
@@ -3184,10 +3184,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="estado"                data-endpoint="GETapi-v1-barber-agenda"
-               value="cancelada"
+               value="confirmada"
                data-component="body">
     <br>
-<p>Example: <code>cancelada</code></p>
+<p>Example: <code>confirmada</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>pendiente</code></li> <li><code>confirmada</code></li> <li><code>en_proceso</code></li> <li><code>completada</code></li> <li><code>cancelada</code></li> <li><code>no_asistio</code></li></ul>
         </div>
@@ -5293,7 +5293,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"metodo_pago\": \"efectivo\"
+    \"metodo_pago\": \"transferencia\"
 }"
 </code></pre></div>
 
@@ -5309,7 +5309,7 @@ const headers = {
 };
 
 let body = {
-    "metodo_pago": "efectivo"
+    "metodo_pago": "transferencia"
 };
 
 fetch(url, {
@@ -5414,10 +5414,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="metodo_pago"                data-endpoint="PATCHapi-v1-orders--order_id--deliver"
-               value="efectivo"
+               value="transferencia"
                data-component="body">
     <br>
-<p>Example: <code>efectivo</code></p>
+<p>Example: <code>transferencia</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>efectivo</code></li> <li><code>tarjeta</code></li> <li><code>transferencia</code></li> <li><code>qr</code></li></ul>
         </div>
@@ -6619,11 +6619,11 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"email\": \"zbailey@example.net\",
     \"password\": \"-0pBNvYgxw\",
     \"telefono\": \"a\",
-    \"fecha_nacimiento\": \"2026-09-06T01:32:40\",
-    \"pref_in_app\": false,
-    \"pref_email\": false,
-    \"pref_sms\": false,
-    \"pref_whatsapp\": true
+    \"fecha_nacimiento\": \"2026-09-06T02:01:31\",
+    \"pref_in_app\": true,
+    \"pref_email\": true,
+    \"pref_sms\": true,
+    \"pref_whatsapp\": false
 }"
 </code></pre></div>
 
@@ -6643,11 +6643,11 @@ let body = {
     "email": "zbailey@example.net",
     "password": "-0pBNvYgxw",
     "telefono": "a",
-    "fecha_nacimiento": "2026-09-06T01:32:40",
-    "pref_in_app": false,
-    "pref_email": false,
-    "pref_sms": false,
-    "pref_whatsapp": true
+    "fecha_nacimiento": "2026-09-06T02:01:31",
+    "pref_in_app": true,
+    "pref_email": true,
+    "pref_sms": true,
+    "pref_whatsapp": false
 };
 
 fetch(url, {
@@ -6787,10 +6787,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha_nacimiento"                data-endpoint="POSTapi-v1-clients"
-               value="2026-09-06T01:32:40"
+               value="2026-09-06T02:01:31"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-06T01:32:40</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:01:31</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_in_app</code></b>&nbsp;&nbsp;
@@ -6812,7 +6812,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_email</code></b>&nbsp;&nbsp;
@@ -6834,7 +6834,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_sms</code></b>&nbsp;&nbsp;
@@ -6856,7 +6856,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_whatsapp</code></b>&nbsp;&nbsp;
@@ -6878,7 +6878,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -6902,11 +6902,11 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"name\": \"b\",
     \"email\": \"zbailey@example.net\",
     \"telefono\": \"i\",
-    \"fecha_nacimiento\": \"2026-09-06T01:32:40\",
-    \"pref_in_app\": false,
+    \"fecha_nacimiento\": \"2026-09-06T02:01:31\",
+    \"pref_in_app\": true,
     \"pref_email\": true,
-    \"pref_sms\": false,
-    \"pref_whatsapp\": true
+    \"pref_sms\": true,
+    \"pref_whatsapp\": false
 }"
 </code></pre></div>
 
@@ -6925,11 +6925,11 @@ let body = {
     "name": "b",
     "email": "zbailey@example.net",
     "telefono": "i",
-    "fecha_nacimiento": "2026-09-06T01:32:40",
-    "pref_in_app": false,
+    "fecha_nacimiento": "2026-09-06T02:01:31",
+    "pref_in_app": true,
     "pref_email": true,
-    "pref_sms": false,
-    "pref_whatsapp": true
+    "pref_sms": true,
+    "pref_whatsapp": false
 };
 
 fetch(url, {
@@ -7070,10 +7070,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha_nacimiento"                data-endpoint="PUTapi-v1-clients--client_slug-"
-               value="2026-09-06T01:32:40"
+               value="2026-09-06T02:01:31"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-06T01:32:40</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:01:31</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_in_app</code></b>&nbsp;&nbsp;
@@ -7095,7 +7095,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_email</code></b>&nbsp;&nbsp;
@@ -7139,7 +7139,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_whatsapp</code></b>&nbsp;&nbsp;
@@ -7161,7 +7161,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -7439,7 +7439,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"duracion_min\": 16,
     \"imagen\": \"m\",
     \"descripcion\": \"i\",
-    \"activo\": true
+    \"activo\": false
 }"
 </code></pre></div>
 
@@ -7461,7 +7461,7 @@ let body = {
     "duracion_min": 16,
     "imagen": "m",
     "descripcion": "i",
-    "activo": true
+    "activo": false
 };
 
 fetch(url, {
@@ -7638,7 +7638,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -9396,7 +9396,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"nombre\": \"b\",
     \"direccion\": \"n\",
     \"telefono\": \"g\",
-    \"horario_apertura\": \"01:32\",
+    \"horario_apertura\": \"02:01\",
     \"horario_cierre\": \"2052-09-29\",
     \"politica_cancelacion\": 22,
     \"instagram\": \"g\",
@@ -9424,7 +9424,7 @@ let body = {
     "nombre": "b",
     "direccion": "n",
     "telefono": "g",
-    "horario_apertura": "01:32",
+    "horario_apertura": "02:01",
     "horario_cierre": "2052-09-29",
     "politica_cancelacion": 22,
     "instagram": "g",
@@ -9561,10 +9561,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="horario_apertura"                data-endpoint="PUTapi-v1-settings"
-               value="01:32"
+               value="02:01"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>01:32</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:01</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>horario_cierre</code></b>&nbsp;&nbsp;
@@ -10066,7 +10066,7 @@ el registro.</h2>
     \"cta_label\": \"g\",
     \"cta_url\": \"http:\\/\\/www.okuneva.com\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",
     \"segmento\": \"architecto\",
-    \"modo\": \"programar\",
+    \"modo\": \"ahora\",
     \"programada_para\": \"2052-09-29\"
 }"
 </code></pre></div>
@@ -10088,7 +10088,7 @@ let body = {
     "cta_label": "g",
     "cta_url": "http:\/\/www.okuneva.com\/fugiat-sunt-nihil-accusantium-harum-mollitia.html",
     "segmento": "architecto",
-    "modo": "programar",
+    "modo": "ahora",
     "programada_para": "2052-09-29"
 };
 
@@ -10241,10 +10241,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="modo"                data-endpoint="POSTapi-v1-campaigns"
-               value="programar"
+               value="ahora"
                data-component="body">
     <br>
-<p>Example: <code>programar</code></p>
+<p>Example: <code>ahora</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>ahora</code></li> <li><code>programar</code></li></ul>
         </div>
@@ -14184,8 +14184,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"precio_compra\": 77,
     \"descripcion\": \"architecto\",
     \"tipo\": \"architecto\",
-    \"activo\": false,
-    \"active\": false
+    \"activo\": true,
+    \"active\": true
 }"
 </code></pre></div>
 
@@ -14209,8 +14209,8 @@ let body = {
     "precio_compra": 77,
     "descripcion": "architecto",
     "tipo": "architecto",
-    "activo": false,
-    "active": false
+    "activo": true,
+    "active": true
 };
 
 fetch(url, {
@@ -14411,7 +14411,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -14433,7 +14433,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -14463,7 +14463,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"descripcion\": \"architecto\",
     \"tipo\": \"architecto\",
     \"activo\": true,
-    \"active\": false
+    \"active\": true
 }"
 </code></pre></div>
 
@@ -14488,7 +14488,7 @@ let body = {
     "descripcion": "architecto",
     "tipo": "architecto",
     "activo": true,
-    "active": false
+    "active": true
 };
 
 fetch(url, {
@@ -14724,7 +14724,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -15934,10 +15934,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Accept: application/json" \
     --data "{
     \"type\": \"citas\",
-    \"period\": \"personalizado\",
-    \"dateFrom\": \"2026-09-06T01:32:46\",
-    \"dateTo\": \"2026-09-06T01:32:46\",
-    \"detail\": \"detallado\"
+    \"period\": \"año\",
+    \"dateFrom\": \"2026-09-06T02:01:37\",
+    \"dateTo\": \"2026-09-06T02:01:37\",
+    \"detail\": \"muy-detallado\"
 }"
 </code></pre></div>
 
@@ -15954,10 +15954,10 @@ const headers = {
 
 let body = {
     "type": "citas",
-    "period": "personalizado",
-    "dateFrom": "2026-09-06T01:32:46",
-    "dateTo": "2026-09-06T01:32:46",
-    "detail": "detallado"
+    "period": "año",
+    "dateFrom": "2026-09-06T02:01:37",
+    "dateTo": "2026-09-06T02:01:37",
+    "detail": "muy-detallado"
 };
 
 fetch(url, {
@@ -16063,10 +16063,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="period"                data-endpoint="POSTapi-v1-admin-reports-custom"
-               value="personalizado"
+               value="año"
                data-component="body">
     <br>
-<p>Example: <code>personalizado</code></p>
+<p>Example: <code>año</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>dia</code></li> <li><code>semana</code></li> <li><code>mes</code></li> <li><code>trimestre</code></li> <li><code>año</code></li> <li><code>personalizado</code></li></ul>
         </div>
@@ -16077,10 +16077,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="dateFrom"                data-endpoint="POSTapi-v1-admin-reports-custom"
-               value="2026-09-06T01:32:46"
+               value="2026-09-06T02:01:37"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-06T01:32:46</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:01:37</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>dateTo</code></b>&nbsp;&nbsp;
@@ -16089,10 +16089,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="dateTo"                data-endpoint="POSTapi-v1-admin-reports-custom"
-               value="2026-09-06T01:32:46"
+               value="2026-09-06T02:01:37"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-06T01:32:46</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:01:37</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>detail</code></b>&nbsp;&nbsp;
@@ -16101,10 +16101,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="detail"                data-endpoint="POSTapi-v1-admin-reports-custom"
-               value="detallado"
+               value="muy-detallado"
                data-component="body">
     <br>
-<p>Example: <code>detallado</code></p>
+<p>Example: <code>muy-detallado</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>resumen</code></li> <li><code>detallado</code></li> <li><code>muy-detallado</code></li></ul>
         </div>
@@ -18817,7 +18817,7 @@ multipart/form-data sea interpretado de forma consistente por PHP.</h2>
     --header "Accept: application/json" \
     --form "especialidades=b"\
     --form "descripcion=n"\
-    --form "foto=@/tmp/phpnqprlrsf7sv16qjxZn3" </code></pre></div>
+    --form "foto=@/tmp/phpio1g59ddqrkb4ndIrHq" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -18951,7 +18951,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phpnqprlrsf7sv16qjxZn3</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phpio1g59ddqrkb4ndIrHq</code></p>
         </div>
         </form>
 
@@ -19519,10 +19519,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.day_of_week"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="friday"
+               value="saturday"
                data-component="body">
     <br>
-<p>Example: <code>friday</code></p>
+<p>Example: <code>saturday</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>monday</code></li> <li><code>tuesday</code></li> <li><code>wednesday</code></li> <li><code>thursday</code></li> <li><code>friday</code></li> <li><code>saturday</code></li> <li><code>sunday</code></li></ul>
                     </div>
@@ -19533,10 +19533,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.start_time"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="01:32"
+               value="02:01"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>01:32</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:01</code></p>
                     </div>
                                                                 <div style="margin-left: 14px; clear: unset;">
                         <b style="line-height: 2;"><code>end_time</code></b>&nbsp;&nbsp;
@@ -19545,10 +19545,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.end_time"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="01:32"
+               value="02:01"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>01:32</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:01</code></p>
                     </div>
                                                                 <div style="margin-left: 14px; clear: unset;">
                         <b style="line-height: 2;"><code>is_active</code></b>&nbsp;&nbsp;
@@ -19570,7 +19570,7 @@ Must be one of:
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
                     </div>
                                                                 <div style=" margin-left: 14px; clear: unset;">
         <details>
@@ -19838,7 +19838,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "tipo=architecto"\
     --form "active="\
     --form "activo="\
-    --form "imagen=@/tmp/phpfnjl0tjk2kfodQRT1vC" </code></pre></div>
+    --form "imagen=@/tmp/phpij4p7c1rmesodXjZZ8v" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -20052,7 +20052,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpfnjl0tjk2kfodQRT1vC</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpij4p7c1rmesodXjZZ8v</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -20125,7 +20125,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "stock_minimo=76"\
     --form "active="\
     --form "activo="\
-    --form "imagen=@/tmp/phptucq6eihv45o0Mu5l61" </code></pre></div>
+    --form "imagen=@/tmp/phpbdtltjphumn6aeNvl4y" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -20351,7 +20351,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phptucq6eihv45o0Mu5l61</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpbdtltjphumn6aeNvl4y</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -20929,7 +20929,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"cantidad\": 22,
     \"motivo\": \"g\",
     \"appointment_id\": \"architecto\",
-    \"fecha\": \"2026-09-06T01:32:41\"
+    \"fecha\": \"2026-09-06T02:01:32\"
 }"
 </code></pre></div>
 
@@ -20949,7 +20949,7 @@ let body = {
     "cantidad": 22,
     "motivo": "g",
     "appointment_id": "architecto",
-    "fecha": "2026-09-06T01:32:41"
+    "fecha": "2026-09-06T02:01:32"
 };
 
 fetch(url, {
@@ -21101,10 +21101,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha"                data-endpoint="POSTapi-v1-inventory-movements"
-               value="2026-09-06T01:32:41"
+               value="2026-09-06T02:01:32"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-06T01:32:41</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:01:32</code></p>
         </div>
         </form>
 
@@ -21261,7 +21261,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "title=Corte Moderno con Degradado"\
     --form "description=Corte moderno con degradado lateral y textura superior"\
     --form "images[]=architecto"\
-    --form "media[]=@/tmp/phpe81572rp4tr0bq0NeZH" </code></pre></div>
+    --form "media[]=@/tmp/phporuop8k236bi02EIDqn" </code></pre></div>
 
 
 <div class="javascript-example">

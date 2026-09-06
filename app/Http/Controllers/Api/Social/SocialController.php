@@ -22,7 +22,7 @@ class SocialController extends Controller
     public function feed(Request $request): JsonResponse
     {
         $works = Work::query()
-            ->with(['barberUser:id,name', 'images:id,work_id,image', 'comments.user:id,name', 'reactions:id,work_id,user_id', 'saves:id,work_id,user_id'])
+            ->with(['barberUser:id,name', 'barberUser.barberProfile:id,user_id,slug,foto', 'images:id,work_id,image,type', 'comments.user:id,name', 'comments' => fn ($q) => $q->latest(), 'reactions:id,work_id,user_id', 'saves:id,work_id,user_id'])
             ->latest('id')
             ->paginate(10)
             ->withQueryString();
@@ -39,13 +39,29 @@ class SocialController extends Controller
                     'barber' => [
                         'id' => $work->barberUser?->id,
                         'name' => $work->barberUser?->name,
+                        'slug' => $work->barberUser?->barberProfile?->slug,
+                        'foto' => $work->barberUser?->barberProfile?->foto ? asset('storage/'.$work->barberUser->barberProfile->foto) : null,
                     ],
+                    // 'images' se conserva tal cual (array de URLs) por
+                    // compatibilidad con quien ya lo consuma; 'media' es
+                    // aditivo — mismo contenido pero con el tipo
+                    // (imagen/video) que 'images' nunca expuso.
                     'images' => $work->images->map(fn ($img) => asset('storage/'.$img->image))->values(),
+                    'media' => $work->images->map(fn ($img) => [
+                        'url' => asset('storage/'.$img->image),
+                        'type' => $img->type ?? 'image',
+                    ])->values(),
                     'reactions_count' => $work->reactions->count(),
                     'comments_count' => $work->comments->count(),
                     'saved_count' => $work->saves->count(),
                     'is_reacted' => $authUser ? $work->reactions->contains('user_id', $authUser->id) : false,
                     'is_saved' => $authUser ? $work->saves->contains('user_id', $authUser->id) : false,
+                    'comments' => $work->comments->take(3)->map(fn ($c) => [
+                        'id' => $c->id,
+                        'comment' => $c->comment,
+                        'user' => ['name' => $c->user?->name],
+                        'created_at' => optional($c->created_at)?->toAtomString(),
+                    ])->values(),
                 ];
             })->values(),
             'meta' => [

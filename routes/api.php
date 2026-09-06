@@ -59,7 +59,7 @@ Route::prefix('v1')->group(function (): void {
     Route::get('barbers', [CatalogController::class, 'barbers']);
     Route::get('products', [CatalogController::class, 'products']);
     Route::get('availability/slots', [AvailabilityController::class, 'slots'])->middleware('throttle:30,1');
-    Route::get('social/feed', [ApiSocialController::class, 'feed']);
+    Route::get('social/feed', [ApiSocialController::class, 'feed'])->middleware('mobile.auth.optional');
 
     // Chatbot (público con rate limiting)
     Route::post('chatbot/query', [ChatbotController::class, 'query'])->middleware('throttle:10,1');

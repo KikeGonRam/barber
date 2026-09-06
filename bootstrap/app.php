@@ -5,6 +5,7 @@ use App\Exceptions\Domain\InsufficientStockException;
 use App\Exceptions\Domain\PaymentException;
 use App\Http\Middleware\AuthenticateMobileApiToken;
 use App\Http\Middleware\CheckMaintenanceMode;
+use App\Http\Middleware\OptionalMobileApiToken;
 use App\Http\Middleware\Role\EnsureUserHasPermission;
 use App\Http\Middleware\Role\EnsureUserHasRole;
 use Illuminate\Foundation\Application;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.custom' => EnsureUserHasRole::class,
             'permission.custom' => EnsureUserHasPermission::class,
             'mobile.auth' => AuthenticateMobileApiToken::class,
+            'mobile.auth.optional' => OptionalMobileApiToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

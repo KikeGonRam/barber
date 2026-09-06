@@ -765,7 +765,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: transferencia
         type: string
         enumValues:
           - efectivo
@@ -776,7 +776,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      metodo_pago: efectivo
+      metodo_pago: transferencia
     fileParameters: []
     responses: []
     responseFields: []
@@ -1326,7 +1326,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T01:32:40'
+        example: '2026-09-06T02:01:31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1337,7 +1337,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1348,7 +1348,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1359,7 +1359,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1370,7 +1370,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1381,11 +1381,11 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-06T01:32:40'
-      pref_in_app: false
-      pref_email: false
-      pref_sms: false
-      pref_whatsapp: true
+      fecha_nacimiento: '2026-09-06T02:01:31'
+      pref_in_app: true
+      pref_email: true
+      pref_sms: true
+      pref_whatsapp: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -1466,7 +1466,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T01:32:40'
+        example: '2026-09-06T02:01:31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1477,7 +1477,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1499,7 +1499,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1510,7 +1510,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1520,11 +1520,11 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-06T01:32:40'
-      pref_in_app: false
+      fecha_nacimiento: '2026-09-06T02:01:31'
+      pref_in_app: true
       pref_email: true
-      pref_sms: false
-      pref_whatsapp: true
+      pref_sms: true
+      pref_whatsapp: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -1709,7 +1709,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1722,7 +1722,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2518,7 +2518,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '01:32'
+        example: '02:01'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2627,7 +2627,7 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '01:32'
+      horario_apertura: '02:01'
       horario_cierre: '2052-09-29'
       politica_cancelacion: 22
       instagram: g
@@ -2843,7 +2843,7 @@ endpoints:
         name: modo
         description: ''
         required: true
-        example: programar
+        example: ahora
         type: string
         enumValues:
           - ahora
@@ -2868,7 +2868,7 @@ endpoints:
       cta_label: g
       cta_url: 'http://www.okuneva.com/fugiat-sunt-nihil-accusantium-harum-mollitia.html'
       segmento: architecto
-      modo: programar
+      modo: ahora
       programada_para: '2052-09-29'
     fileParameters: []
     responses: []
@@ -4363,7 +4363,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4374,7 +4374,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4389,8 +4389,8 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: false
-      active: false
+      activo: true
+      active: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -4537,7 +4537,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4553,7 +4553,7 @@ endpoints:
       descripcion: architecto
       tipo: architecto
       activo: true
-      active: false
+      active: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -5008,7 +5008,7 @@ endpoints:
         name: period
         description: ''
         required: true
-        example: personalizado
+        example: año
         type: string
         enumValues:
           - dia
@@ -5025,7 +5025,7 @@ endpoints:
         name: dateFrom
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T01:32:46'
+        example: '2026-09-06T02:01:37'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -5036,7 +5036,7 @@ endpoints:
         name: dateTo
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T01:32:46'
+        example: '2026-09-06T02:01:37'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -5047,7 +5047,7 @@ endpoints:
         name: detail
         description: ''
         required: true
-        example: detallado
+        example: muy-detallado
         type: string
         enumValues:
           - resumen
@@ -5058,10 +5058,10 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       type: citas
-      period: personalizado
-      dateFrom: '2026-09-06T01:32:46'
-      dateTo: '2026-09-06T01:32:46'
-      detail: detallado
+      period: año
+      dateFrom: '2026-09-06T02:01:37'
+      dateTo: '2026-09-06T02:01:37'
+      detail: muy-detallado
     fileParameters: []
     responses: []
     responseFields: []
