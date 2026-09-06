@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
 use App\Models\Barber;
+use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\RaffleResult;
 use App\Models\Service;
@@ -65,10 +66,11 @@ class AppointmentController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
+        $isClient = $user?->hasRole('cliente') && $user->clientProfile;
 
         $query = Appointment::query()->with(['client.user', 'barber.user', 'service'])->latest('fecha')->latest('hora_inicio');
 
-        if ($user?->hasRole('cliente') && $user->clientProfile) {
+        if ($isClient) {
             $query->where('client_id', (string) $user->clientProfile->id);
         } elseif ($user?->hasRole('barbero') && $user->barberProfile) {
             $query->where('barber_id', (string) $user->barberProfile->id);
@@ -89,7 +91,42 @@ class AppointmentController extends Controller
 
         $appointments = $query->limit(50)->get();
 
-        return AppointmentResource::collection($appointments)->response();
+        $resource = AppointmentResource::collection($appointments);
+
+        // "Mis Citas" (cliente): mismas stats/próxima-cita destacada que ya
+        // calculaba Client\ClientAppointmentController::index() (web), para
+        // que el frontend Nuxt no tenga que volver a agregar esta lógica.
+        // Puramente aditivo: admin/recepción/barbero no ven este bloque.
+        if ($isClient) {
+            $clientId = (string) $user->clientProfile->id;
+            $today = now()->startOfDay();
+            $todayStr = $today->toDateString();
+
+            $allEstados = Appointment::where('client_id', $clientId)->get(['estado', 'fecha']);
+            $stats = [
+                'total' => $allEstados->count(),
+                'proximas' => $allEstados->filter(fn ($a) => ! in_array($a->estado, ['cancelada', 'completada', 'no_asistio'], true)
+                    && substr((string) $a->fecha, 0, 10) >= $todayStr)->count(),
+                'completadas' => $allEstados->where('estado', 'completada')->count(),
+                'canceladas' => $allEstados->where('estado', 'cancelada')->count(),
+            ];
+
+            $next = Appointment::where('client_id', $clientId)
+                ->whereNotIn('estado', ['cancelada', 'completada', 'no_asistio'])
+                ->where('fecha', '>=', $today)
+                ->with(['barber.user', 'service'])
+                ->orderBy('fecha')
+                ->orderBy('hora_inicio')
+                ->first();
+
+            $resource = $resource->additional([
+                'stats' => $stats,
+                'next' => $next ? new AppointmentResource($next) : null,
+                'cancellation_policy_hours' => (int) (BarbershopSetting::cached()?->politica_cancelacion ?? 24),
+            ]);
+        }
+
+        return $resource->response();
     }
 
     /**
@@ -361,7 +398,14 @@ class AppointmentController extends Controller
     public function update(Request $request, Appointment $appointment): JsonResponse
     {
         $user = $request->user();
-        abort_if(! $user || ! $user->hasAnyRole(['administrador', 'recepcionista']), 403, 'Solo administración/recepción puede editar citas completas.');
+        $isStaff = $user?->hasAnyRole(['administrador', 'recepcionista']);
+        $isOwner = $user?->hasRole('cliente') && $user->clientProfile && (string) $appointment->client_id === (string) $user->clientProfile->id;
+
+        abort_if(! $isStaff && ! $isOwner, 403, 'No autorizado para editar esta cita.');
+
+        if ($isOwner && ! $isStaff) {
+            return $this->rescheduleAsClient($request, $appointment);
+        }
 
         $validated = $request->validate([
             'client_id' => ['required', 'exists:clients,id'],
@@ -404,6 +448,77 @@ class AppointmentController extends Controller
             'message' => 'Cita actualizada correctamente.',
             'data' => new AppointmentResource($appointment->fresh(['client.user', 'barber.user', 'service'])),
         ]);
+    }
+
+    /**
+     * Reagenda una cita propia (rol cliente): mismas reglas que
+     * Client\ClientAppointmentController::update() (web) — solo puede tocar
+     * barbero/servicio/fecha/hora/notas (nunca client_id/estado), y solo si
+     * la cita sigue en un estado que el cliente puede gestionar (pendiente o
+     * confirmada, y aún no ha iniciado).
+     */
+    private function rescheduleAsClient(Request $request, Appointment $appointment): JsonResponse
+    {
+        if (! $this->clientCanManage($appointment)) {
+            return response()->json(['message' => 'Esta cita ya no se puede reagendar.'], 422);
+        }
+
+        $validated = $request->validate([
+            'barber_id' => ['required', 'string', 'exists:barbers,id'],
+            'service_id' => ['required', 'string', 'exists:services,id'],
+            'fecha' => ['required', 'date', 'after_or_equal:today'],
+            'hora_inicio' => ['required', 'date_format:H:i'],
+            'notas' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $service = Service::findOrFail($validated['service_id']);
+        $start = Carbon::parse($validated['fecha'].' '.$validated['hora_inicio']);
+        $end = $start->copy()->addMinutes((int) $service->duracion_min);
+
+        $payload = [
+            'client_id' => (string) $appointment->client_id,
+            'barber_id' => $validated['barber_id'],
+            'service_id' => $validated['service_id'],
+            'fecha' => $validated['fecha'],
+            'hora_inicio' => $start->format('H:i:00'),
+            'hora_fin' => $end->format('H:i:00'),
+            // Un reagendamiento del cliente vuelve a "pendiente" para que el
+            // barbero la confirme de nuevo, igual que la versión web.
+            'estado' => 'pendiente',
+            'notas' => $validated['notas'] ?? null,
+        ];
+
+        try {
+            $this->appointmentService->updateAppointment((string) $appointment->id, $payload);
+        } catch (ClientAlreadyBookedException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        } catch (AppointmentConflictException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json([
+            'message' => 'Cita reprogramada correctamente.',
+            'data' => new AppointmentResource($appointment->fresh(['client.user', 'barber.user', 'service'])),
+        ]);
+    }
+
+    /**
+     * El cliente solo puede editar/cancelar citas que no han terminado su
+     * ciclo de vida (pendiente/confirmada) y cuyo horario de inicio sigue en
+     * el futuro — igual que Client\ClientAppointmentController::canClientManage().
+     */
+    private function clientCanManage(Appointment $appointment): bool
+    {
+        if (! in_array($appointment->estado, ['pendiente', 'confirmada'], true)) {
+            return false;
+        }
+
+        return $this->appointmentStartsAt($appointment)->isFuture();
+    }
+
+    private function appointmentStartsAt(Appointment $appointment): Carbon
+    {
+        return Carbon::parse($appointment->fecha->format('Y-m-d').' '.$appointment->hora_inicio);
     }
 
     /**
@@ -450,6 +565,21 @@ class AppointmentController extends Controller
         $isAdmin = $user?->hasRole('administrador');
 
         abort_if(! $isOwner && ! $isAdmin, 403);
+
+        if ($isOwner && ! $isAdmin) {
+            if (! $this->clientCanManage($appointment)) {
+                return response()->json(['message' => 'Esta cita ya no se puede cancelar.'], 422);
+            }
+
+            $startsAt = $this->appointmentStartsAt($appointment);
+            $policyHours = (int) (BarbershopSetting::cached()?->politica_cancelacion ?? 24);
+
+            if (now()->diffInHours($startsAt, false) < $policyHours) {
+                return response()->json([
+                    'message' => "Solo puedes cancelar con al menos {$policyHours} horas de anticipación.",
+                ], 422);
+            }
+        }
 
         $appointment->update([
             'estado' => 'cancelada',

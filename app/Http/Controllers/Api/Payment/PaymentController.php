@@ -34,7 +34,15 @@ class PaymentController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $this->authorizeStaff($request);
+        $user = $request->user();
+        $isStaff = $user?->hasAnyRole(['administrador', 'recepcionista']);
+        $isClient = $user?->hasRole('cliente') && $user->clientProfile;
+
+        abort_if(! $isStaff && ! $isClient, 403, 'No autorizado.');
+
+        if ($isClient && ! $isStaff) {
+            return $this->indexForClient($user);
+        }
 
         $filters = $request->only(['metodo_pago', 'q', 'barbero_id', 'fecha_desde', 'fecha_hasta']);
         $payments = $this->paymentService->list($filters, 20);
@@ -75,6 +83,43 @@ class PaymentController extends Controller
                     'metodos' => Payment::get(['metodo_pago'])->groupBy('metodo_pago')->map->count(),
                 ],
                 'pending_count' => Payment::where('estado', Payment::ESTADO_PENDIENTE_VERIFICACION)->count(),
+            ],
+        ]);
+    }
+
+    /**
+     * Historial de facturas propias del cliente autenticado, equivalente a
+     * Client\ClientInvoiceController::index() (web): pagos de sus propias
+     * citas únicamente, con totales acumulados.
+     */
+    private function indexForClient($user): JsonResponse
+    {
+        $appointmentIds = Appointment::where('client_id', (string) $user->clientProfile->id)->pluck('id');
+
+        $payments = Payment::whereIn('appointment_id', $appointmentIds)
+            ->with(['appointment.barber.user', 'appointment.service'])
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'data' => $payments->map(fn ($payment) => [
+                'id' => $payment->id,
+                'monto' => $payment->monto,
+                'metodo_pago' => $payment->metodo_pago,
+                'propina' => $payment->propina,
+                'receipt_url' => $payment->comprobante_pdf ? Storage::disk('public')->url($payment->comprobante_pdf) : null,
+                'created_at' => optional($payment->created_at)->toIso8601String(),
+                'appointment' => [
+                    'id' => $payment->appointment?->id,
+                    'fecha' => optional($payment->appointment?->fecha)->toDateString(),
+                    'hora_inicio' => $payment->appointment?->hora_inicio,
+                    'service' => $payment->appointment?->service?->nombre,
+                    'barber' => $payment->appointment?->barber?->user?->name,
+                ],
+            ])->values(),
+            'meta' => [
+                'total_pagado' => (float) $payments->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
+                'total_citas' => $appointmentIds->count(),
             ],
         ]);
     }
@@ -278,7 +323,12 @@ class PaymentController extends Controller
      */
     public function receipt(Request $request, Payment $payment): JsonResponse
     {
-        $this->authorizeStaff($request);
+        $user = $request->user();
+        $isStaff = $user?->hasAnyRole(['administrador', 'recepcionista']);
+        $isOwner = $user?->hasRole('cliente') && $user->clientProfile
+            && (string) $payment->appointment?->client_id === (string) $user->clientProfile->id;
+
+        abort_if(! $isStaff && ! $isOwner, 403, 'No autorizado.');
 
         $pdfPath = $payment->comprobante_pdf;
 

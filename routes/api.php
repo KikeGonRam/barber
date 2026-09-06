@@ -94,6 +94,12 @@ Route::prefix('v1')->group(function (): void {
         Route::post('orders', [ApiOrderController::class, 'store']);
         Route::patch('orders/{order}/cancel', [ApiOrderController::class, 'cancel']);
 
+        // Pagos/facturas propias (cliente ve solo lo suyo; admin/recepción ven
+        // todo — branching por rol dentro del controlador, mismo criterio que
+        // appointments.index()/orders.index()).
+        Route::get('payments', [ApiPaymentController::class, 'index']);
+        Route::get('payments/{payment}/receipt', [ApiPaymentController::class, 'receipt']);
+
         // Solo administrador y recepcionista: gestión de pagos, clientes e inventario.
         Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {
             // Pedidos — bandeja de recepción (Admin/Recepcionista)
@@ -101,14 +107,12 @@ Route::prefix('v1')->group(function (): void {
             Route::get('orders/{order}/receipt', [ApiOrderController::class, 'receipt']);
 
             // Pagos (Admin/Recepcionista)
-            Route::get('payments', [ApiPaymentController::class, 'index']);
             Route::get('payments/pending', [ApiPaymentController::class, 'pending']);
             Route::post('payments', [ApiPaymentController::class, 'store']);
             Route::post('payments/stripe-intent', [ApiPaymentController::class, 'stripeIntent'])->name('api.payments.stripe-intent');
             Route::post('payments/{payment}/approve', [ApiPaymentController::class, 'approve']);
             Route::post('payments/{payment}/reject', [ApiPaymentController::class, 'reject']);
             Route::delete('payments/{payment}', [ApiPaymentController::class, 'destroy']);
-            Route::get('payments/{payment}/receipt', [ApiPaymentController::class, 'receipt']);
 
             // Clientes (Admin/Recepcionista)
             Route::get('clients', [ApiClientController::class, 'index']);
