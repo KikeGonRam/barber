@@ -212,3 +212,79 @@ endpoints:
     controller: null
     method: null
     route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/chatbot/feedback
+    metadata:
+      custom: []
+      groupName: 'Gestión de Chatbot'
+      groupDescription: |-
+
+        Endpoints para gestionar el chatbot (historial, perfil, estadísticas).
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Feedback de una Respuesta (API)'
+      description: |-
+        Marca una respuesta puntual del chatbot como útil o no. Antes de
+        este endpoint, ChatbotController::query() llamaba a
+        recordFeedback() con $wasHelpful hardcodeado en `true` en cada una
+        de sus 5 ramas de respuesta — el sistema de aprendizaje nunca había
+        recibido una señal negativa real de ningún usuario. Este endpoint le
+        da al frontend (el widget de chat en Nuxt) una forma de mandar la
+        señal real.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      message:
+        custom: []
+        name: message
+        description: 'El campo value no debe tener más de 2000 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      response:
+        custom: []
+        name: response
+        description: 'El campo value no debe tener más de 5000 caracteres.'
+        required: true
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      helpful:
+        custom: []
+        name: helpful
+        description: ''
+        required: true
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      message: b
+      response: 'n'
+      helpful: false
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

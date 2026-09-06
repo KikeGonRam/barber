@@ -151,4 +151,32 @@ class ChatbotApiTest extends TestCase
             ->assertOk()
             ->assertJsonStructure(['message', 'result']);
     }
+
+    /**
+     * Nuevo endpoint (inspirado en cómo otros widgets de chat de
+     * asistencia -- p. ej. el "Fin" de Intercom -- dejan calificar cada
+     * respuesta): antes, recordFeedback() solo se llamaba con
+     * $wasHelpful hardcodeado en `true` desde las 5 ramas de
+     * ChatbotController::query() -- el sistema de aprendizaje nunca había
+     * recibido una señal negativa real.
+     */
+    public function test_feedback_requires_message_response_and_helpful(): void
+    {
+        $this->withToken($this->token)
+            ->postJson('/api/v1/chatbot/feedback', [])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['message', 'response', 'helpful']);
+    }
+
+    public function test_feedback_is_accepted_for_an_authenticated_user(): void
+    {
+        $this->withToken($this->token)
+            ->postJson('/api/v1/chatbot/feedback', [
+                'message' => 'cual es el horario',
+                'response' => 'Lunes a sábado 9-9',
+                'helpful' => false,
+            ])
+            ->assertOk()
+            ->assertJsonStructure(['message']);
+    }
 }

@@ -116,4 +116,35 @@ class ChatbotManagementController extends Controller
             'result' => $result,
         ]);
     }
+
+    /**
+     * Feedback de una Respuesta (API)
+     *
+     * Marca una respuesta puntual del chatbot como útil o no. Antes de
+     * este endpoint, ChatbotController::query() llamaba a
+     * recordFeedback() con $wasHelpful hardcodeado en `true` en cada una
+     * de sus 5 ramas de respuesta — el sistema de aprendizaje nunca había
+     * recibido una señal negativa real de ningún usuario. Este endpoint le
+     * da al frontend (el widget de chat en Nuxt) una forma de mandar la
+     * señal real.
+     */
+    public function feedback(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'message' => ['required', 'string', 'max:2000'],
+            'response' => ['required', 'string', 'max:5000'],
+            'helpful' => ['required', 'boolean'],
+        ]);
+
+        $this->learningService->recordFeedback(
+            $validated['message'],
+            $validated['response'],
+            $validated['helpful'],
+            (string) auth()->id(),
+        );
+
+        return response()->json([
+            'message' => 'Gracias por tu retroalimentación.',
+        ]);
+    }
 }

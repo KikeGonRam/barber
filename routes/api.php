@@ -210,6 +210,7 @@ Route::prefix('v1')->group(function (): void {
         Route::get('chatbot/learning-stats', [ChatbotManagementController::class, 'getLearningStats']);
         Route::post('chatbot/train-history', [ChatbotManagementController::class, 'trainFromHistory'])
             ->middleware('role.custom:administrador');
+        Route::post('chatbot/feedback', [ChatbotManagementController::class, 'feedback']);
 
         // Solo barbero: su propio perfil/bio, portafolio y horario de trabajo.
         Route::middleware('role.custom:barbero')->group(function (): void {

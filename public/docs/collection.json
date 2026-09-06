@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "d4f3732c-7e40-4933-a758-b82168541306",
+        "_postman_id": "4d8e1d7d-9378-4d7b-b74f-083646482eeb",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -549,7 +549,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-09-29\",\"hora_inicio\":\"11:46\",\"estado\":\"no_asistio\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-09-29\",\"hora_inicio\":\"12:13\",\"estado\":\"pendiente\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -655,7 +655,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"period\":\"week\",\"estado\":\"completada\",\"offset\":-364}"
+                            "raw": "{\"period\":\"week\",\"estado\":\"pendiente\",\"offset\":-364}"
                         },
                         "description": "",
                         "auth": {
@@ -1401,7 +1401,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"metodo_pago\":\"tarjeta\"}"
+                            "raw": "{\"metodo_pago\":\"transferencia\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1536,7 +1536,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"tarjeta\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"transferencia\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1757,7 +1757,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-06T11:46:58\",\"pref_in_app\":false,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-06T12:13:28\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -1796,7 +1796,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-06T11:46:58\",\"pref_in_app\":false,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-06T12:13:28\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -1911,7 +1911,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -1950,7 +1950,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2416,7 +2416,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"11:46\",\"horario_cierre\":\"2052-09-29\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\",\"clabe\":\"iyvdljnikhwaykcm\",\"banco\":\"y\",\"beneficiario\":\"u\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"12:13\",\"horario_cierre\":\"2052-09-29\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\",\"clabe\":\"iyvdljnikhwaykcm\",\"banco\":\"y\",\"beneficiario\":\"u\",\"concepto\":\"w\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2571,7 +2571,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"ahora\",\"programada_para\":\"2052-09-29\"}"
+                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"programar\",\"programada_para\":\"2052-09-29\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2894,7 +2894,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"in_app\":false,\"email\":true,\"sms\":true,\"whatsapp\":false,\"push\":true,\"promociones\":false}"
+                            "raw": "{\"in_app\":true,\"email\":true,\"sms\":true,\"whatsapp\":false,\"push\":false,\"promociones\":false}"
                         },
                         "description": "Igual que la versi\u00f3n web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los dem\u00e1s.",
                         "auth": {
@@ -4221,7 +4221,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tipo\":\"entrada\",\"cantidad\":16,\"motivo\":\"architecto\"}"
+                            "raw": "{\"tipo\":\"salida\",\"cantidad\":16,\"motivo\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -4588,7 +4588,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"type\":\"ingresos\",\"period\":\"dia\",\"dateFrom\":\"2026-09-06T11:47:03\",\"dateTo\":\"2026-09-06T11:47:03\",\"detail\":\"muy-detallado\"}"
+                            "raw": "{\"type\":\"inventario\",\"period\":\"mes\",\"dateFrom\":\"2026-09-06T12:13:35\",\"dateTo\":\"2026-09-06T12:13:35\",\"detail\":\"muy-detallado\"}"
                         },
                         "description": "",
                         "auth": {
@@ -5247,6 +5247,37 @@
                             "raw": "{\"history_count\":1}"
                         },
                         "description": "Entrena el sistema de aprendizaje desde el historial de conversaciones.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Feedback de una Respuesta (API)",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/chatbot\/feedback",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/chatbot\/feedback"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":false}"
+                        },
+                        "description": "Marca una respuesta puntual del chatbot como \u00fatil o no. Antes de\neste endpoint, ChatbotController::query() llamaba a\nrecordFeedback() con $wasHelpful hardcodeado en `true` en cada una\nde sus 5 ramas de respuesta \u2014 el sistema de aprendizaje nunca hab\u00eda\nrecibido una se\u00f1al negativa real de ning\u00fan usuario. Este endpoint le\nda al frontend (el widget de chat en Nuxt) una forma de mandar la\nse\u00f1al real.",
                         "auth": {
                             "type": "noauth"
                         }
@@ -6119,7 +6150,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-06T11:46:59\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-06T12:13:29\"}"
                         },
                         "description": "",
                         "auth": {
