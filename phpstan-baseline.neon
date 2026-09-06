@@ -2819,3 +2819,57 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: tests/Feature/CampaignApiTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Analytics/AnalyticsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$tipo\.$#'
+			identifier: property.notFound
+			count: 7
+			path: app/Http/Controllers/Api/Analytics/AnalyticsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$grafica\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Analytics/AnalyticsController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<\(int\|string\),mixed\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Analytics/AnalyticsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$titulo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Analytics/AnalyticsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$mensaje\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Analytics/AnalyticsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$valor_destacado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Analytics/AnalyticsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$color\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Analytics/AnalyticsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\AnalyticsInsight\:\:\$generado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Analytics/AnalyticsController.php

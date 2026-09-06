@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Admin\Client\ClientAdminController;
 use App\Http\Controllers\Api\Admin\Dashboard\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\Inventory\InventoryAdminController;
 use App\Http\Controllers\Api\Admin\Report\ReportAdminController;
+use App\Http\Controllers\Api\Analytics\AnalyticsController as ApiAnalyticsController;
 use App\Http\Controllers\Api\Appointment\AppointmentController;
 use App\Http\Controllers\Api\Appointment\AvailabilityController;
 use App\Http\Controllers\Api\Auth\AuthController;
@@ -79,6 +80,9 @@ Route::prefix('v1')->group(function (): void {
 
         // Dashboard
         Route::get('dashboard', [DashboardController::class, 'index']);
+
+        // Analítica (los 4 roles la ven, cada uno con su propio recorte — ver AnalyticsController)
+        Route::get('analytics', [ApiAnalyticsController::class, 'index']);
 
         // Citas
         Route::get('appointments', [AppointmentController::class, 'index']);

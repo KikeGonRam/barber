@@ -116,9 +116,16 @@ class AnalyticsInsight extends Model
         'generado_en',
     ];
 
+    // Sin cast 'array' en 'roles'/'grafica' a propósito: el cast genérico de
+    // Eloquent serializa a un STRING JSON al escribir, que MongoDB no puede
+    // comparar como array nativo — rompía silenciosamente
+    // AnalyticsInsightService::porRol()/forBarber() (where('roles', $rol) no
+    // matcheaba nada) para cualquier registro insertado vía Eloquent
+    // (::create(), usado en tests). Spark siempre escribió con pymongo
+    // (arrays BSON nativos, nunca pasa por este cast), así que en producción
+    // nunca se notó — el driver de Mongo ya decodifica arrays/subdocumentos
+    // BSON nativos a arrays de PHP sin necesidad de cast.
     protected $casts = [
-        'roles' => 'array',
-        'grafica' => 'array',
         'generado_en' => 'datetime',
     ];
 

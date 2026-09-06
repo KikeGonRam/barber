@@ -397,7 +397,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '22:10'
+        example: '23:41'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -408,7 +408,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: confirmada
+        example: cancelada
         type: string
         enumValues:
           - pendiente
@@ -436,8 +436,8 @@ endpoints:
       barber_id: architecto
       service_id: architecto
       fecha: '2052-09-28'
-      hora_inicio: '22:10'
-      estado: confirmada
+      hora_inicio: '23:41'
+      estado: cancelada
       notas: 'n'
     fileParameters: []
     responses: []
@@ -490,7 +490,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: en_proceso
+        example: confirmada
         type: string
         enumValues:
           - pendiente
@@ -514,7 +514,7 @@ endpoints:
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      estado: en_proceso
+      estado: confirmada
       notas: b
     fileParameters: []
     responses: []
@@ -600,7 +600,7 @@ endpoints:
         name: period
         description: ''
         required: false
-        example: day
+        example: week
         type: string
         enumValues:
           - day
@@ -613,7 +613,7 @@ endpoints:
         name: estado
         description: ''
         required: false
-        example: no_asistio
+        example: completada
         type: string
         enumValues:
           - pendiente
@@ -637,8 +637,8 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      period: day
-      estado: no_asistio
+      period: week
+      estado: completada
       offset: -364
     fileParameters: []
     responses:
