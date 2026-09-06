@@ -16,10 +16,14 @@ use App\Repositories\Eloquent\ServiceRepository;
 use App\Services\Chatbot\Contracts\ChatbotAiProvider;
 use App\Services\Chatbot\GeminiService;
 use App\Services\Chatbot\OllamaService;
+use App\Services\System\ScheduledTaskMonitor;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Console\Events\ScheduledTaskFailed;
+use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -70,5 +74,11 @@ class AppServiceProvider extends ServiceProvider
         // solo administrador/ingeniero pueden verlo, igual que el resto de
         // rutas de solo lectura del rol ingeniero.
         Gate::define('viewPulse', fn (User $user) => $user->hasRoleName('administrador') || $user->hasRoleName('ingeniero'));
+
+        // Alimenta ScheduledTaskMonitor (dashboard del rol ingeniero) con la
+        // última corrida de cada tarea de routes/console.php, sin tener que
+        // instrumentar cada Schedule::command() una por una.
+        Event::listen(ScheduledTaskFinished::class, [ScheduledTaskMonitor::class, 'recordFinished']);
+        Event::listen(ScheduledTaskFailed::class, [ScheduledTaskMonitor::class, 'recordFailed']);
     }
 }

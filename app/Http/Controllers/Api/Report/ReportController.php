@@ -89,12 +89,14 @@ class ReportController extends Controller
     }
 
     /**
-     * Restringe el acceso solo a administradores; el resto recibe 403.
+     * Restringe el acceso a administradores e ingeniero (rol de solo
+     * lectura -- puede consultar/exportar reportes, nunca gestionarlos).
+     * El resto recibe 403.
      */
     private function authorizeAdmin(Request $request): void
     {
         $user = $request->user();
 
-        abort_if(! $user || ! $user->hasRole('administrador'), 403, 'Solo administradores pueden consultar reportes.');
+        abort_if(! $user || (! $user->hasRole('administrador') && ! $user->hasRole('ingeniero')), 403, 'Solo administradores pueden consultar reportes.');
     }
 }

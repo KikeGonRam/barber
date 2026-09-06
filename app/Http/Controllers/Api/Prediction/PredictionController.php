@@ -13,11 +13,14 @@ class PredictionController
 {
     public function __construct(private PredictionService $predictionService) {}
 
-    // Defensa en profundidad: aunque la ruta ya exige role.custom:administrador,
-    // este guard evita que un descuido en routes/api.php exponga proyecciones de ingresos.
+    // Defensa en profundidad: aunque la ruta ya exige
+    // role.custom:administrador,ingeniero, este guard evita que un descuido
+    // en routes/api.php exponga proyecciones de ingresos. ingeniero es un rol
+    // de solo lectura (puede ver estos análisis, nunca gestionar nada).
     private function authorizeAdmin(): void
     {
-        abort_if(! request()->user()?->hasRole('administrador'), 403, 'Solo administradores pueden acceder a este recurso.');
+        $user = request()->user();
+        abort_if(! $user || (! $user->hasRole('administrador') && ! $user->hasRole('ingeniero')), 403, 'Solo administradores pueden acceder a este recurso.');
     }
 
     /**

@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "863f320e-d56e-40e0-90f8-41aa3dfb772f",
+        "_postman_id": "5b25a238-5fd8-4079-9fad-7d1943d76799",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -549,7 +549,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-09-29\",\"hora_inicio\":\"14:06\",\"estado\":\"completada\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-09-29\",\"hora_inicio\":\"15:05\",\"estado\":\"cancelada\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -588,7 +588,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"estado\":\"pendiente\",\"notas\":\"b\"}"
+                            "raw": "{\"estado\":\"en_proceso\",\"notas\":\"b\"}"
                         },
                         "description": "",
                         "auth": {
@@ -655,7 +655,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"period\":\"week\",\"estado\":\"en_proceso\",\"offset\":-364}"
+                            "raw": "{\"period\":\"day\",\"estado\":\"en_proceso\",\"offset\":-364}"
                         },
                         "description": "",
                         "auth": {
@@ -1536,7 +1536,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"efectivo\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"tarjeta\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1757,7 +1757,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-06T14:06:50\",\"pref_in_app\":false,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-06T15:05:26\",\"pref_in_app\":false,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -1796,7 +1796,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-06T14:06:50\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-06T15:05:26\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2073,7 +2073,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2237,116 +2237,6 @@
                     "response": []
                 },
                 {
-                    "name": "Lista los tipos de reporte y formatos de exportaci\u00f3n disponibles.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/reports",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/reports"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "Genera un reporte del tipo indicado y lo devuelve en el formato solicitado\n(json, excel descargable o pdf con recorte de filas).",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/reports\/:type\/:format",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/reports\/:type\/:format",
-                            "variable": [
-                                {
-                                    "id": "type",
-                                    "key": "type",
-                                    "value": "ingresos|citas|inventario|clientes",
-                                    "description": ""
-                                },
-                                {
-                                    "id": "format",
-                                    "key": "format",
-                                    "value": "json|pdf|excel",
-                                    "description": ""
-                                }
-                            ]
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"The route api\/v1\/reports\/ingresos|citas|inventario|clientes\/json|pdf|excel could not be found.\"\n}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
                     "name": "Devuelve la configuraci\u00f3n actual de la barber\u00eda (\u00fanica fila, se crea si no existe).",
                     "request": {
                         "url": {
@@ -2416,7 +2306,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"14:06\",\"horario_cierre\":\"2052-09-29\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\",\"clabe\":\"iyvdljnikhwaykcm\",\"banco\":\"y\",\"beneficiario\":\"u\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"15:05\",\"horario_cierre\":\"2052-09-29\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\",\"clabe\":\"iyvdljnikhwaykcm\",\"banco\":\"y\",\"beneficiario\":\"u\",\"concepto\":\"w\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2452,54 +2342,6 @@
                         }
                     },
                     "response": []
-                },
-                {
-                    "name": "GET api\/v1\/logs",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/logs",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/logs"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
                 },
                 {
                     "name": "Niveles de lealtad disponibles, conteo de clientes por segmento y las\n\u00faltimas 10 campa\u00f1as enviadas\/programadas.",
@@ -2636,6 +2478,164 @@
                             "path": "api\/v1\/reviews",
                             "query": [],
                             "raw": "{{baseUrl}}\/api\/v1\/reviews"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Lista los tipos de reporte y formatos de exportaci\u00f3n disponibles.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/reports",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/reports"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Genera un reporte del tipo indicado y lo devuelve en el formato solicitado\n(json, excel descargable o pdf con recorte de filas).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/reports\/:type\/:format",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/reports\/:type\/:format",
+                            "variable": [
+                                {
+                                    "id": "type",
+                                    "key": "type",
+                                    "value": "ingresos|citas|inventario|clientes",
+                                    "description": ""
+                                },
+                                {
+                                    "id": "format",
+                                    "key": "format",
+                                    "value": "json|pdf|excel",
+                                    "description": ""
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 404,
+                            "body": "{\n    \"message\": \"The route api\/v1\/reports\/ingresos|citas|inventario|clientes\/json|pdf|excel could not be found.\"\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "GET api\/v1\/logs",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/logs",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/logs"
                         },
                         "method": "GET",
                         "header": [
@@ -2894,7 +2894,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"in_app\":true,\"email\":true,\"sms\":true,\"whatsapp\":true,\"push\":true,\"promociones\":true}"
+                            "raw": "{\"in_app\":false,\"email\":true,\"sms\":true,\"whatsapp\":true,\"push\":false,\"promociones\":false}"
                         },
                         "description": "Igual que la versi\u00f3n web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los dem\u00e1s.",
                         "auth": {
@@ -3365,6 +3365,629 @@
                     ]
                 },
                 {
+                    "name": "GET api\/v1\/admin\/reports\/revenue",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/reports\/revenue",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/revenue"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "GET api\/v1\/admin\/reports\/appointments",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/reports\/appointments",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/appointments"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "GET api\/v1\/admin\/reports\/inventory",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/reports\/inventory",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/inventory"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "GET api\/v1\/admin\/reports\/clients",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/reports\/clients",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/clients"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "POST api\/v1\/admin\/reports\/custom",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/reports\/custom",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/custom"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"type\":\"citas\",\"period\":\"personalizado\",\"dateFrom\":\"2026-09-06T15:05:31\",\"dateTo\":\"2026-09-06T15:05:31\",\"detail\":\"muy-detallado\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET api\/v1\/admin\/reports\/list",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/reports\/list",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/list"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "GET api\/v1\/admin\/reports\/export",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/reports\/export",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/export"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Proyecci\u00f3n de ingresos futuros a N d\u00edas calculada por el servicio de predicci\u00f3n.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/predictions\/income\/:days",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/predictions\/income\/:days",
+                            "variable": [
+                                {
+                                    "id": "days",
+                                    "key": "days",
+                                    "value": "architecto",
+                                    "description": ""
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Proyecci\u00f3n de volumen de citas futuras a N d\u00edas.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/predictions\/appointments\/:days",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/predictions\/appointments\/:days",
+                            "variable": [
+                                {
+                                    "id": "days",
+                                    "key": "days",
+                                    "value": "architecto",
+                                    "description": ""
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "An\u00e1lisis de qu\u00e9 servicios tienen mayor demanda, seg\u00fan el hist\u00f3rico.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/predictions\/services",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/predictions\/services"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Identifica los horarios de mayor afluencia para apoyar planificaci\u00f3n de personal.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/predictions\/peak-hours",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/predictions\/peak-hours"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Genera un resumen de insights combinados (ingresos, citas, servicios, horas pico)\npara mostrar recomendaciones accionables en el dashboard.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/predictions\/insights",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/predictions\/insights"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "GET api\/v1\/admin\/system\/status",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/system\/status",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/system\/status"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "http:\/\/localhost:3000"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
                     "name": "GET api\/v1\/admin\/barbers",
                     "request": {
                         "url": {
@@ -3666,7 +4289,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"especialidades\":\"b\",\"descripcion\":\"architecto\",\"activo\":true}"
+                            "raw": "{\"especialidades\":\"b\",\"descripcion\":\"architecto\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -4107,7 +4730,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -4146,7 +4769,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -4221,7 +4844,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tipo\":\"salida\",\"cantidad\":16,\"motivo\":\"architecto\"}"
+                            "raw": "{\"tipo\":\"entrada\",\"cantidad\":16,\"motivo\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -4334,581 +4957,6 @@
                             "path": "api\/v1\/admin\/inventory\/low-stock",
                             "query": [],
                             "raw": "{{baseUrl}}\/api\/v1\/admin\/inventory\/low-stock"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "GET api\/v1\/admin\/reports\/revenue",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/reports\/revenue",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/revenue"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "GET api\/v1\/admin\/reports\/appointments",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/reports\/appointments",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/appointments"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "GET api\/v1\/admin\/reports\/inventory",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/reports\/inventory",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/inventory"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "GET api\/v1\/admin\/reports\/clients",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/reports\/clients",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/clients"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "POST api\/v1\/admin\/reports\/custom",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/reports\/custom",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/custom"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"type\":\"clientes\",\"period\":\"mes\",\"dateFrom\":\"2026-09-06T14:06:56\",\"dateTo\":\"2026-09-06T14:06:56\",\"detail\":\"detallado\"}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "GET api\/v1\/admin\/reports\/list",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/reports\/list",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/list"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "GET api\/v1\/admin\/reports\/export",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/reports\/export",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/reports\/export"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "Proyecci\u00f3n de ingresos futuros a N d\u00edas calculada por el servicio de predicci\u00f3n.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/predictions\/income\/:days",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/predictions\/income\/:days",
-                            "variable": [
-                                {
-                                    "id": "days",
-                                    "key": "days",
-                                    "value": "architecto",
-                                    "description": ""
-                                }
-                            ]
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "Proyecci\u00f3n de volumen de citas futuras a N d\u00edas.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/predictions\/appointments\/:days",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/predictions\/appointments\/:days",
-                            "variable": [
-                                {
-                                    "id": "days",
-                                    "key": "days",
-                                    "value": "architecto",
-                                    "description": ""
-                                }
-                            ]
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "An\u00e1lisis de qu\u00e9 servicios tienen mayor demanda, seg\u00fan el hist\u00f3rico.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/predictions\/services",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/predictions\/services"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "Identifica los horarios de mayor afluencia para apoyar planificaci\u00f3n de personal.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/predictions\/peak-hours",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/predictions\/peak-hours"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "http:\/\/localhost:3000"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "Genera un resumen de insights combinados (ingresos, citas, servicios, horas pico)\npara mostrar recomendaciones accionables en el dashboard.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/predictions\/insights",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/predictions\/insights"
                         },
                         "method": "GET",
                         "header": [
@@ -5275,7 +5323,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":true}"
+                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":false}"
                         },
                         "description": "Marca una respuesta puntual del chatbot como \u00fatil o no. Antes de\neste endpoint, ChatbotController::query() llamaba a\nrecordFeedback() con $wasHelpful hardcodeado en `true` en cada una\nde sus 5 ramas de respuesta \u2014 el sistema de aprendizaje nunca hab\u00eda\nrecibido una se\u00f1al negativa real de ning\u00fan usuario. Este endpoint le\nda al frontend (el widget de chat en Nuxt) una forma de mandar la\nse\u00f1al real.",
                         "auth": {
@@ -5848,7 +5896,7 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -5947,13 +5995,13 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "1",
+                                    "value": "",
                                     "type": "text",
                                     "description": ""
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -6150,7 +6198,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-06T14:06:50\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-06T15:05:27\"}"
                         },
                         "description": "",
                         "auth": {

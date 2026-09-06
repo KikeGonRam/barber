@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Admin\Client\ClientAdminController;
 use App\Http\Controllers\Api\Admin\Dashboard\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\Inventory\InventoryAdminController;
 use App\Http\Controllers\Api\Admin\Report\ReportAdminController;
+use App\Http\Controllers\Api\Admin\System\SystemController;
 use App\Http\Controllers\Api\Analytics\AnalyticsController as ApiAnalyticsController;
 use App\Http\Controllers\Api\Appointment\AppointmentController;
 use App\Http\Controllers\Api\Appointment\AvailabilityController;
@@ -160,19 +161,10 @@ Route::prefix('v1')->group(function (): void {
             Route::put('users/{user}', [ApiUserController::class, 'update']);
             Route::delete('users/{user}', [ApiUserController::class, 'destroy']);
 
-            // Reportes (Admin)
-            Route::get('reports', [ApiReportController::class, 'index']);
-            Route::get('reports/{type}/{format}', [ApiReportController::class, 'export'])
-                ->whereIn('type', ['ingresos', 'citas', 'inventario', 'clientes'])
-                ->whereIn('format', ['json', 'pdf', 'excel']);
-
             // Configuración (Admin)
             Route::get('settings', [ApiSettingController::class, 'show']);
             Route::put('settings', [ApiSettingController::class, 'update']);
             Route::post('settings/maintenance', [ApiSettingController::class, 'toggleMaintenance']);
-
-            // Logs (Admin)
-            Route::get('logs', [ApiLogController::class, 'index']);
 
             // Campañas (Admin)
             Route::get('campaigns', [ApiCampaignController::class, 'index']);
@@ -183,6 +175,22 @@ Route::prefix('v1')->group(function (): void {
 
             // Reseñas de clientes a barberos (Admin)
             Route::get('reviews', [ApiReviewController::class, 'index']);
+        });
+
+        // Administrador e ingeniero (rol de solo lectura): reportes y logs.
+        // ingeniero nunca gestiona nada de negocio -- ver guardrail #24 en
+        // .claude/skills/urbanblade-guardrails antes de agregarlo a
+        // cualquier otra ruta de este archivo.
+        Route::middleware('role.custom:administrador,ingeniero')->group(function (): void {
+            Route::middleware('permission.custom:reportes.ver')->group(function (): void {
+                Route::get('reports', [ApiReportController::class, 'index']);
+                Route::get('reports/{type}/{format}', [ApiReportController::class, 'export'])
+                    ->whereIn('type', ['ingresos', 'citas', 'inventario', 'clientes'])
+                    ->whereIn('format', ['json', 'pdf', 'excel']);
+            });
+
+            Route::get('logs', [ApiLogController::class, 'index'])
+                ->middleware('permission.custom:logs.ver');
         });
 
         // Notificaciones
@@ -232,15 +240,45 @@ Route::prefix('v1')->group(function (): void {
             Route::put('barber/schedule', [BarberScheduleController::class, 'update']);
         });
 
-        // Panel de administración móvil completo (dashboard, barberos, clientes,
-        // inventario, reportes y predicciones/insights de IA). Solo administrador.
-        Route::prefix('admin')->middleware('role.custom:administrador')->group(function (): void {
+        // Panel de administración móvil: dashboards, reportes, predicciones/
+        // insights de IA, y el nuevo estado del servidor -- todo de solo
+        // lectura, así que administrador E ingeniero. La gestión real de
+        // barberos/clientes/inventario (con POST/PUT/DELETE) vive en el
+        // grupo de abajo, solo administrador.
+        Route::prefix('admin')->middleware('role.custom:administrador,ingeniero')->group(function (): void {
             Route::get('dashboard/stats', [DashboardAdminController::class, 'getStats']);
             Route::get('dashboard/appointments', [DashboardAdminController::class, 'getUpcomingAppointments']);
             Route::get('dashboard/revenue', [DashboardAdminController::class, 'getRevenue']);
             Route::get('dashboard/alerts', [DashboardAdminController::class, 'getAlerts']);
             Route::get('dashboard/metrics', [DashboardAdminController::class, 'getMetrics']);
 
+            // Reportes (Phase 3)
+            Route::middleware('permission.custom:reportes.ver')->group(function (): void {
+                Route::get('reports/revenue', [ReportAdminController::class, 'generateRevenueReport']);
+                Route::get('reports/appointments', [ReportAdminController::class, 'generateAppointmentsReport']);
+                Route::get('reports/inventory', [ReportAdminController::class, 'generateInventoryReport']);
+                Route::get('reports/clients', [ReportAdminController::class, 'generateClientsReport']);
+                Route::post('reports/custom', [ReportAdminController::class, 'generateCustomReport']);
+                Route::get('reports/list', [ReportAdminController::class, 'listReports']);
+                Route::get('reports/export', [ReportAdminController::class, 'exportReport']);
+            });
+
+            // Predicciones e Insights (IA)
+            Route::get('predictions/income/{days?}', [PredictionController::class, 'incomeForecasting']);
+            Route::get('predictions/appointments/{days?}', [PredictionController::class, 'appointmentForecast']);
+            Route::get('predictions/services', [PredictionController::class, 'serviceAnalysis']);
+            Route::get('predictions/peak-hours', [PredictionController::class, 'peakHoursAnalysis']);
+            Route::get('predictions/insights', [PredictionController::class, 'insights']);
+
+            // Estado del servidor (rol ingeniero): Mongo/Redis, cola, tareas
+            // programadas. Nueva en esta fase -- ver App\Services\System.
+            Route::get('system/status', [SystemController::class, 'status'])
+                ->middleware('permission.custom:sistema.ver');
+        });
+
+        // Gestión real (crea/edita/borra) de barberos, clientes e
+        // inventario -- solo administrador, nunca ingeniero.
+        Route::prefix('admin')->middleware('role.custom:administrador')->group(function (): void {
             // Barberos (Phase 2)
             Route::get('barbers', [BarberAdminController::class, 'getBarbers']);
             Route::get('barbers/{barber}', [BarberAdminController::class, 'show']);
@@ -268,22 +306,6 @@ Route::prefix('v1')->group(function (): void {
             Route::get('inventory/movements', [InventoryAdminController::class, 'getMovements']);
             Route::get('inventory/summary', [InventoryAdminController::class, 'getSummary']);
             Route::get('inventory/low-stock', [InventoryAdminController::class, 'getLowStockProducts']);
-
-            // Reportes (Phase 3)
-            Route::get('reports/revenue', [ReportAdminController::class, 'generateRevenueReport']);
-            Route::get('reports/appointments', [ReportAdminController::class, 'generateAppointmentsReport']);
-            Route::get('reports/inventory', [ReportAdminController::class, 'generateInventoryReport']);
-            Route::get('reports/clients', [ReportAdminController::class, 'generateClientsReport']);
-            Route::post('reports/custom', [ReportAdminController::class, 'generateCustomReport']);
-            Route::get('reports/list', [ReportAdminController::class, 'listReports']);
-            Route::get('reports/export', [ReportAdminController::class, 'exportReport']);
-
-            // Predicciones e Insights (IA)
-            Route::get('predictions/income/{days?}', [PredictionController::class, 'incomeForecasting']);
-            Route::get('predictions/appointments/{days?}', [PredictionController::class, 'appointmentForecast']);
-            Route::get('predictions/services', [PredictionController::class, 'serviceAnalysis']);
-            Route::get('predictions/peak-hours', [PredictionController::class, 'peakHoursAnalysis']);
-            Route::get('predictions/insights', [PredictionController::class, 'insights']);
         });
 
         // Detalle de barbero y reseñas (van después de barbers/manage para no chocar con el wildcard)

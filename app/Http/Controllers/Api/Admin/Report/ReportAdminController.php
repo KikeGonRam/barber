@@ -18,11 +18,14 @@ use Illuminate\Http\Request;
  */
 class ReportAdminController
 {
-    // Defensa en profundidad: aunque la ruta ya exige role.custom:administrador,
-    // este guard evita que un descuido en routes/api.php exponga reportes financieros.
+    // Defensa en profundidad: aunque la ruta ya exige
+    // role.custom:administrador,ingeniero, este guard evita que un descuido
+    // en routes/api.php exponga reportes financieros. ingeniero es un rol de
+    // solo lectura (puede consultar/exportar reportes, nunca gestionarlos).
     private function authorizeAdmin(): void
     {
-        abort_if(! request()->user()?->hasRole('administrador'), 403, 'Solo administradores pueden acceder a este recurso.');
+        $user = request()->user();
+        abort_if(! $user || (! $user->hasRole('administrador') && ! $user->hasRole('ingeniero')), 403, 'Solo administradores pueden acceder a este recurso.');
     }
 
     // Ingresos totales/diarios/por barbero dentro del periodo (dia/semana/mes/trimestre/año)
