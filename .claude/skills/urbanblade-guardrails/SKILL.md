@@ -474,6 +474,34 @@ This is genuinely new scope, not unfinished migration work — `nuxt-migration-p
 final report explicitly listed notifications/chatbot as a conscious exclusion, not a
 gap, right before this request came in.
 
+## 24. New scope (2026-09-06): Stripe hardening + client self-pay (later), and a new
+"ingeniero" role with a Laravel Pulse ops dashboard — plan lives in `frontend-urban`
+
+Requested right after guardrail #23's plan closed. Full architecture — decisions
+already made with the user, phases, gotchas anticipated — lives in
+`frontend-urban/.claude/skills/stripe-and-ops-role-plan/SKILL.md`. Worth knowing from
+here:
+- Stripe already works for the staff-facing charge flow (`PaymentController::
+  stripeIntent()`, Stripe Elements in `frontend-urban/app/pages/payments/index.vue`)
+  — server-computed amounts, never client-supplied, already follows guardrail #13.
+  The real gap found is **zero test coverage** of the whole Stripe path. Fase A
+  (agreed scope) is hardening only: tests, a webhook that handles more than just
+  `payment_intent.succeeded`/`.payment_failed`, and `.env.example` Stripe docs. Fase B
+  (client-initiated card payment — doesn't exist at all today) is deliberately
+  deferred with scope TBD, not to be started without asking again.
+- The new "ingeniero" role is a **superset of `administrador`**, not a separate
+  limited role — it needs every permission `administrador` has, plus a new
+  `sistema.ver` one. This means auditing every `role.custom:administrador` in
+  `routes/api.php`/`routes/web.php` to add `,ingeniero` — `EnsureUserHasRole` has no
+  role-inheritance concept, it's an explicit per-route list.
+- Laravel Pulse was chosen (over building monitoring from scratch) for the "server
+  status" dashboard, but **Pulse's storage needs a real SQL connection (MySQL/SQLite/
+  Postgres) — this repo's Dockerfile only installs generic `pdo`, no `pdo_sqlite`/
+  `pdo_mysql`, and the app's default DB connection is MongoDB, which Pulse can't use.**
+  The plan recommends adding SQLite support to the Dockerfile (`PULSE_DB_CONNECTION`
+  pointed at a dedicated `.sqlite` file) rather than standing up a new MySQL service —
+  do not point Pulse at the `mongodb` connection or at `mongo-test`.
+
 ## 19. This rule set can go stale within hours — don't treat it as complete
 
 Every guardrail above except #1 was added or corrected on 2026-09-02/03/04/05, several of
