@@ -13,7 +13,7 @@
     <div class="flex items-center justify-between px-2 pb-8 pt-4 flex-shrink-0 md:flex-col md:justify-center md:gap-3"
         :class="!railCollapsed ? 'lg:flex-row lg:justify-between lg:gap-0' : ''">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-sm font-semibold tracking-wide text-ink group">
-            <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-10 w-10 object-contain group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
+            <x-brand-mark class="h-10 w-10 flex-shrink-0 transition-transform duration-300 group-hover:scale-105" />
             <div class="hidden" :class="!railCollapsed ? 'lg:block' : ''">
                 <span class="block text-lg font-black uppercase tracking-tighter leading-tight">Urban<span class="text-gold">Blade</span></span>
                 <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-muted">Management System</span>

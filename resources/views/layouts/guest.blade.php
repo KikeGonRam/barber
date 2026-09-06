@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-mark.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/urbanblade-mark.svg') }}">
 
     <title>{{ config('app.name') }} - Acceso Premium</title>
 
@@ -41,7 +41,7 @@
 
                 <!-- Logo top -->
                 <a href="/" class="flex items-center gap-3 group w-fit">
-                    <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-11 w-11 object-contain">
+                    <x-brand-mark class="h-11 w-11" />
                     <div>
                         <span class="block text-xl font-black uppercase tracking-tighter text-white">Urban<span class="text-gold">Blade</span></span>
                         <span class="block text-[9px] font-bold uppercase tracking-[0.3em] text-muted -mt-0.5">Elite Grooming Studio</span>
@@ -120,7 +120,7 @@
                 <!-- Logo móvil (sólo visible en móvil) -->
                 <div class="lg:hidden mb-10 flex flex-col items-center">
                     <a href="/" class="group transition-transform hover:scale-105">
-                        <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-14 w-14 object-contain mx-auto">
+                        <x-brand-mark class="mx-auto h-14 w-14" />
                     </a>
                     <h1 class="mt-4 text-2xl font-black uppercase tracking-tighter text-white">Urban<span class="text-gold">Blade</span></h1>
                     <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-muted">Acceso Exclusivo</p>

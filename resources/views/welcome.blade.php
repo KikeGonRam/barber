@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-mark.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/urbanblade-mark.svg') }}">
     <title>{{ config('app.name') }} - Premium Grooming Studio</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -99,7 +99,7 @@
             <div class="flex h-20 items-center justify-between">
 
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-10 w-10 object-contain">
+                    <x-brand-mark class="h-10 w-10" />
                     <a href="/" class="text-xl font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span></a>
                 </div>
 
@@ -586,7 +586,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start gap-12">
                 <div class="max-w-xs">
                     <div class="flex items-center gap-3 mb-5">
-                        <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-9 w-9 object-contain">
+                        <x-brand-mark class="h-9 w-9" />
                         <span class="text-lg font-black uppercase tracking-tighter text-white">Urban<span class="text-gold">Blade</span></span>
                     </div>
                     <p class="text-xs text-muted leading-relaxed">

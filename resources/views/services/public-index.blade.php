@@ -61,7 +61,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Servicios Elite — UrbanBlade</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-mark.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/urbanblade-mark.svg') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,900&display=swap" rel="stylesheet"/>
     @safeVite(['resources/css/app.css', 'resources/js/app.js'])
@@ -189,7 +189,7 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-20 items-center justify-between">
             <a href="/" class="flex items-center gap-3 group">
-                <img src="{{ asset('images/logo-mark.png') }}" alt="UrbanBlade" class="h-10 w-10 object-contain">
+                <x-brand-mark class="h-10 w-10" />
                 <span class="text-xl font-black uppercase tracking-tighter">Urban<span class="text-gold">Blade</span></span>
             </a>
 
