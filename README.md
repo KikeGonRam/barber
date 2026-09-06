@@ -153,6 +153,7 @@ Si todo queda en verde, el proyecto está listo para demo local.
 - [docs/ACCESOS.md](docs/ACCESOS.md)
 - [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md)
 - [docs/DOCUMENTACION_TECNICA.md](docs/DOCUMENTACION_TECNICA.md)
+- [docs/STRIPE_PRUEBAS_LOCALES.md](docs/STRIPE_PRUEBAS_LOCALES.md)
 - [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md)
 
 ## 🧩 Estado del repositorio

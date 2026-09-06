@@ -82,7 +82,9 @@ como `no_asistio` las citas confirmadas cuyo horario ya pasó.
 propina, método) y una `LoyaltyTransaction` (puntos ganados). El nivel del
 cliente (`nuevo → regular → vip → leyenda`) se recalcula por umbrales de citas
 completadas. Existe integración con Stripe para pago con tarjeta, con webhook
-dedicado excluido de CSRF.
+dedicado excluido de CSRF. La instalación del CLI, permisos mínimos, variables,
+listener y validación local se mantienen en
+[`STRIPE_PRUEBAS_LOCALES.md`](STRIPE_PRUEBAS_LOCALES.md).
 
 **Tienda de productos**: catálogo (`Product`, con `tipo` = `uso_interno` o
 `venta`), carrito (`CartService`) y pedidos (`Order`, `OrderService`). Un pedido
