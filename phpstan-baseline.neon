@@ -2503,6 +2503,18 @@ parameters:
 			path: tests/Feature/AppointmentStatusServiceIntegrationTest.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Order\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Order\>\:\:\$client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/OrderApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/OrderApiTest.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 4
