@@ -205,10 +205,26 @@ class ChatbotIntelligenceService
             ->sortByDesc('count')
             ->first()['name'] ?? null;
 
-        // Promedio de gasto
-        $avgSpent = Payment::whereHas('appointment', fn ($q) => $q->where('client_id', (string) $client->id))
-            ->recent()
-            ->average('monto') ?? 0;
+        // Promedio de gasto. Antes llamaba a un ->recent() que nunca
+        // existió como scope de Payment -- lanzaba una excepción en CADA
+        // mensaje de un cliente autenticado, silenciada por el try/catch de
+        // ChatbotController::query() alrededor de getContextualResponse(),
+        // así que nunca se veía como error real: solo hacía que la
+        // "Respuesta Inteligente" siempre cayera a lógica manual/externa/IA
+        // para cualquier cliente con perfil. Sin scope de fecha porque no
+        // hay ninguno documentado para "reciente" a nivel de Payment en
+        // este repo (a diferencia de PredictionService, que sí usa una
+        // ventana explícita de 30 días) -- promedia todos los pagos
+        // completados del cliente en vez de inventar una ventana arbitraria.
+        // 'monto' está cast como 'decimal:2' en el modelo, así que Mongo
+        // devuelve un MongoDB\BSON\Decimal128 para average() -- ni round()
+        // ni (float) lo aceptan directamente (Decimal128 no es un tipo
+        // escalar de PHP; hay que pasar por (string) primero, ver
+        // toFloat() más abajo). Segundo bug real en esta misma línea, solo
+        // visible una vez arreglado el de arriba: nunca se había llegado a
+        // ejecutar en producción.
+        $avgSpent = $this->toFloat(Payment::whereHas('appointment', fn ($q) => $q->where('client_id', (string) $client->id))
+            ->average('monto'));
 
         return [
             'favorite_service' => $favoriteServiceName,
@@ -216,6 +232,18 @@ class ChatbotIntelligenceService
             'average_spending' => round($avgSpent, 2),
             'loyalty_level' => $this->getUserLoyaltyLevel($client),
         ];
+    }
+
+    /**
+     * sum()/average() de Eloquent sobre un campo cast como 'decimal:*'
+     * devuelven un MongoDB\BSON\Decimal128 en este driver, no un
+     * int|float nativo -- ni round() ni (float) lo aceptan directamente.
+     * Centraliza la conversión seguro (pasa por (string) primero) para
+     * los tres sitios de este archivo que agregan sobre 'monto'.
+     */
+    private function toFloat(mixed $value): float
+    {
+        return $value ? (float) (string) $value : 0.0;
     }
 
     /**
@@ -308,8 +336,11 @@ class ChatbotIntelligenceService
         $today = now()->toDateString();
         $thisMonth = now()->startOfMonth();
 
-        $todayRevenue = Payment::whereDate('created_at', $today)->sum('monto');
-        $thisMonthRevenue = Payment::where('created_at', '>=', $thisMonth)->sum('monto');
+        // sum() sobre 'monto' (decimal:2) también devuelve un
+        // MongoDB\BSON\Decimal128 -- mismo bug que average_spending arriba,
+        // mismo arreglo vía toFloat().
+        $todayRevenue = $this->toFloat(Payment::whereDate('created_at', $today)->sum('monto'));
+        $thisMonthRevenue = $this->toFloat(Payment::where('created_at', '>=', $thisMonth)->sum('monto'));
         $todayAppointments = Appointment::whereDate('fecha', $today)
             ->where('estado', '!=', 'cancelada')
             ->count();

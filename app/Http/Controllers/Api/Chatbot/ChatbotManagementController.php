@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Chatbot;
 
 use App\Http\Controllers\Controller;
 use App\Services\Chatbot\ChatbotContextService;
+use App\Services\Chatbot\ChatbotLearningService;
 use App\Services\Chatbot\ChatbotUserProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,8 @@ class ChatbotManagementController extends Controller
 {
     public function __construct(
         private readonly ChatbotContextService $contextService,
-        private readonly ChatbotUserProfileService $profileService
+        private readonly ChatbotUserProfileService $profileService,
+        private readonly ChatbotLearningService $learningService,
     ) {}
 
     /**
@@ -64,9 +66,12 @@ class ChatbotManagementController extends Controller
      */
     public function getProfile(Request $request): JsonResponse
     {
-        $userId = auth()->id();
+        $userId = (string) auth()->id();
         $profile = $this->profileService->getUserProfile($userId);
-        $summary = $this->contextService->getConversationSummary($userId);
+        // Igual que getHistory(): lee el resumen persistido en Mongo, no el
+        // de sesión — este endpoint solo lo consume un cliente Bearer-token
+        // (Nuxt) que nunca comparte sesión entre requests.
+        $summary = $this->contextService->getPersistedSummary($userId);
 
         return response()->json([
             'profile' => $profile,
@@ -82,10 +87,12 @@ class ChatbotManagementController extends Controller
     public function getLearningStats(Request $request): JsonResponse
     {
         $userId = auth()->id();
-        $stats = $this->contextService->getUserLearningStats($userId);
+        $stats = $this->learningService->getLearningReport($userId);
+        $topCategories = $this->learningService->getTopCategories($userId);
 
         return response()->json([
             'stats' => $stats,
+            'top_categories' => $topCategories,
         ]);
     }
 
@@ -97,7 +104,12 @@ class ChatbotManagementController extends Controller
     public function trainFromHistory(Request $request): JsonResponse
     {
         $userId = auth()->id();
-        $result = $this->contextService->trainFromHistory($userId);
+        $validated = $request->validate([
+            'history_count' => ['nullable', 'integer', 'min:1', 'max:200'],
+        ]);
+        $historyCount = (int) ($validated['history_count'] ?? 20);
+
+        $result = $this->learningService->trainFromHistory($userId, $historyCount);
 
         return response()->json([
             'message' => 'Sistema entrenado exitosamente desde el historial.',

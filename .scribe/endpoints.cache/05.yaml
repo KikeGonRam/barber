@@ -193,8 +193,20 @@ endpoints:
     cleanUrlParameters: []
     queryParameters: []
     cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
+    bodyParameters:
+      history_count:
+        custom: []
+        name: history_count
+        description: 'El campo value debe ser al menos 1. El campo value no debe ser mayor que 200.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      history_count: 1
     fileParameters: []
     responses: []
     responseFields: []

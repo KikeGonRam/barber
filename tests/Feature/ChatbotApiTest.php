@@ -100,4 +100,55 @@ class ChatbotApiTest extends TestCase
             ->assertOk()
             ->assertJsonCount(0, 'history');
     }
+
+    /**
+     * Regresión: getProfile() leía el resumen desde ChatbotContextService::
+     * getConversationSummary() (sesión), el mismo problema que ya tenía
+     * getHistory() antes de la Fase 3 -- un cliente Bearer-token sin
+     * cookie nunca vería su propio resumen reflejado ahí.
+     */
+    public function test_profile_summary_reflects_persisted_history(): void
+    {
+        $this->withToken($this->token)
+            ->postJson('/api/v1/chatbot/query', ['message' => 'cual es el horario'])
+            ->assertOk();
+
+        $this->withToken($this->token)
+            ->getJson('/api/v1/chatbot/profile')
+            ->assertOk()
+            ->assertJsonPath('summary.total_messages', 1);
+    }
+
+    /**
+     * Regresión: getLearningStats()/trainFromHistory() llamaban a métodos
+     * que no existen en ChatbotContextService (getUserLearningStats()/
+     * trainFromHistory()) -- 500 fatal garantizado si alguna vez se
+     * invocaban. Nunca se detectó porque nada los ejercitaba: cero tests
+     * antes de esta fase.
+     */
+    public function test_learning_stats_returns_ok(): void
+    {
+        $this->withToken($this->token)
+            ->getJson('/api/v1/chatbot/learning-stats')
+            ->assertOk()
+            ->assertJsonStructure(['stats', 'top_categories']);
+    }
+
+    public function test_train_from_history_is_admin_only_and_works_for_admins(): void
+    {
+        $this->withToken($this->token)
+            ->postJson('/api/v1/chatbot/train-history')
+            ->assertForbidden();
+
+        $role = Role::where('name', 'administrador')->where('guard_name', 'web')->firstOrFail();
+        $admin = User::create(['name' => 'Admin Chatbot', 'email' => 'admin-chatbot@test.local', 'password' => 'password']);
+        $admin->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+        $adminToken = 'test-chatbot-admin-token';
+        MobileApiToken::create(['user_id' => (string) $admin->id, 'name' => 'test', 'token_hash' => hash('sha256', $adminToken)]);
+
+        $this->withToken($adminToken)
+            ->postJson('/api/v1/chatbot/train-history')
+            ->assertOk()
+            ->assertJsonStructure(['message', 'result']);
+    }
 }

@@ -529,18 +529,6 @@ parameters:
 			path: app/Http/Controllers/Api/Catalog/CatalogController.php
 
 		-
-			message: '#^Call to an undefined method App\\Services\\Chatbot\\ChatbotContextService\:\:getUserLearningStats\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/Api/Chatbot/ChatbotManagementController.php
-
-		-
-			message: '#^Call to an undefined method App\\Services\\Chatbot\\ChatbotContextService\:\:trainFromHistory\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/Api/Chatbot/ChatbotManagementController.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 3
@@ -1948,12 +1936,6 @@ parameters:
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Services/Chatbot/ChatbotIntelligenceService.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Payment\>\:\:recent\(\)\.$#'
-			identifier: method.notFound
-			count: 1
 			path: app/Services/Chatbot/ChatbotIntelligenceService.php
 
 		-
