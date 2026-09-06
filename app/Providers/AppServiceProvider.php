@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use App\Repositories\Contracts\InventoryMovementRepositoryInterface;
 use App\Repositories\Contracts\PaymentRepositoryInterface;
@@ -19,6 +20,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -61,5 +63,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by($request->email.$request->ip());
         });
+
+        // Sin este Gate, Laravel Pulse deniega /pulse a todos por defecto
+        // (Gate::authorize('viewPulse') sobre una ability no definida =
+        // denegado) -- lo definimos explicitamente para dejar claro que
+        // solo administrador/ingeniero pueden verlo, igual que el resto de
+        // rutas de solo lectura del rol ingeniero.
+        Gate::define('viewPulse', fn (User $user) => $user->hasRoleName('administrador') || $user->hasRoleName('ingeniero'));
     }
 }

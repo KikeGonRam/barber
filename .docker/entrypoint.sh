@@ -19,6 +19,10 @@ if [ "$1" = "php-fpm" ]; then
     echo "Registrando proveedores de paquetes..."
     php artisan package:discover --ansi || true
 
+    # Laravel Pulse necesita el archivo SQLite creado de antemano -- a
+    # diferencia de MongoDB, el driver sqlite de Laravel no lo crea solo.
+    touch /var/www/html/database/pulse.sqlite
+
     # Las migraciones corren en background: con backfills grandes contra un
     # cluster Atlas M0 (lento) esto puede tardar minutos, y no debe bloquear
     # el arranque de php-fpm (nginx devuelve 502 mientras tanto).

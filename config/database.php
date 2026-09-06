@@ -59,6 +59,20 @@ return [
             'database' => env('MONGO_DATABASE', 'barber_db'),
         ],
 
+        // Conexion SQL dedicada solo para Laravel Pulse (rol "ingeniero" --
+        // dashboard de estado del servidor). Pulse necesita una conexion
+        // relacional real y este proyecto usa MongoDB como default, que
+        // Pulse no soporta. Un archivo SQLite local (no Atlas, no
+        // compartido con spark/) es suficiente para esto: Pulse solo
+        // guarda metricas efimeras (requests, jobs, excepciones), no datos
+        // de negocio. Ver PULSE_DB_CONNECTION en .env.example.
+        'sqlite' => [
+            'driver' => 'sqlite',
+            'database' => database_path(env('PULSE_DB_FILE', 'pulse.sqlite')),
+            'prefix' => '',
+            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+        ],
+
     ],
 
     /*

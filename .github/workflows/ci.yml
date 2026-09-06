@@ -26,6 +26,7 @@ jobs:
       BCRYPT_ROUNDS: 4
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
+      PULSE_DB_CONNECTION: sqlite
 
     services:
       redis:
@@ -68,7 +69,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: mbstring, dom, curl, bcmath, zip, exif, pcntl, gd, intl, mongodb, redis
+          extensions: mbstring, dom, curl, bcmath, zip, exif, pcntl, gd, intl, mongodb, redis, pdo_sqlite
           coverage: xdebug
 
       - name: Cache Composer packages
@@ -80,6 +81,9 @@ jobs:
 
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Create Pulse SQLite database
+        run: touch database/pulse.sqlite
 
       - name: Composer security audit
         run: composer audit --no-interaction
@@ -173,6 +177,7 @@ jobs:
       BCRYPT_ROUNDS: 4
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
+      PULSE_DB_CONNECTION: sqlite
 
     services:
       redis:
@@ -201,11 +206,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: mbstring, dom, curl, bcmath, zip, exif, pcntl, gd, intl, mongodb, redis
+          extensions: mbstring, dom, curl, bcmath, zip, exif, pcntl, gd, intl, mongodb, redis, pdo_sqlite
           coverage: none
 
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Create Pulse SQLite database
+        run: touch database/pulse.sqlite
 
       - name: Prepare Laravel app
         run: |

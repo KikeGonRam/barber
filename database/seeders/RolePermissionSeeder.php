@@ -23,6 +23,7 @@ class RolePermissionSeeder extends Seeder
         'barberos.gestionar',
         'configuracion.gestionar',
         'logs.ver',
+        'sistema.ver',
     ];
 
     private const ROLE_PERMISSIONS = [
@@ -33,6 +34,20 @@ class RolePermissionSeeder extends Seeder
             'clientes.gestionar',
             'inventario.ver',
             'inventario.gestionar',
+        ],
+        // Rol de solo lectura para alguien de sistemas: ve estado del
+        // servidor (Pulse), analitica y reportes de cada modulo, pero no
+        // puede gestionar nada de negocio (crear/editar/eliminar usuarios,
+        // clientes, servicios, barberos, citas, pagos, inventario ni
+        // configuracion). Deliberadamente NO es un superset de
+        // administrador -- decision explicita del dueno del proyecto
+        // (2026-09-06) para no ampliar la superficie de riesgo si esta
+        // cuenta se compromete. Ver .claude/skills/urbanblade-guardrails
+        // guardrail #24 antes de agregar 'ingeniero' a cualquier ruta.
+        'ingeniero' => [
+            'reportes.ver',
+            'logs.ver',
+            'sistema.ver',
         ],
         'barbero' => [],
         'cliente' => [],

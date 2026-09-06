@@ -20,6 +20,8 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zlib1g-dev \
     libicu-dev \
+    libsqlite3-dev \
+    sqlite3 \
     g++ \
     wget \
     netcat-traditional \
@@ -28,8 +30,11 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr-spa \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo zip exif pcntl gd intl
+# Install PHP extensions. pdo_sqlite es solo para Laravel Pulse (rol
+# "ingeniero"): Pulse necesita una conexion SQL dedicada y este proyecto usa
+# MongoDB como conexion por defecto, que Pulse no soporta -- ver config/pulse.php
+# y la conexion 'sqlite' en config/database.php.
+RUN docker-php-ext-install pdo pdo_sqlite zip exif pcntl gd intl
 
 # Install MongoDB and Redis extensions
 RUN pecl install mongodb redis \
