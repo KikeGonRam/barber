@@ -695,11 +695,11 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '20:15'
+                  example: '21:01'
                 estado:
                   type: string
                   description: ''
-                  example: pendiente
+                  example: no_asistio
                   enum:
                     - pendiente
                     - confirmada
@@ -757,7 +757,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: confirmada
+                  example: pendiente
                   enum:
                     - pendiente
                     - confirmada
@@ -782,6 +782,58 @@ paths:
         required: true
         schema:
           type: string
+  /api/v1/barber/agenda:
+    get:
+      summary: "Agenda propia del barbero autenticado, con el mismo periodo, filtro y\nestadisticas que la vista web de Mi Agenda."
+      operationId: agendaPropiaDelBarberoAutenticadoConElMismoPeriodoFiltroYEstadisticasQueLaVistaWebDeMiAgenda
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Citas
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                period:
+                  type: string
+                  description: ''
+                  example: week
+                  enum:
+                    - day
+                    - week
+                estado:
+                  type: string
+                  description: ''
+                  example: no_asistio
+                  enum:
+                    - pendiente
+                    - confirmada
+                    - en_proceso
+                    - completada
+                    - cancelada
+                    - no_asistio
+                  nullable: true
+                offset:
+                  type: integer
+                  description: 'El campo value debe estar entre -365 y 365.'
+                  example: -364
+      security: []
   /api/stripe/webhook:
     post:
       summary: 'Punto de entrada del webhook: valida la firma de Stripe y despacha según el tipo de evento.'
@@ -1205,7 +1257,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: qr
+                  example: efectivo
                   enum:
                     - efectivo
                     - tarjeta
@@ -1302,7 +1354,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: efectivo
+                  example: transferencia
                   enum:
                     - efectivo
                     - tarjeta
@@ -1541,7 +1593,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T20:15:14'
+                  example: '2026-09-05T21:01:55'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -1561,7 +1613,7 @@ paths:
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -1599,7 +1651,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T20:15:14'
+                  example: '2026-09-05T21:01:55'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -1609,7 +1661,7 @@ paths:
                 pref_email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_sms:
                   type: boolean
@@ -1762,7 +1814,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -1852,7 +1904,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -2097,7 +2149,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '20:15'
+                  example: '21:01'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -2839,7 +2891,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -2928,7 +2980,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -3167,7 +3219,7 @@ paths:
                 type:
                   type: string
                   description: ''
-                  example: clientes
+                  example: ingresos
                   enum:
                     - ingresos
                     - citas
@@ -3187,12 +3239,12 @@ paths:
                 dateFrom:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T20:15:19'
+                  example: '2026-09-05T21:02:01'
                   nullable: true
                 dateTo:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T20:15:19'
+                  example: '2026-09-05T21:02:01'
                   nullable: true
                 detail:
                   type: string
@@ -3780,6 +3832,38 @@ paths:
       tags:
         - 'Gestión de Perfil'
       security: []
+  /api/v1/barber/profile:
+    post:
+      summary: "Actualiza bio, especialidades y foto del barbero. Es POST para que\nmultipart/form-data sea interpretado de forma consistente por PHP."
+      operationId: actualizaBioEspecialidadesYFotoDelBarberoEsPOSTParaQueMultipartformDataSeaInterpretadoDeFormaConsistentePorPHP
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Gestión de Perfil'
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                especialidades:
+                  type: string
+                  description: 'El campo value no debe tener más de 1000 caracteres.'
+                  example: b
+                  nullable: true
+                descripcion:
+                  type: string
+                  description: 'El campo value no debe tener más de 1000 caracteres.'
+                  example: 'n'
+                  nullable: true
+                foto:
+                  type: string
+                  format: binary
+                  description: 'El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes.'
+                  nullable: true
+      security: []
   /api/v1/barber/bio:
     get:
       summary: 'Devuelve solo especialidades y descripción del barbero autenticado (versión ligera de showBarberProfile).'
@@ -4121,12 +4205,12 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -4289,7 +4373,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T20:15:14'
+                  example: '2026-09-05T21:01:56'
                   nullable: true
               required:
                 - product_id
@@ -4388,7 +4472,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
@@ -4401,6 +4485,12 @@ paths:
                   description: 'Descripción del trabajo.'
                   example: 'Corte moderno con degradado lateral y textura superior'
                   nullable: true
+                media:
+                  type: array
+                  description: 'Must be a file. El campo value no debe pesar más de 51200 kilobytes.'
+                  items:
+                    type: string
+                    format: binary
                 images:
                   type: array
                   description: 'Array de imágenes (archivos).'
@@ -4408,7 +4498,6 @@ paths:
                     - architecto
                   items:
                     type: string
-                    nullable: true
               required:
                 - title
       security: []

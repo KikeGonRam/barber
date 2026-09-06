@@ -397,7 +397,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '20:15'
+        example: '21:01'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -408,7 +408,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: pendiente
+        example: no_asistio
         type: string
         enumValues:
           - pendiente
@@ -436,8 +436,8 @@ endpoints:
       barber_id: architecto
       service_id: architecto
       fecha: '2052-09-28'
-      hora_inicio: '20:15'
-      estado: pendiente
+      hora_inicio: '21:01'
+      estado: no_asistio
       notas: 'n'
     fileParameters: []
     responses: []
@@ -490,7 +490,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: confirmada
+        example: pendiente
         type: string
         enumValues:
           - pendiente
@@ -514,7 +514,7 @@ endpoints:
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      estado: confirmada
+      estado: pendiente
       notas: b
     fileParameters: []
     responses: []
@@ -563,6 +563,94 @@ endpoints:
     cleanBodyParameters: []
     fileParameters: []
     responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/barber/agenda
+    metadata:
+      custom: []
+      groupName: Citas
+      groupDescription: |-
+
+        Gestión de citas para clientes, barberos y administración.
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Agenda propia del barbero autenticado, con el mismo periodo, filtro y
+        estadisticas que la vista web de Mi Agenda.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      period:
+        custom: []
+        name: period
+        description: ''
+        required: false
+        example: week
+        type: string
+        enumValues:
+          - day
+          - week
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      estado:
+        custom: []
+        name: estado
+        description: ''
+        required: false
+        example: no_asistio
+        type: string
+        enumValues:
+          - pendiente
+          - confirmada
+          - en_proceso
+          - completada
+          - cancelada
+          - no_asistio
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      offset:
+        custom: []
+        name: offset
+        description: 'El campo value debe estar entre -365 y 365.'
+        required: false
+        example: -364
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      period: week
+      estado: no_asistio
+      offset: -364
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
     responseFields: []
     auth: []
     controller: null

@@ -8,6 +8,7 @@ use App\Exceptions\Domain\InvalidAppointmentTransitionException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
+use App\Models\Barber;
 use App\Models\Client;
 use App\Models\RaffleResult;
 use App\Models\Service;
@@ -89,6 +90,73 @@ class AppointmentController extends Controller
         $appointments = $query->limit(50)->get();
 
         return AppointmentResource::collection($appointments)->response();
+    }
+
+    /**
+     * Agenda propia del barbero autenticado, con el mismo periodo, filtro y
+     * estadisticas que la vista web de Mi Agenda.
+     */
+    public function barberAgenda(Request $request): JsonResponse
+    {
+        $barber = $request->user()?->barberProfile;
+        abort_if(! $barber, 403, 'No tienes perfil de barbero.');
+        assert($barber instanceof Barber);
+
+        $validated = $request->validate([
+            'period' => ['sometimes', 'string', 'in:day,week'],
+            'estado' => ['sometimes', 'nullable', 'string', 'in:pendiente,confirmada,en_proceso,completada,cancelada,no_asistio'],
+            'offset' => ['sometimes', 'integer', 'between:-365,365'],
+        ]);
+
+        $period = $validated['period'] ?? 'day';
+        $estado = $validated['estado'] ?? '';
+        $offset = (int) ($validated['offset'] ?? 0);
+        $baseDate = now()->addDays($offset);
+        $periodStart = $period === 'week' ? $baseDate->copy()->startOfWeek()->startOfDay() : $baseDate->copy()->startOfDay();
+        $periodEnd = $period === 'week' ? $baseDate->copy()->endOfWeek()->endOfDay() : $baseDate->copy()->endOfDay();
+
+        $allPeriod = Appointment::query()
+            ->where('barber_id', (string) $barber->id)
+            ->whereBetween('fecha', [$periodStart, $periodEnd])
+            ->get();
+        $total = $allPeriod->count();
+
+        $query = Appointment::query()
+            ->where('barber_id', (string) $barber->id)
+            ->with(['client.user', 'barber.user', 'service'])
+            ->whereBetween('fecha', [$periodStart, $periodEnd])
+            ->orderBy('fecha')
+            ->orderBy('hora_inicio');
+
+        if ($estado !== '') {
+            $query->where('estado', $estado);
+        }
+
+        return response()->json([
+            'data' => AppointmentResource::collection($query->get()),
+            'period' => $period,
+            'estado' => $estado,
+            'offset' => $offset,
+            'range' => [
+                'start' => $periodStart->toDateString(),
+                'end' => $periodEnd->toDateString(),
+                'label' => $period === 'week'
+                    ? $periodStart->translatedFormat('d M').' - '.$periodEnd->translatedFormat('d M Y')
+                    : $baseDate->translatedFormat('l, d \d\e F \d\e Y'),
+            ],
+            'stats' => [
+                'completed_count' => Appointment::query()->where('barber_id', (string) $barber->id)->where('estado', 'completada')->count(),
+                'income_total' => (float) Appointment::query()->where('barber_id', (string) $barber->id)->where('estado', 'completada')->sum('precio_cobrado'),
+                'productivity' => $total > 0 ? (int) round($allPeriod->where('estado', 'completada')->count() / $total * 100) : 0,
+                'total_period' => $total,
+                'pending_period' => $allPeriod->where('estado', 'pendiente')->count(),
+                'confirmed_period' => $allPeriod->where('estado', 'confirmada')->count(),
+                'in_process_period' => $allPeriod->where('estado', 'en_proceso')->count(),
+                'completed_period' => $allPeriod->where('estado', 'completada')->count(),
+                'cancelled_period' => $allPeriod->where('estado', 'cancelada')->count(),
+                'no_show_period' => $allPeriod->where('estado', 'no_asistio')->count(),
+            ],
+        ]);
     }
 
     /**

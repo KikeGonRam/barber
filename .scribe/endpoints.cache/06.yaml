@@ -73,7 +73,7 @@ endpoints:
       authenticated: false
       deprecated: false
     headers:
-      Content-Type: application/json
+      Content-Type: multipart/form-data
       Accept: application/json
     urlParameters: []
     cleanUrlParameters: []
@@ -102,6 +102,18 @@ endpoints:
         exampleWasSpecified: true
         nullable: true
         deprecated: false
+      media:
+        custom: []
+        name: media
+        description: 'Must be a file. El campo value no debe pesar más de 51200 kilobytes.'
+        required: false
+        example:
+          - null
+        type: 'file[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
       images:
         custom: []
         name: images
@@ -112,14 +124,16 @@ endpoints:
         type: 'string[]'
         enumValues: []
         exampleWasSpecified: false
-        nullable: true
+        nullable: false
         deprecated: false
     cleanBodyParameters:
       title: 'Corte Moderno con Degradado'
       description: 'Corte moderno con degradado lateral y textura superior'
       images:
         - architecto
-    fileParameters: []
+    fileParameters:
+      media:
+        - null
     responses:
       -
         custom: []

@@ -349,6 +349,77 @@ endpoints:
   -
     custom: []
     httpMethods:
+      - POST
+    uri: api/v1/barber/profile
+    metadata:
+      custom: []
+      groupName: 'Gestión de Perfil'
+      groupDescription: |-
+
+        Endpoints para gestionar el perfil del usuario autenticado.
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Actualiza bio, especialidades y foto del barbero. Es POST para que
+        multipart/form-data sea interpretado de forma consistente por PHP.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      especialidades:
+        custom: []
+        name: especialidades
+        description: 'El campo value no debe tener más de 1000 caracteres.'
+        required: false
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      descripcion:
+        custom: []
+        name: descripcion
+        description: 'El campo value no debe tener más de 1000 caracteres.'
+        required: false
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      foto:
+        custom: []
+        name: foto
+        description: 'El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      especialidades: b
+      descripcion: 'n'
+    fileParameters:
+      foto: null
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
       - GET
     uri: api/v1/barber/bio
     metadata:

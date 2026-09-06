@@ -423,7 +423,31 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 2
+			path: app/Http/Controllers/Api/Barber/BarberPortfolioController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Work\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Barber/BarberPortfolioController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 2
+			path: app/Http/Controllers/Api/Barber/BarberPortfolioController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: string, url\: string, type\: ''image''\|''video'', mime_type\: mixed\}, Closure\(App\\Models\\WorkImage\)\: array\{id\: string, url\: string, type\: ''image''\|''video'', mime_type\: mixed\} given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/Api/Barber/BarberPortfolioController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkImage\:\:\$mime_type\.$#'
+			identifier: property.notFound
+			count: 2
 			path: app/Http/Controllers/Api/Barber/BarberPortfolioController.php
 
 		-
@@ -909,7 +933,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 4
+			count: 1
 			path: app/Http/Controllers/Api/Profile/ProfileController.php
 
 		-

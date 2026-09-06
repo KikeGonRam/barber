@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Api\Barber;
 
 use App\Http\Controllers\Controller;
+use App\Models\Comment;
+use App\Models\Reaction;
+use App\Models\SavedWork;
 use App\Models\Work;
+use App\Models\WorkImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -48,18 +52,32 @@ class BarberPortfolioController extends Controller
             ->latest()
             ->get();
 
+        $workIds = $works->pluck('_id')->map(fn ($id) => (string) $id)->all();
+
         return response()->json([
-            'works' => $works->map(function ($work) {
+            'works' => $works->map(function (Work $work) {
                 return [
                     'id' => $work->id,
                     'title' => $work->title,
                     'description' => $work->description,
+                    'media' => $work->images->map(fn (WorkImage $item) => [
+                        'id' => (string) $item->id,
+                        'url' => asset('storage/'.$item->image),
+                        'type' => $item->isVideo() ? 'video' : 'image',
+                        'mime_type' => $item->mime_type,
+                    ])->values(),
                     'images' => $work->images->map(fn ($img) => asset('storage/'.$img->image))->values(),
                     'reactions_count' => $work->reactions->count(),
                     'comments_count' => $work->comments->count(),
                     'created_at' => $work->created_at,
                 ];
             })->values(),
+            'stats' => [
+                'total_works' => count($workIds),
+                'total_reactions' => empty($workIds) ? 0 : Reaction::whereIn('work_id', $workIds)->count(),
+                'total_comments' => empty($workIds) ? 0 : Comment::whereIn('work_id', $workIds)->count(),
+                'total_saves' => empty($workIds) ? 0 : SavedWork::whereIn('work_id', $workIds)->count(),
+            ],
         ]);
     }
 
@@ -90,9 +108,12 @@ class BarberPortfolioController extends Controller
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['nullable', 'image', 'max:2048'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'media' => ['nullable', 'array', 'max:10'],
+            'media.*' => ['file', 'mimetypes:image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,video/x-msvideo,video/mpeg,video/ogg', 'max:51200'],
+            // Compatibilidad con el contrato anterior de la API movil.
+            'images' => ['nullable', 'array', 'max:10'],
+            'images.*' => ['image', 'max:2048'],
         ]);
 
         $work = Work::create([
@@ -103,11 +124,28 @@ class BarberPortfolioController extends Controller
         ]);
 
         // Subir imágenes si existen
+        if ($request->hasFile('media')) {
+            foreach ($request->file('media') as $file) {
+                $mime = $file->getMimeType();
+                $isVideo = str_starts_with($mime, 'video/');
+                $path = $file->store($isVideo ? 'portfolio/videos' : 'portfolio', 'public');
+
+                $work->images()->create([
+                    'image' => $path,
+                    'type' => $isVideo ? 'video' : 'image',
+                    'mime_type' => $mime,
+                ]);
+            }
+        }
+
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('portfolio', 'public');
-
-                $work->images()->create(['image' => $path]);
+                $work->images()->create([
+                    'image' => $path,
+                    'type' => 'image',
+                    'mime_type' => $image->getMimeType(),
+                ]);
             }
         }
 
@@ -119,7 +157,12 @@ class BarberPortfolioController extends Controller
                 'id' => $work->id,
                 'title' => $work->title,
                 'description' => $work->description,
-                'images' => $work->images->map(fn ($img) => asset('storage/'.$img->image))->values(),
+                'media' => $work->images->map(fn (WorkImage $item) => [
+                    'id' => (string) $item->id,
+                    'url' => asset('storage/'.$item->image),
+                    'type' => $item->isVideo() ? 'video' : 'image',
+                    'mime_type' => $item->mime_type,
+                ])->values(),
             ],
         ], 201);
     }

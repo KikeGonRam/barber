@@ -181,8 +181,11 @@ Route::prefix('v1')->group(function (): void {
 
         // Solo barbero: su propio perfil/bio, portafolio y horario de trabajo.
         Route::middleware('role.custom:barbero')->group(function (): void {
+            Route::get('barber/agenda', [AppointmentController::class, 'barberAgenda']);
+
             // Bio/perfil propio del Barbero
             Route::get('barber/me', [ProfileController::class, 'showBarberProfile']);
+            Route::post('barber/profile', [ProfileController::class, 'updateBarberProfile']);
             Route::get('barber/bio', [ProfileController::class, 'showBarberBio']);
             Route::put('barber/bio', [ProfileController::class, 'updateBarberBio']);
 

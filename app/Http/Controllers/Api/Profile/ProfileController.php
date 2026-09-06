@@ -3,10 +3,16 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Barber\UpdateBarberProfileRequest;
 use App\Models\Appointment;
+use App\Models\Barber;
+use App\Models\BarberReview;
+use App\Models\Work;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 /**
@@ -147,6 +153,7 @@ class ProfileController extends Controller
         if (! $barber) {
             return response()->json(['message' => 'Perfil de barbero no encontrado'], 404);
         }
+        assert($barber instanceof Barber);
 
         $today = now()->toDateString();
         $startOfMonth = now()->startOfMonth()->toDateString();
@@ -158,6 +165,7 @@ class ProfileController extends Controller
             ->where('fecha', '>=', $startOfMonth)->count();
         $totalCompletadas = Appointment::where('barber_id', (string) $barber->id)
             ->where('estado', 'completada')->count();
+        $avgRating = BarberReview::where('barber_id', (string) $barber->id)->avg('rating');
 
         return response()->json([
             'id' => (string) $user->id,
@@ -165,14 +173,53 @@ class ProfileController extends Controller
             'email' => $user->email,
             'especialidades' => $barber->especialidades ?? '',
             'descripcion' => $barber->descripcion ?? '',
-            'calificacion_promedio' => round((float) ($barber->calificacion_promedio ?? 0), 1),
-            'total_resenas' => (int) ($barber->total_resenas ?? 0),
+            'foto_url' => $barber->foto ? Storage::url($barber->foto) : null,
+            'calificacion_promedio' => $avgRating ? round((float) $avgRating, 1) : null,
+            'total_resenas' => BarberReview::where('barber_id', (string) $barber->id)->count(),
             'activo' => (bool) ($barber->activo ?? true),
+            'member_since' => $user->created_at,
+            'years_experience' => max(1, (int) $user->created_at->diffInYears(now())),
+            'portfolio_total' => Work::where('barbero_id', (string) $user->id)->count(),
             'stats' => [
                 'citas_hoy' => $citasHoy,
                 'completadas_mes' => $completadasMes,
                 'total_completadas' => $totalCompletadas,
             ],
+        ]);
+    }
+
+    /**
+     * Actualiza bio, especialidades y foto del barbero. Es POST para que
+     * multipart/form-data sea interpretado de forma consistente por PHP.
+     */
+    public function updateBarberProfile(UpdateBarberProfileRequest $request): JsonResponse
+    {
+        $barber = $request->user()?->barberProfile;
+        abort_if(! $barber, 403, 'No tienes perfil de barbero.');
+        assert($barber instanceof Barber);
+
+        $payload = $request->validated();
+
+        if ($request->hasFile('foto')) {
+            if ($barber->foto && Storage::disk('public')->exists($barber->foto)) {
+                Storage::disk('public')->delete($barber->foto);
+            }
+
+            $directory = 'barbers/'.(string) $request->user()->id.'/'.now()->format('d/m/Y');
+            $payload['foto'] = $request->file('foto')->storeAs(
+                $directory,
+                Str::uuid().'.'.$request->file('foto')->getClientOriginalExtension(),
+                'public',
+            );
+        }
+
+        $barber->update($payload);
+
+        return response()->json([
+            'message' => 'Perfil de barbero actualizado.',
+            'especialidades' => $barber->especialidades ?? '',
+            'descripcion' => $barber->descripcion ?? '',
+            'foto_url' => $barber->foto ? Storage::url($barber->foto) : null,
         ]);
     }
 
