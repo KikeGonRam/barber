@@ -2,6 +2,7 @@
 
 namespace App\Services\Chatbot;
 
+use App\Models\ChatMessage;
 use Illuminate\Support\Facades\Session;
 
 /**
@@ -9,6 +10,14 @@ use Illuminate\Support\Facades\Session;
  * (sin persistencia en BD): detecta intencion, entidades y preguntas de
  * seguimiento en base a heuristicas simples, y arma el contexto aumentado
  * que se inyecta en el prompt enviado al modelo de IA.
+ *
+ * Además, de forma aditiva y en paralelo (sin cambiar nada del
+ * comportamiento de sesión de arriba), persiste cada mensaje en Mongo
+ * (ChatMessage) cuando hay un usuario autenticado — ver getPersistedHistory()
+ * / getPersistedSummary(), usados por la API (Api\Chatbot\
+ * ChatbotManagementController) en vez del historial de sesión, porque un
+ * cliente Bearer-token sin cookie (Nuxt) nunca conserva sesión entre
+ * requests.
  */
 class ChatbotContextService
 {
@@ -47,6 +56,66 @@ class ChatbotContextService
         }
 
         Session::put($key, $history);
+
+        $this->persistMessage($message, $response, $type, $userId);
+    }
+
+    /**
+     * Copia aditiva a Mongo (ChatMessage) del mismo mensaje que ya se
+     * guardó en sesión — solo si hay un usuario autenticado (invitados
+     * siguen sin persistencia real, mismo comportamiento de antes). No
+     * reemplaza la sesión, solo la complementa para clientes sin cookie.
+     */
+    private function persistMessage(string $message, string $response, string $type, $userId = null): void
+    {
+        $resolvedUserId = $userId ?? auth()->id();
+
+        if (! $resolvedUserId) {
+            return;
+        }
+
+        ChatMessage::create([
+            'user_id' => (string) $resolvedUserId,
+            'message' => $message,
+            'response' => $response,
+            'type' => $type,
+        ]);
+    }
+
+    /**
+     * Historial persistido en Mongo de un usuario autenticado, en el mismo
+     * shape que getConversationHistory() (sin 'context', que solo tiene
+     * sentido para el motor de sesión) — para que la API que lo consume no
+     * tenga que distinguir entre ambas fuentes.
+     */
+    public function getPersistedHistory(string $userId, int $limit = 20): array
+    {
+        return ChatMessage::where('user_id', $userId)
+            ->latest('created_at')
+            ->limit($limit)
+            ->get()
+            ->reverse()
+            ->values()
+            ->map(fn (ChatMessage $m) => [
+                'timestamp' => optional($m->created_at)->toIso8601String(),
+                'type' => $m->type,
+                'message' => $m->message,
+                'response' => $m->response,
+                // Recalculado (no guardado) para que getPersistedSummary()
+                // pueda armar main_topics/intents igual que la versión de
+                // sesión, sin duplicar esos campos en cada documento Mongo.
+                'context' => $this->extractContext($m->message),
+            ])
+            ->all();
+    }
+
+    /**
+     * Mismo resumen que getConversationSummary(), pero sobre el historial
+     * persistido en Mongo en vez del de sesión.
+     */
+    public function getPersistedSummary(string $userId): array
+    {
+        return $this->summarize($this->getPersistedHistory($userId));
     }
 
     /**
@@ -288,12 +357,22 @@ class ChatbotContextService
 
     /**
      * Limpia el historial de conversación. Efecto secundario: borra la
-     * clave de sesion correspondiente.
+     * clave de sesion correspondiente, y — si hay usuario autenticado —
+     * también su historial persistido en Mongo (ChatMessage), para que
+     * "limpiar historial" desde la API/Nuxt de verdad limpie lo que esa
+     * misma API lee (getPersistedHistory()), no solo la sesión que Nuxt
+     * nunca usa.
      */
     public function clearHistory($userId = null): void
     {
         $key = $this->getSessionKey($userId);
         Session::forget($key);
+
+        $resolvedUserId = $userId ?? auth()->id();
+
+        if ($resolvedUserId) {
+            ChatMessage::where('user_id', (string) $resolvedUserId)->delete();
+        }
     }
 
     /**
@@ -302,8 +381,16 @@ class ChatbotContextService
      */
     public function getConversationSummary($userId = null): array
     {
-        $history = $this->getConversationHistory($userId);
+        return $this->summarize($this->getConversationHistory($userId));
+    }
 
+    /**
+     * Cuerpo compartido de getConversationSummary()/getPersistedSummary() —
+     * ambas arman el mismo resumen, solo cambia de dónde viene $history
+     * (sesión vs. Mongo).
+     */
+    private function summarize(array $history): array
+    {
         $summary = [
             'total_messages' => count($history),
             'user_messages' => 0,

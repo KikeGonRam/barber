@@ -62,8 +62,11 @@ Route::prefix('v1')->group(function (): void {
     Route::get('availability/slots', [AvailabilityController::class, 'slots'])->middleware('throttle:30,1');
     Route::get('social/feed', [ApiSocialController::class, 'feed'])->middleware('mobile.auth.optional');
 
-    // Chatbot (público con rate limiting)
-    Route::post('chatbot/query', [ChatbotController::class, 'query'])->middleware('throttle:10,1');
+    // Chatbot (público con rate limiting; mobile.auth.optional para que, si
+    // hay un token válido, el mensaje quede asociado y persistido en Mongo
+    // -- ver ChatbotContextService::persistMessage() -- sin exigir sesión a
+    // invitados, mismo criterio que social/feed).
+    Route::post('chatbot/query', [ChatbotController::class, 'query'])->middleware(['throttle:10,1', 'mobile.auth.optional']);
 
     // Rutas protegidas (requieren token Bearer): disponibles para cualquier usuario
     // autenticado; los sub-grupos de abajo añaden restricción por rol.

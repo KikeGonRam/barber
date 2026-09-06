@@ -1879,6 +1879,36 @@ parameters:
 			path: app/Services/Campaign/CampaignDispatcher.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\ChatMessage\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Chatbot/ChatbotContextService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ChatMessage\:\:\$message\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Chatbot/ChatbotContextService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ChatMessage\:\:\$response\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Chatbot/ChatbotContextService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ChatMessage\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Chatbot/ChatbotContextService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ChatMessage\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Chatbot/ChatbotContextService.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$puntuacion\.$#'
 			identifier: property.notFound
 			count: 1

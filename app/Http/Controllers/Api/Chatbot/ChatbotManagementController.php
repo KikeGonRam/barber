@@ -24,12 +24,16 @@ class ChatbotManagementController extends Controller
      * Historial de Conversaciones (API)
      *
      * Devuelve el historial de conversaciones del usuario con el chatbot.
+     * A diferencia del widget Blade (sesión), este endpoint lo consume un
+     * cliente Bearer-token sin cookie (Nuxt) que nunca conserva sesión
+     * entre requests — por eso lee de la copia persistida en Mongo
+     * (ChatbotContextService::getPersistedHistory()) en vez de la sesión.
      */
     public function getHistory(Request $request): JsonResponse
     {
-        $userId = auth()->id();
-        $history = $this->contextService->getConversationHistory($userId);
-        $summary = $this->contextService->getConversationSummary($userId);
+        $userId = (string) auth()->id();
+        $history = $this->contextService->getPersistedHistory($userId);
+        $summary = $this->contextService->getPersistedSummary($userId);
 
         return response()->json([
             'history' => $history,

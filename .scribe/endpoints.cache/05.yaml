@@ -19,7 +19,12 @@ endpoints:
       subgroup: ''
       subgroupDescription: ''
       title: 'Historial de Conversaciones (API)'
-      description: 'Devuelve el historial de conversaciones del usuario con el chatbot.'
+      description: |-
+        Devuelve el historial de conversaciones del usuario con el chatbot.
+        A diferencia del widget Blade (sesión), este endpoint lo consume un
+        cliente Bearer-token sin cookie (Nuxt) que nunca conserva sesión
+        entre requests — por eso lee de la copia persistida en Mongo
+        (ChatbotContextService::getPersistedHistory()) en vez de la sesión.
       authenticated: false
       deprecated: false
     headers:
