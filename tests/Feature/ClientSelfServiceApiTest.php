@@ -105,7 +105,7 @@ class ClientSelfServiceApiTest extends TestCase
         $newBarberUser = User::create(['name' => 'Otro Barbero', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
         $newBarber = Barber::create(['user_id' => (string) $newBarberUser->id, 'nombre' => 'Otro Barbero', 'activo' => true]);
 
-        $response = $this->withToken($this->clientToken)->putJson("/api/v1/appointments/{$appointment->code}", [
+        $response = $this->withToken($this->clientToken)->putJson("/api/v1/appointments/{$appointment->getAttribute('code')}", [
             'barber_id' => (string) $newBarber->id,
             'service_id' => (string) $this->service->id,
             'fecha' => now()->addDays(7)->toDateString(),
@@ -117,14 +117,14 @@ class ClientSelfServiceApiTest extends TestCase
 
         $appointment->refresh();
         $this->assertSame((string) $newBarber->id, (string) $appointment->barber_id);
-        $this->assertSame(now()->addDays(7)->toDateString(), $appointment->fecha->toDateString());
+        $this->assertSame(now()->addDays(7)->toDateString(), substr((string) $appointment->fecha, 0, 10));
     }
 
     public function test_client_cannot_reschedule_a_completed_appointment(): void
     {
         $appointment = $this->makeAppointment(['estado' => 'completada']);
 
-        $response = $this->withToken($this->clientToken)->putJson("/api/v1/appointments/{$appointment->code}", [
+        $response = $this->withToken($this->clientToken)->putJson("/api/v1/appointments/{$appointment->getAttribute('code')}", [
             'barber_id' => (string) $this->barber->id,
             'service_id' => (string) $this->service->id,
             'fecha' => now()->addDays(7)->toDateString(),
@@ -141,7 +141,7 @@ class ClientSelfServiceApiTest extends TestCase
         $otherClient = Client::create(['user_id' => (string) $otherClientUser->id, 'telefono' => '5550003333']);
         $appointment = $this->makeAppointment(['client_id' => (string) $otherClient->id, 'estado' => 'pendiente']);
 
-        $response = $this->withToken($this->clientToken)->putJson("/api/v1/appointments/{$appointment->code}", [
+        $response = $this->withToken($this->clientToken)->putJson("/api/v1/appointments/{$appointment->getAttribute('code')}", [
             'barber_id' => (string) $this->barber->id,
             'service_id' => (string) $this->service->id,
             'fecha' => now()->addDays(7)->toDateString(),
@@ -159,7 +159,7 @@ class ClientSelfServiceApiTest extends TestCase
             'estado' => 'confirmada',
         ]);
 
-        $response = $this->withToken($this->clientToken)->deleteJson("/api/v1/appointments/{$appointment->code}");
+        $response = $this->withToken($this->clientToken)->deleteJson("/api/v1/appointments/{$appointment->getAttribute('code')}");
 
         $response->assertStatus(422)
             ->assertJsonPath('message', 'Solo puedes cancelar con al menos 24 horas de anticipación.');
@@ -170,7 +170,7 @@ class ClientSelfServiceApiTest extends TestCase
     {
         $appointment = $this->makeAppointment(['fecha' => now()->addDays(5)->toDateString(), 'estado' => 'confirmada']);
 
-        $response = $this->withToken($this->clientToken)->deleteJson("/api/v1/appointments/{$appointment->code}");
+        $response = $this->withToken($this->clientToken)->deleteJson("/api/v1/appointments/{$appointment->getAttribute('code')}");
 
         $response->assertOk();
         $this->assertSame('cancelada', $appointment->fresh()->estado);
