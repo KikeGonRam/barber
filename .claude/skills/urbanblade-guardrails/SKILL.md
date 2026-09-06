@@ -533,8 +533,11 @@ el árbol de `app/`+`resources/views/`, no solo en las vistas del controlador
 que se estaba borrando. Cualquier retiro de rutas futuro debería repetir ese
 barrido completo antes de confiar en que "ya no hay nada apuntando ahí".
 
-**Estado real al cerrar:** CI en verde en cada push de todo este proceso,
-`.\test.ps1` en 260 tests pasando dos veces seguidas tras el retiro final,
-Pint y Larastan (caché fría) limpios. Este repo es ahora, funcionalmente,
-una API JSON para Nuxt más un puñado de páginas públicas/de cuenta que Nuxt
-todavía no construye — ya no un panel administrativo completo.
+**Estado real al cerrar (actualizado tras el paso 3, guardrail #19):** CI en
+verde en cada push de todo este proceso, `.\test.ps1` en 261 tests pasando
+dos veces seguidas tras el retiro de `/descubrir`+`/resenas`, Pint y Larastan
+(caché fría) limpios. Este repo es ahora, funcionalmente, una API JSON para
+Nuxt más un puñado de páginas públicas/de cuenta que Nuxt todavía no
+construye — ya no un panel administrativo completo. No hay fases de
+migración pendientes; lo que sigue en Blade (guardrail #19) es una lista
+cerrada, no un backlog.
