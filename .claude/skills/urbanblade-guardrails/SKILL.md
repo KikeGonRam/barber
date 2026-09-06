@@ -453,6 +453,27 @@ accumulates there forever. Two real, confirmed-live incidents from this:
   `DatabaseNotification::count()` before and after, the same way `withTrashed()->count()`
   is used for the SoftDeletes gotcha above.
 
+## 23. New scope (2026-09-06): push notifications + AI chat integration in Nuxt — plan lives in `frontend-urban`
+
+The project owner requested two new features after the Nuxt migration closed: web
+push notifications for upcoming appointments, and migrating the existing chatbot
+(`app/Http/Controllers/Chatbot/ChatbotController.php`, already API-exposed under
+`routes/api.php`) into a real Nuxt chat widget. Full architecture plan — decisions,
+phases, gotchas already anticipated — lives in
+`frontend-urban/.claude/skills/push-and-chat-plan/SKILL.md`, not here (this repo's
+side is mostly backend plumbing for features that render in Nuxt). Two things worth
+knowing from that plan if you're starting work from this repo instead:
+- Push will be plain Web Push (VAPID), a NEW `PushSubscription` Mongo model, and a
+  new custom `WebPushChannel` (same pattern as the existing `TwilioChannel`) — not
+  FCM/OneSignal, and not a Laravel package that assumes MySQL migrations.
+- The chatbot's biggest open question is that `ChatbotContextService` stores
+  conversation history in the PHP session, which the Bearer-token/Nuxt flow doesn't
+  reliably share across requests — this needs confirming experimentally before
+  building persistence, per that plan's Fase 3.
+This is genuinely new scope, not unfinished migration work — `nuxt-migration-plan`'s
+final report explicitly listed notifications/chatbot as a conscious exclusion, not a
+gap, right before this request came in.
+
 ## 19. This rule set can go stale within hours — don't treat it as complete
 
 Every guardrail above except #1 was added or corrected on 2026-09-02/03/04/05, several of
