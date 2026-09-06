@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Barber\BarberController;
-use App\Http\Controllers\Barber\ReviewController;
 use App\Http\Controllers\Campaign\TrackingController;
 use App\Http\Controllers\Chatbot\ChatbotController;
 use App\Http\Controllers\Client\MembershipController;
@@ -10,7 +9,6 @@ use App\Http\Controllers\Dashboard\DatabaseBackupController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Service\ServiceController;
-use App\Http\Controllers\Social\SocialController;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
@@ -60,18 +58,6 @@ Route::middleware(['auth'])->group(function () {
         ->name('chatbot.train-history');
 });
 
-// Social Feed (Instagram Style) — sin equivalente en Nuxt todavía (aparece
-// como "Muro Inspiración" marcado "Próx." en frontend-urban).
-Route::get('/descubrir', [SocialController::class, 'feed'])->name('social.feed');
-
-// Rutas del feed social que requieren usuario autenticado y verificado.
-Route::middleware(['auth', 'verified'])->group(function () {
-    // Interactions
-    Route::post('/social/work/{work}/react', [SocialController::class, 'react'])->name('social.react');
-    Route::post('/social/work/{work}/save', [SocialController::class, 'save'])->name('social.save');
-    Route::post('/social/work/{work}/comment', [SocialController::class, 'comment'])->name('social.comment');
-});
-
 // Antes renderizaba Inertia\Vue (ver .claude/skills/inertia-vue-migration/SKILL.md);
 // retirado porque Nuxt (frontend-urban) ya tiene los 4 dashboards por rol con
 // paridad funcional confirmada. Sin middleware 'auth' a propósito: Nuxt
@@ -113,15 +99,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markOneRead'])->name('notifications.read-one');
 
-    // Rutas exclusivas del rol administrador que Nuxt todavía no cubre:
-    // respaldo de BD (utilidad, no una pantalla) y reseñas de clientes a
-    // barberos (nunca se migró — ver frontend-urban, "Reseñas" sigue "Próx.").
+    // Ruta exclusiva del rol administrador que Nuxt todavía no cubre:
+    // respaldo de BD (utilidad, no una pantalla).
     Route::middleware(['verified', 'role.custom:administrador'])->group(function () {
         Route::get('backups/database', [DatabaseBackupController::class, 'download'])->name('backups.database.download');
-
-        Route::middleware('permission.custom:barberos.gestionar')->group(function () {
-            Route::get('resenas', [ReviewController::class, 'index'])->name('reviews.index');
-        });
     });
 
     // Tarjeta de membresía del cliente (descarga de PDF) — sin equivalente en Nuxt todavía.

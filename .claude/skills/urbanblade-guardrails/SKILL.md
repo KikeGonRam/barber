@@ -304,6 +304,28 @@ proceeds:
   dropping zero-item sections instead of rendering them.
 - This does NOT reopen `spark`/`mobil` scope (guardrail #10 still applies) — it's a new,
   separate, currently-active third repo alongside `barber`.
+- **2026-09-06, later the same day: the last two surviving Blade pages — `/descubrir`
+  (social feed) and `reviews.index` (`/resenas`) — were also retired**, once Nuxt shipped
+  its own Muro Inspiración (`/social/feed`) and Reseñas (`/reviews`) pages with confirmed
+  parity. Removed: `Social\SocialController` and `Barber\ReviewController` (web, both
+  fully deleted — no shared method worth trimming, unlike `ServiceController`/
+  `BarberController` above), their Blade views (`resources/views/social/`,
+  `resources/views/reviews/`), the `social.feed`/`social.react`/`social.save`/
+  `social.comment`/`reviews.index` route registrations, and `ReviewControllerTest.php`
+  (the web-route test — `ReviewApiTest.php`/`SocialApiTest.php` for the JSON API stay).
+  Same landmine as before, same fix: `command-palette.blade.php`'s hardcoded
+  `route('social.feed')` and `BarberReviewFlaggedNotification`'s `route('reviews.index')`
+  both pointed at now-deleted routes — repointed at `config('app.frontend_url')` (the
+  notification one had actually already wrapped itself in try/catch as a defensive
+  half-measure; replaced with the direct frontend_url call like every other fixed
+  Notification class instead of keeping the try/catch). `NavigationMenu::sections()`'s
+  two `Route::has()`-guarded items for these pages were removed outright rather than
+  left to silently resolve to null forever, and `RoleAuthorizationTest.php`'s
+  `reviews.index`-specific assertions were ported to `backups.database.download`
+  (the one remaining role-gated Blade page) so the auth-chain coverage isn't lost.
+  `NavigationMenu::sections()` is now down to a single hardcoded item ("Dashboard") —
+  worth a real look before adding the *next* thing here, since the whole
+  collect/map/reject scaffolding built for many conditional sections is now serving one.
 
 ## 20. Some models bind routes by a pretty key, not `id` — `Client`/`Barber`/`Service` use `slug`, `Appointment` uses `code`
 
@@ -483,12 +505,19 @@ se construyó `Api\Analytics\AnalyticsController` para desbloquearla.
 no deuda técnica):** la landing pública (`/`), el catálogo público
 (`/servicios`, `/equipo/{barber}`), todo `routes/auth.php` (login, registro,
 recuperación de contraseña, verificación de email), `/profile`,
-`/notifications`, los endpoints del chatbot, el muro social (`/descubrir` —
-listado "Próximamente" en la nav de Nuxt), `reviews.index` (`/resenas` —
-también "Próximamente" ahí), el endpoint de respaldo de base de datos, y la
-tarjeta de membresía en PDF del cliente. `/dashboard` y
+`/notifications`, los endpoints del chatbot, el endpoint de respaldo de base
+de datos, y la tarjeta de membresía en PDF del cliente. `/dashboard` y
 `/appointments-calendar` siguen existiendo como rutas, pero ahora son
 redirects a `config('app.frontend_url')` (env `FRONTEND_URL`), no páginas.
+
+**Paso 3, mismo día más tarde:** el muro social (`/descubrir`) y
+`reviews.index` (`/resenas`) — las dos últimas páginas Blade con "página
+real" detrás — se retiraron también en cuanto Nuxt construyó Muro
+Inspiración (`/social/feed`) y Reseñas (`/reviews`) con paridad confirmada.
+Ver guardrail #19 arriba para el detalle. Con esto, todo lo que sobrevive en
+Blade es: landing pública, catálogo público, auth, perfil, notificaciones,
+chatbot, respaldo de BD, y la tarjeta de membresía — nada que tenga (o vaya
+a tener) un equivalente propio en Nuxt en el corto plazo.
 
 **El hallazgo más importante del proceso de retiro**, por si se repite un
 retiro similar en el futuro: `route()` de Laravel lanza excepción si la ruta

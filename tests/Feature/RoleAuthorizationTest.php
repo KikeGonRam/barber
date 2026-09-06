@@ -19,9 +19,10 @@ use Tests\TestCase;
  * RolePermissionSeeder (no fixtures inventadas). Antes cubría también
  * appointments/clients/reports/users/etc. — esas rutas se retiraron junto
  * con sus páginas Blade (Nuxt tiene paridad funcional confirmada), así que
- * esas aserciones se reemplazaron por las de reviews.index/
+ * esas aserciones se reemplazaron por las de
  * client.membership.card/backups.database.download, las únicas páginas
- * protegidas por rol que quedan en Blade.
+ * protegidas por rol que quedan en Blade (reviews.index/social.feed también
+ * se retiraron una vez Nuxt alcanzó paridad con Muro Inspiración/Reseñas).
  */
 class RoleAuthorizationTest extends TestCase
 {
@@ -88,7 +89,6 @@ class RoleAuthorizationTest extends TestCase
 
     public function test_guest_is_redirected_to_login_on_protected_routes(): void
     {
-        $this->get(route('reviews.index'))->assertRedirect(route('login'));
         $this->get(route('backups.database.download'))->assertRedirect(route('login'));
         $this->get(route('client.membership.card'))->assertRedirect(route('login'));
     }
@@ -97,19 +97,7 @@ class RoleAuthorizationTest extends TestCase
     {
         $this->admin->forceFill(['email_verified_at' => null])->save();
 
-        $this->actingAs($this->admin)->get(route('reviews.index'))->assertRedirect(route('verification.notice'));
-    }
-
-    /**
-     * reviews.index vive en role.custom:administrador +
-     * permission.custom:barberos.gestionar — solo admin la tiene sembrada.
-     */
-    public function test_reviews_index_is_admin_only(): void
-    {
-        $this->actingAs($this->admin)->get(route('reviews.index'))->assertOk();
-        $this->actingAs($this->recepcionista)->get(route('reviews.index'))->assertForbidden();
-        $this->actingAs($this->barbero)->get(route('reviews.index'))->assertForbidden();
-        $this->actingAs($this->cliente)->get(route('reviews.index'))->assertForbidden();
+        $this->actingAs($this->admin)->get(route('backups.database.download'))->assertRedirect(route('verification.notice'));
     }
 
     public function test_backups_database_download_is_admin_only(): void
@@ -160,7 +148,6 @@ class RoleAuthorizationTest extends TestCase
         ]);
         $noRole->forceFill(['email_verified_at' => now()])->save();
 
-        $this->actingAs($noRole)->get(route('reviews.index'))->assertForbidden();
         $this->actingAs($noRole)->get(route('backups.database.download'))->assertForbidden();
         $this->actingAs($noRole)->get(route('client.membership.card'))->assertForbidden();
     }

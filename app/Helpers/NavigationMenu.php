@@ -15,7 +15,6 @@ class NavigationMenu
 {
     private const ICONS = [
         'dashboard' => '<path d="M3 12l9-8 9 8v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />',
-        'wall' => '<path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />',
         'appointments' => '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',
         'calendar' => '<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/><circle cx="12" cy="15" r="2"/>',
         'clients' => '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
@@ -39,7 +38,6 @@ class NavigationMenu
         'invoices' => '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
         'notifications' => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
         'analytics' => '<path d="M3 3v18h18"/><path d="M18.7 8.3l-4.2 4.2-2.8-2.8L7 14.4"/>',
-        'reviews' => '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
         'raffles' => '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>',
     ];
 
@@ -54,40 +52,22 @@ class NavigationMenu
             return [];
         }
 
-        // hasRoleName() (no hasRole() de Spatie) — hasRole() depende de la
-        // relacion roles() de Spatie, que en Mongo devuelve falsos negativos
-        // intermitentes segun el orden de carga del request (ver el comentario
-        // largo en User::roleNames()). Usarlo aqui causaba que el sidebar
-        // completo desapareciera para un usuario sin ningun aviso.
-        $isAdmin = $user->hasRoleName('administrador');
-
         $sections = [];
 
         // El resto del panel (citas, calendario, clientes, pagos, pedidos,
         // inventario, servicios, usuarios, barberos, campañas, sorteos,
-        // reportes, configuración, logs, analítica, y todo el autoservicio
-        // de cliente/barbero) se retiró de Blade: Nuxt (frontend-urban)
-        // tiene paridad funcional confirmada para cada una de esas páginas.
+        // reportes, configuración, logs, analítica, "Muro Inspiración" y
+        // "Reseñas" — estas dos últimas hasta hoy, ver el skill de
+        // guardrails) se retiró de Blade: Nuxt (frontend-urban) tiene
+        // paridad funcional confirmada para cada una de esas páginas.
         // "Dashboard" sigue existiendo como item porque la ruta redirige a
-        // Nuxt en vez de renderizar Blade (ver routes/web.php). "Reseñas"
-        // es la única pantalla de gestión que sobrevive: nunca se migró a
-        // Nuxt (sigue "Próximamente" ahí).
+        // Nuxt en vez de renderizar Blade (ver routes/web.php).
         $sections[] = [
             'title' => 'Principal',
             'items' => array_filter([
                 self::item('Dashboard', 'dashboard', 'dashboard', ['dashboard'], primary: true),
-                self::item('Muro Inspiración', 'social.feed', 'wall', ['social.feed']),
             ]),
         ];
-
-        if ($isAdmin) {
-            $sections[] = [
-                'title' => 'Gestion',
-                'items' => array_filter([
-                    self::item('Reseñas', 'reviews.index', 'reviews', ['reviews.*']),
-                ]),
-            ];
-        }
 
         // Enriquecer cada sección con metadata para el acordeón del sidebar:
         // - key: id estable (para recordar abierto/cerrado en localStorage)
@@ -98,7 +78,7 @@ class NavigationMenu
         // vez de mostrarse vacías.
         return collect($sections)
             ->map(function (array $section) {
-                $items = array_values($section['items']);
+                $items = $section['items'];
 
                 return [
                     'title' => $section['title'],

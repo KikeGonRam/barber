@@ -6,7 +6,7 @@
     // existiendo en Blade para cualquier rol autenticado.
     $paletteCommands = [
         ['id' => 5, 'name' => 'Dashboard Principal', 'icon' => 'M3 12l9-8 9 8v8a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z', 'url' => route('dashboard'), 'shortcut' => 'D'],
-        ['id' => 7, 'name' => 'Muro Inspiración', 'icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'url' => route('social.feed'), 'shortcut' => 'I'],
+        ['id' => 7, 'name' => 'Muro Inspiración', 'icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'url' => config('app.frontend_url').'/social/feed', 'shortcut' => 'I'],
         ['id' => 6, 'name' => 'Mi Perfil', 'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', 'url' => route('profile.edit'), 'shortcut' => 'U'],
     ];
 @endphp

@@ -13,8 +13,7 @@ use Illuminate\Notifications\Notification;
  * BarberReviewService::FLAGGED_RATING_THRESHOLD), con el comentario completo
  * incluido: antes de esto ninguna reseña, buena o mala, generaba ningún
  * aviso — solo se veía si alguien entraba a revisar el perfil del barbero a
- * mano. Incluye un link al panel de reseñas (ver ReviewController) porque
- * el admin no tenía antes ninguna pantalla para ver reseñas individuales.
+ * mano. Incluye un link al panel de reseñas en Nuxt (frontend-urban).
  */
 class BarberReviewFlaggedNotification extends Notification implements ShouldQueue
 {
@@ -85,10 +84,6 @@ class BarberReviewFlaggedNotification extends Notification implements ShouldQueu
 
     private function reviewsUrl(): string
     {
-        try {
-            return route('reviews.index');
-        } catch (\Throwable $e) {
-            return url('/');
-        }
+        return config('app.frontend_url').'/reviews';
     }
 }
