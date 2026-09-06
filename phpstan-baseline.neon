@@ -91,12 +91,6 @@ parameters:
 			path: app/Exports/GenericReportExport.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Analytics/AnalyticsController.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
@@ -1003,30 +997,6 @@ parameters:
 			path: app/Http/Controllers/Api/Social/SocialController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 5
-			path: app/Http/Controllers/Appointment/AppointmentController.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Client\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
-			count: 1
-			path: app/Http/Controllers/Appointment/AppointmentController.php
-
-		-
-			message: '#^Parameter \#1 \$client of method App\\Services\\Loyalty\\LoyaltyService\:\:awardCitaPoints\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Appointment/AppointmentController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Appointment/AppointmentController.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\User\:\:\$verification_code\.$#'
 			identifier: property.notFound
 			count: 1
@@ -1043,24 +1013,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/Barber/BarberController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 8
-			path: app/Http/Controllers/Barber/BarberDashboardController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:schedules\(\)\.$#'
-			identifier: method.notFound
-			count: 4
-			path: app/Http/Controllers/Barber/BarberDashboardController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$programada_para\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Campaign/CampaignController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$cta_url\.$#'
@@ -1081,148 +1033,10 @@ parameters:
 			path: app/Http/Controllers/Chatbot/ChatbotController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/CartController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientAppointmentController.php
-
-		-
-			message: '#^Cannot call method format\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: app/Http/Controllers/Client/ClientAppointmentController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>politica_cancelacion" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Client/ClientAppointmentController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$citas_completadas\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientBarberController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientBarberController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$barber\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fecha\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Support\\HigherOrderCollectionProxy\<string, Illuminate\\Database\\Eloquent\\Model, Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\>\:\:\$payments\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientController.php
-
-		-
-			message: '#^Parameter \#1 \$value of static method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Appointment\>\:\:raw\(\) expects float\|int\|literal\-string, Closure\(mixed\)\: mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Client/ClientController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Client/ClientController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Client/ClientController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$client_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientInvoiceController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nivel\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientPaymentController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/ClientPaymentController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>nivel" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Client/ClientPaymentController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>precio" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Client/ClientPaymentController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$client_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/OrderController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Client/OrderController.php
-
-		-
-			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
-			identifier: larastan.noUnnecessaryCollectionCall
-			count: 1
-			path: app/Http/Controllers/Client/StoreController.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Connection\:\:getDatabase\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/Dashboard/DatabaseBackupController.php
-
-		-
-			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|literal\-string, array\{''\$expr''\: array\{''\$lte''\: array\{''\$stock_actual'', ''\$stock_minimo''\}\}\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Inventory/InventoryMovementController.php
-
-		-
-			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|literal\-string, array\{''\$expr''\: array\{''\$lte''\: array\{''\$stock_actual'', ''\$stock_minimo''\}\}\} given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Http/Controllers/Inventory/ProductController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$read_at\.$#'
@@ -1235,66 +1049,6 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/Notification/NotificationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$premio\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Payment/PaymentController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Payment/PaymentController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$premio_rifa_activo\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Payment/PaymentController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Reception/OrderController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/Reception/OrderController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Http/Controllers/Reception/OrderController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/Reception/OrderController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/Reception/OrderController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Reception/OrderController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Social/BarberPortfolioController.php
 
 		-
 			message: '#^Cannot call method isPast\(\) on string\.$#'
@@ -2529,13 +2283,13 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Barber\>\:\:\$calificacion_promedio\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: tests/Feature/ClientBarberReviewTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Barber\>\:\:\$total_resenas\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: tests/Feature/ClientBarberReviewTest.php
 
 		-
@@ -2664,11 +2418,6 @@ parameters:
 			count: 2
 			path: tests/Feature/PaymentServiceIntegrationTest.php
 
-		-
-			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'
-			identifier: property.notFound
-			count: 1
-			path: tests/Feature/RoleAuthorizationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'
@@ -2873,3 +2622,9 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/Api/Analytics/AnalyticsController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/Barber/ReviewRequestNotification.php

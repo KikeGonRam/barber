@@ -46,10 +46,10 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        // Use the client-accessible download route so the client can open it directly.
-        $url = $this->payment->id
-            ? route('client.facturas.download', $this->payment)
-            : route('client.facturas.index');
+        // Manda a la lista de facturas del cliente en Nuxt (no hay ruta de
+        // descarga directa por id ahí — el botón de descarga en esa página
+        // llama a la API bajo demanda, ver PaymentController::receipt()).
+        $url = config('app.frontend_url').'/my/invoices';
 
         $appt = $this->payment->appointment;
         $service = $appt?->service?->nombre ?? 'Servicio';

@@ -82,10 +82,9 @@ class BarberPerformanceReportNotification extends Notification implements Should
 
     private function barbersUrl(): string
     {
-        try {
-            return route('barbers.index');
-        } catch (\Throwable $e) {
-            return url('/');
-        }
+        // No hay página de gestión de barberos en Nuxt todavía (frontend-urban
+        // usa /barbers para el catálogo público de clientes) — se manda al
+        // dashboard admin, que sí muestra el ranking de desempeño.
+        return config('app.frontend_url').'/dashboard';
     }
 }

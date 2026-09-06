@@ -63,10 +63,6 @@ class OrderExpiredNotification extends Notification implements ShouldQueue
 
     private function storeUrl(): string
     {
-        try {
-            return route('tienda.index');
-        } catch (\Throwable $e) {
-            return url('/');
-        }
+        return config('app.frontend_url').'/store';
     }
 }

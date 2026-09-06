@@ -32,14 +32,14 @@ class AppointmentNotifier
         $this->send($appointment->client?->user, $appointment,
             'Confirmacion de cita', 'Tu cita esta reservada',
             'Te esperamos. Aqui estan los detalles de tu visita.',
-            'Ver mi cita', $this->route('client.appointments.index'),
+            'Ver mi cita', $this->frontendUrl('/my/appointments'),
             '#10b981', 'Confirmada', true);
 
         // Barbero
         $this->send($appointment->barber?->user, $appointment,
             'Nueva cita agendada', 'Tienes una nueva cita',
             "{$cliente} agendo una cita contigo para el {$fecha}.",
-            'Ver mi agenda', $this->route('barber.agenda'),
+            'Ver mi agenda', $this->frontendUrl('/barber/agenda'),
             '#5b8def', 'Nueva reserva');
 
         // Recepcion + Admin
@@ -65,14 +65,14 @@ class AppointmentNotifier
         $this->send($appointment->client?->user, $appointment,
             'Cita cancelada', 'Tu cita fue cancelada',
             'Tu cita fue cancelada. Si deseas, puedes reagendar desde tu panel.',
-            'Reagendar', $this->route('client.appointments.index'),
+            'Reagendar', $this->frontendUrl('/my/appointments'),
             '#ef4444', 'Cancelada');
 
         // Barbero
         $this->send($appointment->barber?->user, $appointment,
             'Cita cancelada', 'Se cancelo una cita',
             "{$cliente} cancelo su cita contigo{$suffix}.",
-            'Ver mi agenda', $this->route('barber.agenda'),
+            'Ver mi agenda', $this->frontendUrl('/barber/agenda'),
             '#ef4444', 'Cancelada');
 
         // Recepcion + Admin
@@ -107,7 +107,7 @@ class AppointmentNotifier
 
         $this->send($appointment->client?->user, $appointment,
             $subject, $title, $message,
-            'Ver mis citas', $this->route('client.appointments.index'),
+            'Ver mis citas', $this->frontendUrl('/my/appointments'),
             $accent, $badge, $estado === 'confirmada');
 
         // Tras completar, pide resena al cliente (con retraso para no
@@ -217,7 +217,7 @@ class AppointmentNotifier
                 title: $title,
                 message: $message,
                 actionLabel: 'Ver agenda',
-                actionUrl: $this->route('appointments.index'),
+                actionUrl: $this->frontendUrl('/appointments'),
                 accent: $accent,
                 badge: $badge,
             ));
@@ -244,15 +244,11 @@ class AppointmentNotifier
     }
 
     /**
-     * Resuelve una URL de ruta nombrada; devuelve null si la ruta no existe
-     * (evita romper la notificacion por un nombre de ruta invalido).
+     * URL de una página del frontend Nuxt (frontend-urban) — las páginas de
+     * citas/agenda que estas notificaciones enlazaban ya no son rutas Blade.
      */
-    private function route(string $name): ?string
+    private function frontendUrl(string $path): string
     {
-        try {
-            return route($name);
-        } catch (\Throwable $e) {
-            return null;
-        }
+        return config('app.frontend_url').$path;
     }
 }

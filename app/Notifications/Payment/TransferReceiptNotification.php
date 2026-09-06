@@ -45,7 +45,7 @@ class TransferReceiptNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $servicio = $this->payment->appointment?->service?->nombre ?? 'tu servicio';
-        $url = route('client.appointments.index');
+        $url = config('app.frontend_url').'/my/appointments';
 
         if ($this->status === 'rechazado') {
             return (new MailMessage)

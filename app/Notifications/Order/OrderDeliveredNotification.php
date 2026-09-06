@@ -73,10 +73,6 @@ class OrderDeliveredNotification extends Notification implements ShouldQueue
 
     private function ordersUrl(): string
     {
-        try {
-            return route('client.pedidos.index');
-        } catch (\Throwable $e) {
-            return url('/');
-        }
+        return config('app.frontend_url').'/my/orders';
     }
 }

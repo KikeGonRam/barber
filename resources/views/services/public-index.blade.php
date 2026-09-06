@@ -51,7 +51,7 @@
     $isClient = auth()->check() && auth()->user()->hasRole('cliente');
     $isStaff  = auth()->check() && !$isClient;
     $cta = [
-        'href'  => $isClient ? route('client.appointments.create') : ($isStaff ? route('dashboard') : route('register')),
+        'href'  => $isClient ? config('app.frontend_url').'/my/appointments' : ($isStaff ? route('dashboard') : route('register')),
         'label' => $isClient ? 'Reservar Cita' : ($isStaff ? 'Ir al Panel' : 'Registrarme'),
     ];
 @endphp

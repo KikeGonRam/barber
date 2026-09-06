@@ -7,18 +7,21 @@
     elseif ($u?->hasRole('recepcionista')) $notifRole = 'recepcionista';
     elseif ($u?->hasRole('barbero'))       $notifRole = 'barbero';
 
+    // Citas/pagos/agenda/facturas ya no son páginas Blade — Nuxt
+    // (frontend-urban) tiene paridad funcional confirmada para todas.
+    $frontend = config('app.frontend_url');
     $notifRoutes = [
         'appointment' => [
-            'administrador' => route('appointments.index'),
-            'recepcionista' => route('appointments.index'),
-            'barbero'       => route('barber.agenda'),
-            'cliente'       => route('client.appointments.index'),
+            'administrador' => $frontend.'/appointments',
+            'recepcionista' => $frontend.'/appointments',
+            'barbero'       => $frontend.'/barber/agenda',
+            'cliente'       => $frontend.'/my/appointments',
         ],
         'payment' => [
-            'administrador' => route('payments.index'),
-            'recepcionista' => route('payments.index'),
-            'barbero'       => route('dashboard'),
-            'cliente'       => route('client.facturas.index'),
+            'administrador' => $frontend.'/payments',
+            'recepcionista' => $frontend.'/payments',
+            'barbero'       => $frontend.'/dashboard',
+            'cliente'       => $frontend.'/my/invoices',
         ],
         'default' => route('notifications.index'),
     ];

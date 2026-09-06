@@ -31,7 +31,7 @@ class ServiceOverrunNotification extends Notification
             'appointment_id' => $this->appointment->id,
             'title' => 'Servicio con tiempo excedido',
             'message' => "El servicio de {$cliente} ({$servicio}) ya superó el tiempo estimado. Márcalo como completado cuando termine.",
-            'url' => route('barber.agenda'),
+            'url' => config('app.frontend_url').'/barber/agenda',
         ];
     }
 }

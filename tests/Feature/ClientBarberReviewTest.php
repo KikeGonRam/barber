@@ -18,10 +18,11 @@ use Tests\TestCase;
 /**
  * Integración real contra el Mongo local de pruebas. Regresión: antes solo
  * CatalogController (API móvil) sincronizaba calificacion_promedio/
- * total_resenas del barbero al crear una reseña — ClientBarberController
- * (web) no lo hacía. Ambos ahora delegan en BarberReviewService, así que
- * esto cubre que la vía web también queda sincronizada, y que ambas rutas
- * siguen funcionando end-to-end tras la refactorización.
+ * total_resenas del barbero al crear una reseña. Client\ClientBarberController
+ * (web) tenía el mismo bug hasta que ambos empezaron a delegar en
+ * BarberReviewService — esa página web se retiró (Nuxt tiene "Nuestros
+ * Barberos" con paridad funcional confirmada, ver Fase 9.8), así que este
+ * archivo ya solo cubre la vía API, que sigue siendo el contrato real.
  */
 class ClientBarberReviewTest extends TestCase
 {
@@ -71,34 +72,6 @@ class ClientBarberReviewTest extends TestCase
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         parent::tearDown();
-    }
-
-    public function test_web_review_submission_syncs_barber_denormalized_stats(): void
-    {
-        $response = $this->actingAs($this->clientUser)
-            ->post(route('client.barberos.review', $this->barber), [
-                'rating' => 4,
-                'comment' => 'Buen servicio',
-            ]);
-
-        $response->assertRedirect();
-        $response->assertSessionHasNoErrors();
-
-        $freshBarber = Barber::find($this->barber->id);
-        $this->assertEquals(4.0, (float) $freshBarber->calificacion_promedio);
-        $this->assertSame(1, $freshBarber->total_resenas);
-    }
-
-    public function test_web_review_submission_is_blocked_without_a_completed_appointment(): void
-    {
-        $otherBarberUser = User::create(['name' => 'Otro Barbero', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
-        $otherBarber = Barber::create(['user_id' => (string) $otherBarberUser->id, 'nombre' => 'Otro Barbero', 'activo' => true]);
-
-        $response = $this->actingAs($this->clientUser)
-            ->post(route('client.barberos.review', $otherBarber), ['rating' => 5]);
-
-        $response->assertSessionHasErrors('rating');
-        $this->assertSame(0, BarberReview::where('barber_id', (string) $otherBarber->id)->count());
     }
 
     public function test_api_review_submission_syncs_barber_denormalized_stats(): void

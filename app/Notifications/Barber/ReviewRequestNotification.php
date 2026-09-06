@@ -78,14 +78,16 @@ class ReviewRequestNotification extends Notification implements ShouldQueue
      */
     private function reviewUrl(): string
     {
+        $frontend = config('app.frontend_url');
+
         try {
             $barber = $this->appointment->barber;
 
             return $barber
-                ? route('client.barberos.show', $barber)
-                : route('client.barberos.index');
+                ? "{$frontend}/barbers/{$barber->slug}"
+                : "{$frontend}/barbers";
         } catch (\Throwable $e) {
-            return url('/');
+            return $frontend;
         }
     }
 }

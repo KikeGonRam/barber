@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use App\Models\User;
-use App\Services\Cart\CartService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
@@ -61,12 +60,18 @@ class NavigationMenu
         // largo en User::roleNames()). Usarlo aqui causaba que el sidebar
         // completo desapareciera para un usuario sin ningun aviso.
         $isAdmin = $user->hasRoleName('administrador');
-        $isReception = $user->hasRoleName('recepcionista');
-        $isBarber = $user->hasRoleName('barbero');
-        $isClient = $user->hasRoleName('cliente');
 
         $sections = [];
 
+        // El resto del panel (citas, calendario, clientes, pagos, pedidos,
+        // inventario, servicios, usuarios, barberos, campañas, sorteos,
+        // reportes, configuración, logs, analítica, y todo el autoservicio
+        // de cliente/barbero) se retiró de Blade: Nuxt (frontend-urban)
+        // tiene paridad funcional confirmada para cada una de esas páginas.
+        // "Dashboard" sigue existiendo como item porque la ruta redirige a
+        // Nuxt en vez de renderizar Blade (ver routes/web.php). "Reseñas"
+        // es la única pantalla de gestión que sobrevive: nunca se migró a
+        // Nuxt (sigue "Próximamente" ahí).
         $sections[] = [
             'title' => 'Principal',
             'items' => array_filter([
@@ -75,86 +80,11 @@ class NavigationMenu
             ]),
         ];
 
-        if ($isAdmin || $isReception) {
-            $sections[] = [
-                'title' => 'Operacion',
-                'items' => array_filter([
-                    self::item('Citas', 'appointments.index', 'appointments', ['appointments.index', 'appointments.create', 'appointments.edit'], primary: true),
-                    self::item('Calendario', 'appointments.calendar', 'calendar', ['appointments.calendar*']),
-                    self::item('Clientes', 'clients.index', 'clients', ['clients.*'], primary: $isAdmin),
-                    self::item('Pagos', 'payments.index', 'payments', ['payments.*'], primary: true),
-                    self::item('Pedidos', 'orders.index', 'orders', ['orders.*'], primary: $isReception),
-                    self::item('Movimientos', 'inventory.movements.index', 'movements', ['inventory.movements.*']),
-                ]),
-            ];
-        }
-
         if ($isAdmin) {
             $sections[] = [
                 'title' => 'Gestion',
                 'items' => array_filter([
-                    self::item('Barberos', 'barbers.index', 'barbers', ['barbers.*']),
                     self::item('Reseñas', 'reviews.index', 'reviews', ['reviews.*']),
-                    self::item('Usuarios', 'users.index', 'users', ['users.*']),
-                    self::item('Servicios', 'services.index', 'services', ['services.*']),
-                    self::item('Productos', 'inventory.products.index', 'products', ['inventory.products.*']),
-                    self::item('Configuracion', 'settings.edit', 'settings', ['settings.*']),
-                ]),
-            ];
-            $sections[] = [
-                'title' => 'Analisis',
-                'items' => array_filter([
-                    self::item('Analitica', 'analytics.index', 'analytics', ['analytics.index']),
-                    self::item('Reportes', 'reports.index', 'reports', ['reports.*']),
-                    self::item('Campanas', 'campaigns.index', 'campaigns', ['campaigns.*']),
-                    self::item('Sorteos', 'raffles.index', 'raffles', ['raffles.*']),
-                    self::item('Logs', 'logs.index', 'logs', ['logs.*']),
-                ]),
-            ];
-        }
-
-        if ($isReception) {
-            // La recepción no tiene sección "Analisis" propia (ese título ya
-            // se usa arriba solo para admin) — se agrega su acceso a
-            // Analítica dentro de "Operacion", que es donde vive el resto
-            // de sus herramientas del día a día.
-            foreach ($sections as &$s) {
-                if ($s['title'] === 'Operacion') {
-                    $itemAnalitica = self::item('Analitica', 'analytics.index', 'analytics', ['analytics.index']);
-                    if ($itemAnalitica) {
-                        $s['items'][] = $itemAnalitica;
-                    }
-                }
-            }
-            unset($s);
-        }
-
-        if ($isBarber) {
-            $sections[] = [
-                'title' => 'Mi Espacio',
-                'items' => array_filter([
-                    self::item('Mi Agenda', 'barber.agenda', 'agenda', ['barber.agenda'], primary: true),
-                    self::item('Mi Portafolio', 'barber.portfolio.index', 'wall', ['barber.portfolio.*'], primary: true),
-                    self::item('Mi Horario', 'barber.schedule.edit', 'schedule', ['barber.schedule.*'], primary: true),
-                    self::item('Mi Perfil', 'barber.profile.edit', 'profile', ['barber.profile.*']),
-                    self::item('Mi Analitica', 'analytics.index', 'analytics', ['analytics.index']),
-                ]),
-            ];
-        }
-
-        if ($isClient) {
-            $navCart = app(CartService::class)->count();
-
-            $sections[] = [
-                'title' => 'Mi Cuenta',
-                'items' => array_filter([
-                    self::item('Mis Citas', 'client.appointments.index', 'my_appointments', ['client.appointments.*'], primary: true),
-                    self::item('Tienda', 'client.tienda.index', 'products', ['client.tienda.*']),
-                    self::item('Carrito', 'client.carrito.index', 'cart', ['client.carrito.*'], primary: true, badge: $navCart > 0 ? $navCart : null),
-                    self::item('Mis Pedidos', 'client.pedidos.index', 'orders', ['client.pedidos.*']),
-                    self::item('Nuestros Barberos', 'client.barberos.index', 'barbers_client', ['client.barberos.*'], primary: true),
-                    self::item('Mis Facturas', 'client.facturas.index', 'invoices', ['client.facturas.*']),
-                    self::item('Recomendado para ti', 'analytics.index', 'analytics', ['analytics.index']),
                 ]),
             ];
         }
@@ -164,18 +94,24 @@ class NavigationMenu
         // - collapsible: "Principal" siempre visible; el resto se pliega
         // - active: true si la ruta actual cae en alguno de sus ítems
         // - count: cuántos ítems tiene (badge del encabezado)
-        return array_map(function (array $section) {
-            $items = array_values($section['items']);
+        // Las secciones sin ítems (ninguna ruta registrada) se descartan en
+        // vez de mostrarse vacías.
+        return collect($sections)
+            ->map(function (array $section) {
+                $items = array_values($section['items']);
 
-            return [
-                'title' => $section['title'],
-                'items' => $items,
-                'key' => Str::slug($section['title']),
-                'collapsible' => $section['title'] !== 'Principal',
-                'active' => collect($items)->contains('active', true),
-                'count' => count($items),
-            ];
-        }, $sections);
+                return [
+                    'title' => $section['title'],
+                    'items' => $items,
+                    'key' => Str::slug($section['title']),
+                    'collapsible' => $section['title'] !== 'Principal',
+                    'active' => collect($items)->contains('active', true),
+                    'count' => count($items),
+                ];
+            })
+            ->reject(fn (array $section) => $section['count'] === 0)
+            ->values()
+            ->all();
     }
 
     /**

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Barber;
 use App\Models\Permission;
-use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -13,13 +12,16 @@ use Tests\TestCase;
 
 /**
  * Integración real contra el Mongo local de pruebas (ver .env.testing /
- * docker-compose.yml "mongo-test"). Verifica el contrato completo de
- * autorización de routes/web.php: la cadena auth -> verified -> role.custom
- * -> permission.custom, usando los mismos roles/permisos reales que siembra
- * RolePermissionSeeder (no fixtures inventadas), para que un cambio en el
- * seeder o en las rutas que rompa la relación entre ambos lo detecte esta
- * prueba. Cubre justo la categoría de bug ya vista en este proyecto: un rol
- * viendo (o recibiendo 403 en) una pantalla que no le corresponde.
+ * docker-compose.yml "mongo-test"). Verifica el contrato de autorización de
+ * las páginas Blade que sobreviven al retiro de las páginas ya cubiertas por
+ * Nuxt (frontend-urban): la cadena auth -> verified -> role.custom ->
+ * permission.custom, usando los mismos roles/permisos reales que siembra
+ * RolePermissionSeeder (no fixtures inventadas). Antes cubría también
+ * appointments/clients/reports/users/etc. — esas rutas se retiraron junto
+ * con sus páginas Blade (Nuxt tiene paridad funcional confirmada), así que
+ * esas aserciones se reemplazaron por las de reviews.index/
+ * client.membership.card/backups.database.download, las únicas páginas
+ * protegidas por rol que quedan en Blade.
  */
 class RoleAuthorizationTest extends TestCase
 {
@@ -86,120 +88,49 @@ class RoleAuthorizationTest extends TestCase
 
     public function test_guest_is_redirected_to_login_on_protected_routes(): void
     {
-        $this->get(route('appointments.index'))->assertRedirect(route('login'));
-        $this->get(route('reports.index'))->assertRedirect(route('login'));
-        $this->get(route('client.barberos.index'))->assertRedirect(route('login'));
-        $this->get(route('barber.agenda'))->assertRedirect(route('login'));
+        $this->get(route('reviews.index'))->assertRedirect(route('login'));
+        $this->get(route('backups.database.download'))->assertRedirect(route('login'));
+        $this->get(route('client.membership.card'))->assertRedirect(route('login'));
     }
 
     public function test_unverified_user_is_blocked_even_with_the_right_role(): void
     {
         $this->admin->forceFill(['email_verified_at' => null])->save();
 
-        $this->actingAs($this->admin)->get(route('reports.index'))->assertRedirect(route('verification.notice'));
+        $this->actingAs($this->admin)->get(route('reviews.index'))->assertRedirect(route('verification.notice'));
     }
 
     /**
-     * Grupo compartido administrador+recepcionista (permission.custom:citas.gestionar).
-     * Ambos roles lo tienen sembrado por RolePermissionSeeder; barbero/cliente no.
+     * reviews.index vive en role.custom:administrador +
+     * permission.custom:barberos.gestionar — solo admin la tiene sembrada.
      */
-    public function test_appointments_index_is_only_reachable_by_admin_and_recepcion(): void
+    public function test_reviews_index_is_admin_only(): void
     {
-        $this->actingAs($this->admin)->get(route('appointments.index'))->assertOk();
-        $this->actingAs($this->recepcionista)->get(route('appointments.index'))->assertOk();
-        $this->actingAs($this->barbero)->get(route('appointments.index'))->assertForbidden();
-        $this->actingAs($this->cliente)->get(route('appointments.index'))->assertForbidden();
+        $this->actingAs($this->admin)->get(route('reviews.index'))->assertOk();
+        $this->actingAs($this->recepcionista)->get(route('reviews.index'))->assertForbidden();
+        $this->actingAs($this->barbero)->get(route('reviews.index'))->assertForbidden();
+        $this->actingAs($this->cliente)->get(route('reviews.index'))->assertForbidden();
     }
 
-    /**
-     * Mismo grupo de rol, otro permission.custom (clientes.gestionar) — confirma
-     * que el chequeo de permiso es real y no solo "cualquiera del grupo pasa".
-     */
-    public function test_clients_index_is_only_reachable_by_admin_and_recepcion(): void
+    public function test_backups_database_download_is_admin_only(): void
     {
-        $this->actingAs($this->admin)->get(route('clients.index'))->assertOk();
-        $this->actingAs($this->recepcionista)->get(route('clients.index'))->assertOk();
-        $this->actingAs($this->barbero)->get(route('clients.index'))->assertForbidden();
-        $this->actingAs($this->cliente)->get(route('clients.index'))->assertForbidden();
+        $this->actingAs($this->recepcionista)->get(route('backups.database.download'))->assertForbidden();
+        $this->actingAs($this->barbero)->get(route('backups.database.download'))->assertForbidden();
+        $this->actingAs($this->cliente)->get(route('backups.database.download'))->assertForbidden();
     }
 
-    /**
-     * Caso clave: reports.index vive en el grupo role.custom:administrador
-     * SOLO (no ",recepcionista"), a diferencia de appointments/clients arriba.
-     * Recepcionista comparte el grupo anterior pero debe seguir bloqueada aquí
-     * — es justo la distinción que un role.custom mal copiado rompería.
-     */
-    public function test_reports_index_is_admin_only_recepcion_does_not_leak_in(): void
+    public function test_membership_card_is_only_reachable_by_cliente(): void
     {
-        $this->actingAs($this->admin)->get(route('reports.index'))->assertOk();
-        $this->actingAs($this->recepcionista)->get(route('reports.index'))->assertForbidden();
-        $this->actingAs($this->barbero)->get(route('reports.index'))->assertForbidden();
-        $this->actingAs($this->cliente)->get(route('reports.index'))->assertForbidden();
-    }
-
-    public function test_users_index_is_admin_only(): void
-    {
-        $this->actingAs($this->admin)->get(route('users.index'))->assertOk();
-        $this->actingAs($this->recepcionista)->get(route('users.index'))->assertForbidden();
-        $this->actingAs($this->barbero)->get(route('users.index'))->assertForbidden();
-        $this->actingAs($this->cliente)->get(route('users.index'))->assertForbidden();
-    }
-
-    public function test_client_area_is_only_reachable_by_cliente(): void
-    {
-        $this->actingAs($this->cliente)->get(route('client.barberos.index'))->assertOk();
-        $this->actingAs($this->admin)->get(route('client.barberos.index'))->assertForbidden();
-        $this->actingAs($this->recepcionista)->get(route('client.barberos.index'))->assertForbidden();
-        $this->actingAs($this->barbero)->get(route('client.barberos.index'))->assertForbidden();
-    }
-
-    public function test_barber_area_is_only_reachable_by_barbero(): void
-    {
-        $this->actingAs($this->barbero)->get(route('barber.agenda'))->assertOk();
-        $this->actingAs($this->admin)->get(route('barber.agenda'))->assertForbidden();
-        $this->actingAs($this->recepcionista)->get(route('barber.agenda'))->assertForbidden();
-        $this->actingAs($this->cliente)->get(route('barber.agenda'))->assertForbidden();
-    }
-
-    /**
-     * inventory.products.mark-ordered vive junto a inventory.movements bajo
-     * permission.custom:inventario.ver,inventario.gestionar — admin y
-     * recepción, a diferencia del CRUD completo de productos que es admin-only.
-     */
-    public function test_mark_product_ordered_is_reachable_by_admin_and_recepcion(): void
-    {
-        $product = Product::create([
-            'nombre' => 'Producto de prueba',
-            'categoria' => 'cuidado',
-            'stock_actual' => 1,
-            'stock_minimo' => 5,
-            'precio_venta' => 100,
-        ]);
-
-        $this->actingAs($this->recepcionista)
-            ->post(route('inventory.products.mark-ordered', $product))
-            ->assertRedirect();
-        $this->assertNotNull($product->fresh()->reabastecimiento_pedido_en);
-
-        $this->actingAs($this->barbero)
-            ->post(route('inventory.products.mark-ordered', $product))
-            ->assertForbidden();
-        $this->actingAs($this->cliente)
-            ->post(route('inventory.products.mark-ordered', $product))
-            ->assertForbidden();
-
-        $product->delete();
+        $this->actingAs($this->admin)->get(route('client.membership.card'))->assertForbidden();
+        $this->actingAs($this->recepcionista)->get(route('client.membership.card'))->assertForbidden();
+        $this->actingAs($this->barbero)->get(route('client.membership.card'))->assertForbidden();
     }
 
     /**
      * Regresión: email_verified_at faltaba en User::$fillable, así que
      * User::create(['email_verified_at' => now(), ...]) lo descartaba en
      * silencio (sin excepción, sin aviso). Esto rompía el "alta verificada"
-     * que varios controladores dan por hecho al crear cuentas manualmente
-     * (UserController, Api\UserController, Api\ClientController,
-     * Client\ClientController): la cuenta quedaba SIN verificar pese al
-     * comentario/intención explícita en el código, y el middleware
-     * "verified" la bloqueaba en el primer login.
+     * que varios controladores dan por hecho al crear cuentas manualmente.
      */
     public function test_creating_a_user_with_email_verified_at_via_mass_assignment_persists_it(): void
     {
@@ -229,8 +160,8 @@ class RoleAuthorizationTest extends TestCase
         ]);
         $noRole->forceFill(['email_verified_at' => now()])->save();
 
-        $this->actingAs($noRole)->get(route('appointments.index'))->assertForbidden();
-        $this->actingAs($noRole)->get(route('client.barberos.index'))->assertForbidden();
-        $this->actingAs($noRole)->get(route('barber.agenda'))->assertForbidden();
+        $this->actingAs($noRole)->get(route('reviews.index'))->assertForbidden();
+        $this->actingAs($noRole)->get(route('backups.database.download'))->assertForbidden();
+        $this->actingAs($noRole)->get(route('client.membership.card'))->assertForbidden();
     }
 }

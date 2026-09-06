@@ -261,11 +261,47 @@ proceeds:
   `routes/web.php`'s `dashboard` and `appointments.calendar` routes are now plain
   redirects to `config('app.frontend_url')` (env `FRONTEND_URL`) instead of rendering
   Inertia — every other Blade nav link to those route names keeps working unchanged.
-  The rest of the site (appointments CRUD, clients, payments, orders, inventory,
-  services, users, reports, campaigns, raffles, logs, settings) was **never** Inertia —
-  it's Blade+Alpine and stays that way; Nuxt has its own equivalent pages for those from
-  Fase 9, but the Blade originals here are untouched and still the live experience for
-  anyone not on Nuxt.
+- **2026-09-06 (same day): the rest of the Blade admin/staff/client/barber panel was
+  ALSO retired**, on the same explicit confirmation. This was never Inertia — it was
+  classic Blade+Alpine — but the same principle applied: Nuxt had confirmed functional
+  parity (all of Fase 9 + Analítica), so it went too. Removed entirely: appointments
+  CRUD, clients, payments, orders/reception, inventory (products+movements), services
+  CRUD, users, barbers admin CRUD+performance, campaigns, raffles, reports, settings,
+  logs, analytics, and all of client/barbero self-service (citas, barberos, facturas,
+  pagos, tienda, carrito, pedidos, agenda, horario, portafolio). **Survives in Blade**
+  (no Nuxt equivalent exists): the public landing (`/`) and `/servicios`/`/equipo/{id}`,
+  all of `routes/auth.php` (login/register/password reset/email verification),
+  `/profile`, `/notifications`, the chatbot endpoints, `/descubrir` (social feed —
+  listed "Próx." in Nuxt's nav), `reviews.index` (`/resenas` — likewise "Próx."),
+  `backups/database` (a utility endpoint, not a page), and
+  `client.membership.card` (membership-card PDF, no Nuxt page for it yet). Two
+  controllers were surgically trimmed rather than deleted outright because they mix
+  a surviving public method with removed admin methods: `Service\ServiceController`
+  (kept `publicIndex()` only) and `Barber\BarberController` (kept `show()` only —
+  its admin `index/edit/update/performance` went to
+  `Api\Admin\Barber\BarberAdminController`'s territory instead).
+  **Real landmine found while doing this**: several places hardcoded `route()` calls
+  to the routes being deleted — `route()` throws on a missing route name (unlike
+  `Route::has()`-guarded calls), so these would have been fatal 500s or broken email
+  links, not just cosmetic. Fixed by pointing each at the matching
+  `config('app.frontend_url')` path instead: `resources/views/components/
+  command-palette.blade.php` (global, rendered on every authenticated page — role-based
+  shortcuts to now-deleted pages), `resources/views/components/notification-toaster.blade.php`
+  (also global — its per-role notification-click routing table), `resources/views/
+  services/public-index.blade.php` (a client-only CTA button), and **8 Notification
+  classes** whose action URLs pointed at deleted routes (`AppointmentNotification`,
+  `ServiceOverrunNotification`, `BarberPerformanceReportNotification`,
+  `ReviewRequestNotification`, `InventoryLowStockNotification`,
+  `OrderDeliveredNotification`, `OrderExpiredNotification`, `PaymentReceiptNotification`,
+  `TransferReceiptNotification`, plus `AppointmentNotifier`'s shared `route()` helper).
+  **Before removing any more Blade in the future** (or anything similar elsewhere):
+  grep the ENTIRE codebase for `route('<name-being-removed>'` — not just `routes/web.php`
+  and the views under the controller being deleted — because `route()` calls hide in
+  shared global components and in Notification classes that don't obviously look
+  "page-related." `NavigationMenu::sections()` already had a defensive `Route::has()`
+  check per item (so the sidebar itself never crashed), but it did leave empty,
+  still-visible accordion sections when every item inside one was gone — fixed by
+  dropping zero-item sections instead of rendering them.
 - This does NOT reopen `spark`/`mobil` scope (guardrail #10 still applies) — it's a new,
   separate, currently-active third repo alongside `barber`.
 

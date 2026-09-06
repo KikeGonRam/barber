@@ -1,35 +1,14 @@
 @php
-    // Comandos por rol: los de administrador/recepcionista apuntan a rutas
-    // de staff (citas, pagos, clientes) que devuelven 403 si un barbero o
-    // cliente los abre desde este mismo palette global -- por eso la lista
-    // depende del rol de quien tiene sesion iniciada, en vez de ser fija.
-    $user = auth()->user();
+    // Los comandos por rol (citas, pagos, clientes, agenda de barbero,
+    // autoservicio de cliente, etc.) se retiraron junto con sus páginas
+    // Blade — Nuxt (frontend-urban) tiene paridad funcional confirmada
+    // para todas esas pantallas. Solo quedan los accesos que siguen
+    // existiendo en Blade para cualquier rol autenticado.
     $paletteCommands = [
         ['id' => 5, 'name' => 'Dashboard Principal', 'icon' => 'M3 12l9-8 9 8v8a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z', 'url' => route('dashboard'), 'shortcut' => 'D'],
         ['id' => 7, 'name' => 'Muro Inspiración', 'icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'url' => route('social.feed'), 'shortcut' => 'I'],
+        ['id' => 6, 'name' => 'Mi Perfil', 'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', 'url' => route('profile.edit'), 'shortcut' => 'U'],
     ];
-    if ($user?->hasAnyRole(['administrador', 'recepcionista'])) {
-        $paletteCommands = array_merge($paletteCommands, [
-            ['id' => 1, 'name' => 'Nueva Cita', 'icon' => 'M12 4v16m8-8H4', 'url' => route('appointments.create'), 'shortcut' => 'N'],
-            ['id' => 2, 'name' => 'Emitir Factura', 'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 'url' => route('payments.create'), 'shortcut' => 'F'],
-            ['id' => 3, 'name' => 'Ver Agenda', 'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 'url' => route('appointments.index'), 'shortcut' => 'A'],
-            ['id' => 4, 'name' => 'Lista de Clientes', 'icon' => 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2', 'url' => route('clients.index'), 'shortcut' => 'C'],
-        ]);
-    } elseif ($user?->hasRole('barbero')) {
-        $paletteCommands = array_merge($paletteCommands, [
-            ['id' => 1, 'name' => 'Mi Agenda', 'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 'url' => route('barber.agenda'), 'shortcut' => 'A'],
-            ['id' => 2, 'name' => 'Mi Horario', 'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'url' => route('barber.schedule.edit'), 'shortcut' => 'H'],
-            ['id' => 3, 'name' => 'Mi Portafolio', 'icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'url' => route('barber.portfolio.index'), 'shortcut' => 'P'],
-        ]);
-    } elseif ($user?->hasRole('cliente')) {
-        $paletteCommands = array_merge($paletteCommands, [
-            ['id' => 1, 'name' => 'Reservar Cita', 'icon' => 'M12 4v16m8-8H4', 'url' => route('client.appointments.create'), 'shortcut' => 'N'],
-            ['id' => 2, 'name' => 'Mis Citas', 'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 'url' => route('client.appointments.index'), 'shortcut' => 'A'],
-            ['id' => 3, 'name' => 'Tienda', 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4', 'url' => route('client.tienda.index'), 'shortcut' => 'T'],
-            ['id' => 4, 'name' => 'Mis Facturas', 'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 'url' => route('client.facturas.index'), 'shortcut' => 'F'],
-        ]);
-    }
-    $paletteCommands[] = ['id' => 6, 'name' => 'Mi Perfil', 'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', 'url' => route('profile.edit'), 'shortcut' => 'U'];
 @endphp
 <div
     x-data="{

@@ -1,37 +1,16 @@
 <?php
 
-use App\Http\Controllers\Analytics\AnalyticsController;
 use App\Http\Controllers\Api\Auth\AuthController;
-use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Barber\BarberController;
-use App\Http\Controllers\Barber\BarberDashboardController;
 use App\Http\Controllers\Barber\ReviewController;
-use App\Http\Controllers\Campaign\CampaignController;
 use App\Http\Controllers\Campaign\TrackingController;
 use App\Http\Controllers\Chatbot\ChatbotController;
-use App\Http\Controllers\Client\CartController;
-use App\Http\Controllers\Client\ClientAppointmentController;
-use App\Http\Controllers\Client\ClientBarberController;
-use App\Http\Controllers\Client\ClientController;
-use App\Http\Controllers\Client\ClientInvoiceController;
-use App\Http\Controllers\Client\ClientPaymentController;
 use App\Http\Controllers\Client\MembershipController;
-use App\Http\Controllers\Client\StoreController;
 use App\Http\Controllers\Dashboard\DatabaseBackupController;
-use App\Http\Controllers\Inventory\InventoryMovementController;
-use App\Http\Controllers\Inventory\ProductController;
-use App\Http\Controllers\Log\ActivityLogController;
-use App\Http\Controllers\Loyalty\RaffleController;
 use App\Http\Controllers\Notification\NotificationController;
-use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Profile\ProfileController;
-use App\Http\Controllers\Reception\OrderController;
-use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Service\ServiceController;
-use App\Http\Controllers\Setting\BarbershopSettingController;
-use App\Http\Controllers\Social\BarberPortfolioController;
 use App\Http\Controllers\Social\SocialController;
-use App\Http\Controllers\User\UserController;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
@@ -81,7 +60,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('chatbot.train-history');
 });
 
-// Social Feed (Instagram Style)
+// Social Feed (Instagram Style) — sin equivalente en Nuxt todavía (aparece
+// como "Muro Inspiración" marcado "Próx." en frontend-urban).
 Route::get('/descubrir', [SocialController::class, 'feed'])->name('social.feed');
 
 // Rutas del feed social que requieren usuario autenticado y verificado.
@@ -90,11 +70,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/social/work/{work}/react', [SocialController::class, 'react'])->name('social.react');
     Route::post('/social/work/{work}/save', [SocialController::class, 'save'])->name('social.save');
     Route::post('/social/work/{work}/comment', [SocialController::class, 'comment'])->name('social.comment');
-
-    // Solo el administrador puede activar/desactivar el modo mantenimiento del sitio.
-    Route::middleware(['role.custom:administrador'])->group(function () {
-        Route::post('/settings/maintenance', [BarbershopSettingController::class, 'toggleMaintenance'])->name('settings.maintenance.toggle');
-    });
 });
 
 // Antes renderizaba Inertia\Vue (ver .claude/skills/inertia-vue-migration/SKILL.md);
@@ -106,20 +81,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/dashboard', fn () => redirect(config('app.frontend_url').'/dashboard'))
     ->name('dashboard');
 
-// Página dedicada de Analítica (Spark) — un rol por dentro del controlador,
-// igual que /dashboard; no lleva role.custom porque los 4 roles la ven,
-// cada uno con su propio recorte de datos (ver AnalyticsController).
-Route::get('/analitica', [AnalyticsController::class, 'index'])
+// El resto del panel administrativo/staff/cliente/barbero (citas, calendario,
+// clientes, pagos, pedidos, inventario, servicios, usuarios, barberos,
+// campañas, sorteos, reportes, configuración, logs, analítica, y todo el
+// autoservicio de cliente/barbero) se retiró de Blade: Nuxt (frontend-urban)
+// tiene paridad funcional confirmada para cada una de esas páginas (Fases
+// 1-9 + Analítica, ver frontend-urban/.claude/skills/nuxt-migration-plan/
+// SKILL.md). Lo que queda abajo NO tiene equivalente en Nuxt todavía.
+Route::get('/appointments-calendar', fn () => redirect(config('app.frontend_url').'/appointments/calendar'))
     ->middleware(['auth', 'verified'])
-    ->name('analytics.index');
+    ->name('appointments.calendar');
 
-// Web-session based API token retrieval for the dashboard
+// Web-session based API token retrieval — ya no lo usa ninguna página Blade
+// desde que el dashboard se movió a Nuxt, pero se deja vivo (no es una
+// "página") por si algún flujo web futuro necesita este puente sesión→token.
 Route::post('/api/v1/auth/get-api-token', [AuthController::class, 'getWebApiToken'])
     ->middleware(['web', 'auth', 'throttle:20,1'])
     ->name('api.get-token');
 
-// Bloque principal de rutas autenticadas: perfil, notificaciones y, dentro de él,
-// los sub-grupos por rol (administrador/recepcionista, cliente, barbero).
+// Bloque principal de rutas autenticadas: perfil y notificaciones (sin
+// equivalente en Nuxt), más lo que sobrevive de cada rol.
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -132,161 +113,21 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markOneRead'])->name('notifications.read-one');
 
-    // Rutas exclusivas de administrador y recepcionista: gestión de citas, pagos,
-    // pedidos de la tienda, inventario y clientes. Cada sub-grupo además exige
-    // un permiso granular (permission.custom) porque recepcionista y administrador
-    // pueden tener permisos distintos aunque compartan el rol.
-    Route::middleware(['verified', 'role.custom:administrador,recepcionista'])->group(function () {
-        Route::middleware('permission.custom:citas.gestionar')->group(function () {
-            // Walk-in ANTES del resource para que 'walk-in' no se capture como {appointment}
-            Route::post('appointments/walk-in', [AppointmentController::class, 'walkIn'])->name('appointments.walk-in');
-            Route::get('appointments/walk-in/clients', [AppointmentController::class, 'searchClients'])->name('appointments.walk-in.clients');
-            Route::resource('appointments', AppointmentController::class)->except('show');
-            Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
-            // Antes renderizaba Inertia\Vue (FullCalendar); retirado porque Nuxt
-            // ya tiene /appointments/calendar con paridad funcional confirmada.
-            // 'appointments-calendar/data' se retiró junto con esto: era un
-            // endpoint JSON plano que solo consumía esa página Vue (Nuxt usa
-            // /api/v1/appointments/calendar-data en su lugar).
-            Route::get('appointments-calendar', fn () => redirect(config('app.frontend_url').'/appointments/calendar'))->name('appointments.calendar');
-        });
-
-        // Gestión de pagos (aprobar/rechazar comprobantes) y bandeja de pedidos de la tienda.
-        Route::middleware('permission.custom:pagos.gestionar')->group(function () {
-            Route::resource('payments', PaymentController::class)->only(['index', 'create', 'store', 'destroy']);
-            Route::get('payments/{payment}/receipt', [PaymentController::class, 'downloadReceipt'])->name('payments.receipt.download');
-            Route::get('payments-pendientes', [PaymentController::class, 'pending'])->name('payments.pending');
-            Route::post('payments/{payment}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
-            Route::post('payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
-
-            // Bandeja de pedidos de la tienda
-            Route::get('pedidos', [OrderController::class, 'index'])->name('orders.index');
-            Route::patch('pedidos/{order}/entregar', [OrderController::class, 'deliver'])->name('orders.deliver');
-            Route::patch('pedidos/{order}/cancelar', [OrderController::class, 'cancel'])->name('orders.cancel');
-            Route::get('pedidos/{order}/recibo', [OrderController::class, 'receipt'])->name('orders.receipt');
-        });
-
-        // Registrar/consultar movimientos de inventario (entradas/salidas de stock).
-        Route::middleware('permission.custom:inventario.ver,inventario.gestionar')->group(function () {
-            Route::resource('inventory/movements', InventoryMovementController::class)
-                ->only(['index', 'create', 'store'])
-                ->names('inventory.movements');
-
-            // Silencia la alerta diaria de stock bajo para un producto ya pedido
-            // (admin y recepción, igual que el resto del control de movimientos).
-            Route::post('inventory/products/{product}/mark-ordered', [ProductController::class, 'markOrdered'])
-                ->name('inventory.products.mark-ordered');
-        });
-
-        // CRUD de clientes desde el panel administrativo/recepción.
-        Route::middleware('permission.custom:clientes.gestionar')->group(function () {
-            Route::resource('clients', ClientController::class)
-                ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
-            Route::get('clients/{client}/profile', [ClientController::class, 'show'])->name('clients.show');
-        });
-
-    });
-
-    // Rutas exclusivas del rol administrador: respaldos de BD, campañas de marketing,
-    // reportes, gestión de servicios/inventario/usuarios/barberos, configuración y logs.
+    // Rutas exclusivas del rol administrador que Nuxt todavía no cubre:
+    // respaldo de BD (utilidad, no una pantalla) y reseñas de clientes a
+    // barberos (nunca se migró — ver frontend-urban, "Reseñas" sigue "Próx.").
     Route::middleware(['verified', 'role.custom:administrador'])->group(function () {
         Route::get('backups/database', [DatabaseBackupController::class, 'download'])->name('backups.database.download');
 
-        Route::get('campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
-        Route::post('campaigns', [CampaignController::class, 'send'])->name('campaigns.send');
-
-        Route::get('sorteos', [RaffleController::class, 'index'])->name('raffles.index');
-
-        // Exportación de reportes (ingresos, citas, inventario, clientes) en varios formatos.
-        Route::middleware('permission.custom:reportes.ver')->group(function () {
-            Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
-            Route::get('reports/{type}/{format}', [ReportController::class, 'export'])
-                ->whereIn('type', ['ingresos', 'citas', 'inventario', 'clientes'])
-                ->whereIn('format', ['pdf', 'excel', 'csv'])
-                ->name('reports.export');
-        });
-
-        // CRUD del catálogo de servicios ofrecidos por la barbería.
-        Route::middleware('permission.custom:servicios.gestionar')->group(function () {
-            Route::resource('services', ServiceController::class)->except('show');
-        });
-
-        // CRUD de productos de inventario/tienda.
-        Route::middleware('permission.custom:inventario.gestionar')->group(function () {
-            Route::resource('inventory/products', ProductController::class)
-                ->except('show')
-                ->names('inventory.products');
-        });
-
-        // CRUD de usuarios del sistema (cuentas de acceso, no clientes).
-        Route::middleware('permission.custom:usuarios.gestionar')->group(function () {
-            Route::resource('users', UserController::class)->except('show');
-        });
-
-        // Edición de barberos (no se permite crear/eliminar aquí), su reporte de desempeño y sus reseñas.
         Route::middleware('permission.custom:barberos.gestionar')->group(function () {
-            Route::resource('barbers', BarberController::class)
-                ->only(['index', 'edit', 'update']);
-            Route::get('barbers/{barber}/performance', [BarberController::class, 'performance'])->name('barbers.performance');
             Route::get('resenas', [ReviewController::class, 'index'])->name('reviews.index');
         });
-
-        // Configuración global de la barbería (horarios, datos de negocio, etc.).
-        Route::middleware('permission.custom:configuracion.gestionar')->group(function () {
-            Route::get('settings', [BarbershopSettingController::class, 'edit'])->name('settings.edit');
-            Route::put('settings', [BarbershopSettingController::class, 'update'])->name('settings.update');
-        });
-
-        // Bitácora de actividad del sistema (auditoría).
-        Route::middleware('permission.custom:logs.ver')->group(function () {
-            Route::get('logs', [ActivityLogController::class, 'index'])->name('logs.index');
-        });
     });
 
-    // Rutas exclusivas del rol cliente (prefijo /cliente): reservar citas, ver barberos,
-    // facturas, subir comprobantes de pago, tarjeta de membresía y tienda/carrito/pedidos.
+    // Tarjeta de membresía del cliente (descarga de PDF) — sin equivalente en Nuxt todavía.
     Route::middleware(['verified', 'role.custom:cliente'])->prefix('cliente')->name('client.')->group(function () {
-        Route::resource('appointments', ClientAppointmentController::class)->except('show');
-        Route::get('barberos', [ClientBarberController::class, 'index'])->name('barberos.index');
-        Route::get('barberos/{barber}', [ClientBarberController::class, 'show'])->name('barberos.show');
-        Route::post('barberos/{barber}/review', [ClientBarberController::class, 'storeReview'])->name('barberos.review');
-        Route::get('facturas', [ClientInvoiceController::class, 'index'])->name('facturas.index');
-        Route::get('facturas/{payment}/download', [ClientInvoiceController::class, 'download'])->name('facturas.download');
-        Route::get('pagos-pendientes', [ClientPaymentController::class, 'pending'])->name('payments.pending');
-        Route::get('appointments/{appointment}/comprobante', [ClientPaymentController::class, 'create'])->name('payments.upload');
-        Route::post('appointments/{appointment}/comprobante', [ClientPaymentController::class, 'store'])->name('payments.store');
         Route::get('membresia/tarjeta', [MembershipController::class, 'card'])->name('membership.card');
-
-        // Tienda + carrito + pedidos
-        Route::get('tienda', [StoreController::class, 'index'])->name('tienda.index');
-        Route::get('carrito', [CartController::class, 'index'])->name('carrito.index');
-        Route::post('carrito/{product}', [CartController::class, 'add'])->name('carrito.add');
-        Route::patch('carrito', [CartController::class, 'update'])->name('carrito.update');
-        Route::delete('carrito/{productId}', [CartController::class, 'remove'])->name('carrito.remove');
-        Route::post('checkout', [CartController::class, 'checkout'])->name('carrito.checkout');
-        Route::get('pedidos', [App\Http\Controllers\Client\OrderController::class, 'index'])->name('pedidos.index');
-        Route::patch('pedidos/{order}/cancelar', [App\Http\Controllers\Client\OrderController::class, 'cancel'])->name('pedidos.cancel');
     });
-
-    // Rutas exclusivas del rol barbero (prefijo /barbero): agenda propia, perfil,
-    // horario de trabajo y portafolio de fotos de sus cortes.
-    Route::middleware(['verified', 'role.custom:barbero'])->prefix('barbero')->name('barber.')->group(function () {
-        Route::get('agenda', [BarberDashboardController::class, 'agenda'])->name('agenda');
-        Route::patch('appointments/{appointment}/status', [BarberDashboardController::class, 'updateAppointmentStatus'])->name('appointments.status');
-        Route::get('profile', [BarberDashboardController::class, 'editProfile'])->name('profile.edit');
-        Route::put('profile', [BarberDashboardController::class, 'updateProfile'])->name('profile.update');
-
-        // Schedule Management
-        Route::get('schedule', [BarberDashboardController::class, 'editSchedule'])->name('schedule.edit');
-        Route::put('schedule', [BarberDashboardController::class, 'updateSchedule'])->name('schedule.update');
-
-        // Portfolio Management
-        Route::get('portfolio', [BarberPortfolioController::class, 'index'])->name('portfolio.index');
-        Route::get('portfolio/create', [BarberPortfolioController::class, 'create'])->name('portfolio.create');
-        Route::post('portfolio', [BarberPortfolioController::class, 'store'])->name('portfolio.store');
-        Route::delete('portfolio/{work}', [BarberPortfolioController::class, 'destroy'])->name('portfolio.destroy');
-    });
-
 });
 
 require __DIR__.'/auth.php';

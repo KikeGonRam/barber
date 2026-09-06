@@ -77,16 +77,8 @@ class InventoryLowStockNotification extends Notification implements ShouldQueue
         ];
     }
 
-    /**
-     * Ruta al inventario; si no esta registrada (contexto sin web routes,
-     * ej. pruebas), cae a la raiz en vez de lanzar excepcion.
-     */
     private function inventoryUrl(): string
     {
-        try {
-            return route('inventory.products.index');
-        } catch (\Throwable $e) {
-            return url('/');
-        }
+        return config('app.frontend_url').'/inventory/products';
     }
 }

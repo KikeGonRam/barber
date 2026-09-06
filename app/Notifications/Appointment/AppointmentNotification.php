@@ -102,7 +102,7 @@ class AppointmentNotification extends Notification implements ShouldQueue
                 'Horario' => $hora,
             ],
             'ctaLabel' => $this->actionLabel ?? 'Ver mis citas',
-            'ctaUrl' => $this->actionUrl ?? route('client.appointments.index'),
+            'ctaUrl' => $this->actionUrl ?? config('app.frontend_url').'/my/appointments',
         ];
 
         if ($this->attachCalendar && ($google = $this->googleCalendarUrl())) {
@@ -201,7 +201,7 @@ class AppointmentNotification extends Notification implements ShouldQueue
             'fecha' => optional($this->appointment->fecha)->toDateString(),
             'hora_inicio' => $this->appointment->hora_inicio,
             'hora_fin' => $this->appointment->hora_fin,
-            'url' => $this->actionUrl ?? route('client.appointments.index'),
+            'url' => $this->actionUrl ?? config('app.frontend_url').'/my/appointments',
         ];
     }
 }
