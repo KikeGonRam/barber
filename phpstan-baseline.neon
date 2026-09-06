@@ -2175,7 +2175,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\PushSubscription\:\:\$endpoint\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/Services/Push/WebPushService.php
 
 		-

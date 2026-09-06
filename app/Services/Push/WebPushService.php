@@ -39,26 +39,45 @@ class WebPushService
             return;
         }
 
-        $webPush = new WebPush([
-            'VAPID' => [
-                'subject' => config('services.vapid.subject'),
-                'publicKey' => config('services.vapid.public_key'),
-                'privateKey' => config('services.vapid.private_key'),
+        $webPush = new WebPush(
+            auth: [
+                'VAPID' => [
+                    'subject' => config('services.vapid.subject'),
+                    'publicKey' => config('services.vapid.public_key'),
+                    'privateKey' => config('services.vapid.private_key'),
+                ],
             ],
-        ]);
+            // Sin esto, la librería usa trigger_error() para su aviso de
+            // rendimiento ("instala GMP o BCMath") -- un E_USER_NOTICE que
+            // PHPUnit convierte en fallo de test y que en producción
+            // ensuciaría el log de errores de PHP en vez de los logs de la
+            // app. Con un logger PSR-3 inyectado, usa $logger->notice() en
+            // su lugar.
+            logger: Log::getFacadeRoot(),
+        );
 
         $json = json_encode($payload);
 
+        // Uno por uno (sendOneNotification), no queueNotification()+flush():
+        // flush() devuelve un Generator que valida/cifra cada suscripción de
+        // forma perezosa mientras se itera, así que una sola suscripción
+        // corrupta (p. ej. una clave mal formada) lanza una excepción que
+        // mata el generador completo — ninguna suscripción posterior en el
+        // lote se llega a enviar. Mandarlas de una en una, cada una en su
+        // propio try/catch, aísla ese fallo sin bloquear al resto.
         foreach ($subscriptions as $subscription) {
-            $webPush->queueNotification(
-                new Subscription($subscription->endpoint, $subscription->public_key, $subscription->auth_token, $subscription->content_encoding),
-                $json,
-            );
-        }
+            try {
+                $report = $webPush->sendOneNotification(
+                    new Subscription($subscription->endpoint, $subscription->public_key, $subscription->auth_token, $subscription->content_encoding),
+                    $json,
+                );
 
-        foreach ($webPush->flush() as $report) {
-            if (! $report->isSuccess() && $report->isSubscriptionExpired()) {
-                PushSubscription::where('endpoint', $report->getEndpoint())->delete();
+                if (! $report->isSuccess() && $report->isSubscriptionExpired()) {
+                    $subscription->delete();
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Suscripción push inválida, se omite y se elimina', ['endpoint' => $subscription->endpoint, 'error' => $e->getMessage()]);
+                $subscription->delete();
             }
         }
     }
