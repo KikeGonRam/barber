@@ -489,11 +489,15 @@ here:
   `payment_intent.succeeded`/`.payment_failed`, and `.env.example` Stripe docs. Fase B
   (client-initiated card payment — doesn't exist at all today) is deliberately
   deferred with scope TBD, not to be started without asking again.
-- The new "ingeniero" role is a **superset of `administrador`**, not a separate
-  limited role — it needs every permission `administrador` has, plus a new
-  `sistema.ver` one. This means auditing every `role.custom:administrador` in
-  `routes/api.php`/`routes/web.php` to add `,ingeniero` — `EnsureUserHasRole` has no
-  role-inheritance concept, it's an explicit per-route list.
+- The new "ingeniero" role is **read-only, corrected 2026-09-06 after the first plan
+  draft got this wrong**: it is NOT a superset of `administrador` — the project owner
+  was explicit that it must never be able to create/edit/delete users, clients,
+  services, barbers, or settings. Its permission set is just `reportes.ver`,
+  `logs.ver`, and a new `sistema.ver` — dashboards/analytics/reports/server status
+  only. Add it only to specific read-only routes (dashboard, analytics, reports, logs,
+  the new system-status endpoint), never to any write/CRUD route, and never as a
+  blanket `role.custom:administrador,ingeniero` swap without checking each route's
+  actual HTTP verb/effect first.
 - Laravel Pulse was chosen (over building monitoring from scratch) for the "server
   status" dashboard, but **Pulse's storage needs a real SQL connection (MySQL/SQLite/
   Postgres) — this repo's Dockerfile only installs generic `pdo`, no `pdo_sqlite`/
