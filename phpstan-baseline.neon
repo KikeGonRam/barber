@@ -793,6 +793,72 @@ parameters:
 			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
+			identifier: property.notFound
+			count: 6
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$tipo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$metodo_pago\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$entregado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Order/OrderController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
 			identifier: property.notFound
 			count: 1

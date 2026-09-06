@@ -695,11 +695,11 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '17:58'
+                  example: '18:41'
                 estado:
                   type: string
                   description: ''
-                  example: confirmada
+                  example: completada
                   enum:
                     - pendiente
                     - confirmada
@@ -757,7 +757,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: en_proceso
                   enum:
                     - pendiente
                     - confirmada
@@ -963,6 +963,28 @@ paths:
       tags:
         - Endpoints
       security: []
+  /api/v1/products:
+    get:
+      summary: "Catálogo público de la tienda: productos disponibles para venta\n(mismos criterios que Product::scopeAvailableForSale(), usado por\nClient\\StoreController web), filtrable por nombre/categoría. Fase\n9.4 (Pedidos) del frontend Nuxt."
+      operationId: catlogoPblicoDeLaTiendaProductosDisponiblesParaVentamismosCriteriosQueProductscopeAvailableForSaleUsadoPorClientStoreControllerWebFiltrablePorNombrecategoraFase94PedidosDelFrontendNuxt
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data: []
+                properties:
+                  data:
+                    type: array
+                    example: []
+      tags:
+        - Endpoints
+      security: []
   /api/v1/availability/slots:
     get:
       summary: 'Calcula los horarios libres de un barbero en una fecha dada, según la duración del servicio elegido.'
@@ -1098,6 +1120,140 @@ paths:
       tags:
         - Endpoints
       security: []
+  /api/v1/orders:
+    get:
+      summary: "Lista pedidos: un cliente ve solo los suyos; admin/recepción ven\ntodos, con filtros opcionales (estado/folio) y las mismas\nestadísticas rápidas que Reception\\OrderController::index() (web)."
+      operationId: listaPedidosUnClienteVeSoloLosSuyosAdminrecepcinVenTodosConFiltrosOpcionalesestadofolioYLasMismasEstadsticasRpidasQueReceptionOrderControllerindexweb
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: "Crea un pedido de tienda a partir de los items del carrito (armado en\nel frontend). Solo cliente. El precio de cada línea NUNCA se toma del\nrequest: OrderService::place() relee Product::precio_venta."
+      operationId: creaUnPedidoDeTiendaAPartirDeLosItemsDelCarritoarmadoEnElFrontendSoloClienteElPrecioDeCadaLneaNUNCASeTomaDelRequestOrderServiceplaceReleeProductprecioVenta
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  description: 'Lista de {product_id, cantidad}.'
+                  example:
+                    - architecto
+                  items:
+                    type: string
+              required:
+                - items
+      security: []
+  '/api/v1/orders/{order_id}/cancel':
+    patch:
+      summary: "Cancela un pedido pendiente y devuelve el stock (delegado en\nOrderService::cancel()). El cliente solo puede cancelar el suyo;\nadmin/recepción pueden cancelar cualquiera."
+      operationId: cancelaUnPedidoPendienteYDevuelveElStockdelegadoEnOrderServicecancelElClienteSoloPuedeCancelarElSuyoAdminrecepcinPuedenCancelarCualquiera
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: order_id
+        description: 'The ID of the order.'
+        example: architecto
+        required: true
+        schema:
+          type: string
+  '/api/v1/orders/{order_id}/deliver':
+    patch:
+      summary: 'Marca un pedido como entregado y registra el método de cobro (staff).'
+      operationId: marcaUnPedidoComoEntregadoYRegistraElMtodoDeCobrostaff
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metodo_pago:
+                  type: string
+                  description: ''
+                  example: efectivo
+                  enum:
+                    - efectivo
+                    - tarjeta
+                    - transferencia
+                    - qr
+              required:
+                - metodo_pago
+      security: []
+    parameters:
+      -
+        in: path
+        name: order_id
+        description: 'The ID of the order.'
+        example: architecto
+        required: true
+        schema:
+          type: string
+  '/api/v1/orders/{order_id}/receipt':
+    get:
+      summary: "Recibo PDF de un pedido entregado (staff). A diferencia de los pagos,\nOrder no cachea la ruta del PDF generado (no hay campo equivalente a\ncomprobante_pdf) — se regenera en cada descarga y se devuelve el\nbinario directo, no una URL pública."
+      operationId: reciboPDFDeUnPedidoEntregadostaffADiferenciaDeLosPagosOrderNoCacheaLaRutaDelPDFGeneradonoHayCampoEquivalenteAComprobantePdfSeRegeneraEnCadaDescargaYSeDevuelveElBinarioDirectoNoUnaURLPblica
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No query results for model [App\Models\Order] architecto'
+                properties:
+                  message:
+                    type: string
+                    example: 'No query results for model [App\Models\Order] architecto'
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: order_id
+        description: 'The ID of the order.'
+        example: architecto
+        required: true
+        schema:
+          type: string
   /api/v1/payments:
     get:
       summary: "Lista paginada de pagos con datos de cita, cliente, barbero y comprobante,\nfiltrable por método de pago."
@@ -1146,7 +1302,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: efectivo
+                  example: tarjeta
                   enum:
                     - efectivo
                     - tarjeta
@@ -1164,7 +1320,7 @@ paths:
                 usar_premio_rifa:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 stripe_payment_id:
                   type: string
@@ -1385,12 +1541,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T17:58:55'
+                  example: '2026-09-05T18:41:20'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_email:
                   type: boolean
@@ -1443,12 +1599,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T17:58:56'
+                  example: '2026-09-05T18:41:20'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_email:
                   type: boolean
@@ -1463,7 +1619,7 @@ paths:
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -1553,7 +1709,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -1606,7 +1762,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -1941,7 +2097,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '17:58'
+                  example: '18:41'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -2767,7 +2923,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 active:
                   type: boolean
@@ -3011,7 +3167,7 @@ paths:
                 type:
                   type: string
                   description: ''
-                  example: citas
+                  example: clientes
                   enum:
                     - ingresos
                     - citas
@@ -3020,7 +3176,7 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: semana
+                  example: personalizado
                   enum:
                     - dia
                     - semana
@@ -3031,12 +3187,12 @@ paths:
                 dateFrom:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T17:59:01'
+                  example: '2026-09-05T18:41:24'
                   nullable: true
                 dateTo:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T17:59:01'
+                  example: '2026-09-05T18:41:24'
                   nullable: true
                 detail:
                   type: string
@@ -4092,7 +4248,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T17:58:56'
+                  example: '2026-09-05T18:41:20'
                   nullable: true
               required:
                 - product_id

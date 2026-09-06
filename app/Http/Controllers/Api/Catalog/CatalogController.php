@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarberReview;
+use App\Models\Product;
 use App\Models\Service;
 use App\Models\Work;
 use App\Services\Barber\BarberReviewService;
@@ -33,6 +34,37 @@ class CatalogController extends Controller
 
         return response()->json([
             'data' => $services,
+        ]);
+    }
+
+    /**
+     * Catálogo público de la tienda: productos disponibles para venta
+     * (mismos criterios que Product::scopeAvailableForSale(), usado por
+     * Client\StoreController web), filtrable por nombre/categoría. Fase
+     * 9.4 (Pedidos) del frontend Nuxt.
+     */
+    public function products(Request $request): JsonResponse
+    {
+        $search = trim((string) $request->query('q', ''));
+        $categoria = trim((string) $request->query('categoria', ''));
+
+        $products = Product::query()
+            ->availableForSale()
+            ->when($search !== '', fn ($q) => $q->where('nombre', 'like', "%{$search}%"))
+            ->when($categoria !== '', fn ($q) => $q->where('categoria', $categoria))
+            ->orderBy('nombre')
+            ->get(['id', 'nombre', 'categoria', 'descripcion', 'precio_venta', 'stock_actual', 'imagen']);
+
+        return response()->json([
+            'data' => $products->map(fn (Product $p) => [
+                'id' => $p->id,
+                'nombre' => $p->nombre,
+                'categoria' => $p->categoria,
+                'descripcion' => $p->descripcion,
+                'precio_venta' => (float) $p->precio_venta,
+                'stock_actual' => (int) $p->stock_actual,
+                'imagen' => $p->imagen ? asset('storage/'.$p->imagen) : null,
+            ])->values(),
         ]);
     }
 

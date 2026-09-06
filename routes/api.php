@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Dashboard\DashboardController;
 use App\Http\Controllers\Api\Inventory\InventoryController as ApiInventoryController;
 use App\Http\Controllers\Api\Log\LogController as ApiLogController;
 use App\Http\Controllers\Api\Notification\NotificationController as ApiNotificationController;
+use App\Http\Controllers\Api\Order\OrderController as ApiOrderController;
 use App\Http\Controllers\Api\Payment\PaymentController as ApiPaymentController;
 use App\Http\Controllers\Api\Payment\StripeWebhookController;
 use App\Http\Controllers\Api\Prediction\PredictionController;
@@ -52,6 +53,7 @@ Route::prefix('v1')->group(function (): void {
     // Catálogo público
     Route::get('services', [CatalogController::class, 'services']);
     Route::get('barbers', [CatalogController::class, 'barbers']);
+    Route::get('products', [CatalogController::class, 'products']);
     Route::get('availability/slots', [AvailabilityController::class, 'slots'])->middleware('throttle:30,1');
     Route::get('social/feed', [ApiSocialController::class, 'feed']);
 
@@ -85,8 +87,19 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
         Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy']);
 
+        // Pedidos (cliente ve/crea/cancela los suyos; admin/recepción ven y
+        // gestionan todos — branching por rol dentro del controlador, mismo
+        // criterio que appointments.index()).
+        Route::get('orders', [ApiOrderController::class, 'index']);
+        Route::post('orders', [ApiOrderController::class, 'store']);
+        Route::patch('orders/{order}/cancel', [ApiOrderController::class, 'cancel']);
+
         // Solo administrador y recepcionista: gestión de pagos, clientes e inventario.
         Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {
+            // Pedidos — bandeja de recepción (Admin/Recepcionista)
+            Route::patch('orders/{order}/deliver', [ApiOrderController::class, 'deliver']);
+            Route::get('orders/{order}/receipt', [ApiOrderController::class, 'receipt']);
+
             // Pagos (Admin/Recepcionista)
             Route::get('payments', [ApiPaymentController::class, 'index']);
             Route::get('payments/pending', [ApiPaymentController::class, 'pending']);

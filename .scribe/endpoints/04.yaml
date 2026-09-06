@@ -601,7 +601,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T17:58:56'
+        example: '2026-09-05T18:41:20'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -612,7 +612,7 @@ endpoints:
       cantidad: 22
       motivo: g
       appointment_id: architecto
-      fecha: '2026-09-05T17:58:56'
+      fecha: '2026-09-05T18:41:20'
     fileParameters: []
     responses: []
     responseFields: []

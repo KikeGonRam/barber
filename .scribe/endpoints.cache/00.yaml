@@ -196,6 +196,50 @@ endpoints:
     custom: []
     httpMethods:
       - GET
+    uri: api/v1/products
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Catálogo público de la tienda: productos disponibles para venta
+        (mismos criterios que Product::scopeAvailableForSale(), usado por
+        Client\StoreController web), filtrable por nombre/categoría. Fase
+        9.4 (Pedidos) del frontend Nuxt.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"data":[]}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
     uri: api/v1/availability/slots
     metadata:
       custom: []
@@ -389,6 +433,283 @@ endpoints:
     custom: []
     httpMethods:
       - GET
+    uri: api/v1/orders
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Lista pedidos: un cliente ve solo los suyos; admin/recepción ven
+        todos, con filtros opcionales (estado/folio) y las mismas
+        estadísticas rápidas que Reception\OrderController::index() (web).
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/orders
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Crea un pedido de tienda a partir de los items del carrito (armado en
+        el frontend). Solo cliente. El precio de cada línea NUNCA se toma del
+        request: OrderService::place() relee Product::precio_venta.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      items:
+        custom: []
+        name: items
+        description: 'Lista de {product_id, cantidad}.'
+        required: true
+        example:
+          - architecto
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].product_id':
+        custom: []
+        name: 'items[].product_id'
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].cantidad':
+        custom: []
+        name: 'items[].cantidad'
+        description: 'El campo value debe ser al menos 1.'
+        required: true
+        example: 22
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      items:
+        - architecto
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: 'api/v1/orders/{order_id}/cancel'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Cancela un pedido pendiente y devuelve el stock (delegado en
+        OrderService::cancel()). El cliente solo puede cancelar el suyo;
+        admin/recepción pueden cancelar cualquiera.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      order_id:
+        custom: []
+        name: order_id
+        description: 'The ID of the order.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      order_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: 'api/v1/orders/{order_id}/deliver'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Marca un pedido como entregado y registra el método de cobro (staff).'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      order_id:
+        custom: []
+        name: order_id
+        description: 'The ID of the order.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      order_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      metodo_pago:
+        custom: []
+        name: metodo_pago
+        description: ''
+        required: true
+        example: efectivo
+        type: string
+        enumValues:
+          - efectivo
+          - tarjeta
+          - transferencia
+          - qr
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      metodo_pago: efectivo
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/orders/{order_id}/receipt'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Recibo PDF de un pedido entregado (staff). A diferencia de los pagos,
+        Order no cachea la ruta del PDF generado (no hay campo equivalente a
+        comprobante_pdf) — se regenera en cada descarga y se devuelve el
+        binario directo, no una URL pública.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      order_id:
+        custom: []
+        name: order_id
+        description: 'The ID of the order.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      order_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+              "message": "No query results for model [App\\Models\\Order] architecto"
+          }
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
     uri: api/v1/payments
     metadata:
       custom: []
@@ -523,7 +844,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -559,7 +880,7 @@ endpoints:
         name: usar_premio_rifa
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -579,10 +900,10 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: efectivo
+      metodo_pago: tarjeta
       propina: 77
       puntos_canjeados: 8
-      usar_premio_rifa: true
+      usar_premio_rifa: false
       stripe_payment_id: architecto
     fileParameters: []
     responses: []
@@ -967,7 +1288,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T17:58:55'
+        example: '2026-09-05T18:41:20'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -978,7 +1299,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1022,8 +1343,8 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-05T17:58:55'
-      pref_in_app: true
+      fecha_nacimiento: '2026-09-05T18:41:20'
+      pref_in_app: false
       pref_email: false
       pref_sms: true
       pref_whatsapp: true
@@ -1107,7 +1428,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T17:58:56'
+        example: '2026-09-05T18:41:20'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1118,7 +1439,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1151,7 +1472,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1161,11 +1482,11 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-05T17:58:56'
-      pref_in_app: true
+      fecha_nacimiento: '2026-09-05T18:41:20'
+      pref_in_app: false
       pref_email: true
       pref_sms: false
-      pref_whatsapp: false
+      pref_whatsapp: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -1350,7 +1671,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1363,7 +1684,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -1477,7 +1798,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1490,7 +1811,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2159,7 +2480,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '17:58'
+        example: '18:41'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2224,7 +2545,7 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '17:58'
+      horario_apertura: '18:41'
       horario_cierre: '2052-09-28'
       politica_cancelacion: 22
       instagram: g
@@ -3877,7 +4198,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3903,7 +4224,7 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: false
+      activo: true
       active: false
     fileParameters: []
     responses: []
@@ -4344,7 +4665,7 @@ endpoints:
         name: type
         description: ''
         required: true
-        example: citas
+        example: clientes
         type: string
         enumValues:
           - ingresos
@@ -4359,7 +4680,7 @@ endpoints:
         name: period
         description: ''
         required: true
-        example: semana
+        example: personalizado
         type: string
         enumValues:
           - dia
@@ -4376,7 +4697,7 @@ endpoints:
         name: dateFrom
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T17:59:01'
+        example: '2026-09-05T18:41:24'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4387,7 +4708,7 @@ endpoints:
         name: dateTo
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T17:59:01'
+        example: '2026-09-05T18:41:24'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4408,10 +4729,10 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      type: citas
-      period: semana
-      dateFrom: '2026-09-05T17:59:01'
-      dateTo: '2026-09-05T17:59:01'
+      type: clientes
+      period: personalizado
+      dateFrom: '2026-09-05T18:41:24'
+      dateTo: '2026-09-05T18:41:24'
       detail: muy-detallado
     fileParameters: []
     responses: []
