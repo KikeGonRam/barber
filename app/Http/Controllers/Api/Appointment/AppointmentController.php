@@ -68,7 +68,11 @@ class AppointmentController extends Controller
         $user = $request->user();
         $isClient = $user?->hasRole('cliente') && $user->clientProfile;
 
-        $query = Appointment::query()->with(['client.user', 'barber.user', 'service'])->latest('fecha')->latest('hora_inicio');
+        // withCount('payments') alimenta AppointmentResource::has_payment --
+        // el frontend del cliente lo usa para saber si mostrar "Pagar con
+        // tarjeta" (autopago, Fase B) en una cita cobrable que aún no tiene
+        // pago registrado.
+        $query = Appointment::query()->with(['client.user', 'barber.user', 'service'])->withCount('payments')->latest('fecha')->latest('hora_inicio');
 
         if ($isClient) {
             $query->where('client_id', (string) $user->clientProfile->id);

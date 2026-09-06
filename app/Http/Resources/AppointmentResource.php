@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Services\Appointment\AppointmentStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,6 +23,11 @@ class AppointmentResource extends JsonResource
             'estado' => $this->estado,
             'notas' => $this->notas,
             'precio_cobrado' => $this->precio_cobrado,
+            // Solo presentes cuando el query de origen usó withCount('payments')
+            // (AppointmentController::index()) -- el resto de usos de este
+            // Resource simplemente no incluyen estos dos campos.
+            'has_payment' => $this->when(isset($this->payments_count), fn () => $this->payments_count > 0),
+            'is_chargeable' => $this->when(isset($this->payments_count), fn () => in_array($this->estado, AppointmentStatusService::CHARGEABLE, true)),
             'client' => [
                 'id' => $this->client?->id,
                 'user' => ['name' => $this->client?->user?->name],

@@ -99,6 +99,31 @@ class ClientSelfServiceApiTest extends TestCase
             ->assertJsonPath('cancellation_policy_hours', 24);
     }
 
+    /**
+     * has_payment/is_chargeable (Fase B, autopago): el frontend los usa para
+     * decidir si mostrar "Pagar con tarjeta" en una cita concreta -- sin
+     * esto tendría que adivinar el estado del pago desde el cliente.
+     */
+    public function test_client_appointments_index_exposes_has_payment_and_is_chargeable(): void
+    {
+        $unpaidChargeable = $this->makeAppointment(['estado' => 'confirmada']);
+        $paidChargeable = $this->makeAppointment(['estado' => 'completada']);
+        Payment::create([
+            'appointment_id' => (string) $paidChargeable->id, 'monto' => 200, 'metodo_pago' => 'efectivo',
+            'estado' => Payment::ESTADO_VERIFICADO,
+        ]);
+        $notChargeable = $this->makeAppointment(['estado' => 'pendiente']);
+
+        $response = $this->withToken($this->clientToken)->getJson('/api/v1/appointments');
+        $response->assertOk();
+
+        $rows = collect($response->json('data'))->keyBy('id');
+        $this->assertFalse($rows[(string) $unpaidChargeable->id]['has_payment']);
+        $this->assertTrue($rows[(string) $unpaidChargeable->id]['is_chargeable']);
+        $this->assertTrue($rows[(string) $paidChargeable->id]['has_payment']);
+        $this->assertFalse($rows[(string) $notChargeable->id]['is_chargeable']);
+    }
+
     public function test_client_can_reschedule_own_pending_appointment(): void
     {
         $appointment = $this->makeAppointment(['estado' => 'pendiente', 'fecha' => now()->addDays(5)->toDateString()]);

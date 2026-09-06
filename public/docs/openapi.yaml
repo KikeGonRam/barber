@@ -695,11 +695,11 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '16:09'
+                  example: '16:39'
                 estado:
                   type: string
                   description: ''
-                  example: en_proceso
+                  example: completada
                   enum:
                     - pendiente
                     - confirmada
@@ -813,7 +813,7 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: day
+                  example: week
                   enum:
                     - day
                     - week
@@ -1308,7 +1308,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: transferencia
+                  example: efectivo
                   enum:
                     - efectivo
                     - tarjeta
@@ -1326,7 +1326,7 @@ paths:
                 usar_premio_rifa:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 stripe_payment_id:
                   type: string
@@ -1416,7 +1416,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: qr
+                  example: transferencia
                   enum:
                     - efectivo
                     - tarjeta
@@ -1615,12 +1615,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T16:09:39'
+                  example: '2026-09-06T16:39:10'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_email:
                   type: boolean
@@ -1673,7 +1673,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T16:09:39'
+                  example: '2026-09-06T16:39:10'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -1783,7 +1783,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -1836,7 +1836,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2110,7 +2110,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '16:09'
+                  example: '16:39'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -2232,7 +2232,7 @@ paths:
                 modo:
                   type: string
                   description: ''
-                  example: ahora
+                  example: programar
                   enum:
                     - ahora
                     - programar
@@ -2484,11 +2484,11 @@ paths:
                 in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 sms:
                   type: boolean
                   description: ''
@@ -2500,7 +2500,7 @@ paths:
                 push:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 promociones:
                   type: boolean
                   description: ''
@@ -2567,7 +2567,7 @@ paths:
                 content_encoding:
                   type: string
                   description: ''
-                  example: aes128gcm
+                  example: aesgcm
                   enum:
                     - aesgcm
                     - aes128gcm
@@ -2885,7 +2885,7 @@ paths:
                 type:
                   type: string
                   description: ''
-                  example: citas
+                  example: ingresos
                   enum:
                     - ingresos
                     - citas
@@ -2894,7 +2894,7 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: año
+                  example: semana
                   enum:
                     - dia
                     - semana
@@ -2905,12 +2905,12 @@ paths:
                 dateFrom:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T16:09:42'
+                  example: '2026-09-06T16:39:12'
                   nullable: true
                 dateTo:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T16:09:42'
+                  example: '2026-09-06T16:39:12'
                   nullable: true
                 detail:
                   type: string
@@ -3556,7 +3556,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 active:
                   type: boolean
@@ -3650,7 +3650,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
       security: []
     delete:
@@ -3975,7 +3975,7 @@ paths:
                 helpful:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
               required:
                 - message
                 - response
@@ -4757,7 +4757,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T16:09:40'
+                  example: '2026-09-06T16:39:11'
                   nullable: true
               required:
                 - product_id

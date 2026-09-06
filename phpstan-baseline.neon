@@ -1131,6 +1131,12 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$estado\.$#'
 			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$payments_count\.$#'
+			identifier: property.notFound
 			count: 1
 			path: app/Http/Resources/AppointmentResource.php
 
