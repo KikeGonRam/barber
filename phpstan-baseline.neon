@@ -2628,3 +2628,57 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/Notifications/Barber/ReviewRequestNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$rating\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Review/ReviewController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$comment\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Review/ReviewController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Review/ReviewController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Review/ReviewController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Review/ReviewController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Review/ReviewController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Review/ReviewController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Barber\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Review/ReviewController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/Review/ReviewController.php

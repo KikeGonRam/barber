@@ -209,7 +209,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -235,7 +235,7 @@ endpoints:
       stock_actual: 8
       stock_minimo: 76
       tipo: architecto
-      active: true
+      active: false
       activo: false
     fileParameters:
       imagen: null
@@ -695,7 +695,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T23:41:06'
+        example: '2026-09-06T01:32:41'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -706,7 +706,7 @@ endpoints:
       cantidad: 22
       motivo: g
       appointment_id: architecto
-      fecha: '2026-09-05T23:41:06'
+      fecha: '2026-09-06T01:32:41'
     fileParameters: []
     responses: []
     responseFields: []

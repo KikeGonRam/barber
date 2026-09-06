@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\Prediction\PredictionController;
 use App\Http\Controllers\Api\Profile\ProfileController;
 use App\Http\Controllers\Api\Raffle\RaffleController as ApiRaffleController;
 use App\Http\Controllers\Api\Report\ReportController as ApiReportController;
+use App\Http\Controllers\Api\Review\ReviewController as ApiReviewController;
 use App\Http\Controllers\Api\Service\ServiceManagementController as ApiServiceManagementController;
 use App\Http\Controllers\Api\Setting\SettingController as ApiSettingController;
 use App\Http\Controllers\Api\Social\SocialController as ApiSocialController;
@@ -175,6 +176,9 @@ Route::prefix('v1')->group(function (): void {
 
             // Sorteos (Admin)
             Route::get('raffles', [ApiRaffleController::class, 'index']);
+
+            // Reseñas de clientes a barberos (Admin)
+            Route::get('reviews', [ApiReviewController::class, 'index']);
         });
 
         // Notificaciones
