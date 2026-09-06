@@ -422,3 +422,72 @@ happened after this file already existed). Treat this skill as a snapshot, not a
 guarantee: if something you observe in the actual code/data/docs contradicts what's
 written here, trust what you observe and say so — don't assume the skill is more
 up-to-date than reality just because it's more recently-sounding or more authoritative-looking than a quick check would be.
+
+## Reporte final (2026-09-06) — la migración a Nuxt cerró, `barber` es API+resto
+
+Resumen ejecutivo de cómo terminó este repo tras la migración de frontend
+descrita en guardrail #18, para quien lo abra sin haber visto todo el
+proceso.
+
+**Qué pasó.** El equipo decidió (guardrail #18) desacoplar el frontend a un
+proyecto Nuxt 4 aparte (`frontend-urban`), consumiendo la API JSON de este
+repo (`routes/api.php`) por el sistema de Bearer token propio
+(`mobile_api_tokens`/`AuthenticateMobileApiToken`, no Sanctum). Esa migración
+avanzó en fases (ver `frontend-urban/.claude/skills/nuxt-migration-plan/
+SKILL.md` para el detalle fase por fase) hasta alcanzar paridad funcional
+confirmada — verificada en vivo contra cuentas reales, no solo "se ve
+parecido" — con absolutamente todo lo que tenía interfaz en este repo:
+los 4 dashboards y el calendario (que en su momento se habían migrado a
+Inertia+Vue, ver guardrail #18 y `.claude/skills/inertia-vue-migration/
+SKILL.md`, ahora retirado), el resto del panel Blade+Alpine (citas,
+clientes, pagos, pedidos, inventario, servicios, usuarios, barberos,
+campañas, sorteos, reportes, configuración, logs, autoservicio de
+cliente/barbero), y por último Analítica — que estuvo bloqueada varias
+semanas porque este repo no tenía ninguna API para esa pantalla, hasta que
+se construyó `Api\Analytics\AnalyticsController` para desbloquearla.
+
+**Qué se retiró de este repo, el mismo día (2026-09-06), en dos pasos:**
+1. Las páginas Inertia+Vue (los 4 dashboards + calendario) — lo único que
+   este repo había migrado a Inertia. `resources/js/Pages|Layouts|
+   Components`, `resources/js/inertia.js`, `config/inertia.php`,
+   `HandleInertiaRequests`, el paquete `inertiajs/inertia-laravel` +
+   `tightenco/ziggy` (composer) y `@inertiajs/vue3`+`vue`+`@vitejs/plugin-vue`+
+   `ziggy-js`+`@fullcalendar/*`+`vue-chartjs` (npm) — todo eliminado.
+2. El resto del panel Blade+Alpine — nunca fue Inertia, pero tenía la misma
+   paridad confirmada, así que se aplicó el mismo criterio. 22 controladores
+   eliminados por completo, 2 recortados quirúrgicamente porque mezclaban un
+   método público que sobrevive con métodos admin que no
+   (`Service\ServiceController` conservó solo `publicIndex()`,
+   `Barber\BarberController` conservó solo `show()`), y unos 50 archivos
+   Blade eliminados.
+
+**Qué sigue vivo en este repo porque Nuxt no lo cubre (decisión consciente,
+no deuda técnica):** la landing pública (`/`), el catálogo público
+(`/servicios`, `/equipo/{barber}`), todo `routes/auth.php` (login, registro,
+recuperación de contraseña, verificación de email), `/profile`,
+`/notifications`, los endpoints del chatbot, el muro social (`/descubrir` —
+listado "Próximamente" en la nav de Nuxt), `reviews.index` (`/resenas` —
+también "Próximamente" ahí), el endpoint de respaldo de base de datos, y la
+tarjeta de membresía en PDF del cliente. `/dashboard` y
+`/appointments-calendar` siguen existiendo como rutas, pero ahora son
+redirects a `config('app.frontend_url')` (env `FRONTEND_URL`), no páginas.
+
+**El hallazgo más importante del proceso de retiro**, por si se repite un
+retiro similar en el futuro: `route()` de Laravel lanza excepción si la ruta
+no existe — a diferencia del `Route::has()` defensivo que ya usaba
+`NavigationMenu::item()`. Varios lugares tenían `route()` sin ese guard
+apuntando a páginas que se estaban por eliminar: dos componentes Blade
+**renderizados globalmente en cada página autenticada** (el command palette
+y el toaster de notificaciones) y **8 clases de `Notification`** cuyos
+botones de acción en emails/notificaciones in-app apuntaban a rutas que iban
+a desaparecer. Ninguno se detectó por los tests (nada los ejercitaba
+directamente) — se encontraron con un grep deliberado de `route\(` en TODO
+el árbol de `app/`+`resources/views/`, no solo en las vistas del controlador
+que se estaba borrando. Cualquier retiro de rutas futuro debería repetir ese
+barrido completo antes de confiar en que "ya no hay nada apuntando ahí".
+
+**Estado real al cerrar:** CI en verde en cada push de todo este proceso,
+`.\test.ps1` en 260 tests pasando dos veces seguidas tras el retiro final,
+Pint y Larastan (caché fría) limpios. Este repo es ahora, funcionalmente,
+una API JSON para Nuxt más un puñado de páginas públicas/de cuenta que Nuxt
+todavía no construye — ya no un panel administrativo completo.
