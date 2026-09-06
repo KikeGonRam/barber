@@ -200,9 +200,14 @@ class AppointmentNotifier
 
     /**
      * Envia la misma notificacion a todo el staff (recepcion + admin) de una
-     * sola vez via Notification::send (batch), no una a una.
+     * sola vez via Notification::send (batch), no una a una. Publico porque
+     * StripeWebhookController tambien lo usa para avisar de pagos
+     * fallidos/reembolsados/disputados -- no son eventos de "cita" en
+     * sentido estricto, pero siempre estan ligados a una, y reusar este
+     * mismo canal (AppointmentNotification a todo el staff) evita duplicar
+     * la logica de "avisale a recepcion+admin".
      */
-    private function sendStaff(Appointment $appointment, string $subject, string $title, string $message, string $accent = '#94a3b8', ?string $badge = null): void
+    public function sendStaff(Appointment $appointment, string $subject, string $title, string $message, string $accent = '#94a3b8', ?string $badge = null): void
     {
         try {
             $staff = User::whereRoleName(['recepcionista', 'administrador'])->get();

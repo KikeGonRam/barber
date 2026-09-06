@@ -11,6 +11,8 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\User;
+use App\Services\Loyalty\LoyaltyService;
+use App\Services\Payment\StripePaymentService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Str;
 use Spatie\Permission\PermissionRegistrar;
@@ -194,5 +196,96 @@ class PaymentApiTest extends TestCase
         $doubleApprove = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson("/api/v1/payments/{$paymentToApprove->id}/approve");
         $doubleApprove->assertStatus(422);
+    }
+
+    /**
+     * Cubre stripeIntent() (Fase A del plan Stripe, cero cobertura antes de
+     * esta fase): el monto SIEMPRE se recalcula en servidor (precio del
+     * servicio -> descuento de nivel -> puntos canjeados), nunca se recibe
+     * del cliente -- el endpoint ni siquiera acepta un campo "monto" en el
+     * payload. Se mockea StripePaymentService para no pegarle a la API real
+     * de Stripe.
+     */
+    public function test_stripe_intent_is_staff_only(): void
+    {
+        $role = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
+        $user = User::create(['name' => 'Cliente Stripe Guard', 'email' => 'cliente-stripe-guard@test.local', 'password' => 'password']);
+        $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+
+        $token = $this->tokenFor($user, 'test-plaintext-token-stripe-guard');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => 'irrelevante']);
+
+        $response->assertForbidden();
+    }
+
+    public function test_stripe_intent_computes_the_amount_server_side_with_loyalty_discount(): void
+    {
+        $user = $this->staffUser('recepcionista', 'recepcion-stripe@test.local');
+
+        $barberUser = User::create(['name' => 'Barbero Stripe Intent', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Stripe Intent', 'activo' => true]);
+        $clientUser = User::create(['name' => 'Cliente Stripe Intent', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        // Nivel 'vip' para que el descuento de lealtad sea distinto de cero
+        // y así confirmar que sí se aplica antes de mandarle el monto a Stripe.
+        $client = Client::create(['user_id' => (string) $clientUser->id, 'telefono' => '5551112222', 'nivel' => 'vip', 'puntos' => 0]);
+        $service = Service::create(['nombre' => 'Corte Stripe Intent', 'precio' => 300, 'duracion_min' => 30, 'activo' => true]);
+
+        $appointment = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00', 'estado' => 'confirmada',
+        ]);
+
+        $expectedAmount = LoyaltyService::applyDiscount(300.0, 'vip');
+
+        $this->mock(StripePaymentService::class, function ($mock) use ($expectedAmount, $appointment) {
+            $mock->shouldReceive('createPaymentIntent')
+                ->once()
+                ->withArgs(fn ($amount, $currency, $metadata) => abs($amount - $expectedAmount) < 0.01
+                    && $currency === 'mxn'
+                    && $metadata['appointment_id'] === (string) $appointment->id
+                )
+                ->andReturn(['client_secret' => 'pi_test_secret_123', 'payment_intent_id' => 'pi_test_123']);
+        });
+
+        $token = $this->tokenFor($user, 'test-plaintext-token-stripe-intent');
+
+        // El cliente manda un "monto" absurdo a propósito -- el endpoint no
+        // tiene ni siquiera un campo para eso, así que no puede afectar nada.
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', [
+                'appointment_id' => (string) $appointment->id,
+                'monto' => 1,
+            ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.client_secret', 'pi_test_secret_123');
+    }
+
+    public function test_stripe_intent_rejects_redeeming_more_points_than_allowed(): void
+    {
+        $user = $this->staffUser('recepcionista', 'recepcion-stripe-puntos@test.local');
+
+        $barberUser = User::create(['name' => 'Barbero Stripe Puntos', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Stripe Puntos', 'activo' => true]);
+        $clientUser = User::create(['name' => 'Cliente Stripe Puntos', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $client = Client::create(['user_id' => (string) $clientUser->id, 'telefono' => '5553334444', 'nivel' => 'nuevo', 'puntos' => 5]);
+        $service = Service::create(['nombre' => 'Corte Stripe Puntos', 'precio' => 300, 'duracion_min' => 30, 'activo' => true]);
+
+        $appointment = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00', 'estado' => 'confirmada',
+        ]);
+
+        $token = $this->tokenFor($user, 'test-plaintext-token-stripe-puntos');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', [
+                'appointment_id' => (string) $appointment->id,
+                'puntos_canjeados' => 999999,
+            ]);
+
+        $response->assertStatus(422);
     }
 }
