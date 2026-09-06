@@ -426,7 +426,17 @@ class ChatbotController extends Controller
         }
 
         // ============ PREGUNTAS FRECUENTES GENERALES ============
-        if ($this->matchesKeywords($message, ['primer', 'primera vez', 'nuevo', 'cómo funciona', 'ayuda', 'tutorial'])) {
+        // 'ayuda' (sola) se quitó de esta lista -- bug real encontrado en
+        // vivo el 2026-09-06, reportado por el usuario como "pierde el
+        // contexto y el rol": por substring, calzaba dentro de "ayudame",
+        // así que un seguimiento tan común como "sí, ayúdame" -- respuesta
+        // genérica a CUALQUIER pregunta anterior del bot -- secuestraba la
+        // conversación hacia este FAQ de bienvenida para clientes nuevos,
+        // sin importar el tema de un segundo antes ni que el usuario fuera
+        // admin. Las frases que quedan ('cómo funciona', 'tutorial', etc.)
+        // sí son señales inequívocas de "quiero un tutorial de la app" —
+        // 'ayuda' sola nunca lo fue.
+        if ($this->matchesKeywords($message, ['primer', 'primera vez', 'nuevo', 'cómo funciona', 'tutorial'])) {
             return "BIENVENIDO A URBANBLADE:\n\n1. Regístrate con tu correo\n2. Completa tu perfil\n3. Explora nuestros servicios\n4. Reserva tu cita\n5. Gana puntos y sube de nivel\n\n¿Necesitas ayuda con algo específico?";
         }
 
@@ -504,6 +514,17 @@ class ChatbotController extends Controller
      * literal 'cuánto cuesta' de la categoría de servicios/precios y
      * terminaba cayendo hasta datos externos/IA para algo que la base de
      * conocimiento local ya sabía responder bien.
+     *
+     * Sigue siendo str_contains() (substring), a propósito: se probó
+     * cambiar a coincidencia por palabra completa (\bword\b) para resolver
+     * el bug de 'ayuda' de abajo, pero eso rompió coincidencias plurales
+     * que el resto de las categorías SÍ dependen de que funcionen por
+     * substring -- p. ej. la keyword 'usuario' (singular) dejó de calzar
+     * con "usuarios" (plural) porque no hay límite de palabra entre
+     * 'usuario' y la 's' siguiente. El fix correcto no es cambiar cómo
+     * compara este método, es no tener keywords sueltas y demasiado
+     * genéricas en las listas de cada categoría (ver el keyword 'ayuda'
+     * removido en la categoría de FAQ generales, más abajo).
      */
     private function matchesKeywords(string $message, array $keywords): bool
     {
