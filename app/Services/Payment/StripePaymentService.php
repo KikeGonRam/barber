@@ -12,11 +12,21 @@ use Stripe\StripeClient;
  */
 class StripePaymentService
 {
-    private StripeClient $stripe;
+    private ?StripeClient $stripe = null;
 
-    public function __construct()
+    /**
+     * Construye el cliente de Stripe solo cuando realmente se necesita
+     * (no en el constructor): esta clase se inyecta en
+     * Api\Payment\PaymentController, cuyo contenedor la resuelve para
+     * CUALQUIER accion de ese controlador (index/pending/approve/...), no
+     * solo las que tocan Stripe. Instanciar StripeClient de forma eager
+     * revienta con "$config must be a string or an array" en cualquier
+     * entorno sin STRIPE_SECRET configurado (p. ej. CI), aunque esa
+     * peticion nunca use Stripe.
+     */
+    private function client(): StripeClient
     {
-        $this->stripe = new StripeClient(config('services.stripe.secret'));
+        return $this->stripe ??= new StripeClient(config('services.stripe.secret'));
     }
 
     /**
@@ -25,7 +35,7 @@ class StripePaymentService
      */
     public function createPaymentIntent(float $amount, string $currency = 'mxn', array $metadata = []): array
     {
-        $intent = $this->stripe->paymentIntents->create([
+        $intent = $this->client()->paymentIntents->create([
             // Stripe espera el monto en la unidad minima de la moneda
             // (centavos), de ahi el *100 y el redondeo a entero.
             'amount' => (int) round($amount * 100),
@@ -45,7 +55,7 @@ class StripePaymentService
      */
     public function retrievePaymentIntent(string $paymentIntentId): PaymentIntent
     {
-        return $this->stripe->paymentIntents->retrieve($paymentIntentId);
+        return $this->client()->paymentIntents->retrieve($paymentIntentId);
     }
 
     /**
