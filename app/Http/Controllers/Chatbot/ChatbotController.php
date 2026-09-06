@@ -497,19 +497,37 @@ class ChatbotController extends Controller
     }
 
     /**
-     * Busca múltiples palabras clave en el mensaje.
+     * Busca múltiples palabras clave en el mensaje. Ignora acentos en
+     * ambos lados de la comparación -- encontrado en vivo (2026-09-06):
+     * casi nadie escribe "cuánto" con acento al chatear rápido ("cuanto
+     * cuesta"), así que ese mensaje nunca calzaba con la keyword
+     * literal 'cuánto cuesta' de la categoría de servicios/precios y
+     * terminaba cayendo hasta datos externos/IA para algo que la base de
+     * conocimiento local ya sabía responder bien.
      */
     private function matchesKeywords(string $message, array $keywords): bool
     {
-        $normalizedMessage = strtolower($message);
+        $normalizedMessage = $this->stripAccents(strtolower($message));
 
         foreach ($keywords as $keyword) {
-            if (str_contains($normalizedMessage, strtolower((string) $keyword))) {
+            if (str_contains($normalizedMessage, $this->stripAccents(strtolower((string) $keyword)))) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Quita acentos/diéresis de vocales y la ñ (a minúsculas equivalentes)
+     * para comparar texto en español sin importar si el usuario los
+     * escribió o no.
+     */
+    private function stripAccents(string $text): string
+    {
+        return strtr($text, [
+            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ü' => 'u', 'ñ' => 'n',
+        ]);
     }
 
     /**

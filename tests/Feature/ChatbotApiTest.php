@@ -179,4 +179,21 @@ class ChatbotApiTest extends TestCase
             ->assertOk()
             ->assertJsonStructure(['message']);
     }
+
+    /**
+     * Regresión: matchesKeywords() comparaba texto sin quitar acentos, así
+     * que un mensaje escrito sin ellos ("cuanto cuesta", como escribe casi
+     * cualquiera al chatear rápido) nunca calzaba con la keyword literal
+     * 'cuánto cuesta' de la categoría de precios/servicios y terminaba
+     * cayendo hasta datos externos/IA -- confirmado en vivo que
+     * "cuanto cuesta un fade" devolvía contenido de Wikipedia sobre
+     * ingeniería de audio, no información de la barbería.
+     */
+    public function test_pricing_question_without_accents_matches_the_local_pricing_answer(): void
+    {
+        $this->withToken($this->token)
+            ->postJson('/api/v1/chatbot/query', ['message' => 'cuanto cuesta un fade'])
+            ->assertOk()
+            ->assertJsonPath('response', 'Contamos con una amplia gama de servicios de barbería premium incluyendo cortes, afeitados, tratamientos capilares y más. Visita la sección Servicios para ver detalles y precios.');
+    }
 }

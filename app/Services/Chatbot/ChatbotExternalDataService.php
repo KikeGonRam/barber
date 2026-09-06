@@ -74,14 +74,27 @@ class ChatbotExternalDataService
      */
     public function getHairstyleInfo(string $style): ?array
     {
+        // Regresión encontrada en vivo (2026-09-06): estas llaves nunca
+        // coincidían con lo que manda answerStyleQuestion() ('fade',
+        // 'undercut', minúsculas, sin "Corte"/"Slick" delante), así que
+        // array_key_exists() siempre daba false y $key caía al else de
+        // abajo -- se le pasaba la palabra suelta ('fade') como TÍTULO de
+        // artículo a la Wikipedia en español, que resuelve a la página de
+        // desambiguación genérica (edición de audio/cine), no al corte de
+        // cabello. Confirmado: "¿cuánto cuesta un fade?" devolvía un
+        // extracto sobre ingeniería de sonido. Las llaves ahora coinciden
+        // exactamente con $styles de abajo. Además, verificado uno por uno
+        // contra la API real de Wikipedia: 3 de los 7 títulos originales
+        // ('Quiff', 'Corte_militar', 'Afeitado_al_ras') tampoco existían
+        // -- corregidos a los títulos reales confirmados.
         $queries = [
-            'Corte fade' => 'Desvanecimiento_(barbería)',
-            'Undercut' => 'Undercut',
-            'Pompadour' => 'Pompadour',
-            'Quiff' => 'Quiff',
-            'Crew cut' => 'Corte_militar',
-            'Buzz cut' => 'Afeitado_al_ras',
-            'Slick back' => 'Peinado',
+            'fade' => 'Hi-top fade',
+            'undercut' => 'Undercut',
+            'pompadour' => 'Pompadour',
+            'quiff' => 'Tupé',
+            'crew cut' => 'Corte de pelo militar',
+            'buzz cut' => 'Rapado',
+            'slick back' => 'Peinado',
         ];
 
         $key = array_key_exists($style, $queries) ? $queries[$style] : $style;
