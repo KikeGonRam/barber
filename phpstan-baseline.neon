@@ -2515,6 +2515,12 @@ parameters:
 			path: tests/Feature/AppointmentStatusServiceIntegrationTest.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/InventoryApiTest.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Order\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Order\>\:\:\$client_id\.$#'
 			identifier: property.notFound
 			count: 1
