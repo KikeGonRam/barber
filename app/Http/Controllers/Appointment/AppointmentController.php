@@ -21,8 +21,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Inertia\Inertia;
-use Inertia\Response as InertiaResponse;
 
 /**
  * Panel web de gestión de citas para recepción/administración: listado con filtros,
@@ -232,72 +230,10 @@ class AppointmentController extends Controller
             ->with('status', 'Cita actualizada correctamente.');
     }
 
-    /**
-     * Vista de calendario (FullCalendar), migrada a Inertia+Vue (ver
-     * .claude/skills/inertia-vue-migration/SKILL.md, Fase 3). Los eventos se
-     * cargan luego vía calendarData(), que se queda como endpoint JSON plano
-     * a propósito — el componente Vue lo consume con fetch() igual que antes
-     * lo hacía el <script> vanilla.
-     */
-    public function calendar(): InertiaResponse
-    {
-        $barbers = Barber::with('user:id,name')->where('activo', true)->get(['id', 'user_id']);
-
-        return Inertia::render('Appointments/Calendar', [
-            'barbers' => $barbers->map(fn (Barber $b) => [
-                'id' => (string) $b->id,
-                'name' => $b->user?->name ?? 'Barbero',
-            ]),
-        ]);
-    }
-
-    /**
-     * Devuelve las citas del rango de fechas (y barbero opcional) como eventos de FullCalendar,
-     * con color según estado.
-     */
-    public function calendarData(Request $request): JsonResponse
-    {
-        $start = $request->query('start');
-        $end = $request->query('end');
-        $barberId = $request->query('barber_id');
-
-        $appointments = Appointment::with(['client.user:id,name', 'service:id,nombre', 'barber.user:id,name'])
-            ->when($start, fn ($q) => $q->whereDate('fecha', '>=', $start))
-            ->when($end, fn ($q) => $q->whereDate('fecha', '<=', $end))
-            ->when($barberId, fn ($q) => $q->where('barber_id', $barberId))
-            ->get();
-
-        $statusColors = [
-            'pendiente' => '#d97706',
-            'confirmada' => '#3b82f6',
-            'en_proceso' => '#06b6d4',
-            'completada' => '#10b981',
-            'cancelada' => '#ef4444',
-            'no_asistio' => '#6b7280',
-        ];
-
-        $events = $appointments->map(function (Appointment $appt) use ($statusColors) {
-            $color = $statusColors[$appt->estado] ?? '#d4af37';
-
-            return [
-                'id' => $appt->id,
-                'title' => ($appt->client?->user?->name ?? 'Cliente').' — '.($appt->service?->nombre ?? ''),
-                'start' => $appt->fecha->format('Y-m-d').'T'.$appt->hora_inicio,
-                'end' => $appt->fecha->format('Y-m-d').'T'.($appt->hora_fin ?? $appt->hora_inicio),
-                'color' => $color,
-                'textColor' => '#fff',
-                'extendedProps' => [
-                    'cliente' => $appt->client?->user?->name ?? '—',
-                    'servicio' => $appt->service?->nombre ?? '—',
-                    'barbero' => $appt->barber?->user?->name ?? '—',
-                    'estado' => $appt->estado,
-                    'edit_url' => route('appointments.edit', $appt->id),
-                ],
-            ];
-        });
-
-        return response()->json($events);
-    }
+    // calendar()/calendarData() (vista Inertia+Vue de FullCalendar) se
+    // retiraron: Nuxt (frontend-urban) ya tiene /appointments/calendar con
+    // paridad funcional confirmada, y la ruta web 'appointments.calendar'
+    // ahora solo redirige ahí (ver routes/web.php).
 
     /**
      * Cambia el estado de una cita mediante la máquina de estados; al completarla por primera vez

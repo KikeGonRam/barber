@@ -17,7 +17,6 @@ use App\Http\Controllers\Client\ClientInvoiceController;
 use App\Http\Controllers\Client\ClientPaymentController;
 use App\Http\Controllers\Client\MembershipController;
 use App\Http\Controllers\Client\StoreController;
-use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\DatabaseBackupController;
 use App\Http\Controllers\Inventory\InventoryMovementController;
 use App\Http\Controllers\Inventory\ProductController;
@@ -98,8 +97,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+// Antes renderizaba Inertia\Vue (ver .claude/skills/inertia-vue-migration/SKILL.md);
+// retirado porque Nuxt (frontend-urban) ya tiene los 4 dashboards por rol con
+// paridad funcional confirmada. Sin middleware 'auth' a propósito: Nuxt
+// gestiona su propia sesión (Bearer token, no cookie de Laravel), así que
+// decidir si el usuario puede ver el dashboard le toca a su propio middleware,
+// no a esta redirección.
+Route::get('/dashboard', fn () => redirect(config('app.frontend_url').'/dashboard'))
     ->name('dashboard');
 
 // Página dedicada de Analítica (Spark) — un rol por dentro del controlador,
@@ -139,8 +143,12 @@ Route::middleware('auth')->group(function () {
             Route::get('appointments/walk-in/clients', [AppointmentController::class, 'searchClients'])->name('appointments.walk-in.clients');
             Route::resource('appointments', AppointmentController::class)->except('show');
             Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
-            Route::get('appointments-calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
-            Route::get('appointments-calendar/data', [AppointmentController::class, 'calendarData'])->name('appointments.calendar.data');
+            // Antes renderizaba Inertia\Vue (FullCalendar); retirado porque Nuxt
+            // ya tiene /appointments/calendar con paridad funcional confirmada.
+            // 'appointments-calendar/data' se retiró junto con esto: era un
+            // endpoint JSON plano que solo consumía esa página Vue (Nuxt usa
+            // /api/v1/appointments/calendar-data en su lugar).
+            Route::get('appointments-calendar', fn () => redirect(config('app.frontend_url').'/appointments/calendar'))->name('appointments.calendar');
         });
 
         // Gestión de pagos (aprobar/rechazar comprobantes) y bandeja de pedidos de la tienda.

@@ -56,6 +56,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Nuxt Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | Dónde vive la app Nuxt (frontend-urban) que reemplazó las páginas
+    | Inertia (dashboards + calendario de citas) — ver
+    | .claude/skills/inertia-vue-migration/SKILL.md. Las rutas web
+    | 'dashboard' y 'appointments.calendar' redirigen aquí en vez de
+    | renderizar Inertia. Mismo valor por defecto que
+    | CORS_ALLOWED_ORIGINS/NUXT_PUBLIC_API_BASE usan para dev local.
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

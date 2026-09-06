@@ -251,15 +251,21 @@ Full plan/architecture: `frontend-urban/.claude/skills/nuxt-migration-plan/SKILL
 
 Concretely, this means work in **this** repo should expect, as the Nuxt migration
 proceeds:
-- `config/cors.php` needs to be published and configured (it does not exist yet) to
-  allow the Nuxt origin on `api/*` — don't be surprised if a task asks for this.
-- `Api/Dashboard/DashboardController` currently returns raw `DashboardService` output
-  (no computed/formatted fields like the Inertia dashboards have) — expect requests to
-  enrich it to match, per guardrail #11's "keep the API contract additive/stable" rule.
-- The Inertia+Vue pages from the migration in `.claude/skills/inertia-vue-migration/`
-  are **not being removed yet** — they stay live as a fallback until Nuxt reaches
-  feature parity. Don't delete Inertia pages/routes without the user explicitly
-  confirming Nuxt has replaced them.
+- `config/cors.php` is published and configured to allow the Nuxt origin on `api/*`.
+- `Api/Dashboard/DashboardController` was enriched to match the old Inertia dashboards'
+  computed/formatted fields (guardrail #11's "keep the API contract additive/stable").
+- **2026-09-06: the Inertia+Vue pages were retired.** Nuxt reached confirmed functional
+  parity with both things that were ever built in Inertia here (the 4 role dashboards
+  and the appointments calendar — see `.claude/skills/inertia-vue-migration/SKILL.md`,
+  now a historical-only record), and the project owner explicitly confirmed removal.
+  `routes/web.php`'s `dashboard` and `appointments.calendar` routes are now plain
+  redirects to `config('app.frontend_url')` (env `FRONTEND_URL`) instead of rendering
+  Inertia — every other Blade nav link to those route names keeps working unchanged.
+  The rest of the site (appointments CRUD, clients, payments, orders, inventory,
+  services, users, reports, campaigns, raffles, logs, settings) was **never** Inertia —
+  it's Blade+Alpine and stays that way; Nuxt has its own equivalent pages for those from
+  Fase 9, but the Blade originals here are untouched and still the live experience for
+  anyone not on Nuxt.
 - This does NOT reopen `spark`/`mobil` scope (guardrail #10 still applies) — it's a new,
   separate, currently-active third repo alongside `barber`.
 
