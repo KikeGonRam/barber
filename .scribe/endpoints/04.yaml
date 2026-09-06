@@ -395,7 +395,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -410,7 +410,7 @@ endpoints:
       stock_actual: 8
       stock_minimo: 76
       active: false
-      activo: true
+      activo: false
     fileParameters:
       imagen: null
     responses: []
@@ -549,7 +549,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -693,7 +693,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T15:05:27'
+        example: '2026-09-06T16:09:40'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -704,7 +704,7 @@ endpoints:
       cantidad: 22
       motivo: g
       appointment_id: architecto
-      fecha: '2026-09-06T15:05:27'
+      fecha: '2026-09-06T16:09:40'
     fileParameters: []
     responses: []
     responseFields: []

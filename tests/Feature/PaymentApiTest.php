@@ -288,4 +288,112 @@ class PaymentApiTest extends TestCase
 
         $response->assertStatus(422);
     }
+
+    /**
+     * Autopago del cliente (Fase B): cubre que un cliente autenticado pueda
+     * pagar su PROPIA cita con tarjeta por el mismo endpoint que usa staff,
+     * y que el monto se calcule server-side igual que en el flujo de staff.
+     */
+    public function test_stripe_intent_allows_client_to_pay_for_their_own_appointment(): void
+    {
+        $barberUser = User::create(['name' => 'Barbero Autopago', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Autopago', 'activo' => true]);
+        $clientRole = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
+        $clientUser = User::create(['name' => 'Cliente Autopago', 'email' => 'cliente-autopago@test.local', 'password' => 'password']);
+        $clientUser->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $clientRole->id]])->save();
+        $client = Client::create(['user_id' => (string) $clientUser->id, 'telefono' => '5559998888', 'nivel' => 'nuevo', 'puntos' => 0]);
+        $service = Service::create(['nombre' => 'Corte Autopago', 'precio' => 250, 'duracion_min' => 30, 'activo' => true]);
+
+        $appointment = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00', 'estado' => 'confirmada',
+        ]);
+
+        $this->mock(StripePaymentService::class, function ($mock) use ($appointment) {
+            $mock->shouldReceive('createPaymentIntent')
+                ->once()
+                ->withArgs(fn ($amount, $currency, $metadata) => abs($amount - 250.0) < 0.01
+                    && $currency === 'mxn'
+                    && $metadata['appointment_id'] === (string) $appointment->id
+                )
+                ->andReturn(['client_secret' => 'pi_autopago_secret', 'payment_intent_id' => 'pi_autopago']);
+        });
+
+        $token = $this->tokenFor($clientUser, 'test-plaintext-token-autopago');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.client_secret', 'pi_autopago_secret');
+    }
+
+    public function test_stripe_intent_rejects_client_paying_for_another_clients_appointment(): void
+    {
+        $barberUser = User::create(['name' => 'Barbero Ajeno', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Ajeno', 'activo' => true]);
+        $ownerUser = User::create(['name' => 'Dueño Cita', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $owner = Client::create(['user_id' => (string) $ownerUser->id, 'telefono' => '5551110000', 'nivel' => 'nuevo', 'puntos' => 0]);
+        $service = Service::create(['nombre' => 'Corte Ajeno', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+        $appointment = Appointment::create([
+            'client_id' => (string) $owner->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '11:00:00', 'hora_fin' => '11:30:00', 'estado' => 'confirmada',
+        ]);
+
+        $clientRole = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
+        $otroUser = User::create(['name' => 'Otro Cliente', 'email' => 'otro-cliente-autopago@test.local', 'password' => 'password']);
+        $otroUser->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $clientRole->id]])->save();
+        Client::create(['user_id' => (string) $otroUser->id, 'telefono' => '5552223333', 'nivel' => 'nuevo', 'puntos' => 0]);
+
+        $token = $this->tokenFor($otroUser, 'test-plaintext-token-otro-cliente');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id]);
+
+        $response->assertForbidden();
+    }
+
+    public function test_stripe_intent_rejects_a_non_chargeable_appointment(): void
+    {
+        $user = $this->staffUser('recepcionista', 'recepcion-stripe-no-chargeable@test.local');
+
+        $barberUser = User::create(['name' => 'Barbero No Chargeable', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero No Chargeable', 'activo' => true]);
+        $service = Service::create(['nombre' => 'Corte No Chargeable', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+        $appointment = Appointment::create([
+            'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '12:00:00', 'hora_fin' => '12:30:00', 'estado' => 'pendiente',
+        ]);
+
+        $token = $this->tokenFor($user, 'test-plaintext-token-no-chargeable');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_stripe_intent_rejects_an_appointment_that_already_has_a_payment(): void
+    {
+        $user = $this->staffUser('recepcionista', 'recepcion-stripe-ya-pagada@test.local');
+
+        $barberUser = User::create(['name' => 'Barbero Ya Pagada', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Ya Pagada', 'activo' => true]);
+        $service = Service::create(['nombre' => 'Corte Ya Pagada', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+        $appointment = Appointment::create([
+            'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '13:00:00', 'hora_fin' => '13:30:00', 'estado' => 'completada',
+        ]);
+        Payment::create([
+            'appointment_id' => (string) $appointment->id, 'monto' => 200, 'metodo_pago' => 'efectivo',
+            'estado' => Payment::ESTADO_VERIFICADO,
+        ]);
+
+        $token = $this->tokenFor($user, 'test-plaintext-token-ya-pagada');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id]);
+
+        $response->assertStatus(422);
+    }
 }

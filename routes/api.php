@@ -112,6 +112,15 @@ Route::prefix('v1')->group(function (): void {
         Route::get('payments', [ApiPaymentController::class, 'index']);
         Route::get('payments/{payment}/receipt', [ApiPaymentController::class, 'receipt']);
 
+        // Autopago del cliente (Fase B del plan Stripe, 2026-09-06): abierta a
+        // cualquier usuario autenticado a nivel de ruta a propósito -- el
+        // controlador (authorizeStaffOrOwningClient()) es quien de verdad
+        // exige "eres staff, o eres el cliente dueño de esta cita concreta".
+        // No puede vivir dentro del grupo role.custom:administrador,
+        // recepcionista de abajo porque eso bloquearia a cliente antes de
+        // que el controlador tenga oportunidad de validar la propiedad.
+        Route::post('payments/stripe-intent', [ApiPaymentController::class, 'stripeIntent'])->name('api.payments.stripe-intent');
+
         // Solo administrador y recepcionista: gestión de pagos, clientes e inventario.
         Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {
             // Pedidos — bandeja de recepción (Admin/Recepcionista)
@@ -121,7 +130,6 @@ Route::prefix('v1')->group(function (): void {
             // Pagos (Admin/Recepcionista)
             Route::get('payments/pending', [ApiPaymentController::class, 'pending']);
             Route::post('payments', [ApiPaymentController::class, 'store']);
-            Route::post('payments/stripe-intent', [ApiPaymentController::class, 'stripeIntent'])->name('api.payments.stripe-intent');
             Route::post('payments/{payment}/approve', [ApiPaymentController::class, 'approve']);
             Route::post('payments/{payment}/reject', [ApiPaymentController::class, 'reject']);
             Route::delete('payments/{payment}', [ApiPaymentController::class, 'destroy']);

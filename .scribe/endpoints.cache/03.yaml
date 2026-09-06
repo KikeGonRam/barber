@@ -109,7 +109,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -159,7 +159,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -399,7 +399,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '15:05'
+        example: '16:09'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -410,7 +410,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: cancelada
+        example: en_proceso
         type: string
         enumValues:
           - pendiente
@@ -438,8 +438,8 @@ endpoints:
       barber_id: architecto
       service_id: architecto
       fecha: '2052-09-29'
-      hora_inicio: '15:05'
-      estado: cancelada
+      hora_inicio: '16:09'
+      estado: en_proceso
       notas: 'n'
     fileParameters: []
     responses: []
@@ -615,7 +615,7 @@ endpoints:
         name: estado
         description: ''
         required: false
-        example: en_proceso
+        example: confirmada
         type: string
         enumValues:
           - pendiente
@@ -640,7 +640,7 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       period: day
-      estado: en_proceso
+      estado: confirmada
       offset: -364
     fileParameters: []
     responses:
@@ -651,7 +651,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []

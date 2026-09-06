@@ -103,7 +103,7 @@ endpoints:
           content-type: application/json
           x-ratelimit-limit: '30'
           x-ratelimit-remaining: '29'
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -143,7 +143,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -183,7 +183,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -227,7 +227,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -305,7 +305,7 @@ endpoints:
           content-type: application/json
           x-ratelimit-limit: '30'
           x-ratelimit-remaining: '28'
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -347,7 +347,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -420,7 +420,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -460,7 +460,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -503,7 +503,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -661,7 +661,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -718,8 +718,77 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/payments/stripe-intent
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Crea un PaymentIntent en Stripe (moneda fija MXN) para que el cliente
+        pague desde la app; no registra el pago local, eso ocurre vía webhook o store().
+      description: |-
+        Autopago del cliente (Fase B del plan Stripe): un cliente autenticado
+        puede pagar su PROPIA cita con tarjeta exactamente por el mismo camino
+        que usa staff -- el webhook (StripeWebhookController::onSucceeded())
+        no distingue quién creó el intent, solo lee metadata.appointment_id y
+        llama PaymentService::create() igual en ambos casos. No hace falta
+        duplicar lógica de completar el cobro.
+
+        El monto NO se recibe del cliente: se calcula aqui mismo (precio base
+        del servicio -> descuento de nivel -> puntos canjeados) para que lo que
+        Stripe realmente cobra sea siempre el mismo numero que create()/el
+        webhook usaran despues para registrar el pago — nunca se confia en un
+        monto que venga del frontend para mover dinero real.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      appointment_id:
+        custom: []
+        name: appointment_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      puntos_canjeados:
+        custom: []
+        name: puntos_canjeados
+        description: 'El campo value debe ser al menos 0.'
+        required: false
+        example: 39
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      appointment_id: architecto
+      puntos_canjeados: 39
+    fileParameters: []
+    responses: []
     responseFields: []
     auth: []
     controller: null
@@ -765,7 +834,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: transferencia
+        example: qr
         type: string
         enumValues:
           - efectivo
@@ -776,7 +845,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      metodo_pago: transferencia
+      metodo_pago: qr
     fileParameters: []
     responses: []
     responseFields: []
@@ -836,7 +905,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -878,7 +947,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -939,7 +1008,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: tarjeta
+        example: transferencia
         type: string
         enumValues:
           - efectivo
@@ -995,73 +1064,11 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: tarjeta
+      metodo_pago: transferencia
       propina: 77
       puntos_canjeados: 8
       usar_premio_rifa: true
       stripe_payment_id: architecto
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: api/v1/payments/stripe-intent
-    metadata:
-      custom: []
-      groupName: Endpoints
-      groupDescription: ''
-      subgroup: ''
-      subgroupDescription: ''
-      title: |-
-        Crea un PaymentIntent en Stripe (moneda fija MXN) para que el cliente
-        pague desde la app; no registra el pago local, eso ocurre vía webhook o store().
-      description: |-
-        El monto NO se recibe del cliente: se calcula aqui mismo (precio base
-        del servicio -> descuento de nivel -> puntos canjeados) para que lo que
-        Stripe realmente cobra sea siempre el mismo numero que create()/el
-        webhook usaran despues para registrar el pago — nunca se confia en un
-        monto que venga del frontend para mover dinero real.
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      appointment_id:
-        custom: []
-        name: appointment_id
-        description: 'Must match an existing stored value.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      puntos_canjeados:
-        custom: []
-        name: puntos_canjeados
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 39
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      appointment_id: architecto
-      puntos_canjeados: 39
     fileParameters: []
     responses: []
     responseFields: []
@@ -1247,7 +1254,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -1326,7 +1333,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T15:05:26'
+        example: '2026-09-06T16:09:39'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1337,7 +1344,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1381,8 +1388,8 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-06T15:05:26'
-      pref_in_app: false
+      fecha_nacimiento: '2026-09-06T16:09:39'
+      pref_in_app: true
       pref_email: false
       pref_sms: false
       pref_whatsapp: false
@@ -1466,7 +1473,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T15:05:26'
+        example: '2026-09-06T16:09:39'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1477,7 +1484,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1488,7 +1495,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1499,7 +1506,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1520,10 +1527,10 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-06T15:05:26'
-      pref_in_app: true
-      pref_email: true
-      pref_sms: false
+      fecha_nacimiento: '2026-09-06T16:09:39'
+      pref_in_app: false
+      pref_email: false
+      pref_sms: true
       pref_whatsapp: false
     fileParameters: []
     responses: []
@@ -1608,7 +1615,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -1709,7 +1716,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1722,7 +1729,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -1933,7 +1940,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -2088,7 +2095,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -2341,7 +2348,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -2409,7 +2416,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '15:05'
+        example: '16:09'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2518,7 +2525,7 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '15:05'
+      horario_apertura: '16:09'
       horario_cierre: '2052-09-29'
       politica_cancelacion: 22
       instagram: g
@@ -2601,7 +2608,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -2694,7 +2701,7 @@ endpoints:
         name: modo
         description: ''
         required: true
-        example: programar
+        example: ahora
         type: string
         enumValues:
           - ahora
@@ -2719,7 +2726,7 @@ endpoints:
       cta_label: g
       cta_url: 'http://www.okuneva.com/fugiat-sunt-nihil-accusantium-harum-mollitia.html'
       segmento: architecto
-      modo: programar
+      modo: ahora
       programada_para: '2052-09-30'
     fileParameters: []
     responses: []
@@ -2761,7 +2768,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -2801,7 +2808,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -2841,7 +2848,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -2910,7 +2917,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -2950,7 +2957,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -2990,7 +2997,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3149,7 +3156,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3199,7 +3206,7 @@ endpoints:
         name: email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3232,7 +3239,7 @@ endpoints:
         name: push
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3243,7 +3250,7 @@ endpoints:
         name: promociones
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3251,11 +3258,11 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       in_app: false
-      email: true
+      email: false
       sms: true
       whatsapp: true
-      push: false
-      promociones: false
+      push: true
+      promociones: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -3299,7 +3306,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3381,7 +3388,7 @@ endpoints:
         name: content_encoding
         description: ''
         required: false
-        example: aesgcm
+        example: aes128gcm
         type: string
         enumValues:
           - aesgcm
@@ -3394,7 +3401,7 @@ endpoints:
       keys:
         p256dh: architecto
         auth: architecto
-      content_encoding: aesgcm
+      content_encoding: aes128gcm
     fileParameters: []
     responses: []
     responseFields: []
@@ -3622,7 +3629,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3662,7 +3669,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3702,7 +3709,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3742,7 +3749,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3782,7 +3789,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3822,7 +3829,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3862,7 +3869,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3902,7 +3909,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3942,7 +3949,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -3992,7 +3999,7 @@ endpoints:
         name: period
         description: ''
         required: true
-        example: personalizado
+        example: año
         type: string
         enumValues:
           - dia
@@ -4009,7 +4016,7 @@ endpoints:
         name: dateFrom
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T15:05:31'
+        example: '2026-09-06T16:09:42'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4020,7 +4027,7 @@ endpoints:
         name: dateTo
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T15:05:31'
+        example: '2026-09-06T16:09:42'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4042,9 +4049,9 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       type: citas
-      period: personalizado
-      dateFrom: '2026-09-06T15:05:31'
-      dateTo: '2026-09-06T15:05:31'
+      period: año
+      dateFrom: '2026-09-06T16:09:42'
+      dateTo: '2026-09-06T16:09:42'
       detail: muy-detallado
     fileParameters: []
     responses: []
@@ -4086,7 +4093,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4126,7 +4133,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4178,7 +4185,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4230,7 +4237,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4270,7 +4277,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4310,7 +4317,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4352,7 +4359,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4392,7 +4399,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4432,7 +4439,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4484,7 +4491,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4536,7 +4543,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4588,7 +4595,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4640,7 +4647,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4709,7 +4716,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4718,7 +4725,7 @@ endpoints:
     cleanBodyParameters:
       especialidades: b
       descripcion: architecto
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -4759,7 +4766,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4799,7 +4806,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4839,7 +4846,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -4891,7 +4898,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -5132,7 +5139,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -5184,7 +5191,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -5307,7 +5314,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5333,7 +5340,7 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: true
+      activo: false
       active: true
     fileParameters: []
     responses: []
@@ -5470,7 +5477,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5481,7 +5488,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5496,8 +5503,8 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: false
-      active: false
+      activo: true
+      active: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -5662,7 +5669,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -5702,7 +5709,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -5742,7 +5749,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []
@@ -5794,7 +5801,7 @@ endpoints:
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
-          access-control-allow-origin: 'http://localhost:3000'
+          vary: Origin
         description: null
     responseFields: []
     auth: []

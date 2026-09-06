@@ -695,11 +695,11 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '15:05'
+                  example: '16:09'
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: en_proceso
                   enum:
                     - pendiente
                     - confirmada
@@ -820,7 +820,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: en_proceso
+                  example: confirmada
                   enum:
                     - pendiente
                     - confirmada
@@ -1308,7 +1308,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: tarjeta
+                  example: transferencia
                   enum:
                     - efectivo
                     - tarjeta
@@ -1369,6 +1369,34 @@ paths:
         required: true
         schema:
           type: string
+  /api/v1/payments/stripe-intent:
+    post:
+      summary: "Crea un PaymentIntent en Stripe (moneda fija MXN) para que el cliente\npague desde la app; no registra el pago local, eso ocurre vía webhook o store()."
+      operationId: creaUnPaymentIntentEnStripemonedaFijaMXNParaQueElClientePagueDesdeLaAppNoRegistraElPagoLocalEsoOcurreVaWebhookOStore
+      description: "Autopago del cliente (Fase B del plan Stripe): un cliente autenticado\npuede pagar su PROPIA cita con tarjeta exactamente por el mismo camino\nque usa staff -- el webhook (StripeWebhookController::onSucceeded())\nno distingue quién creó el intent, solo lee metadata.appointment_id y\nllama PaymentService::create() igual en ambos casos. No hace falta\nduplicar lógica de completar el cobro.\n\nEl monto NO se recibe del cliente: se calcula aqui mismo (precio base\ndel servicio -> descuento de nivel -> puntos canjeados) para que lo que\nStripe realmente cobra sea siempre el mismo numero que create()/el\nwebhook usaran despues para registrar el pago — nunca se confia en un\nmonto que venga del frontend para mover dinero real."
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appointment_id:
+                  type: string
+                  description: 'Must match an existing stored value.'
+                  example: architecto
+                puntos_canjeados:
+                  type: integer
+                  description: 'El campo value debe ser al menos 0.'
+                  example: 39
+                  nullable: true
+              required:
+                - appointment_id
+      security: []
   '/api/v1/orders/{order_id}/deliver':
     patch:
       summary: 'Marca un pedido como entregado y registra el método de cobro (staff).'
@@ -1388,7 +1416,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: transferencia
+                  example: qr
                   enum:
                     - efectivo
                     - tarjeta
@@ -1458,34 +1486,6 @@ paths:
                     example: 'No autorizado.'
       tags:
         - Endpoints
-      security: []
-  /api/v1/payments/stripe-intent:
-    post:
-      summary: "Crea un PaymentIntent en Stripe (moneda fija MXN) para que el cliente\npague desde la app; no registra el pago local, eso ocurre vía webhook o store()."
-      operationId: creaUnPaymentIntentEnStripemonedaFijaMXNParaQueElClientePagueDesdeLaAppNoRegistraElPagoLocalEsoOcurreVaWebhookOStore
-      description: "El monto NO se recibe del cliente: se calcula aqui mismo (precio base\ndel servicio -> descuento de nivel -> puntos canjeados) para que lo que\nStripe realmente cobra sea siempre el mismo numero que create()/el\nwebhook usaran despues para registrar el pago — nunca se confia en un\nmonto que venga del frontend para mover dinero real."
-      parameters: []
-      responses: {}
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                appointment_id:
-                  type: string
-                  description: 'Must match an existing stored value.'
-                  example: architecto
-                puntos_canjeados:
-                  type: integer
-                  description: 'El campo value debe ser al menos 0.'
-                  example: 39
-                  nullable: true
-              required:
-                - appointment_id
       security: []
   '/api/v1/payments/{payment_id}/approve':
     post:
@@ -1615,12 +1615,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T15:05:26'
+                  example: '2026-09-06T16:09:39'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_email:
                   type: boolean
@@ -1673,22 +1673,22 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T15:05:26'
+                  example: '2026-09-06T16:09:39'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_whatsapp:
                   type: boolean
@@ -1783,7 +1783,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2110,7 +2110,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '15:05'
+                  example: '16:09'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -2232,7 +2232,7 @@ paths:
                 modo:
                   type: string
                   description: ''
-                  example: programar
+                  example: ahora
                   enum:
                     - ahora
                     - programar
@@ -2488,7 +2488,7 @@ paths:
                 email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 sms:
                   type: boolean
                   description: ''
@@ -2500,11 +2500,11 @@ paths:
                 push:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 promociones:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
       security: []
   /api/v1/push/vapid-public-key:
     get:
@@ -2567,7 +2567,7 @@ paths:
                 content_encoding:
                   type: string
                   description: ''
-                  example: aesgcm
+                  example: aes128gcm
                   enum:
                     - aesgcm
                     - aes128gcm
@@ -2894,7 +2894,7 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: personalizado
+                  example: año
                   enum:
                     - dia
                     - semana
@@ -2905,12 +2905,12 @@ paths:
                 dateFrom:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T15:05:31'
+                  example: '2026-09-06T16:09:42'
                   nullable: true
                 dateTo:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T15:05:31'
+                  example: '2026-09-06T16:09:42'
                   nullable: true
                 detail:
                   type: string
@@ -3203,7 +3203,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
       security: []
     parameters:
       -
@@ -3556,7 +3556,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 active:
                   type: boolean
@@ -3645,12 +3645,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -4594,7 +4594,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
       security: []
     delete:
@@ -4757,7 +4757,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T15:05:27'
+                  example: '2026-09-06T16:09:40'
                   nullable: true
               required:
                 - product_id

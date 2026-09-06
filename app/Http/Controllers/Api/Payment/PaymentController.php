@@ -6,6 +6,7 @@ use App\Exceptions\Domain\PaymentException;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Payment;
+use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\StripePaymentService;
@@ -204,6 +205,13 @@ class PaymentController extends Controller
      * Crea un PaymentIntent en Stripe (moneda fija MXN) para que el cliente
      * pague desde la app; no registra el pago local, eso ocurre vía webhook o store().
      *
+     * Autopago del cliente (Fase B del plan Stripe): un cliente autenticado
+     * puede pagar su PROPIA cita con tarjeta exactamente por el mismo camino
+     * que usa staff -- el webhook (StripeWebhookController::onSucceeded())
+     * no distingue quién creó el intent, solo lee metadata.appointment_id y
+     * llama PaymentService::create() igual en ambos casos. No hace falta
+     * duplicar lógica de completar el cobro.
+     *
      * El monto NO se recibe del cliente: se calcula aqui mismo (precio base
      * del servicio -> descuento de nivel -> puntos canjeados) para que lo que
      * Stripe realmente cobra sea siempre el mismo numero que create()/el
@@ -212,7 +220,15 @@ class PaymentController extends Controller
      */
     public function stripeIntent(Request $request): JsonResponse
     {
-        $this->authorizeStaff($request);
+        $user = $request->user();
+        $isStaff = $user?->hasAnyRole(['administrador', 'recepcionista']);
+        $isClient = $user?->hasRole('cliente') && $user->clientProfile;
+
+        // Gate de rol primero, antes de validar el payload: un rol que no
+        // puede usar este endpoint bajo ninguna circunstancia (barbero, o un
+        // "cliente" sin perfil de cliente real) debe recibir 403 sin importar
+        // si appointment_id existe o no.
+        abort_unless($isStaff || $isClient, 403, 'No autorizado.');
 
         $validated = $request->validate([
             'appointment_id' => ['required', 'string', 'exists:appointments,id'],
@@ -220,6 +236,26 @@ class PaymentController extends Controller
         ]);
 
         $appointment = Appointment::with('client')->findOrFail($validated['appointment_id']);
+
+        // Un cliente solo puede autopagar su PROPIA cita -- nunca la de otro.
+        if (! $isStaff) {
+            abort_unless((string) $appointment->client_id === (string) $user->clientProfile->id, 403, 'No autorizado.');
+        }
+
+        // Nunca crear un intent de Stripe para una cita que de todos modos no
+        // se podria registrar despues (webhook silencioso: cobraria en Stripe
+        // pero PaymentService::create() rechazaria el Payment). Antes esto
+        // solo lo evitaba la UI de staff (chargeable() ya filtra por esto);
+        // ahora que un cliente puede llegar aqui directo, el servidor debe
+        // ser la unica autoridad.
+        if (! in_array($appointment->estado, AppointmentStatusService::CHARGEABLE, true)) {
+            return response()->json(['message' => 'Esta cita no está lista para cobro.'], 422);
+        }
+
+        if ($appointment->payments()->exists()) {
+            return response()->json(['message' => 'La cita ya tiene un pago registrado.'], 422);
+        }
+
         $client = $appointment->client;
         $baseMonto = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
         $monto = LoyaltyService::applyDiscount($baseMonto, $client?->nivel ?? 'nuevo');
