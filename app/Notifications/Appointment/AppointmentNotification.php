@@ -4,6 +4,7 @@ namespace App\Notifications\Appointment;
 
 use App\Models\Appointment;
 use App\Notifications\Channels\TwilioChannel;
+use App\Notifications\Channels\WebPushChannel;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,7 +44,7 @@ class AppointmentNotification extends Notification implements ShouldQueue
 
     /**
      * Arma la lista de canales segun las preferencias del usuario
-     * (in_app/email/sms/whatsapp). Si no tiene ninguna activa, cae a
+     * (in_app/email/sms/whatsapp/push). Si no tiene ninguna activa, cae a
      * 'database' para no perder el aviso silenciosamente.
      */
     public function via(object $notifiable): array
@@ -61,6 +62,10 @@ class AppointmentNotification extends Notification implements ShouldQueue
         if (method_exists($notifiable, 'wantsNotificationChannel')
             && ($notifiable->wantsNotificationChannel('sms') || $notifiable->wantsNotificationChannel('whatsapp'))) {
             $channels[] = TwilioChannel::class;
+        }
+
+        if (method_exists($notifiable, 'wantsNotificationChannel') && $notifiable->wantsNotificationChannel('push')) {
+            $channels[] = WebPushChannel::class;
         }
 
         return $channels ?: ['database'];
@@ -184,6 +189,20 @@ class AppointmentNotification extends Notification implements ShouldQueue
             'END:VEVENT',
             'END:VCALENDAR',
         ]);
+    }
+
+    /**
+     * Payload del push del navegador (canal WebPushChannel) — mismo
+     * titulo/mensaje/url que el canal database, en el shape que espera la
+     * Notification API del navegador (title/body/url).
+     */
+    public function toWebPush(object $notifiable): array
+    {
+        return [
+            'title' => $this->title,
+            'body' => $this->message,
+            'url' => $this->actionUrl ?? config('app.frontend_url').'/my/appointments',
+        ];
     }
 
     /**

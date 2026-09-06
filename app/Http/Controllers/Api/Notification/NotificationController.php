@@ -95,4 +95,48 @@ class NotificationController extends Controller
             'unread' => $request->user()->unreadNotifications()->count(),
         ]);
     }
+
+    /**
+     * Preferencias de canal de notificación del usuario autenticado
+     * (in_app/email/sms/whatsapp/push/promociones).
+     */
+    public function preferences(Request $request): JsonResponse
+    {
+        return response()->json([
+            'data' => $request->user()->notificationPreferences(),
+        ]);
+    }
+
+    /**
+     * Actualiza las preferencias de notificación del usuario autenticado.
+     * Igual que la versión web (Notification\NotificationController), hace
+     * merge sobre las preferencias actuales en vez de reemplazarlas por
+     * completo, para que un cliente que solo manda un subconjunto de
+     * canales (p. ej. solo "push") no borre los demás.
+     */
+    public function updatePreferences(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'in_app' => ['sometimes', 'boolean'],
+            'email' => ['sometimes', 'boolean'],
+            'sms' => ['sometimes', 'boolean'],
+            'whatsapp' => ['sometimes', 'boolean'],
+            'push' => ['sometimes', 'boolean'],
+            'promociones' => ['sometimes', 'boolean'],
+        ]);
+
+        $user = $request->user();
+        $prefs = array_merge($user->notificationPreferences(), $validated);
+
+        $user->update(['notification_preferences' => $prefs]);
+
+        if ($user->clientProfile) {
+            $user->clientProfile->update(['preferencias_notificacion' => $prefs]);
+        }
+
+        return response()->json([
+            'message' => 'Preferencias de notificación actualizadas.',
+            'data' => $prefs,
+        ]);
+    }
 }

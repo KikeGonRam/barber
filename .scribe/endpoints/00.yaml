@@ -765,7 +765,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: transferencia
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -776,7 +776,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      metodo_pago: transferencia
+      metodo_pago: tarjeta
     fileParameters: []
     responses: []
     responseFields: []
@@ -939,7 +939,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: transferencia
         type: string
         enumValues:
           - efectivo
@@ -975,7 +975,7 @@ endpoints:
         name: usar_premio_rifa
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -995,10 +995,10 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: efectivo
+      metodo_pago: transferencia
       propina: 77
       puntos_canjeados: 8
-      usar_premio_rifa: true
+      usar_premio_rifa: false
       stripe_payment_id: architecto
     fileParameters: []
     responses: []
@@ -1326,7 +1326,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T02:01:31'
+        example: '2026-09-06T02:57:00'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1337,7 +1337,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1348,7 +1348,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1359,7 +1359,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1381,10 +1381,10 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-06T02:01:31'
-      pref_in_app: true
-      pref_email: true
-      pref_sms: true
+      fecha_nacimiento: '2026-09-06T02:57:00'
+      pref_in_app: false
+      pref_email: false
+      pref_sms: false
       pref_whatsapp: false
     fileParameters: []
     responses: []
@@ -1466,7 +1466,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T02:01:31'
+        example: '2026-09-06T02:57:00'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1488,7 +1488,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1499,7 +1499,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1510,7 +1510,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1520,11 +1520,11 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-06T02:01:31'
+      fecha_nacimiento: '2026-09-06T02:57:00'
       pref_in_app: true
-      pref_email: true
-      pref_sms: true
-      pref_whatsapp: false
+      pref_email: false
+      pref_sms: false
+      pref_whatsapp: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -1709,7 +1709,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1722,7 +1722,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2035,7 +2035,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2047,7 +2047,7 @@ endpoints:
       especialidades: i
       descripcion: 'y'
       foto: v
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2518,7 +2518,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '02:01'
+        example: '02:57'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2627,7 +2627,7 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '02:01'
+      horario_apertura: '02:57'
       horario_cierre: '2052-09-29'
       politica_cancelacion: 22
       instagram: g
@@ -2843,7 +2843,7 @@ endpoints:
         name: modo
         description: ''
         required: true
-        example: ahora
+        example: programar
         type: string
         enumValues:
           - ahora
@@ -2868,7 +2868,7 @@ endpoints:
       cta_label: g
       cta_url: 'http://www.okuneva.com/fugiat-sunt-nihil-accusantium-harum-mollitia.html'
       segmento: architecto
-      modo: ahora
+      modo: programar
       programada_para: '2052-09-29'
     fileParameters: []
     responses: []
@@ -3107,6 +3107,340 @@ endpoints:
     cleanQueryParameters: []
     bodyParameters: []
     cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/notifications/preferences
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Preferencias de canal de notificación del usuario autenticado
+        (in_app/email/sms/whatsapp/push/promociones).
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: api/v1/notifications/preferences
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Actualiza las preferencias de notificación del usuario autenticado.'
+      description: |-
+        Igual que la versión web (Notification\NotificationController), hace
+        merge sobre las preferencias actuales en vez de reemplazarlas por
+        completo, para que un cliente que solo manda un subconjunto de
+        canales (p. ej. solo "push") no borre los demás.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      in_app:
+        custom: []
+        name: in_app
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      sms:
+        custom: []
+        name: sms
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      whatsapp:
+        custom: []
+        name: whatsapp
+        description: ''
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      push:
+        custom: []
+        name: push
+        description: ''
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      promociones:
+        custom: []
+        name: promociones
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      in_app: false
+      email: false
+      sms: false
+      whatsapp: true
+      push: true
+      promociones: false
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/push/vapid-public-key
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Clave pública VAPID (no es un secreto — viaja al navegador por
+        diseño). Pública para que la pantalla de login/onboarding pueda
+        pedirla incluso antes de que el usuario tenga sesión, si hiciera falta.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/push/subscribe
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Registra (o actualiza) la suscripción Web Push del dispositivo/navegador
+        actual. Identificada por 'endpoint' porque el cliente nunca conoce el
+        _id de Mongo del registro — un mismo endpoint solo debe existir una vez.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      endpoint:
+        custom: []
+        name: endpoint
+        description: 'El campo value no debe tener más de 2048 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      keys:
+        custom: []
+        name: keys
+        description: ''
+        required: true
+        example: []
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      keys.p256dh:
+        custom: []
+        name: keys.p256dh
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      keys.auth:
+        custom: []
+        name: keys.auth
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      content_encoding:
+        custom: []
+        name: content_encoding
+        description: ''
+        required: false
+        example: aes128gcm
+        type: string
+        enumValues:
+          - aesgcm
+          - aes128gcm
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      endpoint: b
+      keys:
+        p256dh: architecto
+        auth: architecto
+      content_encoding: aes128gcm
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: api/v1/push/subscribe
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Da de baja la suscripción del dispositivo/navegador actual (p. ej. el
+        usuario desactivó el permiso, o cerró sesión y quiere dejar de recibir
+        avisos en ese navegador).
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      endpoint:
+        custom: []
+        name: endpoint
+        description: 'El campo value no debe tener más de 2048 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      endpoint: b
     fileParameters: []
     responses: []
     responseFields: []
@@ -4526,7 +4860,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4537,7 +4871,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4552,8 +4886,8 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: true
-      active: true
+      activo: false
+      active: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -4644,7 +4978,7 @@ endpoints:
         name: tipo
         description: ''
         required: true
-        example: entrada
+        example: salida
         type: string
         enumValues:
           - entrada
@@ -4675,7 +5009,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      tipo: entrada
+      tipo: salida
       cantidad: 16
       motivo: architecto
     fileParameters: []
@@ -4993,7 +5327,7 @@ endpoints:
         name: type
         description: ''
         required: true
-        example: citas
+        example: ingresos
         type: string
         enumValues:
           - ingresos
@@ -5008,7 +5342,7 @@ endpoints:
         name: period
         description: ''
         required: true
-        example: año
+        example: trimestre
         type: string
         enumValues:
           - dia
@@ -5025,7 +5359,7 @@ endpoints:
         name: dateFrom
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T02:01:37'
+        example: '2026-09-06T02:57:06'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -5036,7 +5370,7 @@ endpoints:
         name: dateTo
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T02:01:37'
+        example: '2026-09-06T02:57:06'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -5047,7 +5381,7 @@ endpoints:
         name: detail
         description: ''
         required: true
-        example: muy-detallado
+        example: detallado
         type: string
         enumValues:
           - resumen
@@ -5057,11 +5391,11 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      type: citas
-      period: año
-      dateFrom: '2026-09-06T02:01:37'
-      dateTo: '2026-09-06T02:01:37'
-      detail: muy-detallado
+      type: ingresos
+      period: trimestre
+      dateFrom: '2026-09-06T02:57:06'
+      dateTo: '2026-09-06T02:57:06'
+      detail: detallado
     fileParameters: []
     responses: []
     responseFields: []

@@ -2161,6 +2161,36 @@ parameters:
 			path: app/Services/Payment/PaymentService.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\PushSubscription\:\:\$auth_token\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Push/WebPushService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\PushSubscription\:\:\$content_encoding\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Push/WebPushService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\PushSubscription\:\:\$endpoint\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Push/WebPushService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\PushSubscription\:\:\$public_key\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Push/WebPushService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\PushSubscription\:\:\$public_key\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PushApiTest.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
 			count: 1

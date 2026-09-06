@@ -695,11 +695,11 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '02:01'
+                  example: '02:56'
                 estado:
                   type: string
                   description: ''
-                  example: completada
+                  example: pendiente
                   enum:
                     - pendiente
                     - confirmada
@@ -757,7 +757,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: no_asistio
+                  example: en_proceso
                   enum:
                     - pendiente
                     - confirmada
@@ -820,7 +820,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: confirmada
+                  example: cancelada
                   enum:
                     - pendiente
                     - confirmada
@@ -1308,7 +1308,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: efectivo
+                  example: transferencia
                   enum:
                     - efectivo
                     - tarjeta
@@ -1326,7 +1326,7 @@ paths:
                 usar_premio_rifa:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 stripe_payment_id:
                   type: string
@@ -1388,7 +1388,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: transferencia
+                  example: tarjeta
                   enum:
                     - efectivo
                     - tarjeta
@@ -1615,22 +1615,22 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T02:01:31'
+                  example: '2026-09-06T02:57:00'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_whatsapp:
                   type: boolean
@@ -1673,7 +1673,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T02:01:31'
+                  example: '2026-09-06T02:57:00'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -1683,17 +1683,17 @@ paths:
                 pref_email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -1783,7 +1783,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -1926,7 +1926,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - name
@@ -2171,7 +2171,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '02:01'
+                  example: '02:57'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -2315,7 +2315,7 @@ paths:
                 modo:
                   type: string
                   description: ''
-                  example: ahora
+                  example: programar
                   enum:
                     - ahora
                     - programar
@@ -2444,6 +2444,160 @@ paths:
         required: true
         schema:
           type: string
+  /api/v1/notifications/preferences:
+    get:
+      summary: "Preferencias de canal de notificación del usuario autenticado\n(in_app/email/sms/whatsapp/push/promociones)."
+      operationId: preferenciasDeCanalDeNotificacinDelUsuarioAutenticadoinAppemailsmswhatsapppushpromociones
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    patch:
+      summary: 'Actualiza las preferencias de notificación del usuario autenticado.'
+      operationId: actualizaLasPreferenciasDeNotificacinDelUsuarioAutenticado
+      description: "Igual que la versión web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los demás."
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                in_app:
+                  type: boolean
+                  description: ''
+                  example: false
+                email:
+                  type: boolean
+                  description: ''
+                  example: false
+                sms:
+                  type: boolean
+                  description: ''
+                  example: false
+                whatsapp:
+                  type: boolean
+                  description: ''
+                  example: true
+                push:
+                  type: boolean
+                  description: ''
+                  example: true
+                promociones:
+                  type: boolean
+                  description: ''
+                  example: false
+      security: []
+  /api/v1/push/vapid-public-key:
+    get:
+      summary: "Clave pública VAPID (no es un secreto — viaja al navegador por\ndiseño). Pública para que la pantalla de login/onboarding pueda\npedirla incluso antes de que el usuario tenga sesión, si hiciera falta."
+      operationId: clavePblicaVAPIDnoEsUnSecretoViajaAlNavegadorPorDiseoPblicaParaQueLaPantallaDeLoginonboardingPuedaPedirlaInclusoAntesDeQueElUsuarioTengaSesinSiHicieraFalta
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/push/subscribe:
+    post:
+      summary: "Registra (o actualiza) la suscripción Web Push del dispositivo/navegador\nactual. Identificada por 'endpoint' porque el cliente nunca conoce el\n_id de Mongo del registro — un mismo endpoint solo debe existir una vez."
+      operationId: registraoActualizaLaSuscripcinWebPushDelDispositivonavegadorActualIdentificadaPorendpointPorqueElClienteNuncaConoceElIdDeMongoDelRegistroUnMismoEndpointSoloDebeExistirUnaVez
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endpoint:
+                  type: string
+                  description: 'El campo value no debe tener más de 2048 caracteres.'
+                  example: b
+                keys:
+                  type: object
+                  description: ''
+                  example: []
+                  properties:
+                    p256dh:
+                      type: string
+                      description: ''
+                      example: architecto
+                    auth:
+                      type: string
+                      description: ''
+                      example: architecto
+                  required:
+                    - p256dh
+                    - auth
+                content_encoding:
+                  type: string
+                  description: ''
+                  example: aes128gcm
+                  enum:
+                    - aesgcm
+                    - aes128gcm
+                  nullable: true
+              required:
+                - endpoint
+                - keys
+      security: []
+    delete:
+      summary: "Da de baja la suscripción del dispositivo/navegador actual (p. ej. el\nusuario desactivó el permiso, o cerró sesión y quiere dejar de recibir\navisos en ese navegador)."
+      operationId: daDeBajaLaSuscripcinDelDispositivonavegadorActualpEjElUsuarioDesactivElPermisoOCerrSesinYQuiereDejarDeRecibirAvisosEnEseNavegador
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endpoint:
+                  type: string
+                  description: 'El campo value no debe tener más de 2048 caracteres.'
+                  example: b
+              required:
+                - endpoint
+      security: []
   '/api/v1/social/work/{work_id}/react':
     post:
       summary: 'Alterna (toggle) el "me gusta" del usuario autenticado sobre un trabajo.'
@@ -3138,12 +3292,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
       security: []
     delete:
@@ -3183,7 +3337,7 @@ paths:
                 tipo:
                   type: string
                   description: ''
-                  example: entrada
+                  example: salida
                   enum:
                     - entrada
                     - salida
@@ -3382,7 +3536,7 @@ paths:
                 type:
                   type: string
                   description: ''
-                  example: citas
+                  example: ingresos
                   enum:
                     - ingresos
                     - citas
@@ -3391,7 +3545,7 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: año
+                  example: trimestre
                   enum:
                     - dia
                     - semana
@@ -3402,17 +3556,17 @@ paths:
                 dateFrom:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T02:01:37'
+                  example: '2026-09-06T02:57:06'
                   nullable: true
                 dateTo:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T02:01:37'
+                  example: '2026-09-06T02:57:06'
                   nullable: true
                 detail:
                   type: string
                   description: ''
-                  example: muy-detallado
+                  example: detallado
                   enum:
                     - resumen
                     - detallado
@@ -4373,7 +4527,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -4536,7 +4690,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-06T02:01:32'
+                  example: '2026-09-06T02:57:01'
                   nullable: true
               required:
                 - product_id

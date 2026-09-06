@@ -166,6 +166,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email' => true,
             'sms' => false,
             'whatsapp' => false,
+            'push' => false,
             'promociones' => true,
         ];
 

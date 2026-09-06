@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\Payment\PaymentController as ApiPaymentController;
 use App\Http\Controllers\Api\Payment\StripeWebhookController;
 use App\Http\Controllers\Api\Prediction\PredictionController;
 use App\Http\Controllers\Api\Profile\ProfileController;
+use App\Http\Controllers\Api\Push\PushController;
 use App\Http\Controllers\Api\Raffle\RaffleController as ApiRaffleController;
 use App\Http\Controllers\Api\Report\ReportController as ApiReportController;
 use App\Http\Controllers\Api\Review\ReviewController as ApiReviewController;
@@ -186,6 +187,13 @@ Route::prefix('v1')->group(function (): void {
         Route::post('notifications/read-all', [ApiNotificationController::class, 'markAllRead']);
         Route::post('notifications/{id}/read', [ApiNotificationController::class, 'markOneRead']);
         Route::delete('notifications/{id}', [ApiNotificationController::class, 'destroy']);
+        Route::get('notifications/preferences', [ApiNotificationController::class, 'preferences']);
+        Route::patch('notifications/preferences', [ApiNotificationController::class, 'updatePreferences']);
+
+        // Push (Web Push / VAPID)
+        Route::get('push/vapid-public-key', [PushController::class, 'vapidPublicKey']);
+        Route::post('push/subscribe', [PushController::class, 'subscribe']);
+        Route::delete('push/subscribe', [PushController::class, 'unsubscribe']);
 
         // Social
         Route::post('social/work/{work}/react', [ApiSocialController::class, 'react']);

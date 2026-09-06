@@ -67,13 +67,18 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
-        $prefs = [
+        // Merge sobre las preferencias actuales (no reemplazo total): este
+        // formulario no tiene un campo "push" (ese vive en Nuxt, ver
+        // Api\Notification\NotificationController::updatePreferences()), así
+        // que sobreescribir el array completo borraría silenciosamente
+        // cualquier preferencia de push ya guardada por ese otro camino.
+        $prefs = array_merge($user->notificationPreferences(), [
             'in_app' => $request->boolean('in_app'),
             'email' => $request->boolean('email'),
             'sms' => $request->boolean('sms'),
             'whatsapp' => $request->boolean('whatsapp'),
             'promociones' => $request->boolean('promociones'),
-        ];
+        ]);
 
         $user->update(['notification_preferences' => $prefs]);
 

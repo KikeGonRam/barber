@@ -327,6 +327,28 @@ el registro.</a>
                                                                                 <li class="tocify-item level-2" data-unique="endpoints-DELETEapi-v1-notifications--id-">
                                 <a href="#endpoints-DELETEapi-v1-notifications--id-">Elimina una notificación puntual del usuario autenticado.</a>
                             </li>
+                                                                                <li class="tocify-item level-2" data-unique="endpoints-GETapi-v1-notifications-preferences">
+                                <a href="#endpoints-GETapi-v1-notifications-preferences">Preferencias de canal de notificación del usuario autenticado
+(in_app/email/sms/whatsapp/push/promociones).</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="endpoints-PATCHapi-v1-notifications-preferences">
+                                <a href="#endpoints-PATCHapi-v1-notifications-preferences">Actualiza las preferencias de notificación del usuario autenticado.</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="endpoints-GETapi-v1-push-vapid-public-key">
+                                <a href="#endpoints-GETapi-v1-push-vapid-public-key">Clave pública VAPID (no es un secreto — viaja al navegador por
+diseño). Pública para que la pantalla de login/onboarding pueda
+pedirla incluso antes de que el usuario tenga sesión, si hiciera falta.</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="endpoints-POSTapi-v1-push-subscribe">
+                                <a href="#endpoints-POSTapi-v1-push-subscribe">Registra (o actualiza) la suscripción Web Push del dispositivo/navegador
+actual. Identificada por 'endpoint' porque el cliente nunca conoce el
+_id de Mongo del registro — un mismo endpoint solo debe existir una vez.</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="endpoints-DELETEapi-v1-push-subscribe">
+                                <a href="#endpoints-DELETEapi-v1-push-subscribe">Da de baja la suscripción del dispositivo/navegador actual (p. ej. el
+usuario desactivó el permiso, o cerró sesión y quiere dejar de recibir
+avisos en ese navegador).</a>
+                            </li>
                                                                                 <li class="tocify-item level-2" data-unique="endpoints-POSTapi-v1-social-work--work_id--react">
                                 <a href="#endpoints-POSTapi-v1-social-work--work_id--react">Alterna (toggle) el "me gusta" del usuario autenticado sobre un trabajo.</a>
                             </li>
@@ -2528,8 +2550,8 @@ el barbero solo puede cambiar el estado vía updateStatus().</h2>
     \"barber_id\": \"architecto\",
     \"service_id\": \"architecto\",
     \"fecha\": \"2052-09-29\",
-    \"hora_inicio\": \"02:01\",
-    \"estado\": \"completada\",
+    \"hora_inicio\": \"02:56\",
+    \"estado\": \"pendiente\",
     \"notas\": \"n\"
 }"
 </code></pre></div>
@@ -2550,8 +2572,8 @@ let body = {
     "barber_id": "architecto",
     "service_id": "architecto",
     "fecha": "2052-09-29",
-    "hora_inicio": "02:01",
-    "estado": "completada",
+    "hora_inicio": "02:56",
+    "estado": "pendiente",
     "notas": "n"
 };
 
@@ -2705,10 +2727,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="hora_inicio"                data-endpoint="PUTapi-v1-appointments--appointment_code-"
-               value="02:01"
+               value="02:56"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:01</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:56</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>estado</code></b>&nbsp;&nbsp;
@@ -2717,10 +2739,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="estado"                data-endpoint="PUTapi-v1-appointments--appointment_code-"
-               value="completada"
+               value="pendiente"
                data-component="body">
     <br>
-<p>Example: <code>completada</code></p>
+<p>Example: <code>pendiente</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>pendiente</code></li> <li><code>confirmada</code></li> <li><code>en_proceso</code></li> <li><code>completada</code></li> <li><code>cancelada</code></li> <li><code>no_asistio</code></li></ul>
         </div>
@@ -2756,7 +2778,7 @@ validada en AppointmentStatusService).</h2>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"estado\": \"no_asistio\",
+    \"estado\": \"en_proceso\",
     \"notas\": \"b\"
 }"
 </code></pre></div>
@@ -2773,7 +2795,7 @@ const headers = {
 };
 
 let body = {
-    "estado": "no_asistio",
+    "estado": "en_proceso",
     "notas": "b"
 };
 
@@ -2879,10 +2901,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="estado"                data-endpoint="PATCHapi-v1-appointments--appointment_code--status"
-               value="no_asistio"
+               value="en_proceso"
                data-component="body">
     <br>
-<p>Example: <code>no_asistio</code></p>
+<p>Example: <code>en_proceso</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>pendiente</code></li> <li><code>confirmada</code></li> <li><code>en_proceso</code></li> <li><code>completada</code></li> <li><code>cancelada</code></li> <li><code>no_asistio</code></li></ul>
         </div>
@@ -3043,7 +3065,7 @@ estadisticas que la vista web de Mi Agenda.</h2>
     --header "Accept: application/json" \
     --data "{
     \"period\": \"week\",
-    \"estado\": \"confirmada\",
+    \"estado\": \"cancelada\",
     \"offset\": -364
 }"
 </code></pre></div>
@@ -3061,7 +3083,7 @@ const headers = {
 
 let body = {
     "period": "week",
-    "estado": "confirmada",
+    "estado": "cancelada",
     "offset": -364
 };
 
@@ -3184,10 +3206,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="estado"                data-endpoint="GETapi-v1-barber-agenda"
-               value="confirmada"
+               value="cancelada"
                data-component="body">
     <br>
-<p>Example: <code>confirmada</code></p>
+<p>Example: <code>cancelada</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>pendiente</code></li> <li><code>confirmada</code></li> <li><code>en_proceso</code></li> <li><code>completada</code></li> <li><code>cancelada</code></li> <li><code>no_asistio</code></li></ul>
         </div>
@@ -5293,7 +5315,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"metodo_pago\": \"transferencia\"
+    \"metodo_pago\": \"tarjeta\"
 }"
 </code></pre></div>
 
@@ -5309,7 +5331,7 @@ const headers = {
 };
 
 let body = {
-    "metodo_pago": "transferencia"
+    "metodo_pago": "tarjeta"
 };
 
 fetch(url, {
@@ -5414,10 +5436,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="metodo_pago"                data-endpoint="PATCHapi-v1-orders--order_id--deliver"
-               value="transferencia"
+               value="tarjeta"
                data-component="body">
     <br>
-<p>Example: <code>transferencia</code></p>
+<p>Example: <code>tarjeta</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>efectivo</code></li> <li><code>tarjeta</code></li> <li><code>transferencia</code></li> <li><code>qr</code></li></ul>
         </div>
@@ -5716,10 +5738,10 @@ este mismo endpoint (con stripe_payment_id) para completarse.</h2>
     --data "{
     \"appointment_id\": \"architecto\",
     \"monto\": 4326.41688,
-    \"metodo_pago\": \"efectivo\",
+    \"metodo_pago\": \"transferencia\",
     \"propina\": 77,
     \"puntos_canjeados\": 8,
-    \"usar_premio_rifa\": true,
+    \"usar_premio_rifa\": false,
     \"stripe_payment_id\": \"architecto\"
 }"
 </code></pre></div>
@@ -5738,10 +5760,10 @@ const headers = {
 let body = {
     "appointment_id": "architecto",
     "monto": 4326.41688,
-    "metodo_pago": "efectivo",
+    "metodo_pago": "transferencia",
     "propina": 77,
     "puntos_canjeados": 8,
-    "usar_premio_rifa": true,
+    "usar_premio_rifa": false,
     "stripe_payment_id": "architecto"
 };
 
@@ -5858,10 +5880,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="metodo_pago"                data-endpoint="POSTapi-v1-payments"
-               value="efectivo"
+               value="transferencia"
                data-component="body">
     <br>
-<p>Example: <code>efectivo</code></p>
+<p>Example: <code>transferencia</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>efectivo</code></li> <li><code>tarjeta</code></li> <li><code>transferencia</code></li></ul>
         </div>
@@ -5909,7 +5931,7 @@ Must be one of:
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>stripe_payment_id</code></b>&nbsp;&nbsp;
@@ -6619,10 +6641,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"email\": \"zbailey@example.net\",
     \"password\": \"-0pBNvYgxw\",
     \"telefono\": \"a\",
-    \"fecha_nacimiento\": \"2026-09-06T02:01:31\",
-    \"pref_in_app\": true,
-    \"pref_email\": true,
-    \"pref_sms\": true,
+    \"fecha_nacimiento\": \"2026-09-06T02:57:00\",
+    \"pref_in_app\": false,
+    \"pref_email\": false,
+    \"pref_sms\": false,
     \"pref_whatsapp\": false
 }"
 </code></pre></div>
@@ -6643,10 +6665,10 @@ let body = {
     "email": "zbailey@example.net",
     "password": "-0pBNvYgxw",
     "telefono": "a",
-    "fecha_nacimiento": "2026-09-06T02:01:31",
-    "pref_in_app": true,
-    "pref_email": true,
-    "pref_sms": true,
+    "fecha_nacimiento": "2026-09-06T02:57:00",
+    "pref_in_app": false,
+    "pref_email": false,
+    "pref_sms": false,
     "pref_whatsapp": false
 };
 
@@ -6787,10 +6809,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha_nacimiento"                data-endpoint="POSTapi-v1-clients"
-               value="2026-09-06T02:01:31"
+               value="2026-09-06T02:57:00"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:01:31</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:57:00</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_in_app</code></b>&nbsp;&nbsp;
@@ -6812,7 +6834,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_email</code></b>&nbsp;&nbsp;
@@ -6834,7 +6856,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_sms</code></b>&nbsp;&nbsp;
@@ -6856,7 +6878,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_whatsapp</code></b>&nbsp;&nbsp;
@@ -6902,11 +6924,11 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"name\": \"b\",
     \"email\": \"zbailey@example.net\",
     \"telefono\": \"i\",
-    \"fecha_nacimiento\": \"2026-09-06T02:01:31\",
+    \"fecha_nacimiento\": \"2026-09-06T02:57:00\",
     \"pref_in_app\": true,
-    \"pref_email\": true,
-    \"pref_sms\": true,
-    \"pref_whatsapp\": false
+    \"pref_email\": false,
+    \"pref_sms\": false,
+    \"pref_whatsapp\": true
 }"
 </code></pre></div>
 
@@ -6925,11 +6947,11 @@ let body = {
     "name": "b",
     "email": "zbailey@example.net",
     "telefono": "i",
-    "fecha_nacimiento": "2026-09-06T02:01:31",
+    "fecha_nacimiento": "2026-09-06T02:57:00",
     "pref_in_app": true,
-    "pref_email": true,
-    "pref_sms": true,
-    "pref_whatsapp": false
+    "pref_email": false,
+    "pref_sms": false,
+    "pref_whatsapp": true
 };
 
 fetch(url, {
@@ -7070,10 +7092,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha_nacimiento"                data-endpoint="PUTapi-v1-clients--client_slug-"
-               value="2026-09-06T02:01:31"
+               value="2026-09-06T02:57:00"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:01:31</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:57:00</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_in_app</code></b>&nbsp;&nbsp;
@@ -7117,7 +7139,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_sms</code></b>&nbsp;&nbsp;
@@ -7139,7 +7161,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_whatsapp</code></b>&nbsp;&nbsp;
@@ -7161,7 +7183,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -7439,7 +7461,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"duracion_min\": 16,
     \"imagen\": \"m\",
     \"descripcion\": \"i\",
-    \"activo\": false
+    \"activo\": true
 }"
 </code></pre></div>
 
@@ -7461,7 +7483,7 @@ let body = {
     "duracion_min": 16,
     "imagen": "m",
     "descripcion": "i",
-    "activo": false
+    "activo": true
 };
 
 fetch(url, {
@@ -7638,7 +7660,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -8154,7 +8176,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"especialidades\": \"i\",
     \"descripcion\": \"y\",
     \"foto\": \"v\",
-    \"activo\": true
+    \"activo\": false
 }"
 </code></pre></div>
 
@@ -8175,7 +8197,7 @@ let body = {
     "especialidades": "i",
     "descripcion": "y",
     "foto": "v",
-    "activo": true
+    "activo": false
 };
 
 fetch(url, {
@@ -8353,7 +8375,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -9396,7 +9418,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"nombre\": \"b\",
     \"direccion\": \"n\",
     \"telefono\": \"g\",
-    \"horario_apertura\": \"02:01\",
+    \"horario_apertura\": \"02:57\",
     \"horario_cierre\": \"2052-09-29\",
     \"politica_cancelacion\": 22,
     \"instagram\": \"g\",
@@ -9424,7 +9446,7 @@ let body = {
     "nombre": "b",
     "direccion": "n",
     "telefono": "g",
-    "horario_apertura": "02:01",
+    "horario_apertura": "02:57",
     "horario_cierre": "2052-09-29",
     "politica_cancelacion": 22,
     "instagram": "g",
@@ -9561,10 +9583,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="horario_apertura"                data-endpoint="PUTapi-v1-settings"
-               value="02:01"
+               value="02:57"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:01</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:57</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>horario_cierre</code></b>&nbsp;&nbsp;
@@ -10066,7 +10088,7 @@ el registro.</h2>
     \"cta_label\": \"g\",
     \"cta_url\": \"http:\\/\\/www.okuneva.com\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",
     \"segmento\": \"architecto\",
-    \"modo\": \"ahora\",
+    \"modo\": \"programar\",
     \"programada_para\": \"2052-09-29\"
 }"
 </code></pre></div>
@@ -10088,7 +10110,7 @@ let body = {
     "cta_label": "g",
     "cta_url": "http:\/\/www.okuneva.com\/fugiat-sunt-nihil-accusantium-harum-mollitia.html",
     "segmento": "architecto",
-    "modo": "ahora",
+    "modo": "programar",
     "programada_para": "2052-09-29"
 };
 
@@ -10241,10 +10263,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="modo"                data-endpoint="POSTapi-v1-campaigns"
-               value="ahora"
+               value="programar"
                data-component="body">
     <br>
-<p>Example: <code>ahora</code></p>
+<p>Example: <code>programar</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>ahora</code></li> <li><code>programar</code></li></ul>
         </div>
@@ -11001,6 +11023,856 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>The ID of the notification. Example: <code>architecto</code></p>
             </div>
                     </form>
+
+                    <h2 id="endpoints-GETapi-v1-notifications-preferences">Preferencias de canal de notificación del usuario autenticado
+(in_app/email/sms/whatsapp/push/promociones).</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-GETapi-v1-notifications-preferences">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost:8000/api/v1/notifications/preferences" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/notifications/preferences"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-v1-notifications-preferences">
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <details class="annotation">
+            <summary style="cursor: pointer;">
+                <small onclick="textContent = parentElement.parentElement.open ? 'Show headers' : 'Hide headers'">Show headers</small>
+            </summary>
+            <pre><code class="language-http">cache-control: no-cache, private
+content-type: application/json
+access-control-allow-origin: http://localhost:3000
+ </code></pre></details>         <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;No autorizado.&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-v1-notifications-preferences" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-v1-notifications-preferences"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-v1-notifications-preferences"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-v1-notifications-preferences" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-v1-notifications-preferences">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-v1-notifications-preferences" data-method="GET"
+      data-path="api/v1/notifications/preferences"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-v1-notifications-preferences', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-v1-notifications-preferences"
+                    onclick="tryItOut('GETapi-v1-notifications-preferences');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-v1-notifications-preferences"
+                    onclick="cancelTryOut('GETapi-v1-notifications-preferences');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-v1-notifications-preferences"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/v1/notifications/preferences</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-v1-notifications-preferences"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-v1-notifications-preferences"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
+
+                    <h2 id="endpoints-PATCHapi-v1-notifications-preferences">Actualiza las preferencias de notificación del usuario autenticado.</h2>
+
+<p>
+</p>
+
+<p>Igual que la versión web (Notification\NotificationController), hace
+merge sobre las preferencias actuales en vez de reemplazarlas por
+completo, para que un cliente que solo manda un subconjunto de
+canales (p. ej. solo "push") no borre los demás.</p>
+
+<span id="example-requests-PATCHapi-v1-notifications-preferences">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request PATCH \
+    "http://localhost:8000/api/v1/notifications/preferences" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"in_app\": false,
+    \"email\": false,
+    \"sms\": false,
+    \"whatsapp\": true,
+    \"push\": true,
+    \"promociones\": false
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/notifications/preferences"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "in_app": false,
+    "email": false,
+    "sms": false,
+    "whatsapp": true,
+    "push": true,
+    "promociones": false
+};
+
+fetch(url, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-PATCHapi-v1-notifications-preferences">
+</span>
+<span id="execution-results-PATCHapi-v1-notifications-preferences" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-PATCHapi-v1-notifications-preferences"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-PATCHapi-v1-notifications-preferences"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-PATCHapi-v1-notifications-preferences" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-PATCHapi-v1-notifications-preferences">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-PATCHapi-v1-notifications-preferences" data-method="PATCH"
+      data-path="api/v1/notifications/preferences"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('PATCHapi-v1-notifications-preferences', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-PATCHapi-v1-notifications-preferences"
+                    onclick="tryItOut('PATCHapi-v1-notifications-preferences');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-PATCHapi-v1-notifications-preferences"
+                    onclick="cancelTryOut('PATCHapi-v1-notifications-preferences');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-PATCHapi-v1-notifications-preferences"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-purple">PATCH</small>
+            <b><code>api/v1/notifications/preferences</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="PATCHapi-v1-notifications-preferences"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="PATCHapi-v1-notifications-preferences"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>in_app</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="in_app"
+                   value="true"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="in_app"
+                   value="false"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>Example: <code>false</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>email</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="email"
+                   value="true"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="email"
+                   value="false"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>Example: <code>false</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>sms</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="sms"
+                   value="true"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="sms"
+                   value="false"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>Example: <code>false</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>whatsapp</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="whatsapp"
+                   value="true"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="whatsapp"
+                   value="false"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>Example: <code>true</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>push</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="push"
+                   value="true"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="push"
+                   value="false"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>Example: <code>true</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>promociones</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="promociones"
+                   value="true"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="PATCHapi-v1-notifications-preferences" style="display: none">
+            <input type="radio" name="promociones"
+                   value="false"
+                   data-endpoint="PATCHapi-v1-notifications-preferences"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>Example: <code>false</code></p>
+        </div>
+        </form>
+
+                    <h2 id="endpoints-GETapi-v1-push-vapid-public-key">Clave pública VAPID (no es un secreto — viaja al navegador por
+diseño). Pública para que la pantalla de login/onboarding pueda
+pedirla incluso antes de que el usuario tenga sesión, si hiciera falta.</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-GETapi-v1-push-vapid-public-key">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost:8000/api/v1/push/vapid-public-key" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/push/vapid-public-key"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-v1-push-vapid-public-key">
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <details class="annotation">
+            <summary style="cursor: pointer;">
+                <small onclick="textContent = parentElement.parentElement.open ? 'Show headers' : 'Hide headers'">Show headers</small>
+            </summary>
+            <pre><code class="language-http">cache-control: no-cache, private
+content-type: application/json
+access-control-allow-origin: http://localhost:3000
+ </code></pre></details>         <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;No autorizado.&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-v1-push-vapid-public-key" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-v1-push-vapid-public-key"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-v1-push-vapid-public-key"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-v1-push-vapid-public-key" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-v1-push-vapid-public-key">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-v1-push-vapid-public-key" data-method="GET"
+      data-path="api/v1/push/vapid-public-key"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-v1-push-vapid-public-key', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-v1-push-vapid-public-key"
+                    onclick="tryItOut('GETapi-v1-push-vapid-public-key');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-v1-push-vapid-public-key"
+                    onclick="cancelTryOut('GETapi-v1-push-vapid-public-key');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-v1-push-vapid-public-key"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/v1/push/vapid-public-key</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-v1-push-vapid-public-key"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-v1-push-vapid-public-key"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
+
+                    <h2 id="endpoints-POSTapi-v1-push-subscribe">Registra (o actualiza) la suscripción Web Push del dispositivo/navegador
+actual. Identificada por &#039;endpoint&#039; porque el cliente nunca conoce el
+_id de Mongo del registro — un mismo endpoint solo debe existir una vez.</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-POSTapi-v1-push-subscribe">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request POST \
+    "http://localhost:8000/api/v1/push/subscribe" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"endpoint\": \"b\",
+    \"keys\": {
+        \"p256dh\": \"architecto\",
+        \"auth\": \"architecto\"
+    },
+    \"content_encoding\": \"aes128gcm\"
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/push/subscribe"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "endpoint": "b",
+    "keys": {
+        "p256dh": "architecto",
+        "auth": "architecto"
+    },
+    "content_encoding": "aes128gcm"
+};
+
+fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-POSTapi-v1-push-subscribe">
+</span>
+<span id="execution-results-POSTapi-v1-push-subscribe" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-POSTapi-v1-push-subscribe"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-POSTapi-v1-push-subscribe"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-POSTapi-v1-push-subscribe" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-POSTapi-v1-push-subscribe">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-POSTapi-v1-push-subscribe" data-method="POST"
+      data-path="api/v1/push/subscribe"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('POSTapi-v1-push-subscribe', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-POSTapi-v1-push-subscribe"
+                    onclick="tryItOut('POSTapi-v1-push-subscribe');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-POSTapi-v1-push-subscribe"
+                    onclick="cancelTryOut('POSTapi-v1-push-subscribe');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-POSTapi-v1-push-subscribe"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-black">POST</small>
+            <b><code>api/v1/push/subscribe</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="POSTapi-v1-push-subscribe"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="POSTapi-v1-push-subscribe"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>endpoint</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="endpoint"                data-endpoint="POSTapi-v1-push-subscribe"
+               value="b"
+               data-component="body">
+    <br>
+<p>El campo value no debe tener más de 2048 caracteres. Example: <code>b</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+        <details>
+            <summary style="padding-bottom: 10px;">
+                <b style="line-height: 2;"><code>keys</code></b>&nbsp;&nbsp;
+<small>object</small>&nbsp;
+ &nbsp;
+ &nbsp;
+<br>
+
+            </summary>
+                                                <div style="margin-left: 14px; clear: unset;">
+                        <b style="line-height: 2;"><code>p256dh</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="keys.p256dh"                data-endpoint="POSTapi-v1-push-subscribe"
+               value="architecto"
+               data-component="body">
+    <br>
+<p>Example: <code>architecto</code></p>
+                    </div>
+                                                                <div style="margin-left: 14px; clear: unset;">
+                        <b style="line-height: 2;"><code>auth</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="keys.auth"                data-endpoint="POSTapi-v1-push-subscribe"
+               value="architecto"
+               data-component="body">
+    <br>
+<p>Example: <code>architecto</code></p>
+                    </div>
+                                    </details>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>content_encoding</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="content_encoding"                data-endpoint="POSTapi-v1-push-subscribe"
+               value="aes128gcm"
+               data-component="body">
+    <br>
+<p>Example: <code>aes128gcm</code></p>
+Must be one of:
+<ul style="list-style-type: square;"><li><code>aesgcm</code></li> <li><code>aes128gcm</code></li></ul>
+        </div>
+        </form>
+
+                    <h2 id="endpoints-DELETEapi-v1-push-subscribe">Da de baja la suscripción del dispositivo/navegador actual (p. ej. el
+usuario desactivó el permiso, o cerró sesión y quiere dejar de recibir
+avisos en ese navegador).</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-DELETEapi-v1-push-subscribe">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request DELETE \
+    "http://localhost:8000/api/v1/push/subscribe" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"endpoint\": \"b\"
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/push/subscribe"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "endpoint": "b"
+};
+
+fetch(url, {
+    method: "DELETE",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-DELETEapi-v1-push-subscribe">
+</span>
+<span id="execution-results-DELETEapi-v1-push-subscribe" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-DELETEapi-v1-push-subscribe"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-DELETEapi-v1-push-subscribe"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-DELETEapi-v1-push-subscribe" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-DELETEapi-v1-push-subscribe">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-DELETEapi-v1-push-subscribe" data-method="DELETE"
+      data-path="api/v1/push/subscribe"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('DELETEapi-v1-push-subscribe', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-DELETEapi-v1-push-subscribe"
+                    onclick="tryItOut('DELETEapi-v1-push-subscribe');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-DELETEapi-v1-push-subscribe"
+                    onclick="cancelTryOut('DELETEapi-v1-push-subscribe');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-DELETEapi-v1-push-subscribe"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-red">DELETE</small>
+            <b><code>api/v1/push/subscribe</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="DELETEapi-v1-push-subscribe"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="DELETEapi-v1-push-subscribe"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>endpoint</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="endpoint"                data-endpoint="DELETEapi-v1-push-subscribe"
+               value="b"
+               data-component="body">
+    <br>
+<p>El campo value no debe tener más de 2048 caracteres. Example: <code>b</code></p>
+        </div>
+        </form>
 
                     <h2 id="endpoints-POSTapi-v1-social-work--work_id--react">Alterna (toggle) el &quot;me gusta&quot; del usuario autenticado sobre un trabajo.</h2>
 
@@ -14462,8 +15334,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"precio_compra\": 77,
     \"descripcion\": \"architecto\",
     \"tipo\": \"architecto\",
-    \"activo\": true,
-    \"active\": true
+    \"activo\": false,
+    \"active\": false
 }"
 </code></pre></div>
 
@@ -14487,8 +15359,8 @@ let body = {
     "precio_compra": 77,
     "descripcion": "architecto",
     "tipo": "architecto",
-    "activo": true,
-    "active": true
+    "activo": false,
+    "active": false
 };
 
 fetch(url, {
@@ -14702,7 +15574,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -14724,7 +15596,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -14869,7 +15741,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"tipo\": \"entrada\",
+    \"tipo\": \"salida\",
     \"cantidad\": 16,
     \"motivo\": \"architecto\"
 }"
@@ -14887,7 +15759,7 @@ const headers = {
 };
 
 let body = {
-    "tipo": "entrada",
+    "tipo": "salida",
     "cantidad": 16,
     "motivo": "architecto"
 };
@@ -14994,10 +15866,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="tipo"                data-endpoint="POSTapi-v1-admin-inventory-products--productId--movement"
-               value="entrada"
+               value="salida"
                data-component="body">
     <br>
-<p>Example: <code>entrada</code></p>
+<p>Example: <code>salida</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>entrada</code></li> <li><code>salida</code></li></ul>
         </div>
@@ -15933,11 +16805,11 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"type\": \"citas\",
-    \"period\": \"año\",
-    \"dateFrom\": \"2026-09-06T02:01:37\",
-    \"dateTo\": \"2026-09-06T02:01:37\",
-    \"detail\": \"muy-detallado\"
+    \"type\": \"ingresos\",
+    \"period\": \"trimestre\",
+    \"dateFrom\": \"2026-09-06T02:57:06\",
+    \"dateTo\": \"2026-09-06T02:57:06\",
+    \"detail\": \"detallado\"
 }"
 </code></pre></div>
 
@@ -15953,11 +16825,11 @@ const headers = {
 };
 
 let body = {
-    "type": "citas",
-    "period": "año",
-    "dateFrom": "2026-09-06T02:01:37",
-    "dateTo": "2026-09-06T02:01:37",
-    "detail": "muy-detallado"
+    "type": "ingresos",
+    "period": "trimestre",
+    "dateFrom": "2026-09-06T02:57:06",
+    "dateTo": "2026-09-06T02:57:06",
+    "detail": "detallado"
 };
 
 fetch(url, {
@@ -16049,10 +16921,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="type"                data-endpoint="POSTapi-v1-admin-reports-custom"
-               value="citas"
+               value="ingresos"
                data-component="body">
     <br>
-<p>Example: <code>citas</code></p>
+<p>Example: <code>ingresos</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>ingresos</code></li> <li><code>citas</code></li> <li><code>inventario</code></li> <li><code>clientes</code></li></ul>
         </div>
@@ -16063,10 +16935,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="period"                data-endpoint="POSTapi-v1-admin-reports-custom"
-               value="año"
+               value="trimestre"
                data-component="body">
     <br>
-<p>Example: <code>año</code></p>
+<p>Example: <code>trimestre</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>dia</code></li> <li><code>semana</code></li> <li><code>mes</code></li> <li><code>trimestre</code></li> <li><code>año</code></li> <li><code>personalizado</code></li></ul>
         </div>
@@ -16077,10 +16949,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="dateFrom"                data-endpoint="POSTapi-v1-admin-reports-custom"
-               value="2026-09-06T02:01:37"
+               value="2026-09-06T02:57:06"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:01:37</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:57:06</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>dateTo</code></b>&nbsp;&nbsp;
@@ -16089,10 +16961,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="dateTo"                data-endpoint="POSTapi-v1-admin-reports-custom"
-               value="2026-09-06T02:01:37"
+               value="2026-09-06T02:57:06"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:01:37</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:57:06</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>detail</code></b>&nbsp;&nbsp;
@@ -16101,10 +16973,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="detail"                data-endpoint="POSTapi-v1-admin-reports-custom"
-               value="muy-detallado"
+               value="detallado"
                data-component="body">
     <br>
-<p>Example: <code>muy-detallado</code></p>
+<p>Example: <code>detallado</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>resumen</code></li> <li><code>detallado</code></li> <li><code>muy-detallado</code></li></ul>
         </div>
@@ -18817,7 +19689,7 @@ multipart/form-data sea interpretado de forma consistente por PHP.</h2>
     --header "Accept: application/json" \
     --form "especialidades=b"\
     --form "descripcion=n"\
-    --form "foto=@/tmp/phpio1g59ddqrkb4ndIrHq" </code></pre></div>
+    --form "foto=@/tmp/phpubs4vudjh2n82WYI7W8" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -18951,7 +19823,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phpio1g59ddqrkb4ndIrHq</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phpubs4vudjh2n82WYI7W8</code></p>
         </div>
         </form>
 
@@ -19519,10 +20391,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.day_of_week"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="saturday"
+               value="monday"
                data-component="body">
     <br>
-<p>Example: <code>saturday</code></p>
+<p>Example: <code>monday</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>monday</code></li> <li><code>tuesday</code></li> <li><code>wednesday</code></li> <li><code>thursday</code></li> <li><code>friday</code></li> <li><code>saturday</code></li> <li><code>sunday</code></li></ul>
                     </div>
@@ -19533,10 +20405,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.start_time"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="02:01"
+               value="02:57"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:01</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:57</code></p>
                     </div>
                                                                 <div style="margin-left: 14px; clear: unset;">
                         <b style="line-height: 2;"><code>end_time</code></b>&nbsp;&nbsp;
@@ -19545,10 +20417,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.end_time"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="02:01"
+               value="02:57"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:01</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>02:57</code></p>
                     </div>
                                                                 <div style="margin-left: 14px; clear: unset;">
                         <b style="line-height: 2;"><code>is_active</code></b>&nbsp;&nbsp;
@@ -19570,7 +20442,7 @@ Must be one of:
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
                     </div>
                                                                 <div style=" margin-left: 14px; clear: unset;">
         <details>
@@ -19838,7 +20710,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "tipo=architecto"\
     --form "active="\
     --form "activo="\
-    --form "imagen=@/tmp/phpij4p7c1rmesodXjZZ8v" </code></pre></div>
+    --form "imagen=@/tmp/phpem82n3vq1k3u5pkH8Ok" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -20052,7 +20924,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpij4p7c1rmesodXjZZ8v</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpem82n3vq1k3u5pkH8Ok</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -20124,8 +20996,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "stock_actual=8"\
     --form "stock_minimo=76"\
     --form "active="\
-    --form "activo="\
-    --form "imagen=@/tmp/phpbdtltjphumn6aeNvl4y" </code></pre></div>
+    --form "activo=1"\
+    --form "imagen=@/tmp/phpt25hnrvoasqm7oqXnsZ" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -20147,7 +21019,7 @@ body.append('precio_venta', '77');
 body.append('stock_actual', '8');
 body.append('stock_minimo', '76');
 body.append('active', '');
-body.append('activo', '');
+body.append('activo', '1');
 body.append('imagen', document.querySelector('input[name="imagen"]').files[0]);
 
 fetch(url, {
@@ -20351,7 +21223,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpbdtltjphumn6aeNvl4y</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpt25hnrvoasqm7oqXnsZ</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -20395,7 +21267,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -20929,7 +21801,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"cantidad\": 22,
     \"motivo\": \"g\",
     \"appointment_id\": \"architecto\",
-    \"fecha\": \"2026-09-06T02:01:32\"
+    \"fecha\": \"2026-09-06T02:57:01\"
 }"
 </code></pre></div>
 
@@ -20949,7 +21821,7 @@ let body = {
     "cantidad": 22,
     "motivo": "g",
     "appointment_id": "architecto",
-    "fecha": "2026-09-06T02:01:32"
+    "fecha": "2026-09-06T02:57:01"
 };
 
 fetch(url, {
@@ -21101,10 +21973,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha"                data-endpoint="POSTapi-v1-inventory-movements"
-               value="2026-09-06T02:01:32"
+               value="2026-09-06T02:57:01"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:01:32</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-06T02:57:01</code></p>
         </div>
         </form>
 
@@ -21261,7 +22133,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "title=Corte Moderno con Degradado"\
     --form "description=Corte moderno con degradado lateral y textura superior"\
     --form "images[]=architecto"\
-    --form "media[]=@/tmp/phporuop8k236bi02EIDqn" </code></pre></div>
+    --form "media[]=@/tmp/phpeus46uajm8saaFdvef8" </code></pre></div>
 
 
 <div class="javascript-example">
