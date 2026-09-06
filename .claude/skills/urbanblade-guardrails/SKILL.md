@@ -474,37 +474,60 @@ This is genuinely new scope, not unfinished migration work — `nuxt-migration-p
 final report explicitly listed notifications/chatbot as a conscious exclusion, not a
 gap, right before this request came in.
 
-## 24. New scope (2026-09-06): Stripe hardening + client self-pay (later), and a new
-"ingeniero" role with a Laravel Pulse ops dashboard — plan lives in `frontend-urban`
+## 24. CLOSED (2026-09-06): Stripe hardening + client self-pay, and the new "ingeniero"
+role with a Laravel Pulse ops dashboard — plan/final report in `frontend-urban`
 
-Requested right after guardrail #23's plan closed. Full architecture — decisions
-already made with the user, phases, gotchas anticipated — lives in
-`frontend-urban/.claude/skills/stripe-and-ops-role-plan/SKILL.md`. Worth knowing from
-here:
-- Stripe already works for the staff-facing charge flow (`PaymentController::
-  stripeIntent()`, Stripe Elements in `frontend-urban/app/pages/payments/index.vue`)
-  — server-computed amounts, never client-supplied, already follows guardrail #13.
-  The real gap found is **zero test coverage** of the whole Stripe path. Fase A
-  (agreed scope) is hardening only: tests, a webhook that handles more than just
-  `payment_intent.succeeded`/`.payment_failed`, and `.env.example` Stripe docs. Fase B
-  (client-initiated card payment — doesn't exist at all today) is deliberately
-  deferred with scope TBD, not to be started without asking again.
-- The new "ingeniero" role is **read-only, corrected 2026-09-06 after the first plan
-  draft got this wrong**: it is NOT a superset of `administrador` — the project owner
-  was explicit that it must never be able to create/edit/delete users, clients,
-  services, barbers, or settings. Its permission set is just `reportes.ver`,
-  `logs.ver`, and a new `sistema.ver` — dashboards/analytics/reports/server status
-  only. Add it only to specific read-only routes (dashboard, analytics, reports, logs,
-  the new system-status endpoint), never to any write/CRUD route, and never as a
-  blanket `role.custom:administrador,ingeniero` swap without checking each route's
-  actual HTTP verb/effect first.
-- Laravel Pulse was chosen (over building monitoring from scratch) for the "server
-  status" dashboard, but **Pulse's storage needs a real SQL connection (MySQL/SQLite/
-  Postgres) — this repo's Dockerfile only installs generic `pdo`, no `pdo_sqlite`/
-  `pdo_mysql`, and the app's default DB connection is MongoDB, which Pulse can't use.**
-  The plan recommends adding SQLite support to the Dockerfile (`PULSE_DB_CONNECTION`
-  pointed at a dedicated `.sqlite` file) rather than standing up a new MySQL service —
-  do not point Pulse at the `mongodb` connection or at `mongo-test`.
+All 6 phases shipped and CI-green on both repos same day. Full history, commit hashes,
+and the final report live in
+`frontend-urban/.claude/skills/stripe-and-ops-role-plan/SKILL.md` — read that before
+touching any of the files below, since the "why" behind each decision is there, not
+repeated in full here.
+
+- **Stripe**: Fase A hardened the existing staff charge flow (webhook now also handles
+  `payment_intent.payment_failed` with a real staff notification, plus new
+  `charge.refunded`/`charge.dispute.created` handlers; commit `d2dfa9a`). Fase B added
+  **client self-pay**: `POST /api/v1/payments/stripe-intent` now also accepts the
+  `cliente` role, restricted to their own appointment (ownership check on
+  `client_id`) — commit `b8e86d9`. No change was needed to complete the charge:
+  `StripeWebhookController::onSucceeded()` already completes via
+  `PaymentService::create()` regardless of who created the PaymentIntent. Opening the
+  endpoint to clients did require two new server-side guards that hadn't been needed
+  before (appointment must be in `AppointmentStatusService::CHARGEABLE`, must not
+  already have a `Payment`) — previously staff's own UI silently avoided both states,
+  which was never a real guarantee once a non-staff caller could reach the endpoint
+  directly. There is still no client-facing card-entry UI in `frontend-urban` — that's
+  deliberately deferred until asked for, the backend is ready for it.
+- The new **"ingeniero" role is read-only, by explicit and repeated project-owner
+  correction**: never a superset of `administrador`. Its permission set is exactly
+  `reportes.ver`, `logs.ver`, `sistema.ver` (`RolePermissionSeederTest` locks this
+  invariant in) — dashboards/analytics/reports/server status only, seeded alongside
+  `administrador`/`recepcionista`/`barbero`/`cliente`. It has been added to specific
+  read-only routes only (dashboard, reports, predictions, logs, the new
+  `GET /admin/system/status`) — commit `97609c6` for the full route-by-route audit.
+  **5 controllers had their own internal `hasRole('administrador')`-only guard** that
+  would have 403'd `ingeniero` even after the route middleware allowed it
+  (`DashboardAdminController`, `ReportAdminController`, `PredictionController`,
+  `ReportController`, `LogController`) — all 5 updated. If a future read-only route
+  makes sense for this role, add it explicitly route-by-route (and check the
+  controller's own internal guard too, per the gap above) — never widen via a blanket
+  `role.custom:administrador,ingeniero` swap without checking each route's actual verb
+  and any internal guard first.
+- **Laravel Pulse is installed and running** on a dedicated `sqlite` connection
+  (`config/database.php`), never `mongodb`/`mongo-test` — the Dockerfile now installs
+  `pdo_sqlite`, and `database/pulse.sqlite` is created by `.docker/entrypoint.sh` and by
+  CI (Laravel's sqlite driver does not auto-create the file on this version). `/pulse`
+  (the dashboard the package auto-registers) is gated by an explicit
+  `Gate::define('viewPulse', ...)` in `AppServiceProvider` (administrador or ingeniero)
+  rather than relying on Pulse's default-deny-on-undefined-ability behavior.
+- Also done in the same session, adjacent to this plan but not part of it: CORS opened
+  for the Vercel-deployed frontend (`config/cors.php` regex pattern covering any deploy
+  of the `frontend-urbanblade` project, commit `dde578b`), and a mascot/brand system
+  (Bladebot/Nava/Bruno error pages, SVG brand mark) that existed as the project owner's
+  own uncommitted work in both repos and was committed/pushed on request (`f2753c8`).
+- **Still open, flagged to the project owner, not part of this plan**:
+  `GET /admin/system/status` surfaced 4,171 real failed queue jobs in production
+  (`AppointmentNotification`, Gmail SMTP daily send limit exceeded since mid-July) —
+  needs an owner decision (switch provider, purge, etc.), not touched here.
 
 ## 19. This rule set can go stale within hours — don't treat it as complete
 
