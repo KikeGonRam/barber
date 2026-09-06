@@ -61,11 +61,11 @@ class AppointmentApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        Appointment::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
         MobileApiToken::query()->delete();
-        User::query()->delete();
+        User::withTrashed()->forceDelete();
         Role::query()->delete();
         Permission::query()->delete();
         \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();

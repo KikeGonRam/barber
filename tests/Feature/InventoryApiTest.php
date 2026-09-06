@@ -34,9 +34,9 @@ class InventoryApiTest extends TestCase
     protected function tearDown(): void
     {
         InventoryMovement::query()->delete();
-        Product::query()->delete();
+        Product::withTrashed()->forceDelete();
         MobileApiToken::query()->delete();
-        User::query()->delete();
+        User::withTrashed()->forceDelete();
         Role::query()->delete();
         Permission::query()->delete();
         \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();

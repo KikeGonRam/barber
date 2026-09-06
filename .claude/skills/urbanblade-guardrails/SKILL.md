@@ -313,6 +313,64 @@ clear-result-cache --configuration=phpstan.neon.dist` first, then `analyse`.** S
 this is exactly how three avoidable CI failures happened back-to-back in one session —
 each one a real error that a cold run would have caught before ever pushing.
 
+## 22. `User`/`Appointment`/`Product` use SoftDeletes — `Model::query()->delete()` in a test's `tearDown()` does NOT remove the record, it lingers forever in the persistent `mongo-test` container and can make an unrelated future test fail
+
+`grep -l SoftDeletes app/Models/*.php` finds exactly these three models. Nearly every
+Feature test's `tearDown()` in this repo (~30 files, written across the project's whole
+history, not any one session) calls `Model::query()->delete()` to clean up — for these
+three models specifically, that only sets `deleted_at`, leaving the document physically
+in the collection. Since `mongo-test` is a **persistent** container (never recreated
+between local test runs, unlike CI's ephemeral one), every soft-deleted test fixture
+accumulates there forever. Two real, confirmed-live incidents from this:
+
+1. **A validation rule with a fixed test email starts failing "already registered", 100%
+   reproducibly, for no code reason.** `User::count()`/`User::pluck(...)` (normal Eloquent
+   queries) correctly exclude soft-deleted rows and reported "0 users with this email" —
+   but `'unique:users,email'`'s presence-verifier check runs a **raw** query directly
+   against the collection, bypassing Eloquent's soft-delete scope entirely, so it still
+   counts the trashed row and reports the email taken. Root-caused by dumping the raw
+   MongoDB driver query directly (bypassing Laravel) and finding the "phantom" document
+   still physically present with `deleted_at` set. Traced to a test that had legitimately
+   created + "cleaned up" that exact email in an earlier run. **Do not chase this as a
+   presence-verifier/validation bug — it isn't one.** (A real side quest during this
+   investigation: registering `MongoDB\Laravel\Validation\ValidationServiceProvider` in
+   `bootstrap/providers.php`, since `mongodb/laravel-mongodb`'s own `composer.json` does
+   NOT auto-discover it, was tried as a fix and reverted — the regex-based Mongo verifier
+   it provides cannot match ObjectId-typed `id`/`_id` fields at all, silently breaking
+   *every* `exists:...,id` check in the app that currently works specifically because the
+   default SQL-style verifier's plain `where($col, '=', $value)` gets Mongo's own
+   automatic ObjectId cast. Do not register that provider without separately fixing
+   every `exists:*,id` rule in the app to match.)
+2. **This same accumulation had leaked into the real Atlas `barber_db`, not just the
+   local test one.** Live-verification cleanups in Fases 9.2-9.6 of the `frontend-urban`
+   migration used `Model::destroy($id)` on temporary `Product`/`Appointment`/`User`
+   records created via tinker against the real `.env` (Atlas) — since these three models
+   soft-delete, those records were never actually gone; `withTrashed()->count()` found 2
+   phantom products, 4 phantom appointments, and 4 phantom users still physically in
+   Atlas afterward, despite every session at the time confirming "count is 0" via normal
+   (non-`withTrashed`) queries and believing cleanup had worked. Purged with
+   `Model::onlyTrashed()->forceDelete()`.
+
+**Rules going forward:**
+- Any tinker/manual cleanup of a temporary `User`, `Appointment`, or `Product` record —
+  local or (especially) against the real Atlas `barber_db` — must use `forceDelete()`,
+  not `delete()`/`destroy()`. Verify with `Model::withTrashed()->count()`, not a plain
+  `Model::count()`, since the latter will hide exactly this problem.
+- Any **new** test file's `tearDown()` that cleans up `User`/`Appointment`/`Product`
+  should use `Model::withTrashed()->forceDelete()`, not `Model::query()->delete()`.
+- The ~30 **pre-existing** test files using the plain (non-forceDelete) form were not
+  swept in this pass — they'll keep silently accumulating trashed rows in `mongo-test`
+  until each is touched. If a future test starts failing with an "already registered" /
+  "already exists" style error for a fixed literal value that looks like it should be
+  unique, suspect this before assuming a logic bug — check `Model::withTrashed()->where(...)`
+  before anything else.
+- If `mongo-test`'s accumulated trash ever seems to cause a real problem (not just this
+  validation quirk — e.g. noticeably slower test runs over time), the container can be
+  safely recreated from scratch (`docker compose down mongo-test && docker compose up -d
+  mongo-test mongo-test-init`) since it holds no real data by design — confirm with the
+  user first per the general "destructive local commands" guardrail, but this one is
+  genuinely low-risk since `barber_db_test` is disposable by definition.
+
 ## 19. This rule set can go stale within hours — don't treat it as complete
 
 Every guardrail above except #1 was added or corrected on 2026-09-02/03/04/05, several of

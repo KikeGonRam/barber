@@ -859,6 +859,12 @@ parameters:
 			path: app/Http/Controllers/Api/Order/OrderController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Service\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Service/ServiceManagementController.php
+
+		-
 			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|literal\-string, array\{''\$expr''\: array\{''\$lte''\: array\{''\$stock_actual'', ''\$stock_minimo''\}\}\} given\.$#'
 			identifier: argument.type
 			count: 1

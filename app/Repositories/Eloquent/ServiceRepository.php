@@ -29,6 +29,10 @@ class ServiceRepository extends BaseRepository implements ServiceRepositoryInter
     public function paginateWithFilters(array $filters = [], int $perPage = 15)
     {
         return $this->model->newQuery()
+            ->when(! empty($filters['q']), function ($query) use ($filters) {
+                $q = $filters['q'];
+                $query->where('nombre', 'like', "%{$q}%")->orWhere('descripcion', 'like', "%{$q}%");
+            })
             ->when(isset($filters['categoria']) && $filters['categoria'] !== '', function ($query) use ($filters) {
                 $query->where('categoria', $filters['categoria']);
             })

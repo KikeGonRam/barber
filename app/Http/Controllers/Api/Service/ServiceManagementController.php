@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Services\Service\ServiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * API de administración del catálogo de servicios (crear/editar/eliminar/listar),
@@ -23,20 +24,11 @@ class ServiceManagementController extends Controller
     {
         $this->authorizeAdmin($request);
 
-        $filters = $request->only(['categoria', 'activo']);
-        $services = $this->serviceService->list($filters, 50);
+        $filters = $request->only(['q', 'categoria', 'activo']);
+        $services = $this->serviceService->list($filters, 20);
 
         return response()->json([
-            'data' => collect($services->items())->map(fn (Service $service) => [
-                'id' => $service->id,
-                'nombre' => $service->nombre,
-                'categoria' => $service->categoria,
-                'precio' => $service->precio,
-                'duracion_min' => $service->duracion_min,
-                'imagen' => $service->imagen,
-                'descripcion' => $service->descripcion,
-                'activo' => (bool) $service->activo,
-            ])->values(),
+            'data' => collect($services->items())->map(fn (Service $service) => $this->servicePayload($service))->values(),
             'meta' => [
                 'current_page' => $services->currentPage(),
                 'last_page' => $services->lastPage(),
@@ -67,16 +59,7 @@ class ServiceManagementController extends Controller
 
         return response()->json([
             'message' => 'Servicio creado correctamente.',
-            'data' => [
-                'id' => $created->id,
-                'nombre' => $created->nombre,
-                'categoria' => $created->categoria,
-                'precio' => $created->precio,
-                'duracion_min' => $created->duracion_min,
-                'imagen' => $created->imagen,
-                'descripcion' => $created->descripcion,
-                'activo' => (bool) $created->activo,
-            ],
+            'data' => $this->servicePayload($created),
         ], 201);
     }
 
@@ -102,16 +85,7 @@ class ServiceManagementController extends Controller
 
         return response()->json([
             'message' => 'Servicio actualizado correctamente.',
-            'data' => [
-                'id' => $service->id,
-                'nombre' => $service->nombre,
-                'categoria' => $service->categoria,
-                'precio' => $service->precio,
-                'duracion_min' => $service->duracion_min,
-                'imagen' => $service->imagen,
-                'descripcion' => $service->descripcion,
-                'activo' => (bool) $service->activo,
-            ],
+            'data' => $this->servicePayload($service),
         ]);
     }
 
@@ -137,5 +111,27 @@ class ServiceManagementController extends Controller
         $user = $request->user();
 
         abort_if(! $user || ! $user->hasRole('administrador'), 403, 'No autorizado.');
+    }
+
+    // Serializa un servicio a array de respuesta; imagen_url se calcula aquí para no repetirlo en cada endpoint.
+    private function servicePayload(Service $service): array
+    {
+        return [
+            'id' => $service->id,
+            // Service usa HasSlug -> getRouteKeyName() = 'slug': las URLs
+            // PUT/DELETE de este mismo controlador ligan por slug, no por
+            // id (ver guardrail #20 de este repo) — se manda aquí para que
+            // el frontend no tenga que adivinarlo ni caer en el mismo 404
+            // fantasma que ya pasó con Client/Barber.
+            'slug' => $service->slug,
+            'nombre' => $service->nombre,
+            'categoria' => $service->categoria,
+            'precio' => $service->precio,
+            'duracion_min' => $service->duracion_min,
+            'imagen' => $service->imagen,
+            'imagen_url' => $service->imagen ? Storage::disk('public')->url($service->imagen) : null,
+            'descripcion' => $service->descripcion,
+            'activo' => (bool) $service->activo,
+        ];
     }
 }

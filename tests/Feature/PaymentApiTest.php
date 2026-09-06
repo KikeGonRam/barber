@@ -37,12 +37,12 @@ class PaymentApiTest extends TestCase
     protected function tearDown(): void
     {
         Payment::query()->delete();
-        Appointment::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         Service::query()->delete();
         Barber::query()->delete();
         Client::query()->delete();
         MobileApiToken::query()->delete();
-        User::query()->delete();
+        User::withTrashed()->forceDelete();
         Role::query()->delete();
         Permission::query()->delete();
         \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();
