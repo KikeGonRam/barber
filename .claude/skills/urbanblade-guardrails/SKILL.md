@@ -291,6 +291,28 @@ URL with, use the model's actual route key (`slug`/`code`), not `id`** — and i
 for one of these models doesn't include that field yet, that's the bug to fix, not a
 reason to fall back to `id`.
 
+## 21. Larastan's result cache goes stale inside the persistent `barber-app` container — clear it before trusting a local "no errors"
+
+`vendor/bin/phpstan analyse` caches per-file results at `/tmp/phpstan` *inside* the
+container. Because `barber-app` is long-running across an entire work session (unlike
+CI, which always starts clean), that cache can report "no errors" for a test file
+that was just written or edited, even though a truly cold analysis of the exact same
+file finds real errors — confirmed directly three times in one session (Fase 9.3, 9.4,
+9.5 of `frontend-urban`'s migration): each time, `docker exec barber-app vendor/bin/phpstan
+analyse` passed locally right after writing a new `tests/Feature/*ApiTest.php` file, the
+push then failed Larastan in CI, and re-running locally with a cleared cache
+(`vendor/bin/phpstan clear-result-cache --configuration=phpstan.neon.dist`) reproduced
+CI's exact errors on the first try. This is a distinct failure mode from the local-vs-CI
+divergence already documented elsewhere in this project's memory (local Docker having
+*extra* false positives CI doesn't) — this one is local *missing* real errors CI catches,
+in the opposite direction, and it is fully reproducible and fixable with one command.
+
+**Before treating a local "[OK] No errors" as trustworthy after writing or editing any
+file phpstan analyses (`app/`, `routes/`, `tests/`), run `vendor/bin/phpstan
+clear-result-cache --configuration=phpstan.neon.dist` first, then `analyse`.** Skipping
+this is exactly how three avoidable CI failures happened back-to-back in one session —
+each one a real error that a cold run would have caught before ever pushing.
+
 ## 19. This rule set can go stale within hours — don't treat it as complete
 
 Every guardrail above except #1 was added or corrected on 2026-09-02/03/04/05, several of
