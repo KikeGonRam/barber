@@ -16,12 +16,19 @@ class InventoryMovementRepository extends BaseRepository implements InventoryMov
     {
         return $this->model->newQuery()
             ->with(['product', 'user', 'appointment.client.user'])
+            ->when(! empty($filters['q']), function ($query) use ($filters) {
+                $q = $filters['q'];
+                $query->whereHas('product', fn ($p) => $p->where('nombre', 'like', "%{$q}%"))
+                    ->orWhere('motivo', 'like', "%{$q}%");
+            })
             ->when(isset($filters['tipo']) && $filters['tipo'] !== '', function ($query) use ($filters) {
                 $query->where('tipo', $filters['tipo']);
             })
             ->when(isset($filters['product_id']) && $filters['product_id'] !== '', function ($query) use ($filters) {
                 $query->where('product_id', (string) $filters['product_id']);
             })
+            ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereDate('fecha', '>=', $filters['fecha_desde']))
+            ->when(! empty($filters['fecha_hasta']), fn ($q) => $q->whereDate('fecha', '<=', $filters['fecha_hasta']))
             ->latest('fecha')
             ->paginate($perPage)
             ->withQueryString();

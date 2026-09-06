@@ -101,7 +101,7 @@ endpoints:
         name: 'schedules[].day_of_week'
         description: ''
         required: true
-        example: thursday
+        example: monday
         type: string
         enumValues:
           - monday
@@ -119,7 +119,7 @@ endpoints:
         name: 'schedules[].start_time'
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '18:41'
+        example: '19:10'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -130,7 +130,7 @@ endpoints:
         name: 'schedules[].end_time'
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '18:41'
+        example: '19:10'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -141,7 +141,7 @@ endpoints:
         name: 'schedules[].is_active'
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false

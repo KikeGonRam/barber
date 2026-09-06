@@ -220,7 +220,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -236,7 +236,7 @@ endpoints:
       stock_minimo: 76
       tipo: architecto
       active: true
-      activo: false
+      activo: true
     fileParameters:
       imagen: null
     responses: []
@@ -386,7 +386,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -397,7 +397,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -411,8 +411,8 @@ endpoints:
       precio_venta: 77
       stock_actual: 8
       stock_minimo: 76
-      active: true
-      activo: true
+      active: false
+      activo: false
     fileParameters:
       imagen: null
     responses: []
@@ -461,6 +461,98 @@ endpoints:
     cleanBodyParameters: []
     fileParameters: []
     responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/inventory/products/{product_id}/mark-ordered'
+    metadata:
+      custom: []
+      groupName: Inventario
+      groupDescription: |-
+
+        Gestión de productos, stock y movimientos de almacén.
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Marca un producto de stock bajo como "ya pedido" para silenciar la
+        alerta diaria/panel durante Product::RESTOCK_GRACE_DAYS.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      product_id:
+        custom: []
+        name: product_id
+        description: 'The ID of the product.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      product_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/inventory/low-stock
+    metadata:
+      custom: []
+      groupName: Inventario
+      groupDescription: |-
+
+        Gestión de productos, stock y movimientos de almacén.
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Productos en o por debajo de su stock mínimo, para el panel de
+        "marcar como pedido" (silencia la alerta diaria unos días) — visto
+        tanto en el catálogo de productos como en movimientos (web).
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
     responseFields: []
     auth: []
     controller: null
@@ -603,7 +695,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T18:41:20'
+        example: '2026-09-05T19:10:42'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -614,7 +706,7 @@ endpoints:
       cantidad: 22
       motivo: g
       appointment_id: architecto
-      fecha: '2026-09-05T18:41:20'
+      fecha: '2026-09-05T19:10:42'
     fileParameters: []
     responses: []
     responseFields: []

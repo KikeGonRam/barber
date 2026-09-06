@@ -695,7 +695,7 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '18:41'
+                  example: '19:10'
                 estado:
                   type: string
                   description: ''
@@ -757,7 +757,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: en_proceso
+                  example: confirmada
                   enum:
                     - pendiente
                     - confirmada
@@ -1205,7 +1205,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: efectivo
+                  example: qr
                   enum:
                     - efectivo
                     - tarjeta
@@ -1541,12 +1541,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T18:41:20'
+                  example: '2026-09-05T19:10:41'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_email:
                   type: boolean
@@ -1556,7 +1556,7 @@ paths:
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_whatsapp:
                   type: boolean
@@ -1599,7 +1599,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T18:41:20'
+                  example: '2026-09-05T19:10:41'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -1609,7 +1609,7 @@ paths:
                 pref_email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_sms:
                   type: boolean
@@ -1852,7 +1852,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -2097,7 +2097,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '18:41'
+                  example: '19:10'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -2481,7 +2481,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
       security: []
     parameters:
       -
@@ -2923,12 +2923,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -2968,7 +2968,7 @@ paths:
                 tipo:
                   type: string
                   description: ''
-                  example: salida
+                  example: entrada
                   enum:
                     - entrada
                     - salida
@@ -3167,7 +3167,7 @@ paths:
                 type:
                   type: string
                   description: ''
-                  example: clientes
+                  example: citas
                   enum:
                     - ingresos
                     - citas
@@ -3176,7 +3176,7 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: personalizado
+                  example: dia
                   enum:
                     - dia
                     - semana
@@ -3187,17 +3187,17 @@ paths:
                 dateFrom:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T18:41:24'
+                  example: '2026-09-05T19:10:46'
                   nullable: true
                 dateTo:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T18:41:24'
+                  example: '2026-09-05T19:10:46'
                   nullable: true
                 detail:
                   type: string
                   description: ''
-                  example: muy-detallado
+                  example: detallado
                   enum:
                     - resumen
                     - detallado
@@ -4053,7 +4053,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -4121,12 +4121,12 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
       security: []
     delete:
@@ -4147,6 +4147,47 @@ paths:
         required: true
         schema:
           type: string
+  '/api/v1/inventory/products/{product_id}/mark-ordered':
+    post:
+      summary: "Marca un producto de stock bajo como \"ya pedido\" para silenciar la\nalerta diaria/panel durante Product::RESTOCK_GRACE_DAYS."
+      operationId: marcaUnProductoDeStockBajoComoyaPedidoParaSilenciarLaAlertaDiariapanelDuranteProductRESTOCKGRACEDAYS
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Inventario
+      security: []
+    parameters:
+      -
+        in: path
+        name: product_id
+        description: 'The ID of the product.'
+        example: architecto
+        required: true
+        schema:
+          type: string
+  /api/v1/inventory/low-stock:
+    get:
+      summary: "Productos en o por debajo de su stock mínimo, para el panel de\n\"marcar como pedido\" (silencia la alerta diaria unos días) — visto\ntanto en el catálogo de productos como en movimientos (web)."
+      operationId: productosEnOPorDebajoDeSuStockMnimoParaElPanelDemarcarComoPedidosilenciaLaAlertaDiariaUnosDasVistoTantoEnElCatlogoDeProductosComoEnMovimientosweb
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Inventario
+      security: []
   /api/v1/inventory/movements:
     get:
       summary: 'Historial de Movimientos'
@@ -4248,7 +4289,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-05T18:41:20'
+                  example: '2026-09-05T19:10:42'
                   nullable: true
               required:
                 - product_id

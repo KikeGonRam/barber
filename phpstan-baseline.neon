@@ -859,6 +859,18 @@ parameters:
 			path: app/Http/Controllers/Api/Order/OrderController.php
 
 		-
+			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Product\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|literal\-string, array\{''\$expr''\: array\{''\$lte''\: array\{''\$stock_actual'', ''\$stock_minimo''\}\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/Inventory/InventoryController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Inventory/InventoryController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
 			identifier: property.notFound
 			count: 1
@@ -2019,7 +2031,7 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereRaw\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|literal\-string, array\{''\$expr''\: array\{''\$lte''\: array\{''\$stock_actual'', ''\$stock_minimo''\}\}\} given\.$#'
 			identifier: argument.type
-			count: 1
+			count: 2
 			path: app/Repositories/Eloquent/ProductRepository.php
 
 		-

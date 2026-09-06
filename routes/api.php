@@ -121,6 +121,8 @@ Route::prefix('v1')->group(function (): void {
             Route::post('inventory/products', [ApiInventoryController::class, 'storeProduct']);
             Route::put('inventory/products/{product}', [ApiInventoryController::class, 'updateProduct']);
             Route::delete('inventory/products/{product}', [ApiInventoryController::class, 'destroyProduct']);
+            Route::post('inventory/products/{product}/mark-ordered', [ApiInventoryController::class, 'markProductOrdered']);
+            Route::get('inventory/low-stock', [ApiInventoryController::class, 'lowStock']);
             Route::get('inventory/movements', [ApiInventoryController::class, 'movements']);
             Route::post('inventory/movements', [ApiInventoryController::class, 'storeMovement']);
         });
