@@ -45,6 +45,10 @@ class SettingController extends Controller
             'instagram' => ['nullable', 'string', 'max:255'],
             'facebook' => ['nullable', 'string', 'max:255'],
             'tiktok' => ['nullable', 'string', 'max:255'],
+            'clabe' => ['nullable', 'string', 'max:18'],
+            'banco' => ['nullable', 'string', 'max:100'],
+            'beneficiario' => ['nullable', 'string', 'max:150'],
+            'concepto' => ['nullable', 'string', 'max:100'],
         ]);
 
         $setting = $this->getSetting();
@@ -59,6 +63,12 @@ class SettingController extends Controller
                 'instagram' => $validated['instagram'] ?? null,
                 'facebook' => $validated['facebook'] ?? null,
                 'tiktok' => $validated['tiktok'] ?? null,
+            ],
+            'datos_bancarios' => [
+                'clabe' => $validated['clabe'] ?? null,
+                'banco' => $validated['banco'] ?? null,
+                'beneficiario' => $validated['beneficiario'] ?? null,
+                'concepto' => $validated['concepto'] ?? null,
             ],
         ]);
 

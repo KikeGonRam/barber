@@ -23,6 +23,7 @@ class BarbershopSettingResource extends JsonResource
             'politica_cancelacion' => $this->politica_cancelacion,
             'maintenance_mode' => (bool) $this->maintenance_mode,
             'redes_sociales' => $this->redes_sociales ?? [],
+            'datos_bancarios' => $this->datos_bancarios ?? [],
         ];
     }
 }

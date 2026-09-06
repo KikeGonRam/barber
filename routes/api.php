@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Barber\BarberManagementController;
 use App\Http\Controllers\Api\Barber\BarberPortfolioController;
 use App\Http\Controllers\Api\Barber\BarberScheduleController;
+use App\Http\Controllers\Api\Campaign\CampaignController as ApiCampaignController;
 use App\Http\Controllers\Api\Catalog\CatalogController;
 use App\Http\Controllers\Api\Chatbot\ChatbotManagementController;
 use App\Http\Controllers\Api\Client\ClientController as ApiClientController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Api\Payment\PaymentController as ApiPaymentController;
 use App\Http\Controllers\Api\Payment\StripeWebhookController;
 use App\Http\Controllers\Api\Prediction\PredictionController;
 use App\Http\Controllers\Api\Profile\ProfileController;
+use App\Http\Controllers\Api\Raffle\RaffleController as ApiRaffleController;
 use App\Http\Controllers\Api\Report\ReportController as ApiReportController;
 use App\Http\Controllers\Api\Service\ServiceManagementController as ApiServiceManagementController;
 use App\Http\Controllers\Api\Setting\SettingController as ApiSettingController;
@@ -162,6 +164,13 @@ Route::prefix('v1')->group(function (): void {
 
             // Logs (Admin)
             Route::get('logs', [ApiLogController::class, 'index']);
+
+            // Campañas (Admin)
+            Route::get('campaigns', [ApiCampaignController::class, 'index']);
+            Route::post('campaigns', [ApiCampaignController::class, 'store']);
+
+            // Sorteos (Admin)
+            Route::get('raffles', [ApiRaffleController::class, 'index']);
         });
 
         // Notificaciones

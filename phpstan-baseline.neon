@@ -2789,3 +2789,135 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: tests/Unit/RaffleResultTest.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Campaign\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$titulo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$cuerpo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$cta_label\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$cta_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$segmento\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$destinatarios\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$programada_para\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$enviada_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Campaign/CampaignController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\RaffleResult\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Raffle/RaffleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$mes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Raffle/RaffleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$premio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Raffle/RaffleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$nivel_ganador\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Raffle/RaffleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$vence_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Raffle/RaffleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$reclamado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Raffle/RaffleController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Raffle/RaffleController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Raffle/RaffleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$destinatarios\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/CampaignApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/CampaignApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$enviada_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/CampaignApiTest.php

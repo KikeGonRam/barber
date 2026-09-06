@@ -725,7 +725,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -736,7 +736,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      metodo_pago: efectivo
+      metodo_pago: tarjeta
     fileParameters: []
     responses: []
     responseFields: []
@@ -899,7 +899,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -955,7 +955,7 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: efectivo
+      metodo_pago: tarjeta
       propina: 77
       puntos_canjeados: 8
       usar_premio_rifa: false
@@ -1286,7 +1286,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T21:31:22'
+        example: '2026-09-05T22:10:35'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1297,7 +1297,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1308,7 +1308,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1319,7 +1319,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1330,7 +1330,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1341,11 +1341,11 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-05T21:31:22'
-      pref_in_app: true
-      pref_email: true
-      pref_sms: false
-      pref_whatsapp: true
+      fecha_nacimiento: '2026-09-05T22:10:35'
+      pref_in_app: false
+      pref_email: false
+      pref_sms: true
+      pref_whatsapp: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -1426,7 +1426,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T21:31:22'
+        example: '2026-09-05T22:10:36'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1437,7 +1437,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1470,7 +1470,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1480,11 +1480,11 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-05T21:31:22'
-      pref_in_app: false
+      fecha_nacimiento: '2026-09-05T22:10:36'
+      pref_in_app: true
       pref_email: false
       pref_sms: false
-      pref_whatsapp: false
+      pref_whatsapp: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -1796,7 +1796,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1809,7 +1809,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2478,7 +2478,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '21:31'
+        example: '22:10'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2539,16 +2539,64 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      clabe:
+        custom: []
+        name: clabe
+        description: 'El campo value no debe tener más de 18 caracteres.'
+        required: false
+        example: iyvdljnikhwaykcm
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      banco:
+        custom: []
+        name: banco
+        description: 'El campo value no debe tener más de 100 caracteres.'
+        required: false
+        example: 'y'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      beneficiario:
+        custom: []
+        name: beneficiario
+        description: 'El campo value no debe tener más de 150 caracteres.'
+        required: false
+        example: u
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      concepto:
+        custom: []
+        name: concepto
+        description: 'El campo value no debe tener más de 100 caracteres.'
+        required: false
+        example: w
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
     cleanBodyParameters:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '21:31'
+      horario_apertura: '22:10'
       horario_cierre: '2052-09-28'
       politica_cancelacion: 22
       instagram: g
       facebook: z
       tiktok: m
+      clabe: iyvdljnikhwaykcm
+      banco: 'y'
+      beneficiario: u
+      concepto: w
     fileParameters: []
     responses: []
     responseFields: []
@@ -2592,6 +2640,208 @@ endpoints:
     httpMethods:
       - GET
     uri: api/v1/logs
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/campaigns
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Niveles de lealtad disponibles, conteo de clientes por segmento y las
+        últimas 10 campañas enviadas/programadas.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: 'http://localhost:3000'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/campaigns
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Crea y despacha (ahora o programada) una campaña dirigida a un
+        segmento de clientes; rechaza segmentos sin clientes antes de crear
+        el registro.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      titulo:
+        custom: []
+        name: titulo
+        description: 'El campo value no debe tener más de 150 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      cuerpo:
+        custom: []
+        name: cuerpo
+        description: 'El campo value no debe tener más de 2000 caracteres.'
+        required: true
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      cta_label:
+        custom: []
+        name: cta_label
+        description: 'El campo value no debe tener más de 40 caracteres.'
+        required: false
+        example: g
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      cta_url:
+        custom: []
+        name: cta_url
+        description: 'Must be a valid URL. El campo value no debe tener más de 300 caracteres.'
+        required: false
+        example: 'http://www.okuneva.com/fugiat-sunt-nihil-accusantium-harum-mollitia.html'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      segmento:
+        custom: []
+        name: segmento
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      modo:
+        custom: []
+        name: modo
+        description: ''
+        required: true
+        example: programar
+        type: string
+        enumValues:
+          - ahora
+          - programar
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      programada_para:
+        custom: []
+        name: programada_para
+        description: 'This field is required when <code>modo</code> is <code>programar</code>. El campo value no es una fecha válida. El campo value debe ser una fecha posterior a <code>now</code>.'
+        required: false
+        example: '2052-09-29'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      titulo: b
+      cuerpo: 'n'
+      cta_label: g
+      cta_url: 'http://www.okuneva.com/fugiat-sunt-nihil-accusantium-harum-mollitia.html'
+      segmento: architecto
+      modo: programar
+      programada_para: '2052-09-29'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/raffles
     metadata:
       custom: []
       groupName: Endpoints
@@ -4044,7 +4294,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4060,7 +4310,7 @@ endpoints:
       descripcion: architecto
       tipo: architecto
       activo: false
-      active: true
+      active: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -4196,7 +4446,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4222,7 +4472,7 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: false
+      activo: true
       active: true
     fileParameters: []
     responses: []
@@ -4314,7 +4564,7 @@ endpoints:
         name: tipo
         description: ''
         required: true
-        example: salida
+        example: entrada
         type: string
         enumValues:
           - entrada
@@ -4345,7 +4595,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      tipo: salida
+      tipo: entrada
       cantidad: 16
       motivo: architecto
     fileParameters: []
@@ -4678,7 +4928,7 @@ endpoints:
         name: period
         description: ''
         required: true
-        example: personalizado
+        example: trimestre
         type: string
         enumValues:
           - dia
@@ -4695,7 +4945,7 @@ endpoints:
         name: dateFrom
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T21:31:28'
+        example: '2026-09-05T22:10:42'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4706,7 +4956,7 @@ endpoints:
         name: dateTo
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-05T21:31:28'
+        example: '2026-09-05T22:10:42'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4717,7 +4967,7 @@ endpoints:
         name: detail
         description: ''
         required: true
-        example: resumen
+        example: detallado
         type: string
         enumValues:
           - resumen
@@ -4728,10 +4978,10 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       type: clientes
-      period: personalizado
-      dateFrom: '2026-09-05T21:31:28'
-      dateTo: '2026-09-05T21:31:28'
-      detail: resumen
+      period: trimestre
+      dateFrom: '2026-09-05T22:10:42'
+      dateTo: '2026-09-05T22:10:42'
+      detail: detallado
     fileParameters: []
     responses: []
     responseFields: []

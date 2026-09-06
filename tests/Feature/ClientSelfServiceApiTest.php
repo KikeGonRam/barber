@@ -153,9 +153,13 @@ class ClientSelfServiceApiTest extends TestCase
 
     public function test_client_cannot_cancel_within_the_policy_window(): void
     {
+        // Se deriva fecha/hora del mismo instante objetivo (en vez de fijar
+        // 'fecha' a hoy) para no romperse cuando la suite corre cerca de
+        // medianoche y "dentro de 2 horas" cae en el día siguiente.
+        $target = now()->addHours(2);
         $appointment = $this->makeAppointment([
-            'fecha' => now()->toDateString(),
-            'hora_inicio' => now()->addHours(2)->format('H:i:00'),
+            'fecha' => $target->toDateString(),
+            'hora_inicio' => $target->format('H:i:00'),
             'estado' => 'confirmada',
         ]);
 
