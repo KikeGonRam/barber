@@ -117,7 +117,7 @@ endpoints:
         name: 'schedules[].start_time'
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '12:13'
+        example: '13:04'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -128,7 +128,7 @@ endpoints:
         name: 'schedules[].end_time'
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '12:13'
+        example: '13:04'
         type: string
         enumValues: []
         exampleWasSpecified: false

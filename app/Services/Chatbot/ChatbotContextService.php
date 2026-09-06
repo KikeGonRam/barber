@@ -23,13 +23,37 @@ class ChatbotContextService
 {
     /**
      * Obtiene el historial de conversación del usuario actual (o invitado,
-     * segun IP) desde la sesion.
+     * segun IP) desde la sesion -- con fallback a la copia persistida en
+     * Mongo (ChatMessage) si la sesión está vacía y hay un usuario
+     * autenticado.
+     *
+     * Encontrado en vivo (2026-09-06): esta era la pieza que faltaba de la
+     * Fase 3. Se agregó persistMessage()/getPersistedHistory() para que la
+     * API de historial (Nuxt) pudiera leer algo real, pero el MOTOR del
+     * chatbot -- findSimilarQuestions(), isFollowUp(), getAugmentedContext(),
+     * generateAugmentedPrompt(), todo lo que usa este método -- seguía
+     * leyendo únicamente de sesión. Un cliente Bearer-token (Nuxt) nunca
+     * comparte sesión entre requests, así que cada mensaje llegaba al motor
+     * como si fuera el primero de la conversación: sin memoria de
+     * preguntas similares, sin detección de seguimiento, sin nada del
+     * intercambio anterior en el prompt de la IA -- "pierde el contexto"
+     * en cada turno, aunque el widget sí mostrara el historial completo al
+     * reabrirse (esa parte leía de Mongo desde la Fase 3, esta no).
      */
     public function getConversationHistory($userId = null): array
     {
         $key = $this->getSessionKey($userId);
+        $history = Session::get($key, []);
 
-        return Session::get($key, []);
+        if (empty($history)) {
+            $resolvedUserId = $userId ?? auth()->id();
+
+            if ($resolvedUserId) {
+                $history = $this->getPersistedHistory((string) $resolvedUserId);
+            }
+        }
+
+        return $history;
     }
 
     /**
@@ -245,18 +269,26 @@ class ChatbotContextService
         $history = $this->getConversationHistory($userId);
         $similar = [];
 
+        // Cada entrada del historial ya representa un turno completo
+        // (pregunta + respuesta juntas, ver addMessage()) -- 'type' nunca
+        // vale 'user' en ningún lugar del código (siempre se guarda como
+        // 'bot', porque quien "escribe" la entrada es el bot al terminar
+        // de responder). El filtro `type === 'user'` de abajo nunca
+        // coincidía con nada desde siempre: esta rama de "memoria
+        // instantánea" (la más rápida de toda la cascada de
+        // ChatbotController::query()) jamás se activaba, ni para el widget
+        // Blade ni para nadie. Se compara contra 'message' en cada
+        // entrada, sin filtrar por tipo.
         foreach ($history as $item) {
-            if ($item['type'] === 'user') {
-                $similarity = $this->getSimilarity($message, $item['message']);
+            $similarity = $this->getSimilarity($message, $item['message']);
 
-                if ($similarity >= $threshold) {
-                    $similar[] = [
-                        'question' => $item['message'],
-                        'answer' => $item['response'],
-                        'similarity' => round($similarity, 1),
-                        'timestamp' => $item['timestamp'],
-                    ];
-                }
+            if ($similarity >= $threshold) {
+                $similar[] = [
+                    'question' => $item['message'],
+                    'answer' => $item['response'],
+                    'similarity' => round($similarity, 1),
+                    'timestamp' => $item['timestamp'],
+                ];
             }
         }
 
@@ -326,9 +358,16 @@ class ChatbotContextService
 
         $formatted = "Historial de conversación:\n";
 
-        foreach (array_slice($history, -5) as $item) { // Últimos 5 mensajes
-            $type = $item['type'] === 'user' ? 'Cliente' : 'Bot';
-            $formatted .= "\n{$type}: {$item['message']}\n";
+        // Cada entrada ya es un turno completo (pregunta del cliente +
+        // respuesta del bot juntas, ver addMessage()) -- 'type' siempre
+        // vale 'bot' (nunca 'user', en ningún lugar del código), así que
+        // el `$item['type'] === 'user' ? 'Cliente' : 'Bot'` de antes
+        // etiquetaba SIEMPRE como "Bot" el mensaje del propio CLIENTE
+        // (item['message']) y nunca incluía la respuesta real del bot
+        // (item['response']) -- el historial que se le mandaba a la IA
+        // como contexto tenía la conversación mal atribuida y a medias.
+        foreach (array_slice($history, -5) as $item) { // Últimos 5 turnos
+            $formatted .= "\nCliente: {$item['message']}\nBot: {$item['response']}\n";
         }
 
         return $formatted;
@@ -403,12 +442,14 @@ class ChatbotContextService
         $allKeywords = [];
         $allIntents = [];
 
+        // Mismo motivo que findSimilarQuestions()/formatHistoryForAI() de
+        // arriba: cada entrada ya es un turno completo (una pregunta del
+        // cliente + una respuesta del bot), así que ambos contadores
+        // avanzan juntos -- no tiene sentido filtrar por 'type' (siempre
+        // 'bot') para repartir el conteo entre los dos.
         foreach ($history as $item) {
-            if ($item['type'] === 'user') {
-                $summary['user_messages']++;
-            } else {
-                $summary['bot_messages']++;
-            }
+            $summary['user_messages']++;
+            $summary['bot_messages']++;
 
             if (isset($item['context']['keywords'])) {
                 $allKeywords = array_merge($allKeywords, $item['context']['keywords']);
