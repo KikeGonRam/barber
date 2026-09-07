@@ -30,7 +30,7 @@ class BarberPerformanceServiceIntegrationTest extends TestCase
 
     protected function tearDown(): void
     {
-        Appointment::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         User::query()->delete();
 

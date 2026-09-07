@@ -29,7 +29,14 @@ class AppointmentStatusServiceIntegrationTest extends TestCase
 
     protected function tearDown(): void
     {
-        Appointment::query()->delete();
+        // forceDelete(), no delete(): Appointment::query()->delete() es un
+        // borrado masivo a nivel de query builder que NUNCA dispara eventos
+        // de modelo (ni 'deleting' ni 'saving') -- deja el registro como
+        // soft-deleted pero con bloquea_horario todavia en true, lo que
+        // colisiona con appointments_active_slot_unique en el siguiente test
+        // que reuse el mismo barber_id/fecha/hora_inicio (bug real que
+        // motivo este cambio, ver Fase 3 del roadmap).
+        Appointment::withTrashed()->forceDelete();
 
         parent::tearDown();
     }

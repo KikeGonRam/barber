@@ -61,7 +61,7 @@ class ClientBarberReviewTest extends TestCase
     protected function tearDown(): void
     {
         BarberReview::query()->delete();
-        Appointment::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
         MobileApiToken::query()->delete();

@@ -12,6 +12,7 @@ use App\Models\Service;
 use App\Services\Appointment\AppointmentService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
+use MongoDB\Driver\Exception\BulkWriteException;
 use Tests\TestCase;
 
 /**
@@ -35,7 +36,7 @@ class AppointmentServiceIntegrationTest extends TestCase
     {
         // barber_db_test es exclusiva de los tests; limpiar por completo
         // entre pruebas es más simple y seguro que rastrear ids uno a uno.
-        Appointment::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         BarberSchedule::query()->delete();
         Barber::query()->delete();
         Client::query()->delete();
@@ -302,6 +303,160 @@ class AppointmentServiceIntegrationTest extends TestCase
         $this->assertCount(5, $slotsAfterBooking);
         $this->assertNotContains('10:00', array_column($slotsAfterBooking, 'time'));
         $this->assertContains('09:00', array_column($slotsAfterBooking, 'time'));
+    }
+
+    public function test_appointments_collection_rejects_a_duplicate_active_slot_at_the_database_level(): void
+    {
+        // Respaldo real del índice único parcial (barber_id, fecha, hora_inicio):
+        // ensureNoOverlap() es un check-then-create de aplicación, no atómico
+        // -- incluso si dos requests concurrentes se lo saltaran, la base de
+        // datos debe rechazar el duplicado. Mismo criterio que el test
+        // homólogo de BarberReviewServiceIntegrationTest: el job de PHPUnit
+        // en CI no migra primero, así que el test aplica su propia migración.
+        $this->artisan('migrate', [
+            '--path' => 'database/migrations/2026_09_07_000000_add_appointment_slot_unique_index.php',
+            '--force' => true,
+        ]);
+
+        $barber = $this->makeBarber();
+        $client1 = $this->makeClient('5550000010');
+        $client2 = $this->makeClient('5550000011');
+        $service = $this->makeService();
+        $date = $this->futureDate();
+
+        Appointment::create([
+            'client_id' => (string) $client1->id,
+            'barber_id' => (string) $barber->id,
+            'service_id' => (string) $service->id,
+            'fecha' => $date,
+            'hora_inicio' => '09:00:00',
+            'hora_fin' => '09:30:00',
+            'estado' => 'pendiente',
+        ]);
+
+        $this->expectException(BulkWriteException::class);
+
+        Appointment::create([
+            'client_id' => (string) $client2->id,
+            'barber_id' => (string) $barber->id,
+            'service_id' => (string) $service->id,
+            'fecha' => $date,
+            'hora_inicio' => '09:00:00',
+            'hora_fin' => '09:30:00',
+            'estado' => 'pendiente',
+        ]);
+    }
+
+    public function test_appointment_slot_unique_index_ignores_cancelled_appointments(): void
+    {
+        // El índice es parcial (excluye cancelada/no_asistio a propósito):
+        // cancelar debe liberar el slot de verdad a nivel de base de datos,
+        // no solo para el chequeo de aplicación.
+        $this->artisan('migrate', [
+            '--path' => 'database/migrations/2026_09_07_000000_add_appointment_slot_unique_index.php',
+            '--force' => true,
+        ]);
+
+        $barber = $this->makeBarber();
+        $client1 = $this->makeClient('5550000012');
+        $client2 = $this->makeClient('5550000013');
+        $service = $this->makeService();
+        $date = $this->futureDate();
+
+        Appointment::create([
+            'client_id' => (string) $client1->id,
+            'barber_id' => (string) $barber->id,
+            'service_id' => (string) $service->id,
+            'fecha' => $date,
+            'hora_inicio' => '09:00:00',
+            'hora_fin' => '09:30:00',
+            'estado' => 'cancelada',
+        ]);
+
+        $second = Appointment::create([
+            'client_id' => (string) $client2->id,
+            'barber_id' => (string) $barber->id,
+            'service_id' => (string) $service->id,
+            'fecha' => $date,
+            'hora_inicio' => '09:00:00',
+            'hora_fin' => '09:30:00',
+            'estado' => 'pendiente',
+        ]);
+
+        $this->assertInstanceOf(Appointment::class, $second);
+    }
+
+    public function test_update_appointment_resets_reminder_flags_when_the_time_moves(): void
+    {
+        Notification::fake();
+
+        $client = $this->makeClient();
+        $barber = $this->makeBarber();
+        $service = $this->makeService();
+        $date = $this->futureDate();
+
+        $appointment = $this->service->createAppointment([
+            'client_id' => (string) $client->id,
+            'barber_id' => (string) $barber->id,
+            'service_id' => (string) $service->id,
+            'fecha' => $date,
+            'hora_inicio' => '09:00:00',
+            'hora_fin' => '09:30:00',
+            'estado' => 'pendiente',
+        ]);
+        $appointment->forceFill(['reminder_24h_sent_at' => now(), 'reminder_2h_sent_at' => now()])->save();
+
+        // Reagendar a un horario distinto debe limpiar los recordatorios ya
+        // enviados -- si no, SendAppointmentRemindersCommand nunca vuelve a
+        // avisar para el nuevo horario (whereNull('reminder_24h_sent_at')
+        // ya no lo encuentra).
+        $this->service->updateAppointment((string) $appointment->id, [
+            'client_id' => (string) $client->id,
+            'barber_id' => (string) $barber->id,
+            'fecha' => $date,
+            'hora_inicio' => '11:00:00',
+            'hora_fin' => '11:30:00',
+        ]);
+
+        $fresh = Appointment::find($appointment->id);
+        $this->assertNull($fresh->reminder_24h_sent_at);
+        $this->assertNull($fresh->reminder_2h_sent_at);
+    }
+
+    public function test_update_appointment_keeps_reminder_flags_when_the_time_does_not_move(): void
+    {
+        Notification::fake();
+
+        $client = $this->makeClient();
+        $barber = $this->makeBarber();
+        $service = $this->makeService();
+        $date = $this->futureDate();
+
+        $appointment = $this->service->createAppointment([
+            'client_id' => (string) $client->id,
+            'barber_id' => (string) $barber->id,
+            'service_id' => (string) $service->id,
+            'fecha' => $date,
+            'hora_inicio' => '09:00:00',
+            'hora_fin' => '09:30:00',
+            'estado' => 'pendiente',
+        ]);
+        $sentAt = now();
+        $appointment->forceFill(['reminder_24h_sent_at' => $sentAt, 'reminder_2h_sent_at' => $sentAt])->save();
+
+        // Editar solo las notas (mismo horario) no debe tocar los recordatorios.
+        $this->service->updateAppointment((string) $appointment->id, [
+            'client_id' => (string) $client->id,
+            'barber_id' => (string) $barber->id,
+            'fecha' => $date,
+            'hora_inicio' => '09:00:00',
+            'hora_fin' => '09:30:00',
+            'notas' => 'Sin cambio de horario',
+        ]);
+
+        $fresh = Appointment::find($appointment->id);
+        $this->assertNotNull($fresh->reminder_24h_sent_at);
+        $this->assertNotNull($fresh->reminder_2h_sent_at);
     }
 
     public function test_get_available_slots_is_empty_when_barber_does_not_work_that_day(): void

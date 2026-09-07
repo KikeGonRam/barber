@@ -421,6 +421,17 @@ class AppointmentController extends Controller
             'notas' => ['nullable', 'string', 'max:1000'],
         ]);
 
+        // El estado se valida contra la misma maquina de estados que
+        // updateStatus() usa para el barbero -- este endpoint no debe poder
+        // saltarse transiciones (p.ej. completada -> pendiente) solo porque
+        // es un PUT de edicion completa en vez del PATCH de solo-estado.
+        if ($validated['estado'] !== (string) $appointment->estado
+            && ! $this->statusService->canTransition((string) $appointment->estado, $validated['estado'])) {
+            return response()->json([
+                'message' => "No se puede pasar la cita de '{$appointment->estado}' a '{$validated['estado']}'.",
+            ], 422);
+        }
+
         $service = Service::findOrFail($validated['service_id']);
         $start = Carbon::parse($validated['fecha'].' '.$validated['hora_inicio']);
         $end = $start->copy()->addMinutes((int) $service->duracion_min);
@@ -435,6 +446,14 @@ class AppointmentController extends Controller
             'estado' => $validated['estado'],
             'notas' => $validated['notas'] ?? null,
         ];
+
+        if ($validated['estado'] === 'cancelada' && (string) $appointment->estado !== 'cancelada') {
+            $payload['cancelada_en'] = now();
+        }
+
+        if ($validated['estado'] === 'en_proceso' && (string) $appointment->estado !== 'en_proceso') {
+            $payload['servicio_iniciado_en'] = now();
+        }
 
         try {
             $this->appointmentService->updateAppointment((string) $appointment->id, $payload);

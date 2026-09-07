@@ -39,7 +39,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Payment::query()->delete();
         RaffleResult::query()->delete();
-        Appointment::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
         Service::query()->delete();

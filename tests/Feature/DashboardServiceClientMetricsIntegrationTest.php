@@ -34,7 +34,7 @@ class DashboardServiceClientMetricsIntegrationTest extends TestCase
 
     protected function tearDown(): void
     {
-        Appointment::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
         User::query()->delete();
@@ -59,9 +59,9 @@ class DashboardServiceClientMetricsIntegrationTest extends TestCase
         // completada (puede pasar si el conteo se desincroniza) — clientMetrics()
         // debe confiar en el campo persistido, no recontar en vivo.
         $client = Client::create(['telefono' => '5550001111', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 5]);
-        $this->makeAppointment((string) $client->id, 'completada');
-        $this->makeAppointment((string) $client->id, 'completada');
-        $this->makeAppointment((string) $client->id, 'cancelada');
+        $this->makeAppointment((string) $client->id, 'completada', ['hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00']);
+        $this->makeAppointment((string) $client->id, 'completada', ['hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00']);
+        $this->makeAppointment((string) $client->id, 'cancelada', ['hora_inicio' => '11:00:00', 'hora_fin' => '11:30:00']);
 
         $data = $this->service->clientMetrics((string) $client->id);
 
@@ -75,9 +75,9 @@ class DashboardServiceClientMetricsIntegrationTest extends TestCase
     public function test_completed_appointments_falls_back_to_a_live_count_when_total_citas_is_unset(): void
     {
         $client = Client::create(['telefono' => '5550002222', 'nivel' => 'nuevo', 'puntos' => 0]);
-        $this->makeAppointment((string) $client->id, 'completada');
-        $this->makeAppointment((string) $client->id, 'completada');
-        $this->makeAppointment((string) $client->id, 'pendiente');
+        $this->makeAppointment((string) $client->id, 'completada', ['hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00']);
+        $this->makeAppointment((string) $client->id, 'completada', ['hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00']);
+        $this->makeAppointment((string) $client->id, 'pendiente', ['hora_inicio' => '11:00:00', 'hora_fin' => '11:30:00']);
 
         $data = $this->service->clientMetrics((string) $client->id);
 
@@ -118,10 +118,15 @@ class DashboardServiceClientMetricsIntegrationTest extends TestCase
         $barberFavorito = Barber::create(['user_id' => (string) $userFavorito->id, 'nombre' => 'Favorito', 'activo' => true]);
         $barberOcasional = Barber::create(['nombre' => 'Ocasional', 'activo' => true]);
 
-        $this->makeAppointment((string) $client->id, 'completada', ['barber_id' => (string) $barberFavorito->id]);
-        $this->makeAppointment((string) $client->id, 'completada', ['barber_id' => (string) $barberFavorito->id]);
-        $this->makeAppointment((string) $client->id, 'completada', ['barber_id' => (string) $barberFavorito->id]);
-        $this->makeAppointment((string) $client->id, 'completada', ['barber_id' => (string) $barberOcasional->id]);
+        // Horas distintas: 3 visitas completadas reales al mismo barbero no
+        // caerian en el mismo slot exacto -- y desde que existe el indice
+        // unico parcial de la migracion add_appointment_slot_unique_index,
+        // reusar el mismo (barber_id, fecha, hora_inicio) tres veces aqui
+        // truena con un duplicate key real.
+        $this->makeAppointment((string) $client->id, 'completada', ['barber_id' => (string) $barberFavorito->id, 'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00']);
+        $this->makeAppointment((string) $client->id, 'completada', ['barber_id' => (string) $barberFavorito->id, 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00']);
+        $this->makeAppointment((string) $client->id, 'completada', ['barber_id' => (string) $barberFavorito->id, 'hora_inicio' => '11:00:00', 'hora_fin' => '11:30:00']);
+        $this->makeAppointment((string) $client->id, 'completada', ['barber_id' => (string) $barberOcasional->id, 'hora_inicio' => '12:00:00', 'hora_fin' => '12:30:00']);
 
         $data = $this->service->clientMetrics((string) $client->id);
 

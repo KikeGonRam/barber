@@ -52,7 +52,7 @@ class BarberAdminRatingTest extends TestCase
 
     protected function tearDown(): void
     {
-        Appointment::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         BarberReview::query()->delete();
         Barber::query()->delete();
         Client::query()->delete();

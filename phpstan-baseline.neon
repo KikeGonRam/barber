@@ -1435,6 +1435,12 @@ parameters:
 			path: app/Models/Appointment.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$bloquea_horario\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Appointment.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 1
@@ -1887,6 +1893,12 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$start_time\.$#'
 			identifier: property.notFound
+			count: 1
+			path: app/Services/Appointment/AppointmentService.php
+
+		-
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
 			count: 1
 			path: app/Services/Appointment/AppointmentService.php
 
@@ -2351,6 +2363,12 @@ parameters:
 			identifier: argument.unresolvableType
 			count: 1
 			path: app/Services/Report/ReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/AppointmentApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'

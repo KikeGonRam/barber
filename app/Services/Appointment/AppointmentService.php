@@ -10,6 +10,7 @@ use App\Models\BarbershopSetting;
 use App\Models\Service;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use Carbon\Carbon;
+use MongoDB\Driver\Exception\BulkWriteException;
 
 /**
  * Orquesta la creacion/edicion de citas: calcula disponibilidad de horarios
@@ -122,7 +123,18 @@ class AppointmentService
     {
         $this->ensureNoOverlap($payload);
 
-        $appointment = $this->appointments->create($payload);
+        try {
+            $appointment = $this->appointments->create($payload);
+        } catch (BulkWriteException $e) {
+            // ensureNoOverlap() de arriba no es atomico: si dos requests para
+            // el mismo barbero+fecha+hora_inicio llegan a la vez, ambos
+            // pueden pasar la validacion antes de que cualquiera escriba. El
+            // indice unico parcial (barber_id, fecha, hora_inicio) -- ver
+            // migracion add_appointment_slot_unique_index -- es la garantia
+            // real; esto solo traduce su duplicate key error a la misma
+            // excepcion de dominio que el chequeo de arriba ya usa.
+            throw new AppointmentConflictException('El barbero ya tiene una cita en este rango de tiempo.');
+        }
 
         // Notifica a cliente + barbero + recepcion/admin (resiliente a fallos).
         $this->notifier->created($appointment);
@@ -132,13 +144,33 @@ class AppointmentService
 
     /**
      * Actualiza una cita existente (ej. reprogramacion) tras revalidar que
-     * el nuevo horario no genere conflictos, ignorando la propia cita.
+     * el nuevo horario no genere conflictos, ignorando la propia cita. Si el
+     * nuevo horario mueve la cita, los recordatorios ya enviados para la
+     * fecha/hora anterior se resetean para que el comando de recordatorios
+     * (SendAppointmentRemindersCommand) vuelva a avisar para el nuevo horario.
      */
     public function updateAppointment(string $appointmentId, array $payload): bool
     {
         $this->ensureNoOverlap($payload, $appointmentId);
 
-        return $this->appointments->update($appointmentId, $payload);
+        $current = Appointment::find($appointmentId);
+        $fechaChanged = array_key_exists('fecha', $payload)
+            && substr((string) $payload['fecha'], 0, 10) !== ($current?->fecha?->format('Y-m-d'));
+        $horaChanged = array_key_exists('hora_inicio', $payload)
+            && $payload['hora_inicio'] !== $current?->hora_inicio;
+
+        if ($fechaChanged || $horaChanged) {
+            $payload['reminder_24h_sent_at'] = null;
+            $payload['reminder_2h_sent_at'] = null;
+        }
+
+        try {
+            return $this->appointments->update($appointmentId, $payload);
+        } catch (BulkWriteException $e) {
+            // Mismo caso que createAppointment(): dos reprogramaciones (o una
+            // reprogramacion contra una reserva nueva) para el mismo slot.
+            throw new AppointmentConflictException('El barbero ya tiene una cita en este rango de tiempo.');
+        }
     }
 
     /**

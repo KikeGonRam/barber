@@ -53,7 +53,7 @@ class BarberReviewServiceIntegrationTest extends TestCase
     {
         BarberReview::query()->delete();
         LoyaltyTransaction::query()->delete();
-        Appointment::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
         User::query()->delete();

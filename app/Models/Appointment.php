@@ -45,6 +45,7 @@ class Appointment extends Model
         'cancellation_notified_at',
         'servicio_iniciado_en',
         'ultimo_aviso_barbero_en',
+        'bloquea_horario',
     ];
 
     protected function casts(): array
@@ -60,7 +61,42 @@ class Appointment extends Model
             'cancellation_notified_at' => 'datetime',
             'servicio_iniciado_en' => 'datetime',
             'ultimo_aviso_barbero_en' => 'datetime',
+            'bloquea_horario' => 'boolean',
         ];
+    }
+
+    /**
+     * bloquea_horario se deriva de `estado` (y de si la cita esta soft-deleted)
+     * en cada guardado, nunca se asigna a mano en ningun controlador/servicio
+     * -- existe unicamente para que el indice unico parcial de la migracion
+     * add_appointment_slot_unique_index pueda expresar "estado activo" como
+     * una igualdad simple (bloquea_horario: true). MongoDB no permite
+     * $ne/$nin/$in dentro de un partialFilterExpression, solo expresiones
+     * de igualdad/$exists/comparacion y $and de nivel superior -- de ahi
+     * este campo derivado en vez de filtrar directamente por `estado`.
+     *
+     * Soft-delete cuenta como "libera el slot", pero SoftDeletes::
+     * runSoftDelete() pone deleted_at con un UPDATE de query builder directo
+     * (bypasa Eloquent::save()), asi que el hook de 'saving' de abajo NUNCA
+     * corre en un soft-delete -- confirmado leyendo el trait de Laravel.
+     * Por eso el 'deleting' de aca abajo, que SI dispara siempre (soft y
+     * hard delete), hace el mismo update directo para liberar el slot antes
+     * de que el propio SoftDeletes lo marque como borrado. restore() SI pasa
+     * por save() (confirmado en el trait), asi que el hook de 'saving' ya lo
+     * cubre correctamente sin necesitar un listener de 'restored' aparte.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (self $appointment) {
+            $appointment->bloquea_horario = $appointment->deleted_at === null
+                && ! in_array($appointment->estado, ['cancelada', 'no_asistio'], true);
+        });
+
+        static::deleting(function (self $appointment) {
+            $appointment->newQueryWithoutScopes()
+                ->where($appointment->getKeyName(), $appointment->getKey())
+                ->update(['bloquea_horario' => false]);
+        });
     }
 
     // Cliente que reservo la cita.

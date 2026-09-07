@@ -106,13 +106,13 @@ class ClientSelfServiceApiTest extends TestCase
      */
     public function test_client_appointments_index_exposes_has_payment_and_is_chargeable(): void
     {
-        $unpaidChargeable = $this->makeAppointment(['estado' => 'confirmada']);
-        $paidChargeable = $this->makeAppointment(['estado' => 'completada']);
+        $unpaidChargeable = $this->makeAppointment(['estado' => 'confirmada', 'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00']);
+        $paidChargeable = $this->makeAppointment(['estado' => 'completada', 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00']);
         Payment::create([
             'appointment_id' => (string) $paidChargeable->id, 'monto' => 200, 'metodo_pago' => 'efectivo',
             'estado' => Payment::ESTADO_VERIFICADO,
         ]);
-        $notChargeable = $this->makeAppointment(['estado' => 'pendiente']);
+        $notChargeable = $this->makeAppointment(['estado' => 'pendiente', 'hora_inicio' => '11:00:00', 'hora_fin' => '11:30:00']);
 
         $response = $this->withToken($this->clientToken)->getJson('/api/v1/appointments');
         $response->assertOk();
@@ -207,7 +207,7 @@ class ClientSelfServiceApiTest extends TestCase
 
     public function test_client_sees_only_own_payments_and_can_access_own_receipt(): void
     {
-        $ownAppointment = $this->makeAppointment(['estado' => 'completada']);
+        $ownAppointment = $this->makeAppointment(['estado' => 'completada', 'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00']);
         $ownPayment = Payment::create([
             'appointment_id' => (string) $ownAppointment->id,
             'monto' => 200,
@@ -217,7 +217,7 @@ class ClientSelfServiceApiTest extends TestCase
 
         $otherClientUser = User::create(['name' => 'Otro Cliente Pagos', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
         $otherClient = Client::create(['user_id' => (string) $otherClientUser->id, 'telefono' => '5550004444']);
-        $otherAppointment = $this->makeAppointment(['client_id' => (string) $otherClient->id, 'estado' => 'completada']);
+        $otherAppointment = $this->makeAppointment(['client_id' => (string) $otherClient->id, 'estado' => 'completada', 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00']);
         $otherPayment = Payment::create([
             'appointment_id' => (string) $otherAppointment->id,
             'monto' => 300,

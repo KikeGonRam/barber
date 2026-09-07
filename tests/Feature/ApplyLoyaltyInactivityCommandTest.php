@@ -19,7 +19,7 @@ class ApplyLoyaltyInactivityCommandTest extends TestCase
 {
     protected function tearDown(): void
     {
-        Appointment::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         Client::query()->delete();
         Barber::query()->delete();
         Service::query()->delete();

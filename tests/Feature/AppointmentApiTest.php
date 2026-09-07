@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\MobileApiToken;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Service;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Str;
@@ -64,6 +65,7 @@ class AppointmentApiTest extends TestCase
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
+        Service::query()->delete();
         MobileApiToken::query()->delete();
         User::withTrashed()->forceDelete();
         Role::query()->delete();
@@ -79,6 +81,62 @@ class AppointmentApiTest extends TestCase
         MobileApiToken::create(['user_id' => (string) $user->id, 'name' => 'test', 'token_hash' => hash('sha256', $plaintext)]);
 
         return $plaintext;
+    }
+
+    public function test_admin_cannot_move_a_completed_appointment_back_to_pending_via_full_update(): void
+    {
+        // PUT /appointments/{id} (edición completa) no debe poder saltarse la
+        // máquina de estados de AppointmentStatusService solo porque no es el
+        // PATCH .../status del barbero -- ver Fase 3 (citas) del roadmap.
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-transition-guard');
+
+        $client = Client::create(['telefono' => '5559998888', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $service = Service::create(['nombre' => 'Corte', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+        $appointment = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $this->barberA->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->format('Y-m-d'), 'hora_inicio' => '14:00:00', 'hora_fin' => '14:30:00', 'estado' => 'completada',
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->putJson("/api/v1/appointments/{$appointment->code}", [
+            'client_id' => (string) $client->id,
+            'barber_id' => (string) $this->barberA->id,
+            'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->format('Y-m-d'),
+            'hora_inicio' => '14:00',
+            'estado' => 'pendiente',
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertSame('completada', Appointment::find($appointment->id)->estado);
+    }
+
+    public function test_admin_can_edit_an_appointment_without_changing_its_state(): void
+    {
+        // Regresión: el guard de transición no debe bloquear una edición
+        // legítima que no toca `estado` (o lo deja igual).
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-edit-no-transition');
+
+        $client = Client::create(['telefono' => '5559997777', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $service = Service::create(['nombre' => 'Corte', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+        $appointment = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $this->barberA->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->format('Y-m-d'), 'hora_inicio' => '14:00:00', 'hora_fin' => '14:30:00', 'estado' => 'pendiente',
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->putJson("/api/v1/appointments/{$appointment->code}", [
+            'client_id' => (string) $client->id,
+            'barber_id' => (string) $this->barberA->id,
+            'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->format('Y-m-d'),
+            'hora_inicio' => '15:00',
+            'estado' => 'confirmada',
+            'notas' => 'Cambio de horario legítimo',
+        ]);
+
+        $response->assertOk();
+        $fresh = Appointment::find($appointment->id);
+        $this->assertSame('confirmada', $fresh->estado);
+        $this->assertSame('Cambio de horario legítimo', $fresh->notas);
     }
 
     public function test_admin_lists_all_appointments_without_filters(): void
