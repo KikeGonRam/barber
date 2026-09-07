@@ -87,6 +87,7 @@ Route::prefix('v1')->group(function (): void {
         // Gestión de Perfil
         Route::get('profile', [ProfileController::class, 'show']);
         Route::put('profile', [ProfileController::class, 'update']);
+        Route::post('profile/avatar', [ProfileController::class, 'updateAvatar']);
         Route::put('profile/password', [ProfileController::class, 'updatePassword']);
         Route::post('profile/push-token', [ProfileController::class, 'savePushToken']);
         Route::delete('profile', [ProfileController::class, 'destroy']);

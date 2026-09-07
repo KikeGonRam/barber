@@ -386,7 +386,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-09-29'
+        example: '2052-09-30'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -397,7 +397,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '19:33'
+        example: '02:27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -435,8 +435,8 @@ endpoints:
       client_id: architecto
       barber_id: architecto
       service_id: architecto
-      fecha: '2052-09-29'
-      hora_inicio: '19:33'
+      fecha: '2052-09-30'
+      hora_inicio: '02:27'
       estado: en_proceso
       notas: 'n'
     fileParameters: []
@@ -490,7 +490,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: no_asistio
+        example: en_proceso
         type: string
         enumValues:
           - pendiente
@@ -514,7 +514,7 @@ endpoints:
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      estado: no_asistio
+      estado: en_proceso
       notas: b
     fileParameters: []
     responses: []
@@ -600,7 +600,7 @@ endpoints:
         name: period
         description: ''
         required: false
-        example: week
+        example: day
         type: string
         enumValues:
           - day
@@ -613,7 +613,7 @@ endpoints:
         name: estado
         description: ''
         required: false
-        example: confirmada
+        example: pendiente
         type: string
         enumValues:
           - pendiente
@@ -637,8 +637,8 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      period: week
-      estado: confirmada
+      period: day
+      estado: pendiente
       offset: -364
     fileParameters: []
     responses:

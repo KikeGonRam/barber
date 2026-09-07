@@ -25,6 +25,7 @@ use Illuminate\Validation\Rules\Password;
  */
 class ProfileController extends Controller
 {
+    // Profile avatar endpoint is shared by all authenticated roles.
     /**
      * Obtener Perfil
      *
@@ -113,6 +114,35 @@ class ProfileController extends Controller
     }
 
     /**
+     * Reemplaza la foto del usuario autenticado.
+     */
+    public function updateAvatar(Request $request): JsonResponse
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ]);
+
+        $user = $request->user();
+        $oldPath = $this->localAvatarPath($user->avatar_url);
+        $path = $request->file('avatar')->storeAs(
+            'avatars/'.(string) $user->id,
+            Str::uuid().'.'.$request->file('avatar')->getClientOriginalExtension(),
+            'public',
+        );
+
+        $user->forceFill(['avatar_url' => Storage::disk('public')->url($path)])->save();
+
+        if ($oldPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        return response()->json([
+            'message' => 'Foto de perfil actualizada.',
+            'user' => new UserResource($user->fresh()),
+        ]);
+    }
+
+    /**
      * Actualizar Contraseña
      *
      * Cambia la contraseña del usuario autenticado.
@@ -148,6 +178,18 @@ class ProfileController extends Controller
         return response()->json([
             'message' => 'Contraseña actualizada exitosamente',
         ]);
+    }
+
+    private function localAvatarPath(?string $avatarUrl): ?string
+    {
+        $path = parse_url($avatarUrl ?? '', PHP_URL_PATH);
+        $prefix = '/storage/';
+
+        if (! is_string($path) || ! str_starts_with($path, $prefix)) {
+            return null;
+        }
+
+        return substr($path, strlen($prefix));
     }
 
     /**

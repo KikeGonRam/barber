@@ -101,9 +101,33 @@ endpoints:
         exampleWasSpecified: true
         nullable: false
         deprecated: false
+      telefono:
+        custom: []
+        name: telefono
+        description: 'El campo value no debe tener más de 30 caracteres.'
+        required: false
+        example: i
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      fecha_nacimiento:
+        custom: []
+        name: fecha_nacimiento
+        description: 'El campo value no es una fecha válida. El campo value debe ser una fecha anterior a <code>today</code>.'
+        required: false
+        example: '2022-10-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
     cleanBodyParameters:
       name: 'Juan Pérez Actualizado'
       email: nuevo@example.com
+      telefono: i
+      fecha_nacimiento: '2022-10-01'
     fileParameters: []
     responses:
       -
@@ -116,6 +140,51 @@ endpoints:
           }
         headers: []
         description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/profile/avatar
+    metadata:
+      custom: []
+      groupName: 'Gestión de Perfil'
+      groupDescription: |-
+
+        Endpoints para gestionar el perfil del usuario autenticado.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Reemplaza la foto del usuario autenticado.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      avatar:
+        custom: []
+        name: avatar
+        description: 'El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes.'
+        required: true
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters: []
+    fileParameters:
+      avatar: null
+    responses: []
     responseFields: []
     auth: []
     controller: null
