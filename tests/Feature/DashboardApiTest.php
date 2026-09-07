@@ -190,7 +190,16 @@ class DashboardApiTest extends TestCase
             'role',
             'data' => [
                 'todayLabel', 'kpis', 'incomeChart', 'servicesChart', 'barberPerformance',
-                'clientTrends', 'chatbotTelemetry', 'insights', 'sparkHighlights',
+                'clientTrends', 'chatbotTelemetry',
+                'moduleTelemetry' => [
+                    'window_days',
+                    'payments' => ['verified_month', 'pending_review', 'rejected_month', 'amount_month'],
+                    'orders' => ['pending', 'delivered_month', 'cancelled_month'],
+                    'campaigns' => ['scheduled', 'sent_month', 'recipients_month', 'opens_month', 'clicks_month'],
+                    'raffles' => ['redeemable', 'claimed_month', 'expired_unclaimed'],
+                    'social' => ['works_month', 'reactions_month', 'comments_month', 'saves_month'],
+                ],
+                'insights', 'sparkHighlights',
             ],
         ]);
         // ingeniero es de solo lectura y sin acceso a datos operativos de

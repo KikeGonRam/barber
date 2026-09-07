@@ -345,6 +345,7 @@ class DashboardController extends Controller
             'barberPerformance' => $data['barber_performance'],
             'clientTrends' => $data['client_trends'],
             'chatbotTelemetry' => $data['chatbot_telemetry'] ?? [],
+            'moduleTelemetry' => $data['module_telemetry'] ?? [],
             'insights' => $this->analysisInsights(),
             'sparkHighlights' => $this->analyticsInsightService
                 ->highlightsForDashboard($sparkInsights, 'administrador')

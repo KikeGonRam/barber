@@ -5,13 +5,18 @@ namespace App\Services\Dashboard;
 use App\Models\Activity;
 use App\Models\Appointment;
 use App\Models\Barber;
+use App\Models\Campaign;
 use App\Models\Client;
+use App\Models\Comment;
 use App\Models\LoyaltyTransaction;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\RaffleResult;
+use App\Models\Reaction;
+use App\Models\SavedWork;
 use App\Models\Service;
+use App\Models\Work;
 use App\Services\Loyalty\LoyaltyService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -181,6 +186,7 @@ class DashboardService
         });
 
         $chatbotTelemetry = $this->chatbotTelemetrySummary(7);
+        $moduleTelemetry = $this->moduleTelemetrySummary($monthStart);
 
         return [
             'kpis' => [
@@ -213,6 +219,54 @@ class DashboardService
             'barber_performance' => $this->getBarberPerformanceChart($monthStart, $monthEnd),
             'client_trends' => $this->getClientTrendsChart($monthStart, $monthEnd),
             'chatbot_telemetry' => $chatbotTelemetry,
+            'module_telemetry' => $moduleTelemetry,
+        ];
+    }
+
+    /**
+     * Indicadores agregados de m??dulos sin panel propio para ingenier??a.
+     * Solo devuelve conteos y montos: nunca ids, nombres, folios, textos ni
+     * contenido del muro social.
+     */
+    private function moduleTelemetrySummary(Carbon $monthStart): array
+    {
+        $payments = Payment::where('created_at', '>=', $monthStart)
+            ->get(['estado', 'monto', 'propina']);
+        $orders = Order::where('created_at', '>=', $monthStart)->get(['estado']);
+        $campaigns = Campaign::where('created_at', '>=', $monthStart)
+            ->get(['estado', 'destinatarios', 'opened_by', 'clicked_by']);
+
+        return [
+            'window_days' => now()->diffInDays($monthStart) + 1,
+            'payments' => [
+                'verified_month' => $payments->where('estado', Payment::ESTADO_VERIFICADO)->count(),
+                'pending_review' => Payment::where('estado', Payment::ESTADO_PENDIENTE_VERIFICACION)->count(),
+                'rejected_month' => $payments->where('estado', Payment::ESTADO_RECHAZADO)->count(),
+                'amount_month' => $this->sumPaymentCollection($payments),
+            ],
+            'orders' => [
+                'pending' => Order::where('estado', 'pendiente')->count(),
+                'delivered_month' => $orders->where('estado', 'entregado')->count(),
+                'cancelled_month' => $orders->where('estado', 'cancelado')->count(),
+            ],
+            'campaigns' => [
+                'scheduled' => Campaign::where('estado', 'programada')->count(),
+                'sent_month' => $campaigns->where('estado', 'enviada')->count(),
+                'recipients_month' => (int) $campaigns->sum(fn (Campaign $campaign) => (int) ($campaign->destinatarios ?? 0)),
+                'opens_month' => (int) $campaigns->sum(fn (Campaign $campaign) => $campaign->opensCount()),
+                'clicks_month' => (int) $campaigns->sum(fn (Campaign $campaign) => $campaign->clicksCount()),
+            ],
+            'raffles' => [
+                'redeemable' => RaffleResult::whereNull('reclamado_en')->where('vence_en', '>=', now())->count(),
+                'claimed_month' => RaffleResult::where('reclamado_en', '>=', $monthStart)->count(),
+                'expired_unclaimed' => RaffleResult::whereNull('reclamado_en')->where('vence_en', '<', now())->count(),
+            ],
+            'social' => [
+                'works_month' => Work::where('created_at', '>=', $monthStart)->count(),
+                'reactions_month' => Reaction::where('created_at', '>=', $monthStart)->count(),
+                'comments_month' => Comment::where('created_at', '>=', $monthStart)->count(),
+                'saves_month' => SavedWork::where('created_at', '>=', $monthStart)->count(),
+            ],
         ];
     }
 
