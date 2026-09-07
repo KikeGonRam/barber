@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Notifications\Order\OrderExpiredNotification;
 use App\Services\Order\OrderService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Cancela pedidos "pendiente" (paga y recoge en sucursal) que llevan más de
@@ -49,7 +50,11 @@ class CancelExpiredOrdersCommand extends Command
             if ($user) {
                 try {
                     $user->notify(new OrderExpiredNotification($order));
-                } catch (\Throwable) {
+                } catch (\Throwable $e) {
+                    Log::warning('Fallo notificacion de pedido vencido', [
+                        'order_id' => $order->id,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
             }
         }

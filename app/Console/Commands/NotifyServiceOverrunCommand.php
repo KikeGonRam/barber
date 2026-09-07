@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Services\Appointment\AppointmentNotifier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Detecta citas en estado "en_proceso" cuyo tiempo estimado de servicio ya se
@@ -54,6 +55,10 @@ class NotifyServiceOverrunCommand extends Command
                 $avisadas++;
             } catch (\Throwable $e) {
                 // una cita con datos raros no debe tumbar el resto del batch
+                Log::warning('Fallo aviso de servicio con tiempo excedido', [
+                    'appointment_id' => $appt->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 

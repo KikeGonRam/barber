@@ -25,13 +25,17 @@ class MessagingService
             return;
         }
 
-        Http::withBasicAuth(config('services.twilio.sid'), config('services.twilio.token'))
+        $response = Http::withBasicAuth(config('services.twilio.sid'), config('services.twilio.token'))
             ->asForm()
             ->post('https://api.twilio.com/2010-04-01/Accounts/'.config('services.twilio.sid').'/Messages.json', [
                 'From' => config('services.twilio.from'),
                 'To' => $to,
                 'Body' => $message,
             ]);
+
+        if ($response->failed()) {
+            Log::warning('Fallo envio de SMS via Twilio', ['to' => $to, 'status' => $response->status(), 'body' => $response->body()]);
+        }
     }
 
     /**
@@ -47,12 +51,16 @@ class MessagingService
             return;
         }
 
-        Http::withBasicAuth(config('services.twilio.sid'), config('services.twilio.token'))
+        $response = Http::withBasicAuth(config('services.twilio.sid'), config('services.twilio.token'))
             ->asForm()
             ->post('https://api.twilio.com/2010-04-01/Accounts/'.config('services.twilio.sid').'/Messages.json', [
                 'From' => 'whatsapp:'.config('services.twilio.whatsapp_from'),
                 'To' => 'whatsapp:'.$to,
                 'Body' => $message,
             ]);
+
+        if ($response->failed()) {
+            Log::warning('Fallo envio de WhatsApp via Twilio', ['to' => $to, 'status' => $response->status(), 'body' => $response->body()]);
+        }
     }
 }

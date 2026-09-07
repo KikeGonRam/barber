@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Campaign;
 use App\Services\Campaign\CampaignDispatcher;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Busca campañas de marketing en estado "programada" cuya fecha/hora de envío
@@ -35,8 +36,21 @@ class DispatchDueCampaignsCommand extends Command
         }
 
         foreach ($due as $campaign) {
-            $count = $dispatcher->dispatch($campaign);
-            $this->info("Campana '{$campaign->titulo}' enviada a {$count} cliente(s).");
+            // Una campana con datos raros o un fallo puntual no debe tumbar
+            // el resto del batch -- las demas campanas vencidas en esta
+            // corrida deben seguir enviandose (antes, una excepcion aqui
+            // abortaba el comando completo, dejando sin enviar cualquier
+            // campana vencida despues de la que fallo).
+            try {
+                $count = $dispatcher->dispatch($campaign);
+                $this->info("Campana '{$campaign->titulo}' enviada a {$count} cliente(s).");
+            } catch (\Throwable $e) {
+                Log::warning('Fallo envio de campana', [
+                    'campaign_id' => $campaign->id,
+                    'error' => $e->getMessage(),
+                ]);
+                $this->error("Campana '{$campaign->titulo}' fallo al enviarse: {$e->getMessage()}");
+            }
         }
 
         return self::SUCCESS;

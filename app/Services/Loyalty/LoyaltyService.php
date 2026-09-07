@@ -7,6 +7,7 @@ use App\Models\LoyaltyTransaction;
 use App\Notifications\Loyalty\LoyaltyLevelDowngradedNotification;
 use App\Notifications\Loyalty\LoyaltyNotification;
 use App\Notifications\Loyalty\LoyaltyPointsExpiredNotification;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Orquesta el programa de lealtad: niveles por número de citas completadas,
@@ -185,7 +186,11 @@ class LoyaltyService
 
             try {
                 $client->user?->notify(new LoyaltyPointsExpiredNotification($puntosPerdidos));
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::warning('Fallo notificacion de puntos vencidos', [
+                    'client_id' => $client->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 
@@ -205,7 +210,11 @@ class LoyaltyService
 
             try {
                 $client->user?->notify(new LoyaltyLevelDowngradedNotification($nivelActual, $nivelCorrespondiente));
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::warning('Fallo notificacion de baja de nivel', [
+                    'client_id' => $client->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 
@@ -302,7 +311,11 @@ class LoyaltyService
                 previousLevel: $from,
                 discount: self::discountPct($to),
             ));
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::warning('Fallo notificacion de subida de nivel', [
+                'client_id' => $client->id,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 }

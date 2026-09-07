@@ -8,6 +8,7 @@ use App\Notifications\Loyalty\ClientBirthdayNotification;
 use App\Services\Loyalty\LoyaltyService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Corre a diario: felicita y regala puntos de lealtad a los clientes que
@@ -66,7 +67,11 @@ class SendBirthdayGreetingsCommand extends Command
 
             try {
                 $client->user?->notify(new ClientBirthdayNotification);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::warning('Fallo notificacion de cumpleanos', [
+                    'client_id' => $client->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 

@@ -9,7 +9,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$titulo\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/Console/Commands/DispatchDueCampaignsCommand.php
 
 		-
@@ -2283,7 +2283,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\PushSubscription\:\:\$endpoint\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 3
 			path: app/Services/Push/WebPushService.php
 
 		-
@@ -2856,3 +2856,15 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/Api/Review/ReviewController.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Support\\Facades\\Log\:\:shouldHaveReceived\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/MessagingServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Support\\Facades\\Log\:\:shouldNotHaveReceived\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/MessagingServiceTest.php

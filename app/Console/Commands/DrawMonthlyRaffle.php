@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\RaffleResult;
 use App\Notifications\Loyalty\RaffleWinNotification;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Sortea mensualmente un premio (corte premium gratis) entre los clientes de
@@ -57,9 +58,14 @@ class DrawMonthlyRaffle extends Command
 
         try {
             $ganador->user?->notify(new RaffleWinNotification($result));
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Si falla la notificacion (ej. usuario sin canal configurado), el
             // sorteo ya quedo registrado en BD; no se revierte por un error de aviso.
+            Log::warning('Fallo notificacion de ganador de sorteo', [
+                'raffle_result_id' => $result->id,
+                'client_id' => $ganador->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         $this->info("Ganador del sorteo {$mes}: {$ganador->user?->name} (nivel: {$ganador->nivel})");

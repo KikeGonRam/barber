@@ -72,8 +72,17 @@ class WebPushService
                     $json,
                 );
 
-                if (! $report->isSuccess() && $report->isSubscriptionExpired()) {
-                    $subscription->delete();
+                if (! $report->isSuccess()) {
+                    if ($report->isSubscriptionExpired()) {
+                        $subscription->delete();
+                    } else {
+                        // Fallo de envio real (rate limit, endpoint rechazo el
+                        // payload, 5xx del servicio push, etc.) -- no es una
+                        // suscripcion vencida, asi que no se borra, pero sin
+                        // este log el fallo era invisible: ni excepcion, ni
+                        // registro, nada.
+                        Log::warning('Fallo al enviar push', ['endpoint' => $subscription->endpoint, 'reason' => $report->getReason()]);
+                    }
                 }
             } catch (\Throwable $e) {
                 Log::warning('Suscripción push inválida, se omite y se elimina', ['endpoint' => $subscription->endpoint, 'error' => $e->getMessage()]);
