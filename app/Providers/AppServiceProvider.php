@@ -17,6 +17,7 @@ use App\Services\Chatbot\Contracts\ChatbotAiProvider;
 use App\Services\Chatbot\GeminiService;
 use App\Services\Chatbot\OllamaService;
 use App\Services\System\ScheduledTaskMonitor;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Console\Events\ScheduledTaskFailed;
 use Illuminate\Console\Events\ScheduledTaskFinished;
@@ -80,5 +81,17 @@ class AppServiceProvider extends ServiceProvider
         // instrumentar cada Schedule::command() una por una.
         Event::listen(ScheduledTaskFinished::class, [ScheduledTaskMonitor::class, 'recordFinished']);
         Event::listen(ScheduledTaskFailed::class, [ScheduledTaskMonitor::class, 'recordFailed']);
+
+        // Password::sendResetLink() (AuthController::forgotPassword()) usa esta
+        // notificación con su URL por defecto, que apunta a la ruta web
+        // 'password.reset' (la página Blade) -- sin esto, un usuario que pide
+        // el reset desde el frontend Nuxt terminaría en la pantalla vieja sin
+        // importar desde dónde lo pidió. FRONTEND_URL ya se usa con el mismo
+        // criterio en otras rutas retiradas.
+        ResetPassword::createUrlUsing(function (User $user, string $token) {
+            $email = urlencode($user->getEmailForPasswordReset());
+
+            return config('app.frontend_url')."/reset-password?token={$token}&email={$email}";
+        });
     }
 }
