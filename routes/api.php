@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Analytics\AnalyticsController as ApiAnalyticsContro
 use App\Http\Controllers\Api\Appointment\AppointmentController;
 use App\Http\Controllers\Api\Appointment\AvailabilityController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\SocialAuthController;
 use App\Http\Controllers\Api\Barber\BarberManagementController;
 use App\Http\Controllers\Api\Barber\BarberPortfolioController;
 use App\Http\Controllers\Api\Barber\BarberScheduleController;
@@ -55,6 +56,12 @@ Route::prefix('v1')->group(function (): void {
     Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:6,1');
     Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:6,1');
     Route::post('auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:6,1');
+
+    // Login social (auth-polish-plan): redirect/callback son GET porque el
+    // navegador navega ahí de verdad (pantalla de consentimiento de Google),
+    // no son llamadas fetch/JSON como el resto de esta API.
+    Route::get('auth/google/redirect', [SocialAuthController::class, 'redirect'])->middleware('throttle:10,1');
+    Route::get('auth/google/callback', [SocialAuthController::class, 'callback'])->middleware('throttle:10,1');
 
     // Catálogo público
     Route::get('services', [CatalogController::class, 'services']);

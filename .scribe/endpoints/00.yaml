@@ -102,7 +102,113 @@ endpoints:
           cache-control: 'no-cache, private'
           content-type: application/json
           x-ratelimit-limit: '30'
-          x-ratelimit-remaining: '29'
+          x-ratelimit-remaining: '25'
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/auth/google/redirect
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Redirige al usuario a la pantalla de consentimiento de Google.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 503
+        content: |-
+          {
+              "message": "El login con Google no est\u00e1 configurado todav\u00eda."
+          }
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          x-ratelimit-limit: '10'
+          x-ratelimit-remaining: '4'
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/auth/google/callback
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Google redirige aquí con el código de autorización. Busca o crea el
+        usuario por email (mismo camino de asignación de rol que
+        AuthController::register() -- siempre 'cliente', nunca algo elegido por
+        el propio flujo de OAuth), emite un token, y manda al usuario de vuelta
+        al frontend con el token en la URL -- mismo patrón que
+        ResetPassword::createUrlUsing() usa frontend_url.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 302
+        content: |-
+          <!DOCTYPE html>
+          <html>
+              <head>
+                  <meta charset="UTF-8" />
+                  <meta http-equiv="refresh" content="0;url='http://localhost:3000/login?error=google_failed'" />
+
+                  <title>Redirecting to http://localhost:3000/login?error=google_failed</title>
+              </head>
+              <body>
+                  Redirecting to <a href="http://localhost:3000/login?error=google_failed">http://localhost:3000/login?error=google_failed</a>.
+              </body>
+          </html>
+        headers:
+          cache-control: 'no-cache, private'
+          location: 'http://localhost:3000/login?error=google_failed'
+          content-type: 'text/html; charset=utf-8'
+          x-ratelimit-limit: '10'
+          x-ratelimit-remaining: '3'
           vary: Origin
         description: null
     responseFields: []
@@ -304,7 +410,7 @@ endpoints:
           cache-control: 'no-cache, private'
           content-type: application/json
           x-ratelimit-limit: '30'
-          x-ratelimit-remaining: '28'
+          x-ratelimit-remaining: '22'
           vary: Origin
         description: null
     responseFields: []
@@ -1008,7 +1114,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: transferencia
         type: string
         enumValues:
           - efectivo
@@ -1064,7 +1170,7 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: efectivo
+      metodo_pago: transferencia
       propina: 77
       puntos_canjeados: 8
       usar_premio_rifa: false
@@ -1333,7 +1439,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T16:39:10'
+        example: '2026-09-06T19:33:40'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1355,7 +1461,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1377,7 +1483,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1388,11 +1494,11 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-06T16:39:10'
+      fecha_nacimiento: '2026-09-06T19:33:40'
       pref_in_app: false
-      pref_email: false
+      pref_email: true
       pref_sms: false
-      pref_whatsapp: false
+      pref_whatsapp: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -1473,7 +1579,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T16:39:10'
+        example: '2026-09-06T19:33:40'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1506,7 +1612,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1527,10 +1633,10 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-06T16:39:10'
+      fecha_nacimiento: '2026-09-06T19:33:40'
       pref_in_app: false
       pref_email: false
-      pref_sms: true
+      pref_sms: false
       pref_whatsapp: false
     fileParameters: []
     responses: []
@@ -1716,7 +1822,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1729,7 +1835,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2042,7 +2148,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2054,7 +2160,7 @@ endpoints:
       especialidades: i
       descripcion: 'y'
       foto: v
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2416,7 +2522,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '16:39'
+        example: '19:33'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2525,7 +2631,7 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '16:39'
+      horario_apertura: '19:33'
       horario_cierre: '2052-09-29'
       politica_cancelacion: 22
       instagram: g
@@ -2701,7 +2807,7 @@ endpoints:
         name: modo
         description: ''
         required: true
-        example: programar
+        example: ahora
         type: string
         enumValues:
           - ahora
@@ -2726,7 +2832,7 @@ endpoints:
       cta_label: g
       cta_url: 'http://www.okuneva.com/fugiat-sunt-nihil-accusantium-harum-mollitia.html'
       segmento: architecto
-      modo: programar
+      modo: ahora
       programada_para: '2052-09-30'
     fileParameters: []
     responses: []
@@ -3217,7 +3323,7 @@ endpoints:
         name: sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3228,7 +3334,7 @@ endpoints:
         name: whatsapp
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3239,7 +3345,7 @@ endpoints:
         name: push
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3250,7 +3356,7 @@ endpoints:
         name: promociones
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3259,10 +3365,10 @@ endpoints:
     cleanBodyParameters:
       in_app: true
       email: true
-      sms: true
-      whatsapp: true
-      push: false
-      promociones: true
+      sms: false
+      whatsapp: false
+      push: true
+      promociones: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -3388,7 +3494,7 @@ endpoints:
         name: content_encoding
         description: ''
         required: false
-        example: aesgcm
+        example: aes128gcm
         type: string
         enumValues:
           - aesgcm
@@ -3401,7 +3507,7 @@ endpoints:
       keys:
         p256dh: architecto
         auth: architecto
-      content_encoding: aesgcm
+      content_encoding: aes128gcm
     fileParameters: []
     responses: []
     responseFields: []
@@ -3984,7 +4090,7 @@ endpoints:
         name: type
         description: ''
         required: true
-        example: ingresos
+        example: inventario
         type: string
         enumValues:
           - ingresos
@@ -3999,7 +4105,7 @@ endpoints:
         name: period
         description: ''
         required: true
-        example: semana
+        example: mes
         type: string
         enumValues:
           - dia
@@ -4016,7 +4122,7 @@ endpoints:
         name: dateFrom
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T16:39:12'
+        example: '2026-09-06T19:33:42'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4027,7 +4133,7 @@ endpoints:
         name: dateTo
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-06T16:39:12'
+        example: '2026-09-06T19:33:42'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4048,10 +4154,10 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      type: ingresos
-      period: semana
-      dateFrom: '2026-09-06T16:39:12'
-      dateTo: '2026-09-06T16:39:12'
+      type: inventario
+      period: mes
+      dateFrom: '2026-09-06T19:33:42'
+      dateTo: '2026-09-06T19:33:42'
       detail: muy-detallado
     fileParameters: []
     responses: []
@@ -5488,7 +5594,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5504,7 +5610,7 @@ endpoints:
       descripcion: architecto
       tipo: architecto
       activo: true
-      active: false
+      active: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -5595,7 +5701,7 @@ endpoints:
         name: tipo
         description: ''
         required: true
-        example: entrada
+        example: salida
         type: string
         enumValues:
           - entrada
@@ -5626,7 +5732,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      tipo: entrada
+      tipo: salida
       cantidad: 16
       motivo: architecto
     fileParameters: []

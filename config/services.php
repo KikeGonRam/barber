@@ -58,4 +58,14 @@ return [
         'subject' => env('VAPID_SUBJECT', 'mailto:soporte@urbanblade.mx'),
     ],
 
+    // Login social (auth-polish-plan): claves reales de un proyecto de Google
+    // Cloud Console -- vacías hasta que el dueño del proyecto las genere, ver
+    // .env.example para los pasos. Sin ellas, el botón "Continuar con Google"
+    // del frontend simplemente falla con un error claro, no rompe nada más.
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
+
 ];
