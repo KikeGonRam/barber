@@ -213,12 +213,68 @@ Twilio.
 Verificación: `.\test.ps1` x2 en verde (355/355 ambas veces), Larastan en
 frío limpio, Pint limpio (361 archivos).
 
-### Fase 6: pruebas E2E y producción
+### Fase 6: pruebas E2E y producción — ✅ DONE con un hallazgo abierto (2026-09-07, commit `2472a3b` en frontend-urban)
 
 - Añadir recorridos E2E críticos para login, Google, completar perfil, reserva y pago.
 - Verificar variables de Vercel/backend, CORS, storage, health checks y CI.
 
 Aceptación: flujo crítico probado en build de producción y ambos repositorios sincronizados.
+
+**Resultado de la auditoría:**
+
+1. **E2E (entregado)** — `frontend-urban` no tenía NINGUNA herramienta de
+   pruebas. Se agregó Playwright con 9 pruebas corriendo contra el build de
+   producción (`nuxt build` + `nuxt preview`), no contra `nuxt dev`: guard de
+   ruta protegida con `?redirect`, credenciales inválidas, login con perfil
+   completo, gate de perfil incompleto (login y registro), enlace de acceso
+   con Google, guard de invitado, y humo del bundle (landing sin errores de
+   consola + páginas legales). La API de barber se intercepta en el navegador
+   (`e2e/support/api-mock.ts`) — estas pruebas verifican el frontend, el
+   backend ya tiene sus 355 propias, y así el job de CI no necesita levantar
+   Laravel/Mongo/Redis.
+2. **Gate de perfil incompleto (gap real, corregido)** — `login()` y
+   `register()` mandaban siempre a `/dashboard` sin mirar `profile_complete`.
+   Como el registro por correo nunca pide teléfono ni fecha de nacimiento
+   (los dos datos que `User::profileCompletion()` exige a un cliente), esos
+   usuarios entraban con el perfil incompleto y nada volvía a pedírselo —
+   solo el callback de Google respetaba el gate. Los tres caminos ahora son
+   consistentes, con pruebas de regresión.
+3. **CORS — ya sólido** — `config/cors.php` (configurado el 2026-09-06)
+   verificado en vivo: `Access-Control-Allow-Origin` responde con el origen
+   permitido. Incluye patrón regex para los subdominios aleatorios de las
+   preview de Vercel, y `supports_credentials: false` (auth por Bearer, no
+   por cookie).
+4. **Storage — ya sólido** — symlink `public/storage` presente y el disco
+   `public` deriva su URL de `APP_URL`, así que avatares/comprobantes
+   resuelven a URLs absolutas que el frontend puede cargar cross-origin.
+5. **Health checks — ya sólidos** — `/up` (ruta de salud del framework,
+   registrada en `bootstrap/app.php`) responde 200; el diagnóstico detallado
+   `api/v1/admin/system/status` responde 401 sin autenticar (correcto: expone
+   latencias de Mongo/Redis y jobs fallidos, no debe ser público);
+   `docker-compose.yml` tiene healthcheck en app, worker, scheduler y ollama.
+6. **CI — ampliado** — `frontend-urban/.github/workflows/ci.yml` ahora tiene
+   un job `e2e` aparte (instala chromium, corre Playwright, sube el reporte
+   HTML como artefacto si falla). El CI de barber no cambió.
+
+**Hallazgo abierto — el cliente NO puede reservar desde el frontend Nuxt**:
+`POST /api/v1/appointments` sí permite el rol `cliente` (el controlador
+tiene una rama explícita: "El cliente reserva para sí mismo, creando su
+perfil Client si aún no existe"), pero en `frontend-urban` la creación de
+citas existe únicamente en `app/pages/appointments/index.vue`, protegida por
+`middleware: ['auth', 'staff']`. `app/pages/my/appointments/index.vue` (la
+página del cliente) solo permite **reagendar y cancelar** citas que ya
+existen. El CTA "Reservar" de la landing lleva a `/register`, y desde ahí el
+cliente no tiene ninguna ruta para agendar. Por eso **"reserva" y "pago" no
+tienen cobertura E2E**: la primera no existe todavía en el frontend, y la
+segunda depende de Stripe Elements dentro de un iframe (no probable de forma
+significativa con mocks). Construir esa pantalla es trabajo de producto, no
+de esta fase de verificación — queda señalado para que el dueño del proyecto
+decida, igual que la reversión de reembolsos de Fase 4.
+
+Verificación: 9/9 pruebas E2E en verde, también con `CI=1` (1 worker +
+reintentos); `eslint . --max-warnings=0` limpio; `npm audit
+--audit-level=high` limpio; `/up` 200 y CORS verificados contra el backend
+corriendo.
 
 ## Ciclo por fase
 
