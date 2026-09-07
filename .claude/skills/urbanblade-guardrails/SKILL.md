@@ -529,25 +529,26 @@ repeated in full here.
   (`AppointmentNotification`, Gmail SMTP daily send limit exceeded since mid-July) —
   needs an owner decision (switch provider, purge, etc.), not touched here.
 
-## 25. New scope (2026-09-06): bringing Nuxt's login/register/forgot/reset pages
-to parity with the Blade originals — plan lives in `frontend-urban`
+## 25. CLOSED (2026-09-06): Nuxt's login/register/forgot/reset pages, brought to
+parity with the Blade originals — plan/final report in `frontend-urban`
 
-Requested right after guardrail #24's plan closed. Full plan/architecture in
-`frontend-urban/.claude/skills/auth-pages-plan/SKILL.md` (not yet implemented as of
-this writing — planning stage). Worth knowing from here:
-- `frontend-urban` today has **only** a login page — no register, forgot-password, or
-  reset-password pages exist in Nuxt at all, and `useAuth.ts` has no functions for
-  them. The API (`AuthController::register()`/`forgotPassword()`/`resetPassword()`)
-  has supported all of this for a while; it was just never wired up from the new
-  frontend.
-- **Real gap found while researching this**: `Password::sendResetLink()` uses
-  Laravel's default `ResetPassword` notification, which links to the Blade web route
-  (`route('password.reset', ...)`) — not to the Nuxt frontend, regardless of where the
-  user requested the reset from. Fixing this (pointing the link at
-  `config('app.frontend_url')` instead, via `ResetPassword::createUrlUsing()` or a
-  custom notification) is part of this plan, not a pre-existing intentional choice —
-  don't assume the current behavior is correct if touched incidentally elsewhere.
-  `register()` already auto-verifies email at creation (`markEmailAsVerified()`), so
+Requested right after guardrail #24's plan closed, done same day. Full history in
+`frontend-urban/.claude/skills/auth-pages-plan/SKILL.md` (barber `e878695`,
+frontend-urban `7109586`). Worth knowing from here:
+- `frontend-urban` had **only** a login page before this — no register,
+  forgot-password, or reset-password pages existed in Nuxt at all, and `useAuth.ts`
+  had no functions for them, even though `AuthController::register()`/
+  `forgotPassword()`/`resetPassword()` had supported all of this in the API for a
+  while. All 3 now exist and are wired up.
+- **Real gap found and fixed**: `Password::sendResetLink()` used Laravel's default
+  `ResetPassword` notification, which linked to the Blade web route
+  (`route('password.reset', ...)`) — not the Nuxt frontend, regardless of where the
+  user requested the reset from. Fixed via `ResetPassword::createUrlUsing()` in
+  `AppServiceProvider::boot()`, pointing at `config('app.frontend_url')` instead.
+  Verified for real, not just by test: registered a client, requested a reset,
+  opened the actual email in Mailpit, and confirmed the link pointed to
+  `http://localhost:3000/reset-password?...`. `register()` already auto-verifies
+  email at creation (`markEmailAsVerified()`), so
   no email-verification screen needs porting to Nuxt.
 - Scope is deliberately login/register/forgot-password/reset-password only —
   `verify-email.blade.php` (6-digit code) and `confirm-password.blade.php` have no API
