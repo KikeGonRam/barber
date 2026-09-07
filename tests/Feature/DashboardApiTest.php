@@ -168,6 +168,39 @@ class DashboardApiTest extends TestCase
         ]);
     }
 
+    public function test_ingeniero_gets_the_module_dashboard_payload_without_client_pii(): void
+    {
+        $role = Role::where('name', 'ingeniero')->where('guard_name', 'web')->firstOrFail();
+        $user = User::create(['name' => 'Ingeniero API', 'email' => 'ingeniero-api-dash@test.local', 'password' => 'password']);
+        $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+
+        $token = 'test-plaintext-token-ingeniero-dashboard';
+        MobileApiToken::create([
+            'user_id' => (string) $user->id,
+            'name' => 'test',
+            'token_hash' => hash('sha256', $token),
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/dashboard');
+
+        $response->assertOk();
+        $response->assertJson(['role' => 'ingeniero']);
+        $response->assertJsonStructure([
+            'role',
+            'data' => [
+                'todayLabel', 'kpis', 'incomeChart', 'servicesChart', 'barberPerformance',
+                'clientTrends', 'chatbotTelemetry', 'insights', 'sparkHighlights',
+            ],
+        ]);
+        // ingeniero es de solo lectura y sin acceso a datos operativos de
+        // clientes (ver el docblock de ingenieroPayload()) -- a diferencia
+        // de administrador, este payload nunca debe traer las listas de
+        // citas con nombres de clientes.
+        $response->assertJsonMissingPath('data.todayAppointments');
+        $response->assertJsonMissingPath('data.recentAppointments');
+    }
+
     public function test_dashboard_endpoint_requires_a_token(): void
     {
         $response = $this->getJson('/api/v1/dashboard');

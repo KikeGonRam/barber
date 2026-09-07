@@ -66,6 +66,13 @@ class DashboardController extends Controller
             ]);
         }
 
+        if ($user->hasRole('ingeniero')) {
+            return response()->json([
+                'role' => 'ingeniero',
+                'data' => $this->ingenieroPayload(),
+            ]);
+        }
+
         return response()->json([
             'role' => 'guest',
             'data' => [],
@@ -303,6 +310,41 @@ class DashboardController extends Controller
                 'cliente' => $appt->client?->user?->name ?? 'Cliente',
                 'barberoInicial' => mb_strtoupper(mb_substr($appt->barber?->user?->name ?? 'B', 0, 1)),
             ])->values(),
+            'insights' => $this->analysisInsights(),
+            'sparkHighlights' => $this->analyticsInsightService
+                ->highlightsForDashboard($sparkInsights, 'administrador')
+                ->map(fn ($insight) => $insight->toDashboardCardArray())
+                ->values(),
+        ];
+    }
+
+    /**
+     * Dashboard de "comportamiento de cada módulo" para el rol ingeniero
+     * (solo lectura por diseño — ver guardrail #24 en
+     * urbanblade-guardrails). Reusa las mismas métricas agregadas que
+     * adminPayload() (mismo `adminMetrics()`/`analysisInsights()`, ya
+     * cacheados), pero A PROPÓSITO omite `todayAppointments`/
+     * `recentAppointments` — esas dos listas exponen nombres de clientes
+     * individuales, que es justo el tipo de dato operativo/PII que el
+     * dueño del proyecto pidió mantener fuera del alcance de este rol
+     * ("el dashboard de cada módulo de comportamiento", no una lista de
+     * citas con nombres). `barberPerformance`/`top_barber_name` sí se
+     * incluyen: son nombres de personal, no de clientes, y ya son
+     * visibles para ingeniero vía Reportes de todos modos.
+     */
+    private function ingenieroPayload(): array
+    {
+        $data = $this->dashboardService->adminMetrics();
+        $sparkInsights = $this->analyticsInsightService->forAdmin();
+
+        return [
+            'todayLabel' => now()->translatedFormat('l d \\d\\e F, Y'),
+            'kpis' => $data['kpis'],
+            'incomeChart' => $data['income_chart'],
+            'servicesChart' => $data['services_chart'],
+            'barberPerformance' => $data['barber_performance'],
+            'clientTrends' => $data['client_trends'],
+            'chatbotTelemetry' => $data['chatbot_telemetry'] ?? [],
             'insights' => $this->analysisInsights(),
             'sparkHighlights' => $this->analyticsInsightService
                 ->highlightsForDashboard($sparkInsights, 'administrador')
