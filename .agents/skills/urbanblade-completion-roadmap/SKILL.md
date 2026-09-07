@@ -158,12 +158,60 @@ proyecto decida antes de implementarlo.
 Verificación: `.\test.ps1` x2 en verde (351/351 ambas veces), Larastan en
 frío limpio, Pint limpio (360 archivos).
 
-### Fase 5: notificaciones y operación
+### Fase 5: notificaciones y operación — ✅ DONE (2026-09-07, commit `f16314e`)
 
 - Revisar email, push, colas, reintentos, cumpleaños, citas, stock, pagos y logs.
 - Añadir observabilidad accionable sin PII innecesaria.
 
 Aceptación: fallos quedan registrados, reintentan según política y no rompen la petición principal.
+
+**Resultado de la auditoría (7 áreas revisadas):**
+
+1. **SMS/WhatsApp via Twilio (gap real, corregido)** — `MessagingService::
+   sendSms()`/`sendWhatsapp()` nunca revisaban la respuesta HTTP de Twilio.
+   Un 4xx/5xx (numero invalido, credenciales rechazadas, rate limit) era
+   invisible por completo: sin log, sin excepcion, sin evento a Sentry.
+   Hallazgo mas claro de "se pierde en silencio" de toda la auditoria — este
+   canal alimenta directamente los recordatorios de citas. Corregido:
+   `Log::warning` con status/body cuando `$response->failed()`.
+2. **Push web (gap real, corregido)** — `WebPushService::sendToUser()` solo
+   manejaba 2 de 3 desenlaces posibles de un envio fallido: excepcion
+   (logueada+podada) y suscripcion vencida (podada). Un fallo de envio
+   genuino que no es ninguna de las dos (5xx del servicio push, payload
+   rechazado) caia sin ningun rastro. Corregido con `Log::warning`.
+3. **Seis `catch (\Throwable) {}` vacios alrededor de notify() (gap real,
+   corregido)** — `SendBirthdayGreetingsCommand`, `CancelExpiredOrdersCommand`,
+   `NotifyServiceOverrunCommand`, `LoyaltyService` (x3: puntos vencidos, baja
+   de nivel, subida de nivel) tragaban fallos de notificacion sin dejar
+   rastro, inconsistente con el patron ya correcto en
+   `SendAppointmentRemindersCommand` (`Log::warning` con contexto). Aplicado
+   el mismo patron a los seis sitios.
+4. **Campañas sin aislamiento por item (gap real, corregido)** —
+   `DispatchDueCampaignsCommand` no tenia try/catch alrededor del loop de
+   despacho: una campaña con datos raros abortaba el comando completo,
+   dejando sin enviar cualquier otra campaña vencida en ese ciclo (visible
+   via Sentry/monitor, pero no aislado como los demas comandos batch).
+   Corregido con try/catch por campaña + `Log::warning`.
+5. **Webhook de Stripe — ya sólido** — si algo truena a mitad del
+   procesamiento (falla de escritura en BD), la excepcion no capturada
+   produce un 500 real (no el 200 esperado), asi que el reintento propio de
+   Stripe se activa correctamente — no hay riesgo de "aceptado en silencio".
+6. **ScheduledTaskMonitor/SystemController — ya sólido** — mecanismo real,
+   probado end-to-end, conectado de verdad a los 12 comandos programados
+   reales (no una lista paralela decorativa). Expuesto en `/status`.
+7. **Cola Redis + failed_jobs sobre Mongo — arquitectura sólida, sin cobertura
+   de pruebas propia** — el driver `database-uuids` de Laravel usa solo la
+   API generica del query builder, compatible con `mongodb/laravel-mongodb`;
+   no se encontró ninguna prueba que lo ejercite directamente, pero
+   `SystemController` ya expone el conteo de jobs fallidos. Prioridad baja,
+   no corregido en esta fase.
+
+Se agregó `tests/Feature/MessagingServiceTest.php` (no existía ninguna
+prueba de `MessagingService` antes) cubriendo el nuevo logging de fallos de
+Twilio.
+
+Verificación: `.\test.ps1` x2 en verde (355/355 ambas veces), Larastan en
+frío limpio, Pint limpio (361 archivos).
 
 ### Fase 6: pruebas E2E y producción
 
