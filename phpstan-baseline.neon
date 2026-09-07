@@ -397,6 +397,12 @@ parameters:
 			path: app/Http/Controllers/Api/Auth/AuthController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$avatar_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Auth/SocialAuthController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 2
@@ -961,6 +967,18 @@ parameters:
 			path: app/Http/Controllers/Api/Profile/ProfileController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$avatar_url\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Profile/ProfileController.php
+
+		-
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/Profile/ProfileController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$barberProfile\.$#'
 			identifier: property.notFound
 			count: 2
@@ -1019,6 +1037,24 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: tests/Feature/SocialApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$avatar_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/SocialAuthApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\User\>\:\:\$avatar_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/SocialAuthApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$avatar_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/ProfileApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\User\:\:\$verification_code\.$#'
@@ -1295,6 +1331,18 @@ parameters:
 			identifier: method.notFound
 			count: 2
 			path: app/Http/Resources/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\UserResource\:\:\$avatar_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/UserResource.php
+
+		-
+			message: '#^Call to an undefined method App\\Http\\Resources\\UserResource\:\:profileCompletion\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Resources/UserResource.php
 
 		-
 			message: '#^Access to an undefined property App\\Http\\Resources\\UserResource\:\:\$barberProfile\.$#'

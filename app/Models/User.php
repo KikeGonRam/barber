@@ -271,7 +271,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $roleIds = collect($roles)
             ->flatten()
-            ->map(function (mixed $role): ?string {
+            ->map(function (mixed $role): string {
                 if ($role instanceof BackedEnum) {
                     $role = $role->value;
                 }
