@@ -65,11 +65,13 @@ class SocialAuthController extends Controller
         }
 
         $user = User::where('email', $googleUser->getEmail())->first();
+        $avatarUrl = $googleUser->getAvatar();
 
         if (! $user) {
             $user = User::create([
                 'name' => $googleUser->getName() ?: $googleUser->getNickname() ?: 'Cliente Google',
                 'email' => $googleUser->getEmail(),
+                'avatar_url' => $avatarUrl,
                 // Contraseña aleatoria: este usuario solo entra por Google, pero
                 // el campo es NOT NULL -- nunca se le comunica ni se usa para login normal.
                 'password' => Hash::make(Str::random(40)),
@@ -77,13 +79,15 @@ class SocialAuthController extends Controller
             $user->markEmailAsVerified();
 
             $role = Role::firstOrCreate(['name' => 'cliente', 'guard_name' => 'web']);
-            $user->assignRole($role);
+            $user->syncRoles([$role]);
 
             Client::firstOrCreate(['user_id' => $user->id], [
                 'preferencias_notificacion' => ['in_app' => true, 'email' => true, 'sms' => false, 'whatsapp' => false],
             ]);
 
             event(new Registered($user));
+        } elseif (! $user->avatar_url && $avatarUrl) {
+            $user->forceFill(['avatar_url' => $avatarUrl])->save();
         }
 
         $issued = $user->issueMobileApiToken('Google OAuth');

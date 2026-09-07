@@ -128,6 +128,11 @@ class UserApiTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonPath('data.roles.0', 'recepcionista');
+
+        $persisted = User::find($target->id);
+        $this->assertNotNull($persisted);
+        $this->assertTrue($persisted->hasRoleName('recepcionista'));
+        $this->assertFalse($persisted->hasRoleName('cliente'));
     }
 
     public function test_admin_cannot_delete_their_own_account(): void

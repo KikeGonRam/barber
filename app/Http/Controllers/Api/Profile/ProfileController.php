@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Barber\UpdateBarberProfileRequest;
+use App\Http\Resources\UserResource;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarberReview;
+use App\Models\Client;
 use App\Models\Work;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -49,11 +52,18 @@ class ProfileController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'avatar_url' => $user->avatar_url,
                 'email_verified_at' => $user->email_verified_at,
                 'created_at' => $user->created_at,
                 'roles' => $user->roleNames()->values(),
+                'profile_complete' => $user->profileCompletion()['complete'],
+                'profile_missing' => $user->profileCompletion()['missing'],
                 'client_id' => $user->clientProfile?->id,
                 'barber_id' => $user->barberProfile?->id,
+                'client' => $user->clientProfile ? [
+                    'telefono' => $user->clientProfile->telefono,
+                    'fecha_nacimiento' => $user->clientProfile->fecha_nacimiento?->format('Y-m-d'),
+                ] : null,
             ],
         ]);
     }
@@ -78,13 +88,27 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'max:255', 'unique:users,email,'.$user->id],
+            'telefono' => ['sometimes', 'nullable', 'string', 'max:30'],
+            'fecha_nacimiento' => ['sometimes', 'nullable', 'date', 'before:today'],
         ]);
 
-        $user->update($validated);
+        $userPayload = array_intersect_key($validated, array_flip(['name', 'email']));
+        $clientPayload = array_intersect_key($validated, array_flip(['telefono', 'fecha_nacimiento']));
+
+        DB::transaction(function () use ($user, $userPayload, $clientPayload): void {
+            if ($userPayload !== []) {
+                $user->update($userPayload);
+            }
+
+            if ($clientPayload !== [] && $user->hasRoleName('cliente')) {
+                $client = $user->clientProfile ?? Client::create(['user_id' => (string) $user->id]);
+                $client->update($clientPayload);
+            }
+        });
 
         return response()->json([
             'message' => 'Perfil actualizado exitosamente',
-            'user' => $user->fresh(),
+            'user' => new UserResource($user->fresh()),
         ]);
     }
 

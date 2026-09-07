@@ -32,6 +32,7 @@ class SocialAuthApiTest extends TestCase
         $user->id = 'google-'.md5($email);
         $user->email = $email;
         $user->name = $name;
+        $user->avatar = 'https://lh3.googleusercontent.com/a/test-avatar';
 
         return $user;
     }
@@ -68,7 +69,9 @@ class SocialAuthApiTest extends TestCase
 
         $user = User::where('email', 'nuevo-via-google@test.local')->firstOrFail();
         $this->assertNotNull($user->email_verified_at);
+        $this->assertSame('https://lh3.googleusercontent.com/a/test-avatar', $user->avatar_url);
         $this->assertTrue($user->hasRole('cliente'));
+        $this->assertFalse($user->profileCompletion()['complete']);
         $this->assertNotNull(Client::where('user_id', (string) $user->id)->first());
     }
 

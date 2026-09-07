@@ -45,6 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'email_verified_at',
         'expo_push_token',
+        'avatar_url',
         'notification_preferences',
         'verification_code',
         'verification_code_expires_at',
@@ -240,6 +241,60 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasRoleName(string $name): bool
     {
         return $this->roleNames()->contains($name);
+    }
+
+    public function profileCompletion(): array
+    {
+        if (! $this->hasRoleName('cliente')) {
+            return ['complete' => true, 'missing' => []];
+        }
+
+        $client = $this->clientProfile;
+        $missing = [];
+
+        if (! filled($client?->telefono)) {
+            $missing[] = 'telefono';
+        }
+
+        if (! $client?->fecha_nacimiento) {
+            $missing[] = 'fecha_nacimiento';
+        }
+
+        return ['complete' => $missing === [], 'missing' => $missing];
+    }
+
+    /**
+     * Sincroniza los roles en el campo role_id, que es la fuente de verdad en MongoDB.
+     * La implementación de HasRoles escribe en la tabla pivote SQL de Spatie.
+     */
+    public function syncRoles(...$roles): static
+    {
+        $roleIds = collect($roles)
+            ->flatten()
+            ->map(function (mixed $role): ?string {
+                if ($role instanceof BackedEnum) {
+                    $role = $role->value;
+                }
+
+                if ($role instanceof RoleContract) {
+                    return (string) $role->getKey();
+                }
+
+                if (is_int($role) || (is_string($role) && PermissionRegistrar::isUid($role))) {
+                    return (string) $role;
+                }
+
+                return (string) Role::findByName((string) $role)->getKey();
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $this->forceFill(['role_id' => $roleIds])->save();
+        $this->unsetRelation('roles');
+
+        return $this;
     }
 
     /**
