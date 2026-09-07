@@ -40,6 +40,9 @@ class AuthApiTest extends TestCase
 
         $response->assertCreated();
         $response->assertJsonStructure(['message', 'token_type', 'token', 'user']);
+        $this->assertIsString($response->json('user.id'));
+        $this->assertIsString($response->json('user.client_id'));
+        $this->assertNull($response->json('user.barber_id'));
 
         $user = User::where('email', 'nuevo-cliente-register@test.local')->firstOrFail();
         $this->assertNotNull($user->email_verified_at);
