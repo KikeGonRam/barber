@@ -45,12 +45,56 @@ Aceptación: todos los endpoints consumidos tienen respuesta documentada, errore
 
 Aceptación: matrices de rol cubiertas por pruebas y sin acceso cruzado entre usuarios.
 
-### Fase 3: citas y disponibilidad
+### Fase 3: citas y disponibilidad — ✅ DONE (2026-09-07, commit `f1bcb46`)
 
 - Auditar conflictos, zona horaria, estados, cancelaciones, reprogramaciones, recordatorios y calendario.
 - Cubrir carreras y límites de negocio con pruebas de integración.
 
 Aceptación: ningún flujo permite doble reserva o transición inválida.
+
+**Resultado de la auditoría (6 áreas revisadas, ver el prompt original del
+subagente de exploración para el detalle completo con líneas exactas):**
+
+1. **Doble reserva (race real, corregido)** — `ensureNoOverlap()` era un
+   check-then-create de aplicación sin ninguna garantía de base de datos.
+   Índice único parcial nuevo (`barber_id, fecha, hora_inicio` sobre citas
+   activas) lo cierra a nivel de Mongo. No cubre el caso más raro de dos
+   servicios de duración distinta que se solapan sin compartir el mismo
+   `hora_inicio` exacto (eso requeriría serializar escrituras por barbero) —
+   aceptado como residual, documentado en la migración.
+2. **Zona horaria (gap latente, NO corregido a propósito)** — todo el
+   backend asume `America/Mexico_City` (config/app.php), sin concepto de
+   timezone por cliente. Hoy no es explotable porque nada envía un timezone
+   propio; sería relevante si la futura app Android (o cualquier cliente en
+   otra zona) empezara a mandar su hora local sin ajustar. No se tocó en
+   esta fase — el fix correcto depende de decidir el contrato con esa app,
+   fuera de alcance de un cambio aditivo silencioso.
+3. **Transiciones de estado (gap real, corregido)** — el PUT de edición
+   completa dejaba a admin/recepción saltarse la máquina de estados
+   (`completada -> pendiente` sin bloqueo). Ahora valida contra
+   `AppointmentStatusService::canTransition()`.
+4. **Cancelación/reprogramación** — cancelar libera el slot correctamente
+   (ya filtraba `cancelada`/`no_asistio`). Reprogramar sí revalida
+   conflictos (comparte el fix #1). Nuevo: reprogramar ahora resetea los
+   recordatorios ya enviados si la fecha/hora realmente cambia (antes
+   quedaban huérfanos, ver #5 abajo).
+5. **Recordatorios (gap real, corregido)** — reprogramar una cita que ya
+   tenía su recordatorio de 24h/2h enviado nunca reseteaba esos timestamps,
+   así que el comando programado la saltaba para siempre en el nuevo
+   horario. Corregido comparando contra el valor persistido, no solo "vino
+   en el payload".
+6. **Calendario/disponibilidad (frontend)** — `AvailabilityController::
+   slots()` existe en el backend pero **frontend-urban no lo consume
+   todavía**: los formularios de citas (staff y cliente) son un
+   `<input type="date">`/`<input type="time">` plano, sin selector de
+   horarios disponibles. No es un bug de esta fase (nada se rompió), pero
+   es la razón por la que el hallazgo #1 (índice único) es la protección
+   real hoy — si se construye un selector de slots más adelante, debe
+   asumir que el slot puede dejar de estar disponible entre que se listó y
+   que se envió el submit (el backend ya lo maneja con un 422 claro).
+
+Verificación: `.\test.ps1` x2 en verde (348/348 ambas veces), Larastan en
+frío limpio, Pint limpio.
 
 ### Fase 4: pagos, pedidos e inventario
 
