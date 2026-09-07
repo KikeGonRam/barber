@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Tests\TestCase;
@@ -59,6 +60,7 @@ class SocialAuthApiTest extends TestCase
 
     public function test_callback_creates_a_new_cliente_user_and_redirects_with_a_token(): void
     {
+        Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
         Socialite::fake('google', $this->fakeGoogleUser('nuevo-via-google@test.local', 'Nuevo Via Google'));
 
         $response = $this->get('/api/v1/auth/google/callback');
@@ -69,7 +71,7 @@ class SocialAuthApiTest extends TestCase
 
         $user = User::where('email', 'nuevo-via-google@test.local')->firstOrFail();
         $this->assertNotNull($user->email_verified_at);
-        $this->assertSame('https://lh3.googleusercontent.com/a/test-avatar', $user->avatar_url);
+        $this->assertStringContainsString('/storage/avatars/'.(string) $user->id.'/', $user->avatar_url);
         $this->assertTrue($user->hasRole('cliente'));
         $this->assertFalse($user->profileCompletion()['complete']);
         $this->assertNotNull(Client::where('user_id', (string) $user->id)->first());
@@ -77,6 +79,7 @@ class SocialAuthApiTest extends TestCase
 
     public function test_callback_logs_in_an_existing_user_without_duplicating_it(): void
     {
+        Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
         $role = Role::firstOrCreate(['name' => 'cliente', 'guard_name' => 'web']);
         $existing = User::create(['name' => 'Ya Existe', 'email' => 'ya-existe-google@test.local', 'password' => 'password']);
         $existing->assignRole($role);
@@ -87,6 +90,21 @@ class SocialAuthApiTest extends TestCase
 
         $response->assertRedirect();
         $this->assertSame(1, User::where('email', 'ya-existe-google@test.local')->count());
+    }
+
+    public function test_callback_imports_google_avatar_for_existing_admin(): void
+    {
+        Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
+        $role = Role::firstOrCreate(['name' => 'administrador', 'guard_name' => 'web']);
+        $admin = User::create(['name' => 'Admin Google', 'email' => 'admin-google@test.local', 'password' => 'password']);
+        $admin->syncRoles([$role]);
+
+        Socialite::fake('google', $this->fakeGoogleUser('admin-google@test.local', 'Admin Google'));
+
+        $response = $this->get('/api/v1/auth/google/callback');
+
+        $response->assertRedirect();
+        $this->assertStringContainsString('/storage/avatars/'.(string) $admin->id.'/', User::find($admin->id)->avatar_url);
     }
 
     public function test_callback_redirects_to_login_with_an_error_when_google_fails(): void

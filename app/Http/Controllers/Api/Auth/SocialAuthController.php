@@ -9,7 +9,9 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
@@ -71,7 +73,6 @@ class SocialAuthController extends Controller
             $user = User::create([
                 'name' => $googleUser->getName() ?: $googleUser->getNickname() ?: 'Cliente Google',
                 'email' => $googleUser->getEmail(),
-                'avatar_url' => $avatarUrl,
                 // Contraseña aleatoria: este usuario solo entra por Google, pero
                 // el campo es NOT NULL -- nunca se le comunica ni se usa para login normal.
                 'password' => Hash::make(Str::random(40)),
@@ -86,12 +87,65 @@ class SocialAuthController extends Controller
             ]);
 
             event(new Registered($user));
-        } elseif (! $user->avatar_url && $avatarUrl) {
-            $user->forceFill(['avatar_url' => $avatarUrl])->save();
+        }
+
+        if (! $user->avatar_url || $this->isGoogleAvatarUrl($user->avatar_url)) {
+            $importedAvatar = $this->importGoogleAvatar($user, $avatarUrl);
+
+            if ($importedAvatar) {
+                $user->forceFill(['avatar_url' => $importedAvatar])->save();
+            }
         }
 
         $issued = $user->issueMobileApiToken('Google OAuth');
 
         return redirect("{$frontendUrl}/auth/callback?token={$issued['token']}");
+    }
+
+    private function importGoogleAvatar(User $user, ?string $avatarUrl): ?string
+    {
+        if (! $avatarUrl || ! $this->isGoogleAvatarUrl($avatarUrl)) {
+            return null;
+        }
+
+        try {
+            $response = Http::timeout(10)->accept('image/*')->get($avatarUrl);
+
+            if (! $response->successful()) {
+                return $avatarUrl;
+            }
+
+            $contentType = strtolower((string) $response->header('Content-Type'));
+            $extension = match (true) {
+                str_contains($contentType, 'image/png') => 'png',
+                str_contains($contentType, 'image/webp') => 'webp',
+                str_contains($contentType, 'image/gif') => 'gif',
+                str_contains($contentType, 'image/jpeg') => 'jpg',
+                default => null,
+            };
+            $contents = $response->body();
+
+            if (! $extension || $contents === '' || strlen($contents) > 5 * 1024 * 1024) {
+                return $avatarUrl;
+            }
+
+            $path = 'avatars/'.(string) $user->id.'/'.Str::uuid().'.'.$extension;
+            Storage::disk('public')->put($path, $contents);
+
+            return Storage::disk('public')->url($path);
+        } catch (Throwable $exception) {
+            Log::notice('No se pudo importar la foto de Google; se conserva su URL.', [
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $avatarUrl;
+        }
+    }
+
+    private function isGoogleAvatarUrl(?string $avatarUrl): bool
+    {
+        $host = strtolower((string) parse_url($avatarUrl ?? '', PHP_URL_HOST));
+
+        return $host === 'googleusercontent.com' || str_ends_with($host, '.googleusercontent.com');
     }
 }
