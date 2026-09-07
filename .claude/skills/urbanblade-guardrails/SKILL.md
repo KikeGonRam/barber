@@ -643,3 +643,31 @@ Nuxt más un puñado de páginas públicas/de cuenta que Nuxt todavía no
 construye — ya no un panel administrativo completo. No hay fases de
 migración pendientes; lo que sigue en Blade (guardrail #19) es una lista
 cerrada, no un backlog.
+
+## 20. CLOSED (2026-09-06): `auth-polish-plan` — login social con Google, medidor de fuerza, transiciones, rate-limit visible
+
+Plan completo en `frontend-urban/.claude/skills/auth-polish-plan/SKILL.md`
+(commits: barber `99af874`, frontend-urban `729b066`/`99e9e85`). Cuatro
+mejoras pedidas tras cerrar `auth-pages-plan`, las cuatro ✅ DONE, CI verde en
+ambos repos. Lo único que vale la pena saber desde este lado (`barber`):
+
+- **`laravel/socialite` (^5.31) instalado** para el login con Google
+  (`app/Http/Controllers/Api/Auth/SocialAuthController.php`, rutas
+  `GET auth/google/redirect`/`.../callback` en `routes/api.php`,
+  `throttle:10,1`). Esto forzó un **downgrade de `guzzlehttp/guzzle` de
+  8.1.0 a 7.15.5** vía `composer require laravel/socialite -W` — ningún
+  release de Socialite soporta Guzzle 8 todavía. Verificado seguro:
+  `composer audit` limpio, suite completa (338 tests, incluyendo los
+  webhooks de Stripe) pasando después. Si en el futuro se intenta subir
+  Guzzle de nuevo a 8.x, esto volverá a bloquear — revisar si ya existe un
+  release de Socialite compatible antes de forzarlo.
+- **`callback()` asigna rol `cliente` siempre**, nunca algo elegible por el
+  propio flujo de OAuth — mismo criterio que `AuthController::register()`
+  (ver guardrail #13, mismo principio de no confiar en el cliente).
+- **Sin `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` reales, el login con
+  Google no funciona** (responde 503 a propósito, no rompe) — el dueño del
+  proyecto todavía no ha generado esas credenciales en Google Cloud
+  Console. `.env.example` tiene los pasos comentados; no hay valores reales
+  en ningún `.env`, tal como pide guardrail #7.
+- No hay cambios de esquema ni de rutas existentes — todo aditivo, dos rutas
+  nuevas, coherente con guardrail #11.
