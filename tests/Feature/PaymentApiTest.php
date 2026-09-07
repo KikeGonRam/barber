@@ -88,6 +88,15 @@ class PaymentApiTest extends TestCase
             'fecha' => now()->toDateString(), 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00', 'estado' => 'completada',
         ]);
 
+        // Segunda cita distinta para el segundo pago: el indice unico parcial
+        // de Fase 4 (payments_active_appointment_unique) ahora impide dos
+        // pagos activos (no rechazados) sobre la MISMA cita a nivel de base
+        // de datos -- ver Payment::booted()/la migracion del indice.
+        $appointmentB = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->toDateString(), 'hora_inicio' => '11:00:00', 'hora_fin' => '11:30:00', 'estado' => 'completada',
+        ]);
+
         Payment::create([
             'appointment_id' => (string) $appointment->id,
             'monto' => 150, 'metodo_pago' => 'efectivo', 'propina' => 20,
@@ -95,7 +104,7 @@ class PaymentApiTest extends TestCase
         ]);
 
         Payment::create([
-            'appointment_id' => (string) $appointment->id,
+            'appointment_id' => (string) $appointmentB->id,
             'monto' => 100, 'metodo_pago' => 'transferencia', 'propina' => 0,
             'created_by' => (string) $user->id, 'estado' => Payment::ESTADO_PENDIENTE_VERIFICACION,
             'comprobante_cliente' => 'comprobantes-transferencia/test.jpg',

@@ -143,6 +143,33 @@ class OrderServiceIntegrationTest extends TestCase
         }
     }
 
+    public function test_place_rolls_back_all_stock_decrements_when_a_later_line_fails(): void
+    {
+        // El chequeo de stock del paso 1 es una lectura simple por línea, no
+        // atómica ni acumulativa entre líneas -- dos líneas del MISMO
+        // producto pueden pasar esa validación individualmente (cada una ve
+        // el stock_actual sin descontar todavía) pero juntas exceder el
+        // stock real, exactamente lo que pasaría también si otro pedido
+        // concurrente descontara stock entre el chequeo y el descuento real.
+        // place() debe envolver todo en una sola transacción: si la segunda
+        // línea falla, la primera línea (ya descontada de verdad) tiene que
+        // revertirse también, no quedar huérfana sin ningún Order.
+        $client = $this->makeClient();
+        $product = $this->makeProduct(['nombre' => 'Cera', 'stock_actual' => 5]);
+
+        try {
+            $this->service->place($client, [
+                ['product_id' => (string) $product->id, 'nombre' => 'Cera', 'precio' => 100, 'cantidad' => 3],
+                ['product_id' => (string) $product->id, 'nombre' => 'Cera', 'precio' => 100, 'cantidad' => 3],
+            ]);
+            $this->fail('Se esperaba InsufficientStockException.');
+        } catch (InsufficientStockException) {
+            $this->assertSame(5, Product::find($product->id)->stock_actual);
+            $this->assertSame(0, Order::query()->count());
+            $this->assertSame(0, InventoryMovement::query()->count());
+        }
+    }
+
     public function test_place_ignores_lines_with_zero_quantity_but_keeps_valid_ones(): void
     {
         $client = $this->makeClient();

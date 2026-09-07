@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Order;
 use App\Models\Product;
 use App\Services\Inventory\InventoryService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -40,7 +41,12 @@ class OrderService
 
         // 1) Validar stock de todos los productos antes de descontar, y
         // capturar el precio real y vigente de cada uno (fuente de verdad
-        // unica, sin importar que precio haya mandado el llamador).
+        // unica, sin importar que precio haya mandado el llamador). Esta
+        // lectura es solo un chequeo rapido/mensaje amigable -- la garantia
+        // real contra sobreventa es el decrement condicional atomico dentro
+        // de InventoryService::registerMovement(), no esta lectura (que
+        // puede quedar obsoleta si otro pedido concurrente descuenta stock
+        // entre este chequeo y el paso 2).
         $products = [];
         foreach ($items as $it) {
             $product = Product::find($it['product_id']);
@@ -53,48 +59,56 @@ class OrderService
             $products[(string) $it['product_id']] = $product;
         }
 
-        // 2) Descontar stock (cada movimiento es atomico y deja trazabilidad).
-        $userId = (string) ($client->user_id ?? '');
-        $motivo = $tipo === 'cita' ? 'Productos de cita' : 'Pedido de tienda';
-        $lines = [];
-        $total = 0.0;
+        // 2)+3) Descontar stock y crear el pedido dentro de una sola
+        // transaccion: si una linea falla a mitad del pedido (p.ej. porque
+        // el chequeo del paso 1 quedo obsoleto por un pedido concurrente),
+        // esto revierte TODO -- los movimientos de inventario ya
+        // registrados en lineas anteriores incluidos -- en vez de dejar
+        // stock permanentemente descontado sin ningun Order que lo
+        // respalde (el gap real que motivo este cambio, ver auditoria de
+        // Fase 4).
+        return DB::transaction(function () use ($items, $products, $client, $tipo, $appointmentId) {
+            $userId = (string) ($client->user_id ?? '');
+            $motivo = $tipo === 'cita' ? 'Productos de cita' : 'Pedido de tienda';
+            $lines = [];
+            $total = 0.0;
 
-        foreach ($items as $it) {
-            $product = $products[(string) $it['product_id']];
-            $qty = (int) $it['cantidad'];
-            $precio = (float) $product->precio_venta;
-            $subtotal = $precio * $qty;
+            foreach ($items as $it) {
+                $product = $products[(string) $it['product_id']];
+                $qty = (int) $it['cantidad'];
+                $precio = (float) $product->precio_venta;
+                $subtotal = $precio * $qty;
 
-            // Descuenta stock por cada linea: efecto secundario que persiste
-            // un movimiento de inventario (salida) con trazabilidad.
-            $this->inventory->registerMovement([
-                'product_id' => $it['product_id'],
-                'cantidad' => $qty,
-                'tipo' => 'salida',
-                'motivo' => $motivo,
+                // Descuenta stock por cada linea: efecto secundario que persiste
+                // un movimiento de inventario (salida) con trazabilidad.
+                $this->inventory->registerMovement([
+                    'product_id' => $it['product_id'],
+                    'cantidad' => $qty,
+                    'tipo' => 'salida',
+                    'motivo' => $motivo,
+                    'appointment_id' => $appointmentId,
+                ], $userId);
+
+                $lines[] = [
+                    'product_id' => (string) $it['product_id'],
+                    'nombre' => (string) $product->nombre,
+                    'precio' => $precio,
+                    'cantidad' => $qty,
+                    'subtotal' => $subtotal,
+                ];
+                $total += $subtotal;
+            }
+
+            return Order::create([
+                'client_id' => (string) $client->id,
+                'folio' => 'P-'.strtoupper(Str::random(6)),
+                'items' => $lines,
+                'total' => $total,
+                'estado' => 'pendiente',
+                'tipo' => $tipo,
                 'appointment_id' => $appointmentId,
-            ], $userId);
-
-            $lines[] = [
-                'product_id' => (string) $it['product_id'],
-                'nombre' => (string) $product->nombre,
-                'precio' => $precio,
-                'cantidad' => $qty,
-                'subtotal' => $subtotal,
-            ];
-            $total += $subtotal;
-        }
-
-        // 3) Crear el pedido.
-        return Order::create([
-            'client_id' => (string) $client->id,
-            'folio' => 'P-'.strtoupper(Str::random(6)),
-            'items' => $lines,
-            'total' => $total,
-            'estado' => 'pendiente',
-            'tipo' => $tipo,
-            'appointment_id' => $appointmentId,
-        ]);
+            ]);
+        });
     }
 
     /**

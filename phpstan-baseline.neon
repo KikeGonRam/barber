@@ -1519,6 +1519,18 @@ parameters:
 			path: app/Models/Payment.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$bloquea_cita\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Payment.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Payment.php
+
+		-
 			message: '#^Interface Spatie\\Permission\\Contracts\\Permission requires implementing class to extend Spatie\\Permission\\Models\\Permission, but App\\Models\\Permission does not\.$#'
 			identifier: class.missingExtends
 			count: 1

@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use MongoDB\Driver\Exception\BulkWriteException;
 use Tests\TestCase;
 
 /**
@@ -473,5 +474,51 @@ class PaymentServiceIntegrationTest extends TestCase
         $second = $this->service->uploadTransferReceipt($appointment, $this->fakeReceipt('b.jpg'), (string) Str::uuid());
 
         $this->assertSame(Payment::ESTADO_PENDIENTE_VERIFICACION, $second->estado);
+    }
+
+    public function test_payments_collection_rejects_a_duplicate_active_payment_at_the_database_level(): void
+    {
+        // Respaldo real del índice único parcial (appointment_id, solo
+        // pagos no rechazados): existsForAppointment() es un check-then-
+        // create de aplicación, no atómico -- incluso si dos requests
+        // concurrentes se lo saltaran (p.ej. un reintento de webhook de
+        // Stripe cruzando un doble-click de "cobrar"), la base de datos
+        // debe rechazar el duplicado. Mismo criterio que el test homólogo
+        // de citas en AppointmentServiceIntegrationTest: el job de PHPUnit
+        // en CI no migra primero, así que el test aplica su propia
+        // migración.
+        $this->artisan('migrate', [
+            '--path' => 'database/migrations/2026_09_07_000001_add_payment_appointment_unique_index.php',
+            '--force' => true,
+        ]);
+
+        $appointment = $this->makeChargeableAppointment();
+
+        Payment::create(['appointment_id' => (string) $appointment->id, 'monto' => 300, 'metodo_pago' => 'efectivo', 'estado' => Payment::ESTADO_VERIFICADO]);
+
+        $this->expectException(BulkWriteException::class);
+
+        Payment::create(['appointment_id' => (string) $appointment->id, 'monto' => 300, 'metodo_pago' => 'tarjeta', 'estado' => Payment::ESTADO_VERIFICADO]);
+    }
+
+    public function test_payment_unique_index_ignores_rejected_payments(): void
+    {
+        // El índice es parcial (excluye 'rechazado' a propósito): un
+        // comprobante rechazado debe liberar la cita de verdad a nivel de
+        // base de datos, no solo para el chequeo de aplicación -- mismo
+        // caso que test_a_rejected_transfer_does_not_block_uploading_a_new_receipt
+        // pero probado directo contra el índice, sin pasar por el servicio.
+        $this->artisan('migrate', [
+            '--path' => 'database/migrations/2026_09_07_000001_add_payment_appointment_unique_index.php',
+            '--force' => true,
+        ]);
+
+        $appointment = $this->makeChargeableAppointment();
+
+        Payment::create(['appointment_id' => (string) $appointment->id, 'monto' => 300, 'metodo_pago' => 'transferencia', 'estado' => Payment::ESTADO_RECHAZADO]);
+
+        $second = Payment::create(['appointment_id' => (string) $appointment->id, 'monto' => 300, 'metodo_pago' => 'efectivo', 'estado' => Payment::ESTADO_VERIFICADO]);
+
+        $this->assertInstanceOf(Payment::class, $second);
     }
 }

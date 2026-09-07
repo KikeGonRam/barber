@@ -40,6 +40,7 @@ class Payment extends Model
         'puntos_canjeados',
         'stripe_payment_id',
         'raffle_result_id',
+        'bloquea_cita',
     ];
 
     protected function casts(): array
@@ -51,6 +52,7 @@ class Payment extends Model
             'revisado_en' => 'datetime',
             'monto_total' => 'decimal:2',
             'puntos_canjeados' => 'integer',
+            'bloquea_cita' => 'boolean',
         ];
     }
 
@@ -68,6 +70,16 @@ class Payment extends Model
         // campo derivado que no existe en el documento.
         static::saving(function (self $payment): void {
             $payment->monto_total = (float) $payment->monto + (float) $payment->propina;
+
+            // bloquea_cita replica exactamente el criterio de
+            // PaymentRepository::existsForAppointment() (todo menos
+            // 'rechazado' cuenta como "esta cita ya tiene un pago"). Existe
+            // para que el indice unico parcial de la migracion
+            // add_payment_appointment_unique_index pueda expresar "pago
+            // activo" como una igualdad simple: MongoDB no permite $ne/$nin
+            // dentro de un partialFilterExpression, mismo motivo que
+            // Appointment::bloquea_horario (ver Fase 3, auditoria de Fase 4).
+            $payment->bloquea_cita = $payment->estado !== self::ESTADO_RECHAZADO;
         });
     }
 

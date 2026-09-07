@@ -18,6 +18,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use MongoDB\Driver\Exception\BulkWriteException;
 
 /**
  * Orquesta el cobro de citas: pagos directos por staff, subida y revision
@@ -111,17 +112,28 @@ class PaymentService
                 }
             }
 
-            $payment = $this->payments->create([
-                'appointment_id' => $payload['appointment_id'],
-                'monto' => $monto,
-                'metodo_pago' => $payload['metodo_pago'],
-                'propina' => $payload['propina'] ?? 0,
-                'created_by' => $createdBy,
-                'estado' => Payment::ESTADO_VERIFICADO,
-                'puntos_canjeados' => $puntosCanjeados,
-                'raffle_result_id' => $premioRifa?->id,
-                'stripe_payment_id' => $payload['stripe_payment_id'] ?? null,
-            ]);
+            try {
+                $payment = $this->payments->create([
+                    'appointment_id' => $payload['appointment_id'],
+                    'monto' => $monto,
+                    'metodo_pago' => $payload['metodo_pago'],
+                    'propina' => $payload['propina'] ?? 0,
+                    'created_by' => $createdBy,
+                    'estado' => Payment::ESTADO_VERIFICADO,
+                    'puntos_canjeados' => $puntosCanjeados,
+                    'raffle_result_id' => $premioRifa?->id,
+                    'stripe_payment_id' => $payload['stripe_payment_id'] ?? null,
+                ]);
+            } catch (BulkWriteException $e) {
+                // existsForAppointment() de arriba no es atomico: si dos
+                // requests para la misma cita llegan a la vez (p.ej. un
+                // reintento de webhook de Stripe cruzando un doble-click de
+                // "cobrar"), el indice unico parcial (appointment_id, solo
+                // pagos no rechazados) es la garantia real. Los puntos ya
+                // canjeados arriba se revierten al hacer rollback la
+                // transaccion completa -- no queda a medias.
+                throw new PaymentException('La cita ya tiene un pago registrado.');
+            }
 
             if ($premioRifa) {
                 $this->raffle->claim($premioRifa, $appointment);
@@ -154,15 +166,21 @@ class PaymentService
         $precioBase = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
         $monto = LoyaltyService::applyDiscount($precioBase, $appointment->client?->nivel ?? 'nuevo');
 
-        $payment = $this->payments->create([
-            'appointment_id' => (string) $appointment->id,
-            'monto' => $monto,
-            'metodo_pago' => 'transferencia',
-            'propina' => 0,
-            'created_by' => $clientUserId,
-            'estado' => Payment::ESTADO_PENDIENTE_VERIFICACION,
-            'comprobante_cliente' => $path,
-        ]);
+        try {
+            $payment = $this->payments->create([
+                'appointment_id' => (string) $appointment->id,
+                'monto' => $monto,
+                'metodo_pago' => 'transferencia',
+                'propina' => 0,
+                'created_by' => $clientUserId,
+                'estado' => Payment::ESTADO_PENDIENTE_VERIFICACION,
+                'comprobante_cliente' => $path,
+            ]);
+        } catch (BulkWriteException $e) {
+            // Mismo respaldo que create(): existsForAppointment() de arriba
+            // no es atomico.
+            throw new PaymentException('La cita ya tiene un pago registrado o en revision.');
+        }
 
         $appointment->loadMissing(['client.user', 'service']);
 

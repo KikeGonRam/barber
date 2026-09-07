@@ -89,43 +89,75 @@ class InventoryService
 
     /**
      * Registra un movimiento de stock (entrada/salida) y actualiza stock_actual del producto.
-     * Efecto secundario: transacción DB con lockForUpdate para evitar condiciones de carrera
-     * si dos movimientos del mismo producto se registran en paralelo. Lanza
-     * InsufficientStockException si una salida deja el stock en negativo.
+     * Lanza InsufficientStockException si una salida deja el stock en negativo.
+     *
+     * IMPORTANTE (Fase 4, auditoria): ->lockForUpdate() NO es una garantia real
+     * aqui -- confirmado leyendo mongodb/laravel-mongodb: ni Query\Builder ni
+     * Eloquent\Builder lo sobreescriben, asi que hereda el lockForUpdate() base
+     * de Illuminate (que solo marca una bandera para el grammar SQL "FOR
+     * UPDATE"). El grammar de Mongo no traduce eso a nada -- es un no-op
+     * silencioso, no un error, lo que lo hacia parecer una proteccion real sin
+     * serlo. La proteccion real es el decrement condicional de abajo: un
+     * unico op atomico de Mongo ($inc con filtro stock_actual >= cantidad),
+     * que Mongo evalua y aplica sobre el valor actual del documento en una
+     * sola operacion -- no se puede colar una lectura obsoleta entre el
+     * chequeo y la escritura como con lockForUpdate()+decrement() por
+     * separado, sin importar cuantas escrituras concurrentes lleguen.
      */
     public function registerMovement(array $payload, string $userId)
     {
-        return DB::transaction(function () use ($payload, $userId) {
-            /** @var Product $product */
-            $product = Product::query()->lockForUpdate()->findOrFail($payload['product_id']);
+        // El driver mongodb/laravel-mongodb no soporta transacciones anidadas
+        // (no hay savepoints -- Session::startTransaction() truena con
+        // "Transaction already in progress" si ya hay una activa en la misma
+        // sesion). Cuando algo como OrderService::place() ya nos llama desde
+        // dentro de su propia DB::transaction(), debemos participar en esa
+        // transaccion existente en vez de abrir una nueva; solo abrimos una
+        // propia cuando nos llaman de forma standalone (p.ej. InventoryController).
+        if (DB::transactionLevel() > 0) {
+            return $this->doRegisterMovement($payload, $userId);
+        }
 
-            $quantity = (int) $payload['cantidad'];
-            $type = (string) $payload['tipo'];
+        return DB::transaction(fn () => $this->doRegisterMovement($payload, $userId));
+    }
 
-            if ($type === 'salida' && $product->stock_actual < $quantity) {
+    private function doRegisterMovement(array $payload, string $userId)
+    {
+        $quantity = (int) $payload['cantidad'];
+        $type = (string) $payload['tipo'];
+        $productId = (string) $payload['product_id'];
+
+        if ($type === 'entrada') {
+            $product = Product::query()->findOrFail($productId);
+            $product->increment('stock_actual', $quantity);
+
+            // El pedido llegó: ya no hace falta silenciar la alerta a mano.
+            if ($product->reabastecimiento_pedido_en) {
+                $product->update(['reabastecimiento_pedido_en' => null, 'reabastecimiento_pedido_por' => null]);
+            }
+        } else {
+            $affected = Product::query()
+                ->where('_id', $productId)
+                ->where('stock_actual', '>=', $quantity)
+                ->decrement('stock_actual', $quantity);
+
+            if ($affected === 0) {
+                // Puede ser porque el producto no existe (mismo mensaje que
+                // findOrFail daria) o porque el stock ya no alcanza -- en
+                // ambos casos el resultado correcto para quien llama es el
+                // mismo error de stock insuficiente, sin una segunda
+                // lectura que reintroduciria la misma condicion de carrera.
                 throw new InsufficientStockException('No hay stock suficiente para registrar la salida.');
             }
+        }
 
-            if ($type === 'entrada') {
-                $product->increment('stock_actual', $quantity);
-
-                // El pedido llegó: ya no hace falta silenciar la alerta a mano.
-                if ($product->reabastecimiento_pedido_en) {
-                    $product->update(['reabastecimiento_pedido_en' => null, 'reabastecimiento_pedido_por' => null]);
-                }
-            } else {
-                $product->decrement('stock_actual', $quantity);
-            }
-
-            return $this->movements->create([
-                'product_id' => $product->id,
-                'tipo' => $type,
-                'cantidad' => $quantity,
-                'motivo' => $payload['motivo'] ?? null,
-                'appointment_id' => $payload['appointment_id'] ?? null,
-                'user_id' => $userId,
-                'fecha' => $payload['fecha'] ?? now(),
-            ]);
-        });
+        return $this->movements->create([
+            'product_id' => $productId,
+            'tipo' => $type,
+            'cantidad' => $quantity,
+            'motivo' => $payload['motivo'] ?? null,
+            'appointment_id' => $payload['appointment_id'] ?? null,
+            'user_id' => $userId,
+            'fecha' => $payload['fecha'] ?? now(),
+        ]);
     }
 }
