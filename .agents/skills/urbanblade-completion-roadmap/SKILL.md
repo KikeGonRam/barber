@@ -1,6 +1,6 @@
 ---
 name: urbanblade-completion-roadmap
-description: "Plan por fases para completar y endurecer el contrato API de UrbanBlade y su integración con frontend-urban. Usar antes de tocar auth, perfiles, contratos JSON, permisos, pagos, citas, notificaciones o pruebas E2E; cada fase exige pruebas, revisión de regresiones, commit y push separado en barber y frontend-urban."
+description: 'Plan por fases para completar y endurecer el contrato API de UrbanBlade y su integración con frontend-urban. Usar antes de tocar auth, perfiles, contratos JSON, permisos, pagos, citas, notificaciones o pruebas E2E; cada fase exige pruebas, revisión de regresiones, commit y push separado en barber y frontend-urban.'
 ---
 
 # UrbanBlade completion roadmap
