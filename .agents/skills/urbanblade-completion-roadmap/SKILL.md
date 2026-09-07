@@ -96,12 +96,67 @@ subagente de exploración para el detalle completo con líneas exactas):**
 Verificación: `.\test.ps1` x2 en verde (348/348 ambas veces), Larastan en
 frío limpio, Pint limpio.
 
-### Fase 4: pagos, pedidos e inventario
+### Fase 4: pagos, pedidos e inventario — ✅ DONE (2026-09-07, commit `163100d`)
 
 - Revisar Stripe, transferencias, recibos, reembolsos, precios server-side, stock y transacciones.
 - Mantener MongoDB en replica set para pruebas.
 
 Aceptación: importes y stock se calculan en servidor y webhooks son idempotentes.
+
+**Resultado de la auditoría (4 áreas revisadas):**
+
+1. **Pagos duplicados por cita (race real, corregido)** —
+   `PaymentService::create()`/`uploadTransferReceipt()` solo tenían
+   `PaymentRepository::existsForAppointment()` como guardia, un check-then-create
+   de aplicación sin ninguna garantía de base de datos (mismo patrón que el
+   hallazgo #1 de Fase 3, aquí con impacto directo en dinero real y puntos de
+   lealtad duplicados si un reintento de webhook de Stripe cruza con un
+   doble-click de "cobrar" en recepción). Índice único parcial nuevo sobre
+   `payments(appointment_id)`, filtrado por el campo derivado `bloquea_cita`
+   (Mongo no soporta `$ne`/`$nin` en `partialFilterExpression`, solo
+   igualdad — mismo patrón que `bloquea_horario` de Fase 3). `BulkWriteException`
+   se traduce a `PaymentException` en ambos call sites; los controllers ya
+   la capturaban, sin cambios ahí.
+2. **Pedido sin rollback ante fallo a mitad de camino (gap real, corregido)** —
+   `OrderService::place()` descontaba stock línea por línea sin transacción:
+   si una línea posterior fallaba (p.ej. el chequeo de stock del paso 1
+   quedó obsoleto por un pedido concurrente sobre el mismo producto), las
+   líneas anteriores quedaban con stock ya descontado de verdad y ningún
+   `Order` que lo respaldara. Ahora todo el paso 2+3 vive dentro de un solo
+   `DB::transaction()`.
+3. **`lockForUpdate()` es un no-op silencioso en este driver (gap real,
+   corregido)** — confirmado leyendo el vendor: ni `Query\Builder` ni
+   `Eloquent\Builder` de `mongodb/laravel-mongodb` lo sobreescriben, así que
+   hereda el `lockForUpdate()` base de Illuminate, que solo marca una
+   bandera consumida por grammars SQL (`FOR UPDATE`) — el grammar de Mongo
+   no la traduce a nada. `InventoryService::registerMovement()` usaba esto
+   como "protección" contra sobreventa concurrente sin que hiciera nada
+   real. Reemplazado por un decrement condicional atómico
+   (`where('stock_actual', '>=', $qty)->decrement(...)`, un único op
+   `$inc`-con-filtro de Mongo que no puede colar una lectura obsoleta entre
+   el chequeo y la escritura sin importar cuántas escrituras concurrentes
+   lleguen).
+4. **Transacciones anidadas no soportadas (bug introducido y corregido en la
+   misma fase)** — al envolver `OrderService::place()` en su propia
+   `DB::transaction()` (hallazgo #2), `InventoryService::registerMovement()`
+   seguía abriendo su propia transacción por dentro; `mongodb/laravel-mongodb`
+   no soporta savepoints, así que `Session::startTransaction()` truena con
+   `RuntimeException: "Transaction already in progress"` en cuanto hay
+   anidamiento real. Corregido con `DB::transactionLevel() > 0` como guardia:
+   `registerMovement()` participa en la transacción ya activa del llamador en
+   vez de abrir una nueva, pero sigue abriendo la suya propia cuando se
+   invoca standalone (p.ej. desde `InventoryController`).
+
+**Decisión de negocio pendiente, NO implementada a propósito**: el webhook
+`charge.refunded` de Stripe (`StripeWebhookController`) registra el reembolso
+pero no revierte automáticamente puntos de lealtad otorgados ni restaura
+stock — es una decisión de política de negocio (¿se revierten siempre? ¿solo
+si el producto/servicio no se usó?) que cambiaría economía real de puntos y
+stock sin un spec claro, no un bug puro. Señalado para que el dueño del
+proyecto decida antes de implementarlo.
+
+Verificación: `.\test.ps1` x2 en verde (351/351 ambas veces), Larastan en
+frío limpio, Pint limpio (360 archivos).
 
 ### Fase 5: notificaciones y operación
 
