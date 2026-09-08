@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "f68cd7a1-95be-47d2-b8cc-6817a914c099",
+        "_postman_id": "1db1d0d8-c032-48bc-8060-5f0592d99e7f",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -549,7 +549,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-09-30\",\"hora_inicio\":\"02:27\",\"estado\":\"en_proceso\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-09-30\",\"hora_inicio\":\"23:32\",\"estado\":\"cancelada\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -588,7 +588,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"estado\":\"en_proceso\",\"notas\":\"b\"}"
+                            "raw": "{\"estado\":\"cancelada\",\"notas\":\"b\"}"
                         },
                         "description": "",
                         "auth": {
@@ -655,7 +655,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"period\":\"day\",\"estado\":\"pendiente\",\"offset\":-364}"
+                            "raw": "{\"period\":\"day\",\"estado\":\"en_proceso\",\"offset\":-364}"
                         },
                         "description": "",
                         "auth": {
@@ -1552,7 +1552,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"metodo_pago\":\"tarjeta\"}"
+                            "raw": "{\"metodo_pago\":\"efectivo\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1687,7 +1687,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"transferencia\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":false,\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"efectivo\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1877,7 +1877,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-07T02:27:20\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-07T23:32:19\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -1916,7 +1916,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-07T02:27:20\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-07T23:32:19\",\"pref_in_app\":false,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2031,7 +2031,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2193,7 +2193,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2426,7 +2426,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"02:27\",\"horario_cierre\":\"2052-09-30\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\",\"clabe\":\"iyvdljnikhwaykcm\",\"banco\":\"y\",\"beneficiario\":\"u\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"23:32\",\"horario_cierre\":\"2052-09-30\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\",\"clabe\":\"iyvdljnikhwaykcm\",\"banco\":\"y\",\"beneficiario\":\"u\",\"concepto\":\"w\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2533,7 +2533,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"programar\",\"programada_para\":\"2052-09-30\"}"
+                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"ahora\",\"programada_para\":\"2052-10-01\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3014,7 +3014,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"in_app\":false,\"email\":true,\"sms\":false,\"whatsapp\":false,\"push\":false,\"promociones\":true}"
+                            "raw": "{\"in_app\":true,\"email\":false,\"sms\":true,\"whatsapp\":true,\"push\":false,\"promociones\":true}"
                         },
                         "description": "Igual que la versi\u00f3n web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los dem\u00e1s.",
                         "auth": {
@@ -3698,7 +3698,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"type\":\"citas\",\"period\":\"a\u00f1o\",\"dateFrom\":\"2026-09-07T02:27:23\",\"dateTo\":\"2026-09-07T02:27:23\",\"detail\":\"detallado\"}"
+                            "raw": "{\"type\":\"citas\",\"period\":\"dia\",\"dateFrom\":\"2026-09-07T23:32:23\",\"dateTo\":\"2026-09-07T23:32:23\",\"detail\":\"muy-detallado\"}"
                         },
                         "description": "",
                         "auth": {
@@ -4850,7 +4850,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -4964,7 +4964,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tipo\":\"salida\",\"cantidad\":16,\"motivo\":\"architecto\"}"
+                            "raw": "{\"tipo\":\"entrada\",\"cantidad\":16,\"motivo\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -5515,7 +5515,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"Juan P\u00e9rez Actualizado\",\"email\":\"nuevo@example.com\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2022-10-01\"}"
+                            "raw": "{\"name\":\"Juan P\u00e9rez Actualizado\",\"email\":\"nuevo@example.com\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2022-10-02\"}"
                         },
                         "description": "Actualiza la informaci\u00f3n del perfil del usuario autenticado.",
                         "auth": {
@@ -6152,13 +6152,13 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -6355,7 +6355,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-07T02:27:21\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-07T23:32:20\"}"
                         },
                         "description": "",
                         "auth": {
