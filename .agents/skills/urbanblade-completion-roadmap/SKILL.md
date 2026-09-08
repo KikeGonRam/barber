@@ -84,19 +84,15 @@ subagente de exploración para el detalle completo con líneas exactas):**
    horario. Corregido comparando contra el valor persistido, no solo "vino
    en el payload".
 6. **Calendario/disponibilidad (frontend)** — ✅ **cerrado el 2026-09-07**
-   (frontend-urban `8dd5afa`): el modal de reserva del cliente ya consume
-   `/availability/slots` y solo ofrece huecos reales; si la consulta falla
-   cae al input libre, y el 422 del backend sigue siendo la última palabra,
-   tal como anticipaba la nota original de abajo. El formulario de staff
-   (`pages/appointments/index.vue`) sigue pendiente. Texto original:
-   `AvailabilityController::slots()` existe en el backend pero
-   **frontend-urban no lo consume todavía**: los formularios de citas (staff y cliente) son un
-   `<input type="date">`/`<input type="time">` plano, sin selector de
-   horarios disponibles. No es un bug de esta fase (nada se rompió), pero
-   es la razón por la que el hallazgo #1 (índice único) es la protección
-   real hoy — si se construye un selector de slots más adelante, debe
-   asumir que el slot puede dejar de estar disponible entre que se listó y
-   que se envió el submit (el backend ya lo maneja con un 422 claro).
+   (frontend-urban `8dd5afa` cliente, `app/pages/appointments/index.vue` staff):
+   el modal de reserva del cliente consume `/availability/slots` y solo ofrece
+   huecos reales con fallback a input libre si la llamada falla. El formulario
+   de staff (`pages/appointments/index.vue`) ofrece los horarios libres como
+   sugerencia (`<datalist>`) y avisa si la hora escrita no está libre,
+   manteniendo el campo editable para respetar la necesidad de recepción de
+   agendar huecos excepcionales acordados por teléfono. En ambos flujos, el
+   índice único parcial de Fase 3 y el 422 de `AppointmentController::store()`
+   garantizan que ninguna doble reserva ocurra en base de datos.
 
 Verificación: `.\test.ps1` x2 en verde (348/348 ambas veces), Larastan en
 frío limpio, Pint limpio.
