@@ -216,7 +216,7 @@ Twilio.
 Verificación: `.\test.ps1` x2 en verde (355/355 ambas veces), Larastan en
 frío limpio, Pint limpio (361 archivos).
 
-### Fase 6: pruebas E2E y producción — ✅ DONE con un hallazgo abierto (2026-09-07, commit `2472a3b` en frontend-urban)
+### Fase 6: pruebas E2E y producción — ✅ DONE (actualizada 2026-09-08)
 
 - Añadir recorridos E2E críticos para login, Google, completar perfil, reserva y pago.
 - Verificar variables de Vercel/backend, CORS, storage, health checks y CI.
@@ -226,7 +226,7 @@ Aceptación: flujo crítico probado en build de producción y ambos repositorios
 **Resultado de la auditoría:**
 
 1. **E2E (entregado)** — `frontend-urban` no tenía NINGUNA herramienta de
-   pruebas. Se agregó Playwright con 9 pruebas corriendo contra el build de
+   pruebas. Se agregó Playwright con 17 pruebas corriendo contra el build de
    producción (`nuxt build` + `nuxt preview`), no contra `nuxt dev`: guard de
    ruta protegida con `?redirect`, credenciales inválidas, login con perfil
    completo, gate de perfil incompleto (login y registro), enlace de acceso
@@ -265,13 +265,15 @@ puede reservar: el modal de `/my/appointments` ahora también crea citas
 tiene un CTA "Reservar con X" que lo abre con el barbero preseleccionado.
 Se agregaron 3 pruebas E2E (reserva feliz verificando el cuerpo del POST,
 preselección desde la ficha, y choque de horario mostrando el 422 real del
-backend), así que **"reserva" ya tiene cobertura E2E**; "pago" sigue sin
-ella por depender de Stripe Elements dentro de un iframe. De paso se corrigió
+backend), así que **"reserva" ya tiene cobertura E2E**. El pago con tarjeta
+también se cubre con un adaptador determinista del SDK de Stripe y una clave
+publicable ficticia solo en Playwright; verifica el contrato crítico sin
+secretos, red externa ni dinero real. De paso se corrigió
 un bug latente en `/barbers/[slug]`: el middleware `auth` solo mira la
 cookie, así que en una entrada directa `user` seguía en null y
 `hasRole('cliente')` escondía el formulario de reseña que ya existía.
 
-Descripción original del hallazgo, que sigue explicando el porqué:
+Descripción histórica del hallazgo de reserva (ya cerrado):
 
 **El cliente NO podía reservar desde el frontend Nuxt**:
 `POST /api/v1/appointments` sí permite el rol `cliente` (el controlador
@@ -280,16 +282,12 @@ perfil Client si aún no existe"), pero en `frontend-urban` la creación de
 citas existe únicamente en `app/pages/appointments/index.vue`, protegida por
 `middleware: ['auth', 'staff']`. `app/pages/my/appointments/index.vue` (la
 página del cliente) solo permite **reagendar y cancelar** citas que ya
-existen. El CTA "Reservar" de la landing lleva a `/register`, y desde ahí el
-cliente no tiene ninguna ruta para agendar. Por eso **"reserva" y "pago" no
-tienen cobertura E2E**: la primera no existe todavía en el frontend, y la
-segunda depende de Stripe Elements dentro de un iframe (no probable de forma
-significativa con mocks). Construir esa pantalla es trabajo de producto, no
-de esta fase de verificación — queda señalado para que el dueño del proyecto
-decida, igual que la reversión de reembolsos de Fase 4.
+existían. Esa brecha motivó el flujo actual del cliente. La limitación del
+iframe de Stripe se resolvió probando nuestro contrato con el SDK sustituido;
+el iframe real se conserva como verificación manual del sandbox.
 
-Verificación: 9/9 pruebas E2E en verde, también con `CI=1` (1 worker +
-reintentos); `eslint . --max-warnings=0` limpio; `npm audit
+Verificación actual: 17/17 pruebas E2E en verde con 1 worker contra el build
+de producción; `eslint .` limpio; `npm audit
 --audit-level=high` limpio; `/up` 200 y CORS verificados contra el backend
 corriendo.
 
