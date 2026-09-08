@@ -691,15 +691,15 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-09-30'
+                  example: '2052-10-01'
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '23:32'
+                  example: '00:17'
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: en_proceso
                   enum:
                     - pendiente
                     - confirmada
@@ -757,7 +757,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: en_proceso
                   enum:
                     - pendiente
                     - confirmada
@@ -820,7 +820,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: en_proceso
+                  example: confirmada
                   enum:
                     - pendiente
                     - confirmada
@@ -903,7 +903,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-09-30'
+                  example: '2052-10-01'
               required:
                 - barber_id
                 - service_id
@@ -1130,7 +1130,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-09-30'
+                  example: '2052-10-01'
               required:
                 - barber_id
                 - service_id
@@ -1360,7 +1360,7 @@ paths:
                 usar_premio_rifa:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 stripe_payment_id:
                   type: string
@@ -1649,12 +1649,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-07T23:32:19'
+                  example: '2026-09-08T00:17:28'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_email:
                   type: boolean
@@ -1669,7 +1669,7 @@ paths:
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -1707,22 +1707,22 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-07T23:32:19'
+                  example: '2026-09-08T00:17:28'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_whatsapp:
                   type: boolean
@@ -1817,7 +1817,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -1870,7 +1870,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -1960,7 +1960,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - name
@@ -2144,12 +2144,12 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '23:32'
+                  example: '00:17'
                   nullable: true
                 horario_cierre:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>. El campo value debe ser una fecha posterior a <code>horario_apertura</code>.'
-                  example: '2052-09-30'
+                  example: '2052-10-01'
                   nullable: true
                 politica_cancelacion:
                   type: integer
@@ -2518,11 +2518,11 @@ paths:
                 in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 sms:
                   type: boolean
                   description: ''
@@ -2530,7 +2530,7 @@ paths:
                 whatsapp:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 push:
                   type: boolean
                   description: ''
@@ -2538,7 +2538,7 @@ paths:
                 promociones:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
       security: []
   /api/v1/push/vapid-public-key:
     get:
@@ -2919,7 +2919,7 @@ paths:
                 type:
                   type: string
                   description: ''
-                  example: citas
+                  example: inventario
                   enum:
                     - ingresos
                     - citas
@@ -2928,7 +2928,7 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: dia
+                  example: semana
                   enum:
                     - dia
                     - semana
@@ -2939,12 +2939,12 @@ paths:
                 dateFrom:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-07T23:32:23'
+                  example: '2026-09-08T00:17:30'
                   nullable: true
                 dateTo:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-07T23:32:23'
+                  example: '2026-09-08T00:17:30'
                   nullable: true
                 detail:
                   type: string
@@ -4009,7 +4009,7 @@ paths:
                 helpful:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
               required:
                 - message
                 - response
@@ -4583,7 +4583,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 activo:
                   type: boolean
@@ -4656,12 +4656,12 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
       security: []
     delete:
@@ -4824,7 +4824,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-07T23:32:20'
+                  example: '2026-09-08T00:17:28'
                   nullable: true
               required:
                 - product_id
