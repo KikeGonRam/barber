@@ -445,9 +445,9 @@ endpoints:
       especialidades:
         custom: []
         name: especialidades
-        description: 'El campo value no debe tener más de 1000 caracteres.'
+        description: 'Especialidades del barbero (ej. Degradados, Barba tradicional). El campo value no debe tener más de 1000 caracteres.'
         required: false
-        example: b
+        example: 'Degradados, Diseños freestyle, Barba'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -456,9 +456,9 @@ endpoints:
       descripcion:
         custom: []
         name: descripcion
-        description: 'El campo value no debe tener más de 1000 caracteres.'
+        description: 'Biografía o presentación del barbero. El campo value no debe tener más de 1000 caracteres.'
         required: false
-        example: 'n'
+        example: 'Más de 5 años de experiencia en barbería urbana y tradicional.'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -467,7 +467,7 @@ endpoints:
       foto:
         custom: []
         name: foto
-        description: 'El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes.'
+        description: 'Imagen de perfil o foto profesional del barbero. El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes.'
         required: false
         example: null
         type: file
@@ -476,8 +476,8 @@ endpoints:
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      especialidades: b
-      descripcion: 'n'
+      especialidades: 'Degradados, Diseños freestyle, Barba'
+      descripcion: 'Más de 5 años de experiencia en barbería urbana y tradicional.'
     fileParameters:
       foto: null
     responses: []

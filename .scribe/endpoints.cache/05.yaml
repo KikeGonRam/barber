@@ -273,7 +273,7 @@ endpoints:
         name: helpful
         description: ''
         required: true
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -282,7 +282,7 @@ endpoints:
     cleanBodyParameters:
       message: b
       response: 'n'
-      helpful: true
+      helpful: false
     fileParameters: []
     responses: []
     responseFields: []

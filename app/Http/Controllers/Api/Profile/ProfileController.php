@@ -366,6 +366,24 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
+        if ($user->hasRoleName('administrador')) {
+            return response()->json([
+                'message' => 'Los administradores no pueden eliminar su propia cuenta desde el perfil.',
+            ], 422);
+        }
+
+        if ($user->hasRoleName('cliente') && $user->clientProfile) {
+            $hasActiveAppointments = Appointment::where('client_id', (string) $user->clientProfile->id)
+                ->whereNotIn('estado', ['cancelada', 'completada', 'no_asistio'])
+                ->exists();
+
+            if ($hasActiveAppointments) {
+                return response()->json([
+                    'message' => 'No puedes eliminar tu cuenta con citas activas pendientes. Cancela tus citas primero.',
+                ], 422);
+            }
+        }
+
         // Eliminar todos los tokens API
         $user->mobileApiTokens()->delete();
 

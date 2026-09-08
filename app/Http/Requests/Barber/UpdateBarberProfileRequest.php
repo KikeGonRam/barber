@@ -25,4 +25,24 @@ class UpdateBarberProfileRequest extends FormRequest
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    public function bodyParameters(): array
+    {
+        return [
+            'especialidades' => [
+                'description' => 'Especialidades del barbero (ej. Degradados, Barba tradicional).',
+                'example' => 'Degradados, Diseños freestyle, Barba',
+            ],
+            'descripcion' => [
+                'description' => 'Biografía o presentación del barbero.',
+                'example' => 'Más de 5 años de experiencia en barbería urbana y tradicional.',
+            ],
+            'foto' => [
+                'description' => 'Imagen de perfil o foto profesional del barbero.',
+            ],
+        ];
+    }
 }
