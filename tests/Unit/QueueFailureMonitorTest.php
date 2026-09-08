@@ -7,12 +7,17 @@ use Illuminate\Contracts\Queue\Job;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Log;
 use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class QueueFailureMonitorTest extends TestCase
 {
     public function test_it_logs_actionable_metadata_without_payload_or_exception_message(): void
     {
+        // Larastan no sabe que un mock de Mockery tambien implementa la
+        // interfaz que finge, asi que JobFailed::__construct() lo rechaza por
+        // tipo sin esta anotacion (CI rojo desde 4cc2ee6).
+        /** @var Job&MockInterface $job */
         $job = Mockery::mock(Job::class);
         $job->shouldReceive('getQueue')->once()->andReturn('notifications');
         $job->shouldReceive('resolveName')->once()->andReturn('App\\Jobs\\SendReceipt');
