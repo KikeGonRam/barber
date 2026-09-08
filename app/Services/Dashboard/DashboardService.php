@@ -336,6 +336,9 @@ class DashboardService
         $monthStart = Carbon::now()->startOfMonth();
         $monthEnd = Carbon::now()->endOfMonth();
 
+        $barber = Barber::find($barberId);
+        $rating = $barber ? round((float) ($barber->calificacion_promedio ?? 0), 1) : 0.0;
+
         $appointmentsToday = Appointment::where('barber_id', $barberId)
             ->whereDate('fecha', $today)
             ->count();
@@ -393,7 +396,7 @@ class DashboardService
                 'appointments_month' => $appointmentsMonth,
                 'income_month' => $incomeMonth,
                 'tips_month' => $tipsMonth,
-                'rating' => 4.9,
+                'rating' => $rating,
             ],
             'performance_chart' => [
                 'labels' => $performanceByDay->pluck('label')->all(),
