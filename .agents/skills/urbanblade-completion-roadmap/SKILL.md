@@ -256,7 +256,21 @@ Aceptación: flujo crítico probado en build de producción y ambos repositorios
    un job `e2e` aparte (instala chromium, corre Playwright, sube el reporte
    HTML como artefacto si falla). El CI de barber no cambió.
 
-**Hallazgo abierto — el cliente NO puede reservar desde el frontend Nuxt**:
+**Hallazgo cerrado el mismo día (frontend-urban `cecb460`)** — el cliente ya
+puede reservar: el modal de `/my/appointments` ahora también crea citas
+(POST sin `client_id`, el backend lo deriva del token) y `/barbers/[slug]`
+tiene un CTA "Reservar con X" que lo abre con el barbero preseleccionado.
+Se agregaron 3 pruebas E2E (reserva feliz verificando el cuerpo del POST,
+preselección desde la ficha, y choque de horario mostrando el 422 real del
+backend), así que **"reserva" ya tiene cobertura E2E**; "pago" sigue sin
+ella por depender de Stripe Elements dentro de un iframe. De paso se corrigió
+un bug latente en `/barbers/[slug]`: el middleware `auth` solo mira la
+cookie, así que en una entrada directa `user` seguía en null y
+`hasRole('cliente')` escondía el formulario de reseña que ya existía.
+
+Descripción original del hallazgo, que sigue explicando el porqué:
+
+**El cliente NO podía reservar desde el frontend Nuxt**:
 `POST /api/v1/appointments` sí permite el rol `cliente` (el controlador
 tiene una rama explícita: "El cliente reserva para sí mismo, creando su
 perfil Client si aún no existe"), pero en `frontend-urban` la creación de
