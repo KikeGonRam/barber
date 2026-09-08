@@ -83,9 +83,14 @@ subagente de exploración para el detalle completo con líneas exactas):**
    así que el comando programado la saltaba para siempre en el nuevo
    horario. Corregido comparando contra el valor persistido, no solo "vino
    en el payload".
-6. **Calendario/disponibilidad (frontend)** — `AvailabilityController::
-   slots()` existe en el backend pero **frontend-urban no lo consume
-   todavía**: los formularios de citas (staff y cliente) son un
+6. **Calendario/disponibilidad (frontend)** — ✅ **cerrado el 2026-09-07**
+   (frontend-urban `8dd5afa`): el modal de reserva del cliente ya consume
+   `/availability/slots` y solo ofrece huecos reales; si la consulta falla
+   cae al input libre, y el 422 del backend sigue siendo la última palabra,
+   tal como anticipaba la nota original de abajo. El formulario de staff
+   (`pages/appointments/index.vue`) sigue pendiente. Texto original:
+   `AvailabilityController::slots()` existe en el backend pero
+   **frontend-urban no lo consume todavía**: los formularios de citas (staff y cliente) son un
    `<input type="date">`/`<input type="time">` plano, sin selector de
    horarios disponibles. No es un bug de esta fase (nada se rompió), pero
    es la razón por la que el hallazgo #1 (índice único) es la protección
