@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Payment;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Payment\PaymentService;
+use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
@@ -23,6 +24,7 @@ class StripeWebhookController extends Controller
     public function __construct(
         private readonly PaymentService $paymentService,
         private readonly AppointmentNotifier $notifier,
+        private readonly LoyaltyService $loyalty,
     ) {}
 
     /**
@@ -143,15 +145,9 @@ class StripeWebhookController extends Controller
     }
 
     /**
-     * Stripe reporta un reembolso (total o parcial) sobre un cargo ya
-     * cobrado. No revierte automáticamente puntos de lealtad ni el estado
-     * de la cita -- eso implica decisiones de negocio (¿se revierte
-     * siempre, incluso en un reembolso parcial? ¿la cita vuelve a
-     * "pendiente"?) que no están definidas todavía; por ahora solo deja
-     * rastro visible (log + aviso a staff) para que alguien lo resuelva a
-     * mano, en vez de que el reembolso pase completamente inadvertido
-     * (que es el comportamiento de hoy: ningún evento de Stripe fuera de
-     * succeeded/failed se procesa en absoluto).
+     * Un reembolso total concilia puntos de forma idempotente. Los parciales
+     * solo se registran y notifican para revisión humana. Nunca se restaura
+     * stock ni se reabre la cita automáticamente.
      */
     private function onRefunded(object $charge): void
     {
@@ -175,13 +171,25 @@ class StripeWebhookController extends Controller
         }
 
         $cliente = $appointment->client?->user?->name ?? 'un cliente';
-        $montoReembolsado = number_format(($charge->amount_refunded ?? 0) / 100, 2);
+        $refundCents = (int) ($charge->amount_refunded ?? 0);
+        $paymentCents = (int) round((float) $payment->monto_total * 100);
+        $fullRefund = $paymentCents > 0 && $refundCents >= $paymentCents;
+        $client = $appointment->client;
+
+        if ($fullRefund && $client) {
+            $this->loyalty->reconcileFullStripeRefund($payment, $client, (string) $appointment->id);
+        }
+
+        $montoReembolsado = number_format($refundCents / 100, 2);
+        $reviewNote = $fullRefund
+            ? 'Los puntos fueron conciliados automáticamente; revisa únicamente cualquier devolución física o ajuste operativo.'
+            : 'Es un reembolso parcial: revisa manualmente si corresponde algún ajuste adicional.';
 
         $this->notifier->sendStaff(
             $appointment,
             'Reembolso de Stripe',
             'Se reembolsó un pago con tarjeta',
-            "Stripe reembolsó \${$montoReembolsado} del pago de {$cliente}. Revisa si hace falta ajustar puntos de lealtad o el estado de la cita.",
+            "Stripe reembolsó \${$montoReembolsado} del pago de {$cliente}. {$reviewNote}",
             '#f59e0b',
             'Reembolso',
         );

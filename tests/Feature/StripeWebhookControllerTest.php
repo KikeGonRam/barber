@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
 use App\Models\Payment;
+use App\Models\LoyaltyTransaction;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Service;
@@ -40,6 +41,7 @@ class StripeWebhookControllerTest extends TestCase
     protected function tearDown(): void
     {
         Payment::query()->delete();
+        LoyaltyTransaction::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
@@ -228,10 +230,57 @@ class StripeWebhookControllerTest extends TestCase
         ]);
 
         $response->assertOk();
-        // No revierte nada automáticamente todavía (alcance de esta fase:
-        // solo avisar) -- el Payment y la cita quedan intactos.
         $this->assertSame(1, Payment::where('stripe_payment_id', 'pi_test_refund')->count());
+        $client = $appointment->client()->firstOrFail();
+        $this->assertSame(0, (int) $client->fresh()->puntos);
+        $this->assertDatabaseHas('loyalty_transactions', [
+            'client_id' => (string) $client->id,
+            'puntos' => -10,
+            'descripcion' => 'Reversión por reembolso total de Stripe',
+        ]);
+
+        // Stripe puede reintentar el mismo webhook: la conciliación no se duplica.
+        $this->postWebhook([
+            'id' => 'evt_refunded_1_retry',
+            'type' => 'charge.refunded',
+            'data' => ['object' => [
+                'id' => 'ch_test_refund',
+                'payment_intent' => 'pi_test_refund',
+                'amount_refunded' => 30000,
+            ]],
+        ])->assertOk();
+        $this->assertSame(0, (int) $client->fresh()->puntos);
+        $this->assertSame(1, LoyaltyTransaction::where('descripcion', 'Reversión por reembolso total de Stripe')->count());
         Notification::assertSentTo($admin, AppointmentNotification::class, fn ($n) => $n->subject === 'Reembolso de Stripe');
+    }
+
+    public function test_partial_refund_does_not_change_loyalty_points(): void
+    {
+        $appointment = $this->makeChargeableAppointment();
+        $this->postWebhook([
+            'id' => 'evt_succeeded_partial',
+            'type' => 'payment_intent.succeeded',
+            'data' => ['object' => [
+                'id' => 'pi_test_partial',
+                'metadata' => ['appointment_id' => (string) $appointment->id],
+            ]],
+        ])->assertOk();
+
+        $client = $appointment->client()->firstOrFail();
+        $this->assertSame(10, (int) $client->fresh()->puntos);
+
+        $this->postWebhook([
+            'id' => 'evt_refunded_partial',
+            'type' => 'charge.refunded',
+            'data' => ['object' => [
+                'id' => 'ch_test_partial',
+                'payment_intent' => 'pi_test_partial',
+                'amount_refunded' => 10000,
+            ]],
+        ])->assertOk();
+
+        $this->assertSame(10, (int) $client->fresh()->puntos);
+        $this->assertNull(Payment::where('stripe_payment_id', 'pi_test_partial')->firstOrFail()->loyalty_refund_reconciled_at);
     }
 
     public function test_dispute_created_event_does_not_throw_when_no_local_payment_matches(): void

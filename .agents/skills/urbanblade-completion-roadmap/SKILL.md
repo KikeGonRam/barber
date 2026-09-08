@@ -154,13 +154,11 @@ Aceptación: importes y stock se calculan en servidor y webhooks son idempotente
    vez de abrir una nueva, pero sigue abriendo la suya propia cuando se
    invoca standalone (p.ej. desde `InventoryController`).
 
-**Decisión de negocio pendiente, NO implementada a propósito**: el webhook
-`charge.refunded` de Stripe (`StripeWebhookController`) registra el reembolso
-pero no revierte automáticamente puntos de lealtad otorgados ni restaura
-stock — es una decisión de política de negocio (¿se revierten siempre? ¿solo
-si el producto/servicio no se usó?) que cambiaría economía real de puntos y
-stock sin un spec claro, no un bug puro. Señalado para que el dueño del
-proyecto decida antes de implementarlo.
+**Decisión cerrada (2026-09-08)**: un `charge.refunded` total revierte de forma
+idempotente los puntos ganados por la cita y devuelve los puntos usados en el
+cobro. Un reembolso parcial solo se registra y notifica para revisión humana.
+Nunca se restaura stock ni se reabre la cita automáticamente: Stripe confirma
+dinero devuelto, no una devolución física ni que el servicio no se prestó.
 
 Verificación: `.\test.ps1` x2 en verde (351/351 ambas veces), Larastan en
 frío limpio, Pint limpio (360 archivos).

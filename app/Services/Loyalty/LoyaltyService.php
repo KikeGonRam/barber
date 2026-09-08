@@ -8,6 +8,8 @@ use App\Notifications\Loyalty\LoyaltyLevelDowngradedNotification;
 use App\Notifications\Loyalty\LoyaltyNotification;
 use App\Notifications\Loyalty\LoyaltyPointsExpiredNotification;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Models\Payment;
 
 /**
  * Orquesta el programa de lealtad: niveles por número de citas completadas,
@@ -301,6 +303,56 @@ class LoyaltyService
         ]);
 
         return true;
+    }
+
+    /**
+     * Concilia un reembolso total de Stripe una sola vez: retira los puntos
+     * ganados por la cita y devuelve los puntos usados como parte del pago.
+     * No toca inventario ni estado de la cita; Stripe no prueba devolución
+     * física ni que el servicio haya dejado de prestarse.
+     */
+    public function reconcileFullStripeRefund(Payment $payment, Client $client, string $appointmentId): bool
+    {
+        return DB::transaction(function () use ($payment, $client, $appointmentId): bool {
+            $claimed = Payment::where('_id', (string) $payment->id)
+                ->whereNull('loyalty_refund_reconciled_at')
+                ->update(['loyalty_refund_reconciled_at' => now()]);
+
+            if ($claimed !== 1) {
+                return false;
+            }
+
+            $earned = LoyaltyTransaction::where('client_id', (string) $client->id)
+                ->where('tipo', 'ganado')
+                ->where('referencia_id', $appointmentId)
+                ->where('descripcion', 'Cita completada')
+                ->first();
+
+            if ($earned) {
+                $client->decrement('puntos', (int) $earned->puntos);
+                LoyaltyTransaction::create([
+                    'client_id' => (string) $client->id,
+                    'tipo' => 'canjeado',
+                    'puntos' => -(int) $earned->puntos,
+                    'descripcion' => 'Reversión por reembolso total de Stripe',
+                    'referencia_id' => 'stripe-refund:'.$payment->id,
+                ]);
+            }
+
+            $redeemed = (int) $payment->puntos_canjeados;
+            if ($redeemed > 0) {
+                $client->increment('puntos', $redeemed);
+                LoyaltyTransaction::create([
+                    'client_id' => (string) $client->id,
+                    'tipo' => 'ganado',
+                    'puntos' => $redeemed,
+                    'descripcion' => 'Devolución de puntos por reembolso total de Stripe',
+                    'referencia_id' => 'stripe-refund:'.$payment->id,
+                ]);
+            }
+
+            return true;
+        });
     }
 
     private function notifyLevelUp(Client $client, string $from, string $to): void

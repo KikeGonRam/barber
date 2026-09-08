@@ -41,6 +41,7 @@ class Payment extends Model
         'stripe_payment_id',
         'raffle_result_id',
         'bloquea_cita',
+        'loyalty_refund_reconciled_at',
     ];
 
     protected function casts(): array
@@ -53,6 +54,7 @@ class Payment extends Model
             'monto_total' => 'decimal:2',
             'puntos_canjeados' => 'integer',
             'bloquea_cita' => 'boolean',
+            'loyalty_refund_reconciled_at' => 'datetime',
         ];
     }
 
