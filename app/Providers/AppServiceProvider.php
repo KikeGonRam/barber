@@ -16,6 +16,7 @@ use App\Repositories\Eloquent\ServiceRepository;
 use App\Services\Chatbot\Contracts\ChatbotAiProvider;
 use App\Services\Chatbot\GeminiService;
 use App\Services\Chatbot\OllamaService;
+use App\Services\System\QueueFailureMonitor;
 use App\Services\System\ScheduledTaskMonitor;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -23,6 +24,7 @@ use Illuminate\Console\Events\ScheduledTaskFailed;
 use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -81,6 +83,10 @@ class AppServiceProvider extends ServiceProvider
         // instrumentar cada Schedule::command() una por una.
         Event::listen(ScheduledTaskFinished::class, [ScheduledTaskMonitor::class, 'recordFinished']);
         Event::listen(ScheduledTaskFailed::class, [ScheduledTaskMonitor::class, 'recordFailed']);
+
+        // failed_jobs conserva el payload para reintentos; este listener deja
+        // ademas una senal operativa minima y sin PII en logs/Sentry.
+        Event::listen(JobFailed::class, [QueueFailureMonitor::class, 'recordFailed']);
 
         // Password::sendResetLink() (AuthController::forgotPassword()) usa esta
         // notificación con su URL por defecto, que apunta a la ruta web
