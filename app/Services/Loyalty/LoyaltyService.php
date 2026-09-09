@@ -4,12 +4,12 @@ namespace App\Services\Loyalty;
 
 use App\Models\Client;
 use App\Models\LoyaltyTransaction;
+use App\Models\Payment;
 use App\Notifications\Loyalty\LoyaltyLevelDowngradedNotification;
 use App\Notifications\Loyalty\LoyaltyNotification;
 use App\Notifications\Loyalty\LoyaltyPointsExpiredNotification;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use App\Models\Payment;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Orquesta el programa de lealtad: niveles por número de citas completadas,

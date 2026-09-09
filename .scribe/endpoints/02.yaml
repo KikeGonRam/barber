@@ -117,7 +117,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha anterior a <code>today</code>.'
         required: false
-        example: '2022-10-02'
+        example: '2022-10-03'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -127,7 +127,7 @@ endpoints:
       name: 'Juan Pérez Actualizado'
       email: nuevo@example.com
       telefono: i
-      fecha_nacimiento: '2022-10-02'
+      fecha_nacimiento: '2022-10-03'
     fileParameters: []
     responses:
       -

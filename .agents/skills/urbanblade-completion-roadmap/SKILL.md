@@ -204,12 +204,15 @@ Aceptación: fallos quedan registrados, reintentan según política y no rompen 
 6. **ScheduledTaskMonitor/SystemController — ya sólido** — mecanismo real,
    probado end-to-end, conectado de verdad a los 12 comandos programados
    reales (no una lista paralela decorativa). Expuesto en `/status`.
-7. **Cola Redis + failed_jobs sobre Mongo — arquitectura sólida, sin cobertura
-   de pruebas propia** — el driver `database-uuids` de Laravel usa solo la
-   API generica del query builder, compatible con `mongodb/laravel-mongodb`;
-   no se encontró ninguna prueba que lo ejercite directamente, pero
-   `SystemController` ya expone el conteo de jobs fallidos. Prioridad baja,
-   no corregido en esta fase.
+7. **Cola Redis + failed_jobs sobre Mongo — cerrado (2026-09-08)** —
+   `FailedJobProviderTest` ejecuta el provider `database-uuids` real contra
+   MongoDB local de pruebas: persiste, recupera y elimina por UUID un trabajo
+   fallido. `SystemController` continúa exponiendo únicamente el conteo.
+
+**Consistencia de métodos de pago cerrada (2026-09-08)** — el endpoint de
+entrega de pedidos todavía aceptaba el método histórico `qr`. Ahora aplica la
+política vigente (`efectivo`, `tarjeta`, `transferencia`) y una prueba de
+regresión garantiza que `qr` responde 422 sin entregar el pedido.
 
 Se agregó `tests/Feature/MessagingServiceTest.php` (no existía ninguna
 prueba de `MessagingService` antes) cubriendo el nuevo logging de fallos de

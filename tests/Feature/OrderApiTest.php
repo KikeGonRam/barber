@@ -224,4 +224,20 @@ class OrderApiTest extends TestCase
         $response->assertJsonPath('data.metodo_pago', 'efectivo');
         $this->assertSame('entregado', $order->fresh()->estado);
     }
+
+    public function test_staff_cannot_deliver_an_order_with_deprecated_qr_payment(): void
+    {
+        [, $client] = $this->clientUser('cliente-orders-qr@test.local');
+        $order = Order::create(['client_id' => (string) $client->id, 'folio' => 'P-NOQR00', 'items' => [], 'total' => 250, 'estado' => 'pendiente', 'tipo' => 'tienda']);
+
+        $staff = $this->staffUser('administrador', 'admin-orders-qr@test.local');
+        $token = $this->tokenFor($staff, 'test-plaintext-token-order-no-qr');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->patchJson("/api/v1/orders/{$order->id}/deliver", ['metodo_pago' => 'qr']);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors('metodo_pago');
+        $this->assertSame('pendiente', $order->fresh()->estado);
+    }
 }

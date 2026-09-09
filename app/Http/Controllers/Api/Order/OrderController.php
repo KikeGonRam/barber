@@ -142,7 +142,7 @@ class OrderController extends Controller
         }
 
         $validated = $request->validate([
-            'metodo_pago' => ['required', 'in:efectivo,tarjeta,transferencia,qr'],
+            'metodo_pago' => ['required', 'in:efectivo,tarjeta,transferencia'],
         ]);
 
         $order->update([
