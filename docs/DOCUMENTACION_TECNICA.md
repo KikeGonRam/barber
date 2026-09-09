@@ -7,49 +7,65 @@ productos, fidelización, muro social y analítica de datos.
 
 ## 1. Arquitectura general
 
-UrbanBlade está compuesto por **dos proyectos independientes**:
+UrbanBlade está compuesto por **tres proyectos independientes**:
 
 | Proyecto | Repositorio | Función |
 |---|---|---|
-| **`barber/`** | `KikeGonRam/barber` (rama `main`) | Aplicación web Laravel — la app en producción |
-| **`spark/`** | `KikeGonRam/spark` (rama `urbanblade-analytics`) | Módulo de analítica Big Data (PySpark) — proyecto académico independiente que lee la misma base de datos MongoDB en modo solo-lectura |
+| **`barber/`** | `KikeGonRam/barber` (rama `main`) | API JSON Laravel (Bearer token, `mobile_api_tokens`) + un puñado cerrado de páginas Blade que el frontend Nuxt todavía no cubre (landing, catálogo público, auth, perfil, notificaciones, chatbot, tarjeta de membresía) |
+| **`frontend-urban/`** | `KikeGonRam/frontend_Urbanblade` (rama `main`) | **La app real** — Nuxt 4, consume la API de `barber/`. Aquí viven los 4 dashboards por rol, citas, pagos, inventario, tienda, campañas, reportes, analítica, muro social y reseñas. El panel Blade/Inertia equivalente en `barber/` se retiró por completo el 2026-09-06 al alcanzar paridad funcional confirmada — ver `.claude/skills/urbanblade-guardrails/SKILL.md`, guardrail #18. |
+| **`spark/`** | `KikeGonRam/spark` (rama `urbanblade-analytics`) | Módulo de analítica Big Data (PySpark) — proyecto académico independiente que lee la misma base de datos MongoDB en modo solo-lectura. Pausado, no se trabaja activamente. |
 
-Ambos proyectos comparten la misma base de datos MongoDB Atlas, pero corren en
-entornos separados: `barber/` en Docker, `spark/` en WSL Ubuntu.
+Los tres comparten la misma base de datos MongoDB Atlas (`barber/` y `frontend-urban/`
+también comparten esa API), pero corren en entornos separados: `barber/` en Docker,
+`frontend-urban/` con `npm run dev` (Node), `spark/` en WSL Ubuntu.
 
 ---
 
-## 2. Aplicación web (`barber/`)
+## 2. Backend API (`barber/`)
 
 ### 2.1 Stack
 
 - **Backend**: PHP 8.3+, Laravel 13
 - **Base de datos**: MongoDB (paquete `mongodb/laravel-mongodb`) — sin MySQL
-- **Frontend**: TailwindCSS 3/4 + Alpine.js 3 + Vite (sin framework SPA; server-rendered con Blade)
+- **Vistas propias**: TailwindCSS 3 + Alpine.js + Vite, solo para las páginas Blade
+  que sobreviven (ver §1) — no es la interfaz principal del producto, esa es
+  `frontend-urban` (Nuxt 4, consume esta API)
 - **Paquetes clave**:
   - `spatie/laravel-permission` — roles y permisos (adaptado a MongoDB, ver §2.3)
+  - `laravel/socialite` — login con Google
+  - `laravel/pulse` — panel de operación (`/pulse`) para el rol `ingeniero`, en su
+    propia conexión `sqlite`
   - `barryvdh/laravel-dompdf` — generación de PDF (facturas, recibos, tarjeta de socio)
-  - `endroid/qr-code` — códigos QR de la tarjeta de membresía
-  - `stripe/stripe-php` — pagos con tarjeta (webhook dedicado)
+  - `endroid/qr-code` — solo vistas históricas de solo lectura; QR ya no es un método
+    de pago activo
+  - `stripe/stripe-php` — pagos con tarjeta (beta, webhook dedicado)
   - Twilio (integrado a mano vía `Http::withBasicAuth()`, sin SDK) — SMS/WhatsApp
   - `spatie/laravel-activitylog` — bitácora de acciones
+  - `knuckleswtf/scribe` — documentación de la API (contrato externo real para
+    `frontend-urban` y una futura app Android nativa)
 
 ### 2.2 Infraestructura Docker
 
-`docker-compose.yml` define 6 servicios sobre una imagen compartida (`barber-app`):
+`docker-compose.yml` define los siguientes servicios sobre una imagen compartida
+(`barber-app`):
 
 - **`app`** — PHP-FPM (procesa las peticiones)
 - **`web`** — Nginx (puerto 8000, expuesto al host)
 - **`worker`** — `queue:work` (colas: correos, notificaciones, PDFs)
 - **`scheduler`** — `schedule:work` (tareas programadas: no-show automático, campañas, resúmenes diarios)
 - **`redis`** — caché y backend de colas
+- **`mongo-test` / `mongo-test-init`** — réplica local de un solo nodo para pruebas
+  (nunca Atlas), inicializada con `rs.initiate()`
 - **`mailpit`** — capturador de correo para desarrollo (puertos 8025 UI / 1025 SMTP)
+- **`ollama`** — proveedor local del chatbot en desarrollo
 
 Todos comparten un volumen `vendor_data` para no reinstalir dependencias PHP por contenedor.
 
 ### 2.3 Roles y permisos
 
-Cuatro roles: **administrador, recepcionista, barbero, cliente**.
+Cinco roles: **administrador, recepcionista, barbero, cliente, ingeniero** (este
+último, agregado 2026-09-06, es de solo lectura: reportes, logs y estado del
+sistema — nunca un superset de administrador).
 
 MongoDB no soporta las tablas pivote (`MorphToMany`) que usa Spatie Permission por
 defecto, así que además del paquete se mantiene un campo `role_id` embebido

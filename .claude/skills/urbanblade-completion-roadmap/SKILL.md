@@ -28,14 +28,16 @@ Completar el backend Laravel y el frontend Nuxt como un producto coordinado, sin
 
 ## Fases
 
-### Fase 1: contrato API y autenticación
+### Fase 1: contrato API y autenticación — ✅ DONE (2026-09-08)
 
 - Inventariar endpoints realmente usados por Nuxt y compararlos con rutas Laravel.
-- Estandarizar recursos de usuario, paginación, validación y errores sin cambiar respuestas existentes de forma silenciosa.
+- Estandarizar recursos de usuario (`UserResource`), paginación, validación y errores sin cambiar respuestas existentes de forma silenciosa.
 - Auditar login/password, Google OAuth, avatar, completar perfil, tokens, logout, refresh y CORS de producción.
-- Añadir pruebas de contrato y de regresión para cada cambio.
+- Blindar cookies de sesión en Nuxt (`useCookie('ub_token', { sameSite: 'lax', secure: process.env.NODE_ENV === 'production' })`).
+- Cobertura completa de autenticación en `tests/Feature/AuthApiTest.php` con 14 pruebas que validan registro, inicio de sesión, bloqueo de credenciales inválidas sin revelar existencia de correos, bloqueo de correos no verificados, `GET /auth/me`, `POST /auth/logout` con revocación en base de datos, `POST /auth/refresh-token` con rotación atómica de tokens, rechazo de 401 en endpoints protegidos sin autenticación, y recuperación/reseteo de contraseña.
+- Actualización de documentación OpenAPI/Scribe sin advertencias de esquema.
 
-Aceptación: todos los endpoints consumidos tienen respuesta documentada, errores previsibles y prueba; `./test.ps1`, Pint, ESLint y build pasan.
+Aceptación: todos los endpoints consumidos tienen respuesta documentada, errores previsibles y prueba; `.\test.ps1` (377/377 tests verdes), Pint limpio (365 files), Larastan limpio (0 errores en 286 files), ESLint limpio y Playwright E2E verde (16/16 tests).
 
 ### Fase 2: perfiles, permisos y seguridad de cuenta — ✅ DONE (2026-09-08)
 

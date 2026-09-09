@@ -1,20 +1,41 @@
 ---
 name: inertia-vue-migration
 description: >
-  Context, decisions, and phase-by-phase history of the (now complete and merged to
-  `main`, 2026-09-05) migration of this repo's appointments-calendar and 4 role
-  dashboards from Blade+Alpine.js to Inertia.js+Vue 3. Consult this BEFORE touching
-  anything under `resources/js/Pages/`, `resources/js/inertia.js`,
-  `resources/views/app.blade.php`, `app/Http/Middleware/HandleInertiaRequests.php`, or
-  before adding/removing any Inertia/Vue/FullCalendar-Vue/vue-chartjs package, and BEFORE
-  starting a NEW page migration in this same style (e.g. `/analytics` or any other
-  remaining Blade+Alpine page) — the established pattern, shared components
-  (AppLayout/DashboardHeader/AnalyticsInsights/AnalyticsCta/chart-theme.js), and every
-  gotcha found live here. The rest of the site (outside the calendar and the 4
-  dashboards) is still Blade+Alpine — do not assume otherwise.
+  RETIRED 2026-09-06 — historical record only. Documents the Inertia.js+Vue 3
+  migration of the appointments-calendar and 4 role dashboards, which was fully
+  removed from this repo once Nuxt (frontend-urban) reached confirmed functional
+  parity with both. Nothing under `resources/js/Pages/`, `resources/js/inertia.js`,
+  `app/Http/Middleware/HandleInertiaRequests.php`, or the Inertia/Vue packages
+  exists anymore — do not follow this skill's "before touching X" instructions.
+  The rest of the site is, and remains, Blade+Alpine.
 ---
 
 # Migración Blade+Alpine → Inertia.js+Vue 3
+
+> **RETIRADO — 2026-09-06.** Nuxt (`frontend-urban`) alcanzó paridad funcional
+> confirmada con las 2 páginas que este documento describe (los 4 dashboards
+> por rol y el calendario de citas), y el dueño del proyecto confirmó
+> explícitamente retirar las páginas Inertia. Se eliminaron: todos los
+> `.vue` bajo `resources/js/Pages|Layouts|Components`, `resources/js/inertia.js`,
+> `resources/js/chart-theme.js`, `resources/views/app.blade.php`,
+> `config/inertia.php`, `app/Http/Middleware/HandleInertiaRequests.php`,
+> `App\Http\Controllers\Dashboard\DashboardController` (100% Inertia, sin
+> lógica reutilizada en otro lado), `calendar()`/`calendarData()` de
+> `App\Http\Controllers\Appointment\AppointmentController` (el resto del
+> controlador sigue vivo, es Blade), los paquetes `inertiajs/inertia-laravel`
+> + `tightenco/ziggy` (composer) y `@inertiajs/vue3` + `vue` +
+> `@vitejs/plugin-vue` + `ziggy-js` + `@fullcalendar/*` + `vue-chartjs` +
+> `eslint-plugin-vue` + `vue-eslint-parser` (npm), y los 4 tests
+> `tests/Feature/Dashboard*InertiaTest.php`. Las rutas `dashboard` y
+> `appointments.calendar` en `routes/web.php` ahora son redirects simples a
+> `config('app.frontend_url')` (env `FRONTEND_URL`, default
+> `http://localhost:3000`) — los links de navegación Blade que ya apuntaban
+> a `route('dashboard')`/`route('appointments.calendar')` en todo el resto
+> del sitio (que sigue siendo Blade+Alpine, sin cambios) siguen funcionando
+> sin editarlos, porque solo cambió a dónde redirige la ruta, no su nombre.
+> Este documento queda como registro histórico de cómo se construyó esa
+> migración — ya no aplica ninguna de sus instrucciones de "antes de tocar
+> X" porque X ya no existe en este repo.
 
 ## Por qué existe esto
 

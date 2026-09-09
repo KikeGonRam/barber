@@ -3,6 +3,15 @@
 Guía de uso del sistema de gestión de la barbería, organizada por rol. Cada rol
 ve un menú distinto adaptado a lo que necesita hacer.
 
+> **Nota de vigencia (2026-09-09):** la interfaz que describe este manual vive hoy en
+> `frontend-urban` (Nuxt), no en el panel Blade original de este repo (retirado el
+> 2026-09-06 — ver `.claude/skills/urbanblade-guardrails/SKILL.md`, guardrail #18). La
+> sección 2.1 (reservar cita) ya se verificó contra la pantalla actual. El resto de
+> este manual describe funcionalidad que sigue existiendo en Nuxt, pero el detalle
+> paso a paso (nombres exactos de botones, orden de campos) no se ha vuelto a
+> verificar pantalla por pantalla desde la migración — si algo no coincide con lo que
+> ves en la app, confía en la app y avisa para corregir este documento.
+
 ---
 
 ## 1. Ingresar al sistema
@@ -21,15 +30,18 @@ ve un menú distinto adaptado a lo que necesita hacer.
 
 ### 2.1 Reservar una cita
 
-1. En el menú, ve a **Reservar cita**.
-2. Sigue el asistente paso a paso: elige el **servicio**, el **barbero** (o
-   "sin preferencia"), la **fecha** (los domingos no están disponibles) y la
-   **hora**. Un resumen de tu selección queda siempre visible mientras avanzas,
-   y puedes volver a cualquier paso anterior con un clic.
-3. Opcionalmente puedes añadir **productos** a tu cita en el mismo asistente
-   (por ejemplo, un producto de venta que quieras que te tengan listo).
-4. Confirma. Tu cita queda en estado **pendiente** hasta que el barbero la
+1. En **Mis Citas**, pulsa **Reservar nueva cita** (o entra desde la ficha de un
+   barbero con **Reservar con [nombre]**, que ya trae ese barbero elegido).
+2. Elige **barbero**, **servicio** y **fecha**. En cuanto los tres están
+   completos, el campo de hora solo te ofrece los horarios realmente libres de
+   ese barbero ese día — si no queda ninguno, te lo dice en vez de dejarte
+   elegir cualquier hora.
+3. Confirma. Tu cita queda en estado **pendiente** hasta que el barbero la
    apruebe — recibirás una notificación cuando eso ocurra.
+
+> La compra de productos (por ejemplo, algo que quieras que te tengan listo) es
+> independiente de la reserva: se hace desde **Tienda**/**Carrito**, no dentro
+> del formulario de la cita.
 
 ### 2.2 Mis citas
 

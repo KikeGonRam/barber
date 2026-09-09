@@ -2,20 +2,17 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+This is a personal/school project with a single active branch (`main`) — there
+are no versioned releases to track. Security fixes go to `main` only.
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+This repo is public on GitHub but not in production use. If you find a security
+issue (e.g. in the authentication/token flow, payment handling, or an exposed
+credential), please open a private report via GitHub's "Report a vulnerability"
+feature on this repository instead of a public issue, so any real secret or
+exploit detail isn't published before it's fixed.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Note that `docs/ACCESOS.md` intentionally contains real (rotatable, low-stakes)
+demo credentials for local testing, by the project owner's explicit choice — that
+is not itself a vulnerability to report.

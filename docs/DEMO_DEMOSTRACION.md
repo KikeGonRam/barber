@@ -18,9 +18,11 @@ Presentar UrbanBlade en 5 a 10 minutos mostrando la plataforma como sistema real
 
 ## Preparación rápida
 
-Si el proyecto no está levantado:
+**La demo se ve y se navega en `frontend-urban` (Nuxt, puerto 3000) — este repo
+(`barber`) solo corre la API detrás.** Hace falta levantar los dos:
 
 ```powershell
+# 1. Backend (barber) — este repo
 docker compose up -d --build
 npm install
 npm run build
@@ -29,6 +31,11 @@ docker compose exec app php artisan storage:link
 docker compose exec app php artisan migrate
 docker compose exec app php artisan db:seed --class=RolePermissionSeeder
 docker compose exec app php artisan db:seed --class=AdminUserSeeder
+
+# 2. Frontend (frontend-urban) — repo hermano, clonado aparte
+cd ../frontend-urban
+npm install --legacy-peer-deps
+npm run dev
 ```
 
 > ⚠️ No uses `migrate --seed` — siembra `BarberSeeder`/`ClientSeeder`
@@ -38,8 +45,11 @@ docker compose exec app php artisan db:seed --class=AdminUserSeeder
 
 Luego abre:
 
-- http://localhost:8000/login
+- http://localhost:3000/login — **aquí es donde ocurre toda la demo**
 - Mailpit: http://localhost:8025
+- http://localhost:8000 solo sirve la API y las páginas públicas/de cuenta que Nuxt
+  todavía no cubre (landing, catálogo, perfil, notificaciones) — no navegues ahí para
+  la demo de los paneles por rol.
 
 ## Credenciales
 
