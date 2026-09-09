@@ -57,16 +57,17 @@ Todas estas vistas viven hoy en **`frontend-urban`** (Nuxt), no en este reposito
 
 ## 📸 Vista previa
 
-> Estas dos capturas son del panel Blade/Inertia original, retirado el 2026-09-06 (ver
-> arriba). La experiencia actual del producto vive en `frontend-urban` (Nuxt) — se
-> quedan aquí como referencia histórica hasta tener capturas nuevas de ese repo.
+Estas dos capturas ya son de la interfaz real actual — Nuxt (`frontend-urban`), no el
+panel Blade/Inertia retirado. El resto de las capturas (dashboard del cliente,
+gestión de citas, modal de reserva con disponibilidad real) vive en el
+[README de `frontend-urban`](https://github.com/KikeGonRam/frontend_Urbanblade#-vista-previa).
 
 <p align="center">
-  <img src="docs/assets/login.png" alt="Login UrbanBlade (panel Blade retirado)" width="900" />
+  <img src="docs/assets/login.png" alt="Login de UrbanBlade" width="900" />
 </p>
 
 <p align="center">
-  <img src="docs/assets/dashboard-admin.png" alt="Dashboard UrbanBlade (panel Blade retirado)" width="1000" />
+  <img src="docs/assets/dashboard-admin.png" alt="Panel administrativo de UrbanBlade" width="1000" />
 </p>
 
 ## 🚀 Arranque rápido
