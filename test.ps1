@@ -25,3 +25,19 @@
 
 docker exec barber-app php artisan config:clear | Out-Null
 docker exec --env-file .env.testing barber-app php artisan test @args
+
+# Restaura el cache de config/rutas con el entorno REAL del contenedor
+# (Atlas, via env_file: .env de docker-compose -- NO .env.testing, ese solo
+# aplica al comando de arriba) al terminar la corrida, pase o falle.
+#
+# Sin esto, cada corrida de esta suite deja el servidor de desarrollo
+# sirviendo sin config/route cache hasta el siguiente restart del
+# contenedor: Laravel vuelve a parsear todo config/*.php y a registrar
+# todas las rutas en cada request. Con el bind mount de este proyecto
+# (Windows -> Docker via 9p/DrvFS, mas lento que un filesystem nativo de
+# Linux) ese re-parseo por request es carisimo -- medido en vivo: /up pasa
+# de ~0.3s a ~1.6s, /api/v1/dashboard de ~1.1s a ~3.8s. Encontrado
+# 2026-09-09 tras varias corridas seguidas de esta suite en la misma
+# sesion sin que nada restaurara el cache despues.
+docker exec barber-app php artisan config:cache | Out-Null
+docker exec barber-app php artisan route:cache | Out-Null
