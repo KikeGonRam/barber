@@ -1353,7 +1353,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Http\\Resources\\UserResource\:\:\$clientProfile\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/Http/Resources/UserResource.php
 
 		-
@@ -2409,7 +2409,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: tests/Feature/OrderApiTest.php
 
 		-
@@ -2868,3 +2868,57 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: tests/Feature/MessagingServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$monto_total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/StripeWebhookController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$client\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/StripeWebhookController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/StripeWebhookController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$sexo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Profile/ProfileController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\LoyaltyTransaction\:\:\$puntos\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Loyalty/LoyaltyService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$sexo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/ProfileApiTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$puntos\.$#'
+			identifier: property.notFound
+			count: 4
+			path: tests/Feature/StripeWebhookControllerTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/StripeWebhookControllerTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$loyalty_refund_reconciled_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/StripeWebhookControllerTest.php

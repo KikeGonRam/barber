@@ -71,6 +71,7 @@ class ProfileApiTest extends TestCase
             'user_id' => (string) $user->id,
             'telefono' => '5511223344',
             'fecha_nacimiento' => '1995-05-15',
+            'sexo' => 'prefiero_no_decir',
         ]);
 
         $token = $this->tokenFor($user, 'client-profile-view-token');
@@ -82,7 +83,8 @@ class ProfileApiTest extends TestCase
             ->assertJsonPath('user.email', 'carlos.cliente@test.local')
             ->assertJsonPath('user.client_id', (string) $client->id)
             ->assertJsonPath('user.client.telefono', '5511223344')
-            ->assertJsonPath('user.client.fecha_nacimiento', '1995-05-15');
+            ->assertJsonPath('user.client.fecha_nacimiento', '1995-05-15')
+            ->assertJsonPath('user.client.sexo', 'prefiero_no_decir');
     }
 
     public function test_client_can_update_profile_and_client_details(): void
@@ -107,9 +109,14 @@ class ProfileApiTest extends TestCase
             'email' => 'nuevo.email@test.local',
             'telefono' => '5599887766',
             'fecha_nacimiento' => '1992-06-20',
+            'sexo' => 'femenino',
         ]);
 
-        $response->assertOk()->assertJsonPath('message', 'Perfil actualizado exitosamente');
+        $response->assertOk()
+            ->assertJsonPath('message', 'Perfil actualizado exitosamente')
+            ->assertJsonPath('user.client.telefono', '5599887766')
+            ->assertJsonPath('user.client.fecha_nacimiento', '1992-06-20')
+            ->assertJsonPath('user.client.sexo', 'femenino');
 
         $user->refresh();
         $client->refresh();
@@ -118,6 +125,20 @@ class ProfileApiTest extends TestCase
         $this->assertSame('nuevo.email@test.local', $user->email);
         $this->assertSame('5599887766', $client->telefono);
         $this->assertSame('1992-06-20', substr((string) $client->fecha_nacimiento, 0, 10));
+        $this->assertSame('femenino', $client->sexo);
+    }
+
+    public function test_profile_update_rejects_an_unknown_sex_value(): void
+    {
+        $role = Role::firstOrCreate(['name' => 'cliente', 'guard_name' => 'web']);
+        $user = User::create(['name' => 'Cliente', 'email' => 'sexo-invalido@test.local', 'password' => 'password']);
+        $user->assignRole($role);
+        Client::create(['user_id' => (string) $user->id]);
+
+        $this->withToken($this->tokenFor($user, 'invalid-sex-token'))->putJson('/api/v1/profile', [
+            'sexo' => 'valor_desconocido',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['sexo']);
     }
 
     public function test_profile_update_validates_email_uniqueness(): void

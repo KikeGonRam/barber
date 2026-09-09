@@ -84,7 +84,7 @@ endpoints:
         name: date
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-01'
+        example: '2052-10-02'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -93,7 +93,7 @@ endpoints:
     cleanBodyParameters:
       barber_id: architecto
       service_id: architecto
-      date: '2052-10-01'
+      date: '2052-10-02'
     fileParameters: []
     responses:
       -
@@ -402,7 +402,7 @@ endpoints:
         name: date
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-01'
+        example: '2052-10-02'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -411,7 +411,7 @@ endpoints:
     cleanBodyParameters:
       barber_id: architecto
       service_id: architecto
-      date: '2052-10-01'
+      date: '2052-10-02'
     fileParameters: []
     responses:
       -
@@ -952,7 +952,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: transferencia
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -962,7 +962,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      metodo_pago: transferencia
+      metodo_pago: tarjeta
     fileParameters: []
     responses: []
     responseFields: []
@@ -1161,7 +1161,7 @@ endpoints:
         name: usar_premio_rifa
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1184,7 +1184,7 @@ endpoints:
       metodo_pago: efectivo
       propina: 77
       puntos_canjeados: 8
-      usar_premio_rifa: false
+      usar_premio_rifa: true
       stripe_payment_id: architecto
     fileParameters: []
     responses: []
@@ -1450,7 +1450,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-08T22:44:06'
+        example: '2026-09-09T07:19:22'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1483,7 +1483,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1505,10 +1505,10 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-08T22:44:06'
+      fecha_nacimiento: '2026-09-09T07:19:22'
       pref_in_app: true
       pref_email: true
-      pref_sms: true
+      pref_sms: false
       pref_whatsapp: true
     fileParameters: []
     responses: []
@@ -1590,7 +1590,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-08T22:44:06'
+        example: '2026-09-09T07:19:22'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1601,7 +1601,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1612,7 +1612,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1623,7 +1623,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1644,10 +1644,10 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-08T22:44:06'
-      pref_in_app: false
-      pref_email: true
-      pref_sms: true
+      fecha_nacimiento: '2026-09-09T07:19:22'
+      pref_in_app: true
+      pref_email: false
+      pref_sms: false
       pref_whatsapp: true
     fileParameters: []
     responses: []
@@ -1833,7 +1833,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1846,7 +1846,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -1960,7 +1960,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1973,7 +1973,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2533,7 +2533,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '22:44'
+        example: '07:19'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2544,7 +2544,7 @@ endpoints:
         name: horario_cierre
         description: 'Must be a valid date in the format <code>H:i</code>. El campo value debe ser una fecha posterior a <code>horario_apertura</code>.'
         required: false
-        example: '2052-10-01'
+        example: '2052-10-02'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2642,8 +2642,8 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '22:44'
-      horario_cierre: '2052-10-01'
+      horario_apertura: '07:19'
+      horario_cierre: '2052-10-02'
       politica_cancelacion: 22
       instagram: g
       facebook: z
@@ -3323,7 +3323,7 @@ endpoints:
         name: email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3334,7 +3334,7 @@ endpoints:
         name: sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3345,7 +3345,7 @@ endpoints:
         name: whatsapp
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3356,7 +3356,7 @@ endpoints:
         name: push
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3375,10 +3375,10 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       in_app: true
-      email: true
-      sms: true
-      whatsapp: true
-      push: false
+      email: false
+      sms: false
+      whatsapp: false
+      push: true
       promociones: false
     fileParameters: []
     responses: []
@@ -4101,7 +4101,7 @@ endpoints:
         name: type
         description: ''
         required: true
-        example: ingresos
+        example: citas
         type: string
         enumValues:
           - ingresos
@@ -4116,7 +4116,7 @@ endpoints:
         name: period
         description: ''
         required: true
-        example: trimestre
+        example: dia
         type: string
         enumValues:
           - dia
@@ -4133,7 +4133,7 @@ endpoints:
         name: dateFrom
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-08T22:44:08'
+        example: '2026-09-09T07:19:24'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4144,7 +4144,7 @@ endpoints:
         name: dateTo
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-08T22:44:08'
+        example: '2026-09-09T07:19:24'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4165,10 +4165,10 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      type: ingresos
-      period: trimestre
-      dateFrom: '2026-09-08T22:44:08'
-      dateTo: '2026-09-08T22:44:08'
+      type: citas
+      period: dia
+      dateFrom: '2026-09-09T07:19:24'
+      dateTo: '2026-09-09T07:19:24'
       detail: detallado
     fileParameters: []
     responses: []
@@ -5431,7 +5431,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5457,7 +5457,7 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: false
+      activo: true
       active: true
     fileParameters: []
     responses: []
@@ -5594,7 +5594,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5605,7 +5605,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5620,8 +5620,8 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: true
-      active: true
+      activo: false
+      active: false
     fileParameters: []
     responses: []
     responseFields: []

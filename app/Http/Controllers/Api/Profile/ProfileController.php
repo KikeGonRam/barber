@@ -64,6 +64,7 @@ class ProfileController extends Controller
                 'client' => $user->clientProfile ? [
                     'telefono' => $user->clientProfile->telefono,
                     'fecha_nacimiento' => $user->clientProfile->fecha_nacimiento?->format('Y-m-d'),
+                    'sexo' => $user->clientProfile->sexo,
                 ] : null,
             ],
         ]);
@@ -76,6 +77,9 @@ class ProfileController extends Controller
      *
      * @bodyParam name string Nombre completo. Example: Juan Pérez Actualizado
      * @bodyParam email string Correo electrónico único. Example: nuevo@example.com
+     * @bodyParam telefono string Teléfono del perfil de cliente. Example: +52 55 1234 5678
+     * @bodyParam fecha_nacimiento date Fecha de nacimiento del cliente, anterior a hoy. Example: 1995-05-15
+     * @bodyParam sexo string Sexo opcional declarado por el cliente: masculino, femenino o prefiero_no_decir. Example: prefiero_no_decir
      *
      * @response {
      *  "message": "Perfil actualizado exitosamente",
@@ -91,10 +95,11 @@ class ProfileController extends Controller
             'email' => ['sometimes', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'telefono' => ['sometimes', 'nullable', 'string', 'max:30'],
             'fecha_nacimiento' => ['sometimes', 'nullable', 'date', 'before:today'],
+            'sexo' => ['sometimes', 'nullable', 'in:masculino,femenino,prefiero_no_decir'],
         ]);
 
         $userPayload = array_intersect_key($validated, array_flip(['name', 'email']));
-        $clientPayload = array_intersect_key($validated, array_flip(['telefono', 'fecha_nacimiento']));
+        $clientPayload = array_intersect_key($validated, array_flip(['telefono', 'fecha_nacimiento', 'sexo']));
 
         DB::transaction(function () use ($user, $userPayload, $clientPayload): void {
             if ($userPayload !== []) {

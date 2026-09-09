@@ -21,6 +21,7 @@ class Client extends Model
         'user_id',
         'telefono',
         'fecha_nacimiento',
+        'sexo',
         'preferencias_notificacion',
         'slug',
         'nivel',

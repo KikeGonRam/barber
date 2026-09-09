@@ -106,30 +106,42 @@ endpoints:
       telefono:
         custom: []
         name: telefono
-        description: 'El campo value no debe tener más de 30 caracteres.'
+        description: 'Teléfono del perfil de cliente.'
         required: false
-        example: i
+        example: '+52 55 1234 5678'
         type: string
         enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: true
         deprecated: false
       fecha_nacimiento:
         custom: []
         name: fecha_nacimiento
-        description: 'El campo value no es una fecha válida. El campo value debe ser una fecha anterior a <code>today</code>.'
+        description: 'Fecha de nacimiento del cliente, anterior a hoy.'
         required: false
-        example: '2022-10-03'
+        example: '1995-05-15'
+        type: date
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      sexo:
+        custom: []
+        name: sexo
+        description: 'Sexo opcional declarado por el cliente: masculino, femenino o prefiero_no_decir.'
+        required: false
+        example: prefiero_no_decir
         type: string
         enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: true
         deprecated: false
     cleanBodyParameters:
       name: 'Juan Pérez Actualizado'
       email: nuevo@example.com
-      telefono: i
-      fecha_nacimiento: '2022-10-03'
+      telefono: '+52 55 1234 5678'
+      fecha_nacimiento: '1995-05-15'
+      sexo: prefiero_no_decir
     fileParameters: []
     responses:
       -

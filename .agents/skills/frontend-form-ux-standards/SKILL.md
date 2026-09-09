@@ -41,7 +41,7 @@ Garantizar que los formularios de UrbanBlade sean accesibles, coherentes con los
 
 | Pantalla Frontend | Endpoint Backend | FormRequest / Validador | Campos Requeridos / Soportados |
 | :--- | :--- | :--- | :--- |
-| **`pages/profile.vue`** (Perfil de Usuario) | `PUT /api/v1/profile`<br>`PUT /api/v1/profile/password`<br>`DELETE /api/v1/profile` | `ProfileController` | `name`, `email`, `telefono`, `fecha_nacimiento`<br>Contraseña: `current_password`, `password`, `password_confirmation`<br>Eliminar: `password` |
+| **`pages/profile.vue`** (Perfil de Usuario) | `PUT /api/v1/profile`<br>`PUT /api/v1/profile/password`<br>`DELETE /api/v1/profile` | `ProfileController` | `name`, `email`; para cliente: `telefono`, `fecha_nacimiento`, `sexo` opcional<br>Contraseña: `current_password`, `password`, `password_confirmation`<br>Eliminar: `password` |
 | **`pages/barber/profile.vue`** (Perfil Barbero) | `POST /api/v1/barber/profile` | `UpdateBarberProfileRequest` | `especialidades` (string), `descripcion` (string), `foto` (file max 4MB) |
 | **`pages/barber/schedule.vue`** (Horario Barbero) | `PUT /api/v1/barber/schedule` | `UpdateBarberScheduleRequest` | `schedules`: `[{ day_of_week, start_time, end_time, is_active }]` |
 | **`pages/barber/portfolio.vue`** (Portafolio Barbero) | `POST /api/v1/barber/works` | `StoreWorkRequest` | `title` (string max 255), `description` (string max 2000), `media[]` (files max 50MB, img/video) |

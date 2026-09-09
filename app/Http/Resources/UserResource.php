@@ -25,6 +25,11 @@ class UserResource extends JsonResource
             'profile_missing' => $completion['missing'],
             'client_id' => $this->clientProfile?->id,
             'barber_id' => $this->barberProfile?->id,
+            'client' => $this->clientProfile ? [
+                'telefono' => $this->clientProfile->telefono,
+                'fecha_nacimiento' => $this->clientProfile->fecha_nacimiento?->format('Y-m-d'),
+                'sexo' => $this->clientProfile->sexo,
+            ] : null,
         ];
     }
 }

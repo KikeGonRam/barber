@@ -386,7 +386,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-01'
+        example: '2052-10-02'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -397,7 +397,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '22:44'
+        example: '07:19'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -408,7 +408,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: no_asistio
+        example: completada
         type: string
         enumValues:
           - pendiente
@@ -435,9 +435,9 @@ endpoints:
       client_id: architecto
       barber_id: architecto
       service_id: architecto
-      fecha: '2052-10-01'
-      hora_inicio: '22:44'
-      estado: no_asistio
+      fecha: '2052-10-02'
+      hora_inicio: '07:19'
+      estado: completada
       notas: 'n'
     fileParameters: []
     responses: []
@@ -490,7 +490,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: completada
+        example: cancelada
         type: string
         enumValues:
           - pendiente
@@ -514,7 +514,7 @@ endpoints:
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      estado: completada
+      estado: cancelada
       notas: b
     fileParameters: []
     responses: []
@@ -600,7 +600,7 @@ endpoints:
         name: period
         description: ''
         required: false
-        example: day
+        example: week
         type: string
         enumValues:
           - day
@@ -613,7 +613,7 @@ endpoints:
         name: estado
         description: ''
         required: false
-        example: completada
+        example: cancelada
         type: string
         enumValues:
           - pendiente
@@ -637,8 +637,8 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      period: day
-      estado: completada
+      period: week
+      estado: cancelada
       offset: -364
     fileParameters: []
     responses:
