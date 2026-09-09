@@ -52,13 +52,6 @@ $navSections = \App\Helpers\NavigationMenu::sections($user);
 
     <!-- User Footer Section (Fixed) -->
     <div :class="open ? 'block' : 'hidden'" class="hidden space-y-4 pt-4 md:block border-t border-white/10 flex-shrink-0">
-        <!-- Dark Mode Toggle y Keyboard Shortcuts -->
-        <div class="px-2 mb-2 flex items-center gap-2 justify-center md:justify-start" :class="!railCollapsed ? 'lg:justify-between' : ''">
-            <x-dark-mode-toggle />
-            <div class="hidden" :class="!railCollapsed ? 'lg:block' : ''">
-                <x-keyboard-shortcuts-help />
-            </div>
-        </div>
 
         <!-- Shortcut Hint -->
         <div class="px-2 mb-2 hidden" :class="!railCollapsed ? 'lg:block' : ''">
