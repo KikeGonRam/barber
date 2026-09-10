@@ -31,8 +31,15 @@ class AuthApiTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_register_creates_a_cliente_user_and_returns_a_token(): void
+    public function test_first_register_creates_a_cliente_when_bootstrap_admin_is_disabled(): void
     {
+        // Por defecto (config/auth.php: false salvo APP_ENV=local, y
+        // explícitamente false en .env.example incluso ahí) el primer
+        // registro público NUNCA se vuelve administrador -- solo
+        // AdminUserSeeder puede crear el admin inicial en producción. Este
+        // es el comportamiento real fuera de un entorno local.
+        config(['auth.first_user_admin_enabled' => false]);
+
         $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'Nuevo Cliente',
             'email' => 'nuevo-cliente-register@test.local',
@@ -42,12 +49,45 @@ class AuthApiTest extends TestCase
 
         $response->assertCreated();
         $response->assertJsonStructure(['message', 'token_type', 'token', 'user']);
+        $response->assertJsonPath('user.roles.0', 'cliente');
         $this->assertIsString($response->json('user.id'));
         $this->assertIsString($response->json('user.client_id'));
         $this->assertNull($response->json('user.barber_id'));
 
         $user = User::where('email', 'nuevo-cliente-register@test.local')->firstOrFail();
         $this->assertNotNull($user->email_verified_at);
+        $this->assertTrue($user->hasRole('cliente'));
+        $this->assertNotNull(Client::where('user_id', (string) $user->id)->first());
+    }
+
+    public function test_first_register_creates_an_administrator_when_bootstrap_admin_is_enabled(): void
+    {
+        // Opt-in explícito (FIRST_USER_ADMIN_ENABLED=true, típicamente solo
+        // en local): el primer registro público se vuelve administrador, y
+        // el siguiente ya nace cliente normal.
+        config(['auth.first_user_admin_enabled' => true]);
+
+        $firstResponse = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Primer Administrador',
+            'email' => 'primer-admin-register@test.local',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $firstResponse->assertCreated();
+        $firstResponse->assertJsonPath('user.roles.0', 'administrador');
+        $this->assertNull($firstResponse->json('user.client_id'));
+
+        $secondResponse = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Nuevo Cliente',
+            'email' => 'nuevo-cliente-register@test.local',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $secondResponse->assertCreated();
+        $secondResponse->assertJsonPath('user.roles.0', 'cliente');
+        $user = User::where('email', 'nuevo-cliente-register@test.local')->firstOrFail();
         $this->assertTrue($user->hasRole('cliente'));
         $this->assertNotNull(Client::where('user_id', (string) $user->id)->first());
     }

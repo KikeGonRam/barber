@@ -62,6 +62,25 @@ antes, el 2026-09-06 — ver `.claude/skills/urbanblade-guardrails/SKILL.md` (gu
 
 Todas estas vistas viven hoy en **`frontend-urban`** (Nuxt), no en este repositorio.
 
+## 🔐 Política de asignación de roles
+
+- Con `FIRST_USER_ADMIN_ENABLED=true` (por defecto solo si `APP_ENV=local`,
+  y explícitamente `false` en `.env.example` incluso ahí — ver
+  `config/auth.php`), el primer usuario creado en una base vacía, ya sea por
+  registro con contraseña o mediante Google, recibe el rol `administrador`.
+  **En producción este flag debe permanecer deshabilitado**: el administrador
+  inicial se crea vía `AdminUserSeeder`, no por el primer registro público que
+  llegue.
+- Todo registro público posterior (o el primero, si el flag está deshabilitado)
+  recibe exclusivamente el rol `cliente` y su perfil de cliente correspondiente.
+- Un inicio de sesión posterior con Google conserva el rol existente; Google
+  confirma identidad, no otorga ni reduce permisos.
+- Solo un `administrador` puede crear usuarios con otro rol o cambiar el rol
+  de una cuenta mediante la gestión de usuarios de la API.
+
+El conteo inicial incluye cuentas eliminadas lógicamente, de modo que borrar la
+única cuenta no habilita accidentalmente a otro registro público como administrador.
+
 ## 📸 Vista previa
 
 Estas dos capturas ya son de la interfaz real actual — Nuxt (`frontend-urban`), no el

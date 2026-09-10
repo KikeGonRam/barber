@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
+use MongoDB\Driver\Exception\BulkWriteException;
 use Throwable;
 
 /**
@@ -66,27 +67,67 @@ class SocialAuthController extends Controller
             return redirect("{$frontendUrl}/login?error=google_failed");
         }
 
-        $user = User::where('email', $googleUser->getEmail())->first();
+        $email = Str::lower(trim((string) $googleUser->getEmail()));
+        $user = User::withTrashed()->where('email', $email)->first();
         $avatarUrl = $googleUser->getAvatar();
 
+        // Un usuario eliminado lógicamente sigue ocupando su correo en el
+        // índice único de MongoDB. Google ya validó que la persona controla
+        // ese correo, por lo que se recupera su misma cuenta sin crear una
+        // paralela ni perder el perfil/historial asociado.
+        if ($user?->trashed()) {
+            $user->restore();
+        }
+
         if (! $user) {
-            $user = User::create([
-                'name' => $googleUser->getName() ?: $googleUser->getNickname() ?: 'Cliente Google',
-                'email' => $googleUser->getEmail(),
-                // Contraseña aleatoria: este usuario solo entra por Google, pero
-                // el campo es NOT NULL -- nunca se le comunica ni se usa para login normal.
-                'password' => Hash::make(Str::random(40)),
-            ]);
-            $user->markEmailAsVerified();
+            // Google solo acredita la identidad. El primer alta pública puede
+            // bootstrapear al administrador SOLO si el flag está habilitado
+            // (config/auth.php: deshabilitado por defecto salvo APP_ENV=local,
+            // y explícitamente false en .env.example incluso ahí -- mismo gate
+            // que AuthController::register(), para que Google no sea una vía
+            // paralela sin el mismo candado). Un login posterior nunca cambia
+            // el rol existente.
+            $canBootstrapAdmin = User::withTrashed()->count() === 0
+                && (bool) config('auth.first_user_admin_enabled', false);
 
-            $role = Role::firstOrCreate(['name' => 'cliente', 'guard_name' => 'web']);
-            $user->syncRoles([$role]);
+            try {
+                $user = User::create([
+                    'name' => $googleUser->getName() ?: $googleUser->getNickname() ?: 'Cliente Google',
+                    'email' => $email,
+                    // Contraseña aleatoria: este usuario solo entra por Google, pero
+                    // el campo es NOT NULL -- nunca se le comunica ni se usa para login normal.
+                    'password' => Hash::make(Str::random(40)),
+                ]);
+                $user->markEmailAsVerified();
 
-            Client::firstOrCreate(['user_id' => $user->id], [
-                'preferencias_notificacion' => ['in_app' => true, 'email' => true, 'sms' => false, 'whatsapp' => false],
-            ]);
+                $role = Role::firstOrCreate([
+                    'name' => $canBootstrapAdmin ? 'administrador' : 'cliente',
+                    'guard_name' => 'web',
+                ]);
+                $user->syncRoles([$role]);
 
-            event(new Registered($user));
+                if (! $canBootstrapAdmin) {
+                    Client::firstOrCreate(['user_id' => $user->id], [
+                        'preferencias_notificacion' => ['in_app' => true, 'email' => true, 'sms' => false, 'whatsapp' => false],
+                    ]);
+                }
+
+                event(new Registered($user));
+            } catch (BulkWriteException $exception) {
+                // Dos callbacks pueden terminar casi a la vez. El segundo
+                // debe reutilizar la cuenta recién creada, no responder 500.
+                if ($exception->getCode() !== 11000) {
+                    throw $exception;
+                }
+
+                $user = User::where('email', $email)->first();
+
+                if (! $user) {
+                    Log::warning('Colisión de correo durante login con Google; se requiere reintento.');
+
+                    return redirect("{$frontendUrl}/login?error=google_retry");
+                }
+            }
         }
 
         if (! $user->avatar_url || $this->isGoogleAvatarUrl($user->avatar_url)) {

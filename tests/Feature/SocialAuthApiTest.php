@@ -58,8 +58,12 @@ class SocialAuthApiTest extends TestCase
         $this->assertStringContainsString('socialite.fake/google', $response->headers->get('Location'));
     }
 
-    public function test_callback_creates_a_new_cliente_user_and_redirects_with_a_token(): void
+    public function test_first_google_callback_creates_a_cliente_when_bootstrap_admin_is_disabled(): void
     {
+        // Mismo gate que AuthController::register() (config/auth.php,
+        // deshabilitado por defecto): sin el opt-in explícito, ni siquiera
+        // el primer login con Google se vuelve administrador.
+        Config::set('auth.first_user_admin_enabled', false);
         Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
         Socialite::fake('google', $this->fakeGoogleUser('nuevo-via-google@test.local', 'Nuevo Via Google'));
 
@@ -73,7 +77,34 @@ class SocialAuthApiTest extends TestCase
         $this->assertNotNull($user->email_verified_at);
         $this->assertStringContainsString('/storage/avatars/'.(string) $user->id.'/', $user->avatar_url);
         $this->assertTrue($user->hasRole('cliente'));
-        $this->assertFalse($user->profileCompletion()['complete']);
+        $this->assertNotNull(Client::where('user_id', (string) $user->id)->first());
+    }
+
+    public function test_first_google_callback_creates_an_administrator_when_bootstrap_admin_is_enabled(): void
+    {
+        Config::set('auth.first_user_admin_enabled', true);
+        Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
+        Socialite::fake('google', $this->fakeGoogleUser('nuevo-via-google@test.local', 'Nuevo Via Google'));
+
+        $response = $this->get('/api/v1/auth/google/callback');
+
+        $response->assertRedirect();
+        $user = User::where('email', 'nuevo-via-google@test.local')->firstOrFail();
+        $this->assertTrue($user->hasRole('administrador'));
+        $this->assertNull(Client::where('user_id', (string) $user->id)->first());
+    }
+
+    public function test_subsequent_google_callback_creates_a_cliente_user(): void
+    {
+        User::create(['name' => 'Primer usuario', 'email' => 'primer-usuario@test.local', 'password' => 'password']);
+        Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
+        Socialite::fake('google', $this->fakeGoogleUser('cliente-via-google@test.local', 'Cliente Via Google'));
+
+        $response = $this->get('/api/v1/auth/google/callback');
+
+        $response->assertRedirect();
+        $user = User::where('email', 'cliente-via-google@test.local')->firstOrFail();
+        $this->assertTrue($user->hasRole('cliente'));
         $this->assertNotNull(Client::where('user_id', (string) $user->id)->first());
     }
 
@@ -90,6 +121,25 @@ class SocialAuthApiTest extends TestCase
 
         $response->assertRedirect();
         $this->assertSame(1, User::where('email', 'ya-existe-google@test.local')->count());
+    }
+
+    public function test_callback_restores_a_soft_deleted_user_without_creating_another_one(): void
+    {
+        $deleted = User::create([
+            'name' => 'Cuenta eliminada',
+            'email' => 'eliminado-google@test.local',
+            'password' => 'password',
+        ]);
+        $deleted->delete();
+
+        Socialite::fake('google', $this->fakeGoogleUser('eliminado-google@test.local'));
+
+        $response = $this->get('/api/v1/auth/google/callback');
+
+        $response->assertRedirect();
+        $this->assertStringStartsWith(config('app.frontend_url').'/auth/callback?token=', $response->headers->get('Location'));
+        $this->assertSame(1, User::withTrashed()->where('email', 'eliminado-google@test.local')->count());
+        $this->assertFalse(User::withTrashed()->where('email', 'eliminado-google@test.local')->firstOrFail()->trashed());
     }
 
     public function test_callback_imports_google_avatar_for_existing_admin(): void

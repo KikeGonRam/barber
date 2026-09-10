@@ -110,8 +110,16 @@ class AuthController extends Controller
             'device_name' => ['nullable', 'string', 'max:100'],
         ]);
 
-        // Count users before creating a new one
-        $userCountBefore = User::count();
+        // El primer usuario físico de la base (incluso si hubo cuentas
+        // eliminadas lógicamente) es el único candidato a bootstrap
+        // administrador -- pero solo si el flag está habilitado
+        // (config/auth.php: deshabilitado por defecto salvo APP_ENV=local,
+        // y explícitamente false en .env.example incluso ahí). Sin este
+        // gate, cualquiera que gane la carrera de ser el primer registro
+        // público en un despliegue recién sembrado se vuelve administrador
+        // -- el admin real debe crearse vía AdminUserSeeder en producción.
+        $canBootstrapAdmin = User::withTrashed()->count() === 0
+            && (bool) config('auth.first_user_admin_enabled', false);
 
         $user = User::create([
             'name' => $validated['name'],
@@ -122,24 +130,20 @@ class AuthController extends Controller
         // Mark email as verified for mobile app (can be changed later)
         $user->markEmailAsVerified();
 
-        $canBootstrapAdmin = $userCountBefore === 0
-            && (bool) config('auth.first_user_admin_enabled', false);
-
-        // Assign role based on safe bootstrap settings
         if ($canBootstrapAdmin) {
-            // First user gets admin role
+            // El primer usuario obtiene administrador solo una vez.
             $role = Role::firstOrCreate([
                 'name' => 'administrador',
                 'guard_name' => 'web',
             ]);
-            $user->assignRole($role);
+            $user->syncRoles([$role]);
         } else {
-            // All other users get client role
+            // Todos los registros públicos posteriores nacen como cliente.
             $role = Role::firstOrCreate([
                 'name' => 'cliente',
                 'guard_name' => 'web',
             ]);
-            $user->assignRole($role);
+            $user->syncRoles([$role]);
 
             // Create client profile
             Client::firstOrCreate([
