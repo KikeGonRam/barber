@@ -1096,7 +1096,7 @@ parameters:
 			message: '#^Call to an undefined method Illuminate\\Database\\Connection\:\:getDatabase\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: app/Http/Controllers/Dashboard/DatabaseBackupController.php
+			path: app/Services/System/DatabaseBackupService.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$read_at\.$#'

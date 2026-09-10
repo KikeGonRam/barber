@@ -3,6 +3,7 @@
 namespace App\Services\Member;
 
 use App\Models\User;
+use App\Services\Loyalty\LoyaltyService;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\SvgWriter;
@@ -65,5 +66,36 @@ class MemberCardService
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    /**
+     * Payload completo para renderizar la tarjeta descargable en PDF
+     * (pdf.membership-card): nivel, puntos, beneficios desbloqueados y QR en
+     * PNG (mas confiable que SVG dentro de DomPDF). Compartido por
+     * Client\MembershipController (Blade, sesion web) y
+     * Api\Dashboard\MembershipController (API, token Bearer -- frontend-urban).
+     */
+    public function cardPdfData(User $user): array
+    {
+        $client = $user->clientProfile;
+        $nivel = $client->nivel ?? 'nuevo';
+        $puntos = (int) ($client->puntos ?? 0);
+        $discount = LoyaltyService::DISCOUNTS[$nivel] ?? 0;
+
+        return [
+            'nombre' => $user->name,
+            'nivel' => $nivel,
+            'label' => LoyaltyService::LEVEL_LABELS[$nivel] ?? strtoupper($nivel),
+            'puntos' => $puntos,
+            'numero' => $this->memberNumber($user),
+            'desde' => $this->memberSince($user),
+            'qr' => $this->qrPngDataUri($user),
+            'beneficios' => [
+                ['on' => $discount > 0, 'text' => $discount > 0 ? "{$discount}% de descuento" : 'Sin descuento aun'],
+                ['on' => in_array($nivel, ['regular', 'vip', 'leyenda']), 'text' => 'Reserva prioritaria'],
+                ['on' => in_array($nivel, ['vip', 'leyenda']), 'text' => 'Sorteo mensual'],
+                ['on' => $nivel === 'leyenda', 'text' => 'Producto gratis al mes'],
+            ],
+        ];
     }
 }

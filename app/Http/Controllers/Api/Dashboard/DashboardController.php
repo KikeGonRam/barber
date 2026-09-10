@@ -188,10 +188,10 @@ class DashboardController extends Controller
     /**
      * Mismo shape curado que Dashboard\DashboardController::index() (rama
      * cliente) — ver receptionistPayload() arriba para el porqué de este
-     * patrón. `member.downloadUrl` se omite (null): la tarjeta descargable
-     * en PDF vive en una ruta web de Blade que no existe en este frontend
-     * todavía, así que el botón "Descargar tarjeta" simplemente no se
-     * renderiza (MembershipCard.vue ya lo hace condicional a que exista).
+     * patrón. `member.downloadUrl` apunta a
+     * Api\Dashboard\MembershipController::downloadCard() (token Bearer, no
+     * sesión web) -- MembershipCard.vue hace un fetch autenticado a esa
+     * ruta y dispara la descarga del blob, no un <a href> directo.
      */
     private function clientPayload(User $user): array
     {
@@ -247,7 +247,7 @@ class DashboardController extends Controller
                 'number' => $this->memberCardService->memberNumber($user),
                 'since' => $this->memberCardService->memberSince($user),
                 'qr' => $this->memberCardService->qrDataUri($user),
-                'downloadUrl' => null,
+                'downloadUrl' => '/dashboard/membership/card',
             ],
             'recommendation' => $clienteReco ? [
                 'valorDestacado' => $clienteReco->valor_destacado,

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Admin\Client\ClientAdminController;
 use App\Http\Controllers\Api\Admin\Dashboard\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\Inventory\InventoryAdminController;
 use App\Http\Controllers\Api\Admin\Report\ReportAdminController;
+use App\Http\Controllers\Api\Admin\System\BackupController;
 use App\Http\Controllers\Api\Admin\System\SystemController;
 use App\Http\Controllers\Api\Analytics\AnalyticsController as ApiAnalyticsController;
 use App\Http\Controllers\Api\Appointment\AppointmentController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Api\Catalog\CatalogController;
 use App\Http\Controllers\Api\Chatbot\ChatbotManagementController;
 use App\Http\Controllers\Api\Client\ClientController as ApiClientController;
 use App\Http\Controllers\Api\Dashboard\DashboardController;
+use App\Http\Controllers\Api\Dashboard\MembershipController as ApiMembershipController;
 use App\Http\Controllers\Api\Inventory\InventoryController as ApiInventoryController;
 use App\Http\Controllers\Api\Log\LogController as ApiLogController;
 use App\Http\Controllers\Api\Notification\NotificationController as ApiNotificationController;
@@ -94,6 +96,10 @@ Route::prefix('v1')->group(function (): void {
 
         // Dashboard
         Route::get('dashboard', [DashboardController::class, 'index']);
+
+        // Tarjeta de membresia (PDF descargable, solo cliente -- 403 en el
+        // controlador para quien no tenga clientProfile).
+        Route::get('dashboard/membership/card', [ApiMembershipController::class, 'downloadCard']);
 
         // Analítica (los 4 roles la ven, cada uno con su propio recorte — ver AnalyticsController)
         Route::get('analytics', [ApiAnalyticsController::class, 'index']);
@@ -191,6 +197,10 @@ Route::prefix('v1')->group(function (): void {
 
             // Reseñas de clientes a barberos (Admin)
             Route::get('reviews', [ApiReviewController::class, 'index']);
+
+            // Respaldo de la base de datos (zip, mismo export que la ruta
+            // web de Blade -- ver App\Services\System\DatabaseBackupService).
+            Route::get('system/backup', [BackupController::class, 'download']);
         });
 
         // Administrador e ingeniero (rol de solo lectura): reportes y logs.
