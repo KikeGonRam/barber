@@ -11,7 +11,7 @@ UrbanBlade está compuesto por **tres proyectos independientes**:
 
 | Proyecto | Repositorio | Función |
 |---|---|---|
-| **`barber/`** | `KikeGonRam/barber` (rama `main`) | API JSON Laravel (Bearer token, `mobile_api_tokens`) + un puñado cerrado de páginas Blade que el frontend Nuxt todavía no cubre (landing, catálogo público, auth, perfil, notificaciones, chatbot, tarjeta de membresía) |
+| **`barber/`** | `KikeGonRam/barber` (rama `main`) | API JSON Laravel (Bearer token, `mobile_api_tokens`) + un puñado cerrado de páginas Blade que el frontend Nuxt todavía no cubre (landing pública, login/registro/recuperación de contraseña, chatbot) |
 | **`frontend-urban/`** | `KikeGonRam/frontend_Urbanblade` (rama `main`) | **La app real** — Nuxt 4, consume la API de `barber/`. Aquí viven los 4 dashboards por rol, citas, pagos, inventario, tienda, campañas, reportes, analítica, muro social y reseñas. El panel Blade/Inertia equivalente en `barber/` se retiró por completo el 2026-09-06 al alcanzar paridad funcional confirmada — ver `.claude/skills/urbanblade-guardrails/SKILL.md`, guardrail #18. |
 | **`spark/`** | `KikeGonRam/spark` (rama `urbanblade-analytics`) | Módulo de analítica Big Data (PySpark) — proyecto académico independiente que lee la misma base de datos MongoDB en modo solo-lectura. Pausado, no se trabaja activamente. |
 
