@@ -5,30 +5,14 @@ use App\Http\Controllers\Campaign\TrackingController;
 use App\Http\Controllers\Chatbot\ChatbotController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Profile\ProfileController;
-use App\Models\Appointment;
 use App\Models\Barber;
-use App\Models\Client;
-use App\Models\Comment;
-use App\Models\Service;
-use Illuminate\Support\Facades\Cache;
 
-// Página de inicio pública: muestra servicios, barberos destacados y estadísticas globales.
-Route::get('/', function () {
-    // Cache landing page data for 5 minutes — 7 queries → 0 on cache hit
-    $services = Cache::remember('landing_services', 300, fn () => Service::where('activo', true)->limit(6)->get()
-    );
-    $barbers = Cache::remember('landing_barbers', 300, fn () => Barber::with('user')->where('activo', true)->limit(4)->get()
-    );
-    $statsGlobales = Cache::remember('landing_stats', 300, fn () => [
-        'clientes' => Client::count(),
-        'servicios' => Service::where('activo', true)->count(),
-        'citas' => Appointment::where('estado', 'completada')->count(),
-        'rating' => number_format((float) (Comment::whereNotNull('rating')->avg('rating') ?? 4.9), 1),
-        'resenas' => Comment::whereNotNull('rating')->count(),
-    ]);
-
-    return view('welcome', compact('services', 'barbers', 'statsGlobales'));
-})->name('home');
+// Landing pública: migrada a Nuxt el 2026-09-09. frontend-urban ya tenía su
+// propia landing completa (app/pages/index.vue) desde antes -- de hecho más
+// completa que welcome.blade.php (respeta los 4 temas, no solo negro fijo).
+// Redirect público: nadie necesita sesión para ver la landing. Ruta con
+// nombre conservada (no borrada) para no romper route('home').
+Route::get('/', fn () => redirect(config('app.frontend_url')))->name('home');
 
 Route::get('/mantenimiento', function () {
     return view('errors.maintenance');

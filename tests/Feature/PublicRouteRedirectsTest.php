@@ -8,9 +8,10 @@ use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
- * Regresión: /equipo/{barber}, /servicios, /notifications,
- * /notifications/preferences, /profile, backups/database y
- * cliente/membresia/tarjeta dejaron de renderizar vistas Blade o exigir
+ * Regresión: /, /equipo/{barber}, /servicios, /notifications,
+ * /notifications/preferences, /profile, backups/database,
+ * cliente/membresia/tarjeta, login, register, forgot-password y
+ * reset-password/{token} dejaron de renderizar vistas Blade o exigir
  * sesión el 2026-09-09 -- ahora redirigen a sus equivalentes en
  * frontend-urban (Nuxt), que ya tienen paridad funcional completa. Ninguna
  * requiere sesión: Nuxt resuelve su propia auth con el token Bearer, no con
@@ -76,5 +77,40 @@ class PublicRouteRedirectsTest extends TestCase
         $response = $this->get('/cliente/membresia/tarjeta');
 
         $response->assertRedirect(config('app.frontend_url').'/dashboard');
+    }
+
+    public function test_landing_redirects_to_frontend(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertRedirect(config('app.frontend_url'));
+    }
+
+    public function test_login_redirects_to_frontend(): void
+    {
+        $response = $this->get('/login');
+
+        $response->assertRedirect(config('app.frontend_url').'/login');
+    }
+
+    public function test_register_redirects_to_frontend(): void
+    {
+        $response = $this->get('/register');
+
+        $response->assertRedirect(config('app.frontend_url').'/register');
+    }
+
+    public function test_forgot_password_redirects_to_frontend(): void
+    {
+        $response = $this->get('/forgot-password');
+
+        $response->assertRedirect(config('app.frontend_url').'/forgot-password');
+    }
+
+    public function test_reset_password_redirects_to_frontend_with_the_token(): void
+    {
+        $response = $this->get('/reset-password/abc123');
+
+        $response->assertRedirect(config('app.frontend_url').'/reset-password?token=abc123');
     }
 }
