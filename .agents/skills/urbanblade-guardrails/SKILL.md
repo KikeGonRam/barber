@@ -329,6 +329,42 @@ proceeds:
   `NavigationMenu::sections()` is now down to a single hardcoded item ("Dashboard") —
   worth a real look before adding the *next* thing here, since the whole
   collect/map/reject scaffolding built for many conditional sections is now serving one.
+- **2026-09-09: `/servicios`, `/equipo/{barber}`, `/notifications(/preferences)`,
+  `/profile`, `backups/database`, and `client.membership.card` were retired too**, once
+  frontend-urban built real Nuxt pages for each (a public services catalog and barber
+  profile at `/servicios`/`/equipo(/[slug])`, `/notifications`, `/profile`, a "Descargar
+  respaldo" button on `/settings`, and a working "Descargar tarjeta" button on
+  `MembershipCard.vue`) backed by two new Bearer-token API endpoints: `GET
+  /api/v1/system/backup` (admin-only) and `GET /api/v1/dashboard/membership/card`
+  (cliente-only) — see `App\Services\System\DatabaseBackupService` and
+  `App\Services\Member\MemberCardService::cardPdfData()`, both extracted so the Blade
+  controllers and the new API controllers share the same export/PDF logic instead of
+  duplicating it. `GET barbers/{barber}` (`CatalogController::showBarber`) also moved
+  out of the `mobile.auth` API middleware group the same day, since a public barber
+  profile page can't require a token — `POST barbers/{barber}/review` stayed gated.
+  Same redirect pattern as every entry above: named routes stay registered, closures
+  become `redirect(config('app.frontend_url').'/...')`, PATCH/DELETE/AJAX endpoints
+  still consumed by surviving Blade (the notification toaster's poll/read-all/read-one,
+  profile's update/theme/destroy forms) were left alone since nothing links to a page
+  that submits to them anymore, but deleting the routes outright would be needless
+  risk. `RoleAuthorizationTest.php` was rewritten around this: with
+  `backups.database.download`/`client.membership.card` no longer role-gated,
+  `chatbot.train-history` is now the *only* Blade route left that still requires a
+  specific role — the redirect assertions moved to `PublicRouteRedirectsTest.php`.
+  **Also found the same day**: `test.ps1` only ran `config:clear` before tests, not
+  `route:clear` — a stale `bootstrap/cache/routes-v7.php` from an earlier `route:cache`
+  (added 2026-09-09 to fix the 9p/DrvFS dev-server latency, see guardrail #21) silently
+  masked a real route-file change, making a brand-new regression test fail against the
+  *old* route even though the file on disk was already correct. Fixed by adding
+  `route:clear` alongside the existing `config:clear` at the top of the script.
+  **What's left in Blade now, genuinely** (see the top of `CLAUDE.md`/`AGENTS.md` for
+  the always-current short version): the public landing (`/`), all of `routes/auth.php`,
+  and the chatbot widget (`chatbot.query` public, `chatbot.clear-history` session-gated
+  — both still called by the widget embedded in `welcome.blade.php` and the global
+  staff layout). `chatbot.history`/`chatbot.profile`/`chatbot.learning-stats` are
+  confirmed orphaned (nothing calls them — Nuxt's own `useChatbot.ts` uses its separate,
+  more complete API-based endpoints instead) but were deliberately left alone rather
+  than deleted, since that's a dead-code cleanup, not a migration gap.
 
 ## 20. Some models bind routes by a pretty key, not `id` — `Client`/`Barber`/`Service` use `slug`, `Appointment` uses `code`
 
@@ -606,23 +642,31 @@ se construyó `Api\Analytics\AnalyticsController` para desbloquearla.
    `Barber\BarberController` conservó solo `show()`), y unos 50 archivos
    Blade eliminados.
 
-**Qué sigue vivo en este repo porque Nuxt no lo cubre (decisión consciente,
-no deuda técnica):** la landing pública (`/`), el catálogo público
-(`/servicios`, `/equipo/{barber}`), todo `routes/auth.php` (login, registro,
-recuperación de contraseña, verificación de email), `/profile`,
-`/notifications`, los endpoints del chatbot, el endpoint de respaldo de base
-de datos, y la tarjeta de membresía en PDF del cliente. `/dashboard` y
-`/appointments-calendar` siguen existiendo como rutas, pero ahora son
-redirects a `config('app.frontend_url')` (env `FRONTEND_URL`), no páginas.
+**Qué seguía vivo en este repo en ese momento porque Nuxt no lo cubría
+todavía:** la landing pública (`/`), el catálogo público (`/servicios`,
+`/equipo/{barber}`), todo `routes/auth.php` (login, registro, recuperación
+de contraseña, verificación de email), `/profile`, `/notifications`, los
+endpoints del chatbot, el endpoint de respaldo de base de datos, y la
+tarjeta de membresía en PDF del cliente. `/dashboard` y
+`/appointments-calendar` ya existían como redirects a
+`config('app.frontend_url')` (env `FRONTEND_URL`), no páginas.
 
 **Paso 3, mismo día más tarde:** el muro social (`/descubrir`) y
 `reviews.index` (`/resenas`) — las dos últimas páginas Blade con "página
-real" detrás — se retiraron también en cuanto Nuxt construyó Muro
-Inspiración (`/social/feed`) y Reseñas (`/reviews`) con paridad confirmada.
-Ver guardrail #19 arriba para el detalle. Con esto, todo lo que sobrevive en
-Blade es: landing pública, catálogo público, auth, perfil, notificaciones,
-chatbot, respaldo de BD, y la tarjeta de membresía — nada que tenga (o vaya
-a tener) un equivalente propio en Nuxt en el corto plazo.
+real" detrás en ese momento — se retiraron también en cuanto Nuxt construyó
+Muro Inspiración (`/social/feed`) y Reseñas (`/reviews`) con paridad
+confirmada. Ver guardrail #19 arriba para el detalle.
+
+**Actualización 2026-09-09** (ver el bullet correspondiente en guardrail #19
+para el detalle completo): `/servicios`, `/equipo/{barber}`,
+`/notifications(/preferences)`, `/profile`, el respaldo de BD y la tarjeta
+de membresía también pasaron a ser redirects, no páginas, una vez que Nuxt
+construyó equivalentes reales para cada uno. Lo único que sigue siendo
+Blade de verdad hoy: landing pública, `routes/auth.php`, y el widget del
+chatbot (`chatbot.query` público, `chatbot.clear-history` con sesión) — ver
+la sección "Estado actual" al principio de `CLAUDE.md`/`AGENTS.md` para la
+versión siempre-vigente de esta lista, en vez de confiar en este párrafo
+histórico.
 
 **El hallazgo más importante del proceso de retiro**, por si se repite un
 retiro similar en el futuro: `route()` de Laravel lanza excepción si la ruta

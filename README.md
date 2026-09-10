@@ -11,9 +11,11 @@ experiencias diferenciadas para administrador, recepcionista, barbero y cliente.
 **Este repositorio (`barber`) es hoy, funcionalmente, la API JSON que consume el
 frontend real de la aplicación — [`frontend-urban`](https://github.com/KikeGonRam/frontend_Urbanblade)
 (Nuxt 4)** — más un puñado cerrado de páginas Blade que Nuxt todavía no cubre: landing
-pública, catálogo público de servicios/equipo, login/registro/recuperación de
-contraseña, `/profile`, `/notifications`, el chatbot y la tarjeta de membresía en PDF.
-El panel administrativo completo (los 4 dashboards por rol, citas, clientes, pagos,
+pública, login/registro/recuperación de contraseña, y el chatbot. Catálogo público de
+servicios/equipo, `/profile`, `/notifications`, el respaldo de base de datos y la
+tarjeta de membresía en PDF ya tienen paridad completa en Nuxt (2026-09-09); sus rutas
+en `barber` son redirects, no vistas. El panel administrativo completo (los 4
+dashboards por rol, citas, clientes, pagos,
 pedidos, inventario, servicios, usuarios, campañas, reportes, etc.) se retiró de este
 repo el 2026-09-06 una vez que Nuxt alcanzó paridad funcional confirmada — ver
 `.claude/skills/urbanblade-guardrails/SKILL.md` (guardrail #18) para el historial
