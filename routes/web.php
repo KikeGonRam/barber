@@ -1,14 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AuthController;
-use App\Http\Controllers\Barber\BarberController;
 use App\Http\Controllers\Campaign\TrackingController;
 use App\Http\Controllers\Chatbot\ChatbotController;
 use App\Http\Controllers\Client\MembershipController;
 use App\Http\Controllers\Dashboard\DatabaseBackupController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Profile\ProfileController;
-use App\Http\Controllers\Service\ServiceController;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
@@ -38,9 +36,15 @@ Route::get('/mantenimiento', function () {
     return view('errors.maintenance');
 })->name('maintenance');
 
-// Perfil público de un barbero (portafolio, reseñas) y catálogo público de servicios.
-Route::get('/equipo/{barber}', [BarberController::class, 'show'])->name('barbers.public.show');
-Route::get('/servicios', [ServiceController::class, 'publicIndex'])->name('services.public.index');
+// Perfil público de un barbero y catálogo de servicios: migrados a Nuxt
+// (frontend-urban) el 2026-09-09 -- /equipo(/[slug]) y /servicios ahí tienen
+// paridad completa (mismo CatalogController via API, GET barbers/{barber} ya
+// público). Rutas con nombre conservadas (no borradas) para no romper
+// route('services.public.index')/route('barbers.public.show', ...), usados
+// en welcome.blade.php y TrackingController -- ver la lección de 2026-09-06
+// documentada en urbanblade-guardrails.
+Route::get('/equipo/{barber}', fn (Barber $barber) => redirect(config('app.frontend_url').'/equipo/'.$barber->slug))->name('barbers.public.show');
+Route::get('/servicios', fn () => redirect(config('app.frontend_url').'/servicios'))->name('services.public.index');
 
 // Seguimiento de campanas (publico: los golpea el cliente de correo).
 Route::get('/t/o/{campaign}/{user}', [TrackingController::class, 'open'])->name('track.open');
@@ -85,15 +89,26 @@ Route::post('/api/v1/auth/get-api-token', [AuthController::class, 'getWebApiToke
     ->middleware(['web', 'auth', 'throttle:20,1'])
     ->name('api.get-token');
 
-// Bloque principal de rutas autenticadas: perfil y notificaciones (sin
-// equivalente en Nuxt), más lo que sobrevive de cada rol.
+// Página de notificaciones y sus preferencias: migradas a Nuxt el
+// 2026-09-09 (mismo Api\Notification\NotificationController via API,
+// paridad completa). Redirect público (no requiere sesión web -- Nuxt
+// resuelve su propia auth con el token Bearer) para que el enlace del pie
+// de los correos (route('notifications.preferences') en
+// vendor/mail/html/message.blade.php) y el ícono del topbar
+// (notification-toaster.blade.php) sigan funcionando.
+Route::get('/notifications', fn () => redirect(config('app.frontend_url').'/notifications'))->name('notifications.index');
+Route::get('/notifications/preferences', fn () => redirect(config('app.frontend_url').'/notifications'))->name('notifications.preferences');
+
+// Bloque principal de rutas autenticadas: perfil (sin equivalente en Nuxt) y
+// los endpoints AJAX de notificaciones que siguen usando el toaster global
+// (notification-toaster.blade.php) y la página de preferencias en las
+// pantallas que aún son Blade (paneles de staff), más lo que sobrevive de
+// cada rol.
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/theme', [ProfileController::class, 'updateTheme'])->name('profile.theme.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/preferences', [NotificationController::class, 'preferences'])->name('notifications.preferences');
     Route::patch('/notifications/preferences', [NotificationController::class, 'updatePreferences'])->name('notifications.preferences.update');
     Route::get('/notifications/poll', [NotificationController::class, 'poll'])->name('notifications.poll');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');

@@ -2922,3 +2922,15 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: tests/Feature/StripeWebhookControllerTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: routes/web.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/PublicRouteRedirectsTest.php
