@@ -14,7 +14,11 @@ use Illuminate\Http\Request;
 /**
  * Controlador de reportes del panel admin.
  * Genera reportes de ingresos, citas, inventario y clientes agregados por
- * periodo, además de reportes personalizados y exportación.
+ * periodo. (generateCustomReport/exportReport/listReports existieron como
+ * placeholders sin consumidor real -- confirmado con grep sobre
+ * frontend-urban -- y devolvían éxito fabricado sin generar nada de
+ * verdad; eliminados el 2026-09-10 en vez de dejarlos como una trampa
+ * para un futuro cliente Android nativo, ver guardrail #11.)
  */
 class ReportAdminController
 {
@@ -208,54 +212,6 @@ class ReportAdminController
                 'loyaltyClients' => $loyalClients,
                 'clientRetention' => round(($activeClients / max($totalClients, 1)) * 100),
             ],
-        ]);
-    }
-
-    // Valida los parámetros de un reporte personalizado y devuelve su metadata (no genera el contenido real)
-    public function generateCustomReport(Request $request): JsonResponse
-    {
-        $this->authorizeAdmin();
-        $validated = $request->validate([
-            'type' => 'required|in:ingresos,citas,inventario,clientes',
-            'period' => 'required|in:dia,semana,mes,trimestre,año,personalizado',
-            'dateFrom' => 'nullable|date',
-            'dateTo' => 'nullable|date',
-            'detail' => 'required|in:resumen,detallado,muy-detallado',
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => uniqid('report-'),
-                'name' => 'Reporte '.ucfirst($validated['type']),
-                'type' => $validated['type'],
-                'period' => $validated['period'],
-                'detail' => $validated['detail'],
-                'startDate' => $validated['dateFrom'] ?? $this->getStartDate($validated['period'])->toDateString(),
-                'endDate' => $validated['dateTo'] ?? Carbon::now()->toDateString(),
-                'generatedAt' => Carbon::now()->toIso8601String(),
-            ],
-        ]);
-    }
-
-    // Placeholder: confirma la exportación pero no genera ni adjunta ningún archivo real
-    public function exportReport(Request $request): JsonResponse
-    {
-        $format = $request->query('format', 'pdf');
-        $type = $request->query('type', 'ingresos');
-
-        return response()->json([
-            'success' => true,
-            'message' => "Reporte de {$type} exportado en formato {$format}",
-        ]);
-    }
-
-    // Placeholder: siempre devuelve lista vacía, no hay persistencia de reportes generados aún
-    public function listReports(Request $request): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'data' => [],
         ]);
     }
 

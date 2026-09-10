@@ -72,7 +72,6 @@ class EngineerRoleAuthorizationTest extends TestCase
         $this->getAs($token, '/api/v1/admin/dashboard/stats')->assertOk();
         $this->getAs($token, '/api/v1/admin/dashboard/metrics')->assertOk();
         $this->getAs($token, '/api/v1/admin/predictions/insights')->assertOk();
-        $this->getAs($token, '/api/v1/admin/reports/list')->assertOk();
         $this->getAs($token, '/api/v1/reports')->assertOk();
         $this->getAs($token, '/api/v1/logs')->assertOk();
     }
