@@ -1,26 +1,27 @@
-# UrbanBlade (barber) — JSON API + surviving public/account pages
+# UrbanBlade (barber) — pure JSON API server
 
 Personal/school project (team: "Equipo UrbanBlade"). This repo used to be a full
 Laravel+Blade admin panel (role-based dashboards for Admin, Recepcionista, Barbero,
-Cliente). **That panel was retired on 2026-09-06**, once the sibling Nuxt frontend
-(`frontend-urban`) reached confirmed functional parity with every screen it had —
-appointments, payments, customers, inventory, reports, barber portfolios, the
-client-facing store, social feed, reviews, and analytics all live in Nuxt now.
-
-**Today this repo is, functionally, a JSON API for `frontend-urban`** (routes/api.php,
-Bearer-token auth via `mobile_api_tokens`, **not** Sanctum), plus a short, closed list
-of pages that still render as Blade because Nuxt doesn't cover them: the public
-landing (`/`), all of `routes/auth.php` (login/register/password reset/email
-verification), and the chatbot widget (`chatbot.query`, public; `chatbot.clear-history`,
-session-gated). Every other page that used to be Blade-only now has full parity in
-Nuxt and its old route is a plain redirect there, not a rendered view: `/servicios`,
-`/equipo/{barber}`, `/notifications(/preferences)`, `/profile`, `backups/database`, and
-`cliente/membresia/tarjeta` (see `routes/web.php`, all dated 2026-09-09). The named
-routes stay registered on purpose — deleting them breaks `route()` calls still live in
-`welcome.blade.php`, the global nav, and the command palette; see the 2026-09-06 lesson
-in guardrail #18 below. See `.claude/skills/urbanblade-guardrails/SKILL.md` guardrail
-#18 and its final report for the full retirement history — this is not a gap to
-"finish," it's a closed list.
+Cliente), then a hybrid API-plus-surviving-pages setup. **As of 2026-09-09 it's a pure
+JSON API for `frontend-urban`** — routes/api.php, Bearer-token auth via
+`mobile_api_tokens` (**not** Sanctum) — with **no real Blade UI left at all**. Every
+route that used to render a Blade view (the public landing `/`, `routes/auth.php`
+login/register/password-reset, `/servicios`, `/equipo/{barber}`,
+`/notifications(/preferences)`, `/profile`, `backups/database`,
+`cliente/membresia/tarjeta`) is now a plain `redirect(config('app.frontend_url').'/...')`
+in `routes/web.php`/`routes/auth.php` — Nuxt has full, independently-verified parity for
+every one of them, including auth: `frontend-urban` never actually depended on this
+repo's session-based login (it has always talked to `Api\Auth\AuthController` /
+`SocialAuthController` over Bearer token), so retiring the Blade login page broke
+nothing. Named routes stay registered on purpose — deleting them breaks `route()` calls
+still live in now-unreachable-but-undeleted Blade views/controllers and in
+`TrackingController`; see the 2026-09-06 lesson in guardrail #18 below, and its
+2026-09-09 entries for this final round. The chatbot widget (`chatbot.query`,
+`chatbot.clear-history`) technically still exists as real Blade+JS, but since nothing
+renders `welcome.blade.php` (or any other Blade view) anymore, it's dead code no one
+will ever see — not yet deleted, same "leave it, don't delete on the same pass" pattern
+as everything else here. See `.claude/skills/urbanblade-guardrails/SKILL.md` guardrail
+#18 and its final report for the full retirement history.
 
 `frontend-urban` (`https://github.com/KikeGonRam/frontend_Urbanblade.git`,
 `C:\Users\luis1\Documents\UrbanBlade\frontend-urban`) is where the actual product UI

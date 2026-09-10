@@ -15,7 +15,8 @@
 
 URL de acceso:
 
-- http://localhost:8000/login
+- http://localhost:3000/login (frontend-urban/Nuxt — el login real; `:8000/login`
+  redirige aquí desde el 2026-09-09, `barber` ya no renderiza ninguna página)
 
 ![Login de acceso](assets/login.png)
 

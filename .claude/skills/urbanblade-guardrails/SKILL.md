@@ -365,6 +365,55 @@ proceeds:
   confirmed orphaned (nothing calls them — Nuxt's own `useChatbot.ts` uses its separate,
   more complete API-based endpoints instead) but were deliberately left alone rather
   than deleted, since that's a dead-code cleanup, not a migration gap.
+- **2026-09-09, later the same day: the landing and all of `routes/auth.php` also
+  retired** — the project owner asked for this explicitly, conditional on confirming
+  Nuxt truly had full parity first (not just "close enough"). Verified before touching
+  anything: `frontend-urban` never actually depended on this repo's session-based
+  Breeze login — it has always talked to `Api\Auth\AuthController`
+  (`login`/`register`/`forgotPassword`/`resetPassword`) and `Api\Auth\SocialAuthController`
+  (Google, already redirects to `frontend_url/auth/callback?token=...` on success) over
+  Bearer token, completely independent of `routes/auth.php`. Email verification: users
+  created via the API get `markEmailAsVerified()` called immediately in
+  `AuthController::register()` (comment: "Mark email as verified for mobile app") — Nuxt
+  never needed a verification screen at all, that's a deliberate design choice, not a
+  gap. Password-reset emails already linked straight to `frontend_url/reset-password`
+  (`ResetPassword::createUrlUsing()` in `AppServiceProvider`, built for Nuxt from the
+  start) — Blade's own `reset-password/{token}` route was already unreachable in
+  practice before this change, kept only as a safety net for a very old bookmark/email.
+  `/`, `login`, `register`, `forgot-password`, and `reset-password/{token}` became
+  redirects; the POST-only Breeze endpoints and the `auth`-gated block
+  (`verify-email`, `confirm-password`, `password` update, `logout`) were left intact but
+  are now truly unreachable — no UI anywhere can ever create a Laravel web session again,
+  since the login form was the only thing that ever did. `HomepageTest.php` was deleted
+  (not just updated): its regression — `htmlspecialchars()` crashing on an array
+  `especialidades` — could only happen while `welcome.blade.php` actually rendered, and
+  it never will again. Its redirect coverage moved into
+  `PublicRouteRedirectsTest.php` alongside everything else from this and the earlier
+  entry above.
+  **Also found and fixed the same day, prompted directly by the project owner asking
+  "does maintenance mode still protect the admin without breaking their own work":**
+  `CheckMaintenanceMode` (the Blade middleware gating maintenance mode) is registered
+  only on the `web` middleware group in `bootstrap/app.php` — it never ran on `api/*` at
+  all. Toggling "Modo mantenimiento" from `frontend-urban`'s `/settings`
+  (`POST /settings/maintenance`) flipped `BarbershopSetting::maintenance_mode` correctly,
+  but **had zero real effect** — any client or staff member using Nuxt (the actual
+  product) kept working exactly as before, no matter what the toggle said. Fixed with a
+  new `App\Http\Middleware\Api\CheckApiMaintenanceMode` (alias `maintenance.check`),
+  applied to the whole `mobile.auth` group in `routes/api.php`: 503s any non-administrador
+  while maintenance is on, same as `CheckMaintenanceMode` already did for Blade; the
+  administrador role is always exempt, including from its own toggle route, so they can
+  never lock themselves out. Public routes (catalog, `auth/login`, chatbot) stay outside
+  `mobile.auth` and are unaffected, matching how the landing/catalog stayed visible in
+  the old Blade version. **Real bug found during live verification, not just theorized**:
+  `frontend-urban`'s `useAuth().fetchMe()` uses its own raw `$fetch`, bypassing
+  `useApi()`'s interceptor entirely, and its catch-all treated *any* error — including
+  this new 503 — as "token invalid," silently logging the user out locally. A client
+  hitting maintenance mode got logged out instead of seeing "under maintenance." Fixed
+  by checking `statusCode === 503` first and returning early without clearing the token.
+  See `frontend-urban`'s own skill for the corresponding Nuxt-side fix
+  (`useApi()` calling `showError()`, not a plain `throw`, since most calls run inside
+  `useAsyncData()` which would otherwise swallow the error into its own local `error` ref
+  instead of surfacing `app/error.vue`).
 
 ## 20. Some models bind routes by a pretty key, not `id` — `Client`/`Barber`/`Service` use `slug`, `Appointment` uses `code`
 

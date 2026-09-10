@@ -47,9 +47,8 @@ Luego abre:
 
 - http://localhost:3000/login — **aquí es donde ocurre toda la demo**
 - Mailpit: http://localhost:8025
-- http://localhost:8000 solo sirve la API y lo poco que Nuxt todavía no cubre (landing
-  pública, login/registro/recuperación de contraseña, chatbot) — no navegues ahí para
-  la demo de los paneles por rol.
+- http://localhost:8000 ya solo sirve la API — no tiene ninguna página real (`/` y
+  `/login` redirigen a `:3000`) — no navegues ahí para la demo.
 
 ## Credenciales
 

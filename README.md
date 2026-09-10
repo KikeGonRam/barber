@@ -8,18 +8,17 @@ UrbanBlade es una plataforma operativa y analítica para barberías: administrac
 atención al cliente, agenda, pagos, inventario y decisiones basadas en datos, con
 experiencias diferenciadas para administrador, recepcionista, barbero y cliente.
 
-**Este repositorio (`barber`) es hoy, funcionalmente, la API JSON que consume el
-frontend real de la aplicación — [`frontend-urban`](https://github.com/KikeGonRam/frontend_Urbanblade)
-(Nuxt 4)** — más un puñado cerrado de páginas Blade que Nuxt todavía no cubre: landing
-pública, login/registro/recuperación de contraseña, y el chatbot. Catálogo público de
-servicios/equipo, `/profile`, `/notifications`, el respaldo de base de datos y la
-tarjeta de membresía en PDF ya tienen paridad completa en Nuxt (2026-09-09); sus rutas
-en `barber` son redirects, no vistas. El panel administrativo completo (los 4
-dashboards por rol, citas, clientes, pagos,
-pedidos, inventario, servicios, usuarios, campañas, reportes, etc.) se retiró de este
-repo el 2026-09-06 una vez que Nuxt alcanzó paridad funcional confirmada — ver
-`.claude/skills/urbanblade-guardrails/SKILL.md` (guardrail #18) para el historial
-completo. Para la experiencia real del producto hace falta correr **ambos** repos.
+**Este repositorio (`barber`) es hoy una API JSON pura** — consumida por el frontend
+real de la aplicación, [`frontend-urban`](https://github.com/KikeGonRam/frontend_Urbanblade)
+(Nuxt 4). No queda ninguna página Blade real: landing pública, login/registro/
+recuperación de contraseña, catálogo público, perfil, notificaciones, respaldo de base
+de datos y tarjeta de membresía eran las últimas en pie y todas se retiraron hacia Nuxt
+el 2026-09-09 (cada una con paridad funcional confirmada antes de tocar su ruta). El
+panel administrativo completo (los 4 dashboards por rol, citas, clientes, pagos,
+pedidos, inventario, servicios, usuarios, campañas, reportes, etc.) se había retirado
+antes, el 2026-09-06 — ver `.claude/skills/urbanblade-guardrails/SKILL.md` (guardrail
+#18) para el historial completo. Para la experiencia real del producto hace falta correr
+**ambos** repos.
 
 ## ✨ ¿Qué hace UrbanBlade?
 
