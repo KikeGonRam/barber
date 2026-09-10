@@ -296,6 +296,21 @@ de producción; `eslint .` limpio; `npm audit
 --audit-level=high` limpio; `/up` 200 y CORS verificados contra el backend
 corriendo.
 
+## Después de la Fase 6 (nota, no una fase nueva de este plan)
+
+Este roadmap de 6 fases cerró completo el 2026-09-08 ("Estado base
+verificado" arriba quedó congelado en ese momento — no lo tomes como el
+conteo de tests actual). El trabajo real de después (retiro completo del
+panel Blade y de la landing/auth el 2026-09-09, fix del gap de modo
+mantenimiento en la API, backlog de cobertura de tests para
+`InventoryAdminController`/`PredictionController`/`BarberAdminController`,
+y la limpieza del código Blade muerto resultante, ambos el 2026-09-10) no
+se registró como fases nuevas aquí porque no salió de este plan — salió de
+una auditoría de completitud aparte, pedida directamente por el dueño del
+proyecto. Ver `.claude/skills/urbanblade-guardrails/SKILL.md`, guardrails
+#18 (retiro de Blade, con su "Reporte final") y #26 (limpieza de código
+muerto) para el historial completo y siempre-actualizado de esa parte.
+
 ## Ciclo por fase
 
 1. Leer la skill de la fase y el código propietario.

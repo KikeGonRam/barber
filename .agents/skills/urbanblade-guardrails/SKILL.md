@@ -365,6 +365,8 @@ proceeds:
   confirmed orphaned (nothing calls them — Nuxt's own `useChatbot.ts` uses its separate,
   more complete API-based endpoints instead) but were deliberately left alone rather
   than deleted, since that's a dead-code cleanup, not a migration gap.
+  **(Stale as of 2026-09-10 — see guardrail #26 below: `welcome.blade.php` and the
+  chatbot widget markup are gone, `/` is a redirect closure like everything else.)**
 - **2026-09-09, later the same day: the landing and all of `routes/auth.php` also
   retired** — the project owner asked for this explicitly, conditional on confirming
   Nuxt truly had full parity first (not just "close enough"). Verified before touching
@@ -710,12 +712,12 @@ confirmada. Ver guardrail #19 arriba para el detalle.
 para el detalle completo): `/servicios`, `/equipo/{barber}`,
 `/notifications(/preferences)`, `/profile`, el respaldo de BD y la tarjeta
 de membresía también pasaron a ser redirects, no páginas, una vez que Nuxt
-construyó equivalentes reales para cada uno. Lo único que sigue siendo
-Blade de verdad hoy: landing pública, `routes/auth.php`, y el widget del
-chatbot (`chatbot.query` público, `chatbot.clear-history` con sesión) — ver
-la sección "Estado actual" al principio de `CLAUDE.md`/`AGENTS.md` para la
-versión siempre-vigente de esta lista, en vez de confiar en este párrafo
-histórico.
+construyó equivalentes reales para cada uno. **(Histórico — ver guardrail
+#26: el 2026-09-10 se confirmó que ni la landing pública ni el widget del
+chatbot renderizaban ya nada real, y se borraron junto al resto del código
+muerto en cascada.)** Ver la sección "Estado actual" al principio de
+`CLAUDE.md`/`AGENTS.md` para la versión siempre-vigente de esta lista, en
+vez de confiar en este párrafo histórico.
 
 **El hallazgo más importante del proceso de retiro**, por si se repite un
 retiro similar en el futuro: `route()` de Laravel lanza excepción si la ruta
@@ -767,3 +769,84 @@ ambos repos. Lo único que vale la pena saber desde este lado (`barber`):
   en ningún `.env`, tal como pide guardrail #7.
 - No hay cambios de esquema ni de rutas existentes — todo aditivo, dos rutas
   nuevas, coherente con guardrail #11.
+
+## 26. CLOSED (2026-09-10): limpieza del código Blade muerto que quedó tras el retiro completo del panel (guardrail #18)
+
+Tras el retiro final del 2026-09-09 (landing + `routes/auth.php`), quedaba
+código real pero **inalcanzable**: rutas GET que ahora son closures de
+redirect dejaron sus antiguos métodos de controlador (que solo hacían
+`return view(...)`) sin ningún caller, y esas vistas — más lo que colgaba
+de ellas en cascada (layouts, componentes) — quedaron huérfanas también.
+Pedido explícito del dueño del proyecto tras cerrar el backlog de cobertura
+de tests de esta misma sesión: "aborda también la limpieza de código
+muerto". Verificado archivo por archivo con grep dirigido antes de borrar
+nada (nunca por inspección superficial — ver guardrail #16's lección
+equivalente para docs), y con el suite completo + Pint + Larastan +
+`npm run build`/`npm audit` en verde después.
+
+**Borrado (45 archivos, ~3760 líneas):**
+- 4 controladores sin ninguna ruta apuntándoles: `Barber\BarberController`,
+  `Client\MembershipController`, `Dashboard\DatabaseBackupController`,
+  `Service\ServiceController` (ninguno sobrevivió ni siquiera recortado —
+  a diferencia de guardrail #18's paso 2, donde estos mismos dos primeros
+  se habían conservado parcialmente; para el 2026-09-09 hasta su último
+  método público ya se había movido a redirect/API).
+- 6 métodos GET "solo vista" que quedaron sin ruta al convertirse su GET en
+  closure: `AuthenticatedSessionController::create`,
+  `RegisteredUserController::create`, `PasswordResetLinkController::create`,
+  `NewPasswordController::create`, `NotificationController::index`,
+  `NotificationController::preferences`, `ProfileController::edit`. Los
+  métodos POST/PATCH/DELETE hermanos en las mismas clases **se dejaron
+  vivos** — ya eran un red de seguridad deliberada desde guardrail #18/#19,
+  este borrado no las toca.
+- ~24 vistas/componentes Blade huérfanos, encontrados por cascada real (no
+  supuesta): `welcome.blade.php` y `layouts/app.blade.php` no tenían NINGÚN
+  caller vivo (confirmado con grep de `x-app-layout`/`layouts.app` en todo
+  el árbol); una vez borrado `layouts/app.blade.php`, sus únicos
+  `<x-command-palette />`/`<x-notification-toaster />`/`<x-chatbot />`
+  quedaron sin ningún include, así que también se borraron, igual que
+  `layouts/navigation.blade.php` (solo incluido desde `layouts/app.blade.php`)
+  y varios componentes de formulario (`x-input-label`, `x-text-input`,
+  `x-danger-button`, `x-modal`, `x-auth-session-status`) que solo se usaban
+  desde las vistas de `auth/login|register|forgot-password|reset-password`
+  y `profile/` ya borradas. `App\Helpers\NavigationMenu` (construía el menú
+  para `layouts/navigation.blade.php`) y `resources/js/hero-animation.js`
+  (animación GSAP exclusiva del hero de `welcome.blade.php`, con su
+  dependencia `gsap` en `package.json`) también quedaron sin consumidor.
+- **Verificación clave antes de borrar cada componente/vista**: grep dirigido
+  de cada `x-nombre`/`view('...')` en TODO `resources/views` + `app/`, no
+  solo en el archivo que originalmente lo usaba — el mismo landmine que
+  guardrail #18 documentó para `route()` aplica igual de bien a componentes
+  Blade compartidos globalmente.
+
+**Deliberadamente NO tocado, incluido en el mismo pase por completitud:**
+- `routes/auth.php` completo (POST de Breeze, `verify-email`,
+  `confirm-password`, `password` update, `logout`) — sigue siendo la misma
+  red de seguridad ya blindada por guardrail #18/#19, no código muerto sin
+  dueño.
+- Las rutas web del chatbot (`chatbot.query` público,
+  `chatbot.history`/`profile`/`clear-history`/`learning-stats`/
+  `train-history` bajo `auth`) y `App\Http\Controllers\Chatbot\ChatbotController`
+  completo — su UI (el widget Blade) sí se borró (ya no tenía ningún
+  `<x-chatbot />` que lo incluyera), pero las rutas/controlador se dejan
+  vivos porque `ChatbotController::query()` es el mismo método que usa la
+  API pública (`POST api/v1/chatbot/query`, real, activo, usado por Nuxt), y
+  porque `RoleAuthorizationTest.php` usa `chatbot.train-history` como único
+  ejemplo real que queda de la cadena de middleware `auth`+`verified`+
+  `role.custom` en sesión web — borrar esa ruta habría descartado esa
+  cobertura de regresión sin un reemplazo obvio. Mismo criterio que
+  guardrail #18 ya aplicó a `chatbot.history`/`profile`/`learning-stats`:
+  código sin consumidor real, pero flageado y dejado, no borrado a ciegas.
+- `NotificationController::poll/markAllRead/markOneRead/updatePreferences` y
+  `ProfileController::update/updateTheme/destroy` — no rinden ninguna vista
+  (JSON o redirect puro), así que no arrastraron ninguna vista huérfana; se
+  tratan igual que los POST de Breeze (guardrail #18/#19): funcionan de
+  punta a punta si alguien les manda un submit directo, aunque hoy ningún
+  formulario Blade lo haga.
+
+**Verificado:** 449/449 tests (sin cambios de cantidad — ningún test
+ejercitaba directamente el código borrado, confirmado por grep antes de
+tocar nada), Pint y Larastan en limpio (una entrada de
+`phpstan-baseline.neon` que apuntaba a `BarberController.php` tuvo que
+quitarse a mano tras el borrado), `npm run build` y `npm audit
+--audit-level=high` limpios tras quitar `gsap` de `package.json`.
