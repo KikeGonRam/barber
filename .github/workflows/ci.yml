@@ -167,6 +167,7 @@ jobs:
       APP_ENV: testing
       APP_KEY: base64:3tmJ2lribjQ+hBlJrPj8euKIWSImIqTBRGAzXPUFz/0=
       APP_DEBUG: true
+      FRONTEND_URL: http://localhost:3000
       DB_CONNECTION: mongodb
       MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
       MONGO_DATABASE: barber_db_test
@@ -223,12 +224,29 @@ jobs:
 
       - name: Start app and verify routes
         run: |
+          # barber es API pura desde el 2026-09-09 (ver guardrail #18 en
+          # urbanblade-guardrails): "/" y "/login" ya no renderizan HTML, son
+          # redirects a FRONTEND_URL. El "curl ... && break" de antes moria
+          # en el primer intento fallido bajo set -e en vez de reintentar (el
+          # "if" de abajo es la forma inequivocamente exenta, ver el manual
+          # de bash sobre -e), asi que el probe de arranque usa /up (health
+          # check nativo de Laravel) en vez de depender de una pagina real.
           php artisan serve --host=127.0.0.1 --port=8000 >/tmp/urbanblade.log 2>&1 &
           for i in $(seq 1 40); do
-            curl -fsS http://127.0.0.1:8000/login >/dev/null && break
+            if curl -fsS http://127.0.0.1:8000/up >/dev/null 2>&1; then
+              break
+            fi
             sleep 1
           done
 
-          curl -fsS http://127.0.0.1:8000/ >/tmp/index.html
-          curl -fsS http://127.0.0.1:8000/login >/tmp/login.html
-          grep -qi "UrbanBlade\|Bienvenido" /tmp/index.html /tmp/login.html
+          curl -fsS http://127.0.0.1:8000/up >/dev/null
+
+          curl -fsS http://127.0.0.1:8000/api/v1/services >/tmp/services.json
+          grep -q '"data"' /tmp/services.json
+
+          home_redirect=$(curl -s -o /dev/null -w '%{redirect_url}' http://127.0.0.1:8000/)
+          login_redirect=$(curl -s -o /dev/null -w '%{redirect_url}' http://127.0.0.1:8000/login)
+          echo "home -> ${home_redirect}"
+          echo "login -> ${login_redirect}"
+          echo "${home_redirect}" | grep -q "localhost:3000"
+          echo "${login_redirect}" | grep -q "localhost:3000/login"
