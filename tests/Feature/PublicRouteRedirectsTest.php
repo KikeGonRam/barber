@@ -8,12 +8,13 @@ use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
- * Regresión: /equipo/{barber}, /servicios, /notifications y
- * /notifications/preferences dejaron de renderizar vistas Blade el
- * 2026-09-09 -- ahora redirigen a sus equivalentes en frontend-urban (Nuxt),
- * que ya tienen paridad funcional completa. Ninguna requiere sesión: Nuxt
- * resuelve su propia auth con el token Bearer, no con la cookie de sesión
- * de Laravel.
+ * Regresión: /equipo/{barber}, /servicios, /notifications,
+ * /notifications/preferences, /profile, backups/database y
+ * cliente/membresia/tarjeta dejaron de renderizar vistas Blade o exigir
+ * sesión el 2026-09-09 -- ahora redirigen a sus equivalentes en
+ * frontend-urban (Nuxt), que ya tienen paridad funcional completa. Ninguna
+ * requiere sesión: Nuxt resuelve su propia auth con el token Bearer, no con
+ * la cookie de sesión de Laravel.
  */
 class PublicRouteRedirectsTest extends TestCase
 {
@@ -54,5 +55,26 @@ class PublicRouteRedirectsTest extends TestCase
         $response = $this->get('/notifications/preferences');
 
         $response->assertRedirect(config('app.frontend_url').'/notifications');
+    }
+
+    public function test_profile_redirects_to_frontend_without_requiring_a_session(): void
+    {
+        $response = $this->get('/profile');
+
+        $response->assertRedirect(config('app.frontend_url').'/profile');
+    }
+
+    public function test_database_backup_redirects_to_frontend_settings_without_requiring_a_session(): void
+    {
+        $response = $this->get('/backups/database');
+
+        $response->assertRedirect(config('app.frontend_url').'/settings');
+    }
+
+    public function test_membership_card_redirects_to_frontend_dashboard_without_requiring_a_session(): void
+    {
+        $response = $this->get('/cliente/membresia/tarjeta');
+
+        $response->assertRedirect(config('app.frontend_url').'/dashboard');
     }
 }

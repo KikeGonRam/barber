@@ -3,8 +3,6 @@
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Campaign\TrackingController;
 use App\Http\Controllers\Chatbot\ChatbotController;
-use App\Http\Controllers\Client\MembershipController;
-use App\Http\Controllers\Dashboard\DatabaseBackupController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Models\Appointment;
@@ -99,13 +97,19 @@ Route::post('/api/v1/auth/get-api-token', [AuthController::class, 'getWebApiToke
 Route::get('/notifications', fn () => redirect(config('app.frontend_url').'/notifications'))->name('notifications.index');
 Route::get('/notifications/preferences', fn () => redirect(config('app.frontend_url').'/notifications'))->name('notifications.preferences');
 
-// Bloque principal de rutas autenticadas: perfil (sin equivalente en Nuxt) y
-// los endpoints AJAX de notificaciones que siguen usando el toaster global
-// (notification-toaster.blade.php) y la página de preferencias en las
-// pantallas que aún son Blade (paneles de staff), más lo que sobrevive de
-// cada rol.
+// Página de perfil: migrada a Nuxt el 2026-09-09 (/profile ahí ya cubre
+// edición, avatar, contraseña y borrado de cuenta contra el mismo
+// Api\Profile\ProfileController). Redirect público: Nuxt resuelve su propia
+// auth con el token Bearer.
+Route::get('/profile', fn () => redirect(config('app.frontend_url').'/profile'))->name('profile.edit');
+
+// Bloque principal de rutas autenticadas: los endpoints PATCH/DELETE de
+// perfil y los endpoints AJAX de notificaciones que siguen usando el
+// toaster global (notification-toaster.blade.php) en las pantallas que aún
+// son Blade (paneles de staff), más lo que sobrevive de cada rol. Ninguno
+// de estos es una "página" -- no hay Blade que los redirija, solo formularios
+// ya huérfanos desde que /profile redirige (ver arriba).
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/theme', [ProfileController::class, 'updateTheme'])->name('profile.theme.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -113,17 +117,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications/poll', [NotificationController::class, 'poll'])->name('notifications.poll');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markOneRead'])->name('notifications.read-one');
+});
 
-    // Ruta exclusiva del rol administrador que Nuxt todavía no cubre:
-    // respaldo de BD (utilidad, no una pantalla).
-    Route::middleware(['verified', 'role.custom:administrador'])->group(function () {
-        Route::get('backups/database', [DatabaseBackupController::class, 'download'])->name('backups.database.download');
-    });
-
-    // Tarjeta de membresía del cliente (descarga de PDF) — sin equivalente en Nuxt todavía.
-    Route::middleware(['verified', 'role.custom:cliente'])->prefix('cliente')->name('client.')->group(function () {
-        Route::get('membresia/tarjeta', [MembershipController::class, 'card'])->name('membership.card');
-    });
+// Respaldo de BD y tarjeta de membresía: migrados a Nuxt el 2026-09-09
+// (GET /api/v1/system/backup, GET /api/v1/dashboard/membership/card, ambos
+// via token Bearer -- ver App\Services\System\DatabaseBackupService /
+// App\Services\Member\MemberCardService::cardPdfData()). Redirigen a la
+// pantalla de Nuxt donde vive el botón real, no al archivo binario -- ya no
+// hace falta sesión web para llegar aquí.
+Route::get('backups/database', fn () => redirect(config('app.frontend_url').'/settings'))->name('backups.database.download');
+Route::prefix('cliente')->name('client.')->group(function () {
+    Route::get('membresia/tarjeta', fn () => redirect(config('app.frontend_url').'/dashboard'))->name('membership.card');
 });
 
 require __DIR__.'/auth.php';

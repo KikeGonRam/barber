@@ -14,15 +14,14 @@ use Tests\TestCase;
  * Integración real contra el Mongo local de pruebas (ver .env.testing /
  * docker-compose.yml "mongo-test"). Verifica el contrato de autorización de
  * las páginas Blade que sobreviven al retiro de las páginas ya cubiertas por
- * Nuxt (frontend-urban): la cadena auth -> verified -> role.custom ->
- * permission.custom, usando los mismos roles/permisos reales que siembra
- * RolePermissionSeeder (no fixtures inventadas). Antes cubría también
- * appointments/clients/reports/users/etc. — esas rutas se retiraron junto
- * con sus páginas Blade (Nuxt tiene paridad funcional confirmada), así que
- * esas aserciones se reemplazaron por las de
- * client.membership.card/backups.database.download, las únicas páginas
- * protegidas por rol que quedan en Blade (reviews.index/social.feed también
- * se retiraron una vez Nuxt alcanzó paridad con Muro Inspiración/Reseñas).
+ * Nuxt (frontend-urban): la cadena auth -> verified -> role.custom, usando
+ * los mismos roles/permisos reales que siembra RolePermissionSeeder (no
+ * fixtures inventadas). Antes cubría también appointments/clients/reports/
+ * users/backups.database.download/client.membership.card/etc. — todas esas
+ * rutas se retiraron o se volvieron redirects públicos (ver
+ * PublicRouteRedirectsTest) una vez Nuxt alcanzó paridad funcional, así que
+ * chatbot.train-history es hoy la ÚNICA ruta de Blade que sigue exigiendo un
+ * rol específico.
  */
 class RoleAuthorizationTest extends TestCase
 {
@@ -87,31 +86,23 @@ class RoleAuthorizationTest extends TestCase
         return $user;
     }
 
-    public function test_guest_is_redirected_to_login_on_protected_routes(): void
+    public function test_guest_is_redirected_to_login_on_train_history(): void
     {
-        $this->get(route('backups.database.download'))->assertRedirect(route('login'));
-        $this->get(route('client.membership.card'))->assertRedirect(route('login'));
+        $this->post(route('chatbot.train-history'))->assertRedirect(route('login'));
     }
 
     public function test_unverified_user_is_blocked_even_with_the_right_role(): void
     {
         $this->admin->forceFill(['email_verified_at' => null])->save();
 
-        $this->actingAs($this->admin)->get(route('backups.database.download'))->assertRedirect(route('verification.notice'));
+        $this->actingAs($this->admin)->post(route('chatbot.train-history'))->assertRedirect(route('verification.notice'));
     }
 
-    public function test_backups_database_download_is_admin_only(): void
+    public function test_train_history_is_admin_only(): void
     {
-        $this->actingAs($this->recepcionista)->get(route('backups.database.download'))->assertForbidden();
-        $this->actingAs($this->barbero)->get(route('backups.database.download'))->assertForbidden();
-        $this->actingAs($this->cliente)->get(route('backups.database.download'))->assertForbidden();
-    }
-
-    public function test_membership_card_is_only_reachable_by_cliente(): void
-    {
-        $this->actingAs($this->admin)->get(route('client.membership.card'))->assertForbidden();
-        $this->actingAs($this->recepcionista)->get(route('client.membership.card'))->assertForbidden();
-        $this->actingAs($this->barbero)->get(route('client.membership.card'))->assertForbidden();
+        $this->actingAs($this->recepcionista)->post(route('chatbot.train-history'))->assertForbidden();
+        $this->actingAs($this->barbero)->post(route('chatbot.train-history'))->assertForbidden();
+        $this->actingAs($this->cliente)->post(route('chatbot.train-history'))->assertForbidden();
     }
 
     /**
@@ -148,7 +139,6 @@ class RoleAuthorizationTest extends TestCase
         ]);
         $noRole->forceFill(['email_verified_at' => now()])->save();
 
-        $this->actingAs($noRole)->get(route('backups.database.download'))->assertForbidden();
-        $this->actingAs($noRole)->get(route('client.membership.card'))->assertForbidden();
+        $this->actingAs($noRole)->post(route('chatbot.train-history'))->assertForbidden();
     }
 }
