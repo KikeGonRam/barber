@@ -2944,6 +2944,18 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
+			count: 4
+			path: tests/Feature/BarberAdminApiTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/BarberAdminApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
+			identifier: property.notFound
 			count: 3
 			path: tests/Feature/BarberManagementApiTest.php
 
