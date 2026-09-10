@@ -2934,3 +2934,27 @@ parameters:
 			identifier: property.notFound
 			count: 2
 			path: tests/Feature/PublicRouteRedirectsTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Barber/BarberManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 3
+			path: tests/Feature/BarberManagementApiTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/BarberManagementApiTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/BarberManagementApiTest.php

@@ -39,6 +39,12 @@ class BarberManagementController extends Controller
         return response()->json([
             'data' => $barbers->getCollection()->map(fn (Barber $barber) => [
                 'id' => $barber->id,
+                // El binding de PUT barbers/manage/{barber} resuelve por
+                // slug (Barber::getRouteKeyName(), via HasSlug), no por id
+                // -- sin este campo el frontend no puede construir una URL
+                // de edición que resuelva (ver guardrail #20 en
+                // urbanblade-guardrails).
+                'slug' => $barber->slug,
                 'especialidades' => $barber->especialidades,
                 'descripcion' => $barber->descripcion,
                 'foto' => $barber->foto,
@@ -93,6 +99,7 @@ class BarberManagementController extends Controller
             'message' => 'Barbero actualizado correctamente.',
             'data' => [
                 'id' => $barber->id,
+                'slug' => $barber->slug,
                 'especialidades' => $barber->especialidades,
                 'descripcion' => $barber->descripcion,
                 'foto' => $barber->foto,

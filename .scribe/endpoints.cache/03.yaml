@@ -388,7 +388,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-02'
+        example: '2052-10-03'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -399,7 +399,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '23:16'
+        example: '00:28'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -410,7 +410,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: cancelada
+        example: no_asistio
         type: string
         enumValues:
           - pendiente
@@ -437,9 +437,9 @@ endpoints:
       client_id: architecto
       barber_id: architecto
       service_id: architecto
-      fecha: '2052-10-02'
-      hora_inicio: '23:16'
-      estado: cancelada
+      fecha: '2052-10-03'
+      hora_inicio: '00:28'
+      estado: no_asistio
       notas: 'n'
     fileParameters: []
     responses: []
@@ -615,7 +615,7 @@ endpoints:
         name: estado
         description: ''
         required: false
-        example: completada
+        example: confirmada
         type: string
         enumValues:
           - pendiente
@@ -640,7 +640,7 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       period: week
-      estado: completada
+      estado: confirmada
       offset: -364
     fileParameters: []
     responses:
