@@ -6,77 +6,23 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 /**
- * Ordenamiento de columnas por click en las tablas del panel (citas,
- * clientes, productos, pagos, usuarios, etc.). Un mismo mecanismo sirve
- * para los tres tipos de columna que existen en el proyecto:
+ * Ordenamiento seguro por query params (`sort`, `dir`) para endpoints JSON
+ * que devuelven listados. MongoDB ordena texto/numero/fecha igual (asc/desc
+ * sobre el valor real del campo, sin castear), asi que basta con validar la
+ * columna pedida contra una lista blanca por controlador para evitar que se
+ * mande un campo arbitrario (o de otra coleccion) por la URL.
  *
- *   - Texto  (nombre, email, folio...)      -> orden alfabetico (A-Z / Z-A)
- *   - Numero (precio, stock, monto...)      -> orden numerico (menor-mayor / mayor-menor)
- *   - Fecha  (fecha, created_at...)         -> orden cronologico (antigua-reciente / reciente-antigua)
+ * Originalmente pensado para las tablas del panel Blade/Alpine (con el
+ * componente <x-sortable-th> aplicando el click-to-sort en el <th>), pero
+ * ese panel se retiro por completo el 2026-09-06 junto con el componente.
+ * Hoy solo lo usa `Api\Review\ReviewController::index()` (aditivo: solo
+ * afecta el orden de la respuesta JSON, no requiere ningun elemento
+ * clicable del lado del consumidor).
  *
- * MongoDB ordena los tres tipos igual (asc/desc sobre el valor real del
- * campo, sin necesidad de castear), asi que no hace falta logica distinta
- * por tipo de dato: basta con validar que la columna pedida este en la
- * lista blanca de cada controlador para evitar que alguien mande un campo
- * arbitrario (o de otra coleccion) por la URL.
- *
- * ============================================================
- *  COMO AGREGAR/QUITAR UNA COLUMNA ORDENABLE (para cambios de ultima hora)
- * ============================================================
- *
- * El ordenamiento vive en DOS lugares que siempre van juntos:
- *
- * 1) EN EL CONTROLADOR (ej. app/Http/Controllers/Client/ClientController.php),
- *    dentro de index(), busca la linea que dice $this->applySort(...):
- *
- *      $clients = $this->applySort(
- *          $query,
- *          $request,
- *          ['telefono', 'fecha_nacimiento', 'nivel', 'puntos', 'total_citas', 'id'], // <- lista blanca
- *          'id',    // <- columna por defecto si no se pidio ninguna
- *          'desc'   // <- direccion por defecto
- *      )->paginate(20)->withQueryString();
- *
- *    Para AGREGAR una columna nueva: solo agrega el nombre exacto del
- *    campo de MongoDB al arreglo de la lista blanca (segundo argumento).
- *    IMPORTANTE: debe ser un campo propio del documento que se esta
- *    listando (Client, Product, Payment...), NO un campo de una relacion
- *    (ej. no puedes poner 'user.name' porque el nombre vive en el
- *    documento User, no en Client — eso requeriria una agregacion de
- *    Mongo que este mecanismo simple no hace).
- *
- *    Para QUITAR una columna: borrala del arreglo. Asi de facil.
- *
- * 2) EN LA VISTA (ej. resources/views/clients/index.blade.php), busca el
- *    <thead> y encuentra el <th> de esa columna. Para hacerla clicable,
- *    envuelvela con el componente <x-sortable-th>:
- *
- *      Antes:   <th>Teléfono</th>
- *      Despues: <x-sortable-th column="telefono">Teléfono</x-sortable-th>
- *
- *    El atributo column="..." debe ser EXACTAMENTE el mismo nombre que
- *    agregaste a la lista blanca del paso 1. Si no coincide, el click no
- *    hace nada (el controlador lo rechaza y usa el orden por defecto).
- *
- *    Para pantallas que usan tarjetas en vez de tabla (Barberos, Pedidos),
- *    en su lugar hay un <select name="sort"> dentro del formulario de
- *    filtros — agrega ahi una <option value="nombre_del_campo">.
- *
- * Ejemplo completo — si el profesor pide poder ordenar Productos por
- * "categoria" (que ya existe en el modelo pero no estaba en la lista):
- *
- *   1. En ProductController@index, cambiar:
- *        ['nombre', 'stock_actual', 'precio_compra', 'precio_venta']
- *      por:
- *        ['nombre', 'stock_actual', 'precio_compra', 'precio_venta', 'categoria']
- *
- *   2. En resources/views/inventory/products/index.blade.php, cambiar:
- *        <th>Categoría</th>
- *      por:
- *        <x-sortable-th column="categoria">Categoría</x-sortable-th>
- *
- *   3. Guardar y recargar la pagina — no hace falta reiniciar Docker ni
- *      recompilar nada (son archivos PHP/Blade, se interpretan al vuelo).
+ * Para agregar una columna ordenable a un endpoint: agrega el nombre exacto
+ * del campo de MongoDB al arreglo de lista blanca en la llamada a
+ * applySort() de ese controlador. Debe ser un campo propio del documento
+ * que se esta listando, no un campo de una relacion.
  */
 trait Sortable
 {
