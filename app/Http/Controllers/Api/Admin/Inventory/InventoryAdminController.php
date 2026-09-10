@@ -200,8 +200,22 @@ class InventoryAdminController
     public function getMovements(Request $request): JsonResponse
     {
         $this->authorizeAdmin();
-        $startDate = $request->query('startDate', Carbon::now()->subMonth()->toDateTimeString());
-        $endDate = $request->query('endDate', Carbon::now()->toDateTimeString());
+        // Carbon::parse(), no strings crudos: whereBetween() contra 'created_at'
+        // (cast datetime, guardado como BSON UTCDateTime) nunca hace match en
+        // MongoDB si se le pasa un string -- mismo bug ya visto en
+        // BarberAdminController::show()/getPerformanceStats() con 'fecha'.
+        // startOfDay()/endOfDay(), no el instante exacto de "ahora": mismo
+        // patrón que ReportService::resolveDateRange() y DashboardService --
+        // usar Carbon::now() tal cual como límite superior deja fuera, por una
+        // carrera de microsegundos, cualquier movimiento creado en el mismo
+        // request/segundo (encontrado aquí al escribir el primer test de este
+        // endpoint: el movimiento del fixture quedaba fuera del rango).
+        $startDate = $request->query('startDate')
+            ? Carbon::parse($request->query('startDate'))->startOfDay()
+            : Carbon::now()->subMonth()->startOfDay();
+        $endDate = $request->query('endDate')
+            ? Carbon::parse($request->query('endDate'))->endOfDay()
+            : Carbon::now()->endOfDay();
 
         $movements = InventoryMovement::whereBetween('created_at', [$startDate, $endDate])
             ->with('product:id,nombre')
