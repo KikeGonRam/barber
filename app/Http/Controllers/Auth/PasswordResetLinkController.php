@@ -7,21 +7,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
 
 /**
  * Inicia el flujo de "olvidé mi contraseña" enviando el enlace de recuperación por correo.
  */
 class PasswordResetLinkController extends Controller
 {
-    /**
-     * Muestra el formulario para solicitar el enlace de recuperación.
-     */
-    public function create(): View
-    {
-        return view('auth.forgot-password');
-    }
-
     /**
      * Envía el enlace de recuperación al correo indicado, si corresponde a un usuario existente.
      *

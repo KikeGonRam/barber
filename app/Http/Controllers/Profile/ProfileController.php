@@ -8,7 +8,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 
 /**
  * Controlador de perfil de cuenta (cualquier rol autenticado): edición de
@@ -16,13 +15,6 @@ use Illuminate\View\View;
  */
 class ProfileController extends Controller
 {
-    public function edit(Request $request): View
-    {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
-    }
-
     /**
      * Actualiza el perfil del usuario autenticado. Si cambia el email,
      * exige reverificarlo (invalida email_verified_at).
@@ -42,8 +34,9 @@ class ProfileController extends Controller
 
     /**
      * Cambia el tema visual del usuario autenticado (ver resources/css/app.css
-     * para las 4 variantes). Se aplica en el siguiente request vía data-theme
-     * en <html> (layouts/app.blade.php), renderizado en servidor.
+     * para las 4 variantes). Endpoint sin vista propia (layouts/app.blade.php
+     * se retiró el 2026-09-10 junto al resto del panel de perfil/notificaciones
+     * en Blade); se deja vivo como el resto de acciones de sesión web.
      */
     public function updateTheme(Request $request): RedirectResponse
     {

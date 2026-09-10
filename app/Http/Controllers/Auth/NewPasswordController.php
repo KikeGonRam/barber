@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
 
 /**
  * Completa el flujo de "olvidé mi contraseña": recibe el token enviado por correo
@@ -20,14 +19,6 @@ use Illuminate\View\View;
  */
 class NewPasswordController extends Controller
 {
-    /**
-     * Muestra el formulario de nueva contraseña, precargando el token recibido por email.
-     */
-    public function create(Request $request): View
-    {
-        return view('auth.reset-password', ['request' => $request]);
-    }
-
     /**
      * Valida el token de recuperación y, si es válido, actualiza la contraseña del usuario.
      *

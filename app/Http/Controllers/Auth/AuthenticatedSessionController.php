@@ -7,7 +7,6 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 
 /**
  * Controla el inicio y cierre de sesión web (guard "web") para todos los roles del dashboard.
@@ -15,14 +14,6 @@ use Illuminate\View\View;
  */
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Muestra el formulario de login del dashboard.
-     */
-    public function create(): View
-    {
-        return view('auth.login');
-    }
-
     /**
      * Autentica al usuario y arranca la sesión web.
      */

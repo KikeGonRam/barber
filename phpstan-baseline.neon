@@ -1069,12 +1069,6 @@ parameters:
 			path: app/Http/Controllers/Auth/VerifyEmailCodeController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Barber/BarberController.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$cta_url\.$#'
 			identifier: property.notFound
 			count: 1

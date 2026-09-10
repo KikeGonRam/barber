@@ -8,21 +8,14 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
- * Controlador de notificaciones para cualquier usuario autenticado:
- * bandeja de notificaciones, marcado de leídas, preferencias y polling AJAX.
+ * Controlador de notificaciones (sesión web) para cualquier usuario
+ * autenticado: marcado de leídas, preferencias y polling AJAX. Sin vistas
+ * propias (la bandeja y el formulario de preferencias en Blade se retiraron
+ * el 2026-09-10 junto al resto del panel) — se deja vivo como el resto de
+ * acciones de sesión web sin página que las invoque.
  */
 class NotificationController extends Controller
 {
-    /**
-     * Bandeja de notificaciones del usuario autenticado (paginada).
-     */
-    public function index(Request $request)
-    {
-        $notifications = $request->user()->notifications()->paginate(20);
-
-        return view('notifications.index', compact('notifications'));
-    }
-
     /**
      * Marca todas las notificaciones no leídas del usuario como leídas.
      */
@@ -48,16 +41,6 @@ class NotificationController extends Controller
         }
 
         return back()->with('status', 'Notificación marcada como leída.');
-    }
-
-    /**
-     * Muestra el formulario de preferencias de notificación (canal in-app/email/sms/whatsapp).
-     */
-    public function preferences(Request $request)
-    {
-        return view('notifications.preferences', [
-            'prefs' => $request->user()->notificationPreferences(),
-        ]);
     }
 
     /**

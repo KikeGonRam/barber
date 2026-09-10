@@ -87,12 +87,14 @@ Route::get('/notifications/preferences', fn () => redirect(config('app.frontend_
 // auth con el token Bearer.
 Route::get('/profile', fn () => redirect(config('app.frontend_url').'/profile'))->name('profile.edit');
 
-// Bloque principal de rutas autenticadas: los endpoints PATCH/DELETE de
-// perfil y los endpoints AJAX de notificaciones que siguen usando el
-// toaster global (notification-toaster.blade.php) en las pantallas que aún
-// son Blade (paneles de staff), más lo que sobrevive de cada rol. Ninguno
-// de estos es una "página" -- no hay Blade que los redirija, solo formularios
-// ya huérfanos desde que /profile redirige (ver arriba).
+// Endpoints PATCH/DELETE de perfil y AJAX de notificaciones: ninguno es una
+// "página" (no rinden Blade), así que no se retiraron el 2026-09-09 junto al
+// resto del panel. El propio panel que los invocaba (layouts/app.blade.php,
+// notification-toaster.blade.php, profile/edit.blade.php) sí se retiró el
+// 2026-09-10 por ser código muerto real (nada los renderizaba ya) -- estos
+// endpoints de acción se dejan vivos deliberadamente, mismo patrón que los
+// POST de Breeze en routes/auth.php: funcionan de punta a punta si alguien
+// les manda un submit directo, aunque hoy ningún formulario Blade lo haga.
 Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/theme', [ProfileController::class, 'updateTheme'])->name('profile.theme.update');

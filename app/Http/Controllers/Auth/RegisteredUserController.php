@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
 
 /**
  * Registro de nuevos usuarios desde el dashboard web. El primer usuario del sistema
@@ -21,14 +20,6 @@ use Illuminate\View\View;
  */
 class RegisteredUserController extends Controller
 {
-    /**
-     * Muestra el formulario de registro.
-     */
-    public function create(): View
-    {
-        return view('auth.register');
-    }
-
     /**
      * Crea el usuario, le asigna rol (admin en bootstrap o cliente por defecto)
      * y arranca su sesión autenticada.
