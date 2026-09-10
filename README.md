@@ -4,6 +4,10 @@
   <img src="docs/assets/landing.png" alt="UrbanBlade landing" width="1000" />
 </p>
 
+<p align="center">
+  <a href="public/video/UrbanBlade.mp4"><strong>▶ Ver presentación de UrbanBlade (8 segundos)</strong></a>
+</p>
+
 UrbanBlade es una plataforma operativa y analítica para barberías: administración,
 atención al cliente, agenda, pagos, inventario y decisiones basadas en datos, con
 experiencias diferenciadas para administrador, recepcionista, barbero y cliente.
@@ -27,8 +31,10 @@ antes, el 2026-09-06 — ver `.claude/skills/urbanblade-guardrails/SKILL.md` (gu
   `frontend-urban`.
 - Separa flujos por rol para cada perfil del negocio (administrador, recepcionista,
   barbero, cliente, e "ingeniero" — este último solo lectura).
-- Mantiene vivas las páginas que Nuxt no cubre todavía: landing, catálogo público,
-  autenticación, perfil, notificaciones, chatbot, tarjeta de membresía.
+- Mantiene vivo solo lo que Nuxt no cubre: landing pública, login/registro/
+  recuperación de contraseña y el chatbot. Catálogo público, perfil, notificaciones,
+  respaldo de base de datos y tarjeta de membresía ya son redirects a `frontend-urban`
+  (paridad completa desde el 2026-09-09).
 - Cobros reales con Stripe (tarjeta, beta), transferencia con comprobante, y efectivo;
   programa de lealtad con puntos y descuentos por nivel.
 
@@ -37,8 +43,8 @@ antes, el 2026-09-06 — ver `.claude/skills/urbanblade-guardrails/SKILL.md` (gu
 - PHP 8.3+, Laravel 13
 - MongoDB con mongodb/laravel-mongodb (Atlas, compartida con `spark/`)
 - Redis para caché, sesiones y cola (workers dedicados: `queue:work`, `schedule:work`)
-- Vite + Tailwind CSS 3 + Alpine.js — solo para las páginas Blade que sobreviven; el
-  frontend real es Nuxt 4 en `frontend-urban`
+- Vite + Tailwind CSS 3 + Alpine.js — solo para landing/auth/chatbot/páginas de error;
+  el frontend real es Nuxt 4 en `frontend-urban`
 - Stripe, Socialite (login con Google), Laravel Pulse (panel de operación para
   "ingeniero"), Scribe (documentación de la API)
 - Docker Compose para entorno local (`app`, `web`, `worker`, `scheduler`, `redis`,
@@ -102,8 +108,7 @@ docker compose exec app php artisan db:seed --class=AdminUserSeeder
 
 Abre la aplicación en:
 
-- http://localhost:8000 — API + páginas Blade que sobreviven (landing, catálogo,
-  auth, perfil, notificaciones, chatbot)
+- http://localhost:8000 — API + landing/auth/chatbot (lo único que sigue siendo Blade)
 - Mailpit: http://localhost:8025
 
 Para la experiencia real del producto (dashboards, citas, pagos, inventario, etc.),
@@ -127,7 +132,7 @@ guía de presentación está en [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACI
 
 Ruta de login:
 
-- http://localhost:8000/login
+- http://localhost:3000/login (Nuxt — el login real; `:8000/login` solo redirige aquí)
 
 > `barber_db` ya no viene precargada con datos de demo masivos (se limpió por
 > completo el 2026-09-04) — solo existen las 4 cuentas documentadas en
