@@ -80,7 +80,11 @@ Route::prefix('v1')->group(function (): void {
 
     // Rutas protegidas (requieren token Bearer): disponibles para cualquier usuario
     // autenticado; los sub-grupos de abajo añaden restricción por rol.
-    Route::middleware('mobile.auth')->group(function (): void {
+    // "maintenance.check" corre después de "mobile.auth" (ya resuelto
+    // $request->user()) y bloquea con 503 a cualquier no-administrador
+    // cuando el modo mantenimiento está activo -- equivalente de
+    // CheckMaintenanceMode (Blade) para la API.
+    Route::middleware(['mobile.auth', 'maintenance.check'])->group(function (): void {
         // Autenticación
         Route::get('auth/me', [AuthController::class, 'me']);
         Route::post('auth/logout', [AuthController::class, 'logout']);

@@ -3,6 +3,7 @@
 use App\Exceptions\Domain\AppointmentConflictException;
 use App\Exceptions\Domain\InsufficientStockException;
 use App\Exceptions\Domain\PaymentException;
+use App\Http\Middleware\Api\CheckApiMaintenanceMode;
 use App\Http\Middleware\AuthenticateMobileApiToken;
 use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\OptionalMobileApiToken;
@@ -34,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission.custom' => EnsureUserHasPermission::class,
             'mobile.auth' => AuthenticateMobileApiToken::class,
             'mobile.auth.optional' => OptionalMobileApiToken::class,
+            'maintenance.check' => CheckApiMaintenanceMode::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
