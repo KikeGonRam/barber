@@ -21,9 +21,17 @@
 # "config:clear" antes de cada corrida evita que esto se repita si el
 # contenedor se reinicia entre una corrida y otra (propia o de otra sesion).
 #
+# "route:clear" existe por el mismo motivo pero para rutas: si una corrida
+# anterior dejo bootstrap/cache/routes-v7.php cacheado (ver el bloque de
+# route:cache al final de este script), un cambio en routes/*.php no se ve
+# reflejado en la suite hasta limpiarlo -- encontrado 2026-09-09 al mover
+# GET barbers/{barber} fuera de mobile.auth: el test nuevo seguia recibiendo
+# 401 con la ruta ya corregida en el archivo.
+#
 # Uso: .\test.ps1  [argumentos extra para "php artisan test", ej. --filter=Loyalty]
 
 docker exec barber-app php artisan config:clear | Out-Null
+docker exec barber-app php artisan route:clear | Out-Null
 docker exec --env-file .env.testing barber-app php artisan test @args
 
 # Restaura el cache de config/rutas con el entorno REAL del contenedor

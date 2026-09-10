@@ -324,8 +324,15 @@ Route::prefix('v1')->group(function (): void {
             Route::get('inventory/low-stock', [InventoryAdminController::class, 'getLowStockProducts']);
         });
 
-        // Detalle de barbero y reseñas (van después de barbers/manage para no chocar con el wildcard)
-        Route::get('barbers/{barber}', [CatalogController::class, 'showBarber']);
+        // Reseña de barbero: requiere sesión de cliente autenticado.
         Route::post('barbers/{barber}/review', [CatalogController::class, 'storeReview']);
     });
+
+    // Detalle público de barbero (después de barbers/manage para no chocar con
+    // el wildcard). Movido fuera de mobile.auth el 2026-09-09: el perfil
+    // público de un barbero (portafolio, reseñas) debe verse sin iniciar
+    // sesión, igual que /services y /barbers -- CatalogController::showBarber
+    // ya trata $request->user() como opcional (canReview/already_reviewed
+    // quedan en false para visitantes anónimos).
+    Route::get('barbers/{barber}', [CatalogController::class, 'showBarber']);
 });

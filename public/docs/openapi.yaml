@@ -695,7 +695,7 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '07:19'
+                  example: '22:00'
                 estado:
                   type: string
                   description: ''
@@ -757,7 +757,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: no_asistio
                   enum:
                     - pendiente
                     - confirmada
@@ -813,14 +813,14 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: week
+                  example: day
                   enum:
                     - day
                     - week
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: pendiente
                   enum:
                     - pendiente
                     - confirmada
@@ -1342,7 +1342,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: efectivo
+                  example: tarjeta
                   enum:
                     - efectivo
                     - tarjeta
@@ -1450,7 +1450,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: tarjeta
+                  example: efectivo
                   enum:
                     - efectivo
                     - tarjeta
@@ -1648,22 +1648,22 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-09T07:19:22'
+                  example: '2026-09-09T22:00:33'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_whatsapp:
                   type: boolean
@@ -1706,7 +1706,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-09T07:19:22'
+                  example: '2026-09-09T22:00:33'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -1726,7 +1726,7 @@ paths:
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - name
@@ -1816,7 +1816,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -2143,7 +2143,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '07:19'
+                  example: '22:00'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -2272,7 +2272,7 @@ paths:
                 programada_para:
                   type: string
                   description: 'This field is required when <code>modo</code> is <code>programar</code>. El campo value no es una fecha válida. El campo value debe ser una fecha posterior a <code>now</code>.'
-                  example: '2052-10-02'
+                  example: '2052-10-03'
                   nullable: true
               required:
                 - titulo
@@ -2529,11 +2529,11 @@ paths:
                 whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 push:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 promociones:
                   type: boolean
                   description: ''
@@ -2600,7 +2600,7 @@ paths:
                 content_encoding:
                   type: string
                   description: ''
-                  example: aesgcm
+                  example: aes128gcm
                   enum:
                     - aesgcm
                     - aes128gcm
@@ -2927,7 +2927,7 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: dia
+                  example: semana
                   enum:
                     - dia
                     - semana
@@ -2938,17 +2938,17 @@ paths:
                 dateFrom:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-09T07:19:24'
+                  example: '2026-09-09T22:00:35'
                   nullable: true
                 dateTo:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-09T07:19:24'
+                  example: '2026-09-09T22:00:35'
                   nullable: true
                 detail:
                   type: string
                   description: ''
-                  example: detallado
+                  example: resumen
                   enum:
                     - resumen
                     - detallado
@@ -3236,7 +3236,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
       security: []
     parameters:
       -
@@ -3589,12 +3589,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -3683,7 +3683,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -3723,7 +3723,7 @@ paths:
                 tipo:
                   type: string
                   description: ''
-                  example: salida
+                  example: entrada
                   enum:
                     - entrada
                     - salida
@@ -3815,37 +3815,6 @@ paths:
       tags:
         - Endpoints
       security: []
-  '/api/v1/barbers/{barber_slug}':
-    get:
-      summary: ''
-      operationId: getApiV1BarbersBarber_slug
-      description: ''
-      parameters: []
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: 'No autorizado.'
-                properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
-      tags:
-        - Endpoints
-      security: []
-    parameters:
-      -
-        in: path
-        name: barber_slug
-        description: 'The slug of the barber.'
-        example: barbero-urbanblade
-        required: true
-        schema:
-          type: string
   '/api/v1/barbers/{barber_slug}/review':
     post:
       summary: ''
@@ -3873,6 +3842,100 @@ paths:
                   nullable: true
               required:
                 - rating
+      security: []
+    parameters:
+      -
+        in: path
+        name: barber_slug
+        description: 'The slug of the barber.'
+        example: barbero-urbanblade
+        required: true
+        schema:
+          type: string
+  '/api/v1/barbers/{barber_slug}':
+    get:
+      summary: ''
+      operationId: getApiV1BarbersBarber_slug
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  barber:
+                    id: 6a9b5a6d1c1864aecd064974
+                    slug: barbero-urbanblade
+                    descripcion: null
+                    especialidades: 'Cortes clasicos, Fades y degradados'
+                    foto: null
+                    user:
+                      id: 6a9b5a6c1c1864aecd064972
+                      name: 'Barbero UrbanBlade'
+                  works: []
+                  reviews: []
+                  avg_rating: null
+                  total_reviews: 0
+                  citas_completadas: 0
+                  can_review: false
+                  already_reviewed: false
+                properties:
+                  barber:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 6a9b5a6d1c1864aecd064974
+                      slug:
+                        type: string
+                        example: barbero-urbanblade
+                      descripcion:
+                        type: string
+                        example: null
+                        nullable: true
+                      especialidades:
+                        type: string
+                        example: 'Cortes clasicos, Fades y degradados'
+                      foto:
+                        type: string
+                        example: null
+                        nullable: true
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: 6a9b5a6c1c1864aecd064972
+                          name:
+                            type: string
+                            example: 'Barbero UrbanBlade'
+                  works:
+                    type: array
+                    example: []
+                  reviews:
+                    type: array
+                    example: []
+                  avg_rating:
+                    type: string
+                    example: null
+                    nullable: true
+                  total_reviews:
+                    type: integer
+                    example: 0
+                  citas_completadas:
+                    type: integer
+                    example: 0
+                  can_review:
+                    type: boolean
+                    example: false
+                  already_reviewed:
+                    type: boolean
+                    example: false
+      tags:
+        - Endpoints
       security: []
     parameters:
       -
@@ -4587,12 +4650,12 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -4828,7 +4891,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-09T07:19:23'
+                  example: '2026-09-09T22:00:34'
                   nullable: true
               required:
                 - product_id

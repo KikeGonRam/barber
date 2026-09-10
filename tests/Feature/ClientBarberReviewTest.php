@@ -95,4 +95,30 @@ class ClientBarberReviewTest extends TestCase
         $this->assertEquals(2.0, (float) $freshBarber->calificacion_promedio);
         $this->assertSame(1, $freshBarber->total_resenas);
     }
+
+    /**
+     * Regresión: GET barbers/{barber} salió del grupo mobile.auth el
+     * 2026-09-09 para que el perfil público de barbero en Nuxt (portafolio +
+     * reseñas) sea visible sin iniciar sesión, igual que /services y
+     * /barbers. Sin token, debe responder 200 (no 401) y marcar can_review/
+     * already_reviewed como false para el visitante anónimo.
+     */
+    public function test_public_barber_detail_is_accessible_without_authentication(): void
+    {
+        $response = $this->getJson('/api/v1/barbers/'.$this->barber->slug);
+
+        $response->assertOk();
+        $response->assertJsonPath('barber.slug', $this->barber->slug);
+        $response->assertJsonPath('can_review', false);
+        $response->assertJsonPath('already_reviewed', false);
+    }
+
+    public function test_review_submission_still_requires_authentication(): void
+    {
+        $response = $this->postJson('/api/v1/barbers/'.$this->barber->slug.'/review', [
+            'rating' => 4,
+        ]);
+
+        $response->assertUnauthorized();
+    }
 }

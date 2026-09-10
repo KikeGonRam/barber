@@ -2451,7 +2451,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 4
 			path: tests/Feature/ClientBarberReviewTest.php
 
 		-
