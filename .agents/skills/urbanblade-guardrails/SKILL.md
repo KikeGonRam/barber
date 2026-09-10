@@ -205,12 +205,15 @@ by `PaymentService::create()` (reception charge — efectivo/tarjeta), `uploadTr
 points/PDF/notification treatment). If you touch any of these paths, keep the discount →
 points-redemption order (discount first, then points on the reduced total) and the 50%
 cap consistent across all of them — don't let one charge path drift from the others
-again. The Alpine.js math that previews this to staff before charging
-(`resources/js/loyalty-charge.js`, `window.UrbanBladeLoyalty.computeCharge`) is shared by
-both `payments/create.blade.php` and the quick "Cobrar" modal in
-`appointments/index.blade.php` — if the business rule changes, update that one file, not
-the Blade templates directly (they were duplicated before and drifted; that's fixed now,
-don't reintroduce the duplication).
+again. This is now purely server-side logic (`LoyaltyService`, consumed only by the API)
+— the Alpine.js preview math this guardrail used to describe
+(`resources/js/loyalty-charge.js`, `window.UrbanBladeLoyalty.computeCharge`, shared by
+`payments/create.blade.php` and the "Cobrar" modal in `appointments/index.blade.php`)
+was removed 2026-09-09 as dead code: both of those Blade views were already gone (retired
+with the rest of the admin panel, guardrail #18), so the JS file registered a global that
+nothing on any surviving page ever called. If a staff-facing charge preview is ever
+rebuilt, it now lives in `frontend-urban` (Nuxt), not here — don't recreate the Blade/Alpine
+version.
 
 ## 15. Payment methods are exactly three: efectivo, transferencia, tarjeta (beta)
 
