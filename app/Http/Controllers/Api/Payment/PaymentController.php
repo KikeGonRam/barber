@@ -78,8 +78,13 @@ class PaymentController extends Controller
                 // (Payment\PaymentController::index()) para que el "Centro de
                 // Facturacion" de Nuxt no tenga que hacer una segunda llamada.
                 'stats' => [
-                    'total_hoy' => (float) Payment::whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->get(['monto', 'propina'])->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
-                    'total_mes' => (float) Payment::whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])->get(['monto', 'propina'])->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
+                    // Solo 'verificado': antes estos totales sumaban TODOS los
+                    // pagos, así que una transferencia rechazada o una todavía
+                    // sin revisar contaban como ingreso del día. El corte de
+                    // caja usa el mismo criterio (ver CashCloseService), y dos
+                    // pantallas que reportan dinero no pueden contradecirse.
+                    'total_hoy' => (float) Payment::where('estado', Payment::ESTADO_VERIFICADO)->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])->get(['monto', 'propina'])->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
+                    'total_mes' => (float) Payment::where('estado', Payment::ESTADO_VERIFICADO)->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])->get(['monto', 'propina'])->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
                     'count' => Payment::count(),
                     'metodos' => Payment::get(['metodo_pago'])->groupBy('metodo_pago')->map->count(),
                 ],

@@ -3000,3 +3000,9 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: tests/Feature/ClientAdminApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$metodo_pago\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/CashCloseService.php

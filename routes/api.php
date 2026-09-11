@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\Inventory\InventoryController as ApiInventoryContro
 use App\Http\Controllers\Api\Log\LogController as ApiLogController;
 use App\Http\Controllers\Api\Notification\NotificationController as ApiNotificationController;
 use App\Http\Controllers\Api\Order\OrderController as ApiOrderController;
+use App\Http\Controllers\Api\Payment\CashCloseController;
 use App\Http\Controllers\Api\Payment\PaymentController as ApiPaymentController;
 use App\Http\Controllers\Api\Payment\StripeWebhookController;
 use App\Http\Controllers\Api\Prediction\PredictionController;
@@ -148,6 +149,12 @@ Route::prefix('v1')->group(function (): void {
             // Pedidos — bandeja de recepción (Admin/Recepcionista)
             Route::patch('orders/{order}/deliver', [ApiOrderController::class, 'deliver']);
             Route::get('orders/{order}/receipt', [ApiOrderController::class, 'receipt']);
+
+            // Corte de caja (Admin/Recepcionista). Antes de 'payments/{payment}'
+            // no hay riesgo de comodín porque cuelga de su propio prefijo.
+            Route::get('cash-closes', [CashCloseController::class, 'index']);
+            Route::get('cash-closes/preview', [CashCloseController::class, 'preview']);
+            Route::post('cash-closes', [CashCloseController::class, 'store']);
 
             // Pagos (Admin/Recepcionista)
             Route::get('payments/pending', [ApiPaymentController::class, 'pending']);
