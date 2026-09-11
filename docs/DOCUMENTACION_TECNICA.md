@@ -143,11 +143,13 @@ usuarios (`administrador`, `recepcionista`, `barbers`, `clients`) →
 
 > ⚠️ **`barber_db` se limpió por completo el 2026-09-04** (tenía ~214,623
 > citas y ~323,095 transacciones de lealtad sintéticas acumuladas de siembras
-> masivas repetidas, además de ~4,767 usuarios de sobra). El estado real
-> actual son solo las 4 cuentas de equipo documentadas en
-> [ACCESOS.md](ACCESOS.md) (1 admin, 1 recepcionista, 1 barbero, 1 cliente) y
-> ningún dato operativo (citas, pagos, productos, etc.) — se va cargando con
-> información real conforme el negocio la genera.
+> masivas repetidas, además de ~4,767 usuarios de sobra).
+>
+> ⚠️ **Segundo incidente, 2026-09-11**: `clients`, `barbers` y `services`
+> volvieron a vaciarse por completo (un comando de limpieza de datos de
+> prueba corrió por error contra Atlas en vez de la base local de pruebas).
+> Esta vez no hay backup. Ver [ACCESOS.md](ACCESOS.md) para el estado actual
+> y cómo crear cuentas de equipo nuevas — ya no hay cuentas documentadas.
 >
 > Si se corre el `DatabaseSeeder` completo (`migrate --seed`, **no
 > recomendado**, ver [README.md](../README.md)), sí generaría un dataset
