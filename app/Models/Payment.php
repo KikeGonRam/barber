@@ -22,6 +22,11 @@ class Payment extends Model
 
     public const ESTADO_RECHAZADO = 'rechazado';
 
+    // Depósito devuelto al cliente (cancelación a tiempo). No confundir con
+    // ESTADO_RECHAZADO: rechazado es "staff nunca lo validó", reembolsado es
+    // "sí era dinero real, y se le regresó". Ver DepositService::refundIfAny().
+    public const ESTADO_REEMBOLSADO = 'reembolsado';
+
     protected $fillable = [
         'appointment_id',
         'monto',
@@ -42,6 +47,12 @@ class Payment extends Model
         'raffle_result_id',
         'bloquea_cita',
         'loyalty_refund_reconciled_at',
+        // true = depósito anti-no-show cobrado al reservar (ver DepositService);
+        // false/ausente = cobro normal del servicio (PaymentService). Ambos
+        // viven en la misma colección porque comparten revisión de
+        // transferencia, corte de caja y CashCloseService, pero nunca se
+        // confunden entre sí (ver el índice único compuesto de la migración).
+        'es_deposito',
     ];
 
     protected function casts(): array
@@ -55,7 +66,14 @@ class Payment extends Model
             'puntos_canjeados' => 'integer',
             'bloquea_cita' => 'boolean',
             'loyalty_refund_reconciled_at' => 'datetime',
+            'es_deposito' => 'boolean',
         ];
+    }
+
+    // Pagos existentes antes de esta feature no tienen el campo -> nunca son depósito.
+    public function getEsDepositoAttribute($value): bool
+    {
+        return (bool) $value;
     }
 
     // Pagos existentes antes de esta feature no tienen el campo -> 0 puntos canjeados.

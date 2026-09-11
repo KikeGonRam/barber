@@ -8,11 +8,23 @@ servers:
     url: 'http://localhost:8000'
 tags:
   -
+    name: Analítica
+    description: ''
+  -
     name: Autenticación
     description: "\nEndpoints para el manejo de sesiones de usuario (token Bearer propio,\ntabla mobile_api_tokens — no Sanctum)."
   -
+    name: 'Catálogo público'
+    description: ''
+  -
     name: Citas
     description: "\nGestión de citas para clientes, barberos y administración."
+  -
+    name: 'Corte de caja'
+    description: "\nCierre de caja del día para mostrador: qué esperaba el sistema, cuánto\nefectivo se contó y la diferencia. Administración y recepción, que es quien\ncierra el turno."
+  -
+    name: 'Depósitos anti-no-show'
+    description: "\nCobro del depósito exigido a un cliente con historial reciente de\ninasistencias (ver DepositService), mientras su cita sigue 'pendiente' de\naprobación por el barbero. Vive separado de Payment\\PaymentController: ese\ncontrolador solo opera sobre citas ya aprobadas (CHARGEABLE)."
   -
     name: Endpoints
     description: ''
@@ -23,6 +35,9 @@ tags:
     name: 'Gestión de Perfil'
     description: "\nEndpoints para gestionar el perfil del usuario autenticado."
   -
+    name: 'Gestión de cita por enlace'
+    description: "\nDeja que un cliente vea, reagende o cancele SU cita desde el enlace del\nrecordatorio, sin iniciar sesión. Antes el recordatorio mandaba a\n/my/appointments, detrás de middleware ['auth','client']: quien no\nrecordaba su contraseña simplemente no iba, y eso se traduce en no-shows.\n\nAutoriza el token opaco de la cita, no una sesión\n(AppointmentManageLinkService). Aplica exactamente las mismas reglas que\nel cliente autenticado: solo citas pendientes/confirmadas y futuras, y la\nventana de cancelación configurada por la barbería. El enlace no puede ser\nuna puerta más permisiva que la app."
+  -
     name: 'Horarios de Barbero'
     description: "\nEndpoints para gestionar los horarios del barbero."
   -
@@ -32,6 +47,27 @@ tags:
     name: 'Portafolio de Barbero'
     description: "\nEndpoints para gestionar el portafolio de trabajos del barbero."
 paths:
+  /api/v1/analytics:
+    get:
+      summary: "Análisis por rol. operational es un resumen actual de citas/pagos,\nexclusivo para administrador y recepción; los insights históricos se conservan."
+      operationId: anlisisPorRolOperationalEsUnResumenActualDeCitaspagosExclusivoParaAdministradorYRecepcinLosInsightsHistricosSeConservan
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Analítica
   /api/v1/auth/login:
     post:
       summary: 'Iniciar Sesión'
@@ -440,6 +476,75 @@ paths:
                     example: 'No autenticado.'
       tags:
         - Autenticación
+  /api/v1/barbershop:
+    get:
+      summary: "Ficha pública de la barbería: identidad, contacto, horario, política de\ncancelación y redes. Lo consume la landing y la reserva pública, que no\ntienen token."
+      operationId: fichaPblicaDeLaBarberaIdentidadContactoHorarioPolticaDeCancelacinYRedesLoConsumeLaLandingYLaReservaPblicaQueNoTienenToken
+      description: "Deliberadamente NO usa BarbershopSettingResource: ese recurso incluye\ndatos_bancarios (CLABE, banco, beneficiario) y maintenance_mode, que\nson para el panel de administración, no para un visitante anónimo.\nCualquier campo nuevo que se agregue aquí debe ser seguro de publicar."
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    nombre: UrbanBlade
+                    logo: null
+                    direccion: 'Av. Juárez 120, Centro'
+                    telefono: '+52 55 1234 5678'
+                    horario_apertura: '09:00'
+                    horario_cierre: '21:00'
+                    politica_cancelacion: 24
+                    redes_sociales:
+                      instagram: urbanblade
+                      facebook: null
+                      tiktok: null
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      nombre:
+                        type: string
+                        example: UrbanBlade
+                      logo:
+                        type: string
+                        example: null
+                        nullable: true
+                      direccion:
+                        type: string
+                        example: 'Av. Juárez 120, Centro'
+                      telefono:
+                        type: string
+                        example: '+52 55 1234 5678'
+                      horario_apertura:
+                        type: string
+                        example: '09:00'
+                      horario_cierre:
+                        type: string
+                        example: '21:00'
+                      politica_cancelacion:
+                        type: integer
+                        example: 24
+                      redes_sociales:
+                        type: object
+                        properties:
+                          instagram:
+                            type: string
+                            example: urbanblade
+                          facebook:
+                            type: string
+                            example: null
+                            nullable: true
+                          tiktok:
+                            type: string
+                            example: null
+                            nullable: true
+      tags:
+        - 'Catálogo público'
+      security: []
   /api/v1/appointments:
     get:
       summary: 'Listar Citas'
@@ -691,15 +796,15 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-03'
+                  example: '2052-10-04'
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '00:45'
+                  example: '17:28'
                 estado:
                   type: string
                   description: ''
-                  example: no_asistio
+                  example: pendiente
                   enum:
                     - pendiente
                     - confirmada
@@ -740,11 +845,59 @@ paths:
           type: string
   '/api/v1/appointments/{appointment_code}/status':
     patch:
-      summary: "Permite al barbero dueño de la cita cambiar su estado (respetando la máquina de estados\nvalidada en AppointmentStatusService)."
-      operationId: permiteAlBarberoDueoDeLaCitaCambiarSuEstadorespetandoLaMquinaDeEstadosValidadaEnAppointmentStatusService
-      description: ''
+      summary: "Cambia el estado de una cita respetando la máquina de estados de\nAppointmentStatusService (transición válida + rol autorizado)."
+      operationId: cambiaElEstadoDeUnaCitaRespetandoLaMquinaDeEstadosDeAppointmentStatusServicetransicinVlida+RolAutorizado
+      description: "Antes exigía hasRole('barbero') y contradecía a la propia máquina de\nestados: ROLE_MAP ya declaraba a administrador y recepcionista\nautorizados en TODAS las transiciones, pero este guard les devolvía 403,\ny roleCanSet() quedaba sin usarse en todo el proyecto. Como PUT\n/appointments/{cita} exige el payload completo con\n'fecha' => after_or_equal:today, el efecto neto era que recepción no\npodía marcar \"no asistió\" ni \"completada\" en una cita del día anterior\npor ningún camino — justo cuando un no-show se marca después del hecho.\n\nEl barbero sigue acotado a SUS citas. El rol cliente no entra aquí\naunque ROLE_MAP lo liste para 'cancelada': cancela con DELETE\n/appointments/{cita}, que además valida su propia ventana de tiempo.\n\nActualizar Estado de Cita\n\nCambia solo el estado (y opcionalmente las notas), sin exigir el payload\ncompleto de la cita. Permitido a administrador, recepcionista y al\nbarbero asignado."
       parameters: []
-      responses: {}
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Estado actualizado correctamente.'
+                  data:
+                    code: jfb7ffye
+                    estado: confirmada
+                properties:
+                  message:
+                    type: string
+                    example: 'Estado actualizado correctamente.'
+                  data:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: jfb7ffye
+                      estado:
+                        type: string
+                        example: confirmada
+        403:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Solo puedes cambiar el estado de tus propias citas.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Solo puedes cambiar el estado de tus propias citas.'
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: "No se puede pasar la cita de 'completada' a 'pendiente'."
+                properties:
+                  message:
+                    type: string
+                    example: "No se puede pasar la cita de 'completada' a 'pendiente'."
       tags:
         - Citas
       requestBody:
@@ -756,29 +909,29 @@ paths:
               properties:
                 estado:
                   type: string
-                  description: ''
-                  example: no_asistio
-                  enum:
-                    - pendiente
-                    - confirmada
-                    - en_proceso
-                    - completada
-                    - cancelada
-                    - no_asistio
+                  description: 'Estado destino. Debe ser una transición válida desde el estado actual.'
+                  example: confirmada
                 notas:
                   type: string
-                  description: 'El campo value no debe tener más de 1000 caracteres.'
-                  example: b
+                  description: 'Notas opcionales de la cita.'
+                  example: 'Llegó 5 minutos tarde.'
                   nullable: true
               required:
                 - estado
-      security: []
     parameters:
       -
         in: path
         name: appointment_code
         description: ''
         example: architecto
+        required: true
+        schema:
+          type: string
+      -
+        in: path
+        name: appointment
+        description: 'Código público de la cita.'
+        example: jfb7ffye
         required: true
         schema:
           type: string
@@ -834,6 +987,227 @@ paths:
                   description: 'El campo value debe estar entre -365 y 365.'
                   example: -364
       security: []
+  /api/v1/cash-closes:
+    get:
+      summary: 'Historial de cortes'
+      operationId: historialDeCortes
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - 'Corte de caja'
+    post:
+      summary: 'Registrar corte'
+      operationId: registrarCorte
+      description: "Guarda el arqueo del día: el esperado queda como snapshot y la\ndiferencia se calcula en el servidor contra el efectivo contado, nunca\nse acepta del cliente."
+      parameters: []
+      responses: {}
+      tags:
+        - 'Corte de caja'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  description: 'Fecha del corte (Y-m-d). Por defecto, hoy.'
+                  example: '2026-09-11'
+                  nullable: true
+                efectivo_contado:
+                  type: number
+                  description: 'Efectivo contado físicamente.'
+                  example: 1250.5
+                notas:
+                  type: string
+                  description: 'Observaciones del cierre.'
+                  example: 'Faltante por cambio de un billete.'
+                  nullable: true
+              required:
+                - efectivo_contado
+  /api/v1/cash-closes/preview:
+    get:
+      summary: 'Corte esperado'
+      operationId: corteEsperado
+      description: "Dinero recibido en la fecha indicada, desglosado por método de pago.\nSuma cobros de citas (Payment verificado) y ventas de tienda (Order\nentregado), que no generan Payment."
+      parameters:
+        -
+          in: query
+          name: date
+          description: 'Fecha a consultar (Y-m-d). Por defecto, hoy.'
+          example: '2026-09-11'
+          required: false
+          schema:
+            type: string
+            description: 'Fecha a consultar (Y-m-d). Por defecto, hoy.'
+            example: '2026-09-11'
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - 'Corte de caja'
+  '/api/v1/appointments/{appointment_code}/deposit/stripe-intent':
+    post:
+      summary: 'Crea el PaymentIntent de Stripe para el depósito de una cita propia.'
+      operationId: creaElPaymentIntentDeStripeParaElDepsitoDeUnaCitaPropia
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Depósitos anti-no-show'
+    parameters:
+      -
+        in: path
+        name: appointment_code
+        description: ''
+        example: architecto
+        required: true
+        schema:
+          type: string
+      -
+        in: path
+        name: appointment
+        description: 'Código público de la cita.'
+        example: jfb7ffye
+        required: true
+        schema:
+          type: string
+  '/api/v1/appointments/{appointment_code}/deposit/receipt':
+    post:
+      summary: 'Sube el comprobante de transferencia del depósito. Queda en revisión.'
+      operationId: subeElComprobanteDeTransferenciaDelDepsitoQuedaEnRevisin
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Depósitos anti-no-show'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                comprobante:
+                  type: string
+                  format: binary
+                  description: 'Foto o PDF del comprobante de transferencia.'
+              required:
+                - comprobante
+    parameters:
+      -
+        in: path
+        name: appointment_code
+        description: ''
+        example: architecto
+        required: true
+        schema:
+          type: string
+      -
+        in: path
+        name: appointment
+        description: 'Código público de la cita.'
+        example: jfb7ffye
+        required: true
+        schema:
+          type: string
+  /api/v1/deposits/pending:
+    get:
+      summary: 'Depósitos por transferencia pendientes de revisión (staff).'
+      operationId: depsitosPorTransferenciaPendientesDeRevisinstaff
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - 'Depósitos anti-no-show'
+      security: []
+  '/api/v1/deposits/{payment_id}/approve':
+    post:
+      summary: 'Aprueba un depósito en revisión (staff).'
+      operationId: apruebaUnDepsitoEnRevisinstaff
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Depósitos anti-no-show'
+      security: []
+    parameters:
+      -
+        in: path
+        name: payment_id
+        description: 'The ID of the payment.'
+        example: architecto
+        required: true
+        schema:
+          type: string
+  '/api/v1/deposits/{payment_id}/reject':
+    post:
+      summary: 'Rechaza un depósito en revisión (staff).'
+      operationId: rechazaUnDepsitoEnRevisinstaff
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Depósitos anti-no-show'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                motivo_rechazo:
+                  type: string
+                  description: 'El campo value no debe tener más de 500 caracteres.'
+                  example: b
+              required:
+                - motivo_rechazo
+      security: []
+    parameters:
+      -
+        in: path
+        name: payment_id
+        description: 'The ID of the payment.'
+        example: architecto
+        required: true
+        schema:
+          type: string
   /api/stripe/webhook:
     post:
       summary: 'Punto de entrada del webhook: valida la firma de Stripe y despacha según el tipo de evento.'
@@ -903,7 +1277,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-03'
+                  example: '2052-10-04'
               required:
                 - barber_id
                 - service_id
@@ -979,73 +1353,11 @@ paths:
               schema:
                 type: object
                 example:
-                  data:
-                    -
-                      id: 6a9b5a6d1c1864aecd064974
-                      slug: barbero-urbanblade
-                      user:
-                        id: 6a9b5a6c1c1864aecd064972
-                        name: 'Barbero UrbanBlade'
-                      especialidades: 'Cortes clasicos, Fades y degradados'
-                      descripcion: ''
-                      foto: null
-                      activo: true
-                      avg_rating: null
-                      total_reviews: 0
+                  data: []
                 properties:
                   data:
                     type: array
-                    example:
-                      -
-                        id: 6a9b5a6d1c1864aecd064974
-                        slug: barbero-urbanblade
-                        user:
-                          id: 6a9b5a6c1c1864aecd064972
-                          name: 'Barbero UrbanBlade'
-                        especialidades: 'Cortes clasicos, Fades y degradados'
-                        descripcion: ''
-                        foto: null
-                        activo: true
-                        avg_rating: null
-                        total_reviews: 0
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          example: 6a9b5a6d1c1864aecd064974
-                        slug:
-                          type: string
-                          example: barbero-urbanblade
-                        user:
-                          type: object
-                          properties:
-                            id:
-                              type: string
-                              example: 6a9b5a6c1c1864aecd064972
-                            name:
-                              type: string
-                              example: 'Barbero UrbanBlade'
-                        especialidades:
-                          type: string
-                          example: 'Cortes clasicos, Fades y degradados'
-                        descripcion:
-                          type: string
-                          example: ''
-                        foto:
-                          type: string
-                          example: null
-                          nullable: true
-                        activo:
-                          type: boolean
-                          example: true
-                        avg_rating:
-                          type: string
-                          example: null
-                          nullable: true
-                        total_reviews:
-                          type: integer
-                          example: 0
+                    example: []
       tags:
         - Endpoints
       security: []
@@ -1130,7 +1442,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-03'
+                  example: '2052-10-04'
               required:
                 - barber_id
                 - service_id
@@ -1210,28 +1522,6 @@ paths:
     get:
       summary: ''
       operationId: getApiV1DashboardMembershipCard
-      description: ''
-      parameters: []
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: 'No autorizado.'
-                properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
-      tags:
-        - Endpoints
-      security: []
-  /api/v1/analytics:
-    get:
-      summary: ''
-      operationId: getApiV1Analytics
       description: ''
       parameters: []
       responses:
@@ -1364,7 +1654,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: efectivo
+                  example: tarjeta
                   enum:
                     - efectivo
                     - tarjeta
@@ -1382,7 +1672,7 @@ paths:
                 usar_premio_rifa:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 stripe_payment_id:
                   type: string
@@ -1472,7 +1762,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: efectivo
+                  example: tarjeta
                   enum:
                     - efectivo
                     - tarjeta
@@ -1670,12 +1960,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-10T00:45:30'
+                  example: '2026-09-11T17:28:07'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_email:
                   type: boolean
@@ -1690,7 +1980,7 @@ paths:
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - name
@@ -1728,7 +2018,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-10T00:45:30'
+                  example: '2026-09-11T17:28:07'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -1738,17 +2028,17 @@ paths:
                 pref_email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -1768,7 +2058,7 @@ paths:
         in: path
         name: client_slug
         description: 'The slug of the client.'
-        example: cliente-urbanblade
+        example: architecto
         required: true
         schema:
           type: string
@@ -1992,7 +2282,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: barbero-urbanblade
+        example: architecto
         required: true
         schema:
           type: string
@@ -2107,7 +2397,7 @@ paths:
         in: path
         name: user_id
         description: 'The ID of the user.'
-        example: 6a9b59f5a8efd2af55060132
+        example: architecto
         required: true
         schema:
           type: string
@@ -2165,46 +2455,56 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '00:45'
+                  example: '17:28'
                   nullable: true
                 horario_cierre:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>. El campo value debe ser una fecha posterior a <code>horario_apertura</code>.'
-                  example: '2052-10-03'
+                  example: '2052-10-04'
                   nullable: true
                 politica_cancelacion:
                   type: integer
                   description: 'El campo value debe ser al menos 1. El campo value no debe ser mayor que 168.'
                   example: 22
+                deposito_no_show_umbral:
+                  type: integer
+                  description: "Política anti-no-show (DepositService). Opcional a propósito:\nel formulario de configuración aún no manda estos dos campos,\nasí que un guardado normal no debe romperse por su ausencia\n(ver el fallback al valor ya guardado más abajo). 0 en\ncualquiera de los dos desactiva la exigencia de depósito. El campo value debe ser al menos 0. El campo value no debe ser mayor que 20."
+                  example: 7
+                  nullable: true
+                deposito_no_show_porcentaje:
+                  type: integer
+                  description: 'El campo value debe ser al menos 0. El campo value no debe ser mayor que 100.'
+                  example: 16
+                  nullable: true
                 instagram:
-                  type: string
-                  description: 'El campo value no debe tener más de 255 caracteres.'
-                  example: g
-                  nullable: true
-                facebook:
-                  type: string
-                  description: 'El campo value no debe tener más de 255 caracteres.'
-                  example: z
-                  nullable: true
-                tiktok:
                   type: string
                   description: 'El campo value no debe tener más de 255 caracteres.'
                   example: m
                   nullable: true
+                facebook:
+                  type: string
+                  description: 'El campo value no debe tener más de 255 caracteres.'
+                  example: i
+                  nullable: true
+                tiktok:
+                  type: string
+                  description: 'El campo value no debe tener más de 255 caracteres.'
+                  example: 'y'
+                  nullable: true
                 clabe:
                   type: string
                   description: 'El campo value no debe tener más de 18 caracteres.'
-                  example: iyvdljnikhwaykcm
+                  example: vdljnikhwaykcmyu
                   nullable: true
                 banco:
                   type: string
                   description: 'El campo value no debe tener más de 100 caracteres.'
-                  example: 'y'
+                  example: w
                   nullable: true
                 beneficiario:
                   type: string
                   description: 'El campo value no debe tener más de 150 caracteres.'
-                  example: u
+                  example: p
                   nullable: true
                 concepto:
                   type: string
@@ -2287,14 +2587,14 @@ paths:
                 modo:
                   type: string
                   description: ''
-                  example: ahora
+                  example: programar
                   enum:
                     - ahora
                     - programar
                 programada_para:
                   type: string
                   description: 'This field is required when <code>modo</code> is <code>programar</code>. El campo value no es una fecha válida. El campo value debe ser una fecha posterior a <code>now</code>.'
-                  example: '2052-10-03'
+                  example: '2052-10-05'
                   nullable: true
               required:
                 - titulo
@@ -2561,7 +2861,7 @@ paths:
                 in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 email:
                   type: boolean
                   description: ''
@@ -2569,7 +2869,7 @@ paths:
                 sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 whatsapp:
                   type: boolean
                   description: ''
@@ -2577,7 +2877,7 @@ paths:
                 push:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 promociones:
                   type: boolean
                   description: ''
@@ -3134,18 +3434,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        401:
+        404:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No autorizado.'
+                  message: 'No query results for model [App\Models\Barber] architecto'
                 properties:
                   message:
                     type: string
-                    example: 'No autorizado.'
+                    example: 'No query results for model [App\Models\Barber] architecto'
       tags:
         - Endpoints
       security: []
@@ -3184,7 +3484,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: barbero-urbanblade
+        example: architecto
         required: true
         schema:
           type: string
@@ -3195,18 +3495,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        401:
+        404:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No autorizado.'
+                  message: 'No query results for model [App\Models\Barber] architecto'
                 properties:
                   message:
                     type: string
-                    example: 'No autorizado.'
+                    example: 'No query results for model [App\Models\Barber] architecto'
       tags:
         - Endpoints
       security: []
@@ -3215,7 +3515,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: barbero-urbanblade
+        example: architecto
         required: true
         schema:
           type: string
@@ -3226,18 +3526,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        401:
+        404:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No autorizado.'
+                  message: 'No query results for model [App\Models\Barber] architecto'
                 properties:
                   message:
                     type: string
-                    example: 'No autorizado.'
+                    example: 'No query results for model [App\Models\Barber] architecto'
       tags:
         - Endpoints
       security: []
@@ -3246,7 +3546,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: barbero-urbanblade
+        example: architecto
         required: true
         schema:
           type: string
@@ -3257,18 +3557,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        401:
+        404:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No autorizado.'
+                  message: 'No query results for model [App\Models\Barber] architecto'
                 properties:
                   message:
                     type: string
-                    example: 'No autorizado.'
+                    example: 'No query results for model [App\Models\Barber] architecto'
       tags:
         - Endpoints
       security: []
@@ -3277,69 +3577,10 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: barbero-urbanblade
+        example: architecto
         required: true
         schema:
           type: string
-  /api/v1/admin/clients:
-    get:
-      summary: ''
-      operationId: getApiV1AdminClients
-      description: ''
-      parameters: []
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: 'No autorizado.'
-                properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
-      tags:
-        - Endpoints
-      security: []
-    post:
-      summary: ''
-      operationId: postApiV1AdminClients
-      description: ''
-      parameters: []
-      responses: {}
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: 'El campo value no debe tener más de 255 caracteres.'
-                  example: b
-                email:
-                  type: string
-                  description: 'El campo value debe ser una dirección de correo válida.'
-                  example: zbailey@example.net
-                telefono:
-                  type: string
-                  description: 'El campo value no debe tener más de 20 caracteres.'
-                  example: iyvdljnikhwaykcm
-                  nullable: true
-                password:
-                  type: string
-                  description: 'El campo value debe tener al menos 8 caracteres.'
-                  example: '/kXaz<m5L[)~=NG5a:'
-              required:
-                - name
-                - email
-                - password
-      security: []
   /api/v1/admin/clients/segmentation/data:
     get:
       summary: ''
@@ -3385,24 +3626,33 @@ paths:
         - Endpoints
       security: []
   '/api/v1/admin/clients/{client_slug}':
+    delete:
+      summary: ''
+      operationId: deleteApiV1AdminClientsClient_slug
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      security: []
     get:
       summary: ''
       operationId: getApiV1AdminClientsClient_slug
       description: ''
       parameters: []
       responses:
-        401:
+        404:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No autorizado.'
+                  message: 'No query results for model [App\Models\Client] architecto'
                 properties:
                   message:
                     type: string
-                    example: 'No autorizado.'
+                    example: 'No query results for model [App\Models\Client] architecto'
       tags:
         - Endpoints
       security: []
@@ -3436,22 +3686,18 @@ paths:
                   description: 'El campo value no debe tener más de 20 caracteres.'
                   example: iyvdljnikhwaykcm
                   nullable: true
-      security: []
-    delete:
-      summary: ''
-      operationId: deleteApiV1AdminClientsClient_slug
-      description: ''
-      parameters: []
-      responses: {}
-      tags:
-        - Endpoints
+                notas:
+                  type: string
+                  description: 'El campo value no debe tener más de 2000 caracteres.'
+                  example: 'y'
+                  nullable: true
       security: []
     parameters:
       -
         in: path
         name: client_slug
         description: 'The slug of the client.'
-        example: cliente-urbanblade
+        example: architecto
         required: true
         schema:
           type: string
@@ -3535,7 +3781,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -3624,7 +3870,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
       security: []
     delete:
@@ -3756,6 +4002,65 @@ paths:
       tags:
         - Endpoints
       security: []
+  /api/v1/admin/clients:
+    get:
+      summary: ''
+      operationId: getApiV1AdminClients
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: ''
+      operationId: postApiV1AdminClients
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'El campo value no debe tener más de 255 caracteres.'
+                  example: b
+                email:
+                  type: string
+                  description: 'El campo value debe ser una dirección de correo válida.'
+                  example: zbailey@example.net
+                telefono:
+                  type: string
+                  description: 'El campo value no debe tener más de 20 caracteres.'
+                  example: iyvdljnikhwaykcm
+                  nullable: true
+                password:
+                  type: string
+                  description: 'El campo value debe tener al menos 8 caracteres.'
+                  example: '/kXaz<m5L[)~=NG5a:'
+              required:
+                - name
+                - email
+                - password
+      security: []
   '/api/v1/barbers/{barber_slug}/review':
     post:
       summary: ''
@@ -3789,7 +4094,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: barbero-urbanblade
+        example: architecto
         required: true
         schema:
           type: string
@@ -3800,81 +4105,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        200:
+        404:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  barber:
-                    id: 6a9b5a6d1c1864aecd064974
-                    slug: barbero-urbanblade
-                    descripcion: null
-                    especialidades: 'Cortes clasicos, Fades y degradados'
-                    foto: null
-                    user:
-                      id: 6a9b5a6c1c1864aecd064972
-                      name: 'Barbero UrbanBlade'
-                  works: []
-                  reviews: []
-                  avg_rating: null
-                  total_reviews: 0
-                  citas_completadas: 0
-                  can_review: false
-                  already_reviewed: false
+                  message: 'No query results for model [App\Models\Barber] architecto'
                 properties:
-                  barber:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        example: 6a9b5a6d1c1864aecd064974
-                      slug:
-                        type: string
-                        example: barbero-urbanblade
-                      descripcion:
-                        type: string
-                        example: null
-                        nullable: true
-                      especialidades:
-                        type: string
-                        example: 'Cortes clasicos, Fades y degradados'
-                      foto:
-                        type: string
-                        example: null
-                        nullable: true
-                      user:
-                        type: object
-                        properties:
-                          id:
-                            type: string
-                            example: 6a9b5a6c1c1864aecd064972
-                          name:
-                            type: string
-                            example: 'Barbero UrbanBlade'
-                  works:
-                    type: array
-                    example: []
-                  reviews:
-                    type: array
-                    example: []
-                  avg_rating:
+                  message:
                     type: string
-                    example: null
-                    nullable: true
-                  total_reviews:
-                    type: integer
-                    example: 0
-                  citas_completadas:
-                    type: integer
-                    example: 0
-                  can_review:
-                    type: boolean
-                    example: false
-                  already_reviewed:
-                    type: boolean
-                    example: false
+                    example: 'No query results for model [App\Models\Barber] architecto'
       tags:
         - Endpoints
       security: []
@@ -3883,7 +4125,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: barbero-urbanblade
+        example: architecto
         required: true
         schema:
           type: string
@@ -4012,7 +4254,7 @@ paths:
                 helpful:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
               required:
                 - message
                 - response
@@ -4371,6 +4613,103 @@ paths:
                   example: 'n'
                   nullable: true
       security: []
+  '/api/v1/appointments/{appointment_code}/manage':
+    get:
+      summary: 'Ver cita'
+      operationId: verCita
+      description: ''
+      parameters:
+        -
+          in: query
+          name: t
+          description: 'Token del enlace del recordatorio.'
+          example: 9f2c...
+          required: true
+          schema:
+            type: string
+            description: 'Token del enlace del recordatorio.'
+            example: 9f2c...
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No query results for model [App\Models\Appointment] architecto'
+                properties:
+                  message:
+                    type: string
+                    example: 'No query results for model [App\Models\Appointment] architecto'
+      tags:
+        - 'Gestión de cita por enlace'
+      security: []
+    parameters:
+      -
+        in: path
+        name: appointment_code
+        description: ''
+        example: architecto
+        required: true
+        schema:
+          type: string
+  '/api/v1/appointments/{appointment_code}/manage/cancel':
+    post:
+      summary: 'Cancelar cita desde el enlace'
+      operationId: cancelarCitaDesdeElEnlace
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Gestión de cita por enlace'
+      security: []
+    parameters:
+      -
+        in: path
+        name: appointment_code
+        description: ''
+        example: architecto
+        required: true
+        schema:
+          type: string
+  '/api/v1/appointments/{appointment_code}/manage/reschedule':
+    post:
+      summary: 'Reagendar cita desde el enlace'
+      operationId: reagendarCitaDesdeElEnlace
+      description: "Mantiene barbero y servicio: mover el horario es lo que evita el\nno-show. Cambiar de servicio o de barbero sigue siendo un flujo de la\napp con sesión."
+      parameters: []
+      responses: {}
+      tags:
+        - 'Gestión de cita por enlace'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fecha:
+                  type: string
+                  description: 'Nueva fecha (Y-m-d).'
+                  example: '2026-09-20'
+                hora_inicio:
+                  type: string
+                  description: 'Nueva hora (HH:mm).'
+                  example: '16:30'
+              required:
+                - fecha
+                - hora_inicio
+      security: []
+    parameters:
+      -
+        in: path
+        name: appointment_code
+        description: ''
+        example: architecto
+        required: true
+        schema:
+          type: string
   /api/v1/barber/schedule:
     get:
       summary: 'Obtener Horarios'
@@ -4664,7 +5003,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 activo:
                   type: boolean
@@ -4832,7 +5171,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-10T00:45:30'
+                  example: '2026-09-11T17:28:08'
                   nullable: true
               required:
                 - product_id

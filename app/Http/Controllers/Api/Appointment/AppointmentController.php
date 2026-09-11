@@ -17,6 +17,7 @@ use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Payment\DepositService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,6 +33,7 @@ class AppointmentController extends Controller
         private readonly AppointmentService $appointmentService,
         private readonly AppointmentNotifier $notifier,
         private readonly AppointmentStatusService $statusService,
+        private readonly DepositService $deposits,
     ) {}
 
     /**
@@ -366,6 +368,12 @@ class AppointmentController extends Controller
         $start = Carbon::parse($validated['fecha'].' '.$validated['hora_inicio']);
         $end = $start->copy()->addMinutes((int) $service->duracion_min);
 
+        // Política anti-no-show: se decide UNA VEZ aquí, con el historial del
+        // cliente en este momento (ver DepositService::requirementFor()).
+        // Aplica sin importar quién reserva -- si staff agenda a nombre de un
+        // cliente con historial de inasistencias, también necesita saberlo.
+        $deposito = $this->deposits->requirementFor($client, $service);
+
         $payload = [
             'client_id' => $client->id,
             'barber_id' => $validated['barber_id'],
@@ -375,6 +383,8 @@ class AppointmentController extends Controller
             'hora_fin' => $end->format('H:i:00'),
             'estado' => $validated['estado'] ?? 'pendiente',
             'notas' => $validated['notas'] ?? null,
+            'deposito_requerido' => $deposito['requerido'],
+            'deposito_monto' => $deposito['monto'],
         ];
 
         try {
@@ -674,6 +684,10 @@ class AppointmentController extends Controller
             'estado' => 'cancelada',
             'cancelada_en' => now(),
         ]);
+
+        // Cancelación a tiempo (ya validada arriba), nunca no-show: si había
+        // un depósito verificado, se devuelve (ver DepositService::refundIfAny()).
+        $this->deposits->refundIfAny($appointment);
 
         $this->notifier->cancelled($appointment, 'app movil');
 

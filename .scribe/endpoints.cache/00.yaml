@@ -84,7 +84,7 @@ endpoints:
         name: date
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-03'
+        example: '2052-10-04'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -93,7 +93,7 @@ endpoints:
     cleanBodyParameters:
       barber_id: architecto
       service_id: architecto
-      date: '2052-10-03'
+      date: '2052-10-04'
     fileParameters: []
     responses:
       -
@@ -297,7 +297,7 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '{"data":[{"id":"6a9b5a6d1c1864aecd064974","slug":"barbero-urbanblade","user":{"id":"6a9b5a6c1c1864aecd064972","name":"Barbero UrbanBlade"},"especialidades":"Cortes clasicos, Fades y degradados","descripcion":"","foto":null,"activo":true,"avg_rating":null,"total_reviews":0}]}'
+        content: '{"data":[]}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -402,7 +402,7 @@ endpoints:
         name: date
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-03'
+        example: '2052-10-04'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -411,7 +411,7 @@ endpoints:
     cleanBodyParameters:
       barber_id: architecto
       service_id: architecto
-      date: '2052-10-03'
+      date: '2052-10-04'
     fileParameters: []
     responses:
       -
@@ -550,46 +550,6 @@ endpoints:
     httpMethods:
       - GET
     uri: api/v1/dashboard/membership/card
-    metadata:
-      custom: []
-      groupName: Endpoints
-      groupDescription: ''
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - GET
-    uri: api/v1/analytics
     metadata:
       custom: []
       groupName: Endpoints
@@ -992,7 +952,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -1002,7 +962,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      metodo_pago: efectivo
+      metodo_pago: tarjeta
     fileParameters: []
     responses: []
     responseFields: []
@@ -1165,7 +1125,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -1201,7 +1161,7 @@ endpoints:
         name: usar_premio_rifa
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1221,10 +1181,10 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: efectivo
+      metodo_pago: tarjeta
       propina: 77
       puntos_canjeados: 8
-      usar_premio_rifa: false
+      usar_premio_rifa: true
       stripe_payment_id: architecto
     fileParameters: []
     responses: []
@@ -1490,7 +1450,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-10T00:45:30'
+        example: '2026-09-11T17:28:07'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1501,147 +1461,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      pref_email:
-        custom: []
-        name: pref_email
-        description: ''
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      pref_sms:
-        custom: []
-        name: pref_sms
-        description: ''
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      pref_whatsapp:
-        custom: []
-        name: pref_whatsapp
-        description: ''
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      name: b
-      email: zbailey@example.net
-      password: '-0pBNvYgxw'
-      telefono: a
-      fecha_nacimiento: '2026-09-10T00:45:30'
-      pref_in_app: true
-      pref_email: true
-      pref_sms: true
-      pref_whatsapp: true
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - PUT
-    uri: 'api/v1/clients/{client_slug}'
-    metadata:
-      custom: []
-      groupName: Endpoints
-      groupDescription: ''
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      client_slug:
-        custom: []
-        name: client_slug
-        description: 'The slug of the client.'
-        required: true
-        example: cliente-urbanblade
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      client_slug: cliente-urbanblade
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      name:
-        custom: []
-        name: name
-        description: 'El campo value no debe tener más de 255 caracteres.'
-        required: true
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      email:
-        custom: []
-        name: email
-        description: 'El campo value debe ser una dirección de correo válida. El campo value no debe tener más de 255 caracteres.'
-        required: true
-        example: zbailey@example.net
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      telefono:
-        custom: []
-        name: telefono
-        description: 'El campo value no debe tener más de 30 caracteres.'
-        required: false
-        example: i
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      fecha_nacimiento:
-        custom: []
-        name: fecha_nacimiento
-        description: 'El campo value no es una fecha válida.'
-        required: false
-        example: '2026-09-10T00:45:30'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      pref_in_app:
-        custom: []
-        name: pref_in_app
-        description: ''
-        required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1683,12 +1503,152 @@ endpoints:
     cleanBodyParameters:
       name: b
       email: zbailey@example.net
-      telefono: i
-      fecha_nacimiento: '2026-09-10T00:45:30'
-      pref_in_app: true
+      password: '-0pBNvYgxw'
+      telefono: a
+      fecha_nacimiento: '2026-09-11T17:28:07'
+      pref_in_app: false
       pref_email: true
       pref_sms: true
       pref_whatsapp: false
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/v1/clients/{client_slug}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      client_slug:
+        custom: []
+        name: client_slug
+        description: 'The slug of the client.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      client_slug: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'El campo value no debe tener más de 255 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: 'El campo value debe ser una dirección de correo válida. El campo value no debe tener más de 255 caracteres.'
+        required: true
+        example: zbailey@example.net
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      telefono:
+        custom: []
+        name: telefono
+        description: 'El campo value no debe tener más de 30 caracteres.'
+        required: false
+        example: i
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      fecha_nacimiento:
+        custom: []
+        name: fecha_nacimiento
+        description: 'El campo value no es una fecha válida.'
+        required: false
+        example: '2026-09-11T17:28:07'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pref_in_app:
+        custom: []
+        name: pref_in_app
+        description: ''
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pref_email:
+        custom: []
+        name: pref_email
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pref_sms:
+        custom: []
+        name: pref_sms
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pref_whatsapp:
+        custom: []
+        name: pref_whatsapp
+        description: ''
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: b
+      email: zbailey@example.net
+      telefono: i
+      fecha_nacimiento: '2026-09-11T17:28:07'
+      pref_in_app: true
+      pref_email: false
+      pref_sms: false
+      pref_whatsapp: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -1720,14 +1680,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: cliente-urbanblade
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: cliente-urbanblade
+      client_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -2128,14 +2088,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: barbero-urbanblade
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: barbero-urbanblade
+      barber_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -2362,14 +2322,14 @@ endpoints:
         name: user_id
         description: 'The ID of the user.'
         required: true
-        example: 6a9b59f5a8efd2af55060132
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      user_id: 6a9b59f5a8efd2af55060132
+      user_id: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -2453,14 +2413,14 @@ endpoints:
         name: user_id
         description: 'The ID of the user.'
         required: true
-        example: 6a9b59f5a8efd2af55060132
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      user_id: 6a9b59f5a8efd2af55060132
+      user_id: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -2573,7 +2533,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '00:45'
+        example: '17:28'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2584,7 +2544,7 @@ endpoints:
         name: horario_cierre
         description: 'Must be a valid date in the format <code>H:i</code>. El campo value debe ser una fecha posterior a <code>horario_apertura</code>.'
         required: false
-        example: '2052-10-03'
+        example: '2052-10-04'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2601,12 +2561,39 @@ endpoints:
         exampleWasSpecified: false
         nullable: false
         deprecated: false
+      deposito_no_show_umbral:
+        custom: []
+        name: deposito_no_show_umbral
+        description: |-
+          Política anti-no-show (DepositService). Opcional a propósito:
+          el formulario de configuración aún no manda estos dos campos,
+          así que un guardado normal no debe romperse por su ausencia
+          (ver el fallback al valor ya guardado más abajo). 0 en
+          cualquiera de los dos desactiva la exigencia de depósito. El campo value debe ser al menos 0. El campo value no debe ser mayor que 20.
+        required: false
+        example: 7
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      deposito_no_show_porcentaje:
+        custom: []
+        name: deposito_no_show_porcentaje
+        description: 'El campo value debe ser al menos 0. El campo value no debe ser mayor que 100.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
       instagram:
         custom: []
         name: instagram
         description: 'El campo value no debe tener más de 255 caracteres.'
         required: false
-        example: g
+        example: m
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2617,7 +2604,7 @@ endpoints:
         name: facebook
         description: 'El campo value no debe tener más de 255 caracteres.'
         required: false
-        example: z
+        example: i
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2628,7 +2615,7 @@ endpoints:
         name: tiktok
         description: 'El campo value no debe tener más de 255 caracteres.'
         required: false
-        example: m
+        example: 'y'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2639,7 +2626,7 @@ endpoints:
         name: clabe
         description: 'El campo value no debe tener más de 18 caracteres.'
         required: false
-        example: iyvdljnikhwaykcm
+        example: vdljnikhwaykcmyu
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2650,7 +2637,7 @@ endpoints:
         name: banco
         description: 'El campo value no debe tener más de 100 caracteres.'
         required: false
-        example: 'y'
+        example: w
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2661,7 +2648,7 @@ endpoints:
         name: beneficiario
         description: 'El campo value no debe tener más de 150 caracteres.'
         required: false
-        example: u
+        example: p
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2682,15 +2669,17 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '00:45'
-      horario_cierre: '2052-10-03'
+      horario_apertura: '17:28'
+      horario_cierre: '2052-10-04'
       politica_cancelacion: 22
-      instagram: g
-      facebook: z
-      tiktok: m
-      clabe: iyvdljnikhwaykcm
-      banco: 'y'
-      beneficiario: u
+      deposito_no_show_umbral: 7
+      deposito_no_show_porcentaje: 16
+      instagram: m
+      facebook: i
+      tiktok: 'y'
+      clabe: vdljnikhwaykcmyu
+      banco: w
+      beneficiario: p
       concepto: w
     fileParameters: []
     responses: []
@@ -2858,7 +2847,7 @@ endpoints:
         name: modo
         description: ''
         required: true
-        example: ahora
+        example: programar
         type: string
         enumValues:
           - ahora
@@ -2871,7 +2860,7 @@ endpoints:
         name: programada_para
         description: 'This field is required when <code>modo</code> is <code>programar</code>. El campo value no es una fecha válida. El campo value debe ser una fecha posterior a <code>now</code>.'
         required: false
-        example: '2052-10-03'
+        example: '2052-10-05'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2883,8 +2872,8 @@ endpoints:
       cta_label: g
       cta_url: 'http://www.okuneva.com/fugiat-sunt-nihil-accusantium-harum-mollitia.html'
       segmento: architecto
-      modo: ahora
-      programada_para: '2052-10-03'
+      modo: programar
+      programada_para: '2052-10-05'
     fileParameters: []
     responses: []
     responseFields: []
@@ -3392,7 +3381,7 @@ endpoints:
         name: in_app
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3414,7 +3403,7 @@ endpoints:
         name: sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3436,7 +3425,7 @@ endpoints:
         name: push
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3454,11 +3443,11 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      in_app: true
+      in_app: false
       email: true
-      sms: true
+      sms: false
       whatsapp: false
-      push: true
+      push: false
       promociones: true
     fileParameters: []
     responses: []
@@ -4483,14 +4472,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: barbero-urbanblade
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: barbero-urbanblade
+      barber_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -4499,8 +4488,11 @@ endpoints:
     responses:
       -
         custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
+        status: 404
+        content: |-
+          {
+              "message": "No query results for model [App\\Models\\Barber] architecto"
+          }
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -4535,14 +4527,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: barbero-urbanblade
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: barbero-urbanblade
+      barber_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -4551,8 +4543,11 @@ endpoints:
     responses:
       -
         custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
+        status: 404
+        content: |-
+          {
+              "message": "No query results for model [App\\Models\\Barber] architecto"
+          }
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -4587,14 +4582,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: barbero-urbanblade
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: barbero-urbanblade
+      barber_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -4603,8 +4598,11 @@ endpoints:
     responses:
       -
         custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
+        status: 404
+        content: |-
+          {
+              "message": "No query results for model [App\\Models\\Barber] architecto"
+          }
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -4639,14 +4637,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: barbero-urbanblade
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: barbero-urbanblade
+      barber_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -4655,8 +4653,11 @@ endpoints:
     responses:
       -
         custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
+        status: 404
+        content: |-
+          {
+              "message": "No query results for model [App\\Models\\Barber] architecto"
+          }
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -4691,14 +4692,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: barbero-urbanblade
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: barbero-urbanblade
+      barber_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -4741,46 +4742,6 @@ endpoints:
       activo: true
     fileParameters: []
     responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - GET
-    uri: api/v1/admin/clients
-    metadata:
-      custom: []
-      groupName: Endpoints
-      groupDescription: ''
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
     responseFields: []
     auth: []
     controller: null
@@ -4869,216 +4830,6 @@ endpoints:
   -
     custom: []
     httpMethods:
-      - GET
-    uri: 'api/v1/admin/clients/{client_slug}'
-    metadata:
-      custom: []
-      groupName: Endpoints
-      groupDescription: ''
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      client_slug:
-        custom: []
-        name: client_slug
-        description: 'The slug of the client.'
-        required: true
-        example: cliente-urbanblade
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      client_slug: cliente-urbanblade
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: api/v1/admin/clients
-    metadata:
-      custom: []
-      groupName: Endpoints
-      groupDescription: ''
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      name:
-        custom: []
-        name: name
-        description: 'El campo value no debe tener más de 255 caracteres.'
-        required: true
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      email:
-        custom: []
-        name: email
-        description: 'El campo value debe ser una dirección de correo válida.'
-        required: true
-        example: zbailey@example.net
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      telefono:
-        custom: []
-        name: telefono
-        description: 'El campo value no debe tener más de 20 caracteres.'
-        required: false
-        example: iyvdljnikhwaykcm
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      password:
-        custom: []
-        name: password
-        description: 'El campo value debe tener al menos 8 caracteres.'
-        required: true
-        example: '/kXaz<m5L[)~=NG5a:'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanBodyParameters:
-      name: b
-      email: zbailey@example.net
-      telefono: iyvdljnikhwaykcm
-      password: '/kXaz<m5L[)~=NG5a:'
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - PUT
-    uri: 'api/v1/admin/clients/{client_slug}'
-    metadata:
-      custom: []
-      groupName: Endpoints
-      groupDescription: ''
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      client_slug:
-        custom: []
-        name: client_slug
-        description: 'The slug of the client.'
-        required: true
-        example: cliente-urbanblade
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      client_slug: cliente-urbanblade
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      name:
-        custom: []
-        name: name
-        description: 'El campo value no debe tener más de 255 caracteres.'
-        required: false
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      email:
-        custom: []
-        name: email
-        description: 'El campo value debe ser una dirección de correo válida.'
-        required: false
-        example: zbailey@example.net
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      telefono:
-        custom: []
-        name: telefono
-        description: 'El campo value no debe tener más de 20 caracteres.'
-        required: false
-        example: iyvdljnikhwaykcm
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      name: b
-      email: zbailey@example.net
-      telefono: iyvdljnikhwaykcm
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
       - DELETE
     uri: 'api/v1/admin/clients/{client_slug}'
     metadata:
@@ -5100,14 +4851,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: cliente-urbanblade
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: cliente-urbanblade
+      client_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -5338,7 +5089,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5354,7 +5105,7 @@ endpoints:
       descripcion: architecto
       tipo: architecto
       activo: false
-      active: true
+      active: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -5501,7 +5252,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5517,7 +5268,7 @@ endpoints:
       descripcion: architecto
       tipo: architecto
       activo: false
-      active: true
+      active: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -5772,6 +5523,271 @@ endpoints:
   -
     custom: []
     httpMethods:
+      - GET
+    uri: api/v1/admin/clients
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/admin/clients/{client_slug}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      client_slug:
+        custom: []
+        name: client_slug
+        description: 'The slug of the client.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      client_slug: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+              "message": "No query results for model [App\\Models\\Client] architecto"
+          }
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/admin/clients
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'El campo value no debe tener más de 255 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: 'El campo value debe ser una dirección de correo válida.'
+        required: true
+        example: zbailey@example.net
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      telefono:
+        custom: []
+        name: telefono
+        description: 'El campo value no debe tener más de 20 caracteres.'
+        required: false
+        example: iyvdljnikhwaykcm
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'El campo value debe tener al menos 8 caracteres.'
+        required: true
+        example: '/kXaz<m5L[)~=NG5a:'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      name: b
+      email: zbailey@example.net
+      telefono: iyvdljnikhwaykcm
+      password: '/kXaz<m5L[)~=NG5a:'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/v1/admin/clients/{client_slug}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      client_slug:
+        custom: []
+        name: client_slug
+        description: 'The slug of the client.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      client_slug: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'El campo value no debe tener más de 255 caracteres.'
+        required: false
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: 'El campo value debe ser una dirección de correo válida.'
+        required: false
+        example: zbailey@example.net
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      telefono:
+        custom: []
+        name: telefono
+        description: 'El campo value no debe tener más de 20 caracteres.'
+        required: false
+        example: iyvdljnikhwaykcm
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      notas:
+        custom: []
+        name: notas
+        description: 'El campo value no debe tener más de 2000 caracteres.'
+        required: false
+        example: 'y'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: b
+      email: zbailey@example.net
+      telefono: iyvdljnikhwaykcm
+      notas: 'y'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
       - POST
     uri: 'api/v1/barbers/{barber_slug}/review'
     metadata:
@@ -5793,14 +5809,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: barbero-urbanblade
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: barbero-urbanblade
+      barber_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -5860,14 +5876,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: barbero-urbanblade
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: barbero-urbanblade
+      barber_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -5876,8 +5892,11 @@ endpoints:
     responses:
       -
         custom: []
-        status: 200
-        content: '{"barber":{"id":"6a9b5a6d1c1864aecd064974","slug":"barbero-urbanblade","descripcion":null,"especialidades":"Cortes clasicos, Fades y degradados","foto":null,"user":{"id":"6a9b5a6c1c1864aecd064972","name":"Barbero UrbanBlade"}},"works":[],"reviews":[],"avg_rating":null,"total_reviews":0,"citas_completadas":0,"can_review":false,"already_reviewed":false}'
+        status: 404
+        content: |-
+          {
+              "message": "No query results for model [App\\Models\\Barber] architecto"
+          }
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json

@@ -10,6 +10,7 @@ use App\Models\Service;
 use App\Services\Appointment\AppointmentManageLinkService;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
+use App\Services\Payment\DepositService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,6 +35,7 @@ class AppointmentManageController extends Controller
         private readonly AppointmentManageLinkService $links,
         private readonly AppointmentService $appointments,
         private readonly AppointmentNotifier $notifier,
+        private readonly DepositService $deposits,
     ) {}
 
     /**
@@ -108,6 +110,10 @@ class AppointmentManageController extends Controller
             // apoya en este campo (ver Fase 3 del roadmap).
             'bloquea_horario' => false,
         ]);
+
+        // withinPolicy() ya garantizó arriba que esto es una cancelación a
+        // tiempo, no un no-show -- devuelve el depósito verificado si había.
+        $this->deposits->refundIfAny($appointment);
 
         $this->notifier->statusChanged($appointment, 'cancelada');
 

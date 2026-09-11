@@ -67,4 +67,15 @@ class StripePaymentService
 
         return $intent->status === 'succeeded';
     }
+
+    /**
+     * Inicia un reembolso total en Stripe a partir del PaymentIntent
+     * original. No actualiza nada local: el webhook charge.refunded es la
+     * autoridad que concilia el estado local, igual que el resto del flujo
+     * de reembolsos (ver StripeWebhookController::onRefunded()).
+     */
+    public function refund(string $paymentIntentId): void
+    {
+        $this->client()->refunds->create(['payment_intent' => $paymentIntentId]);
+    }
 }

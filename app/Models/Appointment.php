@@ -50,6 +50,12 @@ class Appointment extends Model
         // (ver AppointmentManageLinkService). Nunca se expone en respuestas
         // de la API: solo se compara contra el que llega en la petición.
         'manage_token',
+        // Política anti-no-show (ver DepositService::requirementFor()): se
+        // fija UNA VEZ al crear la cita, según el historial del cliente en
+        // ese momento — no se recalcula después aunque el cliente vuelva a
+        // faltar, para no mover la meta a media reserva ya confirmada.
+        'deposito_requerido',
+        'deposito_monto',
     ];
 
     // $hidden, no solo disciplina: cualquier toArray()/toJson() de una cita
@@ -71,6 +77,8 @@ class Appointment extends Model
             'servicio_iniciado_en' => 'datetime',
             'ultimo_aviso_barbero_en' => 'datetime',
             'bloquea_horario' => 'boolean',
+            'deposito_requerido' => 'boolean',
+            'deposito_monto' => 'float',
         ];
     }
 
@@ -130,6 +138,13 @@ class Appointment extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    // Solo el/los pagos marcados como depósito (abono anti-no-show), nunca
+    // el cobro final. Ver DepositService.
+    public function deposits(): HasMany
+    {
+        return $this->hasMany(Payment::class)->where('es_deposito', true);
     }
 
     // Movimientos de inventario (consumo de productos) generados por esta cita.

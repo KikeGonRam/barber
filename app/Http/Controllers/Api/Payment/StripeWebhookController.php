@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Payment;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Payment\DepositService;
 use App\Services\Payment\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -25,6 +26,7 @@ class StripeWebhookController extends Controller
         private readonly PaymentService $paymentService,
         private readonly AppointmentNotifier $notifier,
         private readonly LoyaltyService $loyalty,
+        private readonly DepositService $deposits,
     ) {}
 
     /**
@@ -83,6 +85,16 @@ class StripeWebhookController extends Controller
         $appointment = Appointment::find($appointmentId);
         if (! $appointment) {
             Log::warning("Stripe webhook: cita {$appointmentId} no encontrada");
+
+            return;
+        }
+
+        // Un intent de depósito (ver DepositController::stripeIntent()) sigue
+        // un camino totalmente distinto al del cobro normal: no completa la
+        // cita ni otorga puntos, solo registra el depósito verificado.
+        if (($intent->metadata->es_deposito ?? null) === 'true') {
+            $this->deposits->confirmStripeDeposit($appointment, $intent->id, (float) $appointment->deposito_monto);
+            Log::info("Stripe webhook: deposito {$intent->id} registrado para cita {$appointmentId}");
 
             return;
         }
@@ -175,6 +187,31 @@ class StripeWebhookController extends Controller
         $paymentCents = (int) round((float) $payment->monto_total * 100);
         $fullRefund = $paymentCents > 0 && $refundCents >= $paymentCents;
         $client = $appointment->client;
+
+        // Un depósito nunca otorgó puntos de lealtad (eso solo pasa al
+        // completar el cobro final, ver PaymentService::completeCharge()),
+        // así que no hay nada que reconciliar -- solo se marca reembolsado.
+        // Es el propio DepositService::refundIfAny() quien inició este
+        // reembolso (cancelación a tiempo); este webhook es la confirmación
+        // que lo hace oficial en la base de datos, mismo criterio que el
+        // resto del flujo de reembolsos.
+        if ($payment->es_deposito) {
+            if ($fullRefund) {
+                $payment->update(['estado' => Payment::ESTADO_REEMBOLSADO]);
+            }
+
+            $montoReembolsadoDeposito = number_format($refundCents / 100, 2);
+            $this->notifier->sendStaff(
+                $appointment,
+                'Depósito reembolsado',
+                'Se reembolsó un depósito',
+                "Stripe reembolsó \${$montoReembolsadoDeposito} del depósito de {$cliente} (cancelación a tiempo).",
+                '#f59e0b',
+                'Reembolso',
+            );
+
+            return;
+        }
 
         if ($fullRefund && $client) {
             $this->loyalty->reconcileFullStripeRefund($payment, $client, (string) $appointment->id);

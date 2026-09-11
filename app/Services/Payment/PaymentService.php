@@ -32,6 +32,7 @@ class PaymentService
         private readonly AppointmentNotifier $notifier,
         private readonly LoyaltyService $loyalty,
         private readonly RaffleService $raffle,
+        private readonly DepositService $deposits,
     ) {}
 
     /**
@@ -110,6 +111,14 @@ class PaymentService
                     // 1 punto = $1 MXN, ya validado contra el tope de arriba.
                     $monto -= $puntosCanjeados;
                 }
+
+                // Si esta cita ya tuvo un depósito anti-no-show verificado
+                // (ver DepositService), se resta del cobro final: el cliente
+                // ya pagó esa parte al reservar, no se le vuelve a cobrar.
+                // Nunca queda negativo (clamp a 0) ni se maneja el excedente
+                // aquí -- un depósito no puede ser mayor al total con
+                // descuento porque siempre es un % del precio base.
+                $monto = max(0.0, $monto - $this->deposits->verifiedAmountFor($appointment));
             }
 
             try {

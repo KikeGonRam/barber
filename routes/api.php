@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\Log\LogController as ApiLogController;
 use App\Http\Controllers\Api\Notification\NotificationController as ApiNotificationController;
 use App\Http\Controllers\Api\Order\OrderController as ApiOrderController;
 use App\Http\Controllers\Api\Payment\CashCloseController;
+use App\Http\Controllers\Api\Payment\DepositController;
 use App\Http\Controllers\Api\Payment\PaymentController as ApiPaymentController;
 use App\Http\Controllers\Api\Payment\StripeWebhookController;
 use App\Http\Controllers\Api\Prediction\PredictionController;
@@ -155,6 +156,11 @@ Route::prefix('v1')->group(function (): void {
         // que el controlador tenga oportunidad de validar la propiedad.
         Route::post('payments/stripe-intent', [ApiPaymentController::class, 'stripeIntent'])->name('api.payments.stripe-intent');
 
+        // Depósito anti-no-show de una cita propia (DepositController exige
+        // dueño de la cita, mismo patrón que stripe-intent de arriba).
+        Route::post('appointments/{appointment}/deposit/stripe-intent', [DepositController::class, 'stripeIntent']);
+        Route::post('appointments/{appointment}/deposit/receipt', [DepositController::class, 'uploadReceipt']);
+
         // Solo administrador y recepcionista: gestión de pagos, clientes e inventario.
         Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {
             // Pedidos — bandeja de recepción (Admin/Recepcionista)
@@ -173,6 +179,11 @@ Route::prefix('v1')->group(function (): void {
             Route::post('payments/{payment}/approve', [ApiPaymentController::class, 'approve']);
             Route::post('payments/{payment}/reject', [ApiPaymentController::class, 'reject']);
             Route::delete('payments/{payment}', [ApiPaymentController::class, 'destroy']);
+
+            // Depósitos por transferencia pendientes de revisión (Admin/Recepcionista)
+            Route::get('deposits/pending', [DepositController::class, 'pending']);
+            Route::post('deposits/{payment}/approve', [DepositController::class, 'approve']);
+            Route::post('deposits/{payment}/reject', [DepositController::class, 'reject']);
 
             // Clientes (Admin/Recepcionista)
             Route::get('clients', [ApiClientController::class, 'index']);

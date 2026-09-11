@@ -37,6 +37,10 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
         return $this->model->newQuery()
             ->where('appointment_id', $appointmentId)
             ->where('estado', '!=', Payment::ESTADO_RECHAZADO)
+            // Un depósito anti-no-show verificado no cuenta como "cita ya
+            // cobrada" -- PaymentService::create() sigue pudiendo registrar
+            // el cobro final, que luego resta el depósito ya pagado.
+            ->where(fn ($q) => $q->where('es_deposito', false)->orWhereNull('es_deposito'))
             ->exists();
     }
 }

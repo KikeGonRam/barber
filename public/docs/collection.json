@@ -10,11 +10,62 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "bc498b67-931b-4b26-9d94-6ea7d80c8629",
+        "_postman_id": "e38b2b9c-319b-4f81-b28a-9ae6bc81c9ce",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
     "item": [
+        {
+            "name": "Anal\u00edtica",
+            "description": "",
+            "item": [
+                {
+                    "name": "An\u00e1lisis por rol. operational es un resumen actual de citas\/pagos,\nexclusivo para administrador y recepci\u00f3n; los insights hist\u00f3ricos se conservan.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/analytics",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/analytics"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        },
         {
             "name": "Autenticaci\u00f3n",
             "description": "\nEndpoints para el manejo de sesiones de usuario (token Bearer propio,\ntabla mobile_api_tokens \u2014 no Sanctum).",
@@ -341,6 +392,47 @@
             ]
         },
         {
+            "name": "Cat\u00e1logo p\u00fablico",
+            "description": "",
+            "item": [
+                {
+                    "name": "Ficha p\u00fablica de la barber\u00eda: identidad, contacto, horario, pol\u00edtica de\ncancelaci\u00f3n y redes. Lo consume la landing y la reserva p\u00fablica, que no\ntienen token.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/barbershop",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/barbershop"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Deliberadamente NO usa BarbershopSettingResource: ese recurso incluye\ndatos_bancarios (CLABE, banco, beneficiario) y maintenance_mode, que\nson para el panel de administraci\u00f3n, no para un visitante an\u00f3nimo.\nCualquier campo nuevo que se agregue aqu\u00ed debe ser seguro de publicar.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"data\": {\n   \"nombre\": \"UrbanBlade\",\n   \"logo\": null,\n   \"direccion\": \"Av. Ju\u00e1rez 120, Centro\",\n   \"telefono\": \"+52 55 1234 5678\",\n   \"horario_apertura\": \"09:00\",\n   \"horario_cierre\": \"21:00\",\n   \"politica_cancelacion\": 24,\n   \"redes_sociales\": {\"instagram\": \"urbanblade\", \"facebook\": null, \"tiktok\": null}\n }\n}",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "Citas",
             "description": "\nGesti\u00f3n de citas para clientes, barberos y administraci\u00f3n.",
             "item": [
@@ -549,7 +641,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-03\",\"hora_inicio\":\"00:45\",\"estado\":\"no_asistio\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-04\",\"hora_inicio\":\"17:28\",\"estado\":\"pendiente\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -559,7 +651,7 @@
                     "response": []
                 },
                 {
-                    "name": "Permite al barbero due\u00f1o de la cita cambiar su estado (respetando la m\u00e1quina de estados\nvalidada en AppointmentStatusService).",
+                    "name": "Cambia el estado de una cita respetando la m\u00e1quina de estados de\nAppointmentStatusService (transici\u00f3n v\u00e1lida + rol autorizado).",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
@@ -572,6 +664,12 @@
                                     "key": "appointment_code",
                                     "value": "architecto",
                                     "description": ""
+                                },
+                                {
+                                    "id": "appointment",
+                                    "key": "appointment",
+                                    "value": "jfb7ffye",
+                                    "description": "C\u00f3digo p\u00fablico de la cita."
                                 }
                             ]
                         },
@@ -588,14 +686,30 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"estado\":\"no_asistio\",\"notas\":\"b\"}"
+                            "raw": "{\"estado\":\"confirmada\",\"notas\":\"Lleg\u00f3 5 minutos tarde.\"}"
                         },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
+                        "description": "Antes exig\u00eda hasRole('barbero') y contradec\u00eda a la propia m\u00e1quina de\nestados: ROLE_MAP ya declaraba a administrador y recepcionista\nautorizados en TODAS las transiciones, pero este guard les devolv\u00eda 403,\ny roleCanSet() quedaba sin usarse en todo el proyecto. Como PUT\n\/appointments\/{cita} exige el payload completo con\n'fecha' => after_or_equal:today, el efecto neto era que recepci\u00f3n no\npod\u00eda marcar \"no asisti\u00f3\" ni \"completada\" en una cita del d\u00eda anterior\npor ning\u00fan camino \u2014 justo cuando un no-show se marca despu\u00e9s del hecho.\n\nEl barbero sigue acotado a SUS citas. El rol cliente no entra aqu\u00ed\naunque ROLE_MAP lo liste para 'cancelada': cancela con DELETE\n\/appointments\/{cita}, que adem\u00e1s valida su propia ventana de tiempo.\n\nActualizar Estado de Cita\n\nCambia solo el estado (y opcionalmente las notas), sin exigir el payload\ncompleto de la cita. Permitido a administrador, recepcionista y al\nbarbero asignado."
                     },
-                    "response": []
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"message\": \"Estado actualizado correctamente.\",\n \"data\": { \"code\": \"jfb7ffye\", \"estado\": \"confirmada\" }\n}",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 403,
+                            "body": "{\n \"message\": \"Solo puedes cambiar el estado de tus propias citas.\"\n}",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 422,
+                            "body": "{\n \"message\": \"No se puede pasar la cita de 'completada' a 'pendiente'.\"\n}",
+                            "name": ""
+                        }
+                    ]
                 },
                 {
                     "name": "Cancela una cita (soft-cancel: cambia estado a \"cancelada\", no elimina el registro).",
@@ -687,6 +801,353 @@
             ]
         },
         {
+            "name": "Corte de caja",
+            "description": "\nCierre de caja del d\u00eda para mostrador: qu\u00e9 esperaba el sistema, cu\u00e1nto\nefectivo se cont\u00f3 y la diferencia. Administraci\u00f3n y recepci\u00f3n, que es quien\ncierra el turno.",
+            "item": [
+                {
+                    "name": "Historial de cortes",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/cash-closes",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/cash-closes"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Corte esperado",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/cash-closes\/preview",
+                            "query": [
+                                {
+                                    "key": "date",
+                                    "value": "2026-09-11",
+                                    "description": "Fecha a consultar (Y-m-d). Por defecto, hoy.",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/cash-closes\/preview?date=2026-09-11"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Dinero recibido en la fecha indicada, desglosado por m\u00e9todo de pago.\nSuma cobros de citas (Payment verificado) y ventas de tienda (Order\nentregado), que no generan Payment."
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Registrar corte",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/cash-closes",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/cash-closes"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"date\":\"2026-09-11\",\"efectivo_contado\":1250.5,\"notas\":\"Faltante por cambio de un billete.\"}"
+                        },
+                        "description": "Guarda el arqueo del d\u00eda: el esperado queda como snapshot y la\ndiferencia se calcula en el servidor contra el efectivo contado, nunca\nse acepta del cliente."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Dep\u00f3sitos anti-no-show",
+            "description": "\nCobro del dep\u00f3sito exigido a un cliente con historial reciente de\ninasistencias (ver DepositService), mientras su cita sigue 'pendiente' de\naprobaci\u00f3n por el barbero. Vive separado de Payment\\PaymentController: ese\ncontrolador solo opera sobre citas ya aprobadas (CHARGEABLE).",
+            "item": [
+                {
+                    "name": "Crea el PaymentIntent de Stripe para el dep\u00f3sito de una cita propia.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/appointments\/:appointment_code\/deposit\/stripe-intent",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/appointments\/:appointment_code\/deposit\/stripe-intent",
+                            "variable": [
+                                {
+                                    "id": "appointment_code",
+                                    "key": "appointment_code",
+                                    "value": "architecto",
+                                    "description": ""
+                                },
+                                {
+                                    "id": "appointment",
+                                    "key": "appointment",
+                                    "value": "jfb7ffye",
+                                    "description": "C\u00f3digo p\u00fablico de la cita."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Sube el comprobante de transferencia del dep\u00f3sito. Queda en revisi\u00f3n.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/appointments\/:appointment_code\/deposit\/receipt",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/appointments\/:appointment_code\/deposit\/receipt",
+                            "variable": [
+                                {
+                                    "id": "appointment_code",
+                                    "key": "appointment_code",
+                                    "value": "architecto",
+                                    "description": ""
+                                },
+                                {
+                                    "id": "appointment",
+                                    "key": "appointment",
+                                    "value": "jfb7ffye",
+                                    "description": "C\u00f3digo p\u00fablico de la cita."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "multipart\/form-data"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "comprobante",
+                                    "src": [],
+                                    "type": "file"
+                                }
+                            ]
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Dep\u00f3sitos por transferencia pendientes de revisi\u00f3n (staff).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/deposits\/pending",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/deposits\/pending"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Aprueba un dep\u00f3sito en revisi\u00f3n (staff).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/deposits\/:payment_id\/approve",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/deposits\/:payment_id\/approve",
+                            "variable": [
+                                {
+                                    "id": "payment_id",
+                                    "key": "payment_id",
+                                    "value": "architecto",
+                                    "description": "The ID of the payment."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Rechaza un dep\u00f3sito en revisi\u00f3n (staff).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/deposits\/:payment_id\/reject",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/deposits\/:payment_id\/reject",
+                            "variable": [
+                                {
+                                    "id": "payment_id",
+                                    "key": "payment_id",
+                                    "value": "architecto",
+                                    "description": "The ID of the payment."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"motivo_rechazo\":\"b\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
             "name": "Endpoints",
             "description": "",
             "item": [
@@ -740,7 +1201,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-03\"}"
+                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-04\"}"
                         },
                         "description": "",
                         "auth": {
@@ -988,7 +1449,7 @@
                                 }
                             ],
                             "code": 200,
-                            "body": "{\"data\":[{\"id\":\"6a9b5a6d1c1864aecd064974\",\"slug\":\"barbero-urbanblade\",\"user\":{\"id\":\"6a9b5a6c1c1864aecd064972\",\"name\":\"Barbero UrbanBlade\"},\"especialidades\":\"Cortes clasicos, Fades y degradados\",\"descripcion\":\"\",\"foto\":null,\"activo\":true,\"avg_rating\":null,\"total_reviews\":0}]}",
+                            "body": "{\"data\":[]}",
                             "name": ""
                         }
                     ]
@@ -1063,7 +1524,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-03\"}"
+                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-04\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1232,54 +1693,6 @@
                             "path": "api\/v1\/dashboard\/membership\/card",
                             "query": [],
                             "raw": "{{baseUrl}}\/api\/v1\/dashboard\/membership\/card"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "vary",
-                                    "value": "Origin"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "GET api\/v1\/analytics",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/analytics",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/analytics"
                         },
                         "method": "GET",
                         "header": [
@@ -1600,7 +2013,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"metodo_pago\":\"efectivo\"}"
+                            "raw": "{\"metodo_pago\":\"tarjeta\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1735,7 +2148,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"efectivo\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":false,\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"tarjeta\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1925,7 +2338,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-10T00:45:30\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":true,\"pref_whatsapp\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-11T17:28:07\",\"pref_in_app\":false,\"pref_email\":true,\"pref_sms\":true,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -1946,7 +2359,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "cliente-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -1964,7 +2377,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-10T00:45:30\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":true,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-11T17:28:07\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -1985,7 +2398,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "cliente-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -2223,7 +2636,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "barbero-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -2341,7 +2754,7 @@
                                 {
                                     "id": "user_id",
                                     "key": "user_id",
-                                    "value": "6a9b59f5a8efd2af55060132",
+                                    "value": "architecto",
                                     "description": "The ID of the user."
                                 }
                             ]
@@ -2380,7 +2793,7 @@
                                 {
                                     "id": "user_id",
                                     "key": "user_id",
-                                    "value": "6a9b59f5a8efd2af55060132",
+                                    "value": "architecto",
                                     "description": "The ID of the user."
                                 }
                             ]
@@ -2474,7 +2887,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"00:45\",\"horario_cierre\":\"2052-10-03\",\"politica_cancelacion\":22,\"instagram\":\"g\",\"facebook\":\"z\",\"tiktok\":\"m\",\"clabe\":\"iyvdljnikhwaykcm\",\"banco\":\"y\",\"beneficiario\":\"u\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"17:28\",\"horario_cierre\":\"2052-10-04\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2581,7 +2994,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"ahora\",\"programada_para\":\"2052-10-03\"}"
+                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"programar\",\"programada_para\":\"2052-10-05\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3110,7 +3523,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"in_app\":true,\"email\":true,\"sms\":true,\"whatsapp\":false,\"push\":true,\"promociones\":true}"
+                            "raw": "{\"in_app\":false,\"email\":true,\"sms\":false,\"whatsapp\":false,\"push\":false,\"promociones\":true}"
                         },
                         "description": "Igual que la versi\u00f3n web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los dem\u00e1s.",
                         "auth": {
@@ -4136,7 +4549,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "barbero-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -4174,8 +4587,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
+                            "code": 404,
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Barber] architecto\"\n}",
                             "name": ""
                         }
                     ]
@@ -4192,7 +4605,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "barbero-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -4230,8 +4643,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
+                            "code": 404,
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Barber] architecto\"\n}",
                             "name": ""
                         }
                     ]
@@ -4248,7 +4661,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "barbero-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -4286,8 +4699,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
+                            "code": 404,
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Barber] architecto\"\n}",
                             "name": ""
                         }
                     ]
@@ -4304,7 +4717,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "barbero-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -4342,8 +4755,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
+                            "code": 404,
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Barber] architecto\"\n}",
                             "name": ""
                         }
                     ]
@@ -4360,7 +4773,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "barbero-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -4386,54 +4799,6 @@
                         }
                     },
                     "response": []
-                },
-                {
-                    "name": "GET api\/v1\/admin\/clients",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/clients",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/clients"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "vary",
-                                    "value": "Origin"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
                 },
                 {
                     "name": "GET api\/v1\/admin\/clients\/segmentation\/data",
@@ -4532,132 +4897,6 @@
                     ]
                 },
                 {
-                    "name": "GET api\/v1\/admin\/clients\/{client_slug}",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/clients\/:client_slug",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/clients\/:client_slug",
-                            "variable": [
-                                {
-                                    "id": "client_slug",
-                                    "key": "client_slug",
-                                    "value": "cliente-urbanblade",
-                                    "description": "The slug of the client."
-                                }
-                            ]
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "vary",
-                                    "value": "Origin"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "POST api\/v1\/admin\/clients",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/clients",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/clients"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"iyvdljnikhwaykcm\",\"password\":\"\\\/kXaz<m5L[)~=NG5a:\"}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "PUT api\/v1\/admin\/clients\/{client_slug}",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/v1\/admin\/clients\/:client_slug",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/v1\/admin\/clients\/:client_slug",
-                            "variable": [
-                                {
-                                    "id": "client_slug",
-                                    "key": "client_slug",
-                                    "value": "cliente-urbanblade",
-                                    "description": "The slug of the client."
-                                }
-                            ]
-                        },
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"iyvdljnikhwaykcm\"}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
                     "name": "DELETE api\/v1\/admin\/clients\/{client_slug}",
                     "request": {
                         "url": {
@@ -4669,7 +4908,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "cliente-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -4819,7 +5058,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -4858,7 +5097,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -5087,6 +5326,180 @@
                     ]
                 },
                 {
+                    "name": "GET api\/v1\/admin\/clients",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/clients",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/clients"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "GET api\/v1\/admin\/clients\/{client_slug}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/clients\/:client_slug",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/clients\/:client_slug",
+                            "variable": [
+                                {
+                                    "id": "client_slug",
+                                    "key": "client_slug",
+                                    "value": "architecto",
+                                    "description": "The slug of the client."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 404,
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Client] architecto\"\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "POST api\/v1\/admin\/clients",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/clients",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/clients"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"iyvdljnikhwaykcm\",\"password\":\"\\\/kXaz<m5L[)~=NG5a:\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "PUT api\/v1\/admin\/clients\/{client_slug}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/admin\/clients\/:client_slug",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/admin\/clients\/:client_slug",
+                            "variable": [
+                                {
+                                    "id": "client_slug",
+                                    "key": "client_slug",
+                                    "value": "architecto",
+                                    "description": "The slug of the client."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"iyvdljnikhwaykcm\",\"notas\":\"y\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "POST api\/v1\/barbers\/{barber_slug}\/review",
                     "request": {
                         "url": {
@@ -5098,7 +5511,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "barbero-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -5137,7 +5550,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "barbero-urbanblade",
+                                    "value": "architecto",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -5175,8 +5588,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 200,
-                            "body": "{\"barber\":{\"id\":\"6a9b5a6d1c1864aecd064974\",\"slug\":\"barbero-urbanblade\",\"descripcion\":null,\"especialidades\":\"Cortes clasicos, Fades y degradados\",\"foto\":null,\"user\":{\"id\":\"6a9b5a6c1c1864aecd064972\",\"name\":\"Barbero UrbanBlade\"}},\"works\":[],\"reviews\":[],\"avg_rating\":null,\"total_reviews\":0,\"citas_completadas\":0,\"can_review\":false,\"already_reviewed\":false}",
+                            "code": 404,
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Barber] architecto\"\n}",
                             "name": ""
                         }
                     ]
@@ -5412,7 +5825,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":true}"
+                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":false}"
                         },
                         "description": "Marca una respuesta puntual del chatbot como \u00fatil o no. Antes de\neste endpoint, ChatbotController::query() llamaba a\nrecordFeedback() con $wasHelpful hardcodeado en `true` en cada una\nde sus 5 ramas de respuesta \u2014 el sistema de aprendizaje nunca hab\u00eda\nrecibido una se\u00f1al negativa real de ning\u00fan usuario. Este endpoint le\nda al frontend (el widget de chat en Nuxt) una forma de mandar la\nse\u00f1al real.",
                         "auth": {
@@ -5822,6 +6235,158 @@
             ]
         },
         {
+            "name": "Gesti\u00f3n de cita por enlace",
+            "description": "\nDeja que un cliente vea, reagende o cancele SU cita desde el enlace del\nrecordatorio, sin iniciar sesi\u00f3n. Antes el recordatorio mandaba a\n\/my\/appointments, detr\u00e1s de middleware ['auth','client']: quien no\nrecordaba su contrase\u00f1a simplemente no iba, y eso se traduce en no-shows.\n\nAutoriza el token opaco de la cita, no una sesi\u00f3n\n(AppointmentManageLinkService). Aplica exactamente las mismas reglas que\nel cliente autenticado: solo citas pendientes\/confirmadas y futuras, y la\nventana de cancelaci\u00f3n configurada por la barber\u00eda. El enlace no puede ser\nuna puerta m\u00e1s permisiva que la app.",
+            "item": [
+                {
+                    "name": "Ver cita",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/appointments\/:appointment_code\/manage",
+                            "query": [
+                                {
+                                    "key": "t",
+                                    "value": "9f2c...",
+                                    "description": "Token del enlace del recordatorio.",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/appointments\/:appointment_code\/manage?t=9f2c...",
+                            "variable": [
+                                {
+                                    "id": "appointment_code",
+                                    "key": "appointment_code",
+                                    "value": "architecto",
+                                    "description": ""
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "x-ratelimit-limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "x-ratelimit-remaining",
+                                    "value": "5"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 404,
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Appointment] architecto\"\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Cancelar cita desde el enlace",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/appointments\/:appointment_code\/manage\/cancel",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/appointments\/:appointment_code\/manage\/cancel",
+                            "variable": [
+                                {
+                                    "id": "appointment_code",
+                                    "key": "appointment_code",
+                                    "value": "architecto",
+                                    "description": ""
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Reagendar cita desde el enlace",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/appointments\/:appointment_code\/manage\/reschedule",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/appointments\/:appointment_code\/manage\/reschedule",
+                            "variable": [
+                                {
+                                    "id": "appointment_code",
+                                    "key": "appointment_code",
+                                    "value": "architecto",
+                                    "description": ""
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"fecha\":\"2026-09-20\",\"hora_inicio\":\"16:30\"}"
+                        },
+                        "description": "Mantiene barbero y servicio: mover el horario es lo que evita el\nno-show. Cambiar de servicio o de barbero sigue siendo un flujo de la\napp con sesi\u00f3n.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
             "name": "Horarios de Barbero",
             "description": "\nEndpoints para gestionar los horarios del barbero.",
             "item": [
@@ -6121,7 +6686,7 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -6324,7 +6889,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-10T00:45:30\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-11T17:28:08\"}"
                         },
                         "description": "",
                         "auth": {

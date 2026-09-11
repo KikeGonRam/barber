@@ -933,7 +933,7 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$appointment of method App\\Services\\Appointment\\AppointmentNotifier\:\:sendStaff\(\) expects App\\Models\\Appointment, Illuminate\\Database\\Eloquent\\Model given\.$#'
 			identifier: argument.type
-			count: 2
+			count: 3
 			path: app/Http/Controllers/Api/Payment/StripeWebhookController.php
 
 		-
@@ -3090,3 +3090,153 @@ parameters:
 			identifier: argument.unresolvableType
 			count: 1
 			path: app/Http/Controllers/Api/User/UserController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Payment/DepositController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Payment\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Payment/DepositController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$comprobante_cliente\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/DepositController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/DepositController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$client\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/DepositController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/DepositController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Appointment\>\:\:\$deposito_monto\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/StripeWebhookController.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$deposito_requerido\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$deposito_monto\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$deposits\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/AppointmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarbershopSetting\:\:\$deposito_no_show_umbral\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>deposito_no_show_umbral" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\BarbershopSetting\:\:\$deposito_no_show_porcentaje\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>deposito_no_show_porcentaje" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$monto\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$deposito_requerido\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$deposito_monto\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$client\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$metodo_pago\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$stripe_payment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/DepositService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 3
+			path: tests/Feature/DepositServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Payment\>\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/DepositServiceTest.php

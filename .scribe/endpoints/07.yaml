@@ -1,23 +1,161 @@
-name: 'Horarios de Barbero'
+name: 'Depósitos anti-no-show'
 description: |-
 
-  Endpoints para gestionar los horarios del barbero.
+  Cobro del depósito exigido a un cliente con historial reciente de
+  inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+  aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+  controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
 endpoints:
   -
     custom: []
     httpMethods:
-      - GET
-    uri: api/v1/barber/schedule
+      - POST
+    uri: 'api/v1/appointments/{appointment_code}/deposit/stripe-intent'
     metadata:
       custom: []
-      groupName: 'Horarios de Barbero'
+      groupName: 'Depósitos anti-no-show'
       groupDescription: |-
 
-        Endpoints para gestionar los horarios del barbero.
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
       subgroup: ''
       subgroupDescription: ''
-      title: 'Obtener Horarios'
-      description: 'Devuelve los horarios del barbero autenticado.'
+      title: 'Crea el PaymentIntent de Stripe para el depósito de una cita propia.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      appointment_code:
+        custom: []
+        name: appointment_code
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      appointment:
+        custom: []
+        name: appointment
+        description: 'Código público de la cita.'
+        required: true
+        example: jfb7ffye
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_code: architecto
+      appointment: jfb7ffye
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/appointments/{appointment_code}/deposit/receipt'
+    metadata:
+      custom: []
+      groupName: 'Depósitos anti-no-show'
+      groupDescription: |-
+
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Sube el comprobante de transferencia del depósito. Queda en revisión.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters:
+      appointment_code:
+        custom: []
+        name: appointment_code
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      appointment:
+        custom: []
+        name: appointment
+        description: 'Código público de la cita.'
+        required: true
+        example: jfb7ffye
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_code: architecto
+      appointment: jfb7ffye
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      comprobante:
+        custom: []
+        name: comprobante
+        description: 'Foto o PDF del comprobante de transferencia.'
+        required: true
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters: []
+    fileParameters:
+      comprobante: null
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/deposits/pending
+    metadata:
+      custom: []
+      groupName: 'Depósitos anti-no-show'
+      groupDescription: |-
+
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Depósitos por transferencia pendientes de revisión (staff).'
+      description: ''
       authenticated: false
       deprecated: false
     headers:
@@ -33,21 +171,13 @@ endpoints:
     responses:
       -
         custom: []
-        status: 200
-        content: |-
-          {
-           "schedules": [
-             {
-               "id": 1,
-               "day_of_week": "monday",
-               "start_time": "09:00",
-               "end_time": "18:00",
-               "is_active": true
-             }
-           ]
-          }
-        headers: []
-        description: ''
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
     responseFields: []
     auth: []
     controller: null
@@ -56,158 +186,106 @@ endpoints:
   -
     custom: []
     httpMethods:
-      - PUT
-    uri: api/v1/barber/schedule
+      - POST
+    uri: 'api/v1/deposits/{payment_id}/approve'
     metadata:
       custom: []
-      groupName: 'Horarios de Barbero'
+      groupName: 'Depósitos anti-no-show'
       groupDescription: |-
 
-        Endpoints para gestionar los horarios del barbero.
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
       subgroup: ''
       subgroupDescription: ''
-      title: 'Actualizar Horarios'
-      description: 'Actualiza los horarios del barbero autenticado.'
+      title: 'Aprueba un depósito en revisión (staff).'
+      description: ''
       authenticated: false
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
+    urlParameters:
+      payment_id:
+        custom: []
+        name: payment_id
+        description: 'The ID of the payment.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      payment_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/deposits/{payment_id}/reject'
+    metadata:
+      custom: []
+      groupName: 'Depósitos anti-no-show'
+      groupDescription: |-
+
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Rechaza un depósito en revisión (staff).'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      payment_id:
+        custom: []
+        name: payment_id
+        description: 'The ID of the payment.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      payment_id: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
-      schedules:
+      motivo_rechazo:
         custom: []
-        name: schedules
-        description: 'Array de horarios.'
+        name: motivo_rechazo
+        description: 'El campo value no debe tener más de 500 caracteres.'
         required: true
-        example:
-          -
-            day_of_week: monday
-            start_time: '09:00'
-            end_time: '18:00'
-            is_active: true
-        type: 'string[]'
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      'schedules[].day_of_week':
-        custom: []
-        name: 'schedules[].day_of_week'
-        description: ''
-        required: true
-        example: friday
-        type: string
-        enumValues:
-          - monday
-          - tuesday
-          - wednesday
-          - thursday
-          - friday
-          - saturday
-          - sunday
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      'schedules[].start_time':
-        custom: []
-        name: 'schedules[].start_time'
-        description: 'Must be a valid date in the format <code>H:i</code>.'
-        required: true
-        example: '00:45'
+        example: b
         type: string
         enumValues: []
         exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      'schedules[].end_time':
-        custom: []
-        name: 'schedules[].end_time'
-        description: 'Must be a valid date in the format <code>H:i</code>.'
-        required: true
-        example: '00:45'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      'schedules[].is_active':
-        custom: []
-        name: 'schedules[].is_active'
-        description: ''
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      'schedules.*.day_of_week':
-        custom: []
-        name: 'schedules.*.day_of_week'
-        description: 'Día de la semana (monday, tuesday, etc.).'
-        required: true
-        example: monday
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      'schedules.*.start_time':
-        custom: []
-        name: 'schedules.*.start_time'
-        description: 'Hora de inicio (HH:MM).'
-        required: true
-        example: '09:00'
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      'schedules.*.end_time':
-        custom: []
-        name: 'schedules.*.end_time'
-        description: 'Hora de fin (HH:MM).'
-        required: true
-        example: '18:00'
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      'schedules.*.is_active':
-        custom: []
-        name: 'schedules.*.is_active'
-        description: 'Si el horario está activo.'
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: true
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      schedules:
-        -
-          day_of_week: monday
-          start_time: '09:00'
-          end_time: '18:00'
-          is_active: true
+      motivo_rechazo: b
     fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 200
-        content: |-
-          {
-           "message": "Horarios actualizados correctamente",
-           "schedules": [...]
-          }
-        headers: []
-        description: ''
+    responses: []
     responseFields: []
     auth: []
     controller: null

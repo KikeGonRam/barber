@@ -42,6 +42,13 @@ class SettingController extends Controller
             'horario_apertura' => ['nullable', 'date_format:H:i'],
             'horario_cierre' => ['nullable', 'date_format:H:i', 'after:horario_apertura'],
             'politica_cancelacion' => ['required', 'integer', 'min:1', 'max:168'],
+            // Política anti-no-show (DepositService). Opcional a propósito:
+            // el formulario de configuración aún no manda estos dos campos,
+            // así que un guardado normal no debe romperse por su ausencia
+            // (ver el fallback al valor ya guardado más abajo). 0 en
+            // cualquiera de los dos desactiva la exigencia de depósito.
+            'deposito_no_show_umbral' => ['nullable', 'integer', 'min:0', 'max:20'],
+            'deposito_no_show_porcentaje' => ['nullable', 'integer', 'min:0', 'max:100'],
             'instagram' => ['nullable', 'string', 'max:255'],
             'facebook' => ['nullable', 'string', 'max:255'],
             'tiktok' => ['nullable', 'string', 'max:255'],
@@ -59,6 +66,8 @@ class SettingController extends Controller
             'horario_apertura' => $validated['horario_apertura'] ?? null,
             'horario_cierre' => $validated['horario_cierre'] ?? null,
             'politica_cancelacion' => $validated['politica_cancelacion'],
+            'deposito_no_show_umbral' => $validated['deposito_no_show_umbral'] ?? $setting->deposito_no_show_umbral ?? 2,
+            'deposito_no_show_porcentaje' => $validated['deposito_no_show_porcentaje'] ?? $setting->deposito_no_show_porcentaje ?? 50,
             'redes_sociales' => [
                 'instagram' => $validated['instagram'] ?? null,
                 'facebook' => $validated['facebook'] ?? null,

@@ -46,6 +46,12 @@ class BarbershopSetting extends Model
         'redes_sociales',
         'datos_bancarios',
         'maintenance_mode',
+        // Política de depósito anti-no-show (ver DepositService). Umbral: nº
+        // de inasistencias en los últimos 90 días que activan la exigencia
+        // de depósito en la SIGUIENTE reserva del cliente. Porcentaje: % del
+        // precio del servicio que se cobra como depósito.
+        'deposito_no_show_umbral',
+        'deposito_no_show_porcentaje',
     ];
 
     protected function casts(): array
@@ -54,6 +60,8 @@ class BarbershopSetting extends Model
             'redes_sociales' => 'array',
             'datos_bancarios' => 'array',
             'maintenance_mode' => 'boolean',
+            'deposito_no_show_umbral' => 'integer',
+            'deposito_no_show_porcentaje' => 'integer',
         ];
     }
 }

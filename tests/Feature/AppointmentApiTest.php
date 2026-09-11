@@ -183,4 +183,54 @@ class AppointmentApiTest extends TestCase
         $response->assertJsonCount(1, 'data');
         $response->assertJsonPath('data.0.fecha', '2026-06-02');
     }
+
+    public function test_booking_a_client_with_no_show_history_flags_the_appointment_as_requiring_deposit(): void
+    {
+        // Política anti-no-show (DepositService): 2+ inasistencias en 90 días
+        // exige depósito en la siguiente reserva, sin importar quién reserva.
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-deposit');
+
+        $client = Client::create(['telefono' => '5551112222', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $service = Service::create(['nombre' => 'Corte', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+
+        Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $this->barberA->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->subDays(10)->format('Y-m-d'), 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00', 'estado' => 'no_asistio',
+        ]);
+        Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $this->barberA->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->subDays(20)->format('Y-m-d'), 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00', 'estado' => 'no_asistio',
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->postJson('/api/v1/appointments', [
+            'client_id' => (string) $client->id,
+            'barber_id' => (string) $this->barberA->id,
+            'service_id' => (string) $service->id,
+            'fecha' => now()->addDays(2)->format('Y-m-d'),
+            'hora_inicio' => '15:00',
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('data.deposito_requerido', true);
+        $response->assertJsonPath('data.deposito_monto', 100); // 50% de 200 (default)
+    }
+
+    public function test_booking_a_client_without_no_show_history_does_not_require_deposit(): void
+    {
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-no-deposit');
+
+        $client = Client::create(['telefono' => '5553334444', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $service = Service::create(['nombre' => 'Corte', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->postJson('/api/v1/appointments', [
+            'client_id' => (string) $client->id,
+            'barber_id' => (string) $this->barberA->id,
+            'service_id' => (string) $service->id,
+            'fecha' => now()->addDays(2)->format('Y-m-d'),
+            'hora_inicio' => '16:00',
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('data.deposito_requerido', false);
+    }
 }
