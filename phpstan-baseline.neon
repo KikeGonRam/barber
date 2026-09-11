@@ -2974,8 +2974,20 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Client\:\:\$slug\.$#'
 			identifier: property.notFound
-			count: 4
+			count: 9
 			path: tests/Feature/ClientAdminApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$notas\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/ClientAdminApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$notas\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Client/ClientAdminController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'

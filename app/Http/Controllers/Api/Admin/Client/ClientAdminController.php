@@ -123,13 +123,25 @@ class ClientAdminController
                 'email' => $client->user?->email,
                 'telefono' => $client->telefono,
                 'segment' => $segment,
+                // Lealtad: vive en el modelo desde siempre y la cobran los
+                // flujos de pago (ver LoyaltyService), pero esta ficha no la
+                // devolvía, así que quien atiende no podía ver el nivel ni los
+                // puntos del cliente que tiene enfrente.
+                'nivel' => $client->nivel,
+                'puntos' => (int) ($client->puntos ?? 0),
+                'notas' => $client->notas,
                 'joinedAt' => optional($client->created_at)->toIso8601String(),
                 'totalAppointments' => $appointments->count(),
                 'totalSpent' => $totalSpent,
                 'averageSpent' => $appointments->count() > 0 ? round($totalSpent / $appointments->count(), 2) : 0,
                 'lastAppointment' => optional($appointments->first()?->fecha)->toDateString(),
+                // (int): diffInDays() devuelve flotante en esta versión de
+                // Carbon, así que un campo llamado "días" salía como
+                // 0.043811839895833336 y la ficha lo pintaba tal cual. El
+                // resto del proyecto ya castea (ClientSegmentService,
+                // ApplyLoyaltyInactivityCommand); aquí faltaba.
                 'daysSinceLastAppointment' => $appointments->isNotEmpty()
-                    ? optional($appointments->first()->fecha)->diffInDays(Carbon::now())
+                    ? (int) optional($appointments->first()->fecha)->diffInDays(Carbon::now())
                     : null,
                 'preferredBarber' => $preferredBarber,
                 'appointments' => $appointments->map(fn ($a) => [
@@ -205,6 +217,7 @@ class ClientAdminController
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|email',
             'telefono' => 'nullable|string|max:20',
+            'notas' => 'nullable|string|max:2000',
         ]);
 
         if (! empty($validated['name']) || ! empty($validated['email'])) {
@@ -216,6 +229,12 @@ class ClientAdminController
 
         if (isset($validated['telefono'])) {
             $client->update(['telefono' => $validated['telefono']]);
+        }
+
+        // array_key_exists, no isset(): mandar 'notas' => null es la forma de
+        // borrarlas, e isset() lo trataría como "no vino" y las dejaría vivas.
+        if (array_key_exists('notas', $validated)) {
+            $client->update(['notas' => $validated['notas']]);
         }
 
         $client->refresh()->load('user');

@@ -108,6 +108,72 @@ class ClientAdminApiTest extends TestCase
         $response->assertJsonCount(1, 'data.appointments');
     }
 
+    public function test_show_includes_loyalty_level_points_and_staff_notes(): void
+    {
+        // Lealtad y notas son lo que la ficha 360 necesita para que quien
+        // atiende vea al cliente completo; el detalle no las devolvía.
+        $client = $this->makeClient('Cliente Lealtad', 'lealtad-'.Str::uuid().'@test.local');
+        $client->update(['nivel' => 'oro', 'puntos' => 120, 'notas' => 'Alérgico al after shave con alcohol.']);
+
+        $response = $this->withToken($this->adminToken)->getJson('/api/v1/admin/clients/'.$client->slug);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.nivel', 'oro');
+        $response->assertJsonPath('data.puntos', 120);
+        $response->assertJsonPath('data.notas', 'Alérgico al after shave con alcohol.');
+    }
+
+    public function test_days_since_last_appointment_is_a_whole_number(): void
+    {
+        // diffInDays() devuelve flotante en esta versión de Carbon: sin el
+        // cast, la ficha mostraba "hace 0.043811839895833336 días".
+        $client = $this->makeClient('Cliente Dias', 'dias-'.Str::uuid().'@test.local');
+        Appointment::create([
+            'client_id' => (string) $client->id,
+            'barber_id' => (string) Str::uuid(),
+            'service_id' => (string) Str::uuid(),
+            'fecha' => now()->format('Y-m-d'),
+            'hora_inicio' => '09:00:00',
+            'hora_fin' => '09:30:00',
+            'estado' => 'completada',
+            'precio_cobrado' => 100,
+        ]);
+
+        $dias = $this->withToken($this->adminToken)
+            ->getJson('/api/v1/admin/clients/'.$client->slug)
+            ->assertOk()
+            ->json('data.daysSinceLastAppointment');
+
+        $this->assertIsInt($dias);
+    }
+
+    public function test_update_saves_and_clears_staff_notes(): void
+    {
+        $client = $this->makeClient('Cliente Notas', 'notas-'.Str::uuid().'@test.local');
+
+        $this->withToken($this->adminToken)
+            ->putJson('/api/v1/admin/clients/'.$client->slug, ['notas' => 'Prefiere fade bajo, sin máquina en la barba.'])
+            ->assertOk();
+        $this->assertSame('Prefiere fade bajo, sin máquina en la barba.', $client->fresh()->notas);
+
+        // Mandar null es la forma de borrarlas: con isset() en el controlador
+        // este caso dejaría la nota anterior viva para siempre.
+        $this->withToken($this->adminToken)
+            ->putJson('/api/v1/admin/clients/'.$client->slug, ['notas' => null])
+            ->assertOk();
+        $this->assertNull($client->fresh()->notas);
+    }
+
+    public function test_update_rejects_notes_longer_than_the_limit(): void
+    {
+        $client = $this->makeClient('Cliente Limite', 'limite-'.Str::uuid().'@test.local');
+
+        $this->withToken($this->adminToken)
+            ->putJson('/api/v1/admin/clients/'.$client->slug, ['notas' => str_repeat('a', 2001)])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['notas']);
+    }
+
     public function test_segmentation_returns_counts_with_percentages(): void
     {
         $this->makeClient('Cliente Segmento', 'segmento-'.Str::uuid().'@test.local');

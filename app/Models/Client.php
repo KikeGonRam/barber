@@ -27,6 +27,10 @@ class Client extends Model
         'nivel',
         'puntos',
         'total_citas',
+        // Notas internas del staff sobre el cliente (alergias, tipo de corte,
+        // acuerdos). Solo se leen y escriben desde la ficha de administración:
+        // nunca se exponen en el catálogo público ni en la API del cliente.
+        'notas',
     ];
 
     // Fuente del slug: nombre del User vinculado, o 'cliente' si no hay match.
