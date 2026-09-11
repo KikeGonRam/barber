@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Analytics;
 use App\Http\Controllers\Controller;
 use App\Models\AnalyticsInsight;
 use App\Services\Analytics\AnalyticsInsightService;
+use App\Services\Analytics\OperationalAnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -20,7 +21,15 @@ class AnalyticsController extends Controller
 {
     public function __construct(private readonly AnalyticsInsightService $insights) {}
 
-    public function index(Request $request): JsonResponse
+    /**
+     * Análisis por rol. operational es un resumen actual de citas/pagos,
+     * exclusivo para administrador y recepción; los insights históricos se conservan.
+     *
+     * @group Analítica
+     *
+     * @authenticated
+     */
+    public function index(Request $request, OperationalAnalyticsService $operational): JsonResponse
     {
         $user = $request->user();
 
@@ -171,6 +180,7 @@ class AnalyticsController extends Controller
 
         return response()->json([
             'rol_label' => $rolLabel,
+            'operational' => in_array($rolLabel, ['administrador', 'recepcionista'], true) ? $operational->summary() : null,
             'kpis' => $kpis,
             'ultima_actualizacion' => $ultimaActualizacion?->toAtomString(),
             'secciones' => collect($secciones)->map(fn (array $seccion, string $clave) => [

@@ -347,6 +347,7 @@ class ClientAdminController
             'id' => $client->id,
             'slug' => $client->slug,
             'name' => $client->user?->name,
+            'avatar_url' => $client->user?->avatar_url,
             'email' => $client->user?->email,
             'telefono' => $client->telefono,
             'segment' => $this->segments->segment($client, $appts->count(), $lastFecha),

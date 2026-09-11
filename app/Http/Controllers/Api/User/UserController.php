@@ -50,6 +50,7 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'avatar_url' => $user->avatar_url,
                 'email_verified_at' => optional($user->email_verified_at)?->toAtomString(),
                 'created_at' => optional($user->created_at)?->toAtomString(),
                 'roles' => $user->roleNames()->values(),

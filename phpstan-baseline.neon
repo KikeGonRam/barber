@@ -585,7 +585,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
-			count: 9
+			count: 10
 			path: app/Http/Controllers/Api/Dashboard/DashboardController.php
 
 		-
@@ -3072,3 +3072,21 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: tests/Feature/AppointmentManageLinkApiTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$avatar_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Client/ClientAdminController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$avatar_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/User/UserController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\User\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/User/UserController.php

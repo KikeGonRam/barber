@@ -309,6 +309,7 @@ class DashboardController extends Controller
                 'fecha' => Carbon::parse($appt->fecha)->translatedFormat('d M'),
                 'cliente' => $appt->client?->user?->name ?? 'Cliente',
                 'barberoInicial' => mb_strtoupper(mb_substr($appt->barber?->user?->name ?? 'B', 0, 1)),
+                'cliente_avatar_url' => $appt->client?->user?->avatar_url,
             ])->values(),
             'insights' => $this->analysisInsights(),
             'sparkHighlights' => $this->analyticsInsightService
