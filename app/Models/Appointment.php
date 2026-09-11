@@ -46,7 +46,16 @@ class Appointment extends Model
         'servicio_iniciado_en',
         'ultimo_aviso_barbero_en',
         'bloquea_horario',
+        // Token opaco del enlace de gestión que viaja en los recordatorios
+        // (ver AppointmentManageLinkService). Nunca se expone en respuestas
+        // de la API: solo se compara contra el que llega en la petición.
+        'manage_token',
     ];
+
+    // $hidden, no solo disciplina: cualquier toArray()/toJson() de una cita
+    // (incluido un dd() en logs) omitiría el token que da acceso a
+    // gestionarla sin sesión.
+    protected $hidden = ['manage_token'];
 
     protected function casts(): array
     {

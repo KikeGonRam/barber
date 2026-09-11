@@ -3006,3 +3006,69 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/Services/Payment/CashCloseService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentManageController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentManageController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$duracion_min\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentManageController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentManageController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentManageController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$manage_token\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Appointment/AppointmentManageLinkService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Appointment/AppointmentManageLinkService.php
+
+		-
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Appointment/AppointmentManageLinkService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 13
+			path: tests/Feature/AppointmentManageLinkApiTest.php
+
+		-
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/AppointmentManageLinkApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$bloquea_horario\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/AppointmentManageLinkApiTest.php

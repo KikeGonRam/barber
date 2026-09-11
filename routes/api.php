@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\System\BackupController;
 use App\Http\Controllers\Api\Admin\System\SystemController;
 use App\Http\Controllers\Api\Analytics\AnalyticsController as ApiAnalyticsController;
 use App\Http\Controllers\Api\Appointment\AppointmentController;
+use App\Http\Controllers\Api\Appointment\AppointmentManageController;
 use App\Http\Controllers\Api\Appointment\AvailabilityController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\SocialAuthController;
@@ -75,6 +76,16 @@ Route::prefix('v1')->group(function (): void {
     Route::get('barbers', [CatalogController::class, 'barbers']);
     Route::get('products', [CatalogController::class, 'products']);
     Route::get('availability/slots', [AvailabilityController::class, 'slots'])->middleware('throttle:30,1');
+
+    // Gestión de cita por enlace del recordatorio: sin sesión, autorizada por
+    // el token opaco de la propia cita (AppointmentManageLinkService).
+    // Throttle bajo a propósito: es el único punto de la API donde un token
+    // se puede intentar adivinar, y 10/min por IP hace inviable la búsqueda.
+    Route::middleware('throttle:10,1')->group(function (): void {
+        Route::get('appointments/{appointment}/manage', [AppointmentManageController::class, 'show']);
+        Route::post('appointments/{appointment}/manage/cancel', [AppointmentManageController::class, 'cancel']);
+        Route::post('appointments/{appointment}/manage/reschedule', [AppointmentManageController::class, 'reschedule']);
+    });
     Route::get('social/feed', [ApiSocialController::class, 'feed'])->middleware('mobile.auth.optional');
 
     // Chatbot (público con rate limiting; mobile.auth.optional para que, si

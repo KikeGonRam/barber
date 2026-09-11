@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Appointment;
 use App\Notifications\Appointment\AppointmentNotification;
+use App\Services\Appointment\AppointmentManageLinkService;
 use App\Services\Messaging\MessagingService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -24,11 +25,11 @@ class SendAppointmentRemindersCommand extends Command
     /**
      * Dispara los dos flujos de recordatorio (24h y 2h) en cada ejecución.
      */
-    public function handle(MessagingService $messagingService): int
+    public function handle(MessagingService $messagingService, AppointmentManageLinkService $manageLinks): int
     {
         $now = Carbon::now();
 
-        $this->send24hReminder($now, $messagingService);
+        $this->send24hReminder($now, $messagingService, $manageLinks);
         $this->send2hReminder($now, $messagingService);
 
         return self::SUCCESS;
@@ -38,7 +39,7 @@ class SendAppointmentRemindersCommand extends Command
      * Recordatorio de 24h: notifica a todas las citas de mañana (sin ventana
      * horaria) que aún no tengan el flag reminder_24h_sent_at.
      */
-    private function send24hReminder(Carbon $now, MessagingService $messagingService): void
+    private function send24hReminder(Carbon $now, MessagingService $messagingService, AppointmentManageLinkService $manageLinks): void
     {
         // Se toman TODAS las citas de manana, sin filtrar por ventana horaria.
         // El flag reminder_24h_sent_at garantiza que cada cita se notifique una sola vez
@@ -50,7 +51,7 @@ class SendAppointmentRemindersCommand extends Command
             ->whereIn('estado', ['pendiente', 'confirmada'])
             ->whereNull('reminder_24h_sent_at')
             ->where('fecha', $tomorrow)
-            ->chunkById(100, function ($appointments) use ($messagingService) {
+            ->chunkById(100, function ($appointments) use ($messagingService, $manageLinks) {
                 foreach ($appointments as $appointment) {
                     $user = $appointment->client?->user;
 
@@ -59,11 +60,19 @@ class SendAppointmentRemindersCommand extends Command
                     }
 
                     try {
+                        // Enlace de gestión solo en el recordatorio de 24h:
+                        // es el momento en que todavía se puede mover o
+                        // cancelar dentro de la política de la barbería. El
+                        // de 2h va sin enlace a propósito, porque llevaría a
+                        // una pantalla que solo sabe decir que no (ver
+                        // AppointmentManageController).
                         $user->notify(new AppointmentNotification(
                             appointment: $appointment,
                             subject: 'Recordatorio de cita — mañana',
                             title: 'Tu cita es mañana',
                             message: 'Te recordamos que tienes una cita programada para mañana.',
+                            actionLabel: '¿Necesitas moverla?',
+                            actionUrl: $manageLinks->urlFor($appointment),
                         ));
 
                         $this->dispatchDirectMessage($user, 'Recordatorio: tu cita es mañana.', $messagingService);
