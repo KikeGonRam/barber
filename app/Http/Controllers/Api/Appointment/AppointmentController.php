@@ -545,19 +545,85 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Permite al barbero dueño de la cita cambiar su estado (respetando la máquina de estados
-     * validada en AppointmentStatusService).
+     * Cambia el estado de una cita respetando la máquina de estados de
+     * AppointmentStatusService (transición válida + rol autorizado).
+     *
+     * Antes exigía hasRole('barbero') y contradecía a la propia máquina de
+     * estados: ROLE_MAP ya declaraba a administrador y recepcionista
+     * autorizados en TODAS las transiciones, pero este guard les devolvía 403,
+     * y roleCanSet() quedaba sin usarse en todo el proyecto. Como PUT
+     * /appointments/{cita} exige el payload completo con
+     * 'fecha' => after_or_equal:today, el efecto neto era que recepción no
+     * podía marcar "no asistió" ni "completada" en una cita del día anterior
+     * por ningún camino — justo cuando un no-show se marca después del hecho.
+     *
+     * El barbero sigue acotado a SUS citas. El rol cliente no entra aquí
+     * aunque ROLE_MAP lo liste para 'cancelada': cancela con DELETE
+     * /appointments/{cita}, que además valida su propia ventana de tiempo.
+     *
+     * Actualizar Estado de Cita
+     *
+     * Cambia solo el estado (y opcionalmente las notas), sin exigir el payload
+     * completo de la cita. Permitido a administrador, recepcionista y al
+     * barbero asignado.
+     *
+     * @authenticated
+     *
+     * @urlParam appointment string required Código público de la cita. Example: jfb7ffye
+     *
+     * @bodyParam estado string required Estado destino. Debe ser una transición válida desde el estado actual. Example: confirmada
+     * @bodyParam notas string Notas opcionales de la cita. Example: Llegó 5 minutos tarde.
+     *
+     * @response 200 {
+     *  "message": "Estado actualizado correctamente.",
+     *  "data": { "code": "jfb7ffye", "estado": "confirmada" }
+     * }
+     * @response 403 {
+     *  "message": "Solo puedes cambiar el estado de tus propias citas."
+     * }
+     * @response 422 {
+     *  "message": "No se puede pasar la cita de 'completada' a 'pendiente'."
+     * }
      */
     public function updateStatus(Request $request, Appointment $appointment): JsonResponse
     {
         $user = $request->user();
-        // Solo el barbero asignado a esta cita puede cambiar su estado — se compara como string por los IDs de MongoDB
-        abort_if(! $user || ! $user->hasRole('barbero') || ! $user->barberProfile || (string) $appointment->barber_id !== (string) $user->barberProfile->id, 403);
+        abort_if(! $user, 403, 'No autorizado para cambiar el estado de esta cita.');
+
+        $role = match (true) {
+            $user->hasRole('administrador') => 'administrador',
+            $user->hasRole('recepcionista') => 'recepcionista',
+            $user->hasRole('barbero') => 'barbero',
+            default => null,
+        };
+
+        // IDs de MongoDB: comparar como string, nunca con === sobre objetos.
+        abort_if(
+            $role === 'barbero' && (string) $appointment->barber_id !== (string) ($user->barberProfile->id ?? ''),
+            403,
+            'Solo puedes cambiar el estado de tus propias citas.'
+        );
 
         $validated = $request->validate([
             'estado' => ['required', 'in:pendiente,confirmada,en_proceso,completada,cancelada,no_asistio'],
             'notas' => ['nullable', 'string', 'max:1000'],
         ]);
+
+        // Legalidad de la transición ANTES que el rol: si la cita ya está en
+        // un estado terminal, el motivo real es ese y no el rol de quien pide
+        // (un admin que intenta completada -> pendiente debe leer "no se
+        // puede", no "tu rol no puede").
+        if (! $this->statusService->canTransition((string) $appointment->estado, $validated['estado'])) {
+            return response()->json([
+                'message' => "No se puede pasar la cita de '{$appointment->estado}' a '{$validated['estado']}'.",
+            ], 422);
+        }
+
+        abort_if(
+            ! $this->statusService->roleCanSet($validated['estado'], $role),
+            403,
+            'Tu rol no puede poner la cita en ese estado.'
+        );
 
         try {
             $this->statusService->transition($appointment, $validated['estado']);
