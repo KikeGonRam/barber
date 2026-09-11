@@ -66,6 +66,10 @@ Route::prefix('v1')->group(function (): void {
     Route::get('auth/google/callback', [SocialAuthController::class, 'callback'])->middleware('throttle:10,1');
 
     // Catálogo público
+    // Ficha del negocio (identidad/contacto/horario/política/redes) sin token:
+    // la consumen la landing y la reserva pública. Distinta de GET settings
+    // (admin), que además expone datos bancarios.
+    Route::get('barbershop', [CatalogController::class, 'barbershop']);
     Route::get('services', [CatalogController::class, 'services']);
     Route::get('barbers', [CatalogController::class, 'barbers']);
     Route::get('products', [CatalogController::class, 'products']);

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarberReview;
+use App\Models\BarbershopSetting;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\Work;
@@ -23,6 +24,55 @@ use Illuminate\Http\Request;
 class CatalogController extends Controller
 {
     public function __construct(private readonly BarberReviewService $reviews) {}
+
+    /**
+     * Ficha pública de la barbería: identidad, contacto, horario, política de
+     * cancelación y redes. Lo consume la landing y la reserva pública, que no
+     * tienen token.
+     *
+     * Deliberadamente NO usa BarbershopSettingResource: ese recurso incluye
+     * datos_bancarios (CLABE, banco, beneficiario) y maintenance_mode, que
+     * son para el panel de administración, no para un visitante anónimo.
+     * Cualquier campo nuevo que se agregue aquí debe ser seguro de publicar.
+     *
+     * @group Catálogo público
+     *
+     * @unauthenticated
+     *
+     * @response 200 {
+     *  "data": {
+     *    "nombre": "UrbanBlade",
+     *    "logo": null,
+     *    "direccion": "Av. Juárez 120, Centro",
+     *    "telefono": "+52 55 1234 5678",
+     *    "horario_apertura": "09:00",
+     *    "horario_cierre": "21:00",
+     *    "politica_cancelacion": 24,
+     *    "redes_sociales": {"instagram": "urbanblade", "facebook": null, "tiktok": null}
+     *  }
+     * }
+     */
+    public function barbershop(): JsonResponse
+    {
+        // cached() (60s, se invalida sola al guardar) en vez de first(): esta
+        // ficha la pide cada visitante anónimo de la landing y de /reservar.
+        $setting = BarbershopSetting::cached();
+
+        return response()->json([
+            'data' => [
+                'nombre' => $setting?->nombre,
+                'logo' => $setting?->logo,
+                'direccion' => $setting?->direccion,
+                'telefono' => $setting?->telefono,
+                'horario_apertura' => $setting?->horario_apertura,
+                'horario_cierre' => $setting?->horario_cierre,
+                'politica_cancelacion' => $setting?->politica_cancelacion,
+                // Sin "?->" aquí: dentro de ?? PHP ya suprime el acceso sobre
+                // null, así que el nullsafe sobra (Larastan: nullsafe.neverNull).
+                'redes_sociales' => $setting->redes_sociales ?? [],
+            ],
+        ]);
+    }
 
     // Lista servicios activos ordenados alfabéticamente
     public function services(): JsonResponse
