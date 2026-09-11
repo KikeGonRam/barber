@@ -286,4 +286,63 @@ class ClientAdminApiTest extends TestCase
         $this->withToken($token)->getJson('/api/v1/admin/clients')->assertForbidden();
         $this->withToken($token)->postJson('/api/v1/admin/clients', [])->assertForbidden();
     }
+
+    private function recepcionToken(): string
+    {
+        $role = Role::where('name', 'recepcionista')->where('guard_name', 'web')->firstOrFail();
+        $user = User::create(['name' => 'Recepción', 'email' => 'recepcion-'.Str::uuid().'@test.local', 'password' => 'password']);
+        $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+
+        $plain = 'test-recepcion-'.uniqid();
+        MobileApiToken::create(['user_id' => (string) $user->id, 'name' => 'test', 'token_hash' => hash('sha256', $plain)]);
+
+        return $plain;
+    }
+
+    public function test_recepcion_can_consult_and_attend_clients_from_the_counter(): void
+    {
+        // Quien está en el mostrador es justo quien necesita el contexto del
+        // cliente que tiene enfrente: antes /admin/clients era admin puro y
+        // recepción no tenía ninguna vista de clientes en el producto.
+        $token = $this->recepcionToken();
+        $client = $this->makeClient('Cliente Mostrador', 'mostrador-'.Str::uuid().'@test.local');
+
+        $this->withToken($token)->getJson('/api/v1/admin/clients')->assertOk();
+        $this->withToken($token)->getJson('/api/v1/admin/clients/'.$client->slug)->assertOk();
+
+        $this->withToken($token)
+            ->putJson('/api/v1/admin/clients/'.$client->slug, ['notas' => 'Pidió cita para el sábado.'])
+            ->assertOk();
+        $this->assertSame('Pidió cita para el sábado.', $client->fresh()->notas);
+
+        $this->withToken($token)->postJson('/api/v1/admin/clients', [
+            'name' => 'Alta En Mostrador',
+            'email' => 'alta-mostrador-'.Str::uuid().'@test.local',
+            'password' => 'password123',
+        ])->assertCreated();
+    }
+
+    public function test_recepcion_cannot_export_segment_or_delete_clients(): void
+    {
+        // El límite del permiso de mostrador: exportar la base completa es PII
+        // de todo el negocio, la segmentación es información comercial y la
+        // baja es destructiva.
+        $token = $this->recepcionToken();
+        $client = $this->makeClient('Cliente Protegido', 'protegido-'.Str::uuid().'@test.local');
+
+        $this->withToken($token)->get('/api/v1/admin/clients/export')->assertForbidden();
+        $this->withToken($token)->getJson('/api/v1/admin/clients/segmentation/data')->assertForbidden();
+        $this->withToken($token)->deleteJson('/api/v1/admin/clients/'.$client->slug)->assertForbidden();
+
+        $this->assertNotNull(Client::find($client->id));
+    }
+
+    public function test_export_and_segmentation_are_not_swallowed_by_the_client_wildcard(): void
+    {
+        // 'clients/{client}' es un comodín y Laravel resuelve por orden de
+        // registro: si el grupo de mostrador se declarara antes, estas dos
+        // entrarían ahí con {client} = "export" y morirían en un 404.
+        $this->withToken($this->adminToken)->get('/api/v1/admin/clients/export')->assertOk();
+        $this->withToken($this->adminToken)->getJson('/api/v1/admin/clients/segmentation/data')->assertOk();
+    }
 }

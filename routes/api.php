@@ -318,13 +318,13 @@ Route::prefix('v1')->group(function (): void {
             Route::get('barbers/{barber}/performance', [BarberAdminController::class, 'getPerformanceStats']);
             Route::put('barbers/{barber}', [BarberAdminController::class, 'update']);
 
-            // Clientes (Phase 2)
-            Route::get('clients', [ClientAdminController::class, 'getClients']);
+            // Clientes (Phase 2) — solo administrador.
+            // Exportar la base completa de clientes es PII de todo el negocio
+            // en un CSV, la segmentación es información comercial y la baja es
+            // destructiva: las tres se quedan aquí. El resto de la atención de
+            // clientes vive en el grupo de mostrador, más abajo.
             Route::get('clients/segmentation/data', [ClientAdminController::class, 'getSegmentation']);
             Route::get('clients/export', [ClientAdminController::class, 'export']);
-            Route::get('clients/{client}', [ClientAdminController::class, 'show']);
-            Route::post('clients', [ClientAdminController::class, 'store']);
-            Route::put('clients/{client}', [ClientAdminController::class, 'update']);
             Route::delete('clients/{client}', [ClientAdminController::class, 'destroy']);
 
             // Inventario (Phase 3)
@@ -337,6 +337,23 @@ Route::prefix('v1')->group(function (): void {
             Route::get('inventory/movements', [InventoryAdminController::class, 'getMovements']);
             Route::get('inventory/summary', [InventoryAdminController::class, 'getSummary']);
             Route::get('inventory/low-stock', [InventoryAdminController::class, 'getLowStockProducts']);
+        });
+
+        // Atención de clientes desde el mostrador: recepción entra igual que
+        // administración. Mantienen el prefijo admin/ porque son las mismas
+        // rutas que ya consume el frontend -- cambia quién puede llamarlas, no
+        // su forma. Cada método revalida el rol con authorizeCounterStaff().
+        //
+        // Va DESPUÉS del grupo de arriba a propósito: 'clients/{client}' es un
+        // comodín y Laravel resuelve por orden de registro, así que declararlo
+        // antes haría que /admin/clients/export y /admin/clients/segmentation/
+        // data entraran aquí con {client} = "export" y murieran en un 404 de
+        // route-model binding.
+        Route::prefix('admin')->middleware('role.custom:administrador,recepcionista')->group(function (): void {
+            Route::get('clients', [ClientAdminController::class, 'getClients']);
+            Route::get('clients/{client}', [ClientAdminController::class, 'show']);
+            Route::post('clients', [ClientAdminController::class, 'store']);
+            Route::put('clients/{client}', [ClientAdminController::class, 'update']);
         });
 
         // Reseña de barbero: requiere sesión de cliente autenticado.

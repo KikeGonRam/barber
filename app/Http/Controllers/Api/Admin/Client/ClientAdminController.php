@@ -36,10 +36,29 @@ class ClientAdminController
         abort_if(! request()->user()?->hasRole('administrador'), 403, 'Solo administradores pueden acceder a este recurso.');
     }
 
+    /**
+     * Consulta y atención de clientes desde el mostrador: recepción entra
+     * igual que administración.
+     *
+     * Se abre por acción y no por grupo a propósito. Recepción necesita ver
+     * la ficha del cliente que tiene enfrente y corregir su teléfono o sus
+     * notas, pero NO exportar la base completa de clientes (PII de todo el
+     * negocio en un CSV), ni darlos de baja, ni leer la segmentación
+     * comercial: esas tres siguen llamando a authorizeAdmin().
+     */
+    private function authorizeCounterStaff(): void
+    {
+        abort_if(
+            ! request()->user()?->hasAnyRole(['administrador', 'recepcionista']),
+            403,
+            'Solo administradores y recepcionistas pueden acceder a este recurso.'
+        );
+    }
+
     // Lista clientes con búsqueda y paginación; si se filtra por segmento, pagina en memoria (ver constante arriba)
     public function getClients(Request $request): JsonResponse
     {
-        $this->authorizeAdmin();
+        $this->authorizeCounterStaff();
         $search = $request->query('search', '');
         $segment = $request->query('segment');
         $perPage = min((int) $request->query('per_page', 15), 50);
@@ -92,7 +111,7 @@ class ClientAdminController
     // Devuelve el perfil completo de un cliente: historial de citas, gasto total y barbero preferido
     public function show(Client $client): JsonResponse
     {
-        $this->authorizeAdmin();
+        $this->authorizeCounterStaff();
         $client->load('user');
         $clientId = (string) $client->id;
 
@@ -177,7 +196,7 @@ class ClientAdminController
     // Crea el User (con rol cliente) y su perfil Client asociado
     public function store(Request $request): JsonResponse
     {
-        $this->authorizeAdmin();
+        $this->authorizeCounterStaff();
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -210,7 +229,7 @@ class ClientAdminController
     // Actualiza datos del cliente y, opcionalmente, del usuario asociado (nombre/email)
     public function update(Client $client, Request $request): JsonResponse
     {
-        $this->authorizeAdmin();
+        $this->authorizeCounterStaff();
         $client->load('user');
 
         $validated = $request->validate([
