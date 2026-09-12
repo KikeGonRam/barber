@@ -4050,3 +4050,21 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/Api/Payment/StripeWebhookController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$saldo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 3
+			path: tests/Feature/PaymentApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$saldo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PaymentApiTest.php

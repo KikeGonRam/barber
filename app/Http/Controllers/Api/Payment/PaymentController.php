@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Membership\MembershipService;
+use App\Services\Package\GiftCardService;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\StripePaymentService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -29,6 +30,7 @@ class PaymentController extends Controller
         private readonly PaymentService $paymentService,
         private readonly StripePaymentService $stripeService,
         private readonly MembershipService $memberships,
+        private readonly GiftCardService $giftCards,
     ) {}
 
     /**
@@ -240,6 +242,7 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'appointment_id' => ['required', 'string', 'exists:appointments,id'],
             'puntos_canjeados' => ['nullable', 'integer', 'min:0'],
+            'codigo_gift_card' => ['nullable', 'string', 'max:20'],
         ]);
 
         $appointment = Appointment::with('client')->findOrFail($validated['appointment_id']);
@@ -280,6 +283,32 @@ class PaymentController extends Controller
             $monto -= $puntosCanjeados;
         }
 
+        // Gift card + tarjeta: a diferencia del paquete/premio de rifa (cubren
+        // el 100%, dejarían $0 a cobrar -- Stripe no acepta un PaymentIntent
+        // en $0), una gift card es parcial por diseño, así que sí puede
+        // combinarse con tarjeta para el remanente. El saldo se lee aquí solo
+        // para calcular cuánto cobrarle a Stripe -- NUNCA se descuenta en
+        // este punto (GiftCardService::apply() es quien de verdad mueve el
+        // saldo, solo cuando el webhook confirma el pago vía
+        // PaymentService::create(), igual que el resto del flujo de tarjeta
+        // nunca registra nada hasta que Stripe confirma).
+        $codigoGiftCard = $validated['codigo_gift_card'] ?? null;
+        if ($codigoGiftCard) {
+            $giftCard = $this->giftCards->findRedeemable($codigoGiftCard);
+            if (! $giftCard) {
+                return response()->json(['message' => 'El código de la tarjeta de regalo no es válido o ya no tiene saldo.'], 422);
+            }
+
+            $montoCubierto = round(min((float) $giftCard->saldo, $monto), 2);
+            $monto = round($monto - $montoCubierto, 2);
+
+            if ($monto <= 0) {
+                return response()->json([
+                    'message' => 'El saldo de la gift card ya cubre el total. Cóbrala por efectivo o transferencia en vez de tarjeta.',
+                ], 422);
+            }
+        }
+
         try {
             $data = $this->stripeService->createPaymentIntent(
                 $monto,
@@ -287,6 +316,7 @@ class PaymentController extends Controller
                 [
                     'appointment_id' => $validated['appointment_id'],
                     'puntos_canjeados' => (string) $puntosCanjeados,
+                    'codigo_gift_card' => $codigoGiftCard ?? '',
                 ]
             );
 

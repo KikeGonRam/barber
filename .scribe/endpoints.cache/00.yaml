@@ -902,9 +902,21 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      codigo_gift_card:
+        custom: []
+        name: codigo_gift_card
+        description: 'El campo value no debe tener más de 20 caracteres.'
+        required: false
+        example: gzmiyvdljnikhway
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
     cleanBodyParameters:
       appointment_id: architecto
       puntos_canjeados: 39
+      codigo_gift_card: gzmiyvdljnikhway
     fileParameters: []
     responses: []
     responseFields: []
@@ -1125,7 +1137,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -1161,7 +1173,7 @@ endpoints:
         name: usar_premio_rifa
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1203,10 +1215,10 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: efectivo
+      metodo_pago: tarjeta
       propina: 77
       puntos_canjeados: 8
-      usar_premio_rifa: false
+      usar_premio_rifa: true
       usar_paquete_id: architecto
       codigo_gift_card: ngzmiyvdljnikhwa
       stripe_payment_id: architecto
@@ -1485,7 +1497,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1497,7 +1509,7 @@ endpoints:
       cantidad_usos: 22
       precio: 84
       vigencia_dias: 16
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -1782,7 +1794,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1793,7 +1805,7 @@ endpoints:
       descripcion: 'n'
       precio_mensual: 67
       descuento_pct: 16
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2066,7 +2078,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-12T00:36:26'
+        example: '2026-09-12T01:22:02'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2110,7 +2122,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2121,11 +2133,11 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-12T00:36:26'
+      fecha_nacimiento: '2026-09-12T01:22:02'
       pref_in_app: false
       pref_email: false
       pref_sms: true
-      pref_whatsapp: true
+      pref_whatsapp: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2157,14 +2169,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: qa-gift-cards
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: qa-gift-cards
+      client_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -2206,7 +2218,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-12T00:36:26'
+        example: '2026-09-12T01:22:03'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2239,7 +2251,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2250,7 +2262,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2260,11 +2272,11 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-12T00:36:26'
+      fecha_nacimiento: '2026-09-12T01:22:03'
       pref_in_app: false
       pref_email: true
-      pref_sms: false
-      pref_whatsapp: true
+      pref_sms: true
+      pref_whatsapp: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2296,14 +2308,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: qa-gift-cards
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: qa-gift-cards
+      client_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -2950,14 +2962,14 @@ endpoints:
         name: user_id
         description: 'The ID of the user.'
         required: true
-        example: 6aa4d041340a60b00107fdf2
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      user_id: 6aa4d041340a60b00107fdf2
+      user_id: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -3041,14 +3053,14 @@ endpoints:
         name: user_id
         description: 'The ID of the user.'
         required: true
-        example: 6aa4d041340a60b00107fdf2
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      user_id: 6aa4d041340a60b00107fdf2
+      user_id: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -3161,7 +3173,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '00:36'
+        example: '01:22'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3297,7 +3309,7 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '00:36'
+      horario_apertura: '01:22'
       horario_cierre: '2052-10-05'
       politica_cancelacion: 22
       deposito_no_show_umbral: 7
@@ -4009,7 +4021,7 @@ endpoints:
         name: in_app
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4042,7 +4054,7 @@ endpoints:
         name: whatsapp
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4071,10 +4083,10 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      in_app: true
+      in_app: false
       email: false
       sms: false
-      whatsapp: true
+      whatsapp: false
       push: false
       promociones: false
     fileParameters: []
@@ -4202,7 +4214,7 @@ endpoints:
         name: content_encoding
         description: ''
         required: false
-        example: aes128gcm
+        example: aesgcm
         type: string
         enumValues:
           - aesgcm
@@ -4215,7 +4227,7 @@ endpoints:
       keys:
         p256dh: architecto
         auth: architecto
-      content_encoding: aes128gcm
+      content_encoding: aesgcm
     fileParameters: []
     responses: []
     responseFields: []
@@ -5404,7 +5416,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5424,7 +5436,7 @@ endpoints:
     cleanBodyParameters:
       especialidades: b
       descripcion: architecto
-      activo: true
+      activo: false
       comision_pct: 22
     fileParameters: []
     responses: []
@@ -5537,14 +5549,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: qa-gift-cards
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: qa-gift-cards
+      client_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -5927,7 +5939,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5953,7 +5965,7 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: true
+      activo: false
       active: true
     fileParameters: []
     responses: []
@@ -6045,7 +6057,7 @@ endpoints:
         name: tipo
         description: ''
         required: true
-        example: entrada
+        example: salida
         type: string
         enumValues:
           - entrada
@@ -6076,7 +6088,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      tipo: entrada
+      tipo: salida
       cantidad: 16
       motivo: architecto
     fileParameters: []
@@ -6270,14 +6282,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: qa-gift-cards
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: qa-gift-cards
+      client_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -6286,8 +6298,11 @@ endpoints:
     responses:
       -
         custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
+        status: 404
+        content: |-
+          {
+              "message": "No query results for model [App\\Models\\Client] architecto"
+          }
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -6401,14 +6416,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: qa-gift-cards
+        example: architecto
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: qa-gift-cards
+      client_slug: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:

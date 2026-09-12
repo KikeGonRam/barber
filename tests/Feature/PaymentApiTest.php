@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
+use App\Models\GiftCard;
 use App\Models\MobileApiToken;
 use App\Models\Payment;
 use App\Models\Permission;
@@ -12,6 +13,7 @@ use App\Models\Role;
 use App\Models\Service;
 use App\Models\User;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Package\GiftCardService;
 use App\Services\Payment\StripePaymentService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Str;
@@ -39,6 +41,7 @@ class PaymentApiTest extends TestCase
     protected function tearDown(): void
     {
         Payment::query()->delete();
+        GiftCard::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Service::query()->delete();
         Barber::query()->delete();
@@ -293,6 +296,82 @@ class PaymentApiTest extends TestCase
             ->postJson('/api/v1/payments/stripe-intent', [
                 'appointment_id' => (string) $appointment->id,
                 'puntos_canjeados' => 999999,
+            ]);
+
+        $response->assertStatus(422);
+    }
+
+    /**
+     * Gift card + tarjeta: a diferencia del paquete/premio de rifa (cubren el
+     * 100%), una gift card es parcial, así que sí puede combinarse con
+     * tarjeta para el remanente. El saldo NUNCA se descuenta en stripeIntent()
+     * -- solo se lee para calcular cuánto cobrarle a Stripe.
+     */
+    public function test_stripe_intent_reduces_the_amount_by_the_gift_card_balance(): void
+    {
+        $user = $this->staffUser('recepcionista', 'recepcion-stripe-gift@test.local');
+
+        $barberUser = User::create(['name' => 'Barbero Stripe Gift', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Stripe Gift', 'activo' => true]);
+        $clientUser = User::create(['name' => 'Cliente Stripe Gift', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $client = Client::create(['user_id' => (string) $clientUser->id, 'telefono' => '5556667777', 'nivel' => 'nuevo', 'puntos' => 0]);
+        $service = Service::create(['nombre' => 'Corte Stripe Gift', 'precio' => 300, 'duracion_min' => 30, 'activo' => true]);
+
+        $appointment = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00', 'estado' => 'confirmada',
+        ]);
+
+        $giftCard = app(GiftCardService::class)->purchaseCash(120, null, 'QA', null, (string) Str::uuid());
+
+        $this->mock(StripePaymentService::class, function ($mock) use ($giftCard) {
+            $mock->shouldReceive('createPaymentIntent')
+                ->once()
+                ->withArgs(fn ($amount, $currency, $metadata) => abs($amount - 180.0) < 0.01
+                    && $metadata['codigo_gift_card'] === $giftCard->code
+                )
+                ->andReturn(['client_secret' => 'pi_test_secret_gift', 'payment_intent_id' => 'pi_test_gift']);
+        });
+
+        $token = $this->tokenFor($user, 'test-plaintext-token-stripe-gift');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', [
+                'appointment_id' => (string) $appointment->id,
+                'codigo_gift_card' => $giftCard->code,
+            ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.client_secret', 'pi_test_secret_gift');
+
+        // El saldo de la gift card no se tocó -- eso solo pasa cuando el
+        // webhook confirme el pago.
+        $this->assertEquals(120.0, (float) $giftCard->fresh()->saldo);
+    }
+
+    public function test_stripe_intent_rejects_a_gift_card_that_already_covers_the_full_amount(): void
+    {
+        $user = $this->staffUser('recepcionista', 'recepcion-stripe-gift-full@test.local');
+
+        $barberUser = User::create(['name' => 'Barbero Stripe Gift Full', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Stripe Gift Full', 'activo' => true]);
+        $clientUser = User::create(['name' => 'Cliente Stripe Gift Full', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $client = Client::create(['user_id' => (string) $clientUser->id, 'telefono' => '5558889999', 'nivel' => 'nuevo', 'puntos' => 0]);
+        $service = Service::create(['nombre' => 'Corte Stripe Gift Full', 'precio' => 300, 'duracion_min' => 30, 'activo' => true]);
+
+        $appointment = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00', 'estado' => 'confirmada',
+        ]);
+
+        $giftCard = app(GiftCardService::class)->purchaseCash(500, null, 'QA', null, (string) Str::uuid());
+
+        $token = $this->tokenFor($user, 'test-plaintext-token-stripe-gift-full');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', [
+                'appointment_id' => (string) $appointment->id,
+                'codigo_gift_card' => $giftCard->code,
             ]);
 
         $response->assertStatus(422);
