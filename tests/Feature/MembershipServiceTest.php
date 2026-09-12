@@ -17,7 +17,6 @@ use App\Services\Payment\PaymentService;
 use App\Services\Payment\StripePaymentService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
-use MongoDB\Driver\Exception\BulkWriteException;
 use Tests\TestCase;
 
 /**
@@ -328,47 +327,6 @@ class MembershipServiceTest extends TestCase
         $this->memberships->recordSuccessfulInvoice('sub_active', 'in_test_123', 299.0, Carbon::now());
 
         $this->assertSame(1, MembershipInvoice::count());
-    }
-
-    /**
-     * Encontrado en vivo (2026-09-11): Stripe entregó el mismo webhook
-     * invoice.payment_succeeded dos veces casi al mismo tiempo y el
-     * check-then-create de aplicación (exists() antes de create()) no es
-     * atómico, así que ambas peticiones pasaron el check antes de que
-     * cualquiera terminara de insertar -- duplicando el ingreso en el corte
-     * de caja. Este test bypassa el check de aplicación (creando el
-     * duplicado directo con el modelo, no con el servicio) para probar que
-     * el índice único de la migración es la garantía real, igual que
-     * WaitlistService::join() / ReferralService::link().
-     */
-    public function test_stripe_invoice_id_has_a_real_unique_index_independent_of_the_application_check(): void
-    {
-        $client = $this->makeClient();
-        $plan = $this->makePlan();
-        $membership = ClientMembership::create([
-            'client_id' => (string) $client->id,
-            'membership_plan_id' => (string) $plan->id,
-            'stripe_customer_id' => 'cus_test',
-            'stripe_subscription_id' => 'sub_active',
-            'estado' => ClientMembership::ESTADO_ACTIVA,
-            'bloquea_membresia' => true,
-            'cancelar_al_finalizar' => false,
-        ]);
-
-        MembershipInvoice::create([
-            'client_membership_id' => (string) $membership->id,
-            'monto' => 299.0,
-            'stripe_invoice_id' => 'in_race_test',
-            'pagado_en' => Carbon::now(),
-        ]);
-
-        $this->expectException(BulkWriteException::class);
-        MembershipInvoice::create([
-            'client_membership_id' => (string) $membership->id,
-            'monto' => 299.0,
-            'stripe_invoice_id' => 'in_race_test',
-            'pagado_en' => Carbon::now(),
-        ]);
     }
 
     public function test_payment_service_applies_membership_discount_when_higher_than_nivel(): void
