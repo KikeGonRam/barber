@@ -136,20 +136,26 @@ class StripePaymentService
             'items' => [['price' => $priceId]],
             'payment_behavior' => 'default_incomplete',
             'payment_settings' => ['save_default_payment_method' => 'on_subscription'],
-            'expand' => ['latest_invoice.payment_intent'],
+            'expand' => ['latest_invoice.confirmation_secret', 'latest_invoice.payment_intent'],
             'metadata' => $metadata,
         ]);
 
         // 'expand' de arriba garantiza que latest_invoice venga como objeto
-        // (no como el ID string que Stripe devuelve por defecto) y, dentro de
-        // este, payment_intent igual de expandido -- toArray() recursivo
-        // evita depender de las propiedades tipadas del SDK, que no cubren
-        // todos los campos expandibles.
+        // (no como el ID string que Stripe devuelve por defecto) -- toArray()
+        // recursivo evita depender de las propiedades tipadas del SDK, que no
+        // cubren todos los campos expandibles. Esta cuenta de Stripe ya está
+        // en la versión de API que reemplazó invoice.payment_intent por
+        // invoice.confirmation_secret (verificado en vivo: el primer campo
+        // simplemente no existe en la respuesta) -- se intenta el nuevo
+        // primero y el viejo como respaldo por si la cuenta cambia de
+        // versión de API más adelante.
         $invoice = $subscription->latest_invoice instanceof Invoice ? $subscription->latest_invoice->toArray() : [];
 
         return [
             'subscription_id' => $subscription->id,
-            'client_secret' => $invoice['payment_intent']['client_secret'] ?? null,
+            'client_secret' => $invoice['confirmation_secret']['client_secret']
+                ?? $invoice['payment_intent']['client_secret']
+                ?? null,
         ];
     }
 

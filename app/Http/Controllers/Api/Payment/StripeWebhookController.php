@@ -395,7 +395,14 @@ class StripeWebhookController extends Controller
      */
     private function onInvoicePaymentSucceeded(object $invoice): void
     {
-        $subscriptionId = $invoice->subscription ?? null;
+        // Esta cuenta de Stripe ya está en la versión de API que movió
+        // invoice.subscription a invoice.parent.subscription_details.subscription
+        // (verificado en vivo: el campo viejo llega null) -- se intenta el
+        // nuevo primero y el viejo como respaldo, mismo criterio que
+        // StripePaymentService::createSubscription() con confirmation_secret.
+        $subscriptionId = $invoice->parent?->subscription_details?->subscription
+            ?? $invoice->subscription
+            ?? null;
 
         if (! $subscriptionId) {
             return;

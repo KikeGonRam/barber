@@ -179,8 +179,12 @@ class MembershipService
     /**
      * Registra un cobro exitoso (alta o renovación) para que
      * CashCloseService lo sume al corte del día. Idempotente por
-     * stripe_invoice_id -- Stripe puede reenviar el mismo webhook más de una
-     * vez (mismo criterio que GiftCardService::confirmStripePurchase()).
+     * stripe_invoice_id -- Stripe puede entregar el mismo webhook
+     * invoice.payment_succeeded dos veces casi al mismo tiempo (confirmado
+     * en vivo). El check de aplicación de abajo da un log limpio en el caso
+     * normal (no atómico); el índice único de la migración es la garantía
+     * real ante dos entregas casi simultáneas, mismo patrón que
+     * WaitlistService::join() / ReferralService::link().
      */
     public function recordSuccessfulInvoice(string $stripeSubscriptionId, string $stripeInvoiceId, float $monto, ?\DateTimeInterface $pagadoEn): void
     {
@@ -198,12 +202,16 @@ class MembershipService
             return;
         }
 
-        MembershipInvoice::create([
-            'client_membership_id' => (string) $membership->id,
-            'monto' => $monto,
-            'stripe_invoice_id' => $stripeInvoiceId,
-            'pagado_en' => $pagadoEn ?? now(),
-        ]);
+        try {
+            MembershipInvoice::create([
+                'client_membership_id' => (string) $membership->id,
+                'monto' => $monto,
+                'stripe_invoice_id' => $stripeInvoiceId,
+                'pagado_en' => $pagadoEn ?? now(),
+            ]);
+        } catch (BulkWriteException $e) {
+            Log::info('Stripe webhook: cobro de membresía ya registrado (carrera con otra entrega del webhook), se omite', ['stripe_invoice_id' => $stripeInvoiceId]);
+        }
     }
 
     /**

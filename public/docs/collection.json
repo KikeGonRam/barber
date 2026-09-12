@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "9cccb9b9-081c-4931-83cc-d73a1512c54b",
+        "_postman_id": "1edcba46-69be-47b2-ab2a-89629c0e06fe",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -641,7 +641,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-04\",\"hora_inicio\":\"21:59\",\"estado\":\"cancelada\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-04\",\"hora_inicio\":\"23:49\",\"estado\":\"completada\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -769,7 +769,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"period\":\"week\",\"estado\":\"pendiente\",\"offset\":-364}"
+                            "raw": "{\"period\":\"week\",\"estado\":\"no_asistio\",\"offset\":-364}"
                         },
                         "description": "",
                         "auth": {
@@ -2013,7 +2013,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"metodo_pago\":\"tarjeta\"}"
+                            "raw": "{\"metodo_pago\":\"efectivo\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2148,7 +2148,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"efectivo\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"transferencia\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2338,7 +2338,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2377,7 +2377,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2492,7 +2492,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2513,7 +2513,7 @@
                                 {
                                     "id": "membershipPlan_id",
                                     "key": "membershipPlan_id",
-                                    "value": "architecto",
+                                    "value": "6aa4e3061fe15d3a5608722d",
                                     "description": "The ID of the membershipPlan."
                                 }
                             ]
@@ -2552,7 +2552,7 @@
                                 {
                                     "id": "membershipPlan_id",
                                     "key": "membershipPlan_id",
-                                    "value": "architecto",
+                                    "value": "6aa4e3061fe15d3a5608722d",
                                     "description": "The ID of the membershipPlan."
                                 }
                             ]
@@ -2646,7 +2646,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-11T21:59:55\",\"pref_in_app\":false,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-11T23:49:54\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2667,7 +2667,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "architecto",
+                                    "value": "qa-gift-cards",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -2685,7 +2685,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-11T21:59:55\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-11T23:49:54\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":true,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2706,7 +2706,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "architecto",
+                                    "value": "qa-gift-cards",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -2962,7 +2962,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -3062,7 +3062,7 @@
                                 {
                                     "id": "user_id",
                                     "key": "user_id",
-                                    "value": "architecto",
+                                    "value": "6aa4d041340a60b00107fdf2",
                                     "description": "The ID of the user."
                                 }
                             ]
@@ -3101,7 +3101,7 @@
                                 {
                                     "id": "user_id",
                                     "key": "user_id",
-                                    "value": "architecto",
+                                    "value": "6aa4d041340a60b00107fdf2",
                                     "description": "The ID of the user."
                                 }
                             ]
@@ -3195,7 +3195,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"21:59\",\"horario_cierre\":\"2052-10-04\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"23:49\",\"horario_cierre\":\"2052-10-04\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3302,7 +3302,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"programar\",\"programada_para\":\"2052-10-05\"}"
+                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"ahora\",\"programada_para\":\"2052-10-05\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3831,7 +3831,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"in_app\":false,\"email\":true,\"sms\":false,\"whatsapp\":false,\"push\":true,\"promociones\":false}"
+                            "raw": "{\"in_app\":true,\"email\":false,\"sms\":false,\"whatsapp\":false,\"push\":false,\"promociones\":true}"
                         },
                         "description": "Igual que la versi\u00f3n web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los dem\u00e1s.",
                         "auth": {
@@ -5264,7 +5264,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "architecto",
+                                    "value": "qa-gift-cards",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -5414,7 +5414,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -5528,7 +5528,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tipo\":\"salida\",\"cantidad\":16,\"motivo\":\"architecto\"}"
+                            "raw": "{\"tipo\":\"entrada\",\"cantidad\":16,\"motivo\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -5741,7 +5741,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "architecto",
+                                    "value": "qa-gift-cards",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -5779,8 +5779,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Client] architecto\"\n}",
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
                             "name": ""
                         }
                     ]
@@ -5828,7 +5828,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "architecto",
+                                    "value": "qa-gift-cards",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -6181,7 +6181,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":true}"
+                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":false}"
                         },
                         "description": "Marca una respuesta puntual del chatbot como \u00fatil o no. Antes de\neste endpoint, ChatbotController::query() llamaba a\nrecordFeedback() con $wasHelpful hardcodeado en `true` en cada una\nde sus 5 ramas de respuesta \u2014 el sistema de aprendizaje nunca hab\u00eda\nrecibido una se\u00f1al negativa real de ning\u00fan usuario. Este endpoint le\nda al frontend (el widget de chat en Nuxt) una forma de mandar la\nse\u00f1al real.",
                         "auth": {
@@ -6943,7 +6943,7 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7042,13 +7042,13 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "1",
+                                    "value": "",
                                     "type": "text",
                                     "description": ""
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7245,7 +7245,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-11T21:59:55\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-11T23:49:54\"}"
                         },
                         "description": "",
                         "auth": {
