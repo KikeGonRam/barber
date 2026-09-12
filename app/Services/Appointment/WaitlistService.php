@@ -37,6 +37,22 @@ class WaitlistService
             throw new WaitlistException('Todavía hay horarios disponibles ese día -- puedes reservar directamente.');
         }
 
+        // Check de aplicación para un mensaje de error limpio en el caso
+        // normal (no atómico); el índice único compuesto de la migración
+        // (client_id+barber_id+service_id+fecha+activa) es la garantía real
+        // ante dos solicitudes casi simultáneas, igual patrón que
+        // PaymentRepository::existsForAppointment() + su índice.
+        $exists = Waitlist::where('client_id', (string) $client->id)
+            ->where('barber_id', (string) $barber->id)
+            ->where('service_id', (string) $service->id)
+            ->whereDate('fecha', $fecha)
+            ->whereIn('estado', [Waitlist::ESTADO_ACTIVO, Waitlist::ESTADO_NOTIFICADO])
+            ->exists();
+
+        if ($exists) {
+            throw new WaitlistException('Ya estás en la lista de espera para ese barbero, servicio y fecha.');
+        }
+
         try {
             return Waitlist::create([
                 'client_id' => (string) $client->id,
