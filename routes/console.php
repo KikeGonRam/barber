@@ -26,3 +26,4 @@ Schedule::command('loyalty:apply-inactivity')->dailyAt('04:00')->description('lo
 Schedule::command('barbers:monthly-performance')->monthlyOn(1, '08:30')->description('barbers:monthly-performance'); // Reporte mensual de desempeño de barberos (mejor mes y caídas fuertes)
 Schedule::command('orders:cancel-expired')->dailyAt('05:00')->description('orders:cancel-expired'); // Cancela pedidos pendientes no recogidos en 3+ días y devuelve su stock
 Schedule::command('clients:send-birthday-greetings')->dailyAt('08:15')->description('clients:send-birthday-greetings'); // Felicita y regala puntos a quien cumple años hoy
+Schedule::command('waitlist:expire-stale')->dailyAt('03:30')->description('waitlist:expire-stale'); // Expira anotaciones de lista de espera con fecha ya pasada

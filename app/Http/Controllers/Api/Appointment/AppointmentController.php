@@ -16,6 +16,7 @@ use App\Models\Service;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
 use App\Services\Appointment\AppointmentStatusService;
+use App\Services\Appointment\WaitlistService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Payment\DepositService;
 use Carbon\Carbon;
@@ -34,6 +35,7 @@ class AppointmentController extends Controller
         private readonly AppointmentNotifier $notifier,
         private readonly AppointmentStatusService $statusService,
         private readonly DepositService $deposits,
+        private readonly WaitlistService $waitlist,
     ) {}
 
     /**
@@ -641,6 +643,12 @@ class AppointmentController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         }
 
+        // Barbero/staff cancelando también libera el horario para la lista
+        // de espera -- no es exclusivo del cliente cancelando su propia cita.
+        if ($validated['estado'] === 'cancelada') {
+            $this->waitlist->notifyIfAny($appointment);
+        }
+
         if (array_key_exists('notas', $validated)) {
             $appointment->update(['notas' => $validated['notas']]);
         }
@@ -688,6 +696,10 @@ class AppointmentController extends Controller
         // Cancelación a tiempo (ya validada arriba), nunca no-show: si había
         // un depósito verificado, se devuelve (ver DepositService::refundIfAny()).
         $this->deposits->refundIfAny($appointment);
+
+        // El horario que ocupaba esta cita queda libre -- avisa a quien
+        // esperaba exactamente ese barbero+servicio+fecha (ver WaitlistService).
+        $this->waitlist->notifyIfAny($appointment);
 
         $this->notifier->cancelled($appointment, 'app movil');
 

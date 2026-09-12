@@ -44,6 +44,9 @@ tags:
     name: Inventario
     description: "\nGestión de productos, stock y movimientos de almacén."
   -
+    name: 'Lista de espera'
+    description: "\nUn cliente se anota cuando un barbero+servicio+fecha ya no tiene\nhorarios disponibles, para que se le avise si se libera uno."
+  -
     name: 'Portafolio de Barbero'
     description: "\nEndpoints para gestionar el portafolio de trabajos del barbero."
 paths:
@@ -800,11 +803,11 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '17:28'
+                  example: '18:07'
                 estado:
                   type: string
                   description: ''
-                  example: pendiente
+                  example: no_asistio
                   enum:
                     - pendiente
                     - confirmada
@@ -966,14 +969,14 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: week
+                  example: day
                   enum:
                     - day
                     - week
                 estado:
                   type: string
                   description: ''
-                  example: no_asistio
+                  example: en_proceso
                   enum:
                     - pendiente
                     - confirmada
@@ -1654,7 +1657,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: tarjeta
+                  example: efectivo
                   enum:
                     - efectivo
                     - tarjeta
@@ -1672,7 +1675,7 @@ paths:
                 usar_premio_rifa:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 stripe_payment_id:
                   type: string
@@ -1762,7 +1765,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: tarjeta
+                  example: transferencia
                   enum:
                     - efectivo
                     - tarjeta
@@ -1960,27 +1963,27 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T17:28:07'
+                  example: '2026-09-11T18:07:03'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -2018,7 +2021,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T17:28:07'
+                  example: '2026-09-11T18:07:04'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -2033,12 +2036,12 @@ paths:
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - name
@@ -2181,7 +2184,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2455,7 +2458,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '17:28'
+                  example: '18:07'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -2861,11 +2864,11 @@ paths:
                 in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 sms:
                   type: boolean
                   description: ''
@@ -2877,7 +2880,7 @@ paths:
                 push:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 promociones:
                   type: boolean
                   description: ''
@@ -2944,7 +2947,7 @@ paths:
                 content_encoding:
                   type: string
                   description: ''
-                  example: aesgcm
+                  example: aes128gcm
                   enum:
                     - aesgcm
                     - aes128gcm
@@ -3477,7 +3480,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
       security: []
     parameters:
       -
@@ -3776,7 +3779,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 active:
                   type: boolean
@@ -3865,12 +3868,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -5003,7 +5006,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 activo:
                   type: boolean
@@ -5171,12 +5174,84 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T17:28:08'
+                  example: '2026-09-11T18:07:04'
                   nullable: true
               required:
                 - product_id
                 - cantidad
       security: []
+  /api/v1/waitlist:
+    get:
+      summary: "Mis anotaciones en lista de espera (cliente) o, para staff, las de\nun barbero+fecha (filtros opcionales) -- vista operativa de cuánta\ndemanda hay para un día ya lleno."
+      operationId: misAnotacionesEnListaDeEsperaclienteOParaStaffLasDeUnBarbero+fechafiltrosOpcionalesVistaOperativaDeCuntaDemandaHayParaUnDaYaLleno
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - 'Lista de espera'
+      security: []
+    post:
+      summary: 'Anotarse en la lista de espera'
+      operationId: anotarseEnLaListaDeEspera
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Lista de espera'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                barber_id:
+                  type: string
+                  description: 'ID del barbero.'
+                  example: 66f0...
+                service_id:
+                  type: string
+                  description: 'ID del servicio.'
+                  example: 66f1...
+                fecha:
+                  type: date
+                  description: 'Fecha deseada (YYYY-MM-DD).'
+                  example: '2026-09-20'
+              required:
+                - barber_id
+                - service_id
+                - fecha
+  '/api/v1/waitlist/{waitlist_id}':
+    delete:
+      summary: 'Cancela la propia anotación.'
+      operationId: cancelaLaPropiaAnotacin
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Lista de espera'
+      security: []
+    parameters:
+      -
+        in: path
+        name: waitlist_id
+        description: 'The ID of the waitlist.'
+        example: architecto
+        required: true
+        schema:
+          type: string
   /api/v1/barber/portfolio:
     get:
       summary: 'Listar Trabajos del Barbero'

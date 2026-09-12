@@ -1,23 +1,23 @@
-name: 'Horarios de Barbero'
+name: 'Portafolio de Barbero'
 description: |-
 
-  Endpoints para gestionar los horarios del barbero.
+  Endpoints para gestionar el portafolio de trabajos del barbero.
 endpoints:
   -
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/barber/schedule
+    uri: api/v1/barber/portfolio
     metadata:
       custom: []
-      groupName: 'Horarios de Barbero'
+      groupName: 'Portafolio de Barbero'
       groupDescription: |-
 
-        Endpoints para gestionar los horarios del barbero.
+        Endpoints para gestionar el portafolio de trabajos del barbero.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Obtener Horarios'
-      description: 'Devuelve los horarios del barbero autenticado.'
+      title: 'Listar Trabajos del Barbero'
+      description: 'Devuelve todos los trabajos del barbero autenticado.'
       authenticated: false
       deprecated: false
     headers:
@@ -36,13 +36,13 @@ endpoints:
         status: 200
         content: |-
           {
-           "schedules": [
+           "works": [
              {
                "id": 1,
-               "day_of_week": "monday",
-               "start_time": "09:00",
-               "end_time": "18:00",
-               "is_active": true
+               "title": "Corte Clásico",
+               "description": "Corte de cabello clásico con degradado",
+               "images": ["https://example.com/storage/works/image1.jpg"],
+               "created_at": "2026-04-11T10:00:00.000000Z"
              }
            ]
           }
@@ -56,146 +56,136 @@ endpoints:
   -
     custom: []
     httpMethods:
-      - PUT
-    uri: api/v1/barber/schedule
+      - POST
+    uri: api/v1/barber/works
     metadata:
       custom: []
-      groupName: 'Horarios de Barbero'
+      groupName: 'Portafolio de Barbero'
       groupDescription: |-
 
-        Endpoints para gestionar los horarios del barbero.
+        Endpoints para gestionar el portafolio de trabajos del barbero.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Actualizar Horarios'
-      description: 'Actualiza los horarios del barbero autenticado.'
+      title: 'Crear Trabajo'
+      description: 'Crea un nuevo trabajo en el portafolio del barbero con imágenes opcionales.'
       authenticated: false
       deprecated: false
     headers:
-      Content-Type: application/json
+      Content-Type: multipart/form-data
       Accept: application/json
     urlParameters: []
     cleanUrlParameters: []
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
-      schedules:
+      title:
         custom: []
-        name: schedules
-        description: 'Array de horarios.'
+        name: title
+        description: 'Título del trabajo.'
         required: true
+        example: 'Corte Moderno con Degradado'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      description:
+        custom: []
+        name: description
+        description: 'Descripción del trabajo.'
+        required: false
+        example: 'Corte moderno con degradado lateral y textura superior'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      media:
+        custom: []
+        name: media
+        description: 'Must be a file. El campo value no debe pesar más de 51200 kilobytes.'
+        required: false
         example:
-          -
-            day_of_week: monday
-            start_time: '09:00'
-            end_time: '18:00'
-            is_active: true
+          - null
+        type: 'file[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      images:
+        custom: []
+        name: images
+        description: 'Array de imágenes (archivos).'
+        required: false
+        example:
+          - architecto
         type: 'string[]'
         enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      'schedules[].day_of_week':
-        custom: []
-        name: 'schedules[].day_of_week'
-        description: ''
-        required: true
-        example: saturday
-        type: string
-        enumValues:
-          - monday
-          - tuesday
-          - wednesday
-          - thursday
-          - friday
-          - saturday
-          - sunday
         exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      'schedules[].start_time':
-        custom: []
-        name: 'schedules[].start_time'
-        description: 'Must be a valid date in the format <code>H:i</code>.'
-        required: true
-        example: '17:28'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      'schedules[].end_time':
-        custom: []
-        name: 'schedules[].end_time'
-        description: 'Must be a valid date in the format <code>H:i</code>.'
-        required: true
-        example: '17:28'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      'schedules[].is_active':
-        custom: []
-        name: 'schedules[].is_active'
-        description: ''
-        required: false
-        example: false
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      'schedules.*.day_of_week':
-        custom: []
-        name: 'schedules.*.day_of_week'
-        description: 'Día de la semana (monday, tuesday, etc.).'
-        required: true
-        example: monday
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      'schedules.*.start_time':
-        custom: []
-        name: 'schedules.*.start_time'
-        description: 'Hora de inicio (HH:MM).'
-        required: true
-        example: '09:00'
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      'schedules.*.end_time':
-        custom: []
-        name: 'schedules.*.end_time'
-        description: 'Hora de fin (HH:MM).'
-        required: true
-        example: '18:00'
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      'schedules.*.is_active':
-        custom: []
-        name: 'schedules.*.is_active'
-        description: 'Si el horario está activo.'
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: true
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      schedules:
-        -
-          day_of_week: monday
-          start_time: '09:00'
-          end_time: '18:00'
-          is_active: true
+      title: 'Corte Moderno con Degradado'
+      description: 'Corte moderno con degradado lateral y textura superior'
+      images:
+        - architecto
+    fileParameters:
+      media:
+        - null
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+           "message": "Trabajo creado exitosamente",
+           "work": { "id": 1, "title": "Corte Moderno con Degradado" }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/barber/works/{work_id}'
+    metadata:
+      custom: []
+      groupName: 'Portafolio de Barbero'
+      groupDescription: |-
+
+        Endpoints para gestionar el portafolio de trabajos del barbero.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Eliminar Trabajo'
+      description: 'Elimina un trabajo del portafolio del barbero.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      work_id:
+        custom: []
+        name: work_id
+        description: 'The ID of the work.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      work_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
     fileParameters: []
     responses:
       -
@@ -203,8 +193,7 @@ endpoints:
         status: 200
         content: |-
           {
-           "message": "Horarios actualizados correctamente",
-           "schedules": [...]
+           "message": "Trabajo eliminado correctamente"
           }
         headers: []
         description: ''

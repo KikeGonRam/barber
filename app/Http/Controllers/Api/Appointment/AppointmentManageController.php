@@ -10,6 +10,7 @@ use App\Models\Service;
 use App\Services\Appointment\AppointmentManageLinkService;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
+use App\Services\Appointment\WaitlistService;
 use App\Services\Payment\DepositService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -36,6 +37,7 @@ class AppointmentManageController extends Controller
         private readonly AppointmentService $appointments,
         private readonly AppointmentNotifier $notifier,
         private readonly DepositService $deposits,
+        private readonly WaitlistService $waitlist,
     ) {}
 
     /**
@@ -114,6 +116,10 @@ class AppointmentManageController extends Controller
         // withinPolicy() ya garantizó arriba que esto es una cancelación a
         // tiempo, no un no-show -- devuelve el depósito verificado si había.
         $this->deposits->refundIfAny($appointment);
+
+        // Libera el horario para quien esperaba exactamente este barbero+
+        // servicio+fecha (ver WaitlistService).
+        $this->waitlist->notifyIfAny($appointment);
 
         $this->notifier->statusChanged($appointment, 'cancelada');
 

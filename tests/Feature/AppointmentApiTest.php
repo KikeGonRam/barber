@@ -10,6 +10,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\Waitlist;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Str;
 use Spatie\Permission\PermissionRegistrar;
@@ -62,6 +63,7 @@ class AppointmentApiTest extends TestCase
 
     protected function tearDown(): void
     {
+        Waitlist::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
@@ -232,5 +234,33 @@ class AppointmentApiTest extends TestCase
 
         $response->assertStatus(201);
         $response->assertJsonPath('data.deposito_requerido', false);
+    }
+
+    public function test_admin_cancelling_an_appointment_notifies_the_matching_waitlist(): void
+    {
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-cancel-waitlist');
+
+        $service = Service::create(['nombre' => 'Corte', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+        $occupantClient = Client::create(['telefono' => '5556667777', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $waitingClient = Client::create(['telefono' => '5558889999', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $fecha = now()->addDays(4)->format('Y-m-d');
+
+        $appointment = Appointment::create([
+            'client_id' => (string) $occupantClient->id, 'barber_id' => (string) $this->barberA->id, 'service_id' => (string) $service->id,
+            'fecha' => $fecha, 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00', 'estado' => 'confirmada',
+        ]);
+
+        $entry = Waitlist::create([
+            'client_id' => (string) $waitingClient->id,
+            'barber_id' => (string) $this->barberA->id,
+            'service_id' => (string) $service->id,
+            'fecha' => $fecha,
+            'estado' => Waitlist::ESTADO_ACTIVO,
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->deleteJson("/api/v1/appointments/{$appointment->code}");
+
+        $response->assertOk();
+        $this->assertSame(Waitlist::ESTADO_NOTIFICADO, Waitlist::find($entry->id)->estado);
     }
 }

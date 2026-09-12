@@ -1,160 +1,27 @@
-name: 'Depósitos anti-no-show'
+name: 'Lista de espera'
 description: |-
 
-  Cobro del depósito exigido a un cliente con historial reciente de
-  inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-  aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-  controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+  Un cliente se anota cuando un barbero+servicio+fecha ya no tiene
+  horarios disponibles, para que se le avise si se libera uno.
 endpoints:
   -
     custom: []
     httpMethods:
-      - POST
-    uri: 'api/v1/appointments/{appointment_code}/deposit/stripe-intent'
-    metadata:
-      custom: []
-      groupName: 'Depósitos anti-no-show'
-      groupDescription: |-
-
-        Cobro del depósito exigido a un cliente con historial reciente de
-        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Crea el PaymentIntent de Stripe para el depósito de una cita propia.'
-      description: ''
-      authenticated: true
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      appointment_code:
-        custom: []
-        name: appointment_code
-        description: ''
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      appointment:
-        custom: []
-        name: appointment
-        description: 'Código público de la cita.'
-        required: true
-        example: jfb7ffye
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      appointment_code: architecto
-      appointment: jfb7ffye
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: 'api/v1/appointments/{appointment_code}/deposit/receipt'
-    metadata:
-      custom: []
-      groupName: 'Depósitos anti-no-show'
-      groupDescription: |-
-
-        Cobro del depósito exigido a un cliente con historial reciente de
-        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Sube el comprobante de transferencia del depósito. Queda en revisión.'
-      description: ''
-      authenticated: true
-      deprecated: false
-    headers:
-      Content-Type: multipart/form-data
-      Accept: application/json
-    urlParameters:
-      appointment_code:
-        custom: []
-        name: appointment_code
-        description: ''
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      appointment:
-        custom: []
-        name: appointment
-        description: 'Código público de la cita.'
-        required: true
-        example: jfb7ffye
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      appointment_code: architecto
-      appointment: jfb7ffye
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      comprobante:
-        custom: []
-        name: comprobante
-        description: 'Foto o PDF del comprobante de transferencia.'
-        required: true
-        example: null
-        type: file
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanBodyParameters: []
-    fileParameters:
-      comprobante: null
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
       - GET
-    uri: api/v1/deposits/pending
+    uri: api/v1/waitlist
     metadata:
       custom: []
-      groupName: 'Depósitos anti-no-show'
+      groupName: 'Lista de espera'
       groupDescription: |-
 
-        Cobro del depósito exigido a un cliente con historial reciente de
-        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+        Un cliente se anota cuando un barbero+servicio+fecha ya no tiene
+        horarios disponibles, para que se le avise si se libera uno.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Depósitos por transferencia pendientes de revisión (staff).'
+      title: |-
+        Mis anotaciones en lista de espera (cliente) o, para staff, las de
+        un barbero+fecha (filtros opcionales) -- vista operativa de cuánta
+        demanda hay para un día ya lleno.
       description: ''
       authenticated: false
       deprecated: false
@@ -187,43 +54,65 @@ endpoints:
     custom: []
     httpMethods:
       - POST
-    uri: 'api/v1/deposits/{payment_id}/approve'
+    uri: api/v1/waitlist
     metadata:
       custom: []
-      groupName: 'Depósitos anti-no-show'
+      groupName: 'Lista de espera'
       groupDescription: |-
 
-        Cobro del depósito exigido a un cliente con historial reciente de
-        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+        Un cliente se anota cuando un barbero+servicio+fecha ya no tiene
+        horarios disponibles, para que se le avise si se libera uno.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Aprueba un depósito en revisión (staff).'
+      title: 'Anotarse en la lista de espera'
       description: ''
-      authenticated: false
+      authenticated: true
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
-    urlParameters:
-      payment_id:
-        custom: []
-        name: payment_id
-        description: 'The ID of the payment.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      payment_id: architecto
+    urlParameters: []
+    cleanUrlParameters: []
     queryParameters: []
     cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
+    bodyParameters:
+      barber_id:
+        custom: []
+        name: barber_id
+        description: 'ID del barbero.'
+        required: true
+        example: 66f0...
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      service_id:
+        custom: []
+        name: service_id
+        description: 'ID del servicio.'
+        required: true
+        example: 66f1...
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      fecha:
+        custom: []
+        name: fecha
+        description: 'Fecha deseada (YYYY-MM-DD).'
+        required: true
+        example: '2026-09-20'
+        type: date
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      barber_id: 66f0...
+      service_id: 66f1...
+      fecha: '2026-09-20'
     fileParameters: []
     responses: []
     responseFields: []
@@ -234,20 +123,18 @@ endpoints:
   -
     custom: []
     httpMethods:
-      - POST
-    uri: 'api/v1/deposits/{payment_id}/reject'
+      - DELETE
+    uri: 'api/v1/waitlist/{waitlist_id}'
     metadata:
       custom: []
-      groupName: 'Depósitos anti-no-show'
+      groupName: 'Lista de espera'
       groupDescription: |-
 
-        Cobro del depósito exigido a un cliente con historial reciente de
-        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+        Un cliente se anota cuando un barbero+servicio+fecha ya no tiene
+        horarios disponibles, para que se le avise si se libera uno.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Rechaza un depósito en revisión (staff).'
+      title: 'Cancela la propia anotación.'
       description: ''
       authenticated: false
       deprecated: false
@@ -255,10 +142,10 @@ endpoints:
       Content-Type: application/json
       Accept: application/json
     urlParameters:
-      payment_id:
+      waitlist_id:
         custom: []
-        name: payment_id
-        description: 'The ID of the payment.'
+        name: waitlist_id
+        description: 'The ID of the waitlist.'
         required: true
         example: architecto
         type: string
@@ -267,23 +154,11 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      payment_id: architecto
+      waitlist_id: architecto
     queryParameters: []
     cleanQueryParameters: []
-    bodyParameters:
-      motivo_rechazo:
-        custom: []
-        name: motivo_rechazo
-        description: 'El campo value no debe tener más de 500 caracteres.'
-        required: true
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanBodyParameters:
-      motivo_rechazo: b
+    bodyParameters: []
+    cleanBodyParameters: []
     fileParameters: []
     responses: []
     responseFields: []

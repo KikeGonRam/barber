@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Analytics\AnalyticsController as ApiAnalyticsContro
 use App\Http\Controllers\Api\Appointment\AppointmentController;
 use App\Http\Controllers\Api\Appointment\AppointmentManageController;
 use App\Http\Controllers\Api\Appointment\AvailabilityController;
+use App\Http\Controllers\Api\Appointment\WaitlistController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\SocialAuthController;
 use App\Http\Controllers\Api\Barber\BarberManagementController;
@@ -133,6 +134,13 @@ Route::prefix('v1')->group(function (): void {
         Route::put('appointments/{appointment}', [AppointmentController::class, 'update']);
         Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
         Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy']);
+
+        // Lista de espera: cliente se anota/consulta/cancela la suya; staff
+        // consulta con filtros por barbero/fecha (branching por rol dentro
+        // del controlador, mismo criterio que appointments.index()).
+        Route::get('waitlist', [WaitlistController::class, 'index']);
+        Route::post('waitlist', [WaitlistController::class, 'store']);
+        Route::delete('waitlist/{waitlist}', [WaitlistController::class, 'destroy']);
 
         // Pedidos (cliente ve/crea/cancela los suyos; admin/recepción ven y
         // gestionan todos — branching por rol dentro del controlador, mismo

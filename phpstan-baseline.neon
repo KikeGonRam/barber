@@ -1869,25 +1869,25 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/Services/Appointment/AppointmentNotifier.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
-			count: 12
+			count: 13
 			path: app/Services/Appointment/AppointmentNotifier.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
-			count: 5
+			count: 6
 			path: app/Services/Appointment/AppointmentNotifier.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
-			count: 1
+			count: 2
 			path: app/Services/Appointment/AppointmentNotifier.php
 
 		-
@@ -2379,7 +2379,13 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 3
+			path: tests/Feature/AppointmentApiTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Waitlist\>\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
 			path: tests/Feature/AppointmentApiTest.php
 
 		-
@@ -3240,3 +3246,87 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: tests/Feature/DepositServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/WaitlistController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/WaitlistController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$fecha\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/WaitlistController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$notificado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/WaitlistController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Appointment/WaitlistController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Appointment/WaitlistController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/WaitlistController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$activa\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Waitlist.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Waitlist.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Appointment/WaitlistService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Appointment/WaitlistService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/WaitlistServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/WaitlistServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Waitlist\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Waitlist\>\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 4
+			path: tests/Feature/WaitlistServiceTest.php

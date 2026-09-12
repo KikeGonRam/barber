@@ -166,6 +166,27 @@ class AppointmentNotifier
     }
 
     /**
+     * Lista de espera: se liberó un horario para el barbero+servicio+fecha
+     * que este usuario esperaba (ver WaitlistService::notifyIfAny()).
+     * $freedAppointment es la cita cancelada/reagendada que originó el
+     * aviso -- solo se usa como contexto (barbero/servicio/fecha), no
+     * implica que el usuario tenga ninguna relación con ella.
+     */
+    public function waitlistSlotOpened(User $user, Appointment $freedAppointment): void
+    {
+        $freedAppointment->loadMissing(['barber.user', 'service']);
+        $barbero = $freedAppointment->barber?->user?->name ?? 'tu barbero';
+        $fecha = optional($freedAppointment->fecha)->format('d/m/Y') ?? 'la fecha que esperabas';
+        $servicio = $freedAppointment->service?->nombre ?? 'el servicio';
+
+        $this->send($user, $freedAppointment,
+            'Se liberó un horario', '¡Se liberó el horario que esperabas!',
+            "Se liberó un horario con {$barbero} el {$fecha} para {$servicio}. Entra a la app para reservarlo antes que alguien más.",
+            'Reservar ahora', $this->frontendUrl('/reservar'),
+            '#10b981', 'Disponible');
+    }
+
+    /**
      * Envia una notificacion a un solo usuario. Atrapa cualquier excepcion
      * (mail/canal caido, etc.) y solo deja log: nunca debe tumbar el flujo
      * de la cita que la origino.

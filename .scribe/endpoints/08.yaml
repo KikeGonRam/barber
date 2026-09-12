@@ -1,49 +1,138 @@
-name: 'Corte de caja'
+name: 'Depósitos anti-no-show'
 description: |-
 
-  Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
-  efectivo se contó y la diferencia. Administración y recepción, que es quien
-  cierra el turno.
+  Cobro del depósito exigido a un cliente con historial reciente de
+  inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+  aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+  controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
 endpoints:
   -
     custom: []
     httpMethods:
-      - GET
-    uri: api/v1/cash-closes
+      - POST
+    uri: 'api/v1/appointments/{appointment_code}/deposit/stripe-intent'
     metadata:
       custom: []
-      groupName: 'Corte de caja'
+      groupName: 'Depósitos anti-no-show'
       groupDescription: |-
 
-        Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
-        efectivo se contó y la diferencia. Administración y recepción, que es quien
-        cierra el turno.
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
       subgroup: ''
       subgroupDescription: ''
-      title: 'Historial de cortes'
+      title: 'Crea el PaymentIntent de Stripe para el depósito de una cita propia.'
       description: ''
       authenticated: true
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
+    urlParameters:
+      appointment_code:
+        custom: []
+        name: appointment_code
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      appointment:
+        custom: []
+        name: appointment
+        description: 'Código público de la cita.'
+        required: true
+        example: jfb7ffye
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_code: architecto
+      appointment: jfb7ffye
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
     cleanBodyParameters: []
     fileParameters: []
-    responses:
-      -
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/appointments/{appointment_code}/deposit/receipt'
+    metadata:
+      custom: []
+      groupName: 'Depósitos anti-no-show'
+      groupDescription: |-
+
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Sube el comprobante de transferencia del depósito. Queda en revisión.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters:
+      appointment_code:
         custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
+        name: appointment_code
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      appointment:
+        custom: []
+        name: appointment
+        description: 'Código público de la cita.'
+        required: true
+        example: jfb7ffye
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_code: architecto
+      appointment: jfb7ffye
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      comprobante:
+        custom: []
+        name: comprobante
+        description: 'Foto o PDF del comprobante de transferencia.'
+        required: true
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters: []
+    fileParameters:
+      comprobante: null
+    responses: []
     responseFields: []
     auth: []
     controller: null
@@ -53,43 +142,29 @@ endpoints:
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/cash-closes/preview
+    uri: api/v1/deposits/pending
     metadata:
       custom: []
-      groupName: 'Corte de caja'
+      groupName: 'Depósitos anti-no-show'
       groupDescription: |-
 
-        Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
-        efectivo se contó y la diferencia. Administración y recepción, que es quien
-        cierra el turno.
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
       subgroup: ''
       subgroupDescription: ''
-      title: 'Corte esperado'
-      description: |-
-        Dinero recibido en la fecha indicada, desglosado por método de pago.
-        Suma cobros de citas (Payment verificado) y ventas de tienda (Order
-        entregado), que no generan Payment.
-      authenticated: true
+      title: 'Depósitos por transferencia pendientes de revisión (staff).'
+      description: ''
+      authenticated: false
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
     urlParameters: []
     cleanUrlParameters: []
-    queryParameters:
-      date:
-        custom: []
-        name: date
-        description: 'Fecha a consultar (Y-m-d). Por defecto, hoy.'
-        required: false
-        example: '2026-09-11'
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanQueryParameters:
-      date: '2026-09-11'
+    queryParameters: []
+    cleanQueryParameters: []
     bodyParameters: []
     cleanBodyParameters: []
     fileParameters: []
@@ -112,69 +187,103 @@ endpoints:
     custom: []
     httpMethods:
       - POST
-    uri: api/v1/cash-closes
+    uri: 'api/v1/deposits/{payment_id}/approve'
     metadata:
       custom: []
-      groupName: 'Corte de caja'
+      groupName: 'Depósitos anti-no-show'
       groupDescription: |-
 
-        Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
-        efectivo se contó y la diferencia. Administración y recepción, que es quien
-        cierra el turno.
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
       subgroup: ''
       subgroupDescription: ''
-      title: 'Registrar corte'
-      description: |-
-        Guarda el arqueo del día: el esperado queda como snapshot y la
-        diferencia se calcula en el servidor contra el efectivo contado, nunca
-        se acepta del cliente.
-      authenticated: true
+      title: 'Aprueba un depósito en revisión (staff).'
+      description: ''
+      authenticated: false
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
+    urlParameters:
+      payment_id:
+        custom: []
+        name: payment_id
+        description: 'The ID of the payment.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      payment_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/deposits/{payment_id}/reject'
+    metadata:
+      custom: []
+      groupName: 'Depósitos anti-no-show'
+      groupDescription: |-
+
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Rechaza un depósito en revisión (staff).'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      payment_id:
+        custom: []
+        name: payment_id
+        description: 'The ID of the payment.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      payment_id: architecto
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
-      date:
+      motivo_rechazo:
         custom: []
-        name: date
-        description: 'Fecha del corte (Y-m-d). Por defecto, hoy.'
-        required: false
-        example: '2026-09-11'
+        name: motivo_rechazo
+        description: 'El campo value no debe tener más de 500 caracteres.'
+        required: true
+        example: b
         type: string
         enumValues: []
-        exampleWasSpecified: true
-        nullable: true
-        deprecated: false
-      efectivo_contado:
-        custom: []
-        name: efectivo_contado
-        description: 'Efectivo contado físicamente.'
-        required: true
-        example: 1250.5
-        type: number
-        enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: false
         deprecated: false
-      notas:
-        custom: []
-        name: notas
-        description: 'Observaciones del cierre.'
-        required: false
-        example: 'Faltante por cambio de un billete.'
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: true
-        deprecated: false
     cleanBodyParameters:
-      date: '2026-09-11'
-      efectivo_contado: 1250.5
-      notas: 'Faltante por cambio de un billete.'
+      motivo_rechazo: b
     fileParameters: []
     responses: []
     responseFields: []

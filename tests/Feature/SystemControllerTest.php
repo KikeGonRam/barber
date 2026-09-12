@@ -78,9 +78,9 @@ class SystemControllerTest extends TestCase
             ],
         ]);
 
-        // Cubre las 12 tareas reales de routes/console.php -- si alguna vez
+        // Cubre las 13 tareas reales de routes/console.php -- si alguna vez
         // se agrega/quita una tarea ahí sin querer, este número lo delata.
-        $this->assertCount(12, $response->json('scheduled_tasks'));
+        $this->assertCount(13, $response->json('scheduled_tasks'));
     }
 
     public function test_scheduled_task_monitor_records_success_and_failure(): void
