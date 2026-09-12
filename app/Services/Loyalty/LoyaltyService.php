@@ -287,6 +287,24 @@ class LoyaltyService
         ]);
     }
 
+    // Puntos por traer un referido real (ver ReferralService::completeIfEligible()) --
+    // solo se otorgan cuando el referido completa su primera cita, nunca por
+    // solo registrarse.
+    const REFERRAL_POINTS = 30;
+
+    public function awardReferralPoints(Client $referrer, string $refereeClientId): void
+    {
+        $referrer->increment('puntos', self::REFERRAL_POINTS);
+
+        LoyaltyTransaction::create([
+            'client_id' => (string) $referrer->id,
+            'tipo' => 'ganado',
+            'puntos' => self::REFERRAL_POINTS,
+            'descripcion' => 'Referido completó su primera cita',
+            'referencia_id' => $refereeClientId,
+        ]);
+    }
+
     public function redeemPoints(Client $client, int $puntos, string $descripcion): bool
     {
         if ((int) $client->puntos < $puntos) {

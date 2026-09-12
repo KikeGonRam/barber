@@ -1,95 +1,51 @@
-name: 'Corte de caja'
+name: 'Tarjetas de regalo'
 description: |-
 
-  Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
-  efectivo se contó y la diferencia. Administración y recepción, que es quien
-  cierra el turno.
+  Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
+  código. El canje real ocurre en PaymentController::store() vía
+  "codigo_gift_card" -- este controlador no cobra nada.
 endpoints:
   -
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/cash-closes
+    uri: 'api/v1/gift-cards/{code}'
     metadata:
       custom: []
-      groupName: 'Corte de caja'
+      groupName: 'Tarjetas de regalo'
       groupDescription: |-
 
-        Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
-        efectivo se contó y la diferencia. Administración y recepción, que es quien
-        cierra el turno.
+        Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
+        código. El canje real ocurre en PaymentController::store() vía
+        "codigo_gift_card" -- este controlador no cobra nada.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Historial de cortes'
+      title: |-
+        Consulta el saldo disponible de una gift card por su código. Sin
+        autenticación de dueño a propósito -- una gift card la usa quien
+        tenga el código, igual que una física.
       description: ''
-      authenticated: true
+      authenticated: false
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
+    urlParameters:
+      code:
         custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - GET
-    uri: api/v1/cash-closes/preview
-    metadata:
-      custom: []
-      groupName: 'Corte de caja'
-      groupDescription: |-
-
-        Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
-        efectivo se contó y la diferencia. Administración y recepción, que es quien
-        cierra el turno.
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Corte esperado'
-      description: |-
-        Dinero recibido en la fecha indicada, desglosado por método de pago.
-        Suma cobros de citas (Payment verificado) y ventas de tienda (Order
-        entregado), que no generan Payment.
-      authenticated: true
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters:
-      date:
-        custom: []
-        name: date
-        description: 'Fecha a consultar (Y-m-d). Por defecto, hoy.'
-        required: false
-        example: '2026-09-11'
+        name: code
+        description: 'Código de la tarjeta.'
+        required: true
+        example: a1b2c3d4
         type: string
         enumValues: []
         exampleWasSpecified: true
         nullable: false
         deprecated: false
-    cleanQueryParameters:
-      date: '2026-09-11'
+    cleanUrlParameters:
+      code: a1b2c3d4
+    queryParameters: []
+    cleanQueryParameters: []
     bodyParameters: []
     cleanBodyParameters: []
     fileParameters: []
@@ -112,23 +68,20 @@ endpoints:
     custom: []
     httpMethods:
       - POST
-    uri: api/v1/cash-closes
+    uri: api/v1/gift-cards/stripe-intent
     metadata:
       custom: []
-      groupName: 'Corte de caja'
+      groupName: 'Tarjetas de regalo'
       groupDescription: |-
 
-        Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
-        efectivo se contó y la diferencia. Administración y recepción, que es quien
-        cierra el turno.
+        Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
+        código. El canje real ocurre en PaymentController::store() vía
+        "codigo_gift_card" -- este controlador no cobra nada.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Registrar corte'
-      description: |-
-        Guarda el arqueo del día: el esperado queda como snapshot y la
-        diferencia se calcula en el servidor contra el efectivo contado, nunca
-        se acepta del cliente.
-      authenticated: true
+      title: 'Crea el PaymentIntent de Stripe para comprar una gift card con tarjeta.'
+      description: ''
+      authenticated: false
       deprecated: false
     headers:
       Content-Type: application/json
@@ -138,43 +91,126 @@ endpoints:
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
-      date:
+      monto:
         custom: []
-        name: date
-        description: 'Fecha del corte (Y-m-d). Por defecto, hoy.'
-        required: false
-        example: '2026-09-11'
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: true
-        deprecated: false
-      efectivo_contado:
-        custom: []
-        name: efectivo_contado
-        description: 'Efectivo contado físicamente.'
+        name: monto
+        description: 'Monto de la tarjeta.'
         required: true
-        example: 1250.5
+        example: 500.0
         type: number
         enumValues: []
         exampleWasSpecified: true
         nullable: false
         deprecated: false
-      notas:
+      comprador_nombre:
         custom: []
-        name: notas
-        description: 'Observaciones del cierre.'
+        name: comprador_nombre
+        description: 'El campo value no debe tener más de 150 caracteres.'
         required: false
-        example: 'Faltante por cambio de un billete.'
+        example: m
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      destinatario_email:
+        custom: []
+        name: destinatario_email
+        description: 'El campo value debe ser una dirección de correo válida. El campo value no debe tener más de 255 caracteres.'
+        required: false
+        example: gulgowski.asia@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      monto: 500.0
+      comprador_nombre: m
+      destinatario_email: gulgowski.asia@example.com
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/gift-cards
+    metadata:
+      custom: []
+      groupName: 'Tarjetas de regalo'
+      groupDescription: |-
+
+        Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
+        código. El canje real ocurre en PaymentController::store() vía
+        "codigo_gift_card" -- este controlador no cobra nada.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Compra en efectivo, registrada por staff (Admin/Recepcionista).'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      monto:
+        custom: []
+        name: monto
+        description: 'Monto de la tarjeta.'
+        required: true
+        example: 500.0
+        type: number
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      client_id:
+        custom: []
+        name: client_id
+        description: 'ID del cliente comprador, si tiene cuenta.'
+        required: false
+        example: 66f0...
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      comprador_nombre:
+        custom: []
+        name: comprador_nombre
+        description: 'Nombre de quien compra, si no tiene cuenta.'
+        required: false
+        example: 'Juan Pérez'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      destinatario_email:
+        custom: []
+        name: destinatario_email
+        description: 'Correo de quien la recibe (opcional).'
+        required: false
+        example: regalo@ejemplo.com
         type: string
         enumValues: []
         exampleWasSpecified: true
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      date: '2026-09-11'
-      efectivo_contado: 1250.5
-      notas: 'Faltante por cambio de un billete.'
+      monto: 500.0
+      client_id: 66f0...
+      comprador_nombre: 'Juan Pérez'
+      destinatario_email: regalo@ejemplo.com
     fileParameters: []
     responses: []
     responseFields: []

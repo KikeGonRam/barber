@@ -14,6 +14,7 @@ use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Loyalty\RaffleService;
+use App\Services\Loyalty\ReferralService;
 use App\Services\Package\GiftCardService;
 use App\Services\Package\PackageService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -38,6 +39,7 @@ class PaymentService
         private readonly DepositService $deposits,
         private readonly PackageService $packages,
         private readonly GiftCardService $giftCards,
+        private readonly ReferralService $referrals,
     ) {}
 
     /**
@@ -366,6 +368,11 @@ class PaymentService
             $client = $appointment->client;
             if ($client) {
                 $this->loyalty->awardCitaPoints($client, (string) $appointment->id);
+
+                // Si este cliente fue referido y esta es su primera cita
+                // completada, aquí es donde se le paga la recompensa a
+                // quien lo trajo (ver ReferralService::completeIfEligible()).
+                $this->referrals->completeIfEligible($client);
             }
         }
 

@@ -53,6 +53,9 @@ tags:
     name: 'Portafolio de Barbero'
     description: "\nEndpoints para gestionar el portafolio de trabajos del barbero."
   -
+    name: Referidos
+    description: "\nCada cliente tiene un código propio para invitar. Quien invita gana\npuntos de lealtad cuando la persona referida completa su primera cita\n(nunca por solo registrarse) -- ver ReferralService."
+  -
     name: 'Tarjetas de regalo'
     description: "\nCompra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por\ncódigo. El canje real ocurre en PaymentController::store() vía\n\"codigo_gift_card\" -- este controlador no cobra nada."
 paths:
@@ -809,11 +812,11 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '19:49'
+                  example: '20:13'
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: no_asistio
                   enum:
                     - pendiente
                     - confirmada
@@ -975,14 +978,14 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: day
+                  example: week
                   enum:
                     - day
                     - week
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: en_proceso
                   enum:
                     - pendiente
                     - confirmada
@@ -1663,7 +1666,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: transferencia
+                  example: efectivo
                   enum:
                     - efectivo
                     - tarjeta
@@ -1681,7 +1684,7 @@ paths:
                 usar_premio_rifa:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 usar_paquete_id:
                   type: string
@@ -2030,7 +2033,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2114,12 +2117,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T19:49:13'
+                  example: '2026-09-11T20:13:54'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_email:
                   type: boolean
@@ -2134,7 +2137,7 @@ paths:
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -2172,12 +2175,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T19:49:14'
+                  example: '2026-09-11T20:13:54'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_email:
                   type: boolean
@@ -2282,7 +2285,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2609,7 +2612,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '19:49'
+                  example: '20:13'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -3015,11 +3018,11 @@ paths:
                 in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 sms:
                   type: boolean
                   description: ''
@@ -3027,7 +3030,7 @@ paths:
                 whatsapp:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 push:
                   type: boolean
                   description: ''
@@ -3962,7 +3965,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -4435,7 +4438,7 @@ paths:
                 helpful:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
               required:
                 - message
                 - response
@@ -5111,12 +5114,12 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -5189,7 +5192,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
       security: []
     delete:
@@ -5352,7 +5355,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T19:49:14'
+                  example: '2026-09-11T20:13:55'
                   nullable: true
               required:
                 - product_id
@@ -5681,6 +5684,51 @@ paths:
         required: true
         schema:
           type: string
+  /api/v1/referrals/mine:
+    get:
+      summary: "Mi código y mis referidos: a quién he invitado y cuántos ya\ncompletaron su primera cita (y me dieron puntos)."
+      operationId: miCdigoYMisReferidosAQuinHeInvitadoYCuntosYaCompletaronSuPrimeraCitayMeDieronPuntos
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Referidos
+      security: []
+  /api/v1/referrals/link:
+    post:
+      summary: 'Registra quién me refirió. Solo puede hacerse una vez por cliente.'
+      operationId: registraQuinMeRefiriSoloPuedeHacerseUnaVezPorCliente
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Referidos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                codigo:
+                  type: string
+                  description: 'Código de referido de quien te invitó.'
+                  example: A1B2C3
+              required:
+                - codigo
+      security: []
   '/api/v1/gift-cards/{code}':
     get:
       summary: "Consulta el saldo disponible de una gift card por su código. Sin\nautenticación de dueño a propósito -- una gift card la usa quien\ntenga el código, igual que una física."

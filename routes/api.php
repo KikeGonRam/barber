@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\Dashboard\DashboardController;
 use App\Http\Controllers\Api\Dashboard\MembershipController as ApiMembershipController;
 use App\Http\Controllers\Api\Inventory\InventoryController as ApiInventoryController;
 use App\Http\Controllers\Api\Log\LogController as ApiLogController;
+use App\Http\Controllers\Api\Loyalty\ReferralController;
 use App\Http\Controllers\Api\Notification\NotificationController as ApiNotificationController;
 use App\Http\Controllers\Api\Order\OrderController as ApiOrderController;
 use App\Http\Controllers\Api\Package\GiftCardController;
@@ -144,6 +145,10 @@ Route::prefix('v1')->group(function (): void {
         Route::get('waitlist', [WaitlistController::class, 'index']);
         Route::post('waitlist', [WaitlistController::class, 'store']);
         Route::delete('waitlist/{waitlist}', [WaitlistController::class, 'destroy']);
+
+        // Referidos: solo cliente (mi código propio + a quién he referido).
+        Route::get('referrals/mine', [ReferralController::class, 'mine']);
+        Route::post('referrals/link', [ReferralController::class, 'link']);
 
         // Pedidos (cliente ve/crea/cancela los suyos; admin/recepción ven y
         // gestionan todos — branching por rol dentro del controlador, mismo

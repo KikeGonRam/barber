@@ -6,6 +6,7 @@ use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use MongoDB\Laravel\Eloquent\Model;
 
 /**
@@ -31,6 +32,10 @@ class Client extends Model
         // acuerdos). Solo se leen y escriben desde la ficha de administración:
         // nunca se exponen en el catálogo público ni en la API del cliente.
         'notas',
+        // Código propio para el programa de referidos (ver ReferralService).
+        // No es el route key (eso sigue siendo 'slug', vía HasSlug) -- es
+        // solo un código corto que el cliente comparte con quien invita.
+        'codigo_referido',
     ];
 
     // Fuente del slug: nombre del User vinculado, o 'cliente' si no hay match.
@@ -39,6 +44,23 @@ class Client extends Model
         $user = $this->user ?? ($this->user_id ? User::find($this->user_id) : null);
 
         return $user?->name ?? 'cliente';
+    }
+
+    /**
+     * Genera codigo_referido en mayúsculas (más fácil de compartir/leer en
+     * voz alta que un slug) al crear el cliente, si no viene ya asignado.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $client) {
+            if (empty($client->codigo_referido)) {
+                do {
+                    $code = Str::upper(Str::random(6));
+                } while (static::where('codigo_referido', $code)->exists());
+
+                $client->codigo_referido = $code;
+            }
+        });
     }
 
     protected function casts(): array

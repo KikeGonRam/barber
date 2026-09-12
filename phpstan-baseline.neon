@@ -3744,3 +3744,87 @@ parameters:
 			identifier: argument.unresolvableType
 			count: 1
 			path: app/Services/Analytics/BarberCommissionService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Referral\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Loyalty/ReferralController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Loyalty/ReferralController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/Loyalty/ReferralController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Loyalty/ReferralController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$recompensa_otorgada_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Loyalty/ReferralController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$codigo_referido\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Loyalty/ReferralController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$codigo_referido\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Client.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$referrer_client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Loyalty/ReferralService.php
+
+		-
+			message: '#^Parameter \#1 \$referee of method App\\Services\\Loyalty\\ReferralService\:\:completeIfEligible\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Payment/PaymentService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$codigo_referido\.$#'
+			identifier: property.notFound
+			count: 10
+			path: tests/Feature/ReferralServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$referrer_client_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/ReferralServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$referee_client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/ReferralServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/ReferralServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$recompensa_otorgada_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/ReferralServiceTest.php

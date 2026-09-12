@@ -1,160 +1,28 @@
-name: 'Depósitos anti-no-show'
+name: Referidos
 description: |-
 
-  Cobro del depósito exigido a un cliente con historial reciente de
-  inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-  aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-  controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+  Cada cliente tiene un código propio para invitar. Quien invita gana
+  puntos de lealtad cuando la persona referida completa su primera cita
+  (nunca por solo registrarse) -- ver ReferralService.
 endpoints:
   -
     custom: []
     httpMethods:
-      - POST
-    uri: 'api/v1/appointments/{appointment_code}/deposit/stripe-intent'
-    metadata:
-      custom: []
-      groupName: 'Depósitos anti-no-show'
-      groupDescription: |-
-
-        Cobro del depósito exigido a un cliente con historial reciente de
-        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Crea el PaymentIntent de Stripe para el depósito de una cita propia.'
-      description: ''
-      authenticated: true
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      appointment_code:
-        custom: []
-        name: appointment_code
-        description: ''
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      appointment:
-        custom: []
-        name: appointment
-        description: 'Código público de la cita.'
-        required: true
-        example: jfb7ffye
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      appointment_code: architecto
-      appointment: jfb7ffye
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: 'api/v1/appointments/{appointment_code}/deposit/receipt'
-    metadata:
-      custom: []
-      groupName: 'Depósitos anti-no-show'
-      groupDescription: |-
-
-        Cobro del depósito exigido a un cliente con historial reciente de
-        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Sube el comprobante de transferencia del depósito. Queda en revisión.'
-      description: ''
-      authenticated: true
-      deprecated: false
-    headers:
-      Content-Type: multipart/form-data
-      Accept: application/json
-    urlParameters:
-      appointment_code:
-        custom: []
-        name: appointment_code
-        description: ''
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      appointment:
-        custom: []
-        name: appointment
-        description: 'Código público de la cita.'
-        required: true
-        example: jfb7ffye
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      appointment_code: architecto
-      appointment: jfb7ffye
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      comprobante:
-        custom: []
-        name: comprobante
-        description: 'Foto o PDF del comprobante de transferencia.'
-        required: true
-        example: null
-        type: file
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanBodyParameters: []
-    fileParameters:
-      comprobante: null
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
       - GET
-    uri: api/v1/deposits/pending
+    uri: api/v1/referrals/mine
     metadata:
       custom: []
-      groupName: 'Depósitos anti-no-show'
+      groupName: Referidos
       groupDescription: |-
 
-        Cobro del depósito exigido a un cliente con historial reciente de
-        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+        Cada cliente tiene un código propio para invitar. Quien invita gana
+        puntos de lealtad cuando la persona referida completa su primera cita
+        (nunca por solo registrarse) -- ver ReferralService.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Depósitos por transferencia pendientes de revisión (staff).'
+      title: |-
+        Mi código y mis referidos: a quién he invitado y cuántos ya
+        completaron su primera cita (y me dieron puntos).
       description: ''
       authenticated: false
       deprecated: false
@@ -187,103 +55,42 @@ endpoints:
     custom: []
     httpMethods:
       - POST
-    uri: 'api/v1/deposits/{payment_id}/approve'
+    uri: api/v1/referrals/link
     metadata:
       custom: []
-      groupName: 'Depósitos anti-no-show'
+      groupName: Referidos
       groupDescription: |-
 
-        Cobro del depósito exigido a un cliente con historial reciente de
-        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+        Cada cliente tiene un código propio para invitar. Quien invita gana
+        puntos de lealtad cuando la persona referida completa su primera cita
+        (nunca por solo registrarse) -- ver ReferralService.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Aprueba un depósito en revisión (staff).'
+      title: 'Registra quién me refirió. Solo puede hacerse una vez por cliente.'
       description: ''
       authenticated: false
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
-    urlParameters:
-      payment_id:
-        custom: []
-        name: payment_id
-        description: 'The ID of the payment.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      payment_id: architecto
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: 'api/v1/deposits/{payment_id}/reject'
-    metadata:
-      custom: []
-      groupName: 'Depósitos anti-no-show'
-      groupDescription: |-
-
-        Cobro del depósito exigido a un cliente con historial reciente de
-        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
-        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
-        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Rechaza un depósito en revisión (staff).'
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      payment_id:
-        custom: []
-        name: payment_id
-        description: 'The ID of the payment.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      payment_id: architecto
+    urlParameters: []
+    cleanUrlParameters: []
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
-      motivo_rechazo:
+      codigo:
         custom: []
-        name: motivo_rechazo
-        description: 'El campo value no debe tener más de 500 caracteres.'
+        name: codigo
+        description: 'Código de referido de quien te invitó.'
         required: true
-        example: b
+        example: A1B2C3
         type: string
         enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      motivo_rechazo: b
+      codigo: A1B2C3
     fileParameters: []
     responses: []
     responseFields: []
