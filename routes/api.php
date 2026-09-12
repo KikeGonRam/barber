@@ -364,6 +364,7 @@ Route::prefix('v1')->group(function (): void {
                 Route::get('reports/appointments', [ReportAdminController::class, 'generateAppointmentsReport']);
                 Route::get('reports/inventory', [ReportAdminController::class, 'generateInventoryReport']);
                 Route::get('reports/clients', [ReportAdminController::class, 'generateClientsReport']);
+                Route::get('reports/barber-commissions', [ReportAdminController::class, 'generateBarberCommissionsReport']);
             });
 
             // Predicciones e Insights (IA)

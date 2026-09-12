@@ -3696,3 +3696,51 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: tests/Feature/GiftCardServiceTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Analytics/BarberCommissionService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>precio" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Analytics/BarberCommissionService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$comision_pct\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Analytics/BarberCommissionService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Analytics/BarberCommissionService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Analytics/BarberCommissionService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Analytics/BarberCommissionService.php
+
+		-
+			message: '#^Parameter \#1 \$array of function usort contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Analytics/BarberCommissionService.php
+
+		-
+			message: '#^Parameter \#2 \$callback of function usort contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Analytics/BarberCommissionService.php

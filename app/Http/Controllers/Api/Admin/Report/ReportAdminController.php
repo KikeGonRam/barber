@@ -7,6 +7,7 @@ use App\Models\Barber;
 use App\Models\Client;
 use App\Models\InventoryMovement;
 use App\Models\Product;
+use App\Services\Analytics\BarberCommissionService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -212,6 +213,32 @@ class ReportAdminController
                 'loyaltyClients' => $loyalClients,
                 'clientRetention' => round(($activeClients / max($totalClients, 1)) * 100),
             ],
+        ]);
+    }
+
+    /**
+     * Comisiones de barberos: cuánto le corresponde a cada uno por sus
+     * citas completadas en el periodo, sobre el precio de lista del
+     * servicio (ver BarberCommissionService -- distinto criterio a
+     * propósito de generateRevenueReport(), que usa precio_cobrado real).
+     * Acepta fecha_desde/fecha_hasta explícitas (periodo de pago real) o,
+     * en su ausencia, el mismo bucket "period" que el resto de reportes.
+     */
+    public function generateBarberCommissionsReport(Request $request, BarberCommissionService $commissions): JsonResponse
+    {
+        $this->authorizeAdmin();
+
+        if ($request->filled('fecha_desde') && $request->filled('fecha_hasta')) {
+            $start = Carbon::parse($request->query('fecha_desde'));
+            $end = Carbon::parse($request->query('fecha_hasta'));
+        } else {
+            $start = $this->getStartDate($request->query('period', 'mes'));
+            $end = Carbon::now();
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $commissions->reportFor($start, $end),
         ]);
     }
 

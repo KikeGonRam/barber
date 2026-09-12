@@ -28,6 +28,10 @@ class Barber extends Model
         'descripcion',
         'activo',
         'slug',
+        // % de comisión sobre el precio de lista del servicio en citas
+        // completadas (ver BarberCommissionService). Configurable por
+        // barbero -- no todos cobran lo mismo.
+        'comision_pct',
     ];
 
     // Fuente del slug: prioriza el nombre del User vinculado, luego 'nombre' propio.
@@ -42,7 +46,16 @@ class Barber extends Model
     {
         return [
             'activo' => 'boolean',
+            'comision_pct' => 'float',
         ];
+    }
+
+    // Perfiles sin comision_pct configurada (todos los que existían antes de
+    // esta feature) usan 0 -- explícito y visible en vez de fallar o
+    // inventar un default de negocio en el modelo.
+    public function getComisionPctAttribute($value): float
+    {
+        return (float) ($value ?? 0);
     }
 
     // Cuenta de usuario (login, rol) asociada a este perfil de barbero.

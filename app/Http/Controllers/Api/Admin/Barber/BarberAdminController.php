@@ -185,6 +185,7 @@ class BarberAdminController
             'especialidades' => 'nullable|string|max:255',
             'descripcion' => 'nullable|string',
             'activo' => 'boolean',
+            'comision_pct' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $barber->update($validated);
