@@ -8,14 +8,19 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
 use App\Models\GiftCard;
+use App\Models\MobileApiToken;
 use App\Models\Payment;
+use App\Models\Role;
 use App\Models\Service;
+use App\Models\User;
 use App\Services\Package\GiftCardService;
 use App\Services\Payment\CashCloseService;
 use App\Services\Payment\PaymentService;
 use Carbon\Carbon;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /**
@@ -45,6 +50,10 @@ class GiftCardServiceTest extends TestCase
         Barber::query()->delete();
         Client::query()->delete();
         Service::query()->delete();
+        MobileApiToken::query()->delete();
+        User::query()->delete();
+        Role::query()->delete();
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         parent::tearDown();
     }
@@ -183,5 +192,35 @@ class GiftCardServiceTest extends TestCase
 
         $this->assertSame(1, $expected['gift_cards']);
         $this->assertEquals(500.0, $expected['por_metodo']['efectivo']);
+    }
+
+    public function test_mine_lists_only_the_authenticated_clients_own_gift_cards_newest_first(): void
+    {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        $this->seed(RolePermissionSeeder::class);
+
+        $role = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
+        $ownUser = User::create(['name' => 'Cliente Gift Card', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $ownUser->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+        $owner = Client::create(['user_id' => (string) $ownUser->id, 'telefono' => '5551230000', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+
+        $otherUser = User::create(['name' => 'Otro Cliente', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $other = Client::create(['user_id' => (string) $otherUser->id, 'telefono' => '5559990000', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+
+        $older = $this->giftCards->purchaseCash(100, $owner, null, null, (string) Str::uuid());
+        $older->update(['comprado_en' => now()->subDay()]);
+        $newer = $this->giftCards->purchaseCash(200, $owner, null, null, (string) Str::uuid());
+        $this->giftCards->purchaseCash(300, $other, null, null, (string) Str::uuid());
+
+        $token = 'test-plaintext-token-gift-card-mine';
+        MobileApiToken::create(['user_id' => (string) $ownUser->id, 'name' => 'test', 'token_hash' => hash('sha256', $token)]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/gift-cards/mine');
+
+        $response->assertOk();
+        $response->assertJsonCount(2, 'data');
+        $response->assertJsonPath('data.0.code', $newer->code);
+        $response->assertJsonPath('data.1.code', $older->code);
     }
 }

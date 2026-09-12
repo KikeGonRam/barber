@@ -3598,24 +3598,36 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$code\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 3
 			path: app/Http/Controllers/Api/Package/GiftCardController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$saldo\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 3
 			path: app/Http/Controllers/Api/Package/GiftCardController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$monto_inicial\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/Http/Controllers/Api/Package/GiftCardController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$estado\.$#'
 			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Package/GiftCardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$comprado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/GiftCardController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int\,App\\Models\\GiftCard\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
 			count: 1
 			path: app/Http/Controllers/Api/Package/GiftCardController.php
 
@@ -3676,7 +3688,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$code\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 5
 			path: tests/Feature/GiftCardServiceTest.php
 
 		-

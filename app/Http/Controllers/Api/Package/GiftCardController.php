@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Package;
 use App\Exceptions\Domain\GiftCardException;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\GiftCard;
 use App\Services\Package\GiftCardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,6 +24,34 @@ class GiftCardController extends Controller
     public function __construct(
         private readonly GiftCardService $giftCards,
     ) {}
+
+    /**
+     * Tarjetas de regalo compradas por el cliente autenticado, más recientes
+     * primero. Existe para que el frontend pueda revelar el código recién
+     * comprado: el webhook de Stripe crea la GiftCard de forma asíncrona
+     * (ver StripeWebhookController::onGiftCardPurchaseSucceeded()), así que
+     * justo después de confirmar el pago con Stripe todavía no existe -- el
+     * mismo patrón de "esperar y refrescar" que ya usa el autopago de citas.
+     */
+    public function mine(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        abort_unless($user?->hasRole('cliente') && $user->clientProfile, 403, 'No autorizado.');
+
+        $giftCards = GiftCard::where('comprador_client_id', (string) $user->clientProfile->id)
+            ->latest('comprado_en')
+            ->get();
+
+        return response()->json([
+            'data' => $giftCards->map(fn ($g) => [
+                'code' => $g->code,
+                'saldo' => $g->saldo,
+                'monto_inicial' => $g->monto_inicial,
+                'estado' => $g->estado,
+                'comprado_en' => optional($g->comprado_en)->toIso8601String(),
+            ])->values(),
+        ]);
+    }
 
     /**
      * Consulta el saldo disponible de una gift card por su código. Sin

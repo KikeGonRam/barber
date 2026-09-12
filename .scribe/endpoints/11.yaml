@@ -9,6 +9,56 @@ endpoints:
     custom: []
     httpMethods:
       - GET
+    uri: api/v1/gift-cards/mine
+    metadata:
+      custom: []
+      groupName: 'Tarjetas de regalo'
+      groupDescription: |-
+
+        Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
+        código. El canje real ocurre en PaymentController::store() vía
+        "codigo_gift_card" -- este controlador no cobra nada.
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Tarjetas de regalo compradas por el cliente autenticado, más recientes
+        primero. Existe para que el frontend pueda revelar el código recién
+        comprado: el webhook de Stripe crea la GiftCard de forma asíncrona
+        (ver StripeWebhookController::onGiftCardPurchaseSucceeded()), así que
+        justo después de confirmar el pago con Stripe todavía no existe -- el
+        mismo patrón de "esperar y refrescar" que ya usa el autopago de citas.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
     uri: 'api/v1/gift-cards/{code}'
     metadata:
       custom: []

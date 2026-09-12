@@ -192,6 +192,9 @@ Route::prefix('v1')->group(function (): void {
         // abiertos a cualquier autenticado (una gift card no "pertenece" a
         // nadie, quien tenga el código la puede consultar/usar). Venta en
         // efectivo sí es solo staff, ver el grupo de abajo.
+        // 'mine' antes de '{code}' -- si no, el comodín lo tragaría como
+        // si fuera un código de tarjeta.
+        Route::get('gift-cards/mine', [GiftCardController::class, 'mine']);
         Route::get('gift-cards/{code}', [GiftCardController::class, 'show']);
         Route::post('gift-cards/stripe-intent', [GiftCardController::class, 'stripeIntent']);
 

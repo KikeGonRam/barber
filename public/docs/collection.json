@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "b1133ef1-4118-4c23-9798-e0842c661024",
+        "_postman_id": "9cccb9b9-081c-4931-83cc-d73a1512c54b",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -641,7 +641,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-04\",\"hora_inicio\":\"21:20\",\"estado\":\"cancelada\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-04\",\"hora_inicio\":\"21:59\",\"estado\":\"cancelada\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -769,7 +769,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"period\":\"week\",\"estado\":\"no_asistio\",\"offset\":-364}"
+                            "raw": "{\"period\":\"week\",\"estado\":\"pendiente\",\"offset\":-364}"
                         },
                         "description": "",
                         "auth": {
@@ -2013,7 +2013,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"metodo_pago\":\"efectivo\"}"
+                            "raw": "{\"metodo_pago\":\"tarjeta\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2148,7 +2148,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"tarjeta\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"efectivo\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2377,7 +2377,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2492,7 +2492,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2646,7 +2646,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-11T21:20:20\",\"pref_in_app\":false,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-11T21:59:55\",\"pref_in_app\":false,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2685,7 +2685,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-11T21:20:20\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-11T21:59:55\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -3195,7 +3195,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"21:20\",\"horario_cierre\":\"2052-10-04\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"21:59\",\"horario_cierre\":\"2052-10-04\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3831,7 +3831,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"in_app\":true,\"email\":true,\"sms\":false,\"whatsapp\":false,\"push\":true,\"promociones\":true}"
+                            "raw": "{\"in_app\":false,\"email\":true,\"sms\":false,\"whatsapp\":false,\"push\":true,\"promociones\":false}"
                         },
                         "description": "Igual que la versi\u00f3n web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los dem\u00e1s.",
                         "auth": {
@@ -3910,7 +3910,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"endpoint\":\"b\",\"keys\":{\"p256dh\":\"architecto\",\"auth\":\"architecto\"},\"content_encoding\":\"aes128gcm\"}"
+                            "raw": "{\"endpoint\":\"b\",\"keys\":{\"p256dh\":\"architecto\",\"auth\":\"architecto\"},\"content_encoding\":\"aesgcm\"}"
                         },
                         "description": "",
                         "auth": {
@@ -5414,7 +5414,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -6181,7 +6181,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":false}"
+                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":true}"
                         },
                         "description": "Marca una respuesta puntual del chatbot como \u00fatil o no. Antes de\neste endpoint, ChatbotController::query() llamaba a\nrecordFeedback() con $wasHelpful hardcodeado en `true` en cada una\nde sus 5 ramas de respuesta \u2014 el sistema de aprendizaje nunca hab\u00eda\nrecibido una se\u00f1al negativa real de ning\u00fan usuario. Este endpoint le\nda al frontend (el widget de chat en Nuxt) una forma de mandar la\nse\u00f1al real.",
                         "auth": {
@@ -7042,13 +7042,13 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "1",
+                                    "value": "",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7245,7 +7245,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-11T21:20:21\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-11T21:59:55\"}"
                         },
                         "description": "",
                         "auth": {
@@ -7934,6 +7934,54 @@
             "name": "Tarjetas de regalo",
             "description": "\nCompra (efectivo por staff o tarjeta v\u00eda Stripe) y consulta de saldo por\nc\u00f3digo. El canje real ocurre en PaymentController::store() v\u00eda\n\"codigo_gift_card\" -- este controlador no cobra nada.",
             "item": [
+                {
+                    "name": "Tarjetas de regalo compradas por el cliente autenticado, m\u00e1s recientes\nprimero. Existe para que el frontend pueda revelar el c\u00f3digo reci\u00e9n\ncomprado: el webhook de Stripe crea la GiftCard de forma as\u00edncrona\n(ver StripeWebhookController::onGiftCardPurchaseSucceeded()), as\u00ed que\njusto despu\u00e9s de confirmar el pago con Stripe todav\u00eda no existe -- el\nmismo patr\u00f3n de \"esperar y refrescar\" que ya usa el autopago de citas.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/gift-cards\/mine",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/gift-cards\/mine"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
                 {
                     "name": "Consulta el saldo disponible de una gift card por su c\u00f3digo. Sin\nautenticaci\u00f3n de due\u00f1o a prop\u00f3sito -- una gift card la usa quien\ntenga el c\u00f3digo, igual que una f\u00edsica.",
                     "request": {
