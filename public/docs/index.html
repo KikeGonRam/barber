@@ -748,6 +748,24 @@ demanda hay para un día ya lleno.</a>
                             </li>
                                                                         </ul>
                             </ul>
+                    <ul id="tocify-header-tarjetas-de-regalo" class="tocify-header">
+                <li class="tocify-item level-1" data-unique="tarjetas-de-regalo">
+                    <a href="#tarjetas-de-regalo">Tarjetas de regalo</a>
+                </li>
+                                    <ul id="tocify-subheader-tarjetas-de-regalo" class="tocify-subheader">
+                                                    <li class="tocify-item level-2" data-unique="tarjetas-de-regalo-GETapi-v1-gift-cards--code-">
+                                <a href="#tarjetas-de-regalo-GETapi-v1-gift-cards--code-">Consulta el saldo disponible de una gift card por su código. Sin
+autenticación de dueño a propósito -- una gift card la usa quien
+tenga el código, igual que una física.</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="tarjetas-de-regalo-POSTapi-v1-gift-cards-stripe-intent">
+                                <a href="#tarjetas-de-regalo-POSTapi-v1-gift-cards-stripe-intent">Crea el PaymentIntent de Stripe para comprar una gift card con tarjeta.</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="tarjetas-de-regalo-POSTapi-v1-gift-cards">
+                                <a href="#tarjetas-de-regalo-POSTapi-v1-gift-cards">Compra en efectivo, registrada por staff (Admin/Recepcionista).</a>
+                            </li>
+                                                                        </ul>
+                            </ul>
             </div>
 
     <ul class="toc-footer" id="toc-footer">
@@ -2967,8 +2985,8 @@ el barbero solo puede cambiar el estado vía updateStatus().</h2>
     \"barber_id\": \"architecto\",
     \"service_id\": \"architecto\",
     \"fecha\": \"2052-10-04\",
-    \"hora_inicio\": \"18:41\",
-    \"estado\": \"en_proceso\",
+    \"hora_inicio\": \"19:26\",
+    \"estado\": \"no_asistio\",
     \"notas\": \"n\"
 }"
 </code></pre></div>
@@ -2989,8 +3007,8 @@ let body = {
     "barber_id": "architecto",
     "service_id": "architecto",
     "fecha": "2052-10-04",
-    "hora_inicio": "18:41",
-    "estado": "en_proceso",
+    "hora_inicio": "19:26",
+    "estado": "no_asistio",
     "notas": "n"
 };
 
@@ -3144,10 +3162,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="hora_inicio"                data-endpoint="PUTapi-v1-appointments--appointment_code-"
-               value="18:41"
+               value="19:26"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>18:41</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>19:26</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>estado</code></b>&nbsp;&nbsp;
@@ -3156,10 +3174,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="estado"                data-endpoint="PUTapi-v1-appointments--appointment_code-"
-               value="en_proceso"
+               value="no_asistio"
                data-component="body">
     <br>
-<p>Example: <code>en_proceso</code></p>
+<p>Example: <code>no_asistio</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>pendiente</code></li> <li><code>confirmada</code></li> <li><code>en_proceso</code></li> <li><code>completada</code></li> <li><code>cancelada</code></li> <li><code>no_asistio</code></li></ul>
         </div>
@@ -4307,7 +4325,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     "http://localhost:8000/api/v1/appointments/architecto/deposit/receipt" \
     --header "Content-Type: multipart/form-data" \
     --header "Accept: application/json" \
-    --form "comprobante=@/tmp/phpu4sh43hvbborepmAkWM" </code></pre></div>
+    --form "comprobante=@/tmp/phpij3010mk9b6b8oNR6ka" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -4440,7 +4458,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>Foto o PDF del comprobante de transferencia. Example: <code>/tmp/phpu4sh43hvbborepmAkWM</code></p>
+<p>Foto o PDF del comprobante de transferencia. Example: <code>/tmp/phpij3010mk9b6b8oNR6ka</code></p>
         </div>
         </form>
 
@@ -7353,7 +7371,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"metodo_pago\": \"tarjeta\"
+    \"metodo_pago\": \"efectivo\"
 }"
 </code></pre></div>
 
@@ -7369,7 +7387,7 @@ const headers = {
 };
 
 let body = {
-    "metodo_pago": "tarjeta"
+    "metodo_pago": "efectivo"
 };
 
 fetch(url, {
@@ -7474,10 +7492,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="metodo_pago"                data-endpoint="PATCHapi-v1-orders--order_id--deliver"
-               value="tarjeta"
+               value="efectivo"
                data-component="body">
     <br>
-<p>Example: <code>tarjeta</code></p>
+<p>Example: <code>efectivo</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>efectivo</code></li> <li><code>tarjeta</code></li> <li><code>transferencia</code></li></ul>
         </div>
@@ -7781,6 +7799,7 @@ este mismo endpoint (con stripe_payment_id) para completarse.</h2>
     \"puntos_canjeados\": 8,
     \"usar_premio_rifa\": false,
     \"usar_paquete_id\": \"architecto\",
+    \"codigo_gift_card\": \"ngzmiyvdljnikhwa\",
     \"stripe_payment_id\": \"architecto\"
 }"
 </code></pre></div>
@@ -7804,6 +7823,7 @@ let body = {
     "puntos_canjeados": 8,
     "usar_premio_rifa": false,
     "usar_paquete_id": "architecto",
+    "codigo_gift_card": "ngzmiyvdljnikhwa",
     "stripe_payment_id": "architecto"
 };
 
@@ -7984,6 +8004,18 @@ Must be one of:
                data-component="body">
     <br>
 <p>Must match an existing stored value. Example: <code>architecto</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>codigo_gift_card</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="codigo_gift_card"                data-endpoint="POSTapi-v1-payments"
+               value="ngzmiyvdljnikhwa"
+               data-component="body">
+    <br>
+<p>El campo value no debe tener más de 20 caracteres. Example: <code>ngzmiyvdljnikhwa</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>stripe_payment_id</code></b>&nbsp;&nbsp;
@@ -9232,9 +9264,9 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"email\": \"zbailey@example.net\",
     \"password\": \"-0pBNvYgxw\",
     \"telefono\": \"a\",
-    \"fecha_nacimiento\": \"2026-09-11T18:41:39\",
+    \"fecha_nacimiento\": \"2026-09-11T19:26:20\",
     \"pref_in_app\": true,
-    \"pref_email\": false,
+    \"pref_email\": true,
     \"pref_sms\": false,
     \"pref_whatsapp\": true
 }"
@@ -9256,9 +9288,9 @@ let body = {
     "email": "zbailey@example.net",
     "password": "-0pBNvYgxw",
     "telefono": "a",
-    "fecha_nacimiento": "2026-09-11T18:41:39",
+    "fecha_nacimiento": "2026-09-11T19:26:20",
     "pref_in_app": true,
-    "pref_email": false,
+    "pref_email": true,
     "pref_sms": false,
     "pref_whatsapp": true
 };
@@ -9400,10 +9432,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha_nacimiento"                data-endpoint="POSTapi-v1-clients"
-               value="2026-09-11T18:41:39"
+               value="2026-09-11T19:26:20"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-11T18:41:39</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-11T19:26:20</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_in_app</code></b>&nbsp;&nbsp;
@@ -9447,7 +9479,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_sms</code></b>&nbsp;&nbsp;
@@ -9515,11 +9547,11 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"name\": \"b\",
     \"email\": \"zbailey@example.net\",
     \"telefono\": \"i\",
-    \"fecha_nacimiento\": \"2026-09-11T18:41:39\",
+    \"fecha_nacimiento\": \"2026-09-11T19:26:20\",
     \"pref_in_app\": true,
-    \"pref_email\": true,
+    \"pref_email\": false,
     \"pref_sms\": true,
-    \"pref_whatsapp\": false
+    \"pref_whatsapp\": true
 }"
 </code></pre></div>
 
@@ -9538,11 +9570,11 @@ let body = {
     "name": "b",
     "email": "zbailey@example.net",
     "telefono": "i",
-    "fecha_nacimiento": "2026-09-11T18:41:39",
+    "fecha_nacimiento": "2026-09-11T19:26:20",
     "pref_in_app": true,
-    "pref_email": true,
+    "pref_email": false,
     "pref_sms": true,
-    "pref_whatsapp": false
+    "pref_whatsapp": true
 };
 
 fetch(url, {
@@ -9683,10 +9715,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha_nacimiento"                data-endpoint="PUTapi-v1-clients--client_slug-"
-               value="2026-09-11T18:41:39"
+               value="2026-09-11T19:26:20"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-11T18:41:39</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-11T19:26:20</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_in_app</code></b>&nbsp;&nbsp;
@@ -9730,7 +9762,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_sms</code></b>&nbsp;&nbsp;
@@ -9774,7 +9806,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -10767,7 +10799,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"especialidades\": \"i\",
     \"descripcion\": \"y\",
     \"foto\": \"v\",
-    \"activo\": true
+    \"activo\": false
 }"
 </code></pre></div>
 
@@ -10788,7 +10820,7 @@ let body = {
     "especialidades": "i",
     "descripcion": "y",
     "foto": "v",
-    "activo": true
+    "activo": false
 };
 
 fetch(url, {
@@ -10966,7 +10998,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -11729,7 +11761,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"nombre\": \"b\",
     \"direccion\": \"n\",
     \"telefono\": \"g\",
-    \"horario_apertura\": \"18:41\",
+    \"horario_apertura\": \"19:26\",
     \"horario_cierre\": \"2052-10-04\",
     \"politica_cancelacion\": 22,
     \"deposito_no_show_umbral\": 7,
@@ -11759,7 +11791,7 @@ let body = {
     "nombre": "b",
     "direccion": "n",
     "telefono": "g",
-    "horario_apertura": "18:41",
+    "horario_apertura": "19:26",
     "horario_cierre": "2052-10-04",
     "politica_cancelacion": 22,
     "deposito_no_show_umbral": 7,
@@ -11898,10 +11930,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="horario_apertura"                data-endpoint="PUTapi-v1-settings"
-               value="18:41"
+               value="19:26"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>18:41</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>19:26</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>horario_cierre</code></b>&nbsp;&nbsp;
@@ -12304,7 +12336,7 @@ el registro.</h2>
     \"cta_label\": \"g\",
     \"cta_url\": \"http:\\/\\/www.okuneva.com\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",
     \"segmento\": \"architecto\",
-    \"modo\": \"programar\",
+    \"modo\": \"ahora\",
     \"programada_para\": \"2052-10-05\"
 }"
 </code></pre></div>
@@ -12326,7 +12358,7 @@ let body = {
     "cta_label": "g",
     "cta_url": "http:\/\/www.okuneva.com\/fugiat-sunt-nihil-accusantium-harum-mollitia.html",
     "segmento": "architecto",
-    "modo": "programar",
+    "modo": "ahora",
     "programada_para": "2052-10-05"
 };
 
@@ -12479,10 +12511,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="modo"                data-endpoint="POSTapi-v1-campaigns"
-               value="programar"
+               value="ahora"
                data-component="body">
     <br>
-<p>Example: <code>programar</code></p>
+<p>Example: <code>ahora</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>ahora</code></li> <li><code>programar</code></li></ul>
         </div>
@@ -18489,8 +18521,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"precio_compra\": 77,
     \"descripcion\": \"architecto\",
     \"tipo\": \"architecto\",
-    \"activo\": false,
-    \"active\": true
+    \"activo\": true,
+    \"active\": false
 }"
 </code></pre></div>
 
@@ -18514,8 +18546,8 @@ let body = {
     "precio_compra": 77,
     "descripcion": "architecto",
     "tipo": "architecto",
-    "activo": false,
-    "active": true
+    "activo": true,
+    "active": false
 };
 
 fetch(url, {
@@ -18716,7 +18748,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -18738,7 +18770,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -18767,7 +18799,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"precio_compra\": 77,
     \"descripcion\": \"architecto\",
     \"tipo\": \"architecto\",
-    \"activo\": false,
+    \"activo\": true,
     \"active\": false
 }"
 </code></pre></div>
@@ -18792,7 +18824,7 @@ let body = {
     "precio_compra": 77,
     "descripcion": "architecto",
     "tipo": "architecto",
-    "activo": false,
+    "activo": true,
     "active": false
 };
 
@@ -19007,7 +19039,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -19174,7 +19206,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"tipo\": \"salida\",
+    \"tipo\": \"entrada\",
     \"cantidad\": 16,
     \"motivo\": \"architecto\"
 }"
@@ -19192,7 +19224,7 @@ const headers = {
 };
 
 let body = {
-    "tipo": "salida",
+    "tipo": "entrada",
     "cantidad": 16,
     "motivo": "architecto"
 };
@@ -19299,10 +19331,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="tipo"                data-endpoint="POSTapi-v1-admin-inventory-products--productId--movement"
-               value="salida"
+               value="entrada"
                data-component="body">
     <br>
-<p>Example: <code>salida</code></p>
+<p>Example: <code>entrada</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>entrada</code></li> <li><code>salida</code></li></ul>
         </div>
@@ -21801,7 +21833,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     "http://localhost:8000/api/v1/profile/avatar" \
     --header "Content-Type: multipart/form-data" \
     --header "Accept: application/json" \
-    --form "avatar=@/tmp/php4hnosd0cuumfbbo6rpy" </code></pre></div>
+    --form "avatar=@/tmp/phpgql4copah8tld5WPImW" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -21909,7 +21941,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/php4hnosd0cuumfbbo6rpy</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phpgql4copah8tld5WPImW</code></p>
         </div>
         </form>
 
@@ -22503,7 +22535,7 @@ multipart/form-data sea interpretado de forma consistente por PHP.</h2>
     --header "Accept: application/json" \
     --form "especialidades=Degradados, Diseños freestyle, Barba"\
     --form "descripcion=Más de 5 años de experiencia en barbería urbana y tradicional."\
-    --form "foto=@/tmp/phpcrpb7juq6oei8nNjM45" </code></pre></div>
+    --form "foto=@/tmp/phps5ueu081m84l0svXheJ" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -22637,7 +22669,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>Imagen de perfil o foto profesional del barbero. El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phpcrpb7juq6oei8nNjM45</code></p>
+<p>Imagen de perfil o foto profesional del barbero. El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phps5ueu081m84l0svXheJ</code></p>
         </div>
         </form>
 
@@ -23663,10 +23695,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.day_of_week"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="wednesday"
+               value="sunday"
                data-component="body">
     <br>
-<p>Example: <code>wednesday</code></p>
+<p>Example: <code>sunday</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>monday</code></li> <li><code>tuesday</code></li> <li><code>wednesday</code></li> <li><code>thursday</code></li> <li><code>friday</code></li> <li><code>saturday</code></li> <li><code>sunday</code></li></ul>
                     </div>
@@ -23677,10 +23709,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.start_time"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="18:41"
+               value="19:26"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>18:41</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>19:26</code></p>
                     </div>
                                                                 <div style="margin-left: 14px; clear: unset;">
                         <b style="line-height: 2;"><code>end_time</code></b>&nbsp;&nbsp;
@@ -23689,10 +23721,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.end_time"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="18:41"
+               value="19:26"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>18:41</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>19:26</code></p>
                     </div>
                                                                 <div style="margin-left: 14px; clear: unset;">
                         <b style="line-height: 2;"><code>is_active</code></b>&nbsp;&nbsp;
@@ -23980,9 +24012,9 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "stock_actual=8"\
     --form "stock_minimo=76"\
     --form "tipo=architecto"\
-    --form "active="\
-    --form "activo="\
-    --form "imagen=@/tmp/phpfpf67rtaau7k48ZkEeo" </code></pre></div>
+    --form "active=1"\
+    --form "activo=1"\
+    --form "imagen=@/tmp/phpr69g3c2r2a0kaNmP2Rh" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -24004,8 +24036,8 @@ body.append('precio_venta', '77');
 body.append('stock_actual', '8');
 body.append('stock_minimo', '76');
 body.append('tipo', 'architecto');
-body.append('active', '');
-body.append('activo', '');
+body.append('active', '1');
+body.append('activo', '1');
 body.append('imagen', document.querySelector('input[name="imagen"]').files[0]);
 
 fetch(url, {
@@ -24196,7 +24228,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpfpf67rtaau7k48ZkEeo</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpr69g3c2r2a0kaNmP2Rh</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -24218,7 +24250,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>activo</code></b>&nbsp;&nbsp;
@@ -24240,7 +24272,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -24269,7 +24301,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "stock_minimo=76"\
     --form "active="\
     --form "activo=1"\
-    --form "imagen=@/tmp/phppgnr8b64lgbo2PXuAQV" </code></pre></div>
+    --form "imagen=@/tmp/phpnvogsb5bpm69bcUNYMI" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -24495,7 +24527,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phppgnr8b64lgbo2PXuAQV</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpnvogsb5bpm69bcUNYMI</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -25073,7 +25105,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"cantidad\": 22,
     \"motivo\": \"g\",
     \"appointment_id\": \"architecto\",
-    \"fecha\": \"2026-09-11T18:41:39\"
+    \"fecha\": \"2026-09-11T19:26:21\"
 }"
 </code></pre></div>
 
@@ -25093,7 +25125,7 @@ let body = {
     "cantidad": 22,
     "motivo": "g",
     "appointment_id": "architecto",
-    "fecha": "2026-09-11T18:41:39"
+    "fecha": "2026-09-11T19:26:21"
 };
 
 fetch(url, {
@@ -25245,10 +25277,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha"                data-endpoint="POSTapi-v1-inventory-movements"
-               value="2026-09-11T18:41:39"
+               value="2026-09-11T19:26:21"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-11T18:41:39</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-11T19:26:21</code></p>
         </div>
         </form>
 
@@ -26375,7 +26407,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "title=Corte Moderno con Degradado"\
     --form "description=Corte moderno con degradado lateral y textura superior"\
     --form "images[]=architecto"\
-    --form "media[]=@/tmp/php65qivs20i671e9ohYTy" </code></pre></div>
+    --form "media[]=@/tmp/phpevbekujjri1ccthK4aC" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -26675,6 +26707,488 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>The ID of the work. Example: <code>architecto</code></p>
             </div>
                     </form>
+
+                <h1 id="tarjetas-de-regalo">Tarjetas de regalo</h1>
+
+    <p>Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
+código. El canje real ocurre en PaymentController::store() vía
+"codigo_gift_card" -- este controlador no cobra nada.</p>
+
+                                <h2 id="tarjetas-de-regalo-GETapi-v1-gift-cards--code-">Consulta el saldo disponible de una gift card por su código. Sin
+autenticación de dueño a propósito -- una gift card la usa quien
+tenga el código, igual que una física.</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-GETapi-v1-gift-cards--code-">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost:8000/api/v1/gift-cards/a1b2c3d4" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/gift-cards/a1b2c3d4"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-v1-gift-cards--code-">
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <details class="annotation">
+            <summary style="cursor: pointer;">
+                <small onclick="textContent = parentElement.parentElement.open ? 'Show headers' : 'Hide headers'">Show headers</small>
+            </summary>
+            <pre><code class="language-http">cache-control: no-cache, private
+content-type: application/json
+vary: Origin
+ </code></pre></details>         <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;No autorizado.&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-v1-gift-cards--code-" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-v1-gift-cards--code-"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-v1-gift-cards--code-"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-v1-gift-cards--code-" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-v1-gift-cards--code-">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-v1-gift-cards--code-" data-method="GET"
+      data-path="api/v1/gift-cards/{code}"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-v1-gift-cards--code-', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-v1-gift-cards--code-"
+                    onclick="tryItOut('GETapi-v1-gift-cards--code-');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-v1-gift-cards--code-"
+                    onclick="cancelTryOut('GETapi-v1-gift-cards--code-');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-v1-gift-cards--code-"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/v1/gift-cards/{code}</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-v1-gift-cards--code-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-v1-gift-cards--code-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
+                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>code</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="code"                data-endpoint="GETapi-v1-gift-cards--code-"
+               value="a1b2c3d4"
+               data-component="url">
+    <br>
+<p>Código de la tarjeta. Example: <code>a1b2c3d4</code></p>
+            </div>
+                    </form>
+
+                    <h2 id="tarjetas-de-regalo-POSTapi-v1-gift-cards-stripe-intent">Crea el PaymentIntent de Stripe para comprar una gift card con tarjeta.</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-POSTapi-v1-gift-cards-stripe-intent">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request POST \
+    "http://localhost:8000/api/v1/gift-cards/stripe-intent" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"monto\": 500,
+    \"comprador_nombre\": \"m\",
+    \"destinatario_email\": \"gulgowski.asia@example.com\"
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/gift-cards/stripe-intent"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "monto": 500,
+    "comprador_nombre": "m",
+    "destinatario_email": "gulgowski.asia@example.com"
+};
+
+fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-POSTapi-v1-gift-cards-stripe-intent">
+</span>
+<span id="execution-results-POSTapi-v1-gift-cards-stripe-intent" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-POSTapi-v1-gift-cards-stripe-intent"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-POSTapi-v1-gift-cards-stripe-intent"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-POSTapi-v1-gift-cards-stripe-intent" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-POSTapi-v1-gift-cards-stripe-intent">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-POSTapi-v1-gift-cards-stripe-intent" data-method="POST"
+      data-path="api/v1/gift-cards/stripe-intent"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('POSTapi-v1-gift-cards-stripe-intent', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-POSTapi-v1-gift-cards-stripe-intent"
+                    onclick="tryItOut('POSTapi-v1-gift-cards-stripe-intent');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-POSTapi-v1-gift-cards-stripe-intent"
+                    onclick="cancelTryOut('POSTapi-v1-gift-cards-stripe-intent');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-POSTapi-v1-gift-cards-stripe-intent"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-black">POST</small>
+            <b><code>api/v1/gift-cards/stripe-intent</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="POSTapi-v1-gift-cards-stripe-intent"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="POSTapi-v1-gift-cards-stripe-intent"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>monto</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="monto"                data-endpoint="POSTapi-v1-gift-cards-stripe-intent"
+               value="500"
+               data-component="body">
+    <br>
+<p>Monto de la tarjeta. Example: <code>500</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>comprador_nombre</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="comprador_nombre"                data-endpoint="POSTapi-v1-gift-cards-stripe-intent"
+               value="m"
+               data-component="body">
+    <br>
+<p>El campo value no debe tener más de 150 caracteres. Example: <code>m</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>destinatario_email</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="destinatario_email"                data-endpoint="POSTapi-v1-gift-cards-stripe-intent"
+               value="gulgowski.asia@example.com"
+               data-component="body">
+    <br>
+<p>El campo value debe ser una dirección de correo válida. El campo value no debe tener más de 255 caracteres. Example: <code>gulgowski.asia@example.com</code></p>
+        </div>
+        </form>
+
+                    <h2 id="tarjetas-de-regalo-POSTapi-v1-gift-cards">Compra en efectivo, registrada por staff (Admin/Recepcionista).</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-POSTapi-v1-gift-cards">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request POST \
+    "http://localhost:8000/api/v1/gift-cards" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"monto\": 500,
+    \"client_id\": \"66f0...\",
+    \"comprador_nombre\": \"Juan Pérez\",
+    \"destinatario_email\": \"regalo@ejemplo.com\"
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/gift-cards"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "monto": 500,
+    "client_id": "66f0...",
+    "comprador_nombre": "Juan Pérez",
+    "destinatario_email": "regalo@ejemplo.com"
+};
+
+fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-POSTapi-v1-gift-cards">
+</span>
+<span id="execution-results-POSTapi-v1-gift-cards" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-POSTapi-v1-gift-cards"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-POSTapi-v1-gift-cards"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-POSTapi-v1-gift-cards" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-POSTapi-v1-gift-cards">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-POSTapi-v1-gift-cards" data-method="POST"
+      data-path="api/v1/gift-cards"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('POSTapi-v1-gift-cards', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-POSTapi-v1-gift-cards"
+                    onclick="tryItOut('POSTapi-v1-gift-cards');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-POSTapi-v1-gift-cards"
+                    onclick="cancelTryOut('POSTapi-v1-gift-cards');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-POSTapi-v1-gift-cards"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-black">POST</small>
+            <b><code>api/v1/gift-cards</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="POSTapi-v1-gift-cards"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="POSTapi-v1-gift-cards"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>monto</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="monto"                data-endpoint="POSTapi-v1-gift-cards"
+               value="500"
+               data-component="body">
+    <br>
+<p>Monto de la tarjeta. Example: <code>500</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>client_id</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="client_id"                data-endpoint="POSTapi-v1-gift-cards"
+               value="66f0..."
+               data-component="body">
+    <br>
+<p>ID del cliente comprador, si tiene cuenta. Example: <code>66f0...</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>comprador_nombre</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="comprador_nombre"                data-endpoint="POSTapi-v1-gift-cards"
+               value="Juan Pérez"
+               data-component="body">
+    <br>
+<p>Nombre de quien compra, si no tiene cuenta. Example: <code>Juan Pérez</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>destinatario_email</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="destinatario_email"                data-endpoint="POSTapi-v1-gift-cards"
+               value="regalo@ejemplo.com"
+               data-component="body">
+    <br>
+<p>Correo de quien la recibe (opcional). Example: <code>regalo@ejemplo.com</code></p>
+        </div>
+        </form>
 
             
 

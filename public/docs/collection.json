@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "92334494-8d23-4dc3-9bbe-af1459dd7908",
+        "_postman_id": "38c86386-3427-44b3-bd78-9e2296d75971",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -641,7 +641,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-04\",\"hora_inicio\":\"18:41\",\"estado\":\"en_proceso\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-04\",\"hora_inicio\":\"19:26\",\"estado\":\"no_asistio\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2013,7 +2013,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"metodo_pago\":\"tarjeta\"}"
+                            "raw": "{\"metodo_pago\":\"efectivo\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2148,7 +2148,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"transferencia\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":false,\"usar_paquete_id\":\"architecto\",\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"transferencia\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":false,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2492,7 +2492,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-11T18:41:39\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-11T19:26:20\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2531,7 +2531,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-11T18:41:39\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":true,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-11T19:26:20\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2808,7 +2808,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -3041,7 +3041,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"18:41\",\"horario_cierre\":\"2052-10-04\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"19:26\",\"horario_cierre\":\"2052-10-04\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3148,7 +3148,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"programar\",\"programada_para\":\"2052-10-05\"}"
+                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"ahora\",\"programada_para\":\"2052-10-05\"}"
                         },
                         "description": "",
                         "auth": {
@@ -5212,7 +5212,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -5251,7 +5251,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -5326,7 +5326,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tipo\":\"salida\",\"cantidad\":16,\"motivo\":\"architecto\"}"
+                            "raw": "{\"tipo\":\"entrada\",\"cantidad\":16,\"motivo\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -6741,13 +6741,13 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7043,7 +7043,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-11T18:41:39\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-11T19:26:21\"}"
                         },
                         "description": "",
                         "auth": {
@@ -7479,6 +7479,130 @@
                             "name": ""
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "name": "Tarjetas de regalo",
+            "description": "\nCompra (efectivo por staff o tarjeta v\u00eda Stripe) y consulta de saldo por\nc\u00f3digo. El canje real ocurre en PaymentController::store() v\u00eda\n\"codigo_gift_card\" -- este controlador no cobra nada.",
+            "item": [
+                {
+                    "name": "Consulta el saldo disponible de una gift card por su c\u00f3digo. Sin\nautenticaci\u00f3n de due\u00f1o a prop\u00f3sito -- una gift card la usa quien\ntenga el c\u00f3digo, igual que una f\u00edsica.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/gift-cards\/:code",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/gift-cards\/:code",
+                            "variable": [
+                                {
+                                    "id": "code",
+                                    "key": "code",
+                                    "value": "a1b2c3d4",
+                                    "description": "C\u00f3digo de la tarjeta."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Crea el PaymentIntent de Stripe para comprar una gift card con tarjeta.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/gift-cards\/stripe-intent",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/gift-cards\/stripe-intent"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"monto\":500,\"comprador_nombre\":\"m\",\"destinatario_email\":\"gulgowski.asia@example.com\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Compra en efectivo, registrada por staff (Admin\/Recepcionista).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/gift-cards",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/gift-cards"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"monto\":500,\"client_id\":\"66f0...\",\"comprador_nombre\":\"Juan P\u00e9rez\",\"destinatario_email\":\"regalo@ejemplo.com\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
                 }
             ]
         }

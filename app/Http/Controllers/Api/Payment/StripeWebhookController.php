@@ -10,6 +10,7 @@ use App\Models\Payment;
 use App\Models\ServicePackage;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Package\GiftCardService;
 use App\Services\Package\PackageService;
 use App\Services\Payment\DepositService;
 use App\Services\Payment\PaymentService;
@@ -31,6 +32,7 @@ class StripeWebhookController extends Controller
         private readonly LoyaltyService $loyalty,
         private readonly DepositService $deposits,
         private readonly PackageService $packages,
+        private readonly GiftCardService $giftCards,
     ) {}
 
     /**
@@ -85,6 +87,12 @@ class StripeWebhookController extends Controller
         // return por falta de appointment_id de abajo.
         if (($intent->metadata->tipo ?? null) === 'paquete') {
             $this->onPackagePurchaseSucceeded($intent);
+
+            return;
+        }
+
+        if (($intent->metadata->tipo ?? null) === 'gift_card') {
+            $this->onGiftCardPurchaseSucceeded($intent);
 
             return;
         }
@@ -165,6 +173,31 @@ class StripeWebhookController extends Controller
 
         $this->packages->confirmStripePurchase($client, $package, $intent->id);
         Log::info("Stripe webhook: compra de paquete {$intent->id} registrada para cliente {$clientId}");
+    }
+
+    /**
+     * Confirma la compra de una gift card. El comprador es opcional (una
+     * gift card puede comprarla alguien sin cuenta para regalarla) --
+     * a diferencia de la compra de paquete, la ausencia de client_id no es
+     * un error aquí.
+     */
+    private function onGiftCardPurchaseSucceeded(object $intent): void
+    {
+        $clientId = $intent->metadata->client_id ?? null;
+        $monto = (float) ($intent->metadata->monto ?? 0);
+
+        if ($monto <= 0) {
+            Log::warning('Stripe webhook: compra de gift card sin monto válido en metadata', ['payment_intent_id' => $intent->id]);
+
+            return;
+        }
+
+        $client = $clientId ? Client::find($clientId) : null;
+        $compradorNombre = $intent->metadata->comprador_nombre ?? null;
+        $destinatarioEmail = $intent->metadata->destinatario_email ?? null;
+
+        $this->giftCards->confirmStripePurchase($monto, $client, $compradorNombre ?: null, $destinatarioEmail ?: null, $intent->id);
+        Log::info("Stripe webhook: compra de gift card {$intent->id} registrada");
     }
 
     /**

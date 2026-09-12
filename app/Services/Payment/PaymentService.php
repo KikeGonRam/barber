@@ -14,6 +14,7 @@ use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Loyalty\RaffleService;
+use App\Services\Package\GiftCardService;
 use App\Services\Package\PackageService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\UploadedFile;
@@ -36,6 +37,7 @@ class PaymentService
         private readonly RaffleService $raffle,
         private readonly DepositService $deposits,
         private readonly PackageService $packages,
+        private readonly GiftCardService $giftCards,
     ) {}
 
     /**
@@ -69,6 +71,7 @@ class PaymentService
             $puntosCanjeados = (int) ($payload['puntos_canjeados'] ?? 0);
             $usarPremioRifa = (bool) ($payload['usar_premio_rifa'] ?? false);
             $usarPaqueteId = $payload['usar_paquete_id'] ?? null;
+            $codigoGiftCard = $payload['codigo_gift_card'] ?? null;
 
             if (($usarPremioRifa || $usarPaqueteId) && $puntosCanjeados > 0) {
                 throw new PaymentException('No puedes canjear puntos junto con el premio de la rifa o un paquete en el mismo cobro.');
@@ -76,6 +79,10 @@ class PaymentService
 
             if ($usarPremioRifa && $usarPaqueteId) {
                 throw new PaymentException('No puedes usar el premio de la rifa y un paquete en el mismo cobro.');
+            }
+
+            if ($codigoGiftCard && ($usarPremioRifa || $usarPaqueteId)) {
+                throw new PaymentException('No puedes usar una tarjeta de regalo junto con el premio de la rifa o un paquete: ambos ya cubren el cobro completo.');
             }
 
             $premioRifa = null;
@@ -137,8 +144,34 @@ class PaymentService
                 $monto = max(0.0, $monto - $this->deposits->verifiedAmountFor($appointment));
             }
 
+            $giftCard = null;
+            $giftCardAplicado = 0.0;
+
+            if ($codigoGiftCard) {
+                $giftCard = $this->giftCards->findRedeemable($codigoGiftCard);
+                if (! $giftCard) {
+                    throw new PaymentException('El código de la tarjeta de regalo no es válido o ya no tiene saldo.');
+                }
+
+                // apply() acepta parcial: si el saldo no alcanza para todo
+                // el cobro, solo se descuenta lo que sí cubre y el resto se
+                // paga por metodo_pago normal (no es todo-o-nada como el
+                // paquete/premio de rifa).
+                $giftCardAplicado = $this->giftCards->apply($giftCard, $monto);
+                $monto = round($monto - $giftCardAplicado, 2);
+            }
+
             try {
-                $payment = $this->payments->create([
+                // gift_card_id/gift_card_monto_aplicado (y por el mismo
+                // motivo, en teoria, raffle_result_id/client_package_id) NO
+                // se incluyen en el array cuando no aplican -- pasar null
+                // explicito a un campo con cast decimal:2 revienta el cast
+                // en create() (Laravel intenta BigDecimal::of((string) null)
+                // = BigDecimal::of("") y truena con MathException), a
+                // diferencia de sencillamente omitir la clave. Mismo motivo
+                // por el que ocr_monto_detectado nunca se manda en el
+                // create() inicial en otro punto de este archivo.
+                $paymentData = [
                     'appointment_id' => $payload['appointment_id'],
                     'monto' => $monto,
                     'metodo_pago' => $payload['metodo_pago'],
@@ -146,10 +179,23 @@ class PaymentService
                     'created_by' => $createdBy,
                     'estado' => Payment::ESTADO_VERIFICADO,
                     'puntos_canjeados' => $puntosCanjeados,
-                    'raffle_result_id' => $premioRifa?->id,
-                    'client_package_id' => $clientPackage?->id,
                     'stripe_payment_id' => $payload['stripe_payment_id'] ?? null,
-                ]);
+                ];
+
+                if ($premioRifa) {
+                    $paymentData['raffle_result_id'] = $premioRifa->id;
+                }
+
+                if ($clientPackage) {
+                    $paymentData['client_package_id'] = $clientPackage->id;
+                }
+
+                if ($giftCard) {
+                    $paymentData['gift_card_id'] = $giftCard->id;
+                    $paymentData['gift_card_monto_aplicado'] = $giftCardAplicado;
+                }
+
+                $payment = $this->payments->create($paymentData);
             } catch (BulkWriteException $e) {
                 // existsForAppointment() de arriba no es atomico: si dos
                 // requests para la misma cita llegan a la vez (p.ej. un

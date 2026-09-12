@@ -319,6 +319,7 @@ class PaymentController extends Controller
             'puntos_canjeados' => ['nullable', 'integer', 'min:0'],
             'usar_premio_rifa' => ['nullable', 'boolean'],
             'usar_paquete_id' => ['nullable', 'string', 'exists:client_packages,id'],
+            'codigo_gift_card' => ['nullable', 'string', 'max:20'],
             'stripe_payment_id' => ['required_if:metodo_pago,tarjeta', 'nullable', 'string'],
         ]);
 

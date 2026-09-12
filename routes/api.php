@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\Inventory\InventoryController as ApiInventoryContro
 use App\Http\Controllers\Api\Log\LogController as ApiLogController;
 use App\Http\Controllers\Api\Notification\NotificationController as ApiNotificationController;
 use App\Http\Controllers\Api\Order\OrderController as ApiOrderController;
+use App\Http\Controllers\Api\Package\GiftCardController;
 use App\Http\Controllers\Api\Package\PackagePurchaseController;
 use App\Http\Controllers\Api\Payment\CashCloseController;
 use App\Http\Controllers\Api\Payment\DepositController;
@@ -180,6 +181,13 @@ Route::prefix('v1')->group(function (): void {
         Route::get('packages', [PackagePurchaseController::class, 'index']);
         Route::post('packages/stripe-intent', [PackagePurchaseController::class, 'stripeIntent']);
 
+        // Gift cards: consultar saldo por código y comprar con tarjeta,
+        // abiertos a cualquier autenticado (una gift card no "pertenece" a
+        // nadie, quien tenga el código la puede consultar/usar). Venta en
+        // efectivo sí es solo staff, ver el grupo de abajo.
+        Route::get('gift-cards/{code}', [GiftCardController::class, 'show']);
+        Route::post('gift-cards/stripe-intent', [GiftCardController::class, 'stripeIntent']);
+
         // Solo administrador y recepcionista: gestión de pagos, clientes e inventario.
         Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {
             // Pedidos — bandeja de recepción (Admin/Recepcionista)
@@ -206,6 +214,9 @@ Route::prefix('v1')->group(function (): void {
 
             // Venta de un paquete prepagado en efectivo (Admin/Recepcionista)
             Route::post('packages', [PackagePurchaseController::class, 'store']);
+
+            // Venta de una gift card en efectivo (Admin/Recepcionista)
+            Route::post('gift-cards', [GiftCardController::class, 'store']);
 
             // Plantillas de paquetes prepagados -- solo administrador (el
             // controlador ya lo exige, la ruta solo evita el viaje redondo

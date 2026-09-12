@@ -52,6 +52,9 @@ tags:
   -
     name: 'Portafolio de Barbero'
     description: "\nEndpoints para gestionar el portafolio de trabajos del barbero."
+  -
+    name: 'Tarjetas de regalo'
+    description: "\nCompra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por\ncódigo. El canje real ocurre en PaymentController::store() vía\n\"codigo_gift_card\" -- este controlador no cobra nada."
 paths:
   /api/v1/analytics:
     get:
@@ -806,11 +809,11 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '18:41'
+                  example: '19:26'
                 estado:
                   type: string
                   description: ''
-                  example: en_proceso
+                  example: no_asistio
                   enum:
                     - pendiente
                     - confirmada
@@ -1685,6 +1688,11 @@ paths:
                   description: 'Must match an existing stored value.'
                   example: architecto
                   nullable: true
+                codigo_gift_card:
+                  type: string
+                  description: 'El campo value no debe tener más de 20 caracteres.'
+                  example: ngzmiyvdljnikhwa
+                  nullable: true
                 stripe_payment_id:
                   type: string
                   description: 'This field is required when <code>metodo_pago</code> is <code>tarjeta</code>.'
@@ -1773,7 +1781,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: tarjeta
+                  example: efectivo
                   enum:
                     - efectivo
                     - tarjeta
@@ -2106,7 +2114,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T18:41:39'
+                  example: '2026-09-11T19:26:20'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -2116,7 +2124,7 @@ paths:
                 pref_email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_sms:
                   type: boolean
@@ -2164,7 +2172,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T18:41:39'
+                  example: '2026-09-11T19:26:20'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -2174,7 +2182,7 @@ paths:
                 pref_email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_sms:
                   type: boolean
@@ -2184,7 +2192,7 @@ paths:
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -2417,7 +2425,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - name
@@ -2601,7 +2609,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '18:41'
+                  example: '19:26'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -2733,7 +2741,7 @@ paths:
                 modo:
                   type: string
                   description: ''
-                  example: programar
+                  example: ahora
                   enum:
                     - ahora
                     - programar
@@ -3922,12 +3930,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -4011,7 +4019,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 active:
                   type: boolean
@@ -4056,7 +4064,7 @@ paths:
                 tipo:
                   type: string
                   description: ''
-                  example: salida
+                  example: entrada
                   enum:
                     - entrada
                     - salida
@@ -5076,12 +5084,12 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -5317,7 +5325,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T18:41:39'
+                  example: '2026-09-11T19:26:21'
                   nullable: true
               required:
                 - product_id
@@ -5646,3 +5654,105 @@ paths:
         required: true
         schema:
           type: string
+  '/api/v1/gift-cards/{code}':
+    get:
+      summary: "Consulta el saldo disponible de una gift card por su código. Sin\nautenticación de dueño a propósito -- una gift card la usa quien\ntenga el código, igual que una física."
+      operationId: consultaElSaldoDisponibleDeUnaGiftCardPorSuCdigoSinAutenticacinDeDueoAPropsitoUnaGiftCardLaUsaQuienTengaElCdigoIgualQueUnaFsica
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - 'Tarjetas de regalo'
+      security: []
+    parameters:
+      -
+        in: path
+        name: code
+        description: 'Código de la tarjeta.'
+        example: a1b2c3d4
+        required: true
+        schema:
+          type: string
+  /api/v1/gift-cards/stripe-intent:
+    post:
+      summary: 'Crea el PaymentIntent de Stripe para comprar una gift card con tarjeta.'
+      operationId: creaElPaymentIntentDeStripeParaComprarUnaGiftCardConTarjeta
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Tarjetas de regalo'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                monto:
+                  type: number
+                  description: 'Monto de la tarjeta.'
+                  example: 500.0
+                comprador_nombre:
+                  type: string
+                  description: 'El campo value no debe tener más de 150 caracteres.'
+                  example: m
+                  nullable: true
+                destinatario_email:
+                  type: string
+                  description: 'El campo value debe ser una dirección de correo válida. El campo value no debe tener más de 255 caracteres.'
+                  example: gulgowski.asia@example.com
+                  nullable: true
+              required:
+                - monto
+      security: []
+  /api/v1/gift-cards:
+    post:
+      summary: 'Compra en efectivo, registrada por staff (Admin/Recepcionista).'
+      operationId: compraEnEfectivoRegistradaPorStaffAdminRecepcionista
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Tarjetas de regalo'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                monto:
+                  type: number
+                  description: 'Monto de la tarjeta.'
+                  example: 500.0
+                client_id:
+                  type: string
+                  description: 'ID del cliente comprador, si tiene cuenta.'
+                  example: 66f0...
+                  nullable: true
+                comprador_nombre:
+                  type: string
+                  description: 'Nombre de quien compra, si no tiene cuenta.'
+                  example: 'Juan Pérez'
+                  nullable: true
+                destinatario_email:
+                  type: string
+                  description: 'Correo de quien la recibe (opcional).'
+                  example: regalo@ejemplo.com
+                  nullable: true
+              required:
+                - monto
+      security: []

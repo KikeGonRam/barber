@@ -48,6 +48,10 @@ class Payment extends Model
         // Paquete prepagado usado para cubrir este cobro (null si se pagó
         // normal). Ver PackageService::redeem().
         'client_package_id',
+        // Tarjeta de regalo aplicada (parcial o total) a este cobro. Ver
+        // GiftCardService::apply().
+        'gift_card_id',
+        'gift_card_monto_aplicado',
         'bloquea_cita',
         'loyalty_refund_reconciled_at',
         // true = depósito anti-no-show cobrado al reservar (ver DepositService);
@@ -64,6 +68,7 @@ class Payment extends Model
             'monto' => 'decimal:2',
             'propina' => 'decimal:2',
             'ocr_monto_detectado' => 'decimal:2',
+            'gift_card_monto_aplicado' => 'decimal:2',
             'revisado_en' => 'datetime',
             'monto_total' => 'decimal:2',
             'puntos_canjeados' => 'integer',
