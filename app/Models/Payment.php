@@ -45,6 +45,9 @@ class Payment extends Model
         'puntos_canjeados',
         'stripe_payment_id',
         'raffle_result_id',
+        // Paquete prepagado usado para cubrir este cobro (null si se pagó
+        // normal). Ver PackageService::redeem().
+        'client_package_id',
         'bloquea_cita',
         'loyalty_refund_reconciled_at',
         // true = depósito anti-no-show cobrado al reservar (ver DepositService);

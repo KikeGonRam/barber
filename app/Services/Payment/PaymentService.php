@@ -5,6 +5,7 @@ namespace App\Services\Payment;
 use App\Exceptions\Domain\PaymentException;
 use App\Jobs\RunOcrOnComprobante;
 use App\Models\Appointment;
+use App\Models\ClientPackage;
 use App\Models\Payment;
 use App\Notifications\Payment\PaymentReceiptNotification;
 use App\Notifications\Payment\TransferReceiptNotification;
@@ -13,6 +14,7 @@ use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Loyalty\RaffleService;
+use App\Services\Package\PackageService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +35,7 @@ class PaymentService
         private readonly LoyaltyService $loyalty,
         private readonly RaffleService $raffle,
         private readonly DepositService $deposits,
+        private readonly PackageService $packages,
     ) {}
 
     /**
@@ -65,14 +68,27 @@ class PaymentService
             $client = $appointment->client;
             $puntosCanjeados = (int) ($payload['puntos_canjeados'] ?? 0);
             $usarPremioRifa = (bool) ($payload['usar_premio_rifa'] ?? false);
+            $usarPaqueteId = $payload['usar_paquete_id'] ?? null;
 
-            if ($usarPremioRifa && $puntosCanjeados > 0) {
-                throw new PaymentException('No puedes canjear puntos y usar el premio de la rifa en el mismo cobro.');
+            if (($usarPremioRifa || $usarPaqueteId) && $puntosCanjeados > 0) {
+                throw new PaymentException('No puedes canjear puntos junto con el premio de la rifa o un paquete en el mismo cobro.');
+            }
+
+            if ($usarPremioRifa && $usarPaqueteId) {
+                throw new PaymentException('No puedes usar el premio de la rifa y un paquete en el mismo cobro.');
             }
 
             $premioRifa = null;
+            $clientPackage = null;
 
-            if ($usarPremioRifa) {
+            if ($usarPaqueteId) {
+                $clientPackage = ClientPackage::findOrFail($usarPaqueteId);
+                $this->packages->redeem($clientPackage, $appointment);
+
+                // El paquete ya cubrió este uso del servicio: cobro en $0,
+                // igual criterio que el premio de rifa.
+                $monto = 0.0;
+            } elseif ($usarPremioRifa) {
                 if (! $client) {
                     throw new PaymentException('No se puede aplicar el premio de la rifa: esta cita no tiene un cliente asociado.');
                 }
@@ -131,6 +147,7 @@ class PaymentService
                     'estado' => Payment::ESTADO_VERIFICADO,
                     'puntos_canjeados' => $puntosCanjeados,
                     'raffle_result_id' => $premioRifa?->id,
+                    'client_package_id' => $clientPackage?->id,
                     'stripe_payment_id' => $payload['stripe_payment_id'] ?? null,
                 ]);
             } catch (BulkWriteException $e) {

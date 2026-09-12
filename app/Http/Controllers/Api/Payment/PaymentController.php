@@ -312,12 +312,13 @@ class PaymentController extends Controller
 
         $validated = $request->validate([
             'appointment_id' => ['required', 'string', 'exists:appointments,id'],
-            // Con premio de rifa el cobro real es $0 (ver PaymentService::create()).
-            'monto' => ['required', 'numeric', $request->boolean('usar_premio_rifa') ? 'min:0' : 'min:0.01'],
+            // Con premio de rifa o paquete el cobro real es $0 (ver PaymentService::create()).
+            'monto' => ['required', 'numeric', ($request->boolean('usar_premio_rifa') || $request->filled('usar_paquete_id')) ? 'min:0' : 'min:0.01'],
             'metodo_pago' => ['required', 'in:efectivo,tarjeta,transferencia'],
             'propina' => ['nullable', 'numeric', 'min:0'],
             'puntos_canjeados' => ['nullable', 'integer', 'min:0'],
             'usar_premio_rifa' => ['nullable', 'boolean'],
+            'usar_paquete_id' => ['nullable', 'string', 'exists:client_packages,id'],
             'stripe_payment_id' => ['required_if:metodo_pago,tarjeta', 'nullable', 'string'],
         ]);
 

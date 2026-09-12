@@ -11,6 +11,7 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarbershopSetting;
 use App\Models\Client;
+use App\Models\ClientPackage;
 use App\Models\RaffleResult;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentNotifier;
@@ -288,10 +289,22 @@ class AppointmentController extends Controller
             ->get()
             ->keyBy('client_id');
 
+        // Paquetes prepagados activos con usos restantes, agrupados por
+        // "cliente+servicio" -- solo sirve si coincide exactamente con el
+        // servicio de la cita (ver PackageService::redeem()).
+        $activePackages = empty($clientIds) ? collect() : ClientPackage::whereIn('client_id', $clientIds)
+            ->where('estado', ClientPackage::ESTADO_ACTIVO)
+            ->where('usos_restantes', '>', 0)
+            ->get()
+            ->groupBy(fn ($p) => $p->client_id.'|'.$p->service_id);
+
         return response()->json([
-            'data' => $appointments->map(function (Appointment $appt) use ($activePrizes) {
+            'data' => $appointments->map(function (Appointment $appt) use ($activePrizes, $activePackages) {
                 $nivel = $appt->client?->nivel ?? 'nuevo';
                 $premio = $appt->client ? $activePrizes->get((string) $appt->client->id) : null;
+                $paquete = $appt->client
+                    ? $activePackages->get((string) $appt->client->id.'|'.(string) $appt->service_id)?->first()
+                    : null;
 
                 return [
                     'id' => (string) $appt->id,
@@ -307,6 +320,7 @@ class AppointmentController extends Controller
                     'nivel_pct' => LoyaltyService::discountPct($nivel),
                     'puntos_disponibles' => (int) ($appt->client?->puntos ?? 0),
                     'premio_rifa' => $premio?->premio,
+                    'paquete_disponible' => $paquete ? ['id' => $paquete->id, 'usos_restantes' => $paquete->usos_restantes] : null,
                 ];
             })->values(),
         ]);

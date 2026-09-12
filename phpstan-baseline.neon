@@ -297,7 +297,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 3
 			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
 
 		-
@@ -3330,3 +3330,261 @@ parameters:
 			identifier: property.notFound
 			count: 4
 			path: tests/Feature/WaitlistServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Package/ServicePackageController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Package/ServicePackageController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Package/ServicePackageController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$cantidad_usos\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Package/ServicePackageController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$precio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Package/ServicePackageController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$vigencia_dias\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Package/ServicePackageController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$activo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Package/ServicePackageController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$service_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Appointment/AppointmentController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ServicePackage\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$cantidad_usos\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$precio\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$vigencia_dias\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$usos_totales\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$usos_restantes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$precio_pagado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$metodo_pago\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$comprado_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$expira_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Package/PackagePurchaseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$precio\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Package/PackageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$activo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Package/PackageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$service_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Package/PackageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$cantidad_usos\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Package/PackageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$vigencia_dias\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Package/PackageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$client_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Package/PackageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$service_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Package/PackageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Package/PackageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$expira_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Package/PackageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\ClientPackage\>\:\:\$usos_restantes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Package/PackageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$metodo_pago\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Payment/CashCloseService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$usos_totales\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PackageServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$usos_restantes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PackageServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$precio_pagado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PackageServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$metodo_pago\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PackageServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PackageServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$expira_en\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/PackageServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$client_package_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PackageServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\ClientPackage\>\:\:\$usos_restantes\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/PackageServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientPackage\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\ClientPackage\>\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/PackageServiceTest.php

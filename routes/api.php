@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\Barber\BarberAdminController;
 use App\Http\Controllers\Api\Admin\Client\ClientAdminController;
 use App\Http\Controllers\Api\Admin\Dashboard\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\Inventory\InventoryAdminController;
+use App\Http\Controllers\Api\Admin\Package\ServicePackageController as AdminServicePackageController;
 use App\Http\Controllers\Api\Admin\Report\ReportAdminController;
 use App\Http\Controllers\Api\Admin\System\BackupController;
 use App\Http\Controllers\Api\Admin\System\SystemController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Api\Inventory\InventoryController as ApiInventoryContro
 use App\Http\Controllers\Api\Log\LogController as ApiLogController;
 use App\Http\Controllers\Api\Notification\NotificationController as ApiNotificationController;
 use App\Http\Controllers\Api\Order\OrderController as ApiOrderController;
+use App\Http\Controllers\Api\Package\PackagePurchaseController;
 use App\Http\Controllers\Api\Payment\CashCloseController;
 use App\Http\Controllers\Api\Payment\DepositController;
 use App\Http\Controllers\Api\Payment\PaymentController as ApiPaymentController;
@@ -169,6 +171,15 @@ Route::prefix('v1')->group(function (): void {
         Route::post('appointments/{appointment}/deposit/stripe-intent', [DepositController::class, 'stripeIntent']);
         Route::post('appointments/{appointment}/deposit/receipt', [DepositController::class, 'uploadReceipt']);
 
+        // Paquetes prepagados: catálogo y "mis paquetes" abiertos a cualquier
+        // autenticado (cliente ve lo suyo, staff filtra por client_id) --
+        // branching por rol dentro del controlador, mismo criterio que
+        // appointments.index(). Vender uno nuevo (store) sí es solo staff,
+        // ver el grupo de abajo.
+        Route::get('packages/catalog', [PackagePurchaseController::class, 'catalog']);
+        Route::get('packages', [PackagePurchaseController::class, 'index']);
+        Route::post('packages/stripe-intent', [PackagePurchaseController::class, 'stripeIntent']);
+
         // Solo administrador y recepcionista: gestión de pagos, clientes e inventario.
         Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {
             // Pedidos — bandeja de recepción (Admin/Recepcionista)
@@ -192,6 +203,19 @@ Route::prefix('v1')->group(function (): void {
             Route::get('deposits/pending', [DepositController::class, 'pending']);
             Route::post('deposits/{payment}/approve', [DepositController::class, 'approve']);
             Route::post('deposits/{payment}/reject', [DepositController::class, 'reject']);
+
+            // Venta de un paquete prepagado en efectivo (Admin/Recepcionista)
+            Route::post('packages', [PackagePurchaseController::class, 'store']);
+
+            // Plantillas de paquetes prepagados -- solo administrador (el
+            // controlador ya lo exige, la ruta solo evita el viaje redondo
+            // a un 403 para recepcionista).
+            Route::middleware('role.custom:administrador')->group(function (): void {
+                Route::get('admin/service-packages', [AdminServicePackageController::class, 'index']);
+                Route::post('admin/service-packages', [AdminServicePackageController::class, 'store']);
+                Route::put('admin/service-packages/{servicePackage}', [AdminServicePackageController::class, 'update']);
+                Route::delete('admin/service-packages/{servicePackage}', [AdminServicePackageController::class, 'destroy']);
+            });
 
             // Clientes (Admin/Recepcionista)
             Route::get('clients', [ApiClientController::class, 'index']);

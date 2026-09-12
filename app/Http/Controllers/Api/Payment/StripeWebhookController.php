@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Api\Payment;
 use App\Exceptions\Domain\PaymentException;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\Client;
 use App\Models\Payment;
+use App\Models\ServicePackage;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Package\PackageService;
 use App\Services\Payment\DepositService;
 use App\Services\Payment\PaymentService;
 use Illuminate\Http\Request;
@@ -27,6 +30,7 @@ class StripeWebhookController extends Controller
         private readonly AppointmentNotifier $notifier,
         private readonly LoyaltyService $loyalty,
         private readonly DepositService $deposits,
+        private readonly PackageService $packages,
     ) {}
 
     /**
@@ -76,6 +80,15 @@ class StripeWebhookController extends Controller
      */
     private function onSucceeded(object $intent): void
     {
+        // Compra de paquete prepagado (ver PackageController::stripeIntent()):
+        // no está ligada a ninguna cita, así que se resuelve ANTES del early
+        // return por falta de appointment_id de abajo.
+        if (($intent->metadata->tipo ?? null) === 'paquete') {
+            $this->onPackagePurchaseSucceeded($intent);
+
+            return;
+        }
+
         $appointmentId = $intent->metadata->appointment_id ?? null;
 
         if (! $appointmentId) {
@@ -119,6 +132,39 @@ class StripeWebhookController extends Controller
                 'reason' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Confirma la compra de un paquete prepagado. Sin cita ni cliente
+     * asociado no hay nada que conciliar -- se registra en el log para
+     * diagnóstico, pero no se puede recuperar el dinero de metadata perdida.
+     */
+    private function onPackagePurchaseSucceeded(object $intent): void
+    {
+        $clientId = $intent->metadata->client_id ?? null;
+        $servicePackageId = $intent->metadata->service_package_id ?? null;
+
+        if (! $clientId || ! $servicePackageId) {
+            Log::warning('Stripe webhook: compra de paquete sin client_id/service_package_id en metadata', ['payment_intent_id' => $intent->id]);
+
+            return;
+        }
+
+        $client = Client::find($clientId);
+        $package = ServicePackage::find($servicePackageId);
+
+        if (! $client || ! $package) {
+            Log::warning('Stripe webhook: cliente o paquete no encontrado para la compra', [
+                'payment_intent_id' => $intent->id,
+                'client_id' => $clientId,
+                'service_package_id' => $servicePackageId,
+            ]);
+
+            return;
+        }
+
+        $this->packages->confirmStripePurchase($client, $package, $intent->id);
+        Log::info("Stripe webhook: compra de paquete {$intent->id} registrada para cliente {$clientId}");
     }
 
     /**

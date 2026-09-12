@@ -47,6 +47,9 @@ tags:
     name: 'Lista de espera'
     description: "\nUn cliente se anota cuando un barbero+servicio+fecha ya no tiene\nhorarios disponibles, para que se le avise si se libera uno."
   -
+    name: 'Paquetes prepagados'
+    description: "\nCatálogo de paquetes disponibles, compra (efectivo por staff o tarjeta\nvía Stripe) y consulta de los paquetes de un cliente."
+  -
     name: 'Portafolio de Barbero'
     description: "\nEndpoints para gestionar el portafolio de trabajos del barbero."
 paths:
@@ -803,11 +806,11 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '18:07'
+                  example: '18:41'
                 estado:
                   type: string
                   description: ''
-                  example: no_asistio
+                  example: en_proceso
                   enum:
                     - pendiente
                     - confirmada
@@ -976,7 +979,7 @@ paths:
                 estado:
                   type: string
                   description: ''
-                  example: en_proceso
+                  example: pendiente
                   enum:
                     - pendiente
                     - confirmada
@@ -1652,12 +1655,12 @@ paths:
                   example: architecto
                 monto:
                   type: number
-                  description: 'Con premio de rifa el cobro real es $0 (ver PaymentService::create()).'
+                  description: 'Con premio de rifa o paquete el cobro real es $0 (ver PaymentService::create()).'
                   example: 4326.41688
                 metodo_pago:
                   type: string
                   description: ''
-                  example: efectivo
+                  example: transferencia
                   enum:
                     - efectivo
                     - tarjeta
@@ -1676,6 +1679,11 @@ paths:
                   type: boolean
                   description: ''
                   example: false
+                  nullable: true
+                usar_paquete_id:
+                  type: string
+                  description: 'Must match an existing stored value.'
+                  example: architecto
                   nullable: true
                 stripe_payment_id:
                   type: string
@@ -1765,7 +1773,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: transferencia
+                  example: tarjeta
                   enum:
                     - efectivo
                     - tarjeta
@@ -1905,6 +1913,141 @@ paths:
         required: true
         schema:
           type: string
+  /api/v1/admin/service-packages:
+    get:
+      summary: 'Lista todas las plantillas de paquetes.'
+      operationId: listaTodasLasPlantillasDePaquetes
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: 'Crea una nueva plantilla de paquete.'
+      operationId: creaUnaNuevaPlantillaDePaquete
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: 'El campo value no debe tener más de 120 caracteres.'
+                  example: b
+                service_id:
+                  type: string
+                  description: 'Must match an existing stored value.'
+                  example: architecto
+                cantidad_usos:
+                  type: integer
+                  description: 'El campo value debe ser al menos 2. El campo value no debe ser mayor que 100.'
+                  example: 22
+                precio:
+                  type: number
+                  description: 'El campo value debe ser al menos 0.01.'
+                  example: 84
+                vigencia_dias:
+                  type: integer
+                  description: 'El campo value debe ser al menos 1. El campo value no debe ser mayor que 730.'
+                  example: 16
+                  nullable: true
+                activo:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+              required:
+                - nombre
+                - service_id
+                - cantidad_usos
+                - precio
+      security: []
+  '/api/v1/admin/service-packages/{servicePackage_id}':
+    put:
+      summary: "Actualiza una plantilla de paquete existente. No afecta a los\nClientPackage ya comprados (su precio quedó congelado al comprarlos)."
+      operationId: actualizaUnaPlantillaDePaqueteExistenteNoAfectaALosClientPackageYaCompradossuPrecioQuedCongeladoAlComprarlos
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: 'El campo value no debe tener más de 120 caracteres.'
+                  example: b
+                service_id:
+                  type: string
+                  description: 'Must match an existing stored value.'
+                  example: architecto
+                cantidad_usos:
+                  type: integer
+                  description: 'El campo value debe ser al menos 2. El campo value no debe ser mayor que 100.'
+                  example: 22
+                precio:
+                  type: number
+                  description: 'El campo value debe ser al menos 0.01.'
+                  example: 84
+                vigencia_dias:
+                  type: integer
+                  description: 'El campo value debe ser al menos 1. El campo value no debe ser mayor que 730.'
+                  example: 16
+                  nullable: true
+                activo:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+              required:
+                - nombre
+                - service_id
+                - cantidad_usos
+                - precio
+      security: []
+    delete:
+      summary: "Desactiva un paquete (deja de venderse) en vez de eliminarlo -- los\nClientPackage ya vendidos deben seguir siendo canjeables."
+      operationId: desactivaUnPaquetedejaDeVenderseEnVezDeEliminarloLosClientPackageYaVendidosDebenSeguirSiendoCanjeables
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: servicePackage_id
+        description: 'The ID of the servicePackage.'
+        example: architecto
+        required: true
+        schema:
+          type: string
   /api/v1/clients:
     get:
       summary: ''
@@ -1963,7 +2106,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T18:07:03'
+                  example: '2026-09-11T18:41:39'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -2021,7 +2164,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T18:07:04'
+                  example: '2026-09-11T18:41:39'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -2031,7 +2174,7 @@ paths:
                 pref_email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_sms:
                   type: boolean
@@ -2458,7 +2601,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '18:07'
+                  example: '18:41'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -2864,15 +3007,15 @@ paths:
                 in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 sms:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 whatsapp:
                   type: boolean
                   description: ''
@@ -2880,11 +3023,11 @@ paths:
                 push:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 promociones:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
       security: []
   /api/v1/push/vapid-public-key:
     get:
@@ -2947,7 +3090,7 @@ paths:
                 content_encoding:
                   type: string
                   description: ''
-                  example: aes128gcm
+                  example: aesgcm
                   enum:
                     - aesgcm
                     - aes128gcm
@@ -3480,7 +3623,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
       security: []
     parameters:
       -
@@ -3779,12 +3922,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -3868,12 +4011,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
       security: []
     delete:
@@ -3913,7 +4056,7 @@ paths:
                 tipo:
                   type: string
                   description: ''
-                  example: entrada
+                  example: salida
                   enum:
                     - entrada
                     - salida
@@ -4257,7 +4400,7 @@ paths:
                 helpful:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
               required:
                 - message
                 - response
@@ -4933,12 +5076,12 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -5011,7 +5154,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -5174,7 +5317,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-11T18:07:04'
+                  example: '2026-09-11T18:41:39'
                   nullable: true
               required:
                 - product_id
@@ -5252,6 +5395,104 @@ paths:
         required: true
         schema:
           type: string
+  /api/v1/packages/catalog:
+    get:
+      summary: 'Catálogo de paquetes activos disponibles para comprar.'
+      operationId: catlogoDePaquetesActivosDisponiblesParaComprar
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - 'Paquetes prepagados'
+      security: []
+  /api/v1/packages:
+    get:
+      summary: 'Mis paquetes (cliente) o los de un cliente indicado (staff).'
+      operationId: misPaquetesclienteOLosDeUnClienteIndicadostaff
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - 'Paquetes prepagados'
+      security: []
+    post:
+      summary: 'Compra en efectivo, registrada por staff (Admin/Recepcionista).'
+      operationId: compraEnEfectivoRegistradaPorStaffAdminRecepcionista
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Paquetes prepagados'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: 'ID del cliente.'
+                  example: 66f0...
+                service_package_id:
+                  type: string
+                  description: 'ID del paquete.'
+                  example: 66f1...
+              required:
+                - client_id
+                - service_package_id
+      security: []
+  /api/v1/packages/stripe-intent:
+    post:
+      summary: 'Crea el PaymentIntent de Stripe para comprar un paquete con tarjeta.'
+      operationId: creaElPaymentIntentDeStripeParaComprarUnPaqueteConTarjeta
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Paquetes prepagados'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_package_id:
+                  type: string
+                  description: 'ID del paquete.'
+                  example: 66f1...
+                client_id:
+                  type: string
+                  description: 'Must match an existing stored value.'
+                  example: architecto
+              required:
+                - service_package_id
+      security: []
   /api/v1/barber/portfolio:
     get:
       summary: 'Listar Trabajos del Barbero'

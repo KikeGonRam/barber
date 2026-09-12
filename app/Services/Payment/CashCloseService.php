@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Models\ClientPackage;
 use App\Models\Order;
 use App\Models\Payment;
 use Carbon\Carbon;
@@ -9,23 +10,27 @@ use Carbon\Carbon;
 /**
  * Calcula el dinero realmente recibido en un día, por método de pago.
  *
- * Dos fuentes, no una: los cobros de citas viven en Payment, pero las ventas
- * de la tienda NO generan Payment -- Order lleva su propio total y
- * metodo_pago (ver App\Models\Order). Un corte que solo mirara pagos
- * subreportaría todas las ventas de producto del día.
+ * Tres fuentes, no una: los cobros de citas viven en Payment, las ventas de
+ * la tienda NO generan Payment -- Order lleva su propio total y metodo_pago
+ * (ver App\Models\Order) -- y la compra de un paquete prepagado tampoco es
+ * un Payment (no está ligada a ninguna cita, ver PackageService). Un corte
+ * que solo mirara pagos subreportaría ventas de producto Y paquetes del día.
  *
  * Qué cuenta como dinero recibido:
  *  - Payment con estado 'verificado'. Nunca 'pendiente_verificacion' (una
  *    transferencia sin revisar todavía no está en la cuenta) ni 'rechazado'.
  *  - Order con estado 'entregado', fechada por entregado_en, que es cuando
  *    se cobra en el mostrador (ver OrderController::deliver()).
+ *  - ClientPackage: toda compra registrada cuenta como dinero recibido de
+ *    inmediato -- este primer alcance solo admite efectivo/tarjeta
+ *    (ver PackageService), nunca transferencia pendiente de revisar.
  */
 class CashCloseService
 {
     /**
      * Desglose del día: totales por método, propinas y gran total.
      *
-     * @return array{por_metodo: array<string, float>, propinas: float, total: float, pagos: int, pedidos: int}
+     * @return array{por_metodo: array<string, float>, propinas: float, total: float, pagos: int, pedidos: int, paquetes: int}
      */
     public function expectedFor(Carbon $date): array
     {
@@ -58,6 +63,14 @@ class CashCloseService
             $porMetodo[$metodo] = ($porMetodo[$metodo] ?? 0.0) + (float) ($order->total ?? 0);
         }
 
+        $packages = ClientPackage::whereBetween('comprado_en', [$start, $end])
+            ->get(['metodo_pago', 'precio_pagado']);
+
+        foreach ($packages as $package) {
+            $metodo = $this->methodKey($package->metodo_pago);
+            $porMetodo[$metodo] = ($porMetodo[$metodo] ?? 0.0) + (float) ($package->precio_pagado ?? 0);
+        }
+
         $porMetodo = array_map(fn (float $v) => round($v, 2), $porMetodo);
         ksort($porMetodo);
 
@@ -67,6 +80,7 @@ class CashCloseService
             'total' => round(array_sum($porMetodo), 2),
             'pagos' => $payments->count(),
             'pedidos' => $orders->count(),
+            'paquetes' => $packages->count(),
         ];
     }
 

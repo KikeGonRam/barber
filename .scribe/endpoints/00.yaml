@@ -950,7 +950,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: transferencia
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -960,7 +960,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      metodo_pago: transferencia
+      metodo_pago: tarjeta
     fileParameters: []
     responses: []
     responseFields: []
@@ -1110,7 +1110,7 @@ endpoints:
       monto:
         custom: []
         name: monto
-        description: 'Con premio de rifa el cobro real es $0 (ver PaymentService::create()).'
+        description: 'Con premio de rifa o paquete el cobro real es $0 (ver PaymentService::create()).'
         required: true
         example: 4326.41688
         type: number
@@ -1123,7 +1123,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: transferencia
         type: string
         enumValues:
           - efectivo
@@ -1165,6 +1165,17 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      usar_paquete_id:
+        custom: []
+        name: usar_paquete_id
+        description: 'Must match an existing stored value.'
+        required: false
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
       stripe_payment_id:
         custom: []
         name: stripe_payment_id
@@ -1179,10 +1190,11 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: efectivo
+      metodo_pago: transferencia
       propina: 77
       puntos_canjeados: 8
       usar_premio_rifa: false
+      usar_paquete_id: architecto
       stripe_payment_id: architecto
     fileParameters: []
     responses: []
@@ -1340,6 +1352,311 @@ endpoints:
     custom: []
     httpMethods:
       - GET
+    uri: api/v1/admin/service-packages
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Lista todas las plantillas de paquetes.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/admin/service-packages
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Crea una nueva plantilla de paquete.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      nombre:
+        custom: []
+        name: nombre
+        description: 'El campo value no debe tener más de 120 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      service_id:
+        custom: []
+        name: service_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      cantidad_usos:
+        custom: []
+        name: cantidad_usos
+        description: 'El campo value debe ser al menos 2. El campo value no debe ser mayor que 100.'
+        required: true
+        example: 22
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      precio:
+        custom: []
+        name: precio
+        description: 'El campo value debe ser al menos 0.01.'
+        required: true
+        example: 84
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      vigencia_dias:
+        custom: []
+        name: vigencia_dias
+        description: 'El campo value debe ser al menos 1. El campo value no debe ser mayor que 730.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      activo:
+        custom: []
+        name: activo
+        description: ''
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      nombre: b
+      service_id: architecto
+      cantidad_usos: 22
+      precio: 84
+      vigencia_dias: 16
+      activo: true
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/v1/admin/service-packages/{servicePackage_id}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Actualiza una plantilla de paquete existente. No afecta a los
+        ClientPackage ya comprados (su precio quedó congelado al comprarlos).
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      servicePackage_id:
+        custom: []
+        name: servicePackage_id
+        description: 'The ID of the servicePackage.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      servicePackage_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      nombre:
+        custom: []
+        name: nombre
+        description: 'El campo value no debe tener más de 120 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      service_id:
+        custom: []
+        name: service_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      cantidad_usos:
+        custom: []
+        name: cantidad_usos
+        description: 'El campo value debe ser al menos 2. El campo value no debe ser mayor que 100.'
+        required: true
+        example: 22
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      precio:
+        custom: []
+        name: precio
+        description: 'El campo value debe ser al menos 0.01.'
+        required: true
+        example: 84
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      vigencia_dias:
+        custom: []
+        name: vigencia_dias
+        description: 'El campo value debe ser al menos 1. El campo value no debe ser mayor que 730.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      activo:
+        custom: []
+        name: activo
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      nombre: b
+      service_id: architecto
+      cantidad_usos: 22
+      precio: 84
+      vigencia_dias: 16
+      activo: false
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/admin/service-packages/{servicePackage_id}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Desactiva un paquete (deja de venderse) en vez de eliminarlo -- los
+        ClientPackage ya vendidos deben seguir siendo canjeables.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      servicePackage_id:
+        custom: []
+        name: servicePackage_id
+        description: 'The ID of the servicePackage.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      servicePackage_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
     uri: api/v1/clients
     metadata:
       custom: []
@@ -1448,7 +1765,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-11T18:07:03'
+        example: '2026-09-11T18:41:39'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1503,7 +1820,7 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-11T18:07:03'
+      fecha_nacimiento: '2026-09-11T18:41:39'
       pref_in_app: true
       pref_email: false
       pref_sms: false
@@ -1588,7 +1905,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-11T18:07:04'
+        example: '2026-09-11T18:41:39'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1610,7 +1927,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1642,9 +1959,9 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-11T18:07:04'
+      fecha_nacimiento: '2026-09-11T18:41:39'
       pref_in_app: true
-      pref_email: false
+      pref_email: true
       pref_sms: true
       pref_whatsapp: false
     fileParameters: []
@@ -2531,7 +2848,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '18:07'
+        example: '18:41'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2667,7 +2984,7 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '18:07'
+      horario_apertura: '18:41'
       horario_cierre: '2052-10-04'
       politica_cancelacion: 22
       deposito_no_show_umbral: 7
@@ -3379,7 +3696,7 @@ endpoints:
         name: in_app
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3390,7 +3707,7 @@ endpoints:
         name: email
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3401,7 +3718,7 @@ endpoints:
         name: sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3423,7 +3740,7 @@ endpoints:
         name: push
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3434,19 +3751,19 @@ endpoints:
         name: promociones
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      in_app: true
-      email: false
-      sms: false
+      in_app: false
+      email: true
+      sms: true
       whatsapp: false
-      push: true
-      promociones: true
+      push: false
+      promociones: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -3572,7 +3889,7 @@ endpoints:
         name: content_encoding
         description: ''
         required: false
-        example: aes128gcm
+        example: aesgcm
         type: string
         enumValues:
           - aesgcm
@@ -3585,7 +3902,7 @@ endpoints:
       keys:
         p256dh: architecto
         auth: architecto
-      content_encoding: aes128gcm
+      content_encoding: aesgcm
     fileParameters: []
     responses: []
     responseFields: []
@@ -4728,7 +5045,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4737,7 +5054,7 @@ endpoints:
     cleanBodyParameters:
       especialidades: b
       descripcion: architecto
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -5076,7 +5393,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5087,7 +5404,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5102,8 +5419,8 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: true
-      active: false
+      activo: false
+      active: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -5239,7 +5556,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5250,7 +5567,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5265,8 +5582,8 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: true
-      active: true
+      activo: false
+      active: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -5357,7 +5674,7 @@ endpoints:
         name: tipo
         description: ''
         required: true
-        example: entrada
+        example: salida
         type: string
         enumValues:
           - entrada
@@ -5388,7 +5705,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      tipo: entrada
+      tipo: salida
       cantidad: 16
       motivo: architecto
     fileParameters: []
