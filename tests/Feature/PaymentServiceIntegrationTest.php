@@ -7,9 +7,11 @@ use App\Jobs\RunOcrOnComprobante;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
+use App\Models\GiftCard;
 use App\Models\Payment;
 use App\Models\RaffleResult;
 use App\Models\Service;
+use App\Services\Package\GiftCardService;
 use App\Services\Payment\PaymentService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
@@ -40,6 +42,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Payment::query()->delete();
         RaffleResult::query()->delete();
+        GiftCard::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
@@ -361,6 +364,56 @@ class PaymentServiceIntegrationTest extends TestCase
             'monto' => 500,
             'metodo_pago' => 'tarjeta',
         ], (string) Str::uuid());
+    }
+
+    /**
+     * Reproduce en vivo la carrera real entre el webhook de Stripe y el POST
+     * directo de staff para la MISMA cita con tarjeta (ambos llaman a
+     * create()): el decrement() de GiftCardService::apply() es lo primero
+     * que escribe en la transacción, antes del índice único de Payment de
+     * más abajo, así que un BulkWriteException ahí llegaba crudo hasta el
+     * perdedor de la carrera en vez del mismo PaymentException limpio que ya
+     * usa el resto de este método. Se simula el "write conflict" real de
+     * Mongo mockeando GiftCardService (probar la concurrencia real de Mongo
+     * no es determinista en PHPUnit).
+     */
+    public function test_create_converts_a_gift_card_write_conflict_into_a_clean_payment_exception(): void
+    {
+        Notification::fake();
+        Storage::fake('public');
+
+        $appointment = $this->makeChargeableAppointment();
+        $giftCard = GiftCard::create([
+            'monto_inicial' => 100,
+            'saldo' => 100,
+            'metodo_pago' => 'efectivo',
+            'comprado_en' => now(),
+            'estado' => GiftCard::ESTADO_ACTIVA,
+        ]);
+
+        $this->mock(GiftCardService::class, function ($mock) use ($giftCard) {
+            $mock->shouldReceive('findRedeemable')->once()->with($giftCard->code)->andReturn($giftCard);
+            $mock->shouldReceive('apply')->once()->andThrow(new BulkWriteException('Write conflict during plan execution and yielding is disabled.'));
+        });
+
+        $service = app(PaymentService::class);
+
+        try {
+            $service->create([
+                'appointment_id' => (string) $appointment->id,
+                'monto' => 300,
+                'metodo_pago' => 'tarjeta',
+                'codigo_gift_card' => $giftCard->code,
+                'stripe_payment_id' => 'pi_test_race',
+            ], (string) Str::uuid());
+
+            $this->fail('Se esperaba un PaymentException.');
+        } catch (PaymentException $e) {
+            $this->assertSame('La cita ya tiene un pago registrado.', $e->getMessage());
+        }
+
+        // La transacción completa debe revertirse: nada de pago a medias.
+        $this->assertNull(Payment::query()->where('appointment_id', (string) $appointment->id)->first());
     }
 
     public function test_upload_transfer_receipt_creates_pending_payment_and_dispatches_ocr_job(): void

@@ -175,7 +175,24 @@ class PaymentService
                 // el cobro, solo se descuenta lo que sí cubre y el resto se
                 // paga por metodo_pago normal (no es todo-o-nada como el
                 // paquete/premio de rifa).
-                $giftCardAplicado = $this->giftCards->apply($giftCard, $monto);
+                //
+                // Mismo cruce que el catch (BulkWriteException) de más abajo
+                // (webhook de Stripe vs. POST directo de staff para la MISMA
+                // cita con tarjeta) puede aterrizar aquí primero: el
+                // decrement() de GiftCardService::apply() es lo primero que
+                // escribe en la transacción, antes de llegar al índice único
+                // de Payment. Sin este catch, el perdedor de la carrera
+                // recibía el BulkWriteException crudo de Mongo en vez de un
+                // mensaje claro. Si en cambio el saldo genuinamente no
+                // alcanza (sin relación con esta carrera), apply() ya lanza
+                // GiftCardException con su propio mensaje correcto -- no se
+                // captura aquí para no ocultarlo detrás de un mensaje de
+                // "pago ya registrado" que sería engañoso en ese caso.
+                try {
+                    $giftCardAplicado = $this->giftCards->apply($giftCard, $monto);
+                } catch (BulkWriteException $e) {
+                    throw new PaymentException('La cita ya tiene un pago registrado.');
+                }
                 $monto = round($monto - $giftCardAplicado, 2);
             }
 
