@@ -2221,12 +2221,6 @@ parameters:
 			path: app/Services/Payment/PaymentService.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nivel\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Services/Payment/PaymentService.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
 			identifier: property.notFound
 			count: 2
@@ -4008,3 +4002,33 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$stripe_customer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/MembershipServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$cancelar_al_finalizar\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/MembershipServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 4
+			path: tests/Feature/MembershipServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$bloquea_membresia\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/MembershipServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$periodo_actual_fin\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/MembershipServiceTest.php
