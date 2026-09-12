@@ -49,6 +49,11 @@ class BarberManagementController extends Controller
                 'descripcion' => $barber->descripcion,
                 'foto' => $barber->foto,
                 'activo' => (bool) $barber->activo,
+                // % de comisión sobre el precio de lista de cada servicio
+                // que completa (ver BarberCommissionService), editable solo
+                // aquí -- no tiene endpoint propio, vive en el mismo
+                // formulario que el resto del perfil.
+                'comision_pct' => (float) $barber->comision_pct,
                 'user' => [
                     'id' => $barber->user?->id,
                     'name' => $barber->user?->name,
@@ -79,6 +84,7 @@ class BarberManagementController extends Controller
             'descripcion' => ['nullable', 'string', 'max:1000'],
             'foto' => ['nullable', 'string', 'max:255'],
             'activo' => ['nullable', 'boolean'],
+            'comision_pct' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
 
         $barber->user()->update([
@@ -91,6 +97,7 @@ class BarberManagementController extends Controller
             'descripcion' => $data['descripcion'] ?? null,
             'foto' => $data['foto'] ?? null,
             'activo' => (bool) ($data['activo'] ?? false),
+            'comision_pct' => $data['comision_pct'] ?? 0,
         ]);
 
         $barber->load('user:id,name,email');
@@ -104,6 +111,7 @@ class BarberManagementController extends Controller
                 'descripcion' => $barber->descripcion,
                 'foto' => $barber->foto,
                 'activo' => (bool) $barber->activo,
+                'comision_pct' => (float) $barber->comision_pct,
                 'user' => [
                     'id' => $barber->user?->id,
                     'name' => $barber->user?->name,

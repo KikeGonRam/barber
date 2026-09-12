@@ -93,17 +93,20 @@ class BarberManagementApiTest extends TestCase
             'descripcion' => 'Especialista en degradados.',
             'foto' => 'https://example.com/foto.jpg',
             'activo' => false,
+            'comision_pct' => 45,
         ]);
 
         $response->assertOk();
         $response->assertJsonPath('data.user.name', 'Nombre Nuevo');
         $response->assertJsonPath('data.especialidades', 'Fades, barba');
         $response->assertJsonPath('data.activo', false);
+        $response->assertJsonPath('data.comision_pct', 45);
 
         $fresh = $barber->fresh();
         $this->assertSame('Fades, barba', $fresh->especialidades);
         $this->assertFalse((bool) $fresh->activo);
         $this->assertSame('Nombre Nuevo', $fresh->user->name);
+        $this->assertSame(45.0, (float) $fresh->comision_pct);
     }
 
     public function test_update_requires_name_and_a_valid_unique_email(): void
