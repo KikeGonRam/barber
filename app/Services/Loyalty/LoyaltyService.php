@@ -126,6 +126,16 @@ class LoyaltyService
     }
 
     /**
+     * El descuento por nivel de lealtad y el de una membresía recurrente
+     * activa (ver MembershipService::activeDiscountFor()) nunca se suman --
+     * siempre se aplica el mayor de los dos.
+     */
+    public static function bestDiscountPct(string $nivel, int $membershipPct): int
+    {
+        return max(self::discountPct($nivel), $membershipPct);
+    }
+
+    /**
      * Máximo de puntos canjeables en una sola visita: 1 punto = $1 MXN, con
      * tope del 50% del total (ya con el descuento de nivel aplicado) para
      * que el cliente siempre pague al menos la mitad en efectivo/tarjeta, y

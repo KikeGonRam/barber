@@ -835,6 +835,12 @@ parameters:
 			path: app/Http/Controllers/Api/Payment/PaymentController.php
 
 		-
+			message: '#^Parameter \#1 \$client of method App\\Services\\Membership\\MembershipService\:\:activeDiscountFor\(\) expects App\\Models\\Client, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/Payment/PaymentController.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
 			identifier: property.notFound
 			count: 3
@@ -2257,9 +2263,15 @@ parameters:
 			path: app/Services/Payment/PaymentService.php
 
 		-
+			message: '#^Parameter \#2 \$client of method App\\Services\\Payment\\PaymentService\:\:applyBestDiscount\(\) expects App\\Models\\Client\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Payment/PaymentService.php
+
+		-
 			message: '#^Using nullsafe property access "\?\-\>nivel" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
-			count: 2
+			count: 1
 			path: app/Services/Payment/PaymentService.php
 
 		-
@@ -3828,3 +3840,171 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: tests/Feature/ReferralServiceTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$precio_mensual\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/Admin/Membership/MembershipPlanController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Membership/MembershipPlanController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$descripcion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Membership/MembershipPlanController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$descuento_pct\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Membership/MembershipPlanController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$activo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Admin/Membership/MembershipPlanController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$descripcion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$precio_mensual\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$descuento_pct\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$cancelar_al_finalizar\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$periodo_actual_fin\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio_mensual\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$descuento_pct\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/Membership/MembershipController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$membership_plan_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\|Illuminate\\Database\\Eloquent\\Collection\<int\, App\\Models\\MembershipPlan\>\:\:\$descuento_pct\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$activo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Client\:\:\$stripe_customer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$stripe_price_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$cancelar_al_finalizar\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Membership/MembershipService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$stripe_subscription_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Membership/MembershipService.php

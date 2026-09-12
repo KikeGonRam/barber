@@ -5,6 +5,7 @@ namespace App\Services\Payment;
 use App\Exceptions\Domain\PaymentException;
 use App\Jobs\RunOcrOnComprobante;
 use App\Models\Appointment;
+use App\Models\Client;
 use App\Models\ClientPackage;
 use App\Models\Payment;
 use App\Notifications\Payment\PaymentReceiptNotification;
@@ -15,6 +16,7 @@ use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Loyalty\RaffleService;
 use App\Services\Loyalty\ReferralService;
+use App\Services\Membership\MembershipService;
 use App\Services\Package\GiftCardService;
 use App\Services\Package\PackageService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -40,7 +42,21 @@ class PaymentService
         private readonly PackageService $packages,
         private readonly GiftCardService $giftCards,
         private readonly ReferralService $referrals,
+        private readonly MembershipService $memberships,
     ) {}
+
+    /**
+     * Aplica el mayor de dos descuentos -- por nivel de lealtad o por
+     * membresía recurrente activa -- nunca ambos sumados (decisión de
+     * negocio: la membresía es un beneficio alternativo, no acumulable).
+     */
+    private function applyBestDiscount(float $precioBase, ?Client $client): float
+    {
+        $membershipPct = $client ? $this->memberships->activeDiscountFor($client) : 0;
+        $pct = LoyaltyService::bestDiscountPct($client?->nivel ?? 'nuevo', $membershipPct);
+
+        return $pct > 0 ? round($precioBase * (1 - $pct / 100), 2) : $precioBase;
+    }
 
     /**
      * Lista pagos paginados aplicando filtros del repositorio.
@@ -117,7 +133,7 @@ class PaymentService
                 // uploadTransferReceipt() y el intent de Stripe. El campo "Monto
                 // del Servicio" del formulario es solo informativo/legado.
                 $precioBase = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
-                $monto = LoyaltyService::applyDiscount($precioBase, $client?->nivel ?? 'nuevo');
+                $monto = $this->applyBestDiscount($precioBase, $client);
 
                 if ($puntosCanjeados > 0) {
                     if (! $client) {
@@ -238,7 +254,7 @@ class PaymentService
         // cliente antes de que transfiriera, para que el monto registrado
         // coincida exactamente con lo que se le pidio transferir.
         $precioBase = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
-        $monto = LoyaltyService::applyDiscount($precioBase, $appointment->client?->nivel ?? 'nuevo');
+        $monto = $this->applyBestDiscount($precioBase, $appointment->client);
 
         try {
             $payment = $this->payments->create([

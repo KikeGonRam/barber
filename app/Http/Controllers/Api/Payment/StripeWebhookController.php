@@ -10,10 +10,12 @@ use App\Models\Payment;
 use App\Models\ServicePackage;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Membership\MembershipService;
 use App\Services\Package\GiftCardService;
 use App\Services\Package\PackageService;
 use App\Services\Payment\DepositService;
 use App\Services\Payment\PaymentService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
@@ -33,6 +35,7 @@ class StripeWebhookController extends Controller
         private readonly DepositService $deposits,
         private readonly PackageService $packages,
         private readonly GiftCardService $giftCards,
+        private readonly MembershipService $memberships,
     ) {}
 
     /**
@@ -61,6 +64,9 @@ class StripeWebhookController extends Controller
             'payment_intent.payment_failed' => $this->onFailed($event->data->object),
             'charge.refunded' => $this->onRefunded($event->data->object),
             'charge.dispute.created' => $this->onDisputeCreated($event->data->object),
+            'customer.subscription.updated' => $this->onSubscriptionUpdated($event->data->object),
+            'customer.subscription.deleted' => $this->onSubscriptionDeleted($event->data->object),
+            'invoice.payment_succeeded' => $this->onInvoicePaymentSucceeded($event->data->object),
             default => null,
         };
 
@@ -346,6 +352,64 @@ class StripeWebhookController extends Controller
             "{$cliente} disputó su cobro con tarjeta directamente con su banco. Revisa el caso en el dashboard de Stripe.",
             '#ef4444',
             'Disputa',
+        );
+    }
+
+    /**
+     * Fuente de verdad de una membresía recurrente (ver MembershipService):
+     * cubre tanto la activación (primer pago confirmado, status pasa de
+     * 'incomplete' a 'active') como cada renovación y cada pago fallido
+     * (Stripe transiciona el status a 'past_due'/'unpaid' solo, sin un
+     * evento propio -- no hace falta escuchar invoice.payment_failed aparte).
+     */
+    private function onSubscriptionUpdated(object $subscription): void
+    {
+        $periodoActualFin = isset($subscription->current_period_end)
+            ? Carbon::createFromTimestamp($subscription->current_period_end)
+            : null;
+
+        $this->memberships->syncFromStripeStatus(
+            $subscription->id,
+            $subscription->status,
+            $periodoActualFin,
+            (bool) ($subscription->cancel_at_period_end ?? false),
+        );
+    }
+
+    /**
+     * La suscripción ya no existe en Stripe: cancelación efectiva al cierre
+     * del periodo (cancel_at_period_end ya cumplido), o Stripe canceló sola
+     * una 'incomplete' que el cliente nunca confirmó pasadas ~23 horas.
+     */
+    private function onSubscriptionDeleted(object $subscription): void
+    {
+        $this->memberships->markCancelledByStripe($subscription->id);
+    }
+
+    /**
+     * Un cobro de membresía (alta o renovación) se confirmó: se registra
+     * para que CashCloseService lo sume al corte del día -- este dinero
+     * nunca pasa por Payment ni por el mostrador, Stripe lo cobra solo.
+     * Ignora invoices que no pertenecen a ninguna suscripción (facturas
+     * sueltas, si alguna vez existieran, no son de membresía).
+     */
+    private function onInvoicePaymentSucceeded(object $invoice): void
+    {
+        $subscriptionId = $invoice->subscription ?? null;
+
+        if (! $subscriptionId) {
+            return;
+        }
+
+        $pagadoEn = isset($invoice->status_transitions->paid_at)
+            ? Carbon::createFromTimestamp($invoice->status_transitions->paid_at)
+            : null;
+
+        $this->memberships->recordSuccessfulInvoice(
+            $subscriptionId,
+            $invoice->id,
+            ((int) ($invoice->amount_paid ?? 0)) / 100,
+            $pagadoEn,
         );
     }
 }

@@ -64,6 +64,7 @@ class CashCloseController extends Controller
                 'pedidos' => $expected['pedidos'],
                 'paquetes' => $expected['paquetes'],
                 'gift_cards' => $expected['gift_cards'],
+                'membresias' => $expected['membresias'],
                 // Si ya se cerró ese día, el frontend muestra el corte hecho
                 // en vez de ofrecer cerrarlo otra vez.
                 'cierre' => CashClose::whereBetween('fecha', [$date->copy()->startOfDay(), $date->copy()->endOfDay()])->first(),

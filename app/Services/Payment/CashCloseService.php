@@ -4,6 +4,7 @@ namespace App\Services\Payment;
 
 use App\Models\ClientPackage;
 use App\Models\GiftCard;
+use App\Models\MembershipInvoice;
 use App\Models\Order;
 use App\Models\Payment;
 use Carbon\Carbon;
@@ -11,12 +12,14 @@ use Carbon\Carbon;
 /**
  * Calcula el dinero realmente recibido en un día, por método de pago.
  *
- * Cuatro fuentes, no una: los cobros de citas viven en Payment, las ventas
+ * Cinco fuentes, no una: los cobros de citas viven en Payment, las ventas
  * de la tienda NO generan Payment -- Order lleva su propio total y
- * metodo_pago (ver App\Models\Order) -- y ni la compra de un paquete
- * prepagado ni la de una gift card son un Payment (no están ligadas a
- * ninguna cita, ver PackageService/GiftCardService). Un corte que solo
- * mirara pagos subreportaría ventas de producto, paquetes Y gift cards.
+ * metodo_pago (ver App\Models\Order) -- ni la compra de un paquete
+ * prepagado, ni la de una gift card, ni un cobro de membresía recurrente son
+ * un Payment (no están ligados a ninguna cita, ver
+ * PackageService/GiftCardService/MembershipService). Un corte que solo
+ * mirara pagos subreportaría ventas de producto, paquetes, gift cards Y
+ * membresías.
  *
  * Qué cuenta como dinero recibido:
  *  - Payment con estado 'verificado'. Nunca 'pendiente_verificacion' (una
@@ -30,13 +33,16 @@ use Carbon\Carbon;
  *    card contra un Payment, ese dinero no se cuenta dos veces: el Payment
  *    ya nace con el monto reducido por lo que la tarjeta cubrió, y la
  *    compra original de la tarjeta ya se contó el día que se compró.
+ *  - MembershipInvoice: cada alta/renovación de membresía que Stripe cobró
+ *    con éxito, siempre método 'tarjeta' (Stripe Subscriptions es 100%
+ *    tarjeta, sin equivalente en efectivo/transferencia).
  */
 class CashCloseService
 {
     /**
      * Desglose del día: totales por método, propinas y gran total.
      *
-     * @return array{por_metodo: array<string, float>, propinas: float, total: float, pagos: int, pedidos: int, paquetes: int, gift_cards: int}
+     * @return array{por_metodo: array<string, float>, propinas: float, total: float, pagos: int, pedidos: int, paquetes: int, gift_cards: int, membresias: int}
      */
     public function expectedFor(Carbon $date): array
     {
@@ -85,6 +91,12 @@ class CashCloseService
             $porMetodo[$metodo] = ($porMetodo[$metodo] ?? 0.0) + (float) ($giftCard->monto_inicial ?? 0);
         }
 
+        $membershipInvoices = MembershipInvoice::whereBetween('pagado_en', [$start, $end])->get(['monto']);
+
+        foreach ($membershipInvoices as $invoice) {
+            $porMetodo['tarjeta'] = ($porMetodo['tarjeta'] ?? 0.0) + (float) ($invoice->monto ?? 0);
+        }
+
         $porMetodo = array_map(fn (float $v) => round($v, 2), $porMetodo);
         ksort($porMetodo);
 
@@ -96,6 +108,7 @@ class CashCloseService
             'pedidos' => $orders->count(),
             'paquetes' => $packages->count(),
             'gift_cards' => $giftCards->count(),
+            'membresias' => $membershipInvoices->count(),
         ];
     }
 

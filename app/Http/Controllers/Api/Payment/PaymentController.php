@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Payment;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Membership\MembershipService;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\StripePaymentService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -27,6 +28,7 @@ class PaymentController extends Controller
     public function __construct(
         private readonly PaymentService $paymentService,
         private readonly StripePaymentService $stripeService,
+        private readonly MembershipService $memberships,
     ) {}
 
     /**
@@ -263,7 +265,9 @@ class PaymentController extends Controller
 
         $client = $appointment->client;
         $baseMonto = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
-        $monto = LoyaltyService::applyDiscount($baseMonto, $client?->nivel ?? 'nuevo');
+        $membershipPct = $client ? $this->memberships->activeDiscountFor($client) : 0;
+        $pct = LoyaltyService::bestDiscountPct($client?->nivel ?? 'nuevo', $membershipPct);
+        $monto = $pct > 0 ? round($baseMonto * (1 - $pct / 100), 2) : $baseMonto;
 
         $puntosCanjeados = (int) ($validated['puntos_canjeados'] ?? 0);
         if ($puntosCanjeados > 0) {

@@ -1,535 +1,28 @@
-name: Inventario
+name: 'Corte de caja'
 description: |-
 
-  Gestión de productos, stock y movimientos de almacén.
+  Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
+  efectivo se contó y la diferencia. Administración y recepción, que es quien
+  cierra el turno.
 endpoints:
   -
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/inventory/products
+    uri: api/v1/cash-closes
     metadata:
       custom: []
-      groupName: Inventario
+      groupName: 'Corte de caja'
       groupDescription: |-
 
-        Gestión de productos, stock y movimientos de almacén.
+        Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
+        efectivo se contó y la diferencia. Administración y recepción, que es quien
+        cierra el turno.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Listar Productos'
-      description: 'Obtiene el catálogo de productos con su stock actual y alertas de stock bajo.'
+      title: 'Historial de cortes'
+      description: ''
       authenticated: true
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters:
-      categoria:
-        custom: []
-        name: categoria
-        description: 'Filtrar por categoría.'
-        required: false
-        example: Barbería
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: 'Filtrar por tipo (insumo, venta).'
-        required: false
-        example: venta
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanQueryParameters:
-      categoria: Barbería
-      tipo: venta
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 200
-        content: |-
-          {
-           "data": [
-             {
-               "id": 1,
-               "nombre": "Pomada Mate",
-               "categoria": "Fijación",
-               "stock_actual": 15,
-               "low_stock": false,
-               "precio_venta": 25.00
-             }
-           ]
-          }
-        headers: []
-        description: ''
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: api/v1/inventory/products
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: multipart/form-data
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      nombre:
-        custom: []
-        name: nombre
-        description: 'El campo value no debe tener más de 120 caracteres.'
-        required: true
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      categoria:
-        custom: []
-        name: categoria
-        description: 'El campo value no debe tener más de 100 caracteres.'
-        required: true
-        example: 'n'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      descripcion:
-        custom: []
-        name: descripcion
-        description: 'El campo value no debe tener más de 2000 caracteres.'
-        required: false
-        example: g
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      precio_compra:
-        custom: []
-        name: precio_compra
-        description: 'El campo value debe ser al menos 0.'
-        required: true
-        example: 12
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      precio_venta:
-        custom: []
-        name: precio_venta
-        description: 'El campo value debe ser al menos 0.'
-        required: true
-        example: 77
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_actual:
-        custom: []
-        name: stock_actual
-        description: 'El campo value debe ser al menos 0.'
-        required: true
-        example: 8
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_minimo:
-        custom: []
-        name: stock_minimo
-        description: 'El campo value debe ser al menos 0.'
-        required: true
-        example: 76
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: ''
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      imagen:
-        custom: []
-        name: imagen
-        description: 'El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes.'
-        required: false
-        example: null
-        type: file
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      active:
-        custom: []
-        name: active
-        description: ''
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      activo:
-        custom: []
-        name: activo
-        description: ''
-        required: false
-        example: false
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      nombre: b
-      categoria: 'n'
-      descripcion: g
-      precio_compra: 12
-      precio_venta: 77
-      stock_actual: 8
-      stock_minimo: 76
-      tipo: architecto
-      active: true
-      activo: false
-    fileParameters:
-      imagen: null
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - PUT
-    uri: 'api/v1/inventory/products/{product_id}'
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: multipart/form-data
-      Accept: application/json
-    urlParameters:
-      product_id:
-        custom: []
-        name: product_id
-        description: 'The ID of the product.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      product_id: architecto
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      nombre:
-        custom: []
-        name: nombre
-        description: 'El campo value no debe tener más de 120 caracteres.'
-        required: false
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      categoria:
-        custom: []
-        name: categoria
-        description: 'El campo value no debe tener más de 100 caracteres.'
-        required: false
-        example: 'n'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      descripcion:
-        custom: []
-        name: descripcion
-        description: 'El campo value no debe tener más de 2000 caracteres.'
-        required: false
-        example: g
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      precio_compra:
-        custom: []
-        name: precio_compra
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 12
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      precio_venta:
-        custom: []
-        name: precio_venta
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 77
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_actual:
-        custom: []
-        name: stock_actual
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 8
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_minimo:
-        custom: []
-        name: stock_minimo
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 76
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: ''
-        required: false
-        example: null
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      imagen:
-        custom: []
-        name: imagen
-        description: 'El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes.'
-        required: false
-        example: null
-        type: file
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      active:
-        custom: []
-        name: active
-        description: ''
-        required: false
-        example: false
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      activo:
-        custom: []
-        name: activo
-        description: ''
-        required: false
-        example: false
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      nombre: b
-      categoria: 'n'
-      descripcion: g
-      precio_compra: 12
-      precio_venta: 77
-      stock_actual: 8
-      stock_minimo: 76
-      active: false
-      activo: false
-    fileParameters:
-      imagen: null
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - DELETE
-    uri: 'api/v1/inventory/products/{product_id}'
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      product_id:
-        custom: []
-        name: product_id
-        description: 'The ID of the product.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      product_id: architecto
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: 'api/v1/inventory/products/{product_id}/mark-ordered'
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: |-
-        Marca un producto de stock bajo como "ya pedido" para silenciar la
-        alerta diaria/panel durante Product::RESTOCK_GRACE_DAYS.
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      product_id:
-        custom: []
-        name: product_id
-        description: 'The ID of the product.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      product_id: architecto
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - GET
-    uri: api/v1/inventory/low-stock
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: |-
-        Productos en o por debajo de su stock mínimo, para el panel de
-        "marcar como pedido" (silencia la alerta diaria unos días) — visto
-        tanto en el catálogo de productos como en movimientos (web).
-      description: ''
-      authenticated: false
       deprecated: false
     headers:
       Content-Type: application/json
@@ -560,17 +53,22 @@ endpoints:
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/inventory/movements
+    uri: api/v1/cash-closes/preview
     metadata:
       custom: []
-      groupName: Inventario
+      groupName: 'Corte de caja'
       groupDescription: |-
 
-        Gestión de productos, stock y movimientos de almacén.
+        Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
+        efectivo se contó y la diferencia. Administración y recepción, que es quien
+        cierra el turno.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Historial de Movimientos'
-      description: 'Obtiene el registro de entradas y salidas de productos del almacén.'
+      title: 'Corte esperado'
+      description: |-
+        Dinero recibido en la fecha indicada, desglosado por método de pago.
+        Suma cobros de citas (Payment verificado) y ventas de tienda (Order
+        entregado), que no generan Payment.
       authenticated: true
       deprecated: false
     headers:
@@ -578,31 +76,33 @@ endpoints:
       Accept: application/json
     urlParameters: []
     cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
+    queryParameters:
+      date:
+        custom: []
+        name: date
+        description: 'Fecha a consultar (Y-m-d). Por defecto, hoy.'
+        required: false
+        example: '2026-09-11'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      date: '2026-09-11'
     bodyParameters: []
     cleanBodyParameters: []
     fileParameters: []
     responses:
       -
         custom: []
-        status: 200
-        content: |-
-          {
-           "data": [
-             {
-               "id": 10,
-               "producto": "Shampoo Anti-caspa",
-               "tipo": "entrada",
-               "cantidad": 12,
-               "motivo": "Reposición de stock",
-               "responsable": "Admin",
-               "fecha": "2026-04-10T10:30:00Z"
-             }
-           ]
-          }
-        headers: []
-        description: ''
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
     responseFields: []
     auth: []
     controller: null
@@ -612,18 +112,23 @@ endpoints:
     custom: []
     httpMethods:
       - POST
-    uri: api/v1/inventory/movements
+    uri: api/v1/cash-closes
     metadata:
       custom: []
-      groupName: Inventario
+      groupName: 'Corte de caja'
       groupDescription: |-
 
-        Gestión de productos, stock y movimientos de almacén.
+        Cierre de caja del día para mostrador: qué esperaba el sistema, cuánto
+        efectivo se contó y la diferencia. Administración y recepción, que es quien
+        cierra el turno.
       subgroup: ''
       subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
+      title: 'Registrar corte'
+      description: |-
+        Guarda el arqueo del día: el esperado queda como snapshot y la
+        diferencia se calcula en el servidor contra el efectivo contado, nunca
+        se acepta del cliente.
+      authenticated: true
       deprecated: false
     headers:
       Content-Type: application/json
@@ -633,78 +138,43 @@ endpoints:
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
-      product_id:
+      date:
         custom: []
-        name: product_id
-        description: 'Must match an existing stored value.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: ''
+        name: date
+        description: 'Fecha del corte (Y-m-d). Por defecto, hoy.'
         required: false
-        example: null
+        example: '2026-09-11'
         type: string
         enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      cantidad:
-        custom: []
-        name: cantidad
-        description: 'El campo value debe ser al menos 1.'
-        required: true
-        example: 22
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      motivo:
-        custom: []
-        name: motivo
-        description: 'El campo value no debe tener más de 255 caracteres.'
-        required: false
-        example: g
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: true
         deprecated: false
-      appointment_id:
+      efectivo_contado:
         custom: []
-        name: appointment_id
-        description: 'Must match an existing stored value.'
-        required: false
-        example: architecto
-        type: string
+        name: efectivo_contado
+        description: 'Efectivo contado físicamente.'
+        required: true
+        example: 1250.5
+        type: number
         enumValues: []
-        exampleWasSpecified: false
-        nullable: true
+        exampleWasSpecified: true
+        nullable: false
         deprecated: false
-      fecha:
+      notas:
         custom: []
-        name: fecha
-        description: 'El campo value no es una fecha válida.'
+        name: notas
+        description: 'Observaciones del cierre.'
         required: false
-        example: '2026-09-11T20:13:55'
+        example: 'Faltante por cambio de un billete.'
         type: string
         enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      product_id: architecto
-      cantidad: 22
-      motivo: g
-      appointment_id: architecto
-      fecha: '2026-09-11T20:13:55'
+      date: '2026-09-11'
+      efectivo_contado: 1250.5
+      notas: 'Faltante por cambio de un billete.'
     fileParameters: []
     responses: []
     responseFields: []

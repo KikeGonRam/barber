@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\Barber\BarberAdminController;
 use App\Http\Controllers\Api\Admin\Client\ClientAdminController;
 use App\Http\Controllers\Api\Admin\Dashboard\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\Inventory\InventoryAdminController;
+use App\Http\Controllers\Api\Admin\Membership\MembershipPlanController;
 use App\Http\Controllers\Api\Admin\Package\ServicePackageController as AdminServicePackageController;
 use App\Http\Controllers\Api\Admin\Report\ReportAdminController;
 use App\Http\Controllers\Api\Admin\System\BackupController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Api\Dashboard\MembershipController as ApiMembershipCont
 use App\Http\Controllers\Api\Inventory\InventoryController as ApiInventoryController;
 use App\Http\Controllers\Api\Log\LogController as ApiLogController;
 use App\Http\Controllers\Api\Loyalty\ReferralController;
+use App\Http\Controllers\Api\Membership\MembershipController as RecurringMembershipController;
 use App\Http\Controllers\Api\Notification\NotificationController as ApiNotificationController;
 use App\Http\Controllers\Api\Order\OrderController as ApiOrderController;
 use App\Http\Controllers\Api\Package\GiftCardController;
@@ -193,6 +195,14 @@ Route::prefix('v1')->group(function (): void {
         Route::get('gift-cards/{code}', [GiftCardController::class, 'show']);
         Route::post('gift-cards/stripe-intent', [GiftCardController::class, 'stripeIntent']);
 
+        // Membresía recurrente (roadmap P1, Stripe Subscriptions): catálogo de
+        // planes abierto a cualquier autenticado; contratar/consultar/cancelar
+        // la propia son solo cliente (el controlador ya lo exige).
+        Route::get('memberships/plans', [RecurringMembershipController::class, 'plans']);
+        Route::get('memberships/mine', [RecurringMembershipController::class, 'mine']);
+        Route::post('memberships/subscribe', [RecurringMembershipController::class, 'subscribe']);
+        Route::post('memberships/cancel', [RecurringMembershipController::class, 'cancel']);
+
         // Solo administrador y recepcionista: gestión de pagos, clientes e inventario.
         Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {
             // Pedidos — bandeja de recepción (Admin/Recepcionista)
@@ -231,6 +241,12 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('admin/service-packages', [AdminServicePackageController::class, 'store']);
                 Route::put('admin/service-packages/{servicePackage}', [AdminServicePackageController::class, 'update']);
                 Route::delete('admin/service-packages/{servicePackage}', [AdminServicePackageController::class, 'destroy']);
+
+                // Planes de membresía recurrente -- solo administrador.
+                Route::get('admin/membership-plans', [MembershipPlanController::class, 'index']);
+                Route::post('admin/membership-plans', [MembershipPlanController::class, 'store']);
+                Route::put('admin/membership-plans/{membershipPlan}', [MembershipPlanController::class, 'update']);
+                Route::delete('admin/membership-plans/{membershipPlan}', [MembershipPlanController::class, 'destroy']);
             });
 
             // Clientes (Admin/Recepcionista)

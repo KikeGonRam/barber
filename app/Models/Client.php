@@ -36,6 +36,9 @@ class Client extends Model
         // No es el route key (eso sigue siendo 'slug', vía HasSlug) -- es
         // solo un código corto que el cliente comparte con quien invita.
         'codigo_referido',
+        // Customer de Stripe, reutilizado entre suscripciones si el cliente
+        // cancela una membresía y luego contrata otra (ver MembershipService).
+        'stripe_customer_id',
     ];
 
     // Fuente del slug: nombre del User vinculado, o 'cliente' si no hay match.

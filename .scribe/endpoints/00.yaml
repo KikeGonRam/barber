@@ -950,7 +950,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: tarjeta
+        example: efectivo
         type: string
         enumValues:
           - efectivo
@@ -960,7 +960,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      metodo_pago: tarjeta
+      metodo_pago: efectivo
     fileParameters: []
     responses: []
     responseFields: []
@@ -1123,7 +1123,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: efectivo
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -1159,7 +1159,7 @@ endpoints:
         name: usar_premio_rifa
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1201,10 +1201,10 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: efectivo
+      metodo_pago: tarjeta
       propina: 77
       puntos_canjeados: 8
-      usar_premio_rifa: false
+      usar_premio_rifa: true
       usar_paquete_id: architecto
       codigo_gift_card: ngzmiyvdljnikhwa
       stripe_payment_id: architecto
@@ -1483,7 +1483,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1495,7 +1495,7 @@ endpoints:
       cantidad_usos: 22
       precio: 84
       vigencia_dias: 16
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -1669,6 +1669,293 @@ endpoints:
     custom: []
     httpMethods:
       - GET
+    uri: api/v1/admin/membership-plans
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/admin/membership-plans
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Crea un plan nuevo: primero el Price recurrente en Stripe, luego el
+        registro local. Si Stripe falla no se crea nada local (evita un plan
+        "fantasma" sin price_id que rompería subscribe() más adelante).
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      nombre:
+        custom: []
+        name: nombre
+        description: 'El campo value no debe tener más de 120 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      descripcion:
+        custom: []
+        name: descripcion
+        description: 'El campo value no debe tener más de 500 caracteres.'
+        required: false
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      precio_mensual:
+        custom: []
+        name: precio_mensual
+        description: 'El campo value debe ser al menos 1.'
+        required: true
+        example: 67
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      descuento_pct:
+        custom: []
+        name: descuento_pct
+        description: 'El campo value debe ser al menos 1. El campo value no debe ser mayor que 100.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      activo:
+        custom: []
+        name: activo
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      nombre: b
+      descripcion: 'n'
+      precio_mensual: 67
+      descuento_pct: 16
+      activo: false
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/v1/admin/membership-plans/{membershipPlan_id}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Actualiza un plan existente. Si cambia precio_mensual se crea un Price
+        nuevo en Stripe (los Price son inmutables) -- las suscripciones ya
+        activas conservan el Price original hasta su próxima renovación, igual
+        que ServicePackageController::update() no toca los ClientPackage ya
+        comprados.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      membershipPlan_id:
+        custom: []
+        name: membershipPlan_id
+        description: 'The ID of the membershipPlan.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      membershipPlan_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      nombre:
+        custom: []
+        name: nombre
+        description: 'El campo value no debe tener más de 120 caracteres.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      descripcion:
+        custom: []
+        name: descripcion
+        description: 'El campo value no debe tener más de 500 caracteres.'
+        required: false
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      precio_mensual:
+        custom: []
+        name: precio_mensual
+        description: 'El campo value debe ser al menos 1.'
+        required: true
+        example: 67
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      descuento_pct:
+        custom: []
+        name: descuento_pct
+        description: 'El campo value debe ser al menos 1. El campo value no debe ser mayor que 100.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      activo:
+        custom: []
+        name: activo
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      nombre: b
+      descripcion: 'n'
+      precio_mensual: 67
+      descuento_pct: 16
+      activo: false
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/admin/membership-plans/{membershipPlan_id}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Desactiva un plan (deja de venderse) en vez de eliminarlo -- las
+        ClientMembership ya contratadas siguen su ciclo normal.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      membershipPlan_id:
+        custom: []
+        name: membershipPlan_id
+        description: 'The ID of the membershipPlan.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      membershipPlan_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
     uri: api/v1/clients
     metadata:
       custom: []
@@ -1777,7 +2064,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-11T20:13:54'
+        example: '2026-09-11T21:20:20'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1799,7 +2086,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1810,7 +2097,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1821,7 +2108,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1832,11 +2119,11 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-11T20:13:54'
+      fecha_nacimiento: '2026-09-11T21:20:20'
       pref_in_app: false
-      pref_email: true
-      pref_sms: false
-      pref_whatsapp: true
+      pref_email: false
+      pref_sms: true
+      pref_whatsapp: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -1917,7 +2204,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-11T20:13:54'
+        example: '2026-09-11T21:20:20'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1928,7 +2215,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1939,7 +2226,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1950,7 +2237,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1971,10 +2258,10 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-11T20:13:54'
-      pref_in_app: false
-      pref_email: true
-      pref_sms: false
+      fecha_nacimiento: '2026-09-11T21:20:20'
+      pref_in_app: true
+      pref_email: false
+      pref_sms: true
       pref_whatsapp: false
     fileParameters: []
     responses: []
@@ -2160,7 +2447,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2173,7 +2460,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2486,7 +2773,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2498,7 +2785,7 @@ endpoints:
       especialidades: i
       descripcion: 'y'
       foto: v
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2860,7 +3147,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '20:13'
+        example: '21:20'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2996,7 +3283,7 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '20:13'
+      horario_apertura: '21:20'
       horario_cierre: '2052-10-04'
       politica_cancelacion: 22
       deposito_no_show_umbral: 7
@@ -3174,7 +3461,7 @@ endpoints:
         name: modo
         description: ''
         required: true
-        example: ahora
+        example: programar
         type: string
         enumValues:
           - ahora
@@ -3199,7 +3486,7 @@ endpoints:
       cta_label: g
       cta_url: 'http://www.okuneva.com/fugiat-sunt-nihil-accusantium-harum-mollitia.html'
       segmento: architecto
-      modo: ahora
+      modo: programar
       programada_para: '2052-10-05'
     fileParameters: []
     responses: []
@@ -3708,7 +3995,7 @@ endpoints:
         name: in_app
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3719,7 +4006,7 @@ endpoints:
         name: email
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3763,19 +4050,19 @@ endpoints:
         name: promociones
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      in_app: false
-      email: false
+      in_app: true
+      email: true
       sms: false
       whatsapp: false
       push: true
-      promociones: false
+      promociones: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -3901,7 +4188,7 @@ endpoints:
         name: content_encoding
         description: ''
         required: false
-        example: aesgcm
+        example: aes128gcm
         type: string
         enumValues:
           - aesgcm
@@ -3914,7 +4201,7 @@ endpoints:
       keys:
         p256dh: architecto
         auth: architecto
-      content_encoding: aesgcm
+      content_encoding: aes128gcm
     fileParameters: []
     responses: []
     responseFields: []
@@ -5103,7 +5390,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5123,7 +5410,7 @@ endpoints:
     cleanBodyParameters:
       especialidades: b
       descripcion: architecto
-      activo: true
+      activo: false
       comision_pct: 22
     fileParameters: []
     responses: []
@@ -5474,7 +5761,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5490,7 +5777,7 @@ endpoints:
       descripcion: architecto
       tipo: architecto
       activo: false
-      active: true
+      active: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -5637,7 +5924,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5653,7 +5940,7 @@ endpoints:
       descripcion: architecto
       tipo: architecto
       activo: true
-      active: true
+      active: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -5744,7 +6031,7 @@ endpoints:
         name: tipo
         description: ''
         required: true
-        example: entrada
+        example: salida
         type: string
         enumValues:
           - entrada
@@ -5775,7 +6062,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      tipo: entrada
+      tipo: salida
       cantidad: 16
       motivo: architecto
     fileParameters: []

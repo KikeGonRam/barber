@@ -325,6 +325,25 @@ ClientPackage ya comprados (su precio quedó congelado al comprarlos).</a>
                                 <a href="#endpoints-DELETEapi-v1-admin-service-packages--servicePackage_id-">Desactiva un paquete (deja de venderse) en vez de eliminarlo -- los
 ClientPackage ya vendidos deben seguir siendo canjeables.</a>
                             </li>
+                                                                                <li class="tocify-item level-2" data-unique="endpoints-GETapi-v1-admin-membership-plans">
+                                <a href="#endpoints-GETapi-v1-admin-membership-plans">GET api/v1/admin/membership-plans</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="endpoints-POSTapi-v1-admin-membership-plans">
+                                <a href="#endpoints-POSTapi-v1-admin-membership-plans">Crea un plan nuevo: primero el Price recurrente en Stripe, luego el
+registro local. Si Stripe falla no se crea nada local (evita un plan
+"fantasma" sin price_id que rompería subscribe() más adelante).</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="endpoints-PUTapi-v1-admin-membership-plans--membershipPlan_id-">
+                                <a href="#endpoints-PUTapi-v1-admin-membership-plans--membershipPlan_id-">Actualiza un plan existente. Si cambia precio_mensual se crea un Price
+nuevo en Stripe (los Price son inmutables) -- las suscripciones ya
+activas conservan el Price original hasta su próxima renovación, igual
+que ServicePackageController::update() no toca los ClientPackage ya
+comprados.</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="endpoints-DELETEapi-v1-admin-membership-plans--membershipPlan_id-">
+                                <a href="#endpoints-DELETEapi-v1-admin-membership-plans--membershipPlan_id-">Desactiva un plan (deja de venderse) en vez de eliminarlo -- las
+ClientMembership ya contratadas siguen su ciclo normal.</a>
+                            </li>
                                                                                 <li class="tocify-item level-2" data-unique="endpoints-GETapi-v1-clients">
                                 <a href="#endpoints-GETapi-v1-clients">GET api/v1/clients</a>
                             </li>
@@ -716,6 +735,27 @@ demanda hay para un día ya lleno.</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="lista-de-espera-DELETEapi-v1-waitlist--waitlist_id-">
                                 <a href="#lista-de-espera-DELETEapi-v1-waitlist--waitlist_id-">Cancela la propia anotación.</a>
+                            </li>
+                                                                        </ul>
+                            </ul>
+                    <ul id="tocify-header-membresias" class="tocify-header">
+                <li class="tocify-item level-1" data-unique="membresias">
+                    <a href="#membresias">Membresías</a>
+                </li>
+                                    <ul id="tocify-subheader-membresias" class="tocify-subheader">
+                                                    <li class="tocify-item level-2" data-unique="membresias-GETapi-v1-memberships-plans">
+                                <a href="#membresias-GETapi-v1-memberships-plans">Catálogo de planes disponibles para contratar.</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="membresias-GETapi-v1-memberships-mine">
+                                <a href="#membresias-GETapi-v1-memberships-mine">Membresía actual del cliente autenticado (o null si no tiene ninguna).</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="membresias-POSTapi-v1-memberships-subscribe">
+                                <a href="#membresias-POSTapi-v1-memberships-subscribe">Contrata un plan. Devuelve el client_secret para que el frontend
+confirme el primer pago con Stripe Elements (mismo patrón SCA que el
+resto de los cobros con tarjeta de esta app).</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="membresias-POSTapi-v1-memberships-cancel">
+                                <a href="#membresias-POSTapi-v1-memberships-cancel">Cancela la membresía al final del periodo ya pagado.</a>
                             </li>
                                                                         </ul>
                             </ul>
@@ -3005,8 +3045,8 @@ el barbero solo puede cambiar el estado vía updateStatus().</h2>
     \"barber_id\": \"architecto\",
     \"service_id\": \"architecto\",
     \"fecha\": \"2052-10-04\",
-    \"hora_inicio\": \"20:13\",
-    \"estado\": \"no_asistio\",
+    \"hora_inicio\": \"21:20\",
+    \"estado\": \"cancelada\",
     \"notas\": \"n\"
 }"
 </code></pre></div>
@@ -3027,8 +3067,8 @@ let body = {
     "barber_id": "architecto",
     "service_id": "architecto",
     "fecha": "2052-10-04",
-    "hora_inicio": "20:13",
-    "estado": "no_asistio",
+    "hora_inicio": "21:20",
+    "estado": "cancelada",
     "notas": "n"
 };
 
@@ -3182,10 +3222,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="hora_inicio"                data-endpoint="PUTapi-v1-appointments--appointment_code-"
-               value="20:13"
+               value="21:20"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>20:13</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>21:20</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>estado</code></b>&nbsp;&nbsp;
@@ -3194,10 +3234,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="estado"                data-endpoint="PUTapi-v1-appointments--appointment_code-"
-               value="no_asistio"
+               value="cancelada"
                data-component="body">
     <br>
-<p>Example: <code>no_asistio</code></p>
+<p>Example: <code>cancelada</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>pendiente</code></li> <li><code>confirmada</code></li> <li><code>en_proceso</code></li> <li><code>completada</code></li> <li><code>cancelada</code></li> <li><code>no_asistio</code></li></ul>
         </div>
@@ -3576,7 +3616,7 @@ estadisticas que la vista web de Mi Agenda.</h2>
     --header "Accept: application/json" \
     --data "{
     \"period\": \"week\",
-    \"estado\": \"en_proceso\",
+    \"estado\": \"no_asistio\",
     \"offset\": -364
 }"
 </code></pre></div>
@@ -3594,7 +3634,7 @@ const headers = {
 
 let body = {
     "period": "week",
-    "estado": "en_proceso",
+    "estado": "no_asistio",
     "offset": -364
 };
 
@@ -3717,10 +3757,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="estado"                data-endpoint="GETapi-v1-barber-agenda"
-               value="en_proceso"
+               value="no_asistio"
                data-component="body">
     <br>
-<p>Example: <code>en_proceso</code></p>
+<p>Example: <code>no_asistio</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>pendiente</code></li> <li><code>confirmada</code></li> <li><code>en_proceso</code></li> <li><code>completada</code></li> <li><code>cancelada</code></li> <li><code>no_asistio</code></li></ul>
         </div>
@@ -4345,7 +4385,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     "http://localhost:8000/api/v1/appointments/architecto/deposit/receipt" \
     --header "Content-Type: multipart/form-data" \
     --header "Accept: application/json" \
-    --form "comprobante=@/tmp/phpb2nnhic18u4sd3W4ans" </code></pre></div>
+    --form "comprobante=@/tmp/phpdv8ckk6erq9j66eJaDW" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -4478,7 +4518,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>Foto o PDF del comprobante de transferencia. Example: <code>/tmp/phpb2nnhic18u4sd3W4ans</code></p>
+<p>Foto o PDF del comprobante de transferencia. Example: <code>/tmp/phpdv8ckk6erq9j66eJaDW</code></p>
         </div>
         </form>
 
@@ -7391,7 +7431,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"metodo_pago\": \"tarjeta\"
+    \"metodo_pago\": \"efectivo\"
 }"
 </code></pre></div>
 
@@ -7407,7 +7447,7 @@ const headers = {
 };
 
 let body = {
-    "metodo_pago": "tarjeta"
+    "metodo_pago": "efectivo"
 };
 
 fetch(url, {
@@ -7512,10 +7552,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="metodo_pago"                data-endpoint="PATCHapi-v1-orders--order_id--deliver"
-               value="tarjeta"
+               value="efectivo"
                data-component="body">
     <br>
-<p>Example: <code>tarjeta</code></p>
+<p>Example: <code>efectivo</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>efectivo</code></li> <li><code>tarjeta</code></li> <li><code>transferencia</code></li></ul>
         </div>
@@ -7814,10 +7854,10 @@ este mismo endpoint (con stripe_payment_id) para completarse.</h2>
     --data "{
     \"appointment_id\": \"architecto\",
     \"monto\": 4326.41688,
-    \"metodo_pago\": \"efectivo\",
+    \"metodo_pago\": \"tarjeta\",
     \"propina\": 77,
     \"puntos_canjeados\": 8,
-    \"usar_premio_rifa\": false,
+    \"usar_premio_rifa\": true,
     \"usar_paquete_id\": \"architecto\",
     \"codigo_gift_card\": \"ngzmiyvdljnikhwa\",
     \"stripe_payment_id\": \"architecto\"
@@ -7838,10 +7878,10 @@ const headers = {
 let body = {
     "appointment_id": "architecto",
     "monto": 4326.41688,
-    "metodo_pago": "efectivo",
+    "metodo_pago": "tarjeta",
     "propina": 77,
     "puntos_canjeados": 8,
-    "usar_premio_rifa": false,
+    "usar_premio_rifa": true,
     "usar_paquete_id": "architecto",
     "codigo_gift_card": "ngzmiyvdljnikhwa",
     "stripe_payment_id": "architecto"
@@ -7960,10 +8000,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="metodo_pago"                data-endpoint="POSTapi-v1-payments"
-               value="efectivo"
+               value="tarjeta"
                data-component="body">
     <br>
-<p>Example: <code>efectivo</code></p>
+<p>Example: <code>tarjeta</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>efectivo</code></li> <li><code>tarjeta</code></li> <li><code>transferencia</code></li></ul>
         </div>
@@ -8011,7 +8051,7 @@ Must be one of:
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>usar_paquete_id</code></b>&nbsp;&nbsp;
@@ -8595,7 +8635,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"cantidad_usos\": 22,
     \"precio\": 84,
     \"vigencia_dias\": 16,
-    \"activo\": false
+    \"activo\": true
 }"
 </code></pre></div>
 
@@ -8616,7 +8656,7 @@ let body = {
     "cantidad_usos": 22,
     "precio": 84,
     "vigencia_dias": 16,
-    "activo": false
+    "activo": true
 };
 
 fetch(url, {
@@ -8781,7 +8821,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -9136,6 +9176,673 @@ You can check the Dev Tools console for debugging information.</code></pre>
             </div>
                     </form>
 
+                    <h2 id="endpoints-GETapi-v1-admin-membership-plans">GET api/v1/admin/membership-plans</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-GETapi-v1-admin-membership-plans">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost:8000/api/v1/admin/membership-plans" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/admin/membership-plans"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-v1-admin-membership-plans">
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <details class="annotation">
+            <summary style="cursor: pointer;">
+                <small onclick="textContent = parentElement.parentElement.open ? 'Show headers' : 'Hide headers'">Show headers</small>
+            </summary>
+            <pre><code class="language-http">cache-control: no-cache, private
+content-type: application/json
+vary: Origin
+ </code></pre></details>         <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;No autorizado.&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-v1-admin-membership-plans" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-v1-admin-membership-plans"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-v1-admin-membership-plans"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-v1-admin-membership-plans" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-v1-admin-membership-plans">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-v1-admin-membership-plans" data-method="GET"
+      data-path="api/v1/admin/membership-plans"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-v1-admin-membership-plans', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-v1-admin-membership-plans"
+                    onclick="tryItOut('GETapi-v1-admin-membership-plans');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-v1-admin-membership-plans"
+                    onclick="cancelTryOut('GETapi-v1-admin-membership-plans');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-v1-admin-membership-plans"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/v1/admin/membership-plans</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-v1-admin-membership-plans"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-v1-admin-membership-plans"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
+
+                    <h2 id="endpoints-POSTapi-v1-admin-membership-plans">Crea un plan nuevo: primero el Price recurrente en Stripe, luego el
+registro local. Si Stripe falla no se crea nada local (evita un plan
+&quot;fantasma&quot; sin price_id que rompería subscribe() más adelante).</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-POSTapi-v1-admin-membership-plans">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request POST \
+    "http://localhost:8000/api/v1/admin/membership-plans" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"nombre\": \"b\",
+    \"descripcion\": \"n\",
+    \"precio_mensual\": 67,
+    \"descuento_pct\": 16,
+    \"activo\": false
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/admin/membership-plans"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "nombre": "b",
+    "descripcion": "n",
+    "precio_mensual": 67,
+    "descuento_pct": 16,
+    "activo": false
+};
+
+fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-POSTapi-v1-admin-membership-plans">
+</span>
+<span id="execution-results-POSTapi-v1-admin-membership-plans" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-POSTapi-v1-admin-membership-plans"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-POSTapi-v1-admin-membership-plans"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-POSTapi-v1-admin-membership-plans" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-POSTapi-v1-admin-membership-plans">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-POSTapi-v1-admin-membership-plans" data-method="POST"
+      data-path="api/v1/admin/membership-plans"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('POSTapi-v1-admin-membership-plans', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-POSTapi-v1-admin-membership-plans"
+                    onclick="tryItOut('POSTapi-v1-admin-membership-plans');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-POSTapi-v1-admin-membership-plans"
+                    onclick="cancelTryOut('POSTapi-v1-admin-membership-plans');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-POSTapi-v1-admin-membership-plans"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-black">POST</small>
+            <b><code>api/v1/admin/membership-plans</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="POSTapi-v1-admin-membership-plans"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="POSTapi-v1-admin-membership-plans"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>nombre</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="nombre"                data-endpoint="POSTapi-v1-admin-membership-plans"
+               value="b"
+               data-component="body">
+    <br>
+<p>El campo value no debe tener más de 120 caracteres. Example: <code>b</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>descripcion</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="descripcion"                data-endpoint="POSTapi-v1-admin-membership-plans"
+               value="n"
+               data-component="body">
+    <br>
+<p>El campo value no debe tener más de 500 caracteres. Example: <code>n</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>precio_mensual</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="precio_mensual"                data-endpoint="POSTapi-v1-admin-membership-plans"
+               value="67"
+               data-component="body">
+    <br>
+<p>El campo value debe ser al menos 1. Example: <code>67</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>descuento_pct</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="descuento_pct"                data-endpoint="POSTapi-v1-admin-membership-plans"
+               value="16"
+               data-component="body">
+    <br>
+<p>El campo value debe ser al menos 1. El campo value no debe ser mayor que 100. Example: <code>16</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>activo</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="POSTapi-v1-admin-membership-plans" style="display: none">
+            <input type="radio" name="activo"
+                   value="true"
+                   data-endpoint="POSTapi-v1-admin-membership-plans"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="POSTapi-v1-admin-membership-plans" style="display: none">
+            <input type="radio" name="activo"
+                   value="false"
+                   data-endpoint="POSTapi-v1-admin-membership-plans"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>Example: <code>false</code></p>
+        </div>
+        </form>
+
+                    <h2 id="endpoints-PUTapi-v1-admin-membership-plans--membershipPlan_id-">Actualiza un plan existente. Si cambia precio_mensual se crea un Price
+nuevo en Stripe (los Price son inmutables) -- las suscripciones ya
+activas conservan el Price original hasta su próxima renovación, igual
+que ServicePackageController::update() no toca los ClientPackage ya
+comprados.</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-PUTapi-v1-admin-membership-plans--membershipPlan_id-">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request PUT \
+    "http://localhost:8000/api/v1/admin/membership-plans/architecto" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"nombre\": \"b\",
+    \"descripcion\": \"n\",
+    \"precio_mensual\": 67,
+    \"descuento_pct\": 16,
+    \"activo\": false
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/admin/membership-plans/architecto"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "nombre": "b",
+    "descripcion": "n",
+    "precio_mensual": 67,
+    "descuento_pct": 16,
+    "activo": false
+};
+
+fetch(url, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-PUTapi-v1-admin-membership-plans--membershipPlan_id-">
+</span>
+<span id="execution-results-PUTapi-v1-admin-membership-plans--membershipPlan_id-" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-PUTapi-v1-admin-membership-plans--membershipPlan_id-"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-PUTapi-v1-admin-membership-plans--membershipPlan_id-" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-PUTapi-v1-admin-membership-plans--membershipPlan_id-">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-PUTapi-v1-admin-membership-plans--membershipPlan_id-" data-method="PUT"
+      data-path="api/v1/admin/membership-plans/{membershipPlan_id}"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('PUTapi-v1-admin-membership-plans--membershipPlan_id-', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+                    onclick="tryItOut('PUTapi-v1-admin-membership-plans--membershipPlan_id-');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+                    onclick="cancelTryOut('PUTapi-v1-admin-membership-plans--membershipPlan_id-');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-darkblue">PUT</small>
+            <b><code>api/v1/admin/membership-plans/{membershipPlan_id}</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
+                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>membershipPlan_id</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="membershipPlan_id"                data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+               value="architecto"
+               data-component="url">
+    <br>
+<p>The ID of the membershipPlan. Example: <code>architecto</code></p>
+            </div>
+                            <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>nombre</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="nombre"                data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+               value="b"
+               data-component="body">
+    <br>
+<p>El campo value no debe tener más de 120 caracteres. Example: <code>b</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>descripcion</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="descripcion"                data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+               value="n"
+               data-component="body">
+    <br>
+<p>El campo value no debe tener más de 500 caracteres. Example: <code>n</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>precio_mensual</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="precio_mensual"                data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+               value="67"
+               data-component="body">
+    <br>
+<p>El campo value debe ser al menos 1. Example: <code>67</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>descuento_pct</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="descuento_pct"                data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+               value="16"
+               data-component="body">
+    <br>
+<p>El campo value debe ser al menos 1. El campo value no debe ser mayor que 100. Example: <code>16</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>activo</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-" style="display: none">
+            <input type="radio" name="activo"
+                   value="true"
+                   data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-" style="display: none">
+            <input type="radio" name="activo"
+                   value="false"
+                   data-endpoint="PUTapi-v1-admin-membership-plans--membershipPlan_id-"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>Example: <code>false</code></p>
+        </div>
+        </form>
+
+                    <h2 id="endpoints-DELETEapi-v1-admin-membership-plans--membershipPlan_id-">Desactiva un plan (deja de venderse) en vez de eliminarlo -- las
+ClientMembership ya contratadas siguen su ciclo normal.</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-DELETEapi-v1-admin-membership-plans--membershipPlan_id-">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request DELETE \
+    "http://localhost:8000/api/v1/admin/membership-plans/architecto" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/admin/membership-plans/architecto"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+
+fetch(url, {
+    method: "DELETE",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-DELETEapi-v1-admin-membership-plans--membershipPlan_id-">
+</span>
+<span id="execution-results-DELETEapi-v1-admin-membership-plans--membershipPlan_id-" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-DELETEapi-v1-admin-membership-plans--membershipPlan_id-"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-DELETEapi-v1-admin-membership-plans--membershipPlan_id-"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-DELETEapi-v1-admin-membership-plans--membershipPlan_id-" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-DELETEapi-v1-admin-membership-plans--membershipPlan_id-">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-DELETEapi-v1-admin-membership-plans--membershipPlan_id-" data-method="DELETE"
+      data-path="api/v1/admin/membership-plans/{membershipPlan_id}"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('DELETEapi-v1-admin-membership-plans--membershipPlan_id-', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-DELETEapi-v1-admin-membership-plans--membershipPlan_id-"
+                    onclick="tryItOut('DELETEapi-v1-admin-membership-plans--membershipPlan_id-');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-DELETEapi-v1-admin-membership-plans--membershipPlan_id-"
+                    onclick="cancelTryOut('DELETEapi-v1-admin-membership-plans--membershipPlan_id-');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-DELETEapi-v1-admin-membership-plans--membershipPlan_id-"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-red">DELETE</small>
+            <b><code>api/v1/admin/membership-plans/{membershipPlan_id}</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="DELETEapi-v1-admin-membership-plans--membershipPlan_id-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="DELETEapi-v1-admin-membership-plans--membershipPlan_id-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
+                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>membershipPlan_id</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="membershipPlan_id"                data-endpoint="DELETEapi-v1-admin-membership-plans--membershipPlan_id-"
+               value="architecto"
+               data-component="url">
+    <br>
+<p>The ID of the membershipPlan. Example: <code>architecto</code></p>
+            </div>
+                    </form>
+
                     <h2 id="endpoints-GETapi-v1-clients">GET api/v1/clients</h2>
 
 <p>
@@ -9284,11 +9991,11 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"email\": \"zbailey@example.net\",
     \"password\": \"-0pBNvYgxw\",
     \"telefono\": \"a\",
-    \"fecha_nacimiento\": \"2026-09-11T20:13:54\",
+    \"fecha_nacimiento\": \"2026-09-11T21:20:20\",
     \"pref_in_app\": false,
-    \"pref_email\": true,
-    \"pref_sms\": false,
-    \"pref_whatsapp\": true
+    \"pref_email\": false,
+    \"pref_sms\": true,
+    \"pref_whatsapp\": false
 }"
 </code></pre></div>
 
@@ -9308,11 +10015,11 @@ let body = {
     "email": "zbailey@example.net",
     "password": "-0pBNvYgxw",
     "telefono": "a",
-    "fecha_nacimiento": "2026-09-11T20:13:54",
+    "fecha_nacimiento": "2026-09-11T21:20:20",
     "pref_in_app": false,
-    "pref_email": true,
-    "pref_sms": false,
-    "pref_whatsapp": true
+    "pref_email": false,
+    "pref_sms": true,
+    "pref_whatsapp": false
 };
 
 fetch(url, {
@@ -9452,10 +10159,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha_nacimiento"                data-endpoint="POSTapi-v1-clients"
-               value="2026-09-11T20:13:54"
+               value="2026-09-11T21:20:20"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-11T20:13:54</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-11T21:20:20</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_in_app</code></b>&nbsp;&nbsp;
@@ -9499,7 +10206,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_sms</code></b>&nbsp;&nbsp;
@@ -9521,7 +10228,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_whatsapp</code></b>&nbsp;&nbsp;
@@ -9543,7 +10250,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -9567,10 +10274,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"name\": \"b\",
     \"email\": \"zbailey@example.net\",
     \"telefono\": \"i\",
-    \"fecha_nacimiento\": \"2026-09-11T20:13:54\",
-    \"pref_in_app\": false,
-    \"pref_email\": true,
-    \"pref_sms\": false,
+    \"fecha_nacimiento\": \"2026-09-11T21:20:20\",
+    \"pref_in_app\": true,
+    \"pref_email\": false,
+    \"pref_sms\": true,
     \"pref_whatsapp\": false
 }"
 </code></pre></div>
@@ -9590,10 +10297,10 @@ let body = {
     "name": "b",
     "email": "zbailey@example.net",
     "telefono": "i",
-    "fecha_nacimiento": "2026-09-11T20:13:54",
-    "pref_in_app": false,
-    "pref_email": true,
-    "pref_sms": false,
+    "fecha_nacimiento": "2026-09-11T21:20:20",
+    "pref_in_app": true,
+    "pref_email": false,
+    "pref_sms": true,
     "pref_whatsapp": false
 };
 
@@ -9735,10 +10442,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha_nacimiento"                data-endpoint="PUTapi-v1-clients--client_slug-"
-               value="2026-09-11T20:13:54"
+               value="2026-09-11T21:20:20"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-11T20:13:54</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-11T21:20:20</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_in_app</code></b>&nbsp;&nbsp;
@@ -9760,7 +10467,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_email</code></b>&nbsp;&nbsp;
@@ -9782,7 +10489,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_sms</code></b>&nbsp;&nbsp;
@@ -9804,7 +10511,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>pref_whatsapp</code></b>&nbsp;&nbsp;
@@ -10104,7 +10811,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"duracion_min\": 16,
     \"imagen\": \"m\",
     \"descripcion\": \"i\",
-    \"activo\": false
+    \"activo\": true
 }"
 </code></pre></div>
 
@@ -10126,7 +10833,7 @@ let body = {
     "duracion_min": 16,
     "imagen": "m",
     "descripcion": "i",
-    "activo": false
+    "activo": true
 };
 
 fetch(url, {
@@ -10303,7 +11010,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -10819,7 +11526,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"especialidades\": \"i\",
     \"descripcion\": \"y\",
     \"foto\": \"v\",
-    \"activo\": false
+    \"activo\": true
 }"
 </code></pre></div>
 
@@ -10840,7 +11547,7 @@ let body = {
     "especialidades": "i",
     "descripcion": "y",
     "foto": "v",
-    "activo": false
+    "activo": true
 };
 
 fetch(url, {
@@ -11018,7 +11725,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -11781,7 +12488,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"nombre\": \"b\",
     \"direccion\": \"n\",
     \"telefono\": \"g\",
-    \"horario_apertura\": \"20:13\",
+    \"horario_apertura\": \"21:20\",
     \"horario_cierre\": \"2052-10-04\",
     \"politica_cancelacion\": 22,
     \"deposito_no_show_umbral\": 7,
@@ -11811,7 +12518,7 @@ let body = {
     "nombre": "b",
     "direccion": "n",
     "telefono": "g",
-    "horario_apertura": "20:13",
+    "horario_apertura": "21:20",
     "horario_cierre": "2052-10-04",
     "politica_cancelacion": 22,
     "deposito_no_show_umbral": 7,
@@ -11950,10 +12657,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="horario_apertura"                data-endpoint="PUTapi-v1-settings"
-               value="20:13"
+               value="21:20"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>20:13</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>21:20</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>horario_cierre</code></b>&nbsp;&nbsp;
@@ -12356,7 +13063,7 @@ el registro.</h2>
     \"cta_label\": \"g\",
     \"cta_url\": \"http:\\/\\/www.okuneva.com\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",
     \"segmento\": \"architecto\",
-    \"modo\": \"ahora\",
+    \"modo\": \"programar\",
     \"programada_para\": \"2052-10-05\"
 }"
 </code></pre></div>
@@ -12378,7 +13085,7 @@ let body = {
     "cta_label": "g",
     "cta_url": "http:\/\/www.okuneva.com\/fugiat-sunt-nihil-accusantium-harum-mollitia.html",
     "segmento": "architecto",
-    "modo": "ahora",
+    "modo": "programar",
     "programada_para": "2052-10-05"
 };
 
@@ -12531,10 +13238,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="modo"                data-endpoint="POSTapi-v1-campaigns"
-               value="ahora"
+               value="programar"
                data-component="body">
     <br>
-<p>Example: <code>ahora</code></p>
+<p>Example: <code>programar</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>ahora</code></li> <li><code>programar</code></li></ul>
         </div>
@@ -13974,12 +14681,12 @@ canales (p. ej. solo "push") no borre los demás.</p>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"in_app\": false,
-    \"email\": false,
+    \"in_app\": true,
+    \"email\": true,
     \"sms\": false,
     \"whatsapp\": false,
     \"push\": true,
-    \"promociones\": false
+    \"promociones\": true
 }"
 </code></pre></div>
 
@@ -13995,12 +14702,12 @@ const headers = {
 };
 
 let body = {
-    "in_app": false,
-    "email": false,
+    "in_app": true,
+    "email": true,
     "sms": false,
     "whatsapp": false,
     "push": true,
-    "promociones": false
+    "promociones": true
 };
 
 fetch(url, {
@@ -14105,7 +14812,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>email</code></b>&nbsp;&nbsp;
@@ -14127,7 +14834,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>sms</code></b>&nbsp;&nbsp;
@@ -14215,7 +14922,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -14372,7 +15079,7 @@ _id de Mongo del registro — un mismo endpoint solo debe existir una vez.</h2>
         \"p256dh\": \"architecto\",
         \"auth\": \"architecto\"
     },
-    \"content_encoding\": \"aesgcm\"
+    \"content_encoding\": \"aes128gcm\"
 }"
 </code></pre></div>
 
@@ -14393,7 +15100,7 @@ let body = {
         "p256dh": "architecto",
         "auth": "architecto"
     },
-    "content_encoding": "aesgcm"
+    "content_encoding": "aes128gcm"
 };
 
 fetch(url, {
@@ -14533,10 +15240,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="content_encoding"                data-endpoint="POSTapi-v1-push-subscribe"
-               value="aesgcm"
+               value="aes128gcm"
                data-component="body">
     <br>
-<p>Example: <code>aesgcm</code></p>
+<p>Example: <code>aes128gcm</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>aesgcm</code></li> <li><code>aes128gcm</code></li></ul>
         </div>
@@ -17838,7 +18545,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --data "{
     \"especialidades\": \"b\",
     \"descripcion\": \"architecto\",
-    \"activo\": true,
+    \"activo\": false,
     \"comision_pct\": 22
 }"
 </code></pre></div>
@@ -17857,7 +18564,7 @@ const headers = {
 let body = {
     "especialidades": "b",
     "descripcion": "architecto",
-    "activo": true,
+    "activo": false,
     "comision_pct": 22
 };
 
@@ -18000,7 +18707,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>comision_pct</code></b>&nbsp;&nbsp;
@@ -18687,7 +19394,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"descripcion\": \"architecto\",
     \"tipo\": \"architecto\",
     \"activo\": false,
-    \"active\": true
+    \"active\": false
 }"
 </code></pre></div>
 
@@ -18712,7 +19419,7 @@ let body = {
     "descripcion": "architecto",
     "tipo": "architecto",
     "activo": false,
-    "active": true
+    "active": false
 };
 
 fetch(url, {
@@ -18935,7 +19642,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -18965,7 +19672,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"descripcion\": \"architecto\",
     \"tipo\": \"architecto\",
     \"activo\": true,
-    \"active\": true
+    \"active\": false
 }"
 </code></pre></div>
 
@@ -18990,7 +19697,7 @@ let body = {
     "descripcion": "architecto",
     "tipo": "architecto",
     "activo": true,
-    "active": true
+    "active": false
 };
 
 fetch(url, {
@@ -19226,7 +19933,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -19371,7 +20078,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"tipo\": \"entrada\",
+    \"tipo\": \"salida\",
     \"cantidad\": 16,
     \"motivo\": \"architecto\"
 }"
@@ -19389,7 +20096,7 @@ const headers = {
 };
 
 let body = {
-    "tipo": "entrada",
+    "tipo": "salida",
     "cantidad": 16,
     "motivo": "architecto"
 };
@@ -19496,10 +20203,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="tipo"                data-endpoint="POSTapi-v1-admin-inventory-products--productId--movement"
-               value="entrada"
+               value="salida"
                data-component="body">
     <br>
-<p>Example: <code>entrada</code></p>
+<p>Example: <code>salida</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>entrada</code></li> <li><code>salida</code></li></ul>
         </div>
@@ -21494,7 +22201,7 @@ señal real.</p>
     --data "{
     \"message\": \"b\",
     \"response\": \"n\",
-    \"helpful\": true
+    \"helpful\": false
 }"
 </code></pre></div>
 
@@ -21512,7 +22219,7 @@ const headers = {
 let body = {
     "message": "b",
     "response": "n",
-    "helpful": true
+    "helpful": false
 };
 
 fetch(url, {
@@ -21641,7 +22348,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
         </form>
 
@@ -21998,7 +22705,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     "http://localhost:8000/api/v1/profile/avatar" \
     --header "Content-Type: multipart/form-data" \
     --header "Accept: application/json" \
-    --form "avatar=@/tmp/phpsbmhbdvevjuuf2YSVwP" </code></pre></div>
+    --form "avatar=@/tmp/phpr2p4hvp36ji2bIjRkPt" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -22106,7 +22813,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phpsbmhbdvevjuuf2YSVwP</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phpr2p4hvp36ji2bIjRkPt</code></p>
         </div>
         </form>
 
@@ -22700,7 +23407,7 @@ multipart/form-data sea interpretado de forma consistente por PHP.</h2>
     --header "Accept: application/json" \
     --form "especialidades=Degradados, Diseños freestyle, Barba"\
     --form "descripcion=Más de 5 años de experiencia en barbería urbana y tradicional."\
-    --form "foto=@/tmp/phpm0i1cnob4s3b8fH9U8B" </code></pre></div>
+    --form "foto=@/tmp/phpq0rvp7o3p9ed1A5d1mb" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -22834,7 +23541,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>Imagen de perfil o foto profesional del barbero. El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phpm0i1cnob4s3b8fH9U8B</code></p>
+<p>Imagen de perfil o foto profesional del barbero. El campo value debe ser una imagen. El campo value no debe pesar más de 4096 kilobytes. Example: <code>/tmp/phpq0rvp7o3p9ed1A5d1mb</code></p>
         </div>
         </form>
 
@@ -23860,10 +24567,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.day_of_week"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="saturday"
+               value="wednesday"
                data-component="body">
     <br>
-<p>Example: <code>saturday</code></p>
+<p>Example: <code>wednesday</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>monday</code></li> <li><code>tuesday</code></li> <li><code>wednesday</code></li> <li><code>thursday</code></li> <li><code>friday</code></li> <li><code>saturday</code></li> <li><code>sunday</code></li></ul>
                     </div>
@@ -23874,10 +24581,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.start_time"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="20:13"
+               value="21:20"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>20:13</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>21:20</code></p>
                     </div>
                                                                 <div style="margin-left: 14px; clear: unset;">
                         <b style="line-height: 2;"><code>end_time</code></b>&nbsp;&nbsp;
@@ -23886,10 +24593,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="schedules.0.end_time"                data-endpoint="PUTapi-v1-barber-schedule"
-               value="20:13"
+               value="21:20"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>20:13</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>21:20</code></p>
                     </div>
                                                                 <div style="margin-left: 14px; clear: unset;">
                         <b style="line-height: 2;"><code>is_active</code></b>&nbsp;&nbsp;
@@ -23911,7 +24618,7 @@ Must be one of:
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
                     </div>
                                                                 <div style=" margin-left: 14px; clear: unset;">
         <details>
@@ -24177,9 +24884,9 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "stock_actual=8"\
     --form "stock_minimo=76"\
     --form "tipo=architecto"\
-    --form "active=1"\
+    --form "active="\
     --form "activo="\
-    --form "imagen=@/tmp/phpcutjc12fulg1ecGD3Yv" </code></pre></div>
+    --form "imagen=@/tmp/phprf2897q1nsvo3GiQHUA" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -24201,7 +24908,7 @@ body.append('precio_venta', '77');
 body.append('stock_actual', '8');
 body.append('stock_minimo', '76');
 body.append('tipo', 'architecto');
-body.append('active', '1');
+body.append('active', '');
 body.append('activo', '');
 body.append('imagen', document.querySelector('input[name="imagen"]').files[0]);
 
@@ -24393,7 +25100,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phpcutjc12fulg1ecGD3Yv</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phprf2897q1nsvo3GiQHUA</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -24415,7 +25122,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>activo</code></b>&nbsp;&nbsp;
@@ -24465,8 +25172,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "stock_actual=8"\
     --form "stock_minimo=76"\
     --form "active="\
-    --form "activo="\
-    --form "imagen=@/tmp/phptpbp32l1agtg4omRyy6" </code></pre></div>
+    --form "activo=1"\
+    --form "imagen=@/tmp/php9a358881uc3jclayhtl" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -24488,7 +25195,7 @@ body.append('precio_venta', '77');
 body.append('stock_actual', '8');
 body.append('stock_minimo', '76');
 body.append('active', '');
-body.append('activo', '');
+body.append('activo', '1');
 body.append('imagen', document.querySelector('input[name="imagen"]').files[0]);
 
 fetch(url, {
@@ -24692,7 +25399,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/phptpbp32l1agtg4omRyy6</code></p>
+<p>El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes. Example: <code>/tmp/php9a358881uc3jclayhtl</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>active</code></b>&nbsp;&nbsp;
@@ -24736,7 +25443,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
         </form>
 
@@ -25270,7 +25977,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"cantidad\": 22,
     \"motivo\": \"g\",
     \"appointment_id\": \"architecto\",
-    \"fecha\": \"2026-09-11T20:13:55\"
+    \"fecha\": \"2026-09-11T21:20:21\"
 }"
 </code></pre></div>
 
@@ -25290,7 +25997,7 @@ let body = {
     "cantidad": 22,
     "motivo": "g",
     "appointment_id": "architecto",
-    "fecha": "2026-09-11T20:13:55"
+    "fecha": "2026-09-11T21:20:21"
 };
 
 fetch(url, {
@@ -25442,10 +26149,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="fecha"                data-endpoint="POSTapi-v1-inventory-movements"
-               value="2026-09-11T20:13:55"
+               value="2026-09-11T21:20:21"
                data-component="body">
     <br>
-<p>El campo value no es una fecha válida. Example: <code>2026-09-11T20:13:55</code></p>
+<p>El campo value no es una fecha válida. Example: <code>2026-09-11T21:20:21</code></p>
         </div>
         </form>
 
@@ -25867,6 +26574,512 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>The ID of the waitlist. Example: <code>architecto</code></p>
             </div>
                     </form>
+
+                <h1 id="membresias">Membresías</h1>
+
+    <p>Suscripción mensual recurrente (roadmap P1, vía Stripe Subscriptions) que
+otorga un descuento % en cada servicio mientras esté activa. La venta y el
+cobro real de las renovaciones ocurren enteramente en Stripe -- este
+controlador solo contrata, consulta y cancela.</p>
+
+                                <h2 id="membresias-GETapi-v1-memberships-plans">Catálogo de planes disponibles para contratar.</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-GETapi-v1-memberships-plans">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost:8000/api/v1/memberships/plans" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/memberships/plans"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-v1-memberships-plans">
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <details class="annotation">
+            <summary style="cursor: pointer;">
+                <small onclick="textContent = parentElement.parentElement.open ? 'Show headers' : 'Hide headers'">Show headers</small>
+            </summary>
+            <pre><code class="language-http">cache-control: no-cache, private
+content-type: application/json
+vary: Origin
+ </code></pre></details>         <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;No autorizado.&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-v1-memberships-plans" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-v1-memberships-plans"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-v1-memberships-plans"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-v1-memberships-plans" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-v1-memberships-plans">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-v1-memberships-plans" data-method="GET"
+      data-path="api/v1/memberships/plans"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-v1-memberships-plans', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-v1-memberships-plans"
+                    onclick="tryItOut('GETapi-v1-memberships-plans');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-v1-memberships-plans"
+                    onclick="cancelTryOut('GETapi-v1-memberships-plans');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-v1-memberships-plans"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/v1/memberships/plans</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-v1-memberships-plans"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-v1-memberships-plans"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
+
+                    <h2 id="membresias-GETapi-v1-memberships-mine">Membresía actual del cliente autenticado (o null si no tiene ninguna).</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-GETapi-v1-memberships-mine">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost:8000/api/v1/memberships/mine" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/memberships/mine"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-v1-memberships-mine">
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <details class="annotation">
+            <summary style="cursor: pointer;">
+                <small onclick="textContent = parentElement.parentElement.open ? 'Show headers' : 'Hide headers'">Show headers</small>
+            </summary>
+            <pre><code class="language-http">cache-control: no-cache, private
+content-type: application/json
+vary: Origin
+ </code></pre></details>         <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;No autorizado.&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-v1-memberships-mine" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-v1-memberships-mine"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-v1-memberships-mine"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-v1-memberships-mine" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-v1-memberships-mine">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-v1-memberships-mine" data-method="GET"
+      data-path="api/v1/memberships/mine"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-v1-memberships-mine', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-v1-memberships-mine"
+                    onclick="tryItOut('GETapi-v1-memberships-mine');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-v1-memberships-mine"
+                    onclick="cancelTryOut('GETapi-v1-memberships-mine');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-v1-memberships-mine"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/v1/memberships/mine</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-v1-memberships-mine"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-v1-memberships-mine"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
+
+                    <h2 id="membresias-POSTapi-v1-memberships-subscribe">Contrata un plan. Devuelve el client_secret para que el frontend
+confirme el primer pago con Stripe Elements (mismo patrón SCA que el
+resto de los cobros con tarjeta de esta app).</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-POSTapi-v1-memberships-subscribe">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request POST \
+    "http://localhost:8000/api/v1/memberships/subscribe" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"membership_plan_id\": \"66f0...\"
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/memberships/subscribe"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "membership_plan_id": "66f0..."
+};
+
+fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-POSTapi-v1-memberships-subscribe">
+</span>
+<span id="execution-results-POSTapi-v1-memberships-subscribe" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-POSTapi-v1-memberships-subscribe"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-POSTapi-v1-memberships-subscribe"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-POSTapi-v1-memberships-subscribe" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-POSTapi-v1-memberships-subscribe">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-POSTapi-v1-memberships-subscribe" data-method="POST"
+      data-path="api/v1/memberships/subscribe"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('POSTapi-v1-memberships-subscribe', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-POSTapi-v1-memberships-subscribe"
+                    onclick="tryItOut('POSTapi-v1-memberships-subscribe');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-POSTapi-v1-memberships-subscribe"
+                    onclick="cancelTryOut('POSTapi-v1-memberships-subscribe');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-POSTapi-v1-memberships-subscribe"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-black">POST</small>
+            <b><code>api/v1/memberships/subscribe</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="POSTapi-v1-memberships-subscribe"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="POSTapi-v1-memberships-subscribe"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>membership_plan_id</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="membership_plan_id"                data-endpoint="POSTapi-v1-memberships-subscribe"
+               value="66f0..."
+               data-component="body">
+    <br>
+<p>ID del plan a contratar. Example: <code>66f0...</code></p>
+        </div>
+        </form>
+
+                    <h2 id="membresias-POSTapi-v1-memberships-cancel">Cancela la membresía al final del periodo ya pagado.</h2>
+
+<p>
+</p>
+
+
+
+<span id="example-requests-POSTapi-v1-memberships-cancel">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request POST \
+    "http://localhost:8000/api/v1/memberships/cancel" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/v1/memberships/cancel"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+
+fetch(url, {
+    method: "POST",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-POSTapi-v1-memberships-cancel">
+</span>
+<span id="execution-results-POSTapi-v1-memberships-cancel" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-POSTapi-v1-memberships-cancel"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-POSTapi-v1-memberships-cancel"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-POSTapi-v1-memberships-cancel" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-POSTapi-v1-memberships-cancel">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-POSTapi-v1-memberships-cancel" data-method="POST"
+      data-path="api/v1/memberships/cancel"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('POSTapi-v1-memberships-cancel', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-POSTapi-v1-memberships-cancel"
+                    onclick="tryItOut('POSTapi-v1-memberships-cancel');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-POSTapi-v1-memberships-cancel"
+                    onclick="cancelTryOut('POSTapi-v1-memberships-cancel');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-POSTapi-v1-memberships-cancel"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-black">POST</small>
+            <b><code>api/v1/memberships/cancel</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="POSTapi-v1-memberships-cancel"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="POSTapi-v1-memberships-cancel"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
 
                 <h1 id="paquetes-prepagados">Paquetes prepagados</h1>
 
@@ -26572,7 +27785,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "title=Corte Moderno con Degradado"\
     --form "description=Corte moderno con degradado lateral y textura superior"\
     --form "images[]=architecto"\
-    --form "media[]=@/tmp/phpqlb35er2g2fmbEkHWNs" </code></pre></div>
+    --form "media[]=@/tmp/php0ed30gcqgcoj4GqS5fN" </code></pre></div>
 
 
 <div class="javascript-example">
