@@ -36,6 +36,7 @@ class ClientSeeder extends Seeder
         $userRows = [];
         $clientRows = [];
         $created = 0;
+        $usedCodes = [];
 
         for ($i = 1; $i <= self::TOTAL; $i++) {
             $isMale = random_int(0, 1) === 1;
@@ -44,6 +45,15 @@ class ClientSeeder extends Seeder
             $telefono = '55'.str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
             $edad = random_int(18, 65);
             $userId = new ObjectId;
+
+            // Client::insert() es un bulk insert directo a Mongo -- no
+            // dispara el evento `creating` de Client::booted(), asi que el
+            // codigo_referido (con indice unico) hay que generarlo aqui a
+            // mano, unico tambien dentro de este mismo lote de seeding.
+            do {
+                $codigoReferido = Str::upper(Str::random(6));
+            } while (isset($usedCodes[$codigoReferido]));
+            $usedCodes[$codigoReferido] = true;
 
             $userRows[] = [
                 '_id' => $userId,
@@ -64,6 +74,7 @@ class ClientSeeder extends Seeder
                 'puntos' => 0,
                 'total_citas' => 0,
                 'slug' => Str::slug($name).'-'.$i,
+                'codigo_referido' => $codigoReferido,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
