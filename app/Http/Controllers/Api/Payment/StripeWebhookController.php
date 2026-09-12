@@ -364,8 +364,19 @@ class StripeWebhookController extends Controller
      */
     private function onSubscriptionUpdated(object $subscription): void
     {
-        $periodoActualFin = isset($subscription->current_period_end)
-            ? Carbon::createFromTimestamp($subscription->current_period_end)
+        // Esta cuenta de Stripe ya está en la versión de API que movió
+        // current_period_end del objeto Subscription a cada
+        // SubscriptionItem (verificado en vivo: el campo viejo llega null,
+        // items.data[0].current_period_end sí lo trae) -- mismo criterio que
+        // los demás campos reestructurados de esta migración, ver
+        // StripePaymentService::createSubscription() y
+        // onInvoicePaymentSucceeded().
+        $currentPeriodEnd = $subscription->current_period_end
+            ?? $subscription->items->data[0]->current_period_end
+            ?? null;
+
+        $periodoActualFin = $currentPeriodEnd !== null
+            ? Carbon::createFromTimestamp($currentPeriodEnd)
             : null;
 
         $this->memberships->syncFromStripeStatus(
