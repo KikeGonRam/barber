@@ -38,6 +38,14 @@ class ReferralService
             throw new ReferralException('No puedes usar tu propio código de referido.');
         }
 
+        // Check de aplicación para un mensaje de error limpio en el caso
+        // normal (no atómico); el índice único sobre referee_client_id de
+        // la migración es la garantía real ante dos solicitudes casi
+        // simultáneas, igual patrón que WaitlistService::join().
+        if (Referral::where('referee_client_id', (string) $referee->id)->exists()) {
+            throw new ReferralException('Ya tienes un código de referido registrado -- no se puede cambiar.');
+        }
+
         try {
             return Referral::create([
                 'referrer_client_id' => (string) $referrer->id,
