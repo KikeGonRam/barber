@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "3384e4b2-05e6-488e-a35f-a1d684083dce",
+        "_postman_id": "a1a0c3b2-9fc2-4120-9e6a-d744a482176f",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -641,7 +641,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-05\",\"hora_inicio\":\"01:21\",\"estado\":\"cancelada\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-05\",\"hora_inicio\":\"02:50\",\"estado\":\"pendiente\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -769,7 +769,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"period\":\"day\",\"estado\":\"en_proceso\",\"offset\":-364}"
+                            "raw": "{\"period\":\"day\",\"estado\":\"completada\",\"offset\":-364}"
                         },
                         "description": "",
                         "auth": {
@@ -1354,6 +1354,50 @@
                             ],
                             "code": 302,
                             "body": "<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset=\"UTF-8\" \/>\n        <meta http-equiv=\"refresh\" content=\"0;url='http:\/\/localhost:3000\/login?error=google_failed'\" \/>\n\n        <title>Redirecting to http:\/\/localhost:3000\/login?error=google_failed<\/title>\n    <\/head>\n    <body>\n        Redirecting to <a href=\"http:\/\/localhost:3000\/login?error=google_failed\">http:\/\/localhost:3000\/login?error=google_failed<\/a>.\n    <\/body>\n<\/html>",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Login con Google Nativo (Android)",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/google\/token",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/google\/token"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"id_token\":\"eyJhbGciOiJSUzI1NiIs...\"}"
+                        },
+                        "description": "Verifica un ID token emitido por Google Identity Services \/ Credential\nManager directamente (sin pasar por el navegador ni el flujo\nauthorization-code de redirect()\/callback() de arriba) y emite el\nmismo Bearer token que el resto de la API. Pensado para la app Android\nnativa: Credential Manager entrega un ID token firmado por Google, no\nun c\u00f3digo de autorizaci\u00f3n, as\u00ed que no puede reusar Socialite.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n \"message\": \"Autenticaci\u00f3n exitosa.\",\n \"token_type\": \"Bearer\",\n \"token\": \"1|abc123def456...\",\n \"user\": { \"id\": 1, \"name\": \"Juan P\u00e9rez\", \"email\": \"juan@example.com\" }\n}",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 401,
+                            "body": "{\n \"message\": \"El token de Google no es v\u00e1lido.\"\n}",
                             "name": ""
                         }
                     ]
@@ -2013,7 +2057,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"metodo_pago\":\"transferencia\"}"
+                            "raw": "{\"metodo_pago\":\"tarjeta\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2338,7 +2382,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2377,7 +2421,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2492,7 +2536,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2646,7 +2690,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-12T01:22:02\",\"pref_in_app\":false,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-12T02:51:00\",\"pref_in_app\":false,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2685,7 +2729,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-12T01:22:03\",\"pref_in_app\":false,\"pref_email\":true,\"pref_sms\":true,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-12T02:51:00\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2800,7 +2844,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2839,7 +2883,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -3195,7 +3239,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"01:22\",\"horario_cierre\":\"2052-10-05\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"02:51\",\"horario_cierre\":\"2052-10-05\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3302,7 +3346,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"programar\",\"programada_para\":\"2052-10-05\"}"
+                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"ahora\",\"programada_para\":\"2052-10-05\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3831,7 +3875,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"in_app\":false,\"email\":false,\"sms\":false,\"whatsapp\":false,\"push\":false,\"promociones\":false}"
+                            "raw": "{\"in_app\":false,\"email\":true,\"sms\":false,\"whatsapp\":false,\"push\":true,\"promociones\":true}"
                         },
                         "description": "Igual que la versi\u00f3n web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los dem\u00e1s.",
                         "auth": {
@@ -6181,7 +6225,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":false}"
+                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":true}"
                         },
                         "description": "Marca una respuesta puntual del chatbot como \u00fatil o no. Antes de\neste endpoint, ChatbotController::query() llamaba a\nrecordFeedback() con $wasHelpful hardcodeado en `true` en cada una\nde sus 5 ramas de respuesta \u2014 el sistema de aprendizaje nunca hab\u00eda\nrecibido una se\u00f1al negativa real de ning\u00fan usuario. Este endpoint le\nda al frontend (el widget de chat en Nuxt) una forma de mandar la\nse\u00f1al real.",
                         "auth": {
@@ -6949,7 +6993,7 @@
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7042,13 +7086,13 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "1",
+                                    "value": "",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7245,7 +7289,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-12T01:22:03\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-12T02:51:01\"}"
                         },
                         "description": "",
                         "auth": {

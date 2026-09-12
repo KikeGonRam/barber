@@ -75,6 +75,12 @@ Route::prefix('v1')->group(function (): void {
     Route::get('auth/google/redirect', [SocialAuthController::class, 'redirect'])->middleware('throttle:10,1');
     Route::get('auth/google/callback', [SocialAuthController::class, 'callback'])->middleware('throttle:10,1');
 
+    // Login nativo (app Android): recibe el ID token que entrega Credential
+    // Manager directo, sin pasar por el navegador -- POST porque, a
+    // diferencia de las dos rutas de arriba, esto sí es una llamada
+    // fetch/JSON normal.
+    Route::post('auth/google/token', [SocialAuthController::class, 'token'])->middleware('throttle:10,1');
+
     // Catálogo público
     // Ficha del negocio (identidad/contacto/horario/política/redes) sin token:
     // la consumen la landing y la reserva pública. Distinta de GET settings

@@ -3,11 +3,17 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\Client;
 use App\Models\Role;
 use App\Models\User;
+use Firebase\JWT\JWK;
+use Firebase\JWT\JWT;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +22,9 @@ use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
 use MongoDB\Driver\Exception\BulkWriteException;
+use RuntimeException;
 use Throwable;
+use UnexpectedValueException;
 
 /**
  * Login social (auth-polish-plan, 2026-09-06): solo Google por ahora --
@@ -68,8 +76,127 @@ class SocialAuthController extends Controller
         }
 
         $email = Str::lower(trim((string) $googleUser->getEmail()));
+        $name = $googleUser->getName() ?: $googleUser->getNickname() ?: 'Cliente Google';
+
+        try {
+            $user = $this->findOrCreateGoogleUser($email, $name, $googleUser->getAvatar());
+        } catch (RuntimeException) {
+            Log::warning('Colisión de correo durante login con Google; se requiere reintento.');
+
+            return redirect("{$frontendUrl}/login?error=google_retry");
+        }
+
+        $issued = $user->issueMobileApiToken('Google OAuth');
+
+        return redirect("{$frontendUrl}/auth/callback?token={$issued['token']}");
+    }
+
+    /**
+     * Login con Google Nativo (Android)
+     *
+     * Verifica un ID token emitido por Google Identity Services / Credential
+     * Manager directamente (sin pasar por el navegador ni el flujo
+     * authorization-code de redirect()/callback() de arriba) y emite el
+     * mismo Bearer token que el resto de la API. Pensado para la app Android
+     * nativa: Credential Manager entrega un ID token firmado por Google, no
+     * un código de autorización, así que no puede reusar Socialite.
+     *
+     * @unauthenticated
+     *
+     * @bodyParam id_token string required El ID token emitido por Google Identity Services. Example: eyJhbGciOiJSUzI1NiIs...
+     *
+     * @response {
+     *  "message": "Autenticación exitosa.",
+     *  "token_type": "Bearer",
+     *  "token": "1|abc123def456...",
+     *  "user": { "id": 1, "name": "Juan Pérez", "email": "juan@example.com" }
+     * }
+     * @response 401 {
+     *  "message": "El token de Google no es válido."
+     * }
+     */
+    public function token(Request $request): JsonResponse
+    {
+        if (! config('services.google.client_id')) {
+            abort(503, 'El login con Google no está configurado todavía.');
+        }
+
+        $validated = $request->validate([
+            'id_token' => ['required', 'string'],
+        ]);
+
+        try {
+            $claims = $this->verifyGoogleIdToken($validated['id_token']);
+        } catch (Throwable $exception) {
+            Log::warning('Login nativo con Google falló al verificar el ID token.', ['error' => $exception->getMessage()]);
+
+            return response()->json(['message' => 'El token de Google no es válido.'], 401);
+        }
+
+        $email = Str::lower(trim((string) ($claims->email ?? '')));
+        $name = (string) ($claims->name ?? 'Cliente Google');
+        $avatarUrl = $claims->picture ?? null;
+
+        if ($email === '' || ! ($claims->email_verified ?? false)) {
+            return response()->json(['message' => 'El token de Google no es válido.'], 401);
+        }
+
+        try {
+            $user = $this->findOrCreateGoogleUser($email, $name, $avatarUrl);
+        } catch (RuntimeException) {
+            return response()->json(['message' => 'No se pudo completar el inicio de sesión, intenta de nuevo.'], 409);
+        }
+
+        $issued = $user->issueMobileApiToken('Google Android');
+
+        return response()->json([
+            'message' => 'Autenticación exitosa.',
+            'token_type' => 'Bearer',
+            'token' => $issued['token'],
+            'user' => new UserResource($user),
+        ]);
+    }
+
+    /**
+     * Verifica la firma, expiración, audiencia y emisor de un ID token de
+     * Google contra sus llaves públicas (JWKS, cacheadas unas horas -- Google
+     * las rota pero no tan seguido como para golpear su endpoint en cada
+     * login). JWT::decode() ya valida firma+exp; aud/iss se checan a mano
+     * porque decode() no sabe qué audiencia/emisor esperamos.
+     */
+    private function verifyGoogleIdToken(string $idToken): object
+    {
+        $jwks = Cache::remember('google_jwks', now()->addHours(6), function () {
+            return Http::timeout(10)->get('https://www.googleapis.com/oauth2/v3/certs')->throw()->json();
+        });
+
+        $claims = JWT::decode($idToken, JWK::parseKeySet($jwks));
+
+        $validIssuers = ['accounts.google.com', 'https://accounts.google.com'];
+        if (! in_array($claims->iss ?? null, $validIssuers, true)) {
+            throw new UnexpectedValueException('Emisor del token inesperado.');
+        }
+
+        if (($claims->aud ?? null) !== config('services.google.client_id')) {
+            throw new UnexpectedValueException('Audiencia del token inesperada.');
+        }
+
+        return $claims;
+    }
+
+    /**
+     * Busca o crea el usuario a partir de una identidad ya acreditada por
+     * Google (mismo camino de asignación de rol que AuthController::register()
+     * -- siempre 'cliente', nunca algo elegido por el propio flujo de OAuth).
+     * Compartido por el flujo web (callback()) y el nativo (token()) para que
+     * no diverjan.
+     *
+     * @throws RuntimeException si dos logins concurrentes chocan y ni así se
+     *                          encuentra el usuario recién creado (llamador decide cómo responder).
+     */
+    private function findOrCreateGoogleUser(string $email, string $name, ?string $avatarUrl): User
+    {
         $user = User::withTrashed()->where('email', $email)->first();
-        $avatarUrl = $googleUser->getAvatar();
 
         // Un usuario eliminado lógicamente sigue ocupando su correo en el
         // índice único de MongoDB. Google ya validó que la persona controla
@@ -92,7 +219,7 @@ class SocialAuthController extends Controller
 
             try {
                 $user = User::create([
-                    'name' => $googleUser->getName() ?: $googleUser->getNickname() ?: 'Cliente Google',
+                    'name' => $name,
                     'email' => $email,
                     // Contraseña aleatoria: este usuario solo entra por Google, pero
                     // el campo es NOT NULL -- nunca se le comunica ni se usa para login normal.
@@ -114,8 +241,9 @@ class SocialAuthController extends Controller
 
                 event(new Registered($user));
             } catch (BulkWriteException $exception) {
-                // Dos callbacks pueden terminar casi a la vez. El segundo
-                // debe reutilizar la cuenta recién creada, no responder 500.
+                // Dos requests (dos pestañas, o web+Android casi a la vez)
+                // pueden terminar casi a la vez. El segundo debe reutilizar
+                // la cuenta recién creada, no responder 500.
                 if ($exception->getCode() !== 11000) {
                     throw $exception;
                 }
@@ -123,9 +251,7 @@ class SocialAuthController extends Controller
                 $user = User::where('email', $email)->first();
 
                 if (! $user) {
-                    Log::warning('Colisión de correo durante login con Google; se requiere reintento.');
-
-                    return redirect("{$frontendUrl}/login?error=google_retry");
+                    throw new RuntimeException('Colisión de correo durante login con Google.');
                 }
             }
         }
@@ -138,9 +264,7 @@ class SocialAuthController extends Controller
             }
         }
 
-        $issued = $user->issueMobileApiToken('Google OAuth');
-
-        return redirect("{$frontendUrl}/auth/callback?token={$issued['token']}");
+        return $user;
     }
 
     private function importGoogleAvatar(User $user, ?string $avatarUrl): ?string
