@@ -103,6 +103,12 @@ parameters:
 			path: tests/Feature/DashboardApiTest.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/PaymentApiTest.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 1
