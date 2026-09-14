@@ -255,7 +255,7 @@ class PaymentService
      * NO marca la cita como completada ni genera factura todavia. Avisa a
      * recepcion/admin para que lo revisen.
      */
-    public function uploadTransferReceipt(Appointment $appointment, UploadedFile $file, string $clientUserId): Payment
+    public function uploadTransferReceipt(Appointment $appointment, UploadedFile $file, string $clientUserId, float $propina = 0.0): Payment
     {
         if (! in_array($appointment->estado, AppointmentStatusService::CHARGEABLE, true)) {
             throw new PaymentException('Solo se puede subir comprobante de una cita aprobada por el barbero.');
@@ -278,7 +278,7 @@ class PaymentService
                 'appointment_id' => (string) $appointment->id,
                 'monto' => $monto,
                 'metodo_pago' => 'transferencia',
-                'propina' => 0,
+                'propina' => $propina,
                 'created_by' => $clientUserId,
                 'estado' => Payment::ESTADO_PENDIENTE_VERIFICACION,
                 'comprobante_cliente' => $path,

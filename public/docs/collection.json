@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "a1a0c3b2-9fc2-4120-9e6a-d744a482176f",
+        "_postman_id": "3269b562-8234-47de-9b2f-b9126efcf517",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -641,7 +641,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-05\",\"hora_inicio\":\"02:50\",\"estado\":\"pendiente\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-06\",\"hora_inicio\":\"22:53\",\"estado\":\"en_proceso\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -769,7 +769,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"period\":\"day\",\"estado\":\"completada\",\"offset\":-364}"
+                            "raw": "{\"period\":\"day\",\"estado\":\"no_asistio\",\"offset\":-364}"
                         },
                         "description": "",
                         "auth": {
@@ -1201,7 +1201,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-05\"}"
+                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-06\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1568,7 +1568,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-05\"}"
+                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-06\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2018,12 +2018,66 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"puntos_canjeados\":39,\"codigo_gift_card\":\"gzmiyvdljnikhway\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"puntos_canjeados\":39,\"codigo_gift_card\":\"gzmiyvdljnikhway\",\"propina\":62}"
                         },
-                        "description": "Autopago del cliente (Fase B del plan Stripe): un cliente autenticado\npuede pagar su PROPIA cita con tarjeta exactamente por el mismo camino\nque usa staff -- el webhook (StripeWebhookController::onSucceeded())\nno distingue qui\u00e9n cre\u00f3 el intent, solo lee metadata.appointment_id y\nllama PaymentService::create() igual en ambos casos. No hace falta\nduplicar l\u00f3gica de completar el cobro.\n\nEl monto NO se recibe del cliente: se calcula aqui mismo (precio base\ndel servicio -> descuento de nivel -> puntos canjeados) para que lo que\nStripe realmente cobra sea siempre el mismo numero que create()\/el\nwebhook usaran despues para registrar el pago \u2014 nunca se confia en un\nmonto que venga del frontend para mover dinero real.",
+                        "description": "Autopago del cliente (Fase B del plan Stripe): un cliente autenticado\npuede pagar su PROPIA cita con tarjeta exactamente por el mismo camino\nque usa staff -- el webhook (StripeWebhookController::onSucceeded())\nno distingue qui\u00e9n cre\u00f3 el intent, solo lee metadata.appointment_id y\nllama PaymentService::create() igual en ambos casos. No hace falta\nduplicar l\u00f3gica de completar el cobro.\n\nEl monto del SERVICIO no se recibe del cliente: se calcula aqui mismo\n(precio base del servicio -> descuento de nivel -> puntos canjeados ->\ngift card) para que lo que Stripe realmente cobra por ese concepto sea\nsiempre el mismo numero que create()\/el webhook usaran despues para\nregistrar el pago \u2014 nunca se confia en un monto que venga del frontend\npara mover dinero real. La propina SI es una eleccion del cliente (no\nhay \"precio correcto\" que releer), se valida como numero >= 0 y se\nsuma aparte al total que ve Stripe; PaymentService::create() la guarda\nen su propio campo, nunca se mezcla con precio_cobrado.",
                         "auth": {
                             "type": "noauth"
                         }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Sube el comprobante de transferencia de una cita completa (autopago\ndel cliente). Mismo patr\u00f3n que DepositController::uploadReceipt(), pero\npara el cobro completo en vez del dep\u00f3sito anti-no-show: queda en\nrevisi\u00f3n (Payment::ESTADO_PENDIENTE_VERIFICACION), no completa la cita\nhasta que recepci\u00f3n\/admin apruebe (PaymentController::approve()).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/appointments\/:appointment_code\/payment\/receipt",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/appointments\/:appointment_code\/payment\/receipt",
+                            "variable": [
+                                {
+                                    "id": "appointment_code",
+                                    "key": "appointment_code",
+                                    "value": "architecto",
+                                    "description": ""
+                                },
+                                {
+                                    "id": "appointment",
+                                    "key": "appointment",
+                                    "value": "jfb7ffye",
+                                    "description": "C\u00f3digo p\u00fablico de la cita."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "multipart\/form-data"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "propina",
+                                    "value": "20",
+                                    "type": "text",
+                                    "description": "Propina opcional a agregar al comprobante."
+                                },
+                                {
+                                    "key": "comprobante",
+                                    "src": [],
+                                    "type": "file"
+                                }
+                            ]
+                        },
+                        "description": ""
                     },
                     "response": []
                 },
@@ -2192,7 +2246,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"tarjeta\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"efectivo\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":false,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2382,7 +2436,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2421,7 +2475,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2690,7 +2744,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-12T02:51:00\",\"pref_in_app\":false,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-09-13T22:53:36\",\"pref_in_app\":false,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2729,7 +2783,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-12T02:51:00\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":true,\"pref_whatsapp\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-09-13T22:53:36\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2844,7 +2898,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"imagen\":\"m\",\"descripcion\":\"i\",\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -3006,7 +3060,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":false,\"comision_pct\":1}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"foto\":\"v\",\"activo\":true,\"comision_pct\":1}"
                         },
                         "description": "",
                         "auth": {
@@ -3106,7 +3160,7 @@
                                 {
                                     "id": "user_id",
                                     "key": "user_id",
-                                    "value": "architecto",
+                                    "value": "6aa51b319ddeabe12709e9e2",
                                     "description": "The ID of the user."
                                 }
                             ]
@@ -3145,7 +3199,7 @@
                                 {
                                     "id": "user_id",
                                     "key": "user_id",
-                                    "value": "architecto",
+                                    "value": "6aa51b319ddeabe12709e9e2",
                                     "description": "The ID of the user."
                                 }
                             ]
@@ -3239,7 +3293,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"02:51\",\"horario_cierre\":\"2052-10-05\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"22:53\",\"horario_cierre\":\"2052-10-06\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3346,7 +3400,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"ahora\",\"programada_para\":\"2052-10-05\"}"
+                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"ahora\",\"programada_para\":\"2052-10-07\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3875,7 +3929,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"in_app\":false,\"email\":true,\"sms\":false,\"whatsapp\":false,\"push\":true,\"promociones\":true}"
+                            "raw": "{\"in_app\":true,\"email\":true,\"sms\":true,\"whatsapp\":true,\"push\":false,\"promociones\":false}"
                         },
                         "description": "Igual que la versi\u00f3n web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los dem\u00e1s.",
                         "auth": {
@@ -3954,7 +4008,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"endpoint\":\"b\",\"keys\":{\"p256dh\":\"architecto\",\"auth\":\"architecto\"},\"content_encoding\":\"aesgcm\"}"
+                            "raw": "{\"endpoint\":\"b\",\"keys\":{\"p256dh\":\"architecto\",\"auth\":\"architecto\"},\"content_encoding\":\"aes128gcm\"}"
                         },
                         "description": "",
                         "auth": {
@@ -5458,7 +5512,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -5497,7 +5551,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":true,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -6225,7 +6279,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":true}"
+                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":false}"
                         },
                         "description": "Marca una respuesta puntual del chatbot como \u00fatil o no. Antes de\neste endpoint, ChatbotController::query() llamaba a\nrecordFeedback() con $wasHelpful hardcodeado en `true` en cada una\nde sus 5 ramas de respuesta \u2014 el sistema de aprendizaje nunca hab\u00eda\nrecibido una se\u00f1al negativa real de ning\u00fan usuario. Este endpoint le\nda al frontend (el widget de chat en Nuxt) una forma de mandar la\nse\u00f1al real.",
                         "auth": {
@@ -6987,13 +7041,13 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "1",
+                                    "value": "",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7086,7 +7140,7 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "1",
+                                    "value": "",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7289,7 +7343,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-12T02:51:01\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-09-13T22:53:37\"}"
                         },
                         "description": "",
                         "auth": {

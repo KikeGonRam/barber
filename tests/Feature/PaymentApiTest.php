@@ -16,6 +16,8 @@ use App\Services\Loyalty\LoyaltyService;
 use App\Services\Package\GiftCardService;
 use App\Services\Payment\StripePaymentService;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
@@ -275,6 +277,48 @@ class PaymentApiTest extends TestCase
         $response->assertJsonPath('data.client_secret', 'pi_test_secret_123');
     }
 
+    public function test_stripe_intent_adds_tip_on_top_of_the_computed_amount(): void
+    {
+        $user = $this->staffUser('recepcionista', 'recepcion-stripe-propina@test.local');
+
+        $barberUser = User::create(['name' => 'Barbero Stripe Propina', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Stripe Propina', 'activo' => true]);
+        $clientUser = User::create(['name' => 'Cliente Stripe Propina', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $client = Client::create(['user_id' => (string) $clientUser->id, 'telefono' => '5550001111', 'nivel' => 'nuevo', 'puntos' => 0]);
+        $service = Service::create(['nombre' => 'Corte Stripe Propina', 'precio' => 300, 'duracion_min' => 30, 'activo' => true]);
+
+        $appointment = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00', 'estado' => 'confirmada',
+        ]);
+
+        // 300 (precio, sin descuento de nivel 'nuevo') + 45 de propina = 345
+        // que Stripe realmente debe cobrar; los metadatos deben cargar la
+        // propina aparte para que el webhook la registre en su propio campo
+        // (nunca mezclada con precio_cobrado).
+        $this->mock(StripePaymentService::class, function ($mock) use ($appointment) {
+            $mock->shouldReceive('createPaymentIntent')
+                ->once()
+                ->withArgs(fn ($amount, $currency, $metadata) => abs($amount - 345.0) < 0.01
+                    && $currency === 'mxn'
+                    && $metadata['appointment_id'] === (string) $appointment->id
+                    && $metadata['propina'] === '45'
+                )
+                ->andReturn(['client_secret' => 'pi_propina_secret', 'payment_intent_id' => 'pi_propina']);
+        });
+
+        $token = $this->tokenFor($user, 'test-plaintext-token-stripe-propina');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', [
+                'appointment_id' => (string) $appointment->id,
+                'propina' => 45,
+            ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.client_secret', 'pi_propina_secret');
+    }
+
     public function test_stripe_intent_rejects_redeeming_more_points_than_allowed(): void
     {
         $user = $this->staffUser('recepcionista', 'recepcion-stripe-puntos@test.local');
@@ -483,5 +527,76 @@ class PaymentApiTest extends TestCase
             ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id]);
 
         $response->assertStatus(422);
+    }
+
+    /**
+     * Cubre appointments/{appointment}/payment/receipt (autopago del cliente
+     * por transferencia): deja el pago en revisión, nunca completa la cita
+     * de inmediato -- eso solo pasa cuando recepción/admin aprueba (ver los
+     * tests de approve() más arriba).
+     */
+    public function test_client_can_upload_transfer_receipt_for_their_own_chargeable_appointment(): void
+    {
+        Storage::fake('public');
+
+        $barberUser = User::create(['name' => 'Barbero Recibo', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Recibo', 'activo' => true]);
+        $clientRole = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
+        $clientUser = User::create(['name' => 'Cliente Recibo', 'email' => 'cliente-recibo@test.local', 'password' => 'password']);
+        $clientUser->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $clientRole->id]])->save();
+        $client = Client::create(['user_id' => (string) $clientUser->id, 'telefono' => '5554443333', 'nivel' => 'nuevo', 'puntos' => 0]);
+        $service = Service::create(['nombre' => 'Corte Recibo', 'precio' => 280, 'duracion_min' => 30, 'activo' => true]);
+
+        $appointment = Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '14:00:00', 'hora_fin' => '14:30:00', 'estado' => 'confirmada',
+        ]);
+
+        $token = $this->tokenFor($clientUser, 'test-plaintext-token-recibo');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->post(
+            "/api/v1/appointments/{$appointment->code}/payment/receipt",
+            [
+                'comprobante' => UploadedFile::fake()->create('comprobante.jpg', 10, 'image/jpeg'),
+                'propina' => 20,
+            ]
+        );
+
+        $response->assertCreated();
+        $response->assertJsonPath('data.estado', Payment::ESTADO_PENDIENTE_VERIFICACION);
+
+        $payment = Payment::where('appointment_id', (string) $appointment->id)->firstOrFail();
+        $this->assertSame(20.0, (float) $payment->propina);
+        // El pago queda en revisión: la cita NO se completa todavía.
+        $this->assertSame('confirmada', $appointment->fresh()->estado);
+    }
+
+    public function test_upload_receipt_rejects_a_client_who_does_not_own_the_appointment(): void
+    {
+        Storage::fake('public');
+
+        $barberUser = User::create(['name' => 'Barbero Recibo Ajeno', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Recibo Ajeno', 'activo' => true]);
+        $ownerUser = User::create(['name' => 'Dueño Recibo', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $owner = Client::create(['user_id' => (string) $ownerUser->id, 'telefono' => '5550009999', 'nivel' => 'nuevo', 'puntos' => 0]);
+        $service = Service::create(['nombre' => 'Corte Recibo Ajeno', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+        $appointment = Appointment::create([
+            'client_id' => (string) $owner->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '15:00:00', 'hora_fin' => '15:30:00', 'estado' => 'confirmada',
+        ]);
+
+        $clientRole = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
+        $otroUser = User::create(['name' => 'Otro Cliente Recibo', 'email' => 'otro-cliente-recibo@test.local', 'password' => 'password']);
+        $otroUser->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $clientRole->id]])->save();
+        Client::create(['user_id' => (string) $otroUser->id, 'telefono' => '5551112222', 'nivel' => 'nuevo', 'puntos' => 0]);
+
+        $token = $this->tokenFor($otroUser, 'test-plaintext-token-otro-recibo');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->post(
+            "/api/v1/appointments/{$appointment->code}/payment/receipt",
+            ['comprobante' => UploadedFile::fake()->create('comprobante.jpg', 10, 'image/jpeg')]
+        );
+
+        $response->assertForbidden();
     }
 }

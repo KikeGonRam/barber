@@ -436,6 +436,32 @@ class PaymentServiceIntegrationTest extends TestCase
         Queue::assertPushed(RunOcrOnComprobante::class, fn ($job) => $job->paymentId === (string) $payment->id);
     }
 
+    public function test_upload_transfer_receipt_stores_the_given_tip(): void
+    {
+        Notification::fake();
+        Queue::fake();
+        Storage::fake('public');
+
+        $appointment = $this->makeChargeableAppointment();
+
+        $payment = $this->service->uploadTransferReceipt($appointment, $this->fakeReceipt(), (string) Str::uuid(), 15.0);
+
+        $this->assertSame(15.0, (float) $payment->propina);
+    }
+
+    public function test_upload_transfer_receipt_defaults_tip_to_zero(): void
+    {
+        Notification::fake();
+        Queue::fake();
+        Storage::fake('public');
+
+        $appointment = $this->makeChargeableAppointment();
+
+        $payment = $this->service->uploadTransferReceipt($appointment, $this->fakeReceipt(), (string) Str::uuid());
+
+        $this->assertSame(0.0, (float) $payment->propina);
+    }
+
     public function test_upload_transfer_receipt_applies_the_client_level_discount(): void
     {
         Notification::fake();

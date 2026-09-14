@@ -180,6 +180,11 @@ Route::prefix('v1')->group(function (): void {
         // que el controlador tenga oportunidad de validar la propiedad.
         Route::post('payments/stripe-intent', [ApiPaymentController::class, 'stripeIntent'])->name('api.payments.stripe-intent');
 
+        // Comprobante de transferencia de la cita completa (autopago del
+        // cliente) -- mismo patrón que deposit/receipt de abajo, pero para
+        // el cobro completo, no el depósito anti-no-show.
+        Route::post('appointments/{appointment}/payment/receipt', [ApiPaymentController::class, 'uploadReceipt']);
+
         // Depósito anti-no-show de una cita propia (DepositController exige
         // dueño de la cita, mismo patrón que stripe-intent de arriba).
         Route::post('appointments/{appointment}/deposit/stripe-intent', [DepositController::class, 'stripeIntent']);

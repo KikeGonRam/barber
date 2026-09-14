@@ -221,11 +221,15 @@ class PaymentController extends Controller
      * llama PaymentService::create() igual en ambos casos. No hace falta
      * duplicar lógica de completar el cobro.
      *
-     * El monto NO se recibe del cliente: se calcula aqui mismo (precio base
-     * del servicio -> descuento de nivel -> puntos canjeados) para que lo que
-     * Stripe realmente cobra sea siempre el mismo numero que create()/el
-     * webhook usaran despues para registrar el pago — nunca se confia en un
-     * monto que venga del frontend para mover dinero real.
+     * El monto del SERVICIO no se recibe del cliente: se calcula aqui mismo
+     * (precio base del servicio -> descuento de nivel -> puntos canjeados ->
+     * gift card) para que lo que Stripe realmente cobra por ese concepto sea
+     * siempre el mismo numero que create()/el webhook usaran despues para
+     * registrar el pago — nunca se confia en un monto que venga del frontend
+     * para mover dinero real. La propina SI es una eleccion del cliente (no
+     * hay "precio correcto" que releer), se valida como numero >= 0 y se
+     * suma aparte al total que ve Stripe; PaymentService::create() la guarda
+     * en su propio campo, nunca se mezcla con precio_cobrado.
      */
     public function stripeIntent(Request $request): JsonResponse
     {
@@ -243,6 +247,7 @@ class PaymentController extends Controller
             'appointment_id' => ['required', 'string', 'exists:appointments,id'],
             'puntos_canjeados' => ['nullable', 'integer', 'min:0'],
             'codigo_gift_card' => ['nullable', 'string', 'max:20'],
+            'propina' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $appointment = Appointment::with('client')->findOrFail($validated['appointment_id']);
@@ -309,14 +314,22 @@ class PaymentController extends Controller
             }
         }
 
+        // La propina se suma DESPUES de descuentos/puntos/gift-card: es un
+        // monto aparte que Stripe cobra junto con el servicio en el mismo
+        // cargo, pero PaymentService::create() la registra en su propio
+        // campo (nunca se mezcla con el precio_cobrado de la cita).
+        $propina = round((float) ($validated['propina'] ?? 0), 2);
+        $montoACobrar = round($monto + $propina, 2);
+
         try {
             $data = $this->stripeService->createPaymentIntent(
-                $monto,
+                $montoACobrar,
                 'mxn',
                 [
                     'appointment_id' => $validated['appointment_id'],
                     'puntos_canjeados' => (string) $puntosCanjeados,
                     'codigo_gift_card' => $codigoGiftCard ?? '',
+                    'propina' => (string) $propina,
                 ]
             );
 
@@ -332,6 +345,49 @@ class PaymentController extends Controller
                 'message' => 'No se pudo crear el intento de pago Stripe. Intenta de nuevo o usa otro método de pago.',
             ], 422);
         }
+    }
+
+    /**
+     * Sube el comprobante de transferencia de una cita completa (autopago
+     * del cliente). Mismo patrón que DepositController::uploadReceipt(), pero
+     * para el cobro completo en vez del depósito anti-no-show: queda en
+     * revisión (Payment::ESTADO_PENDIENTE_VERIFICACION), no completa la cita
+     * hasta que recepción/admin apruebe (PaymentController::approve()).
+     *
+     * @authenticated
+     *
+     * @urlParam appointment string required Código público de la cita. Example: jfb7ffye
+     *
+     * @bodyParam comprobante file required Foto o PDF del comprobante de transferencia.
+     * @bodyParam propina numeric Propina opcional a agregar al comprobante. Example: 20
+     */
+    public function uploadReceipt(Request $request, Appointment $appointment): JsonResponse
+    {
+        $user = $request->user();
+        $isOwner = $user?->hasRole('cliente') && $user->clientProfile && (string) $appointment->client_id === (string) $user->clientProfile->id;
+
+        abort_unless($isOwner, 403, 'No autorizado.');
+
+        $validated = $request->validate([
+            'comprobante' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'propina' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        try {
+            $payment = $this->paymentService->uploadTransferReceipt(
+                $appointment,
+                $validated['comprobante'],
+                (string) $user->id,
+                round((float) ($validated['propina'] ?? 0), 2)
+            );
+        } catch (PaymentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json([
+            'message' => 'Comprobante recibido. Te avisaremos cuando se verifique.',
+            'data' => ['id' => $payment->id, 'estado' => $payment->estado],
+        ], 201);
     }
 
     /**

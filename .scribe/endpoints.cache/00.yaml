@@ -84,7 +84,7 @@ endpoints:
         name: date
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-05'
+        example: '2052-10-06'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -93,7 +93,7 @@ endpoints:
     cleanBodyParameters:
       barber_id: architecto
       service_id: architecto
-      date: '2052-10-05'
+      date: '2052-10-06'
     fileParameters: []
     responses:
       -
@@ -472,7 +472,7 @@ endpoints:
         name: date
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-05'
+        example: '2052-10-06'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -481,7 +481,7 @@ endpoints:
     cleanBodyParameters:
       barber_id: architecto
       service_id: architecto
-      date: '2052-10-05'
+      date: '2052-10-06'
     fileParameters: []
     responses:
       -
@@ -935,11 +935,15 @@ endpoints:
         llama PaymentService::create() igual en ambos casos. No hace falta
         duplicar lógica de completar el cobro.
 
-        El monto NO se recibe del cliente: se calcula aqui mismo (precio base
-        del servicio -> descuento de nivel -> puntos canjeados) para que lo que
-        Stripe realmente cobra sea siempre el mismo numero que create()/el
-        webhook usaran despues para registrar el pago — nunca se confia en un
-        monto que venga del frontend para mover dinero real.
+        El monto del SERVICIO no se recibe del cliente: se calcula aqui mismo
+        (precio base del servicio -> descuento de nivel -> puntos canjeados ->
+        gift card) para que lo que Stripe realmente cobra por ese concepto sea
+        siempre el mismo numero que create()/el webhook usaran despues para
+        registrar el pago — nunca se confia en un monto que venga del frontend
+        para mover dinero real. La propina SI es una eleccion del cliente (no
+        hay "precio correcto" que releer), se valida como numero >= 0 y se
+        suma aparte al total que ve Stripe; PaymentService::create() la guarda
+        en su propio campo, nunca se mezcla con precio_cobrado.
       authenticated: false
       deprecated: false
     headers:
@@ -983,11 +987,107 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      propina:
+        custom: []
+        name: propina
+        description: 'El campo value debe ser al menos 0.'
+        required: false
+        example: 62
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
     cleanBodyParameters:
       appointment_id: architecto
       puntos_canjeados: 39
       codigo_gift_card: gzmiyvdljnikhway
+      propina: 62
     fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/appointments/{appointment_code}/payment/receipt'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Sube el comprobante de transferencia de una cita completa (autopago
+        del cliente). Mismo patrón que DepositController::uploadReceipt(), pero
+        para el cobro completo en vez del depósito anti-no-show: queda en
+        revisión (Payment::ESTADO_PENDIENTE_VERIFICACION), no completa la cita
+        hasta que recepción/admin apruebe (PaymentController::approve()).
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters:
+      appointment_code:
+        custom: []
+        name: appointment_code
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      appointment:
+        custom: []
+        name: appointment
+        description: 'Código público de la cita.'
+        required: true
+        example: jfb7ffye
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_code: architecto
+      appointment: jfb7ffye
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      comprobante:
+        custom: []
+        name: comprobante
+        description: 'Foto o PDF del comprobante de transferencia.'
+        required: true
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      propina:
+        custom: []
+        name: propina
+        description: 'Propina opcional a agregar al comprobante.'
+        required: false
+        example: '20'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      propina: '20'
+    fileParameters:
+      comprobante: null
     responses: []
     responseFields: []
     auth: []
@@ -1207,7 +1307,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: tarjeta
+        example: efectivo
         type: string
         enumValues:
           - efectivo
@@ -1243,7 +1343,7 @@ endpoints:
         name: usar_premio_rifa
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1285,10 +1385,10 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: tarjeta
+      metodo_pago: efectivo
       propina: 77
       puntos_canjeados: 8
-      usar_premio_rifa: true
+      usar_premio_rifa: false
       usar_paquete_id: architecto
       codigo_gift_card: ngzmiyvdljnikhwa
       stripe_payment_id: architecto
@@ -1567,7 +1667,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1579,7 +1679,7 @@ endpoints:
       cantidad_usos: 22
       precio: 84
       vigencia_dias: 16
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -1684,7 +1784,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1696,7 +1796,7 @@ endpoints:
       cantidad_usos: 22
       precio: 84
       vigencia_dias: 16
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2148,7 +2248,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-12T02:51:00'
+        example: '2026-09-13T22:53:36'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2181,7 +2281,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2192,7 +2292,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2203,11 +2303,11 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-09-12T02:51:00'
+      fecha_nacimiento: '2026-09-13T22:53:36'
       pref_in_app: false
       pref_email: false
-      pref_sms: false
-      pref_whatsapp: false
+      pref_sms: true
+      pref_whatsapp: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2288,7 +2388,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-09-12T02:51:00'
+        example: '2026-09-13T22:53:36'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2321,7 +2421,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2342,10 +2442,10 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-09-12T02:51:00'
+      fecha_nacimiento: '2026-09-13T22:53:36'
       pref_in_app: true
       pref_email: false
-      pref_sms: true
+      pref_sms: false
       pref_whatsapp: true
     fileParameters: []
     responses: []
@@ -2531,7 +2631,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2544,7 +2644,7 @@ endpoints:
       duracion_min: 16
       imagen: m
       descripcion: i
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2857,7 +2957,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2880,7 +2980,7 @@ endpoints:
       especialidades: i
       descripcion: 'y'
       foto: v
-      activo: false
+      activo: true
       comision_pct: 1
     fileParameters: []
     responses: []
@@ -3032,14 +3132,14 @@ endpoints:
         name: user_id
         description: 'The ID of the user.'
         required: true
-        example: architecto
+        example: 6aa51b319ddeabe12709e9e2
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      user_id: architecto
+      user_id: 6aa51b319ddeabe12709e9e2
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -3123,14 +3223,14 @@ endpoints:
         name: user_id
         description: 'The ID of the user.'
         required: true
-        example: architecto
+        example: 6aa51b319ddeabe12709e9e2
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      user_id: architecto
+      user_id: 6aa51b319ddeabe12709e9e2
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -3243,7 +3343,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '02:51'
+        example: '22:53'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3254,7 +3354,7 @@ endpoints:
         name: horario_cierre
         description: 'Must be a valid date in the format <code>H:i</code>. El campo value debe ser una fecha posterior a <code>horario_apertura</code>.'
         required: false
-        example: '2052-10-05'
+        example: '2052-10-06'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3379,8 +3479,8 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '02:51'
-      horario_cierre: '2052-10-05'
+      horario_apertura: '22:53'
+      horario_cierre: '2052-10-06'
       politica_cancelacion: 22
       deposito_no_show_umbral: 7
       deposito_no_show_porcentaje: 16
@@ -3570,7 +3670,7 @@ endpoints:
         name: programada_para
         description: 'This field is required when <code>modo</code> is <code>programar</code>. El campo value no es una fecha válida. El campo value debe ser una fecha posterior a <code>now</code>.'
         required: false
-        example: '2052-10-05'
+        example: '2052-10-07'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3583,7 +3683,7 @@ endpoints:
       cta_url: 'http://www.okuneva.com/fugiat-sunt-nihil-accusantium-harum-mollitia.html'
       segmento: architecto
       modo: ahora
-      programada_para: '2052-10-05'
+      programada_para: '2052-10-07'
     fileParameters: []
     responses: []
     responseFields: []
@@ -4091,7 +4191,7 @@ endpoints:
         name: in_app
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4113,7 +4213,7 @@ endpoints:
         name: sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4124,7 +4224,7 @@ endpoints:
         name: whatsapp
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4135,7 +4235,7 @@ endpoints:
         name: push
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4146,19 +4246,19 @@ endpoints:
         name: promociones
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      in_app: false
+      in_app: true
       email: true
-      sms: false
-      whatsapp: false
-      push: true
-      promociones: true
+      sms: true
+      whatsapp: true
+      push: false
+      promociones: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -4284,7 +4384,7 @@ endpoints:
         name: content_encoding
         description: ''
         required: false
-        example: aesgcm
+        example: aes128gcm
         type: string
         enumValues:
           - aesgcm
@@ -4297,7 +4397,7 @@ endpoints:
       keys:
         p256dh: architecto
         auth: architecto
-      content_encoding: aesgcm
+      content_encoding: aes128gcm
     fileParameters: []
     responses: []
     responseFields: []
@@ -5846,7 +5946,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5857,7 +5957,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5872,8 +5972,8 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: true
-      active: false
+      activo: false
+      active: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -6009,7 +6109,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -6020,7 +6120,7 @@ endpoints:
         name: active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -6035,8 +6135,8 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: false
-      active: true
+      activo: true
+      active: false
     fileParameters: []
     responses: []
     responseFields: []

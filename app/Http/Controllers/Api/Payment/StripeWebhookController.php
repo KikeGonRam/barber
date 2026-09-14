@@ -129,13 +129,14 @@ class StripeWebhookController extends Controller
         $baseMonto = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
         $puntosCanjeados = (int) ($intent->metadata->puntos_canjeados ?? 0);
         $codigoGiftCard = $intent->metadata->codigo_gift_card ?? null;
+        $propina = (float) ($intent->metadata->propina ?? 0);
 
         try {
             $this->paymentService->create([
                 'appointment_id' => $appointmentId,
                 'monto' => $baseMonto,
                 'metodo_pago' => 'tarjeta',
-                'propina' => 0,
+                'propina' => $propina,
                 'puntos_canjeados' => $puntosCanjeados,
                 'codigo_gift_card' => $codigoGiftCard ?: null,
                 'stripe_payment_id' => $intent->id,
