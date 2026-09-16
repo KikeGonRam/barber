@@ -5,6 +5,11 @@ description: "Prepara mensajes de commit en español para que el usuario humano 
 
 # Convención de commits — UrbanBlade
 
+## Rama única
+
+`barber`, `frontend-urban` y `spark` trabajan únicamente en `main`. No crear ramas de
+funcionalidad ni continuar trabajo en la antigua `urbanblade-analytics` de Spark.
+
 ## Propiedad humana de Git
 
 **Regla absoluta del propietario:** ningún agente o proveedor de IA ejecuta `git

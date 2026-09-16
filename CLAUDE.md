@@ -38,7 +38,7 @@ deleted). This folder is one of several independent repos gathered under the
 
 - PHP 8.3+, Laravel 13
 - Database: MongoDB (via `mongodb/laravel-mongodb` ^5.0), Atlas-hosted `barber_db`,
-  shared with the `spark/` analytics project (paused, not actively worked on)
+  shared with the active sibling `spark/` analytics project
 - Redis (cache, sessions, queue — `queue:work`/`schedule:work` run as their own Docker
   services, see `docker-compose.yml`)
 - Frontend build (for the surviving Blade pages only — the real product frontend is
@@ -162,8 +162,8 @@ Highlights, all covered in much more depth there:
   reread the source of truth server-side inside the service layer. Payment methods are
   exactly three: efectivo, transferencia, tarjeta (beta, real Stripe charge) — no QR as
   an active option.
-- `spark` is paused (don't propose work there unprompted); `mobil` (Expo) is fully
-  discontinued (a native Android app is being built separately to replace it).
+- El alcance activo coordinado incluye `barber`, `frontend-urban` y `spark`; los tres
+  trabajan únicamente en `main`. `mobil` (Expo) está discontinuado.
 - Docs live in specific places — `docs/ACCESOS.md` is the single source of truth for
   credentials. Before editing/creating any `.md`, grep the whole repo for related
   content first — this repo has real history of docs drifting into duplicate,

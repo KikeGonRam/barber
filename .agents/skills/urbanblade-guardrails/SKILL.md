@@ -119,14 +119,12 @@ publication in this repo. Run `.\test.ps1` and the applicable `pint --test`, Lar
 The user reviews the diff, creates the commit and pushes it personally. Do not ask for
 authorization to take over those Git actions; they are permanently human-owned.
 
-## 10. Active scope: this repo only
+## 10. Active coordinated scope and branch
 
-As of 2026-09-02, active work is scoped to this repo (`barber`) only. `spark` is
-paused/no longer being worked on — don't propose or start work there unless the user
-explicitly asks. The data-sharing risk in rule 6 above still applies even while `spark`
-is paused: `barber_db` still exists on Atlas and `spark`'s read-only scripts still point
-at it, so schema changes here can still make `spark` stale for whenever the user returns
-to it.
+As of 2026-09-16, active work includes `barber`, `frontend-urban` and `spark`. All three
+repositories use `main` as their only working branch. Do not create feature branches or
+continue work on the former `urbanblade-analytics` branch. The data-sharing risk in rule
+6 remains: coordinate schema and connector changes across `barber` and `spark`.
 
 `mobil` (the Expo app) is **fully discontinued** — the user is rebuilding the mobile
 client from scratch as a native Android Studio app. Don't propose or start work in
