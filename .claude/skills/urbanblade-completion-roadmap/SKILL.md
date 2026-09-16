@@ -320,5 +320,6 @@ muerto) para el historial completo y siempre-actualizado de esa parte.
 5. Reparar y repetir en la misma fase si falla.
 6. Ejecutar regresión backend/frontend.
 7. Revisar diff y archivos incluidos.
-8. Crear commit y hacer push de ambos repositorios.
+8. Entregar al usuario el resumen, validaciones y mensajes de commit separados en
+   español. Solo el usuario crea los commits y hace push en ambos repositorios.
 9. Registrar el resultado y continuar con la siguiente fase.

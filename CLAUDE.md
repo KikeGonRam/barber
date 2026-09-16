@@ -152,9 +152,9 @@ Highlights, all covered in much more depth there:
 - `make setup`/`make seed`/`make migrate`/`composer run setup`, and any
   `docker compose down --volumes`, can hit the real Atlas DB or destroy local volumes —
   confirm what `.env` points to and confirm with the user first.
-- **Never `git push` without a clean, passing `.\test.ps1` run first** (plus
-  `pint --test` and Larastan for PHP changes, `eslint`+`npm run build` for JS). Hard
-  rule from the project owner, not a suggestion.
+- **Ninguna IA ejecuta `git commit` ni `git push`**. Debe validar con `.\test.ps1`
+  (más `pint --test` y Larastan para PHP, `eslint` + `npm run build` para JS) y entregar
+  al usuario un mensaje de commit en español. Solo el usuario crea el commit y hace push.
 - `barber_db` was fully wiped and reseeded on 2026-09-04 after accumulating ~200k
   synthetic rows from repeated full-seeder runs — **never run the full `DatabaseSeeder`
   again** without explicit confirmation.

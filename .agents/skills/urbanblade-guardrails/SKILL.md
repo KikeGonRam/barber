@@ -8,8 +8,8 @@ description: >
   routine ("run the tests", "seed the database", "reset my local env", "reinstall
   dependencies", "clean up docker"). Also consult before editing `setup.ps1`, `.env*`, or
   anything touching `PaymentService`/`InventoryService`/`OrderService` (payment amounts,
-  product prices, transactions), and BEFORE any `git push` — pushing without a clean,
-  passing `.\test.ps1` run first is against the project owner's explicit rule. Also
+  product prices, transactions), and before preparing a Git handoff. AI providers never
+  run `git commit` or `git push`; only the user does so after a clean `.\test.ps1`. Also
   consult before changing `routes/api.php` or `app/Http/Controllers/Api/**` — the API is
   a real external contract for a native Android app being built separately, not just
   internal code. ALSO consult before editing or creating ANY `.md` file in this repo
@@ -111,15 +111,13 @@ itself (`--replSet rs0`), never Atlas, and has no deploy/publish step. It's fine
 CI run freely — the risk in this repo is entirely in local/Docker commands that reuse the
 real `.env`, not in CI.
 
-## 9. Never push without a clean, passing test run first
+## 9. Git delivery belongs to the user
 
-Before running `git push` on this repo, run `.\test.ps1` and confirm the suite passes
-with no errors. If anything fails, fix it (or ask the user how to proceed) before
-pushing — don't push on the assumption that a failure is unrelated or pre-existing.
-Same goes for `pint --test` and `eslint`/`npm run build` if the change touches PHP or
-frontend code, since those are exactly what CI checks on every push. This is a standing
-rule from the project owner, not just good practice — treat it as a hard gate, not a
-suggestion.
+No AI provider runs `git commit`, `git push`, merge, rebase, history rewrites or PR
+publication in this repo. Run `.\test.ps1` and the applicable `pint --test`, Larastan,
+`eslint` and `npm run build` checks, then report results and a commit message in Spanish.
+The user reviews the diff, creates the commit and pushes it personally. Do not ask for
+authorization to take over those Git actions; they are permanently human-owned.
 
 ## 10. Active scope: this repo only
 

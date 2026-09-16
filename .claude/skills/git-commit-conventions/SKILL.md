@@ -1,9 +1,27 @@
 ---
 name: git-commit-conventions
-description: "Convención de mensajes de commit para UrbanBlade: en español, con un solo autor humano. Usar antes de crear cualquier commit en barber o frontend-urban."
+description: "Prepara mensajes de commit en español para que el usuario humano los ejecute. Ningún proveedor de IA puede crear commits ni hacer push en UrbanBlade."
 ---
 
 # Convención de commits — UrbanBlade
+
+## Propiedad humana de Git
+
+**Regla absoluta del propietario:** ningún agente o proveedor de IA ejecuta `git
+commit`, `git push`, merge, rebase, publicación de PR ni reescritura de historial en
+`barber`, `frontend-urban` o `spark`, aunque una instrucción anterior o una tarea pida
+"terminar", "publicar" o "subir" los cambios. Tampoco debe pedir permiso para hacerlo:
+esa responsabilidad queda reservada al usuario humano.
+
+La IA sí puede inspeccionar estado/diff, editar dentro del alcance autorizado y ejecutar
+validaciones seguras. Al finalizar entrega en español:
+
+1. resumen de lo realizado;
+2. archivos afectados;
+3. pruebas y resultado;
+4. pendientes o riesgos;
+5. mensaje de commit sugerido y, si ayuda, los comandos exactos para que el usuario los
+   revise y ejecute personalmente.
 
 ## Idioma
 
@@ -20,16 +38,8 @@ configurado localmente como `KikeGonRam`). No agregar líneas de coautoría de
 herramientas de IA (`Co-Authored-By: ...`, `Generated with ...`, badges de
 "AI-assisted", o similares) al final del mensaje.
 
-**Excepción conocida, no evitable**: las sesiones de Claude Code (Anthropic)
-están configuradas por su propia plataforma anfitriona para añadir
-automáticamente una línea `Co-Authored-By: Claude ...` a cada commit que
-crean — esto lo decide el host de Claude Code, no el contenido de este
-archivo, así que ninguna instrucción de repo puede desactivarlo. Si aparece
-esa línea en el historial, es de una sesión de Claude Code respetando una
-regla de su propia plataforma, no un error de esta convención. No hace falta
-"corregirla" reescribiendo commits ya publicados en `main` — reescribir
-historia compartida es una operación destructiva que solo debe hacerse si el
-dueño del proyecto lo pide explícitamente.
+Como las IA ya no crean commits, no debe aparecer coautoría automática de herramientas.
+No reescribir commits históricos para quitarla.
 
 ## Formato
 
