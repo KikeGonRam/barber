@@ -142,9 +142,8 @@ legible y no debe considerarse sustituto del BSON.
 - El respaldo está sólo en este equipo: protege frente a una migración fallida, pero
   no frente a pérdida del disco. Definir almacenamiento cifrado fuera del equipo antes
   de un corte real.
-- No se ejecutó ni autorizó la Fase 1.
-- La siguiente fase propuesta agrega `mongo-dev` persistente y `mongo-dev-init`, ambos
-  aislados de `mongo-test` y Atlas.
+- La Fase 1 fue autorizada e implementada después de este corte. Ver
+  [`FASE-1-MONGO-LOCAL.md`](FASE-1-MONGO-LOCAL.md).
 - `spark` tenía cambios locales previos durante el inventario; no se modificaron.
-- El exportador de Spark que borra toda `analytics_insights` debe reemplazarse por una
+- Antes de Fase 2, el exportador de Spark que borra toda `analytics_insights` debe reemplazarse por una
   publicación atómica o versionada antes de apuntarlo a la base analítica definitiva.

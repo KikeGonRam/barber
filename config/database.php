@@ -4,6 +4,14 @@ use Illuminate\Support\Str;
 
 return [
 
+    // Contexto de datos independiente de APP_ENV. `shared` conserva el flujo
+    // actual; `development` y `testing` activan reglas estrictas que impiden
+    // combinar Atlas con nombres/hosts de las bases locales.
+    'data_environment' => env(
+        'DATA_ENVIRONMENT',
+        env('APP_ENV', 'production') === 'testing' ? 'testing' : 'shared'
+    ),
+
     /*
     |--------------------------------------------------------------------------
     | Default Database Connection Name

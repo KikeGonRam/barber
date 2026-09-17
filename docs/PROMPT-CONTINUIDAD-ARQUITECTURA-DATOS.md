@@ -4,7 +4,7 @@ Copia y pega desde la siguiente línea en una nueva conversación:
 
 ---
 
-Continúa la arquitectura de datos de UrbanBlade desde la Fase 0 ya completada.
+Continúa la arquitectura de datos de UrbanBlade desde la Fase 1 implementada.
 
 Repositorios:
 
@@ -20,7 +20,8 @@ Reglas obligatorias:
 3. Lee completa primero
    `barber/.agents/skills/urbanblade-data-architecture/SKILL.md`, después
    `barber/docs/ADR-001-ARQUITECTURA-DE-DATOS.md` y
-   `barber/docs/FASE-0-INVENTARIO-Y-RESPALDO.md`.
+   `barber/docs/FASE-0-INVENTARIO-Y-RESPALDO.md` y
+   `barber/docs/FASE-1-MONGO-LOCAL.md`.
 4. No ejecutes pruebas Laravel directamente: usa sólo `barber/test.ps1`.
 5. No muestres secretos ni contenido de `.env` y no escribas en Atlas sin autorización
    explícita para la fase concreta.
@@ -48,18 +49,24 @@ Estado comprobado de Fase 0 (2026-09-16):
   publicarse.
 - El respaldo es local; falta definir una copia externa cifrada antes de un corte real.
 
-Siguiente trabajo, sólo después de que el usuario autorice expresamente la Fase 1:
+Estado de Fase 1:
 
-1. Diseñar e implementar `mongo-dev` persistente y `mongo-dev-init` en Compose, con
-   replica set propio, volumen propio y base `urbanblade_dev`.
-2. Mantener `mongo-test` efímero, sin volumen compartido y con `barber_db_test`.
-3. Agregar `.env.development.example` sin secretos.
-4. Incorporar guardas que impidan usar Atlas o nombres de producción en desarrollo y
-   pruebas.
-5. Verificar transacciones, persistencia tras reinicio y aislamiento sin escribir en
-   Atlas.
-6. Actualizar la documentación y entregar al usuario las pruebas y el comando de
-   commit; no ejecutar Git de escritura.
+1. `mongo-dev`/`mongo-dev-init`, `rsdev`, `urbanblade_dev` y el volumen persistente ya
+   están implementados en `docker-compose.development.yml`.
+2. La guarda de entorno, cachés Laravel aisladas y 11 pruebas focalizadas ya existen.
+3. Transacciones, reinicio persistente, aislamiento de `mongo-test`, Laravel local,
+   Pint y Larastan quedaron verificados.
+4. Con autorización del usuario se recrearon exclusivamente `barber-mongo-test` y
+   `barber-mongo-test-init`. La suite oficial `test.ps1` terminó con 593 pruebas
+   aprobadas, 2,056 aserciones y cero fallos.
+
+Siguiente trabajo, sólo después de que el usuario autorice expresamente la Fase 2:
+
+1. Añadir `mongodb_analytics` en Laravel con URI/base separadas.
+2. Asignar `AnalyticsInsight` exclusivamente a esa conexión.
+3. Dividir las credenciales de Spark: core sólo lectura y analytics escritura limitada.
+4. Probar todo contra bases locales antes de cualquier cambio en Atlas.
+5. Conservar fallback temporal de lectura desde `barber_db.analytics_insights`.
 
 No comiences Fase 2 ni cambies todavía las conexiones de Laravel/Spark. Antes de Fase 2
 debe resolverse el riesgo de `exportar_insights_dashboard.py`, que actualmente hace

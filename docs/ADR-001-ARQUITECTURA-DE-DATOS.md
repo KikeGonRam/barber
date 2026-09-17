@@ -1,6 +1,6 @@
 # ADR-001: Separar datos por carga de trabajo, no por entidad
 
-**Estado:** Aceptado; Fase 0 completada el 2026-09-16, Fase 1 pendiente de aprobación
+**Estado:** Aceptado; Fase 0 completada y Fase 1 implementada el 2026-09-16
 **Fecha:** 2026-09-16  
 **Decisor:** propietario de UrbanBlade
 
@@ -138,6 +138,12 @@ no se extiende automáticamente a la Fase 1.
 
 **Rollback:** detener los nuevos servicios y volver a la configuración anterior; no
 se toca Atlas.
+
+**Resultado:** implementada el 2026-09-16. `docker-compose.development.yml` agrega el
+replica set persistente `rsdev`; `.env.development.example` fija `urbanblade_dev`; y
+`DataEnvironmentGuard` bloquea mezclas entre Atlas, desarrollo y pruebas antes de abrir
+una conexión. La evidencia y los comandos de uso están en
+[`FASE-1-MONGO-LOCAL.md`](FASE-1-MONGO-LOCAL.md). La Fase 2 sigue sin autorización.
 
 ### Fase 2: conexión analítica separada
 

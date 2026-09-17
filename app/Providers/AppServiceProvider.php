@@ -18,6 +18,7 @@ use App\Services\Chatbot\GeminiService;
 use App\Services\Chatbot\OllamaService;
 use App\Services\System\QueueFailureMonitor;
 use App\Services\System\ScheduledTaskMonitor;
+use App\Support\DataEnvironmentGuard;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Console\Events\ScheduledTaskFailed;
@@ -58,6 +59,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        DataEnvironmentGuard::assertSafe(
+            (string) config('app.env'),
+            (string) config('database.data_environment'),
+            (string) config('database.connections.mongodb.dsn'),
+            (string) config('database.connections.mongodb.database'),
+        );
+
         Paginator::defaultView('vendor.pagination.tailwind');
         Paginator::defaultSimpleView('vendor.pagination.simple-tailwind');
 

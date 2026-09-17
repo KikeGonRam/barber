@@ -1,0 +1,60 @@
+services:
+  app:
+    environment: &development-database
+      APP_ENV: local
+      DATA_ENVIRONMENT: development
+      DB_CONNECTION: mongodb
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo-dev:27017/?replicaSet=rsdev}
+      MONGO_DATABASE: ${MONGO_DATABASE:-urbanblade_dev}
+      APP_CONFIG_CACHE: /tmp/urbanblade-development-config.php
+      APP_EVENTS_CACHE: /tmp/urbanblade-development-events.php
+      APP_PACKAGES_CACHE: /tmp/urbanblade-development-packages.php
+      APP_ROUTES_CACHE: /tmp/urbanblade-development-routes.php
+      APP_SERVICES_CACHE: /tmp/urbanblade-development-services.php
+    depends_on:
+      mongo-dev-init:
+        condition: service_completed_successfully
+
+  worker:
+    environment: *development-database
+
+  scheduler:
+    environment: *development-database
+
+  mongo-dev:
+    image: mongo:7
+    container_name: barber-mongo-dev
+    restart: unless-stopped
+    command: ["--replSet", "rsdev", "--bind_ip_all"]
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo_dev_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - internal
+
+  mongo-dev-init:
+    image: mongo:7
+    container_name: barber-mongo-dev-init
+    restart: "no"
+    depends_on:
+      mongo-dev:
+        condition: service_healthy
+    entrypoint:
+      - mongosh
+      - --host
+      - mongo-dev
+      - --quiet
+      - --eval
+      - "try { rs.status().ok } catch (e) { rs.initiate({_id: 'rsdev', members: [{_id: 0, host: 'mongo-dev:27017'}]}) }"
+    networks:
+      - internal
+
+volumes:
+  mongo_dev_data:
