@@ -129,6 +129,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('profile/avatar', [ProfileController::class, 'updateAvatar']);
         Route::put('profile/password', [ProfileController::class, 'updatePassword']);
         Route::post('profile/push-token', [ProfileController::class, 'savePushToken']);
+        Route::put('profile/favorite-barber', [ProfileController::class, 'updateFavoriteBarber']);
         Route::delete('profile', [ProfileController::class, 'destroy']);
 
         // Dashboard

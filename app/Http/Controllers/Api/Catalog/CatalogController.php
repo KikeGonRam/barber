@@ -172,6 +172,7 @@ class CatalogController extends Controller
             'avg_rating' => $reviewStats[(string) $barber->id]['avg'] ?? null,
             'total_reviews' => $reviewStats[(string) $barber->id]['count'] ?? 0,
             'citas_conmigo' => $client ? (int) ($citasConmigo[(string) $barber->id] ?? 0) : null,
+            'es_favorito' => $client && $client->barbero_favorito_id === (string) $barber->id,
         ])->values();
 
         return response()->json(['data' => $payload]);

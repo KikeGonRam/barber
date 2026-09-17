@@ -39,6 +39,10 @@ class Client extends Model
         // Customer de Stripe, reutilizado entre suscripciones si el cliente
         // cancela una membresía y luego contrata otra (ver MembershipService).
         'stripe_customer_id',
+        // Barbero preferido del cliente (id de Barber, no de User). Solo una
+        // preferencia de UI para pre-seleccionarlo/destacarlo al reservar --
+        // no impone ninguna regla de negocio ni bloquea reservar con otro.
+        'barbero_favorito_id',
     ];
 
     // Fuente del slug: nombre del User vinculado, o 'cliente' si no hay match.

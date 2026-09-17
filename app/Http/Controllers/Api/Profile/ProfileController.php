@@ -340,6 +340,32 @@ class ProfileController extends Controller
      * Guarda/actualiza el token de push de Expo del usuario autenticado (app móvil)
      * para poder enviarle notificaciones push.
      */
+    /**
+     * Marca o quita el barbero favorito del cliente autenticado. Es solo una
+     * preferencia de UI (pre-seleccionar/destacar al reservar) -- nunca
+     * bloquea reservar con otro barbero ni afecta ninguna regla de negocio.
+     */
+    public function updateFavoriteBarber(Request $request): JsonResponse
+    {
+        $client = $request->user()->clientProfile;
+        if (! $client) {
+            return response()->json(['message' => 'Solo disponible para clientes.'], 422);
+        }
+
+        $validated = $request->validate([
+            'barber_id' => ['nullable', 'string'],
+        ]);
+
+        $barberId = $validated['barber_id'] ?? null;
+        if ($barberId && ! Barber::where('_id', $barberId)->where('activo', true)->exists()) {
+            return response()->json(['message' => 'Barbero no encontrado.'], 404);
+        }
+
+        $client->update(['barbero_favorito_id' => $barberId]);
+
+        return response()->json(['barbero_favorito_id' => $barberId]);
+    }
+
     public function savePushToken(Request $request): JsonResponse
     {
         $validated = $request->validate([
