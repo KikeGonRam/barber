@@ -1,6 +1,6 @@
 # ADR-001: Separar datos por carga de trabajo, no por entidad
 
-**Estado:** Propuesto; requiere aprobación del usuario antes de implementar  
+**Estado:** Aceptado; Fase 0 completada el 2026-09-16, Fase 1 pendiente de aprobación
 **Fecha:** 2026-09-16  
 **Decisor:** propietario de UrbanBlade
 
@@ -121,6 +121,11 @@ credenciales y permisos deben limitarse por base.
 4. Documentar conteos y checksums de referencia para verificar copias.
 
 **Salida:** inventario, respaldo probado y plan de rollback. Sin migraciones.
+
+**Resultado:** completada el 2026-09-16. El inventario, los consumidores de Spark,
+la evidencia del respaldo y el ensayo de restauración están registrados en
+[`FASE-0-INVENTARIO-Y-RESPALDO.md`](FASE-0-INVENTARIO-Y-RESPALDO.md). Esta aprobación
+no se extiende automáticamente a la Fase 1.
 
 ### Fase 1: Mongo local de desarrollo
 
