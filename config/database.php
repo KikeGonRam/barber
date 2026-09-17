@@ -67,6 +67,15 @@ return [
             'database' => env('MONGO_DATABASE', 'barber_db'),
         ],
 
+        // Lectura exclusiva de derivados generados por Spark. Mientras se
+        // provisiona la base separada, las variables vacías conservan el
+        // origen anterior como fallback reversible.
+        'mongodb_analytics' => [
+            'driver' => 'mongodb',
+            'dsn' => env('ANALYTICS_MONGODB_URI', env('MONGODB_URI', '')),
+            'database' => env('ANALYTICS_MONGO_DATABASE', env('MONGO_DATABASE', 'barber_db')),
+        ],
+
         // Conexion SQL dedicada solo para Laravel Pulse (rol "ingeniero" --
         // dashboard de estado del servidor). Pulse necesita una conexion
         // relacional real y este proyecto usa MongoDB como default, que

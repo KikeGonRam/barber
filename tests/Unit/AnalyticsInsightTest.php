@@ -13,6 +13,11 @@ use PHPUnit\Framework\TestCase;
  */
 class AnalyticsInsightTest extends TestCase
 {
+    public function test_uses_the_dedicated_analytics_connection(): void
+    {
+        $this->assertSame('mongodb_analytics', (new AnalyticsInsight)->getConnectionName());
+    }
+
     private function makeInsight(array $attributes): AnalyticsInsight
     {
         $insight = new AnalyticsInsight;

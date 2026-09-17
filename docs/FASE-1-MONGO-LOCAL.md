@@ -74,5 +74,5 @@ de Atlas heredada desde `.env`.
 
 - La Fase 2 requiere autorización expresa y no debe reutilizar credenciales de escritura
   entre `barber` y Spark.
-- El exportador Spark debe dejar de hacer `delete_many({})` seguido de `insert_many()`
-  antes del corte analítico; se necesita publicación atómica o versionada.
+- El exportador Spark ya usa publicación atómica; el aprovisionamiento y la prueba
+  end-to-end pertenecen a la Fase 2.

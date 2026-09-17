@@ -6,6 +6,8 @@ services:
       DB_CONNECTION: mongodb
       MONGODB_URI: ${MONGODB_URI:-mongodb://mongo-dev:27017/?replicaSet=rsdev}
       MONGO_DATABASE: ${MONGO_DATABASE:-urbanblade_dev}
+      ANALYTICS_MONGODB_URI: ${ANALYTICS_MONGODB_URI:-mongodb://mongo-dev:27017/?replicaSet=rsdev}
+      ANALYTICS_MONGO_DATABASE: ${ANALYTICS_MONGO_DATABASE:-urbanblade_analytics_dev}
       APP_CONFIG_CACHE: /tmp/urbanblade-development-config.php
       APP_EVENTS_CACHE: /tmp/urbanblade-development-events.php
       APP_PACKAGES_CACHE: /tmp/urbanblade-development-packages.php

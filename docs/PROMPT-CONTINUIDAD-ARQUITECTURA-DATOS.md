@@ -4,7 +4,7 @@ Copia y pega desde la siguiente línea en una nueva conversación:
 
 ---
 
-Continúa la arquitectura de datos de UrbanBlade desde la Fase 1 implementada.
+Continúa la arquitectura de datos de UrbanBlade desde la Fase 2 implementada en código.
 
 Repositorios:
 
@@ -22,6 +22,7 @@ Reglas obligatorias:
    `barber/docs/ADR-001-ARQUITECTURA-DE-DATOS.md` y
    `barber/docs/FASE-0-INVENTARIO-Y-RESPALDO.md` y
    `barber/docs/FASE-1-MONGO-LOCAL.md`.
+   Lee también `barber/docs/FASE-2-CONEXION-ANALITICA-SEPARADA.md`.
 4. No ejecutes pruebas Laravel directamente: usa sólo `barber/test.ps1`.
 5. No muestres secretos ni contenido de `.env` y no escribas en Atlas sin autorización
    explícita para la fase concreta.
@@ -60,17 +61,19 @@ Estado de Fase 1:
    `barber-mongo-test-init`. La suite oficial `test.ps1` terminó con 593 pruebas
    aprobadas, 2,056 aserciones y cero fallos.
 
-Siguiente trabajo, sólo después de que el usuario autorice expresamente la Fase 2:
+Estado de Fase 2:
 
-1. Añadir `mongodb_analytics` en Laravel con URI/base separadas.
-2. Asignar `AnalyticsInsight` exclusivamente a esa conexión.
-3. Dividir las credenciales de Spark: core sólo lectura y analytics escritura limitada.
-4. Probar todo contra bases locales antes de cualquier cambio en Atlas.
-5. Conservar fallback temporal de lectura desde `barber_db.analytics_insights`.
+1. Laravel ya tiene `mongodb_analytics`; `AnalyticsInsight` usa esa conexión con fallback
+   temporal al origen histórico si todavía no se configuran variables analytics.
+2. Spark separa `_connect_db()` de `_connect_analytics_db()` y rechaza reutilizar el
+   mismo nombre de base.
+3. El exportador publica por colección temporal y renombrado atómico; ya no borra la
+   colección visible antes de insertar.
+4. Pasaron 8 pruebas unitarias, 3 pruebas API, Pint focal y compilación Python.
+5. No se escribió en Atlas. Falta aprovisionar credenciales de mínimo privilegio y hacer
+   la prueba end-to-end primero contra un destino aislado.
 
-No comiences Fase 2 ni cambies todavía las conexiones de Laravel/Spark. Antes de Fase 2
-debe resolverse el riesgo de `exportar_insights_dashboard.py`, que actualmente hace
-`delete_many({})` antes de `insert_many(...)`; se requiere publicación atómica o
-versionada para evitar dejar la analítica vacía si el proceso falla.
+No retires el fallback ni borres la colección histórica hasta validar el flujo completo.
+No crees usuarios Atlas ni cambies secretos sin autorización concreta del usuario.
 
 ---

@@ -147,6 +147,10 @@ una conexión. La evidencia y los comandos de uso están en
 
 ### Fase 2: conexión analítica separada
 
+El código de separación y publicación atómica quedó implementado. El aprovisionamiento
+de usuarios Atlas de mínimo privilegio y la prueba end-to-end siguen pendientes; véase
+[`FASE-2-CONEXION-ANALITICA-SEPARADA.md`](FASE-2-CONEXION-ANALITICA-SEPARADA.md).
+
 1. Añadir `mongodb_analytics` en Laravel y variables separadas de URI/base.
 2. Asignar `AnalyticsInsight` exclusivamente a esa conexión.
 3. Configurar Spark con credenciales de lectura para core y otras de escritura limitada

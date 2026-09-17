@@ -15,7 +15,8 @@ cambios en Atlas.
 - Almacenamiento de índices: 2,838,528 bytes.
 - `analytics_insights` no existe en el corte inspeccionado.
 - Spark consulta datos operativos directamente y su exportador todavía contiene
-  `delete_many({})` seguido de `insert_many(...)` sobre `analytics_insights`.
+  originalmente usaba `delete_many({})` seguido de `insert_many(...)` sobre
+  `analytics_insights`; la Fase 2 lo reemplazó por publicación atómica.
 - El respaldo BSON completo fue restaurado en un Mongo temporal: coincidieron las
   49 colecciones, los 1,150 documentos y los 136 índices.
 

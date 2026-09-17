@@ -16,9 +16,8 @@ use MongoDB\Laravel\Eloquent\Model;
  * en ese proyecto es solo lectura). Laravel nunca debe hacer
  * AnalyticsInsight::create()/update() salvo en pruebas.
  *
- * Cada vez que Spark corre, BORRA todos los documentos anteriores y escribe
- * los nuevos — por eso no hay que preocuparse por "limpiar" datos viejos
- * desde aquí: es un estado calculado, no un historial que se acumula.
+ * Spark publica el estado calculado en una colección temporal y la renombra
+ * atómicamente; Laravel nunca observa una colección vacía a mitad del proceso.
  *
  * Campos:
  *   tipo               slug único del insight (ej. "demanda_horas_pico")
@@ -98,7 +97,7 @@ class AnalyticsInsight extends Model
         'factor-list' => 'Importancia',
     ];
 
-    protected $connection = 'mongodb';
+    protected $connection = 'mongodb_analytics';
 
     protected $collection = 'analytics_insights';
 
