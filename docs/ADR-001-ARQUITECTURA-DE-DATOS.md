@@ -194,25 +194,30 @@ datos reales que leer).
 
 ### Fase 4: endurecimiento
 
-**Pendiente.** Hallazgo real durante la validación de Fase 2/3 (2026-09-17): Spark
-core (`spark_core_reader`) y Spark analytics (`ANALYTIC`) ya quedaron con mínimo
-privilegio real (`read@barber_db` y `readWrite@urbanblade_analytics`,
-respectivamente), pero `barber/.env` usa ese mismo usuario `ANALYTIC` (con
-`readWrite`) para que Laravel **lea** `urbanblade_analytics` vía
-`ANALYTICS_MONGODB_URI` — no existe todavía un usuario `laravel_analytics_reader`
-separado y de solo lectura. Funciona porque Laravel nunca escribe ahí en la práctica,
-pero no cumple el principio de mínimo privilegio: si un bug o una migración futura
-de Laravel llegara a escribir por accidente en `urbanblade_analytics`, ese usuario
-se lo permitiría.
+**Parcialmente completada.** El punto 1 (usuarios de mínimo privilegio para
+Spark↔core y Spark↔analytics, más Laravel↔analytics) quedó resuelto el 2026-09-17;
+los puntos 2 y 3 siguen pendientes.
 
-1. Aplicar usuarios de base con mínimo privilegio: Laravel core lectura/escritura,
-   Laravel analytics solo lectura, Spark core solo lectura y Spark analytics escritura.
-   Spark ya cumple esto (Fase 2/3); falta crear `laravel_analytics_reader` (rol
-   `read` sobre `urbanblade_analytics`) en Atlas y apuntar `ANALYTICS_MONGODB_URI`
-   de `barber/.env` ahí en vez de a `ANALYTIC`.
+1. ✅ Usuarios de base con mínimo privilegio, confirmados vía `connectionStatus` y
+   prueba real de lectura/escritura:
+   - Spark core (`spark_core_reader`): `read@barber_db`.
+   - Spark analytics (`ANALYTIC`): `readWrite@urbanblade_analytics`.
+   - Laravel analytics (`laravel_analytics_reader`, creado el 2026-09-17): antes
+     `barber/.env` apuntaba a `ANALYTIC` (el mismo usuario de escritura de Spark)
+     para leer — un hallazgo real de la validación de Fase 2/3 que violaba mínimo
+     privilegio. Se creó un usuario separado con `read@urbanblade_analytics`,
+     confirmado que lee los 39 insights reales y que su escritura es rechazada
+     por Atlas.
+   - Laravel core (lectura/escritura sobre `barber_db`) sigue usando el usuario
+     operativo original — no se tocó en esta entrega; queda pendiente decidir si
+     amerita su propio usuario dedicado o si el actual ya es de uso exclusivo de
+     Laravel (a confirmar antes de dar este punto por cerrado del todo).
 2. Añadir comprobaciones automatizadas que bloqueen pruebas contra nombres no
-   permitidos.
+   permitidos. Pendiente.
 3. Actualizar documentación y diagramas después de validar el flujo completo.
+   Esta actualización del ADR y de `FASE-2-CONEXION-ANALITICA-SEPARADA.md` cubre la
+   parte de documentación para lo ya validado; falta un diagrama si se decide
+   crear uno.
 
 ## Criterios de aceptación
 
