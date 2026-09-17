@@ -1,7 +1,7 @@
 # Fase 2: conexión analítica separada
 
 **Fecha:** 2026-09-16  
-**Estado:** implementada y validada localmente; aprovisionamiento Atlas pendiente.
+**Estado:** implementada y validada end-to-end localmente; aprovisionamiento Atlas pendiente.
 
 ## Resultado
 
@@ -15,6 +15,8 @@
   `urbanblade_dev`, dentro del replica set local `rsdev`.
 - Spark mantiene `_connect_db()` para leer el core y usa `_connect_analytics_db()` sólo
   para publicar derivados.
+- `CORE_MONGODB_URI` permite validar el lector contra Mongo local; en Atlas se conservan
+  las variables separadas `MONGO_USER`, `MONGO_PASSWORD`, `MONGO_CLUSTER` y `MONGO_DB`.
 - Spark exige credenciales analytics completas y rechaza que `ANALYTICS_MONGO_DB` sea
   igual a `MONGO_DB`.
 - La publicación ya no ejecuta `delete_many({})`: escribe una colección temporal,
@@ -38,10 +40,17 @@ No guardar usuarios, contraseñas ni URI reales en Git.
 - Publicador Python: 2 pruebas unitarias aprobadas.
 - Integración real en `urbanblade_analytics_e2e`: reemplazo atómico, cuatro índices,
   cero colecciones temporales residuales y base temporal eliminada al terminar.
+- Exportador Spark completo: procesó 96 citas, 24 clientes y 3 barberos sintéticos;
+  generó 18 insights en `urbanblade_analytics_e2e`.
+- Laravel confirmó `connection=mongodb_analytics` y leyó los 18 insights publicados.
+- Se corrigió el manejo de inventario vacío; ahora produce cero alertas sin intentar
+  acceder a una columna inexistente.
+- `urbanblade_core_e2e` y `urbanblade_analytics_e2e` fueron eliminadas después de la
+  comprobación; no quedaron bases ni colecciones temporales.
 
-No se ejecutó el exportador completo ni se escribió en Atlas. La publicación atómica sí
-se validó end-to-end contra Mongo local; falta crear las credenciales separadas y validar
-el flujo completo con los cálculos Spark.
+No se escribió en Atlas. El flujo Spark → Mongo analytics → Laravel quedó validado
+end-to-end con datos sintéticos locales. Falta crear y comprobar las credenciales Atlas
+separadas antes de activar el destino remoto.
 
 ## Activación y rollback
 

@@ -71,9 +71,10 @@ Estado de Fase 2:
    colección visible antes de insertar.
 4. Pasaron 8 pruebas unitarias, 3 pruebas API, Pint focal y compilación Python.
 5. No se escribió en Atlas. Falta aprovisionar credenciales de mínimo privilegio y hacer
-   la prueba del exportador completo antes de producción. El publicador atómico ya fue
-   validado contra `urbanblade_analytics_e2e`: reemplazó el snapshot, creó cuatro índices,
-   no dejó colecciones temporales y eliminó la base de prueba al terminar.
+   la comprobación remota antes de producción. El exportador completo fue validado con
+   96 citas, 24 clientes y 3 barberos sintéticos: publicó 18 insights, Laravel leyó los
+   18 mediante `mongodb_analytics`, se crearon cuatro índices y no quedaron colecciones
+   ni bases temporales. También se corrigió el caso de inventario vacío.
 
 No retires el fallback ni borres la colección histórica hasta validar el flujo completo.
 No crees usuarios Atlas ni cambies secretos sin autorización concreta del usuario.
