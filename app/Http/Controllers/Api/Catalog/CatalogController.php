@@ -130,7 +130,7 @@ class CatalogController extends Controller
     }
 
     // Lista barberos activos con rating promedio y total de reseñas precalculados en lote
-    public function barbers(): JsonResponse
+    public function barbers(Request $request): JsonResponse
     {
         $barbers = Barber::query()
             ->with('user:id,name')
@@ -148,6 +148,19 @@ class CatalogController extends Controller
                 'count' => $group->count(),
             ]);
 
+        // "Ya te cortaste con él X veces": solo tiene sentido para un cliente
+        // autenticado viendo SU propio historial, nunca para un invitado ni
+        // para el historial de otro cliente -- por eso se calcula aparte del
+        // rating (que es publico) y solo si hay clientProfile real.
+        $client = $request->user()?->clientProfile;
+        $citasConmigo = $client
+            ? Appointment::where('client_id', (string) $client->id)
+                ->whereIn('barber_id', $barberIds)
+                ->where('estado', 'completada')
+                ->get(['barber_id'])
+                ->countBy('barber_id')
+            : collect();
+
         $payload = $barbers->map(fn (Barber $barber) => [
             'id' => $barber->id,
             'slug' => $barber->slug,
@@ -158,6 +171,7 @@ class CatalogController extends Controller
             'activo' => (bool) ($barber->activo ?? true),
             'avg_rating' => $reviewStats[(string) $barber->id]['avg'] ?? null,
             'total_reviews' => $reviewStats[(string) $barber->id]['count'] ?? 0,
+            'citas_conmigo' => $client ? (int) ($citasConmigo[(string) $barber->id] ?? 0) : null,
         ])->values();
 
         return response()->json(['data' => $payload]);

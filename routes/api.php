@@ -87,7 +87,10 @@ Route::prefix('v1')->group(function (): void {
     // (admin), que además expone datos bancarios.
     Route::get('barbershop', [CatalogController::class, 'barbershop']);
     Route::get('services', [CatalogController::class, 'services']);
-    Route::get('barbers', [CatalogController::class, 'barbers']);
+    // mobile.auth.optional: para que un cliente autenticado vea "ya te
+    // cortaste N veces con él" en su propio historial -- sigue siendo
+    // publica para invitados, nunca exige token (ver OptionalMobileApiToken).
+    Route::get('barbers', [CatalogController::class, 'barbers'])->middleware('mobile.auth.optional');
     Route::get('products', [CatalogController::class, 'products']);
     Route::get('availability/slots', [AvailabilityController::class, 'slots'])->middleware('throttle:30,1');
 
