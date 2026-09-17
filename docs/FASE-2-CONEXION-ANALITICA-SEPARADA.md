@@ -1,7 +1,7 @@
 # Fase 2: conexión analítica separada
 
 **Fecha:** 2026-09-16  
-**Estado:** código implementado y validado; aprovisionamiento Atlas pendiente.
+**Estado:** implementada y validada localmente; aprovisionamiento Atlas pendiente.
 
 ## Resultado
 
@@ -35,10 +35,13 @@ No guardar usuarios, contraseñas ni URI reales en Git.
 - `AnalyticsApiTest`: 3 pruebas, 17 aserciones.
 - Pint focal: 3 archivos aprobados.
 - Compilación Python de conexión y exportador: aprobada.
+- Publicador Python: 2 pruebas unitarias aprobadas.
+- Integración real en `urbanblade_analytics_e2e`: reemplazo atómico, cuatro índices,
+  cero colecciones temporales residuales y base temporal eliminada al terminar.
 
-No se ejecutó el exportador ni se escribió en Atlas. La validación end-to-end queda
-pendiente hasta que el usuario cree credenciales separadas o autorice un destino local
-equivalente.
+No se ejecutó el exportador completo ni se escribió en Atlas. La publicación atómica sí
+se validó end-to-end contra Mongo local; falta crear las credenciales separadas y validar
+el flujo completo con los cálculos Spark.
 
 ## Activación y rollback
 

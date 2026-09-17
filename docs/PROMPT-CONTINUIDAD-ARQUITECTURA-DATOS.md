@@ -71,7 +71,9 @@ Estado de Fase 2:
    colección visible antes de insertar.
 4. Pasaron 8 pruebas unitarias, 3 pruebas API, Pint focal y compilación Python.
 5. No se escribió en Atlas. Falta aprovisionar credenciales de mínimo privilegio y hacer
-   la prueba end-to-end primero contra un destino aislado.
+   la prueba del exportador completo antes de producción. El publicador atómico ya fue
+   validado contra `urbanblade_analytics_e2e`: reemplazó el snapshot, creó cuatro índices,
+   no dejó colecciones temporales y eliminó la base de prueba al terminar.
 
 No retires el fallback ni borres la colección histórica hasta validar el flujo completo.
 No crees usuarios Atlas ni cambies secretos sin autorización concreta del usuario.
