@@ -70,6 +70,12 @@ return [
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
 
+    // Dashboard interno de analítica (spark, Streamlit) — destino alterno del
+    // login con Google cuando SocialAuthController::redirect() recibe
+    // ?target=spark. Nunca sirve como origen de alta de clientes: ese
+    // dashboard solo deja pasar administrador/ingeniero (ver spark).
+    'spark_url' => env('SPARK_URL', 'http://localhost:8501'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

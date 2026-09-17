@@ -40,17 +40,25 @@ class SocialAuthController extends Controller
 {
     /**
      * Redirige al usuario a la pantalla de consentimiento de Google.
+     *
+     * ?target=spark hace que callback() regrese al dashboard de analítica
+     * (spark, Streamlit) en vez de al frontend del cliente. Viaja como
+     * `state` -- Google lo devuelve intacto en el callback, y no requiere
+     * una redirect_uri nueva en Google Cloud Console porque la URL de
+     * callback registrada (esta misma ruta) no cambia.
      */
-    public function redirect(): RedirectResponse
+    public function redirect(Request $request): RedirectResponse
     {
         if (! config('services.google.client_id')) {
             abort(503, 'El login con Google no está configurado todavía.');
         }
 
+        $target = $request->query('target') === 'spark' ? 'spark' : 'frontend';
+
         /** @var AbstractProvider $provider */
         $provider = Socialite::driver('google');
 
-        return $provider->stateless()->redirect();
+        return $provider->stateless()->with(['state' => $target])->redirect();
     }
 
     /**
@@ -58,12 +66,18 @@ class SocialAuthController extends Controller
      * usuario por email (mismo camino de asignación de rol que
      * AuthController::register() -- siempre 'cliente', nunca algo elegido por
      * el propio flujo de OAuth), emite un token, y manda al usuario de vuelta
-     * al frontend con el token en la URL -- mismo patrón que
-     * ResetPassword::createUrlUsing() usa frontend_url.
+     * al destino indicado por `state` (frontend del cliente, o spark) con el
+     * token en la URL -- mismo patrón que ResetPassword::createUrlUsing()
+     * usa frontend_url. spark hace su propia verificación de rol
+     * (administrador/ingeniero) llamando a GET /api/v1/auth/me con este
+     * token -- este controlador no filtra por rol, solo acredita identidad.
      */
-    public function callback(): RedirectResponse
+    public function callback(Request $request): RedirectResponse
     {
+        $target = $request->query('state') === 'spark' ? 'spark' : 'frontend';
         $frontendUrl = config('app.frontend_url');
+        $sparkUrl = config('app.spark_url');
+        $errorUrl = $target === 'spark' ? "{$sparkUrl}/?google_error=1" : "{$frontendUrl}/login?error=google_failed";
 
         try {
             /** @var AbstractProvider $provider */
@@ -72,7 +86,7 @@ class SocialAuthController extends Controller
         } catch (Throwable $exception) {
             Log::warning('Login con Google falló al obtener el usuario.', ['error' => $exception->getMessage()]);
 
-            return redirect("{$frontendUrl}/login?error=google_failed");
+            return redirect($errorUrl);
         }
 
         $email = Str::lower(trim((string) $googleUser->getEmail()));
@@ -83,10 +97,14 @@ class SocialAuthController extends Controller
         } catch (RuntimeException) {
             Log::warning('Colisión de correo durante login con Google; se requiere reintento.');
 
-            return redirect("{$frontendUrl}/login?error=google_retry");
+            return redirect($target === 'spark' ? "{$sparkUrl}/?google_error=retry" : "{$frontendUrl}/login?error=google_retry");
         }
 
-        $issued = $user->issueMobileApiToken('Google OAuth');
+        $issued = $user->issueMobileApiToken($target === 'spark' ? 'Google OAuth (spark)' : 'Google OAuth');
+
+        if ($target === 'spark') {
+            return redirect("{$sparkUrl}/?google_token={$issued['token']}");
+        }
 
         return redirect("{$frontendUrl}/auth/callback?token={$issued['token']}");
     }
