@@ -19,6 +19,7 @@ use App\Services\Appointment\AppointmentService;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Appointment\WaitlistService;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Order\OrderService;
 use App\Services\Payment\DepositService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -37,6 +38,7 @@ class AppointmentController extends Controller
         private readonly AppointmentStatusService $statusService,
         private readonly DepositService $deposits,
         private readonly WaitlistService $waitlist,
+        private readonly OrderService $orders,
     ) {}
 
     /**
@@ -363,6 +365,13 @@ class AppointmentController extends Controller
             'fecha' => ['required', 'date', 'after_or_equal:today'],
             'hora_inicio' => ['required', 'date_format:H:i'],
             'notas' => ['nullable', 'string', 'max:1000'],
+            // Productos que el cliente quiere agregar a su cita (ej. la cera
+            // que vio en la tienda) -- opcional, se procesa como un Order
+            // aparte (tipo 'cita') para no acoplar inventario a la creación
+            // de la cita en sí; si falla, la cita igual se crea (ver abajo).
+            'productos' => ['nullable', 'array'],
+            'productos.*.product_id' => ['required_with:productos', 'string'],
+            'productos.*.cantidad' => ['required_with:productos', 'integer', 'min:1'],
         ];
 
         if ($user->hasAnyRole(['administrador', 'recepcionista'])) {
@@ -415,9 +424,31 @@ class AppointmentController extends Controller
             ], 422);
         }
 
+        // Productos opcionales agregados a la cita: se intenta aparte y NUNCA
+        // bloquea la creación de la cita ya confirmada -- si un producto se
+        // quedó sin stock justo en este instante, el cliente igual conserva
+        // su cita y solo se le avisa que los productos no se pudieron agregar.
+        $productosAgregados = null;
+        $productosError = null;
+        if (! empty($validated['productos'])) {
+            try {
+                $orden = $this->orders->place($client, $validated['productos'], 'cita', (string) $appointment->id);
+                $productosAgregados = [
+                    'id' => $orden->id,
+                    'folio' => $orden->folio,
+                    'total' => $orden->total,
+                    'items' => $orden->items,
+                ];
+            } catch (\Throwable $exception) {
+                $productosError = $exception->getMessage();
+            }
+        }
+
         return response()->json([
             'message' => 'Cita creada correctamente.',
             'data' => new AppointmentResource($appointment->fresh(['client.user', 'barber.user', 'service'])),
+            'productos_agregados' => $productosAgregados,
+            'productos_error' => $productosError,
         ], 201);
     }
 
