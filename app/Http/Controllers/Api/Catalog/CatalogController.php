@@ -83,7 +83,18 @@ class CatalogController extends Controller
             ->get(['id', 'nombre', 'categoria', 'precio', 'duracion_min', 'imagen', 'descripcion']);
 
         return response()->json([
-            'data' => $services,
+            'data' => $services->map(fn (Service $s) => [
+                'id' => $s->id,
+                'nombre' => $s->nombre,
+                'categoria' => $s->categoria,
+                'precio' => (float) $s->precio,
+                'duracion_min' => (int) $s->duracion_min,
+                'descripcion' => $s->descripcion,
+                // Mismo patron que barbers()/products() en este controller:
+                // la columna guarda solo la ruta relativa de storage, el
+                // cliente necesita la URL absoluta para poder mostrarla.
+                'imagen' => $s->imagen ? asset('storage/'.$s->imagen) : null,
+            ])->values(),
         ]);
     }
 
