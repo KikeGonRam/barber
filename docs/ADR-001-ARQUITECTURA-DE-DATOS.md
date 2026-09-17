@@ -1,6 +1,7 @@
 # ADR-001: Separar datos por carga de trabajo, no por entidad
 
-**Estado:** Aceptado; Fase 0 completada y Fase 1 implementada el 2026-09-16
+**Estado:** Aceptado; Fases 0 y 1 completadas el 2026-09-16, Fases 2 y 3 completadas
+el 2026-09-17 (Fase 3 sin migración real: no existía colección previa que mover)
 **Fecha:** 2026-09-16  
 **Decisor:** propietario de UrbanBlade
 
@@ -147,8 +148,11 @@ una conexión. La evidencia y los comandos de uso están en
 
 ### Fase 2: conexión analítica separada
 
-El código de separación y publicación atómica quedó implementado. El aprovisionamiento
-de usuarios Atlas de mínimo privilegio y la prueba end-to-end siguen pendientes; véase
+**Resultado:** completada el 2026-09-17. El código de separación y publicación
+atómica, el aprovisionamiento de usuarios Atlas de mínimo privilegio
+(`spark_core_reader` de solo lectura sobre `barber_db`, `ANALYTIC` con `readWrite`
+sobre `urbanblade_analytics`) y la prueba end-to-end contra Atlas real (39 insights
+reales publicados y leídos por Laravel) quedaron validados; véase
 [`FASE-2-CONEXION-ANALITICA-SEPARADA.md`](FASE-2-CONEXION-ANALITICA-SEPARADA.md).
 
 1. Añadir `mongodb_analytics` en Laravel y variables separadas de URI/base.
@@ -162,18 +166,50 @@ una bandera temporal, usar `barber_db.analytics_insights` como fallback de solo 
 
 ### Fase 3: copia y corte controlado de analítica
 
-1. Copiar únicamente `analytics_insights` después del backup.
-2. Comparar conteos, esquema lógico y una muestra sin PII.
-3. Cambiar primero el lector Laravel y después el escritor Spark.
-4. Mantener la colección anterior sin borrarla durante una ventana acordada.
+**Resultado:** completada el 2026-09-17. No hubo nada que copiar ni cortar: el
+inventario de Fase 0 confirmó que `analytics_insights` **nunca existió** en
+`barber_db` (no había origen que copiar, comparar ni conservar como fallback). El
+exportador de Spark, ya en su versión de publicación atómica desde la Fase 2, escribió
+directamente y por primera vez en `urbanblade_analytics.analytics_insights` sobre
+Atlas real, y Laravel la lee ahí mismo vía `mongodb_analytics` desde el primer
+momento — no hubo un "lector viejo" que cambiar después de un "escritor viejo",
+porque nunca existió una versión operativa previa de esta colección.
 
-**Rollback:** restaurar las variables/conexión anterior. No borrar el origen en la
-misma fase.
+1. ~~Copiar únicamente `analytics_insights` después del backup.~~ No aplica: no
+   existía una copia previa que copiar (confirmado en
+   [`FASE-0-INVENTARIO-Y-RESPALDO.md`](FASE-0-INVENTARIO-Y-RESPALDO.md)).
+2. ~~Comparar conteos, esquema lógico y una muestra sin PII.~~ No aplica por el
+   mismo motivo — no hay dos versiones que comparar.
+3. Cambiar primero el lector Laravel y después el escritor Spark. Resuelto de forma
+   simultánea y directa: ambos ya apuntan a `urbanblade_analytics` desde que se
+   completó el aprovisionamiento Atlas de la Fase 2 (ver
+   [`FASE-2-CONEXION-ANALITICA-SEPARADA.md`](FASE-2-CONEXION-ANALITICA-SEPARADA.md)).
+4. Mantener la colección anterior sin borrarla durante una ventana acordada. No
+   aplica: no existe una colección anterior en `barber_db` que conservar o borrar.
+
+**Rollback:** igual que en Fase 2 — retirar temporalmente `ANALYTICS_MONGODB_URI` y
+`ANALYTICS_MONGO_DATABASE` de `barber/.env` revierte Laravel al fallback histórico
+(que en este caso quedaría vacío, ya que `barber_db.analytics_insights` nunca tuvo
+datos reales que leer).
 
 ### Fase 4: endurecimiento
 
+**Pendiente.** Hallazgo real durante la validación de Fase 2/3 (2026-09-17): Spark
+core (`spark_core_reader`) y Spark analytics (`ANALYTIC`) ya quedaron con mínimo
+privilegio real (`read@barber_db` y `readWrite@urbanblade_analytics`,
+respectivamente), pero `barber/.env` usa ese mismo usuario `ANALYTIC` (con
+`readWrite`) para que Laravel **lea** `urbanblade_analytics` vía
+`ANALYTICS_MONGODB_URI` — no existe todavía un usuario `laravel_analytics_reader`
+separado y de solo lectura. Funciona porque Laravel nunca escribe ahí en la práctica,
+pero no cumple el principio de mínimo privilegio: si un bug o una migración futura
+de Laravel llegara a escribir por accidente en `urbanblade_analytics`, ese usuario
+se lo permitiría.
+
 1. Aplicar usuarios de base con mínimo privilegio: Laravel core lectura/escritura,
    Laravel analytics solo lectura, Spark core solo lectura y Spark analytics escritura.
+   Spark ya cumple esto (Fase 2/3); falta crear `laravel_analytics_reader` (rol
+   `read` sobre `urbanblade_analytics`) en Atlas y apuntar `ANALYTICS_MONGODB_URI`
+   de `barber/.env` ahí en vez de a `ANALYTIC`.
 2. Añadir comprobaciones automatizadas que bloqueen pruebas contra nombres no
    permitidos.
 3. Actualizar documentación y diagramas después de validar el flujo completo.
