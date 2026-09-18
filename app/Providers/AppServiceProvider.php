@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -65,6 +66,15 @@ class AppServiceProvider extends ServiceProvider
             (string) config('database.connections.mongodb.dsn'),
             (string) config('database.connections.mongodb.database'),
         );
+
+        // Detras de CloudFront/ALB el contenedor recibe HTTP plano (el ALB
+        // reescribe X-Forwarded-Proto a "http"), asi que sin esto asset(),
+        // redirects y URLs firmadas saldrian como http:// y el navegador las
+        // bloquearia como contenido mixto en un sitio HTTPS. Se activa solo
+        // cuando APP_URL ya es https, asi que local (http) no cambia.
+        if (str_starts_with((string) config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
 
         Paginator::defaultView('vendor.pagination.tailwind');
         Paginator::defaultSimpleView('vendor.pagination.simple-tailwind');
