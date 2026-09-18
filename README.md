@@ -220,6 +220,9 @@ Si todo queda en verde, el proyecto está listo para demo local.
 - [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md)
 - [docs/DOCUMENTACION_TECNICA.md](docs/DOCUMENTACION_TECNICA.md)
 - [docs/STRIPE_PRUEBAS_LOCALES.md](docs/STRIPE_PRUEBAS_LOCALES.md)
+- [docs/DESPLIEGUE_AWS_STAGING.md](docs/DESPLIEGUE_AWS_STAGING.md)
+- [docs/GOOGLE_CLOUD_OAUTH.md](docs/GOOGLE_CLOUD_OAUTH.md)
+- [docs/MONGODB_ATLAS.md](docs/MONGODB_ATLAS.md)
 - [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md)
 
 ## 🧩 Estado del repositorio

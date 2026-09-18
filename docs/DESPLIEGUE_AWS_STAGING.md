@@ -78,6 +78,42 @@ empieza con `https://` la app fuerza el esquema https: el ALB reescribe
 CloudFront del frontend, `SESSION_DRIVER=file`, `CACHE_STORE=file`,
 `QUEUE_CONNECTION=sync`, `UPLOADS_BUCKET`, `RECEIPTS_BUCKET`, `AWS_DEFAULT_REGION`.
 
+## Puesta en marcha desde cero
+
+Orden para reconstruir el entorno en una cuenta nueva. Los pasos marcados **(consola)**
+los hace una persona con permisos de administrador de IAM; el resto se puede hacer con
+el usuario `staging-deploy`.
+
+1. **(consola)** Crear el usuario IAM `staging-deploy` con acceso programático y
+   permisos sobre ECR, ECS, ELB, EC2 (grupos de seguridad), Secrets Manager, CloudWatch
+   Logs, CloudFront (`CloudFrontFullAccess`) y S3 (`AmazonS3FullAccess`). No necesita
+   crear roles ni leer IAM. Configurar `aws configure` con sus claves.
+2. **(consola)** Crear los roles: `ecsTaskExecutionRole` (servicio ECS Task, política
+   gestionada `AmazonECSTaskExecutionRolePolicy` + `SecretsManagerReadWrite`) y
+   `urbanblade-staging-task-role` (servicio ECS Task, política insertada `s3-uploads`
+   con `s3:GetObject/PutObject/DeleteObject/ListBucket` sobre los dos buckets).
+3. Crear los tres repositorios ECR, construir y subir las imágenes (runbook abajo).
+4. Crear los buckets S3: `uploads` con acceso público de lectura solo de objetos
+   (`s3:GetObject` en la política del bucket, bloqueo público desactivado solo para
+   políticas) y `receipts` con todo el acceso público bloqueado.
+5. Crear los secretos en Secrets Manager con los nombres de la sección de secretos
+   (los valores salen de los `.env` locales; nunca se imprimen ni se commitean).
+6. Crear el cluster ECS, las task definitions (con `taskRoleArn` y `executionRoleArn`),
+   los grupos de destino con sus health checks, el ALB con sus tres listeners y los
+   servicios Fargate Spot.
+7. Crear los grupos de seguridad: uno por puerto del ALB, abiertos solo a la lista de
+   prefijos administrada de CloudFront (`com.amazonaws.global.cloudfront.origin-facing`),
+   y el de las tareas, que solo acepta tráfico de los del ALB.
+8. Crear las tres distribuciones de CloudFront: origen HTTP hacia el ALB en su puerto,
+   política de caché *CachingDisabled*, política de origen *AllViewer*, todos los
+   métodos HTTP, redirección a https y `readTimeout` de 60 s.
+9. Actualizar `APP_URL`, `FRONTEND_URL`, `SPARK_URL`, `CORS_ALLOWED_ORIGINS` y
+   `GOOGLE_REDIRECT_URI` de la task definition de barber con las URL de CloudFront
+   resultantes, y `NUXT_PUBLIC_API_BASE` en la del frontend; desplegar de nuevo.
+10. Configurar los servicios externos: Google en
+    [`GOOGLE_CLOUD_OAUTH.md`](GOOGLE_CLOUD_OAUTH.md), la base y sus usuarios en
+    [`MONGODB_ATLAS.md`](MONGODB_ATLAS.md) y el webhook de Stripe (sección siguiente).
+
 ## Integraciones externas
 
 - **Stripe:** el destino del webhook debe crearse en la **misma cuenta de Stripe** que
@@ -86,7 +122,9 @@ CloudFront del frontend, `SESSION_DRIVER=file`, `CACHE_STORE=file`,
   (no lleva `/api/v1`). Eventos de tipo instantáneo; el `whsec_` del destino va en
   `STRIPE_WEBHOOK_SECRET`. Verificado el 2026-09-18 con un pago real de prueba.
 - **Google login:** agregar `<CloudFront API>/api/v1/auth/google/callback` como URI de
-  redirección autorizada en Google Cloud Console.
+  redirección autorizada en Google Cloud Console. Detalle en
+  [`GOOGLE_CLOUD_OAUTH.md`](GOOGLE_CLOUD_OAUTH.md).
+- **MongoDB Atlas:** usuarios, roles y acceso de red en [`MONGODB_ATLAS.md`](MONGODB_ATLAS.md).
 
 ## Runbook
 
