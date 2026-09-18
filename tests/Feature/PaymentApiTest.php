@@ -537,7 +537,7 @@ class PaymentApiTest extends TestCase
      */
     public function test_client_can_upload_transfer_receipt_for_their_own_chargeable_appointment(): void
     {
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $barberUser = User::create(['name' => 'Barbero Recibo', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
         $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Recibo', 'activo' => true]);
@@ -573,7 +573,7 @@ class PaymentApiTest extends TestCase
 
     public function test_upload_receipt_rejects_a_client_who_does_not_own_the_appointment(): void
     {
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $barberUser = User::create(['name' => 'Barbero Recibo Ajeno', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
         $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Recibo Ajeno', 'activo' => true]);

@@ -142,7 +142,7 @@ class DepositService
     {
         $this->guardCanCharge($appointment);
 
-        $path = $file->store('comprobantes-transferencia', 'public');
+        $path = $file->store('comprobantes-transferencia', 'receipts');
 
         try {
             $payment = Payment::create([

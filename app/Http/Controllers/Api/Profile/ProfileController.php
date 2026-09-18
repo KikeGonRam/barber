@@ -10,6 +10,8 @@ use App\Models\Barber;
 use App\Models\BarberReview;
 use App\Models\Client;
 use App\Models\Work;
+use App\Services\Loyalty\LoyaltyService;
+use App\Services\Membership\MembershipService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +28,7 @@ use Illuminate\Validation\Rules\Password;
 class ProfileController extends Controller
 {
     public function __construct(
-        private readonly \App\Services\Membership\MembershipService $memberships,
+        private readonly MembershipService $memberships,
     ) {}
 
     // Profile avatar endpoint is shared by all authenticated roles.
@@ -73,7 +75,7 @@ class ProfileController extends Controller
                     // el que sea mayor) -- mismo calculo que PaymentService
                     // usa al cobrar, aqui solo es informativo para que el
                     // cliente lo vea ANTES de reservar/pagar.
-                    'descuento_activo_pct' => \App\Services\Loyalty\LoyaltyService::bestDiscountPct(
+                    'descuento_activo_pct' => LoyaltyService::bestDiscountPct(
                         $user->clientProfile->nivel ?? 'nuevo',
                         $this->memberships->activeDiscountFor($user->clientProfile),
                     ),
@@ -200,13 +202,23 @@ class ProfileController extends Controller
     private function localAvatarPath(?string $avatarUrl): ?string
     {
         $path = parse_url($avatarUrl ?? '', PHP_URL_PATH);
-        $prefix = '/storage/';
 
-        if (! is_string($path) || ! str_starts_with($path, $prefix)) {
+        if (! is_string($path)) {
             return null;
         }
 
-        return substr($path, strlen($prefix));
+        // Disco local: /storage/avatars/x.jpg
+        if (str_starts_with($path, '/storage/')) {
+            return substr($path, strlen('/storage/'));
+        }
+
+        // Bucket S3 de subidas públicas: la clave del objeto es la ruta completa.
+        if (config('filesystems.disks.public.driver') === 's3'
+            && str_starts_with((string) $avatarUrl, (string) config('filesystems.disks.public.url'))) {
+            return ltrim($path, '/');
+        }
+
+        return null;
     }
 
     /**
@@ -256,7 +268,7 @@ class ProfileController extends Controller
             'email' => $user->email,
             'especialidades' => $barber->especialidades ?? '',
             'descripcion' => $barber->descripcion ?? '',
-            'foto_url' => $barber->foto ? Storage::url($barber->foto) : null,
+            'foto_url' => $barber->foto ? Storage::disk('public')->url($barber->foto) : null,
             'calificacion_promedio' => $avgRating ? round((float) $avgRating, 1) : null,
             'total_resenas' => BarberReview::where('barber_id', (string) $barber->id)->count(),
             'activo' => (bool) ($barber->activo ?? true),
@@ -302,7 +314,7 @@ class ProfileController extends Controller
             'message' => 'Perfil de barbero actualizado.',
             'especialidades' => $barber->especialidades ?? '',
             'descripcion' => $barber->descripcion ?? '',
-            'foto_url' => $barber->foto ? Storage::url($barber->foto) : null,
+            'foto_url' => $barber->foto ? Storage::disk('public')->url($barber->foto) : null,
         ]);
     }
 

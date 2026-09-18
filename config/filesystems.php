@@ -38,7 +38,37 @@ return [
             'report' => false,
         ],
 
-        'public' => [
+        // Imágenes públicas (productos, portafolio, avatares, fotos). Con
+        // UPLOADS_BUCKET va a un bucket S3 de lectura pública; sin él, queda en
+        // disco local como siempre.
+        'public' => env('UPLOADS_BUCKET') ? [
+            'driver' => 's3',
+            'bucket' => env('UPLOADS_BUCKET'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'url' => env('UPLOADS_URL', 'https://'.env('UPLOADS_BUCKET').'.s3.'.env('AWS_DEFAULT_REGION', 'us-east-1').'.amazonaws.com'),
+            'throw' => false,
+            'report' => false,
+        ] : [
+            'driver' => 'local',
+            'root' => storage_path('app/public'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
+        // Comprobantes de transferencia y recibos PDF (datos de pago de
+        // clientes). Con RECEIPTS_BUCKET va a un bucket S3 PRIVADO y se sirve solo
+        // con URLs firmadas temporales (ver App\Support\ReceiptStorage). Sin
+        // él, usa la misma carpeta local que 'public' para no perder archivos
+        // existentes en desarrollo. Las credenciales salen del rol de la tarea ECS.
+        'receipts' => env('RECEIPTS_BUCKET') ? [
+            'driver' => 's3',
+            'bucket' => env('RECEIPTS_BUCKET'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'throw' => false,
+            'report' => false,
+        ] : [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',

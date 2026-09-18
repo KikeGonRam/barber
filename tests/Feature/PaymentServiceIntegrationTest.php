@@ -78,7 +78,7 @@ class PaymentServiceIntegrationTest extends TestCase
     public function test_create_charges_directly_completes_appointment_and_generates_pdf(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
 
@@ -91,7 +91,7 @@ class PaymentServiceIntegrationTest extends TestCase
 
         $this->assertSame(Payment::ESTADO_VERIFICADO, $payment->estado);
         $this->assertNotEmpty($payment->comprobante_pdf);
-        Storage::disk('public')->assertExists($payment->comprobante_pdf);
+        Storage::disk('receipts')->assertExists($payment->comprobante_pdf);
 
         $freshAppointment = Appointment::find($appointment->id);
         $this->assertSame('completada', $freshAppointment->estado);
@@ -105,7 +105,7 @@ class PaymentServiceIntegrationTest extends TestCase
     public function test_create_ignores_a_manipulated_monto_and_uses_the_real_service_price(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment(); // servicio de $300
 
@@ -123,7 +123,7 @@ class PaymentServiceIntegrationTest extends TestCase
     public function test_create_applies_the_client_level_discount_automatically(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         // El nivel se lee del cliente en cobro, no de lo que se manda en el payload.
@@ -142,7 +142,7 @@ class PaymentServiceIntegrationTest extends TestCase
     public function test_create_redeems_points_on_top_of_the_level_discount(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         $appointment->client->update(['nivel' => 'vip', 'puntos' => 100]); // 10% desc. + 100 pts disponibles
@@ -163,7 +163,7 @@ class PaymentServiceIntegrationTest extends TestCase
     public function test_create_throws_when_puntos_canjeados_exceeds_the_fifty_percent_cap(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         // Sin descuento de nivel: precio real = 300, tope 50% = 150. El cliente tiene de sobra.
@@ -182,7 +182,7 @@ class PaymentServiceIntegrationTest extends TestCase
     public function test_create_throws_when_puntos_canjeados_exceeds_client_balance(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         // Tope del 50% (250) es mayor que el saldo real (10) -> el saldo es lo que limita.
@@ -201,7 +201,7 @@ class PaymentServiceIntegrationTest extends TestCase
     public function test_create_does_not_deduct_points_when_the_cap_is_exceeded(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         $appointment->client->update(['puntos' => 10]);
@@ -225,7 +225,7 @@ class PaymentServiceIntegrationTest extends TestCase
     public function test_create_applies_raffle_prize_as_full_discount_and_claims_it(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         $prize = RaffleResult::create([
@@ -347,7 +347,7 @@ class PaymentServiceIntegrationTest extends TestCase
     public function test_create_throws_when_appointment_already_has_a_payment(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
 
@@ -380,7 +380,7 @@ class PaymentServiceIntegrationTest extends TestCase
     public function test_create_converts_a_gift_card_write_conflict_into_a_clean_payment_exception(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         $giftCard = GiftCard::create([
@@ -420,7 +420,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Notification::fake();
         Queue::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
 
@@ -428,7 +428,7 @@ class PaymentServiceIntegrationTest extends TestCase
 
         $this->assertSame(Payment::ESTADO_PENDIENTE_VERIFICACION, $payment->estado);
         $this->assertSame('transferencia', $payment->metodo_pago);
-        Storage::disk('public')->assertExists($payment->comprobante_cliente);
+        Storage::disk('receipts')->assertExists($payment->comprobante_cliente);
 
         // No debe completar la cita todavía (queda pendiente de revisión).
         $this->assertSame('confirmada', Appointment::find($appointment->id)->estado);
@@ -440,7 +440,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Notification::fake();
         Queue::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
 
@@ -453,7 +453,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Notification::fake();
         Queue::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
 
@@ -466,7 +466,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Notification::fake();
         Queue::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         $appointment->client->update(['nivel' => 'regular']); // 5% de descuento
@@ -481,7 +481,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Notification::fake();
         Queue::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         $this->service->uploadTransferReceipt($appointment, $this->fakeReceipt('a.jpg'), (string) Str::uuid());
@@ -495,7 +495,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Notification::fake();
         Queue::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         $payment = $this->service->uploadTransferReceipt($appointment, $this->fakeReceipt(), (string) Str::uuid());
@@ -504,7 +504,7 @@ class PaymentServiceIntegrationTest extends TestCase
 
         $this->assertSame(Payment::ESTADO_VERIFICADO, $approved->estado);
         $this->assertNotEmpty($approved->comprobante_pdf);
-        Storage::disk('public')->assertExists($approved->comprobante_pdf);
+        Storage::disk('receipts')->assertExists($approved->comprobante_pdf);
         $this->assertSame('completada', Appointment::find($appointment->id)->estado);
     }
 
@@ -512,7 +512,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Notification::fake();
         Queue::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         $payment = $this->service->uploadTransferReceipt($appointment, $this->fakeReceipt(), (string) Str::uuid());
@@ -527,7 +527,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Notification::fake();
         Queue::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         $payment = $this->service->uploadTransferReceipt($appointment, $this->fakeReceipt(), (string) Str::uuid());
@@ -543,7 +543,7 @@ class PaymentServiceIntegrationTest extends TestCase
     {
         Notification::fake();
         Queue::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makeChargeableAppointment();
         $first = $this->service->uploadTransferReceipt($appointment, $this->fakeReceipt('a.jpg'), (string) Str::uuid());

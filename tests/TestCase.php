@@ -33,15 +33,20 @@ abstract class TestCase extends BaseTestCase
             $dsn = (string) config("database.connections.{$connection}.dsn");
 
             if ($database !== 'barber_db_test' || str_contains($dsn, 'mongodb.net') || str_contains($dsn, 'mongodb+srv')) {
-                $this->fail(
-                    "SEGURO: la conexión {$connection} resolvió a la base '{$database}' (no 'barber_db_test') ".
+                // NO usar $this->fail(): PHPUnit igual ejecuta el tearDown() de
+                // cada test, y esos tearDown() borran colecciones enteras contra
+                // la base resuelta (2026-09-18: así se borraron services, barbers,
+                // clients, payments y appointments de la Atlas real). Hay que
+                // matar el proceso antes de que llegue cualquier tearDown().
+                fwrite(STDERR,
+                    "\nSEGURO: la conexión {$connection} resolvió a la base '{$database}' (no 'barber_db_test') ".
                     "o a un host de Atlas.\n".
                     "Esto casi seguro significa que bootstrap/cache/config.php está cacheado con los\n".
                     "valores de Atlas (ver .docker/entrypoint.sh) y --env-file .env.testing no tuvo\n".
-                    "efecto. Corre 'docker exec barber-app php artisan config:clear' y vuelve a intentar.\n".
-                    'NO ignores ni ajustes este check para que pase: su propósito es exactamente '.
-                    'impedir que los tearDown() de estas pruebas borren datos reales.'
+                    "efecto. Usa .\\test.ps1 (nunca 'php artisan test' directo).\n".
+                    "Proceso abortado antes de ejecutar ningún tearDown().\n"
                 );
+                exit(1);
             }
         }
     }

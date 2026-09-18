@@ -265,7 +265,7 @@ class PaymentService
             throw new PaymentException('La cita ya tiene un pago registrado o en revision.');
         }
 
-        $path = $file->store('comprobantes-transferencia', 'public');
+        $path = $file->store('comprobantes-transferencia', 'receipts');
 
         // Mismo calculo que ClientPaymentController::create() ya le mostro al
         // cliente antes de que transfiriera, para que el monto registrado
@@ -416,7 +416,7 @@ class PaymentService
 
         // Persiste el PDF en el disco publico para poder servirlo despues.
         $pdfPath = 'comprobantes/pago-'.$payment->id.'.pdf';
-        Storage::disk('public')->put($pdfPath, $pdf->output());
+        Storage::disk('receipts')->put($pdfPath, $pdf->output());
 
         $this->payments->update($payment->id, ['comprobante_pdf' => $pdfPath]);
 

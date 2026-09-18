@@ -165,7 +165,7 @@ class DepositServiceTest extends TestCase
     public function test_upload_transfer_receipt_creates_pending_deposit_without_completing_appointment(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makePendingAppointmentRequiringDeposit();
 
@@ -179,7 +179,7 @@ class DepositServiceTest extends TestCase
     public function test_a_second_deposit_upload_is_rejected_while_one_is_pending(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makePendingAppointmentRequiringDeposit();
         $this->deposits->uploadTransferReceipt($appointment, $this->fakeReceipt('a.jpg'), (string) Str::uuid());
@@ -210,7 +210,7 @@ class DepositServiceTest extends TestCase
     public function test_approve_verifies_deposit_but_does_not_complete_appointment_or_award_points(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makePendingAppointmentRequiringDeposit();
         $payment = $this->deposits->uploadTransferReceipt($appointment, $this->fakeReceipt(), (string) Str::uuid());
@@ -227,7 +227,7 @@ class DepositServiceTest extends TestCase
     public function test_reject_frees_the_appointment_for_a_new_deposit_attempt(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makePendingAppointmentRequiringDeposit();
         $payment = $this->deposits->uploadTransferReceipt($appointment, $this->fakeReceipt('a.jpg'), (string) Str::uuid());
@@ -242,7 +242,7 @@ class DepositServiceTest extends TestCase
     public function test_final_charge_nets_the_verified_deposit_from_the_total(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makePendingAppointmentRequiringDeposit(); // servicio $300, deposito $150
         $payment = $this->deposits->uploadTransferReceipt($appointment, $this->fakeReceipt(), (string) Str::uuid());
@@ -265,7 +265,7 @@ class DepositServiceTest extends TestCase
     public function test_refund_if_any_marks_a_transfer_deposit_as_reembolsado(): void
     {
         Notification::fake();
-        Storage::fake('public');
+        Storage::fake('receipts');
 
         $appointment = $this->makePendingAppointmentRequiringDeposit();
         $payment = $this->deposits->uploadTransferReceipt($appointment, $this->fakeReceipt(), (string) Str::uuid());

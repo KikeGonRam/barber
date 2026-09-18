@@ -12,6 +12,7 @@ use App\Services\Membership\MembershipService;
 use App\Services\Package\GiftCardService;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\StripePaymentService;
+use App\Support\ReceiptStorage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -58,7 +59,7 @@ class PaymentController extends Controller
                 'monto' => $payment->monto,
                 'metodo_pago' => $payment->metodo_pago,
                 'propina' => $payment->propina,
-                'receipt_url' => $payment->comprobante_pdf ? Storage::disk('public')->url($payment->comprobante_pdf) : null,
+                'receipt_url' => ReceiptStorage::url($payment->comprobante_pdf),
                 'created_at' => optional($payment->created_at)->toIso8601String(),
                 'appointment' => [
                     'id' => $payment->appointment?->id,
@@ -117,7 +118,7 @@ class PaymentController extends Controller
                 'monto' => $payment->monto,
                 'metodo_pago' => $payment->metodo_pago,
                 'propina' => $payment->propina,
-                'receipt_url' => $payment->comprobante_pdf ? Storage::disk('public')->url($payment->comprobante_pdf) : null,
+                'receipt_url' => ReceiptStorage::url($payment->comprobante_pdf),
                 'created_at' => optional($payment->created_at)->toIso8601String(),
                 'appointment' => [
                     'id' => $payment->appointment?->id,
@@ -153,7 +154,7 @@ class PaymentController extends Controller
                 'id' => $payment->id,
                 'monto' => $payment->monto,
                 'created_at' => optional($payment->created_at)->toIso8601String(),
-                'comprobante_url' => $payment->comprobante_cliente ? Storage::disk('public')->url($payment->comprobante_cliente) : null,
+                'comprobante_url' => ReceiptStorage::url($payment->comprobante_cliente),
                 'ocr_texto' => $payment->ocr_texto,
                 'ocr_monto_detectado' => $payment->ocr_monto_detectado,
                 'appointment' => [
@@ -422,7 +423,7 @@ class PaymentController extends Controller
                 'monto' => $payment->monto,
                 'metodo_pago' => $payment->metodo_pago,
                 'propina' => $payment->propina,
-                'receipt_url' => $payment->comprobante_pdf ? Storage::disk('public')->url($payment->comprobante_pdf) : null,
+                'receipt_url' => ReceiptStorage::url($payment->comprobante_pdf),
                 'appointment' => [
                     'id' => $payment->appointment?->id,
                     'fecha' => optional($payment->appointment?->fecha)->toDateString(),
@@ -440,7 +441,7 @@ class PaymentController extends Controller
         $this->authorizeStaff($request);
 
         if ($payment->comprobante_pdf) {
-            Storage::disk('public')->delete($payment->comprobante_pdf);
+            Storage::disk('receipts')->delete($payment->comprobante_pdf);
         }
 
         $payment->delete();
@@ -465,13 +466,13 @@ class PaymentController extends Controller
 
         $pdfPath = $payment->comprobante_pdf;
 
-        if (! $pdfPath || ! Storage::disk('public')->exists($pdfPath)) {
+        if (! $pdfPath || ! Storage::disk('receipts')->exists($pdfPath)) {
             $pdf = Pdf::loadView('payments.receipt', [
                 'payment' => $payment->load(['appointment.client.user', 'appointment.barber.user', 'appointment.service', 'creator']),
             ]);
 
             $pdfPath = 'comprobantes/pago-'.$payment->id.'.pdf';
-            Storage::disk('public')->put($pdfPath, $pdf->output());
+            Storage::disk('receipts')->put($pdfPath, $pdf->output());
 
             $payment->update(['comprobante_pdf' => $pdfPath]);
         }
@@ -479,7 +480,7 @@ class PaymentController extends Controller
         return response()->json([
             'data' => [
                 'payment_id' => $payment->id,
-                'receipt_url' => Storage::disk('public')->url($pdfPath),
+                'receipt_url' => ReceiptStorage::url($pdfPath),
             ],
         ]);
     }

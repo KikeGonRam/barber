@@ -8,6 +8,7 @@ use App\Models\SavedWork;
 use App\Models\Work;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * API social de la app móvil: feed de trabajos (cortes) publicados por barberos,
@@ -40,15 +41,15 @@ class SocialController extends Controller
                         'id' => $work->barberUser?->id,
                         'name' => $work->barberUser?->name,
                         'slug' => $work->barberUser?->barberProfile?->slug,
-                        'foto' => $work->barberUser?->barberProfile?->foto ? asset('storage/'.$work->barberUser->barberProfile->foto) : null,
+                        'foto' => $work->barberUser?->barberProfile?->foto ? Storage::disk('public')->url($work->barberUser->barberProfile->foto) : null,
                     ],
                     // 'images' se conserva tal cual (array de URLs) por
                     // compatibilidad con quien ya lo consuma; 'media' es
                     // aditivo — mismo contenido pero con el tipo
                     // (imagen/video) que 'images' nunca expuso.
-                    'images' => $work->images->map(fn ($img) => asset('storage/'.$img->image))->values(),
+                    'images' => $work->images->map(fn ($img) => Storage::disk('public')->url($img->image))->values(),
                     'media' => $work->images->map(fn ($img) => [
-                        'url' => asset('storage/'.$img->image),
+                        'url' => Storage::disk('public')->url($img->image),
                         'type' => $img->type ?? 'image',
                     ])->values(),
                     'reactions_count' => $work->reactions->count(),

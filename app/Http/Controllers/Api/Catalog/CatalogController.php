@@ -15,6 +15,7 @@ use App\Models\Work;
 use App\Services\Barber\BarberReviewService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Controlador del catálogo público (clientes/visitantes).
@@ -93,7 +94,7 @@ class CatalogController extends Controller
                 // Mismo patron que barbers()/products() en este controller:
                 // la columna guarda solo la ruta relativa de storage, el
                 // cliente necesita la URL absoluta para poder mostrarla.
-                'imagen' => $s->imagen ? asset('storage/'.$s->imagen) : null,
+                'imagen' => $s->imagen ? Storage::disk('public')->url($s->imagen) : null,
             ])->values(),
         ]);
     }
@@ -124,7 +125,7 @@ class CatalogController extends Controller
                 'descripcion' => $p->descripcion,
                 'precio_venta' => (float) $p->precio_venta,
                 'stock_actual' => (int) $p->stock_actual,
-                'imagen' => $p->imagen ? asset('storage/'.$p->imagen) : null,
+                'imagen' => $p->imagen ? Storage::disk('public')->url($p->imagen) : null,
             ])->values(),
         ]);
     }
@@ -167,7 +168,7 @@ class CatalogController extends Controller
             'user' => $barber->user ? ['id' => $barber->user->id, 'name' => $barber->user->name] : null,
             'especialidades' => $barber->especialidades ?? '',
             'descripcion' => $barber->descripcion ?? '',
-            'foto' => $barber->foto ? asset('storage/'.$barber->foto) : null,
+            'foto' => $barber->foto ? Storage::disk('public')->url($barber->foto) : null,
             'activo' => (bool) ($barber->activo ?? true),
             'avg_rating' => $reviewStats[(string) $barber->id]['avg'] ?? null,
             'total_reviews' => $reviewStats[(string) $barber->id]['count'] ?? 0,
@@ -222,7 +223,7 @@ class CatalogController extends Controller
                 'id' => $w->id,
                 'title' => $w->title,
                 'description' => $w->description,
-                'images' => $w->images->map(fn ($img) => asset('storage/'.$img->image))->values(),
+                'images' => $w->images->map(fn ($img) => Storage::disk('public')->url($img->image))->values(),
             ])->values(),
             'reviews' => $reviews->map(fn (BarberReview $r) => [
                 'id' => $r->id,

@@ -62,11 +62,11 @@ class BarberPortfolioController extends Controller
                     'description' => $work->description,
                     'media' => $work->images->map(fn (WorkImage $item) => [
                         'id' => (string) $item->id,
-                        'url' => asset('storage/'.$item->image),
+                        'url' => Storage::disk('public')->url($item->image),
                         'type' => $item->isVideo() ? 'video' : 'image',
                         'mime_type' => $item->mime_type,
                     ])->values(),
-                    'images' => $work->images->map(fn ($img) => asset('storage/'.$img->image))->values(),
+                    'images' => $work->images->map(fn ($img) => Storage::disk('public')->url($img->image))->values(),
                     'reactions_count' => $work->reactions->count(),
                     'comments_count' => $work->comments->count(),
                     'created_at' => $work->created_at,
@@ -159,7 +159,7 @@ class BarberPortfolioController extends Controller
                 'description' => $work->description,
                 'media' => $work->images->map(fn (WorkImage $item) => [
                     'id' => (string) $item->id,
-                    'url' => asset('storage/'.$item->image),
+                    'url' => Storage::disk('public')->url($item->image),
                     'type' => $item->isVideo() ? 'video' : 'image',
                     'mime_type' => $item->mime_type,
                 ])->values(),

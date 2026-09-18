@@ -3,13 +3,13 @@
 namespace App\Jobs;
 
 use App\Models\Payment;
+use App\Support\ReceiptStorage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use thiagoalessio\TesseractOCR\TesseractOCR;
 
 /**
@@ -44,9 +44,10 @@ class RunOcrOnComprobante implements ShouldQueue
             return;
         }
 
-        $absolutePath = Storage::disk('public')->path($payment->comprobante_cliente);
+        $absolutePath = null;
 
         try {
+            $absolutePath = ReceiptStorage::localCopy($payment->comprobante_cliente);
             $texto = (new TesseractOCR($absolutePath))->lang('spa', 'eng')->run();
         } catch (\Throwable $e) {
             Log::warning('Fallo OCR de comprobante', [
@@ -55,6 +56,10 @@ class RunOcrOnComprobante implements ShouldQueue
             ]);
 
             return;
+        } finally {
+            if ($absolutePath !== null) {
+                ReceiptStorage::unlinkIfTemporary($absolutePath);
+            }
         }
 
         $monto = $this->extractAmount($texto);

@@ -7,10 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Payment;
 use App\Services\Payment\DepositService;
+use App\Support\ReceiptStorage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
@@ -104,7 +104,7 @@ class DepositController extends Controller
                 'id' => $payment->id,
                 'monto' => $payment->monto,
                 'created_at' => optional($payment->created_at)->toIso8601String(),
-                'comprobante_url' => $payment->comprobante_cliente ? Storage::disk('public')->url($payment->comprobante_cliente) : null,
+                'comprobante_url' => ReceiptStorage::url($payment->comprobante_cliente),
                 'appointment' => [
                     'id' => $payment->appointment?->id,
                     'client' => $payment->appointment?->client?->user?->name,

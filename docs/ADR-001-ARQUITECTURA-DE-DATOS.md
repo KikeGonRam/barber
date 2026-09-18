@@ -194,9 +194,9 @@ datos reales que leer).
 
 ### Fase 4: endurecimiento
 
-**Casi completada.** Los puntos 1 (usuarios de mínimo privilegio, 2026-09-17), 2 y 3
-(2026-09-18) están resueltos; solo queda decidir si Laravel↔core necesita su propio
-usuario dedicado (ver punto 1).
+**Completada.** Los puntos 1 (usuarios de mínimo privilegio, 2026-09-17 y
+2026-09-18), 2 y 3 (2026-09-18) están resueltos. Queda solo una tarea operativa:
+eliminar o rotar la credencial personal `luis` (ver punto 1).
 
 1. ✅ Usuarios de base con mínimo privilegio, confirmados vía `connectionStatus` y
    prueba real de lectura/escritura:
@@ -208,10 +208,12 @@ usuario dedicado (ver punto 1).
      privilegio. Se creó un usuario separado con `read@urbanblade_analytics`,
      confirmado que lee los 39 insights reales y que su escritura es rechazada
      por Atlas.
-   - Laravel core (lectura/escritura sobre `barber_db`) sigue usando el usuario
-     operativo original — no se tocó en esta entrega; queda pendiente decidir si
-     amerita su propio usuario dedicado o si el actual ya es de uso exclusivo de
-     Laravel (a confirmar antes de dar este punto por cerrado del todo).
+   - Laravel core (`laravel_core_rw`, creado el 2026-09-18): `readWrite@barber_db`.
+     Antes Laravel conectaba con el usuario personal `luis`, que tenía el rol
+     `atlasAdmin` sobre todo el clúster. Confirmado vía `connectionStatus`; lee y
+     escribe en `barber_db` y Atlas rechaza el acceso a `urbanblade_analytics`.
+     Aplicado en `barber/.env` y en el secreto `MONGODB_URI` de staging en AWS.
+     Pendiente operativo: eliminar o rotar la credencial de `luis`.
 2. ✅ Comprobaciones automatizadas que bloquean pruebas contra nombres no permitidos
    (2026-09-18): `tests/TestCase.php` valida en cada test que **tanto `mongodb` como
    `mongodb_analytics`** resuelvan a `barber_db_test` y que su DSN no apunte a
