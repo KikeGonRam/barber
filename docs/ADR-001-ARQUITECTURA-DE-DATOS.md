@@ -212,8 +212,12 @@ los puntos 2 y 3 siguen pendientes.
      operativo original — no se tocó en esta entrega; queda pendiente decidir si
      amerita su propio usuario dedicado o si el actual ya es de uso exclusivo de
      Laravel (a confirmar antes de dar este punto por cerrado del todo).
-2. Añadir comprobaciones automatizadas que bloqueen pruebas contra nombres no
-   permitidos. Pendiente.
+2. ✅ Comprobaciones automatizadas que bloquean pruebas contra nombres no permitidos
+   (2026-09-18): `tests/TestCase.php` valida en cada test que **tanto `mongodb` como
+   `mongodb_analytics`** resuelvan a `barber_db_test` y que su DSN no apunte a
+   Atlas (`mongodb.net`/`mongodb+srv`). Antes solo se validaba `mongodb`, y
+   `AnalyticsApiTest` heredaba silenciosamente `ANALYTICS_*` de Atlas del contenedor;
+   `.env.testing` ahora las define hacia `mongo-test`.
 3. Actualizar documentación y diagramas después de validar el flujo completo.
    Esta actualización del ADR y de `FASE-2-CONEXION-ANALITICA-SEPARADA.md` cubre la
    parte de documentación para lo ya validado; falta un diagrama si se decide

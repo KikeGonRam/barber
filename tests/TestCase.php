@@ -25,17 +25,24 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $database = config('database.connections.mongodb.database');
+        // La conexión analítica también se valida: AnalyticsApiTest borra
+        // AnalyticsInsight en tearDown() y, sin ANALYTICS_* en .env.testing,
+        // heredaba la URI de Atlas (usuario de solo lectura) del contenedor.
+        foreach (['mongodb', 'mongodb_analytics'] as $connection) {
+            $database = config("database.connections.{$connection}.database");
+            $dsn = (string) config("database.connections.{$connection}.dsn");
 
-        if ($database !== 'barber_db_test') {
-            $this->fail(
-                "SEGURO: la conexión mongodb resolvió a la base '{$database}', no 'barber_db_test'.\n".
-                "Esto casi seguro significa que bootstrap/cache/config.php está cacheado con los\n".
-                "valores de Atlas (ver .docker/entrypoint.sh) y --env-file .env.testing no tuvo\n".
-                "efecto. Corre 'docker exec barber-app php artisan config:clear' y vuelve a intentar.\n".
-                'NO ignores ni ajustes este check para que pase: su propósito es exactamente '.
-                'impedir que los tearDown() de estas pruebas borren datos reales.'
-            );
+            if ($database !== 'barber_db_test' || str_contains($dsn, 'mongodb.net') || str_contains($dsn, 'mongodb+srv')) {
+                $this->fail(
+                    "SEGURO: la conexión {$connection} resolvió a la base '{$database}' (no 'barber_db_test') ".
+                    "o a un host de Atlas.\n".
+                    "Esto casi seguro significa que bootstrap/cache/config.php está cacheado con los\n".
+                    "valores de Atlas (ver .docker/entrypoint.sh) y --env-file .env.testing no tuvo\n".
+                    "efecto. Corre 'docker exec barber-app php artisan config:clear' y vuelve a intentar.\n".
+                    'NO ignores ni ajustes este check para que pase: su propósito es exactamente '.
+                    'impedir que los tearDown() de estas pruebas borren datos reales.'
+                );
+            }
         }
     }
 }
