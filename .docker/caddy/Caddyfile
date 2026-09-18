@@ -33,9 +33,12 @@
 
 	# php_fastcgi ya resuelve try_files/index.php/SCRIPT_FILENAME/PATH_INFO
 	# por si sola -- lo que en nginx eran ~15 lineas, aqui es una sola.
-	# Caddy vuelve a resolver el DNS de "app" por cada conexion nueva, asi
-	# que no hereda el problema de IP cacheada que nginx si tenia.
-	php_fastcgi app:9000 {
+	# localhost, no "app": a diferencia de docker-compose local (donde PHP-FPM
+	# vive en un contenedor "app" aparte), en la imagen de staging PHP-FPM y
+	# Caddy corren en el MISMO contenedor -- confirmado con un despliegue real
+	# que fallaba con "lookup app: no such host" porque ese nombre de servicio
+	# no existe fuera de la red de docker-compose.
+	php_fastcgi localhost:9000 {
 		# El default de Ollama (OLLAMA_TIMEOUT=90 en .env) necesita mas margen
 		# que el timeout corto por default para el chat.
 		read_timeout 120s
