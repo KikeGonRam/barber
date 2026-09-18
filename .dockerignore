@@ -2,6 +2,12 @@
 node_modules/
 vendor/
 
+# Cache de bootstrap generado por el docker-compose local (packages.php,
+# services.php, config.php, routes-v7.php): referencian paquetes de
+# desarrollo (ej. Scribe) que --no-dev quita en la imagen de produccion.
+# El entrypoint de staging ya corre config:cache/route:cache de todos modos.
+bootstrap/cache/*.php
+
 # Git
 .git/
 .gitignore

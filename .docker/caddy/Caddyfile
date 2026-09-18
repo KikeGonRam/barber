@@ -1,0 +1,46 @@
+{
+	# Sin TLS automático aquí: en staging/AWS, HTTPS lo termina el balanceador
+	# (ALB) o se agrega despues con un dominio real. Este Caddy solo sirve
+	# HTTP puro en el puerto 80 detras de esa capa.
+	auto_https off
+}
+
+:80 {
+	root * /var/www/html/public
+	encode gzip
+
+	header {
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+	}
+
+	# Equivalente a la regla de nginx: bloquea archivos ocultos salvo
+	# /.well-known (requerido por validaciones ACME/dominio). RE2 (el motor
+	# de Caddy) no soporta lookahead negativo "(?!...)" como PCRE/nginx, asi
+	# que se resuelve con dos matchers combinados (AND) en vez de uno solo.
+	@hidden {
+		path /.*
+		not path /.well-known/*
+	}
+	respond @hidden 404
+
+	@sensitive {
+		path_regexp sensitive \.(env|log|sql|bak|ini|ya?ml)$
+	}
+	respond @sensitive 404
+
+	# php_fastcgi ya resuelve try_files/index.php/SCRIPT_FILENAME/PATH_INFO
+	# por si sola -- lo que en nginx eran ~15 lineas, aqui es una sola.
+	# Caddy vuelve a resolver el DNS de "app" por cada conexion nueva, asi
+	# que no hereda el problema de IP cacheada que nginx si tenia.
+	php_fastcgi app:9000 {
+		# El default de Ollama (OLLAMA_TIMEOUT=90 en .env) necesita mas margen
+		# que el timeout corto por default para el chat.
+		read_timeout 120s
+		write_timeout 120s
+	}
+
+	file_server
+}

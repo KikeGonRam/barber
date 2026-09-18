@@ -19,6 +19,7 @@ use App\Services\Appointment\AppointmentService;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Appointment\WaitlistService;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Membership\MembershipService;
 use App\Services\Order\OrderService;
 use App\Services\Payment\DepositService;
 use Carbon\Carbon;
@@ -39,6 +40,7 @@ class AppointmentController extends Controller
         private readonly DepositService $deposits,
         private readonly WaitlistService $waitlist,
         private readonly OrderService $orders,
+        private readonly MembershipService $memberships,
     ) {}
 
     /**
@@ -376,6 +378,15 @@ class AppointmentController extends Controller
             // para el staff al cobrar (ver comentario en el modelo). No se
             // cobra nada aqui -- PaymentService sigue siendo la autoridad.
             'propina_sugerida' => ['nullable', 'numeric', 'min:0'],
+            // Si el cliente elige pagar el servicio completo al reservar (en
+            // vez de pagar despues en el salon), en vez de inventar un cobro
+            // nuevo se reutiliza el mecanismo de deposito anti-no-show tal
+            // cual (mismos endpoints deposit/stripe-intent y deposit/receipt,
+            // mismo webhook, mismo reembolso automatico si se cancela) -- solo
+            // cambia que deposito_monto pasa a ser el precio con descuento de
+            // membresia mas propina, no el % anti-no-show. Ver comentario mas
+            // abajo antes de construir $payload.
+            'pagar_ahora' => ['nullable', 'boolean'],
         ];
 
         if ($user->hasAnyRole(['administrador', 'recepcionista'])) {
@@ -402,6 +413,25 @@ class AppointmentController extends Controller
         // Aplica sin importar quién reserva -- si staff agenda a nombre de un
         // cliente con historial de inasistencias, también necesita saberlo.
         $deposito = $this->deposits->requirementFor($client, $service);
+        $descuentoPct = 0;
+
+        // Pago completo al reservar (opcional, elegido por el cliente): pisa
+        // el requisito anti-no-show de arriba -- si ya va a pagar todo ahora,
+        // el deposito parcial es redundante. El precio SIEMPRE se relee del
+        // servicio y del descuento real del cliente, nunca del monto que
+        // pudiera venir en el request.
+        if (! empty($validated['pagar_ahora'])) {
+            $membershipPct = $this->memberships->activeDiscountFor($client);
+            $descuentoPct = LoyaltyService::bestDiscountPct($client->nivel ?? 'nuevo', $membershipPct);
+            $precioConDescuento = $descuentoPct > 0
+                ? round((float) $service->precio * (1 - $descuentoPct / 100), 2)
+                : (float) $service->precio;
+
+            $deposito = [
+                'requerido' => true,
+                'monto' => round($precioConDescuento + (float) ($validated['propina_sugerida'] ?? 0), 2),
+            ];
+        }
 
         $payload = [
             'client_id' => $client->id,
@@ -454,6 +484,7 @@ class AppointmentController extends Controller
             'data' => new AppointmentResource($appointment->fresh(['client.user', 'barber.user', 'service'])),
             'productos_agregados' => $productosAgregados,
             'productos_error' => $productosError,
+            'descuento_pct' => $descuentoPct,
         ], 201);
     }
 

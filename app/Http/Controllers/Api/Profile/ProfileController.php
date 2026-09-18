@@ -25,6 +25,10 @@ use Illuminate\Validation\Rules\Password;
  */
 class ProfileController extends Controller
 {
+    public function __construct(
+        private readonly \App\Services\Membership\MembershipService $memberships,
+    ) {}
+
     // Profile avatar endpoint is shared by all authenticated roles.
     /**
      * Obtener Perfil
@@ -65,6 +69,14 @@ class ProfileController extends Controller
                     'telefono' => $user->clientProfile->telefono,
                     'fecha_nacimiento' => $user->clientProfile->fecha_nacimiento?->format('Y-m-d'),
                     'sexo' => $user->clientProfile->sexo,
+                    // Mejor descuento activo (nivel de lealtad vs membresia,
+                    // el que sea mayor) -- mismo calculo que PaymentService
+                    // usa al cobrar, aqui solo es informativo para que el
+                    // cliente lo vea ANTES de reservar/pagar.
+                    'descuento_activo_pct' => \App\Services\Loyalty\LoyaltyService::bestDiscountPct(
+                        $user->clientProfile->nivel ?? 'nuevo',
+                        $this->memberships->activeDiscountFor($user->clientProfile),
+                    ),
                 ] : null,
             ],
         ]);
