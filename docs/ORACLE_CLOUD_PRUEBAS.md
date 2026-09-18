@@ -1,5 +1,9 @@
 # Oracle Cloud Always Free: entorno de pruebas
 
+> **Reemplazado:** el entorno de pruebas quedó desplegado en AWS. Ver
+> [`DESPLIEGUE_AWS_STAGING.md`](DESPLIEGUE_AWS_STAGING.md). Este documento se conserva
+> solo como historial de la preparación en Oracle Cloud, que nunca desplegó la aplicación.
+
 ## Estado al 11 de septiembre de 2026
 
 Se inició la preparación de un entorno de pruebas en Oracle Cloud Infrastructure
