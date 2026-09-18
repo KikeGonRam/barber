@@ -107,7 +107,11 @@ class Payment extends Model
             // activo" como una igualdad simple: MongoDB no permite $ne/$nin
             // dentro de un partialFilterExpression, mismo motivo que
             // Appointment::bloquea_horario (ver Fase 3, auditoria de Fase 4).
-            $payment->bloquea_cita = $payment->estado !== self::ESTADO_RECHAZADO;
+            // Un depósito anti-no-show no cuenta: el cobro final del servicio
+            // debe poder registrarse después (mismo criterio que el filtro
+            // es_deposito de existsForAppointment()).
+            $payment->bloquea_cita = $payment->estado !== self::ESTADO_RECHAZADO
+                && ! $payment->es_deposito;
         });
     }
 
