@@ -55,7 +55,7 @@ Los usuarios de Atlas siguen el mínimo privilegio descrito en
 | Task definitions | `urbanblade-staging-barber` (512 CPU / 1 GB), `-frontend` (512 / 1 GB), `-spark` (1024 / 3 GB) |
 | Balanceador | ALB `urbanblade-staging`; listeners 80 → frontend, 8080 → barber, 8501 → spark |
 | Health checks | frontend `/api/health`, barber `/up`, spark `/_stcore/health` |
-| Red | VPC por defecto `vpc-052236dd391444209`, subredes d y f; SG del ALB `sg-0dbd32344bd423d23`, SG de tareas (solo desde el ALB) `sg-0d01fa3c3044c3832` |
+| Red | VPC por defecto `vpc-052236dd391444209`, subredes d y f; SG del ALB `sg-0a537dcb25fcf51b2` (:80), `sg-0372b1aa878f1657f` (:8080), `sg-01da9703671ffd6ad` (:8501), todos solo desde CloudFront; SG de tareas (solo desde el ALB) `sg-0d01fa3c3044c3832` |
 | CloudFront | 3 distribuciones (PriceClass_100, sin caché, origen HTTP): frontend `E1LFM8ET3R2TF3`, API `E3VPZXBKIE3G5T`, spark `E1WK7UCZ9FYH79` |
 | S3 | `urbanblade-staging-uploads-209479293733` (imágenes públicas), `urbanblade-staging-receipts-209479293733` (privado) |
 | Roles IAM | `ecsTaskExecutionRole` (ejecución + lectura de secretos), `urbanblade-staging-task-role` (acceso a los dos buckets) |
@@ -129,11 +129,16 @@ queda el ALB (~16–18 USD/mes) más centavos de ECR, S3 y Secrets Manager.
 - `QUEUE_CONNECTION=sync`, `SESSION_DRIVER=file`, `CACHE_STORE=file`: no hay Redis ni
   worker ni scheduler. Recordatorios y tareas programadas **no corren** en staging, y
   la sesión/caché se pierden al reiniciar la tarea.
-- Los puertos del ALB (`:8080`, `:8501`) siguen accesibles directamente; aún no se
-  restringen a CloudFront.
+- El ALB solo acepta tráfico de CloudFront (lista de prefijos `pl-3b927c52`), con un
+  grupo de seguridad por puerto (`uba-stg-alb-cf-80`, `-8080`, `-8501`) porque la lista
+  cuenta como ~55 reglas y el límite es 60 por grupo. Las tareas aceptan tráfico de
+  `uba-stg-alb-cf-80`. El acceso directo `http://<ALB>:puerto` ya no responde.
 - Fargate Spot puede interrumpir tareas; el servicio las repone solo.
 - Sin dominio propio ni certificado ACM; al comprarlo hay que cambiar `APP_URL`,
   `FRONTEND_URL`, CORS, el callback de Google y el destino del webhook de Stripe.
 - `staging-deploy` no puede crear roles IAM ni revocar reglas de grupos de seguridad:
   esos pasos se hacen desde la consola.
-- El grupo de seguridad antiguo `sg-02338d6cb80cf5866` ya no se usa y puede eliminarse.
+- Los grupos de seguridad antiguos `sg-02338d6cb80cf5866` y `sg-0dbd32344bd423d23` (con
+  reglas abiertas a `0.0.0.0/0`) ya no están asociados al ALB y pueden eliminarse; el
+  segundo sigue referenciado por reglas del grupo de las tareas, que hay que quitar
+  primero desde la consola.
