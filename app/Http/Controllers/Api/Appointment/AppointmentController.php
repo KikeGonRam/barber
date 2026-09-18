@@ -372,6 +372,10 @@ class AppointmentController extends Controller
             'productos' => ['nullable', 'array'],
             'productos.*.product_id' => ['required_with:productos', 'string'],
             'productos.*.cantidad' => ['required_with:productos', 'integer', 'min:1'],
+            // Propina sugerida por el cliente al reservar: solo referencia
+            // para el staff al cobrar (ver comentario en el modelo). No se
+            // cobra nada aqui -- PaymentService sigue siendo la autoridad.
+            'propina_sugerida' => ['nullable', 'numeric', 'min:0'],
         ];
 
         if ($user->hasAnyRole(['administrador', 'recepcionista'])) {
@@ -410,6 +414,7 @@ class AppointmentController extends Controller
             'notas' => $validated['notas'] ?? null,
             'deposito_requerido' => $deposito['requerido'],
             'deposito_monto' => $deposito['monto'],
+            'propina_sugerida' => $validated['propina_sugerida'] ?? null,
         ];
 
         try {

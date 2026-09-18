@@ -36,6 +36,11 @@ class Appointment extends Model
         'metodo_pago',
         'precio_cobrado',
         'productos',
+        // Propina que el cliente eligio al reservar (opcional). Es solo una
+        // referencia para el cobro real -- PaymentService sigue siendo la
+        // unica autoridad sobre cuanto se cobra, esto no mueve dinero por si
+        // sola. Ver AppointmentController::store().
+        'propina_sugerida',
         'motivo_reagendamiento',
         'cancelada_en',
         'code',
@@ -69,6 +74,7 @@ class Appointment extends Model
             'fecha' => 'date',
             'productos' => 'array',
             'precio_cobrado' => 'float',
+            'propina_sugerida' => 'float',
             'cancelada_en' => 'datetime',
             'confirmation_sent_at' => 'datetime',
             'reminder_24h_sent_at' => 'datetime',

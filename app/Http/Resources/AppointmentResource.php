@@ -23,6 +23,7 @@ class AppointmentResource extends JsonResource
             'estado' => $this->estado,
             'notas' => $this->notas,
             'precio_cobrado' => $this->precio_cobrado,
+            'propina_sugerida' => $this->propina_sugerida,
             // Solo presentes cuando el query de origen usó withCount('payments')
             // (AppointmentController::index()) -- el resto de usos de este
             // Resource simplemente no incluyen estos dos campos.
