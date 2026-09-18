@@ -101,7 +101,7 @@ say so explicitly rather than doing it quietly.
 
 Never commit or print the contents of `.env`, `.env.backup`, or `.env.production`
 (already gitignored — keep it that way). Demo/test credentials for manual QA live in
-`../ACCESOS.md` (outside this repo) — fine to point the user there, but don't copy those
+`../ACCESOS.md` (outside this repo, local only) — fine to point the user there, but don't copy those
 credentials into commits, logs, or shared output.
 
 ## 8. CI is safe to trust
@@ -155,10 +155,12 @@ The shared Atlas database had accumulated **~214,623 synthetic appointments**, *
 synthetic loyalty transactions**, and **~4,767 extra users** from repeated full-seeder
 runs over time (the exact same failure mode as the incident in guardrail #2 above,
 just discovered later and at even larger scale). The project owner explicitly confirmed
-wiping every collection and starting over. Current real state: only 4 accounts exist
-(one per role: administrador, recepcionista, barbero, cliente — see
-`docs/ACCESOS.md`), zero appointments/payments/products/services/orders. The team is
-now deliberately loading only real business data going forward.
+wiping every collection and starting over. State right after the wipe: only 4 accounts, zero
+appointments/payments/products/services/orders. **That snapshot is stale**: by
+2026-09-18 the database holds 30 users, 20 clients, 6 barbers, 20 services, 100
+appointments and 64 payments (restored from the 2026-09-16 backup after the
+2026-09-18 incident, see `docs/MONGODB_ATLAS.md`); `docs/ACCESOS.md` no longer lists
+credentials. Trust the live data over this paragraph.
 
 **Never run `php artisan migrate --seed` or the full `DatabaseSeeder`** in this repo
 again without explicit confirmation — it chains `BarberSeeder` (50 fake barbers) and
@@ -224,19 +226,18 @@ without discussing it first.
 
 ## 16. Documentation lives in specific places — check before creating a new file
 
-Credentials/access info: **`docs/ACCESOS.md`** is the single source of truth (not the
-repo root, not `README.md`, not `docs/DEMO_DEMOSTRACION.md` — those link to it instead of
-repeating the table; three independent copies is exactly how this drifted the first
-time). Other docs: `docs/DOCUMENTACION_TECNICA.md` (architecture/dataset), `docs/MANUAL_USUARIO.md`
+Account info: **`docs/ACCESOS.md`** is the single place (not the repo root, not
+`README.md`, not `docs/DEMO_DEMOSTRACION.md` — those link to it; three independent
+copies is exactly how this drifted the first time). **As of 2026-09-18 it lists no emails
+or passwords** — only which roles have accounts and how to create one; real
+credentials are kept by the owner outside the repo. Other docs: `docs/DOCUMENTACION_TECNICA.md` (architecture/dataset), `docs/MANUAL_USUARIO.md`
 (end-user guide), `docs/DEMO_DEMOSTRACION.md` (presentation script). **Before creating or
 substantially editing any `.md` file, grep the whole repo for related content first**
 (`grep -rln "<the thing you're about to document>" --include="*.md" .`) — fixing one file
 at a time as a human points out staleness, instead of sweeping everything related in one
 pass, is exactly the mistake that caused this rule to be written. This repo (`KikeGonRam/barber`)
-is **public on GitHub** — `docs/ACCESOS.md` contains real (if low-stakes, rotatable)
-passwords by the project owner's explicit, informed choice, not an oversight; don't
-"fix" that by removing it without asking, but also don't casually add more real secrets
-to any public-repo file without the same explicit confirmation.
+is **public on GitHub** — never add real passwords or secrets to any file in it (that
+is why `docs/ACCESOS.md` dropped them) without the owner's explicit confirmation.
 
 ## 18. New sibling repo `frontend-urban` (Nuxt) is decoupling the frontend from this one
 

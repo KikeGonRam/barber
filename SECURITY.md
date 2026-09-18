@@ -13,6 +13,6 @@ credential), please open a private report via GitHub's "Report a vulnerability"
 feature on this repository instead of a public issue, so any real secret or
 exploit detail isn't published before it's fixed.
 
-Note that `docs/ACCESOS.md` intentionally contains real (rotatable, low-stakes)
-demo credentials for local testing, by the project owner's explicit choice — that
-is not itself a vulnerability to report.
+Note that `docs/ACCESOS.md` no longer contains passwords (as of 2026-09-18); it only
+summarizes which accounts exist. Credentials are managed by the project owner outside
+the repository.

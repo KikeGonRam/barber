@@ -1,7 +1,7 @@
 # Fase 2: conexión analítica separada
 
-**Fecha:** 2026-09-16  
-**Estado:** implementada y validada end-to-end localmente; aprovisionamiento Atlas pendiente.
+**Fecha:** 2026-09-16 (código); 2026-09-17 (aprovisionamiento Atlas y validación end-to-end real)
+**Estado:** completada. Aprovisionamiento Atlas hecho y flujo real Spark → Atlas → Laravel validado.
 
 ## Resultado
 
@@ -48,18 +48,57 @@ No guardar usuarios, contraseñas ni URI reales en Git.
 - `urbanblade_core_e2e` y `urbanblade_analytics_e2e` fueron eliminadas después de la
   comprobación; no quedaron bases ni colecciones temporales.
 
-No se escribió en Atlas. El flujo Spark → Mongo analytics → Laravel quedó validado
-end-to-end con datos sintéticos locales. Falta crear y comprobar las credenciales Atlas
-separadas antes de activar el destino remoto.
+El flujo Spark → Mongo analytics → Laravel quedó validado end-to-end primero con datos
+sintéticos locales y después contra Atlas real (ver "Validación end-to-end en Atlas
+real" abajo).
 
 ## Activación y rollback
 
-1. Crear las cuentas con mínimo privilegio fuera del repositorio.
-2. Configurar las variables `ANALYTICS_*` reales en cada servicio.
+1. Crear las cuentas con mínimo privilegio fuera del repositorio. ✅ Hecho el
+   2026-09-17: `spark_core_reader` (`read` sobre `barber_db`) y `ANALYTIC`
+   (`readWrite` sobre `urbanblade_analytics`), ambos como Specific Privileges en
+   Atlas — no Built-in Roles, que aplican a todo el proyecto.
+2. Configurar las variables `ANALYTICS_*` reales en cada servicio. ✅ Hecho en
+   `barber/.env` y `spark/.env` (no en `.env.example`, que solo documenta la forma).
 3. Ejecutar primero contra un destino local/aislado y comprobar el renombrado atómico.
+   ✅ Hecho localmente (`urbanblade_analytics_e2e`) antes del aprovisionamiento Atlas.
 4. Activar Laravel después de confirmar que `analytics_insights` existe en el destino.
+   ✅ Confirmado: Laravel lee 39 insights reales vía `mongodb_analytics`.
 5. Para rollback, retirar temporalmente `ANALYTICS_MONGODB_URI` y
    `ANALYTICS_MONGO_DATABASE`; Laravel vuelve a leer el origen histórico.
 
-No eliminar la colección histórica hasta terminar la verificación funcional y conservar
-un respaldo.
+## Validación end-to-end en Atlas real (2026-09-17)
+
+Durante el aprovisionamiento se encontraron y corrigieron dos errores de
+configuración real, documentados aquí porque son un riesgo repetible:
+
+- El usuario configurado en `MONGO_USER`/`MONGO_PASSWORD` (variables de lectura del
+  core que usa Spark) seguía siendo el usuario operativo original con rol
+  `atlasAdmin` (control total del proyecto Atlas), no un usuario de solo lectura.
+  Se confirmó el problema insertando y borrando un documento de prueba en
+  `barber_db.appointments` con esas credenciales (sí se pudo escribir, lo cual
+  viola el invariante "Spark core solo lectura"). Se creó `spark_core_reader` con
+  privilegio específico `read` sobre `barber_db` y se apuntaron las variables ahí.
+- El usuario de `ANALYTICS_MONGO_USER` tenía asignado el Built-in Role "Only read
+  any database" (`readAnyDatabase`), que impidió `createCollection` al publicar.
+  Se corrigió asignando el privilegio específico `readWrite` sobre
+  `urbanblade_analytics` (usuario real en Atlas: `ANALYTIC`).
+- Lección para futuras cuentas: en Atlas, un "Built-in Role" aplica a **todo el
+  proyecto**, no a una base — siempre usar "Specific Privileges" con la base
+  exacta para cumplir mínimo privilegio real, no solo nominal.
+
+Con los roles corregidos (`read@barber_db` y `readWrite@urbanblade_analytics`,
+confirmados vía `connectionStatus`), se validó:
+
+- Spark lee `barber_db` real (100 citas) y su escritura queda rechazada por Atlas.
+- `publish_insights_atomically` publicó primero un insight de prueba y después el
+  exportador completo (`exportar_insights_dashboard.py`) publicó **39 insights
+  reales** (24 tipos distintos) calculados de 100 citas / 20 clientes / 6 barberos
+  reales, con 4 índices creados y cero colecciones temporales residuales
+  (`urbanblade_analytics` solo contiene `analytics_insights`).
+- Laravel, vía la conexión `mongodb_analytics`, leyó los 39 insights reales
+  (`AnalyticsInsight::count() === 39`).
+
+No se eliminó ninguna colección histórica: `barber_db` nunca tuvo
+`analytics_insights` (confirmado en Fase 0), así que no había nada que conservar
+como fallback — el corte fue directo a la base analítica separada.

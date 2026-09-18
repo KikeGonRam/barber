@@ -52,8 +52,8 @@ Luego abre:
 
 ## Credenciales
 
-Las credenciales reales (una cuenta por rol) viven en un único lugar para no
-desincronizarse: **[ACCESOS.md](ACCESOS.md)**.
+Las contraseñas no se documentan en el repositorio. [ACCESOS.md](ACCESOS.md) resume qué
+cuentas hay por rol y cómo crear o restablecer una para la demo.
 
 ---
 

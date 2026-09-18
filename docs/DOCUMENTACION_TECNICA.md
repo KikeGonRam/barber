@@ -148,8 +148,13 @@ usuarios (`administrador`, `recepcionista`, `barbers`, `clients`) →
 > ⚠️ **Segundo incidente, 2026-09-11**: `clients`, `barbers` y `services`
 > volvieron a vaciarse por completo (un comando de limpieza de datos de
 > prueba corrió por error contra Atlas en vez de la base local de pruebas).
-> Esta vez no hay backup. Ver [ACCESOS.md](ACCESOS.md) para el estado actual
-> y cómo crear cuentas de equipo nuevas — ya no hay cuentas documentadas.
+> Esa vez no hubo respaldo; los datos se recuperaron después desde el respaldo del
+> 2026-09-16. Ver [ACCESOS.md](ACCESOS.md) para el estado actual de las cuentas.
+>
+> ⚠️ **Tercer incidente, 2026-09-18**: `services`, `barbers`, `clients`, `payments`,
+> `appointments` y `barbershop_settings` se borraron por un `artisan test` ejecutado
+> directamente con la configuración de Atlas; se restauraron desde
+> `backup-2026-09-16_180906.zip`. Ver [MONGODB_ATLAS.md](MONGODB_ATLAS.md).
 >
 > Si se corre el `DatabaseSeeder` completo (`migrate --seed`, **no
 > recomendado**, ver [README.md](../README.md)), sí generaría un dataset

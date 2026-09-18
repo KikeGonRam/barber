@@ -122,8 +122,8 @@ docker compose exec app php artisan db:seed --class=AdminUserSeeder
 > clientes falsos, además de miles de citas/pagos/transacciones sintéticas —
 > así fue como `barber_db` terminó con más de 200,000 registros de basura que
 > hubo que limpiar. Los dos seeders de arriba son los únicos necesarios para
-> que la app arranque (roles/permisos + una cuenta admin); el resto de
-> cuentas de equipo se documentan en [docs/ACCESOS.md](docs/ACCESOS.md).
+> que la app arranque (roles/permisos + una cuenta admin); para crear el resto
+> de cuentas, ver [docs/ACCESOS.md](docs/ACCESOS.md).
 
 Abre la aplicación en:
 
@@ -145,16 +145,16 @@ Nuxt sirve en http://localhost:3000 y apunta a este backend vía
 
 ## 🔐 Demo y acceso
 
-Las credenciales reales del equipo (una cuenta por rol) viven en un único
-lugar para no desincronizarse: **[docs/ACCESOS.md](docs/ACCESOS.md)**. La
-guía de presentación está en [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md).
+Las contraseñas del equipo ya no se documentan en el repositorio; las administra el
+dueño del proyecto. **[docs/ACCESOS.md](docs/ACCESOS.md)** explica qué cuentas hay y
+cómo crear nuevas. La guía de presentación está en [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md).
 
 Ruta de login:
 
 - http://localhost:3000/login (Nuxt — el login real; `:8000/login` solo redirige aquí)
 
 > `barber_db` ya no viene precargada con datos de demo masivos (se limpió por
-> completo el 2026-09-04) — solo existen las 4 cuentas documentadas en
+> completo el 2026-09-04). El estado actual de las cuentas está resumido en
 > [docs/ACCESOS.md](docs/ACCESOS.md). No correr `BarberSeeder`/`ClientSeeder`
 > completos salvo que de verdad se quiera repoblar con datos de prueba a gran
 > escala (crean 50 barberos y 1500 clientes falsos respectivamente).
