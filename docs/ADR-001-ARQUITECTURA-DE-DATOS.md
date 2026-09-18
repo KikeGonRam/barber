@@ -194,9 +194,9 @@ datos reales que leer).
 
 ### Fase 4: endurecimiento
 
-**Parcialmente completada.** El punto 1 (usuarios de mínimo privilegio para
-Spark↔core y Spark↔analytics, más Laravel↔analytics) quedó resuelto el 2026-09-17;
-los puntos 2 y 3 siguen pendientes.
+**Casi completada.** Los puntos 1 (usuarios de mínimo privilegio, 2026-09-17), 2 y 3
+(2026-09-18) están resueltos; solo queda decidir si Laravel↔core necesita su propio
+usuario dedicado (ver punto 1).
 
 1. ✅ Usuarios de base con mínimo privilegio, confirmados vía `connectionStatus` y
    prueba real de lectura/escritura:
@@ -218,10 +218,31 @@ los puntos 2 y 3 siguen pendientes.
    Atlas (`mongodb.net`/`mongodb+srv`). Antes solo se validaba `mongodb`, y
    `AnalyticsApiTest` heredaba silenciosamente `ANALYTICS_*` de Atlas del contenedor;
    `.env.testing` ahora las define hacia `mongo-test`.
-3. Actualizar documentación y diagramas después de validar el flujo completo.
-   Esta actualización del ADR y de `FASE-2-CONEXION-ANALITICA-SEPARADA.md` cubre la
-   parte de documentación para lo ya validado; falta un diagrama si se decide
-   crear uno.
+3. ✅ Documentación y diagrama actualizados tras validar el flujo completo
+   (2026-09-18). Diagrama del estado final:
+
+```mermaid
+flowchart LR
+    FE["frontend-urban (Nuxt)"] -->|"HTTPS + Bearer, sin credenciales de BD"| API["Laravel API (barber)"]
+
+    subgraph Atlas["MongoDB Atlas"]
+        CORE[("barber_db — datos operativos")]
+        ANA[("urbanblade_analytics — analytics_insights")]
+    end
+
+    API -->|"lectura/escritura (usuario operativo)"| CORE
+    API -->|"solo lectura: laravel_analytics_reader"| ANA
+    SP["Spark (PySpark + Streamlit)"] -->|"solo lectura: spark_core_reader"| CORE
+    SP -->|"readWrite: ANALYTIC (publicación atómica)"| ANA
+
+    subgraph Local["Entorno local (Docker)"]
+        TEST[("mongo-test / barber_db_test — solo ./test.ps1")]
+        DEV[("urbanblade_dev — desarrollo")]
+    end
+
+    T["Suite PHPUnit"] -->|"guard en TestCase: mongodb y mongodb_analytics"| TEST
+    T -. "bloqueado si resuelve a Atlas" .-x Atlas
+```
 
 ## Criterios de aceptación
 
