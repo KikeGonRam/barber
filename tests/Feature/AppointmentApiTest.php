@@ -151,6 +151,67 @@ class AppointmentApiTest extends TestCase
         $response->assertJsonCount(2, 'data');
     }
 
+    public function test_without_page_the_response_has_no_meta_block(): void
+    {
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-no-meta');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/appointments');
+
+        $response->assertOk();
+        $response->assertJsonMissingPath('meta');
+    }
+
+    public function test_admin_paginates_appointments(): void
+    {
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-paginate');
+
+        $first = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/appointments?page=1&per_page=1');
+        $first->assertOk();
+        $first->assertJsonCount(1, 'data');
+        $first->assertJsonPath('meta.total', 2);
+        $first->assertJsonPath('meta.has_more', true);
+        $first->assertJsonPath('data.0.fecha', fn ($fecha) => str_starts_with((string) $fecha, '2026-06-02'));
+
+        $second = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/appointments?page=2&per_page=1');
+        $second->assertOk();
+        $second->assertJsonCount(1, 'data');
+        $second->assertJsonPath('meta.has_more', false);
+        $second->assertJsonPath('data.0.fecha', fn ($fecha) => str_starts_with((string) $fecha, '2026-06-01'));
+    }
+
+    public function test_admin_filters_by_date_range_for_the_calendar(): void
+    {
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-range');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/appointments?desde=2026-06-02&hasta=2026-06-30&page=1');
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_invalid_date_range_is_rejected(): void
+    {
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-bad-range');
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/appointments?desde=mañana')
+            ->assertStatus(422);
+    }
+
+    public function test_json_report_includes_the_chart_the_pdf_already_uses(): void
+    {
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-report-chart');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/reports/citas/json');
+
+        $response->assertOk();
+        $response->assertJsonPath('chart.title', 'Citas por estado');
+        $response->assertJsonStructure(['chart' => ['labels', 'values', 'unit']]);
+        $this->assertCount(count($response->json('chart.labels')), $response->json('chart.values'));
+    }
+
     public function test_admin_filters_by_estado(): void
     {
         $token = $this->tokenFor($this->adminUser, 'test-token-appts-estado');

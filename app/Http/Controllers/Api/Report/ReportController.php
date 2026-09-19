@@ -85,6 +85,8 @@ class ReportController extends Controller
             'keys' => $report['keys'],
             'rows' => $report['rows']->values(),
             'filters' => $filters,
+            // Misma gráfica que ya lleva el PDF (título, etiquetas, valores y unidad); aditivo.
+            'chart' => $report['chart'] ?? null,
         ]);
     }
 

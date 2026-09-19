@@ -17,20 +17,22 @@ URL de acceso:
 
 ## Qué cuentas hay hoy en `barber_db`
 
-Estado verificado el 2026-09-18 (solo lectura sobre Atlas):
+Estado verificado el 2026-09-18 (solo lectura sobre Atlas), después de eliminar las
+cuentas de demostración:
 
 | Rol | Cuentas | Notas |
 |---|---|---|
 | administrador | 2 | cuentas reales del equipo |
 | ingeniero | 1 | acceso al panel de estado del servidor |
-| barbero | 1 real + 6 de demostración | los de demostración usan correos `*.demoN@urbanblade.test` |
-| cliente | 20 de demostración | correos `*.demoN@urbanblade.test` |
+| barbero | 1 | sin perfil de barbero todavía: no aparece en el catálogo hasta crearlo |
+| cliente | 0 | los clientes reales se registran desde el frontend |
 | recepcionista | 0 | no existe ninguna; crearla cuando se necesite |
 
-Las cuentas de demostración (`@urbanblade.test`) provienen de datos sintéticos
-restaurados desde el respaldo del 2026-09-16; **no** son cuentas del equipo, y sus
-contraseñas no están documentadas. Si se necesita entrar con una, restablecer la
-contraseña desde "¿Olvidaste tu contraseña?" o desde `tinker`.
+Las 26 cuentas de demostración (`*.demoN@urbanblade.test`: 6 barberos y 20 clientes) y
+sus perfiles se eliminaron el 2026-09-18. Sus citas (100) y pagos (64) siguen en la
+base pero ya no tienen cliente ni barbero asociado; el catálogo de barberos queda
+vacío hasta crear perfiles reales. Hay un respaldo local de esas cuentas en
+`storage/app/backups/demo-accounts-2026-09-18.json` (ignorado por Git).
 
 > Los números cambian: para el estado real, consultar la colección `users` en lugar de
 > confiar en esta tabla.

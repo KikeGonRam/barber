@@ -102,9 +102,41 @@ class AppointmentController extends Controller
                 ->when($request->filled('fecha'), fn ($q) => $q->whereDate('fecha', $request->query('fecha')));
         }
 
-        $appointments = $query->limit(50)->get();
+        // Rango de fechas (calendario) y paginación: opcionales y aditivos. Sin
+        // `page`, la respuesta es la de siempre (últimas 50, sin `meta`). Las
+        // fechas se comparan con objetos Carbon, nunca con strings (el campo
+        // `fecha` está casteado a date y un string no hace match en MongoDB).
+        $desde = $request->filled('desde') ? $this->parseDay($request->query('desde')) : null;
+        $hasta = $request->filled('hasta') ? $this->parseDay($request->query('hasta')) : null;
+        if ($desde) {
+            $query->where('fecha', '>=', $desde->copy()->startOfDay());
+        }
+        if ($hasta) {
+            $query->where('fecha', '<=', $hasta->copy()->endOfDay());
+        }
+
+        $paginated = $request->filled('page');
+        $perPage = max(1, min(50, (int) $request->query('per_page', 50)));
+        $page = max(1, (int) $request->query('page', 1));
+
+        if ($paginated) {
+            $total = (clone $query)->toBase()->getCountForPagination();
+            $appointments = $query->skip(($page - 1) * $perPage)->limit($perPage)->get();
+        } else {
+            $total = null;
+            $appointments = $query->limit(50)->get();
+        }
 
         $resource = AppointmentResource::collection($appointments);
+
+        if ($paginated) {
+            $resource = $resource->additional(['meta' => [
+                'page' => $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'has_more' => $page * $perPage < $total,
+            ]]);
+        }
 
         // "Mis Citas" (cliente): mismas stats/próxima-cita destacada que ya
         // calculaba Client\ClientAppointmentController::index() (web), para
@@ -132,14 +164,27 @@ class AppointmentController extends Controller
                 ->orderBy('hora_inicio')
                 ->first();
 
-            $resource = $resource->additional([
+            $resource = $resource->additional(array_merge($resource->additional, [
                 'stats' => $stats,
                 'next' => $next ? new AppointmentResource($next) : null,
                 'cancellation_policy_hours' => (int) (BarbershopSetting::cached()?->politica_cancelacion ?? 24),
-            ]);
+            ]));
         }
 
         return $resource->response();
+    }
+
+    /** Fecha `Y-m-d` del query string como Carbon, o 422 si no es una fecha válida. */
+    private function parseDay(mixed $value): Carbon
+    {
+        try {
+            $parsed = is_string($value) ? Carbon::createFromFormat('!Y-m-d', $value) : false;
+        } catch (\Throwable) {
+            $parsed = false;
+        }
+        abort_if(! $parsed, 422, 'Las fechas deben tener el formato AAAA-MM-DD.');
+
+        return $parsed;
     }
 
     /**
