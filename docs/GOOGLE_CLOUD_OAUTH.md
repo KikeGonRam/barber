@@ -4,7 +4,7 @@ Cómo está configurado el botón "Continuar con Google" y qué hay que tocar en
 Cloud Console cuando cambia una URL. Aplica a local, staging en AWS
 ([`DESPLIEGUE_AWS_STAGING.md`](DESPLIEGUE_AWS_STAGING.md)) y a producción futura.
 
-Estado al 18 de septiembre de 2026. Los valores reales (`client_id`, `client_secret`)
+Estado al 23 de septiembre de 2026. Los valores reales (`client_id`, `client_secret`)
 no viven aquí: están en `barber/.env` (local) y en Secrets Manager (AWS).
 
 ## Cómo funciona el flujo
@@ -24,6 +24,33 @@ JavaScript origins" para el frontend.
 
 Sin `GOOGLE_CLIENT_ID` la API responde 503 a propósito ("El login con Google no está
 configurado todavía"); no rompe nada más.
+
+## Login nativo en la app Android (UrbanBladeMobile)
+
+La app Android no usa el flujo de redirección: pide un **ID token** a Google con
+Credential Manager y lo manda a `POST <API>/api/v1/auth/google/token`
+(`SocialAuthController::token`). Laravel verifica firma, emisor y **audiencia**; la
+audiencia debe ser el mismo `GOOGLE_CLIENT_ID` (cliente **web**) de esta API.
+
+Requisitos en Google Cloud, en el **mismo proyecto** del cliente web:
+
+1. La app usa como `GOOGLE_CLIENT_ID` (en su `local.properties`) el ID del cliente
+   **web**, idéntico al de `barber/.env` o Secrets Manager. Nunca el del cliente Android.
+2. Existe un **ID de cliente de OAuth de tipo Android** con el paquete
+   `com.urbanblade.mobile` y la huella **SHA-1** del certificado con que se firma el
+   build instalado. Cada integrante tiene su propia llave de debug, así que cada uno
+   agrega su SHA-1 (se pueden registrar varias). Para verla en Windows:
+
+   ```powershell
+   & "C:\Program Files\Android\Android Studio\jbr\bin\keytool.exe" '-J-Duser.language=en' -list -v -keystore "$env:USERPROFILE\.android\debug.keystore" -alias androiddebugkey -storepass android -keypass android | Select-String "SHA1"
+   ```
+
+   El `'-J-Duser.language=en'` entre comillas evita un fallo de `keytool` con el idioma
+   español (`MissingFormatArgumentException`). También sale en Android Studio:
+   Gradle → app → Tasks → android → `signingReport`.
+
+Cómo apuntar la app al backend (emulador, celular físico por USB o staging) está en el
+README de UrbanBladeMobile, sección "Dispositivo físico".
 
 ## Crear las credenciales (una sola vez)
 
@@ -84,6 +111,9 @@ configura en `FRONTEND_URL`/CORS de la API.
 | "Acceso bloqueado: esta app no ha completado la verificación" | App en *Pruebas* y el correo no es usuario de prueba | Agregar el correo en *Usuarios de prueba* o pasar la app a producción |
 | 503 al pulsar el botón | Falta `GOOGLE_CLIENT_ID` en el entorno | Definir las tres variables y reiniciar |
 | El login funciona pero vuelve a `/login?error=google_retry` | Fallo al canjear el código (secreto incorrecto o reloj) | Revisar `GOOGLE_CLIENT_SECRET` y los logs de la API |
+| Android: "No pudimos abrir Google…" | Falta el cliente OAuth **Android** o su SHA-1 no coincide con la del build instalado | Registrar el cliente Android con `com.urbanblade.mobile` y la SHA-1 correcta |
+| Android: "El token de Google no es válido." (401) | El `GOOGLE_CLIENT_ID` de la app no es el mismo cliente web que usa la API | Usar en `local.properties` exactamente el ID web de la API |
+| Android: el login se queda cargando y el log muestra `failed to connect to /10.0.2.2` | Build `debug` instalado en un **celular físico**: `10.0.2.2` solo existe en el emulador | `adb reverse tcp:8000 tcp:8000` + `DEBUG_API_BASE_URL=http://127.0.0.1:8000/api/v1/`, o variante `staging` |
 | La URI generada usa `http://` detrás de CloudFront | `APP_URL` sin `https` (Laravel no fuerza el esquema) | `APP_URL=https://...`; la app fuerza `https` cuando empieza así |
 
 ## Seguridad
