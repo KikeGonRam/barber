@@ -12,6 +12,9 @@ description: Mantiene el Product Backlog académico de Urban Blade (Excel en la 
 - Archivo vigente: `Product_Backlog_Urban_Blade_UBv2.xlsx` (revisión 3, 23-sep-2026:
   70 % de avance verificado, 74 pts pendientes). `UBv1` es el original del equipo; no
   se edita, se conserva como respaldo.
+- Tablero de trabajo del cuatrimestre: `Product_Backlog_Urban_Blade_UBv3_Pendiente.xlsx`
+  (solo lo pendiente: 17 HU, 42 tareas, 74 pts). El trabajo diario se guía con la skill
+  `urbanblade-historias-sprint` (misma skill en los cuatro repositorios).
 - Documentos de calidad (misma carpeta, misma identidad visual):
   `UrbanBlade_Checklist_250_v2.xlsx` (250 pruebas), `Casos_de_Prueba_Urban_Blade_v2.xlsx`
   (63 casos) e `Historias_Tecnicas_Urban_Blade.xlsx` (HT-01 a HT-14, 55 pts).
