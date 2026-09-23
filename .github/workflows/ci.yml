@@ -19,6 +19,8 @@ jobs:
       DB_CONNECTION: mongodb
       MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
       MONGO_DATABASE: barber_db_test
+      ANALYTICS_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+      ANALYTICS_MONGO_DATABASE: barber_db_test
       SESSION_DRIVER: array
       CACHE_STORE: array
       QUEUE_CONNECTION: sync
@@ -171,6 +173,8 @@ jobs:
       DB_CONNECTION: mongodb
       MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
       MONGO_DATABASE: barber_db_test
+      ANALYTICS_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+      ANALYTICS_MONGO_DATABASE: barber_db_test
       SESSION_DRIVER: array
       CACHE_STORE: array
       QUEUE_CONNECTION: sync
