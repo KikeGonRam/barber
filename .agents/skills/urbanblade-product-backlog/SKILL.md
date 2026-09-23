@@ -12,6 +12,9 @@ description: Mantiene el Product Backlog académico de Urban Blade (Excel en la 
 - Archivo vigente: `Product_Backlog_Urban_Blade_UBv2.xlsx` (revisión 3, 23-sep-2026:
   70 % de avance verificado, 74 pts pendientes). `UBv1` es el original del equipo; no
   se edita, se conserva como respaldo.
+- Documentos de calidad (misma carpeta, misma identidad visual):
+  `UrbanBlade_Checklist_250_v2.xlsx` (250 pruebas), `Casos_de_Prueba_Urban_Blade_v2.xlsx`
+  (63 casos) e `Historias_Tecnicas_Urban_Blade.xlsx` (HT-01 a HT-14, 55 pts).
 - Esta skill existe en tres copias idénticas: `DOCUMENTACION/.claude/skills/`,
   `barber/.claude/skills/` y `barber/.agents/skills/`. Si cambias una, cambia las tres.
 
@@ -94,6 +97,31 @@ Repositorios: `KikeGonRam/barber`, `KikeGonRam/frontend_Urbanblade`,
 - CI/CD: CI de Android, imágenes Docker, build firmado, despliegue continuo a ECS,
   Terraform en el pipeline.
 - Producción: ambiente de producción, pruebas finales y revisión de la documentación.
+
+## Checklist, casos de prueba e historias técnicas
+
+- Estados de pruebas: `Cumple` (verificado en código o configuración), `Automatizado`
+  (existe prueba en el repo; solo casos), `Parcial`, `Por ejecutar`, `No cumple`,
+  `Pendiente` (depende de una tarea del backlog) y `No aplica` (no corresponde a la
+  arquitectura real, p. ej. JWT, MFA). Nunca marcar `Cumple` sin evidencia en la columna
+  «Evidencia / nota».
+- Todo punto `No cumple`, `Parcial` o `Por ejecutar` debe apuntar a una historia técnica
+  (`HT-NN`, tareas `TTNN`) o a una tarea del backlog (`Backlog T134`, `Backlog T142/T143`).
+  Siguientes IDs libres: `HT-15`, `TT38`.
+- Las HT no duplican tareas del backlog (T102, T104, T105, T134, T142, T143 viven allí).
+  Las HT del pipeline (ET-03: SAST, SCA, cobertura, DAST) inician a partir del 26-oct.
+  La carga combinada backlog + HT no rebasa 15 pts por integrante y sprint.
+- Datos reales para redactar pruebas: validación y conflictos de cita responden **422**
+  (no 400/409); login limitado a 5 intentos/min por correo+IP (429); tokens Bearer sin
+  expiración (HT-01); `forgot-password` revela si el correo existe (HT-02); faltan CSP y
+  HSTS (HT-04); el CI ya corre composer/npm audit, Gitleaks, Trivy, Larastan y cobertura.
+
+## Identidad visual de los Excel
+
+Barra de título negra `1F1F1F` con el logo `barber/public/images/urbanblade-mark.png`,
+banda dorada `C9A227`, encabezados `4A4A4A`, filas de grupo `E8DFC0`, fuente Arial.
+Portadas con mascota según la skill `urbanblade-brand-mascots`: Bruno (reportes y
+pruebas), Bladebot (historias técnicas y checklist), Nava (estados vacíos).
 
 ## Cómo modificar y validar
 
