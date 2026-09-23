@@ -4,7 +4,7 @@ Copia y pega desde la siguiente línea en una nueva conversación:
 
 ---
 
-Continúa la arquitectura de datos de UrbanBlade desde la Fase 2 implementada en código.
+Continúa la arquitectura de datos de UrbanBlade desde la Fase 4 de endurecimiento.
 
 Repositorios:
 
@@ -28,12 +28,13 @@ Reglas obligatorias:
    explícita para la fase concreta.
 6. `barber` es la única puerta de escritura operativa; `frontend-urban` consume API;
    Spark debe leer core y escribir únicamente derivados analíticos.
-7. Conserva todos los cambios locales existentes. En particular, `spark` ya tenía
+7. Conserva todos los cambios locales existentes. Al 2026-09-23, `barber` tiene cambios
+   ajenos a esta arquitectura en `ClientAdminController.php`,
+   `BarberManagementController.php`, `AppointmentResource.php` y
+   `AppointmentApiTest.php`. `spark` ya tenía
    cambios modificados en `.agents/skills/git-commit-conventions/SKILL.md`,
-   `.claude/skills/git-commit-conventions/SKILL.md`, `CLAUDE.md`,
-   `config/mongo_spark_conexion_sinnulos.py`, `requirements.txt`,
-   `unidades/unidad_5_visualizacion/main_dashboard.py`, además de `docs_word/` y `nul`
-   sin seguimiento. No los descartes ni los mezcles sin revisarlos.
+   `.claude/skills/git-commit-conventions/SKILL.md` y `CLAUDE.md`, además de
+   `docs_word/` y `nul` sin seguimiento. No los descartes ni los mezcles.
 
 Estado comprobado de Fase 0 (2026-09-16):
 
@@ -63,20 +64,35 @@ Estado de Fase 1:
 
 Estado de Fase 2:
 
-1. Laravel ya tiene `mongodb_analytics`; `AnalyticsInsight` usa esa conexión con fallback
-   temporal al origen histórico si todavía no se configuran variables analytics.
+1. Laravel usa `mongodb_analytics` con `laravel_analytics_reader`, que tiene únicamente
+   `read@urbanblade_analytics`.
 2. Spark separa `_connect_db()` de `_connect_analytics_db()` y rechaza reutilizar el
    mismo nombre de base.
 3. El exportador publica por colección temporal y renombrado atómico; ya no borra la
    colección visible antes de insertar.
 4. Pasaron 8 pruebas unitarias, 3 pruebas API, Pint focal y compilación Python.
-5. No se escribió en Atlas. Falta aprovisionar credenciales de mínimo privilegio y hacer
-   la comprobación remota antes de producción. El exportador completo fue validado con
-   96 citas, 24 clientes y 3 barberos sintéticos: publicó 18 insights, Laravel leyó los
-   18 mediante `mongodb_analytics`, se crearon cuatro índices y no quedaron colecciones
-   ni bases temporales. También se corrigió el caso de inventario vacío.
+5. El flujo se validó primero localmente y después en Atlas real: Spark leyó 100 citas
+   con `spark_core_reader`, publicó 39 insights con `ANALYTIC`, creó cuatro índices y
+   Laravel leyó los mismos 39. Atlas rechazó las escrituras intentadas con los usuarios
+   de solo lectura.
 
-No retires el fallback ni borres la colección histórica hasta validar el flujo completo.
-No crees usuarios Atlas ni cambies secretos sin autorización concreta del usuario.
+Estado de Fases 3 y 4:
+
+1. La Fase 3 quedó completada sin copia histórica porque `barber_db.analytics_insights`
+   nunca existió; el corte fue directo a `urbanblade_analytics.analytics_insights`.
+2. Laravel core usa `laravel_core_rw` con `readWrite@barber_db`; no usa la cuenta
+   personal para la aplicación ni para staging.
+3. Las pruebas bloquean tanto `mongodb` como `mongodb_analytics` si resuelven a Atlas o
+   a una base distinta de `barber_db_test`.
+4. Decisión explícita del propietario del 2026-09-23: no eliminar, rotar ni sustituir
+   la credencial `luis`. Barber (`.env`, app, worker y scheduler) usa cuentas dedicadas,
+   pero `spark/.env` y `spark-dashboard` deben conservar `luis` en `MONGO_USER` y
+   `MONGODB_URI`. Es una excepción aceptada al mínimo privilegio; no afirmar que Atlas
+   bloquea escrituras core para ese consumidor.
+5. El 2026-09-23 se eliminó `bootstrap/cache/config.php` local porque materializaba URI
+   con secretos. Laravel siguió iniciando correctamente sin ese caché.
+
+No actúes sobre la credencial `luis`, no borres usuarios Atlas, no cambies secretos y no
+toques producción sin una nueva instrucción explícita del propietario.
 
 ---

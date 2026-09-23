@@ -194,9 +194,11 @@ datos reales que leer).
 
 ### Fase 4: endurecimiento
 
-**Completada.** Los puntos 1 (usuarios de mínimo privilegio, 2026-09-17 y
-2026-09-18), 2 y 3 (2026-09-18) están resueltos. Queda solo una tarea operativa:
-eliminar o rotar la credencial personal `luis` (ver punto 1).
+**Completada con una excepción de acceso aceptada por el propietario.** Los puntos 1
+(usuarios de mínimo privilegio, 2026-09-17 y 2026-09-18), 2 y 3 (2026-09-18) están
+resueltos. El 2026-09-23 el propietario decidió conservar la credencial personal `luis`
+y mantenerla como acceso de Spark; ningún proveedor de IA debe eliminarla, rotarla ni
+sustituirla sin una nueva instrucción expresa.
 
 1. ✅ Usuarios de base con mínimo privilegio, confirmados vía `connectionStatus` y
    prueba real de lectura/escritura:
@@ -213,7 +215,9 @@ eliminar o rotar la credencial personal `luis` (ver punto 1).
      `atlasAdmin` sobre todo el clúster. Confirmado vía `connectionStatus`; lee y
      escribe en `barber_db` y Atlas rechaza el acceso a `urbanblade_analytics`.
      Aplicado en `barber/.env` y en el secreto `MONGODB_URI` de staging en AWS.
-     Pendiente operativo: eliminar o rotar la credencial de `luis`.
+   - Excepción aceptada: Spark local conserva `luis` y su acceso amplio. Esta decisión
+     reduce el aislamiento efectivo del lector core: la restricción de no escribir en
+     `barber_db` depende de la disciplina del código y no del rol de Atlas.
 2. ✅ Comprobaciones automatizadas que bloquean pruebas contra nombres no permitidos
    (2026-09-18): `tests/TestCase.php` valida en cada test que **tanto `mongodb` como
    `mongodb_analytics`** resuelvan a `barber_db_test` y que su DSN no apunte a
@@ -234,7 +238,7 @@ flowchart LR
 
     API -->|"lectura/escritura (usuario operativo)"| CORE
     API -->|"solo lectura: laravel_analytics_reader"| ANA
-    SP["Spark (PySpark + Streamlit)"] -->|"solo lectura: spark_core_reader"| CORE
+    SP["Spark (PySpark + Streamlit)"] -->|"acceso personal luis — excepción aceptada"| CORE
     SP -->|"readWrite: ANALYTIC (publicación atómica)"| ANA
 
     subgraph Local["Entorno local (Docker)"]
@@ -252,7 +256,9 @@ flowchart LR
 - Las pruebas solo usan `barber_db_test` mediante `./test.ps1`.
 - El desarrollo local persiste en `urbanblade_dev` y no escribe en Atlas.
 - Pagos e inventario conservan atomicidad en replica set.
-- Spark no puede escribir en la base operativa.
+- El diseño recomendado impide que Spark escriba en la base operativa; la instancia
+  local conserva la cuenta amplia `luis` como excepción aceptada y Atlas no fuerza
+  actualmente esta restricción para ese consumidor.
 - `analytics_insights` puede reconstruirse y Laravel la lee desde la conexión analítica.
 - Existe backup verificado y rollback ensayado antes del corte.
 - No se elimina la colección original durante la misma entrega.

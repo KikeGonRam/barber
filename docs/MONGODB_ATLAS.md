@@ -28,11 +28,14 @@ en Atlas aplica a todo el proyecto (`readAnyDatabase`, `atlasAdmin`), no a una b
 |---|---|---|---|
 | `laravel_core_rw` | `readWrite@barber_db` | API Laravel (local y AWS) | `MONGODB_URI` |
 | `laravel_analytics_reader` | `read@urbanblade_analytics` | API Laravel, lectura de insights | `ANALYTICS_MONGODB_URI` |
-| `spark_core_reader` | `read@barber_db` | Spark, lectura del core | `MONGO_USER` / `MONGO_PASSWORD` |
+| `spark_core_reader` | `read@barber_db` | Disponible; Spark local no lo usa por decisión del propietario | Variables alternativas de lectura core |
 | `ANALYTIC` | `readWrite@urbanblade_analytics` | Spark, publicación de insights | `ANALYTICS_MONGO_USER` / `ANALYTICS_MONGO_PASSWORD` |
 
-Pendiente: el usuario personal `luis` conserva el rol `atlasAdmin`. Ya nada de la
-aplicación lo usa; debe eliminarse o rotarse su contraseña (ver ADR, Fase 4).
+Excepción aceptada por el propietario el 2026-09-23: el usuario personal `luis`
+permanece activo y Spark local continúa usándolo. No eliminar, rotar ni sustituir esa
+cuenta sin una nueva instrucción expresa. Barber y staging sí conservan sus usuarios
+dedicados. El acceso amplio de Spark implica que el bloqueo de escritura core no queda
+forzado por Atlas para ese consumidor.
 
 ### Comprobar con qué usuario y rol se conecta un servicio
 
@@ -40,7 +43,8 @@ aplicación lo usa; debe eliminarse o rotarse su contraseña (ver ADR, Fase 4).
 docker exec barber-app php artisan tinker --execute='$s=DB::connection("mongodb")->getClient()->selectDatabase("admin")->command(["connectionStatus"=>1])->toArray()[0]; echo json_encode($s["authInfo"]["authenticatedUsers"]), json_encode($s["authInfo"]["authenticatedUserRoles"]);'
 ```
 
-Debe mostrar `laravel_core_rw` con `readWrite` sobre `barber_db`, nunca `atlasAdmin`.
+Para Barber debe mostrar `laravel_core_rw` con `readWrite` sobre `barber_db`, nunca
+`atlasAdmin`. Esta comprobación no cambia la excepción autorizada para Spark.
 
 ## Variables por servicio
 
