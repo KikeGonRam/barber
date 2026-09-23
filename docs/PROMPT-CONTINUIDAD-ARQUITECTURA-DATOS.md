@@ -4,7 +4,8 @@ Copia y pega desde la siguiente línea en una nueva conversación:
 
 ---
 
-Continúa la arquitectura de datos de UrbanBlade desde la Fase 4 de endurecimiento.
+Continúa la arquitectura de datos de UrbanBlade desde la Fase 5 operativa. Las fases
+0 a 4 están terminadas y no deben repetirse.
 
 Repositorios:
 
@@ -23,18 +24,16 @@ Reglas obligatorias:
    `barber/docs/FASE-0-INVENTARIO-Y-RESPALDO.md` y
    `barber/docs/FASE-1-MONGO-LOCAL.md`.
    Lee también `barber/docs/FASE-2-CONEXION-ANALITICA-SEPARADA.md`.
+   Para continuar, lee completa
+   `barber/docs/FASE-5-CONTINUIDAD-OPERATIVA.md`.
 4. No ejecutes pruebas Laravel directamente: usa sólo `barber/test.ps1`.
 5. No muestres secretos ni contenido de `.env` y no escribas en Atlas sin autorización
    explícita para la fase concreta.
 6. `barber` es la única puerta de escritura operativa; `frontend-urban` consume API;
    Spark debe leer core y escribir únicamente derivados analíticos.
-7. Conserva todos los cambios locales existentes. Al 2026-09-23, `barber` tiene cambios
-   ajenos a esta arquitectura en `ClientAdminController.php`,
-   `BarberManagementController.php`, `AppointmentResource.php` y
-   `AppointmentApiTest.php`. `spark` ya tenía
-   cambios modificados en `.agents/skills/git-commit-conventions/SKILL.md`,
-   `.claude/skills/git-commit-conventions/SKILL.md` y `CLAUDE.md`, además de
-   `docs_word/` y `nul` sin seguimiento. No los descartes ni los mezcles.
+7. Antes de editar, ejecuta `git status --short --branch` en cada repositorio implicado.
+   Conserva todos los cambios locales existentes, no los descartes y no los mezcles
+   con el trabajo de arquitectura.
 
 Estado comprobado de Fase 0 (2026-09-16):
 
@@ -91,6 +90,23 @@ Estado de Fases 3 y 4:
    bloquea escrituras core para ese consumidor.
 5. El 2026-09-23 se eliminó `bootstrap/cache/config.php` local porque materializaba URI
    con secretos. Laravel siguió iniciando correctamente sin ese caché.
+
+Fase 5 pendiente: continuidad operativa
+
+1. No crear otra base ni otro contenedor MongoDB: la separación vigente ya cubre core,
+   analytics, desarrollo y pruebas.
+2. Preparar primero un plan para una copia externa cifrada del respaldo operativo. El
+   plan debe definir destino, cifrado, acceso, frecuencia, retención y eliminación
+   segura, sin subir datos reales hasta contar con autorización explícita.
+3. Diseñar una restauración periódica en un entorno aislado y criterios verificables:
+   integridad del archivo, conteos de colecciones/documentos/índices y tiempo de
+   recuperación. Una copia no se considera válida hasta probar su restauración.
+4. Proponer monitoreo y alertas para fallos de respaldo, antigüedad de la última copia,
+   conexiones cruzadas entre core/analytics y cualquier intento de usar Atlas durante
+   pruebas.
+5. Entregar la Fase 5 por etapas: documentación, ensayo local con datos no sensibles y,
+   únicamente tras otra autorización, integración externa. Cada etapa debe incluir
+   evidencia, reversión y riesgos pendientes.
 
 No actúes sobre la credencial `luis`, no borres usuarios Atlas, no cambies secretos y no
 toques producción sin una nueva instrucción explícita del propietario.

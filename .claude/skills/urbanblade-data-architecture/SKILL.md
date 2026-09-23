@@ -5,9 +5,23 @@ description: Planifica o modifica conexiones, bases, MongoDB, Redis, Pulse, Dock
 
 # Arquitectura de datos de UrbanBlade
 
-Lee primero `docs/ADR-001-ARQUITECTURA-DE-DATOS.md`. Su estado es **Propuesto**: no
-implementes fases, no crees contenedores y no migres datos hasta que el usuario apruebe
-expresamente la fase concreta.
+Lee primero `docs/ADR-001-ARQUITECTURA-DE-DATOS.md`: es la fuente de verdad y su
+estado es **Aceptado**. Las fases 0 a 4 están terminadas. No repitas inventarios,
+contenedores, migraciones ni cambios de usuarios ya realizados. Cualquier fase nueva
+requiere planificación y autorización expresa antes de escribir datos, cambiar
+infraestructura o actuar sobre Atlas.
+
+Estado vigente:
+
+- La base operativa continúa siendo `barber_db`; no la renombres ni la dividas por
+  colección sin una nueva decisión arquitectónica aprobada.
+- Los derivados permanecen en `urbanblade_analytics.analytics_insights`.
+- `mongo-dev` (`rsdev`, `urbanblade_dev`) es persistente y `mongo-test`
+  (`barber_db_test`) es aislado para pruebas; no crees contenedores equivalentes.
+- La siguiente etapa pendiente es operacional: copia externa cifrada, retención,
+  restauración ensayada y monitoreo. Planifícala antes de implementarla.
+- La cuenta personal `luis` se conserva en Spark por decisión explícita del
+  propietario. No la elimines, rotes, sustituyas ni reduzcas sin una orden nueva.
 
 Invariantes:
 
@@ -26,3 +40,5 @@ Invariantes:
    sin autorización explícita.
 8. Ninguna IA ejecuta `git commit`, `git push`, merge, rebase ni publica PR. Entrega al
    usuario el resumen, validaciones y mensaje de commit sugerido en español.
+9. Antes de editar, ejecuta `git status` en cada repositorio implicado y preserva los
+   cambios locales. Trabaja únicamente en `main`.
