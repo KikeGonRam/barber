@@ -18,8 +18,12 @@ Estado vigente:
 - Los derivados permanecen en `urbanblade_analytics.analytics_insights`.
 - `mongo-dev` (`rsdev`, `urbanblade_dev`) es persistente y `mongo-test`
   (`barber_db_test`) es aislado para pruebas; no crees contenedores equivalentes.
-- La siguiente etapa pendiente es operacional: copia externa cifrada, retención,
-  restauración ensayada y monitoreo. Planifícala antes de implementarla.
+- Las fases 5A y 5B de continuidad están completadas. El ensayo local cifrado y
+  restaurable vive en `scripts/Invoke-SyntheticBackupDrill.ps1`.
+- La Fase 5C para Amazon S3 está preparada en `docs/FASE-5C-S3.md`; el publicador
+  funciona en dry-run por defecto. No configures infraestructura o credenciales ni
+  ejecutes una carga real sin autorización explícita con bucket, región y perfil.
+- La Fase 5D de automatización y monitoreo no está autorizada.
 - La cuenta personal `luis` se conserva en Spark por decisión explícita del
   propietario. No la elimines, rotes, sustituyas ni reduzcas sin una orden nueva.
 

@@ -111,8 +111,13 @@ Fase 5 pendiente: continuidad operativa
    `barber/scripts/Invoke-SyntheticBackupDrill.ps1`. El ensayo sintético
    `20260923T182413Z-a8716c51` probó `mongodump`, cifrado AES-256-GCM, descifrado,
    `mongorestore`, documentos e índices y produjo un manifiesto `result: passed`. No
-   quedaron bases temporales ni archivos planos. No avances a 5C ni 5D sin una nueva
-   autorización explícita del propietario.
+   quedaron bases temporales ni archivos planos.
+7. La preparación de 5C para Amazon S3 está en `barber/docs/FASE-5C-S3.md` y el
+   publicador en `barber/scripts/Publish-EncryptedBackupToS3.ps1`. Solo se autorizó
+   preparación y dry-run. No crear infraestructura AWS, no configurar credenciales y no
+   ejecutar `-Execute` sin una nueva autorización explícita que identifique bucket,
+   región y perfil. AWS CLI v2 está instalada, pero al 2026-09-23 no había perfiles
+   configurados y el dry-run no se había ejecutado. La Fase 5D continúa sin autorización.
 
 No actúes sobre la credencial `luis`, no borres usuarios Atlas, no cambies secretos y no
 toques producción sin una nueva instrucción explícita del propietario.

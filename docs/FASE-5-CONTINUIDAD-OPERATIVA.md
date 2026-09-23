@@ -2,9 +2,9 @@
 
 ## Estado
 
-**Fases 5A y 5B completadas. Fases 5C y 5D no autorizadas.** Este documento no
-autoriza escrituras en Atlas, cambios de credenciales, cargas a servicios externos ni
-tareas programadas.
+**Fases 5A y 5B completadas. Fase 5C preparada; ejecución de dry-run, carga y
+recuperación pendientes. Fase 5D no autorizada.** Este documento no autoriza escrituras
+en Atlas, cambios de credenciales, cargas a servicios externos ni tareas programadas.
 
 ## Objetivo
 
@@ -141,7 +141,11 @@ Validación completada el 2026-09-23:
 
 ### 5C. Integración externa controlada
 
-- Requiere nueva autorización explícita.
+- La preparación y el procedimiento de dry-run están documentados en
+  `docs/FASE-5C-S3.md`; su ejecución está pendiente de configurar un perfil AWS.
+- El script `scripts/Publish-EncryptedBackupToS3.ps1` valida artefacto y manifiesto y
+  funciona en dry-run por defecto.
+- La carga real y su recuperación requieren una nueva autorización explícita.
 - Configurar credenciales de mínimo privilegio fuera del repositorio.
 - Cargar únicamente el artefacto cifrado y comprobar su recuperación.
 
