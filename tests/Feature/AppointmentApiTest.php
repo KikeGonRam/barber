@@ -212,6 +212,27 @@ class AppointmentApiTest extends TestCase
         $this->assertCount(count($response->json('chart.labels')), $response->json('chart.values'));
     }
 
+    public function test_appointments_expose_photo_fields_even_when_there_is_no_photo(): void
+    {
+        $token = $this->tokenFor($this->adminUser, 'test-token-appts-photos');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/appointments');
+
+        $response->assertOk();
+        $response->assertJsonStructure(['data' => ['*' => ['client' => ['user' => ['name', 'avatar_url']], 'barber' => ['foto_url']]]]);
+        $response->assertJsonPath('data.0.barber.foto_url', null);
+    }
+
+    public function test_barber_management_list_exposes_foto_url(): void
+    {
+        $token = $this->tokenFor($this->adminUser, 'test-token-barbers-photo');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/barbers/manage');
+
+        $response->assertOk();
+        $response->assertJsonStructure(['data' => ['*' => ['foto', 'foto_url']]]);
+    }
+
     public function test_admin_filters_by_estado(): void
     {
         $token = $this->tokenFor($this->adminUser, 'test-token-appts-estado');

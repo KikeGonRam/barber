@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Barber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Controlador de gestión de barberos (solo administrador).
@@ -48,6 +49,7 @@ class BarberManagementController extends Controller
                 'especialidades' => $barber->especialidades,
                 'descripcion' => $barber->descripcion,
                 'foto' => $barber->foto,
+                'foto_url' => $barber->foto ? Storage::disk('public')->url($barber->foto) : null,
                 'activo' => (bool) $barber->activo,
                 // % de comisión sobre el precio de lista de cada servicio
                 // que completa (ver BarberCommissionService), editable solo
@@ -110,6 +112,7 @@ class BarberManagementController extends Controller
                 'especialidades' => $barber->especialidades,
                 'descripcion' => $barber->descripcion,
                 'foto' => $barber->foto,
+                'foto_url' => $barber->foto ? Storage::disk('public')->url($barber->foto) : null,
                 'activo' => (bool) $barber->activo,
                 'comision_pct' => (float) $barber->comision_pct,
                 'user' => [

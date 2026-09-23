@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Services\Appointment\AppointmentStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Transforma una cita a la estructura consumida por la app móvil y la web.
@@ -40,12 +41,17 @@ class AppointmentResource extends JsonResource
             'deposito_estado' => $this->deposito_requerido ? $this->deposits?->first()?->estado : null,
             'client' => [
                 'id' => $this->client?->id,
-                'user' => ['name' => $this->client?->user?->name],
+                'user' => [
+                    'name' => $this->client?->user?->name,
+                    // Foto de perfil (aditivo): las apps la muestran en lugar de iniciales.
+                    'avatar_url' => $this->client?->user?->avatar_url,
+                ],
             ],
             'barber' => [
                 'id' => $this->barber?->id,
                 'slug' => $this->barber?->slug,
                 'user' => ['name' => $this->barber?->user?->name],
+                'foto_url' => $this->barber?->foto ? Storage::disk('public')->url($this->barber->foto) : null,
             ],
             'service' => [
                 'id' => $this->service?->id,
