@@ -25,6 +25,7 @@
 /public/storage
 /database/*.sqlite
 /storage/*.key
+/storage/app/backup-drills/
 /storage/pail
 /vendor
 Homestead.json

@@ -2,8 +2,9 @@
 
 ## Estado
 
-**Planificada; no implementada.** Este documento no autoriza escrituras en Atlas,
-cambios de credenciales, cargas a servicios externos ni tareas programadas.
+**Fases 5A y 5B completadas. Fases 5C y 5D no autorizadas.** Este documento no
+autoriza escrituras en Atlas, cambios de credenciales, cargas a servicios externos ni
+tareas programadas.
 
 ## Objetivo
 
@@ -100,9 +101,43 @@ conteos coinciden con la referencia esperada y el tiempo total cumple el RTO.
 
 ### 5B. Ensayo local no sensible
 
-- Crear scripts idempotentes usando datos sintéticos.
+- Ejecutar `scripts/Invoke-SyntheticBackupDrill.ps1` usando exclusivamente
+  `barber-mongo-test`. El script rechaza otros contenedores, crea bases temporales con
+  prefijo `urbanblade_backup_drill_`, usa datos sintéticos y elimina esas bases al
+  terminar.
 - Verificar cifrado, hash, manifiesto, retención y restauración aislada.
 - Validar que fallan de forma segura ante credenciales o destinos incorrectos.
+
+Ejemplo (no conserva el artefacto cifrado):
+
+```powershell
+.\scripts\Invoke-SyntheticBackupDrill.ps1
+```
+
+Para inspeccionar el artefacto cifrado después de una ejecución aprobada:
+
+```powershell
+.\scripts\Invoke-SyntheticBackupDrill.ps1 -KeepEncryptedArtifact
+```
+
+La frase se solicita de forma interactiva y no se escribe en el manifiesto. La salida
+vive en `storage/app/backup-drills/`, ignorada por Git. El manifiesto solo registra
+metadatos, hash, conteos e índices; nunca documentos ni credenciales.
+
+Validación completada el 2026-09-23:
+
+- Sintaxis PowerShell analizada sin errores.
+- La guarda rechaza un contenedor distinto de `barber-mongo-test`.
+- La carpeta de salida está limitada a `storage/app/backup-drills/`.
+- Ensayo real local `20260923T182413Z-a8716c51`: `mongodump`, cifrado AES-256-GCM,
+  descifrado y `mongorestore` completados en `barber-mongo-test`.
+- Resultado: 5 documentos sintéticos restaurados sin fallos, distribuidos en 2
+  colecciones. Se verificaron 2 índices en `clients` y 2 en `appointments`, contando
+  el índice `_id_` de cada colección.
+- El manifiesto local terminó con `result: passed`. El artefacto cifrado y los archivos
+  planos se eliminaron al finalizar porque no se solicitó conservarlos.
+- Se comprobó que no permanecen bases con prefijo `urbanblade_backup_drill_` después
+  de la limpieza.
 
 ### 5C. Integración externa controlada
 

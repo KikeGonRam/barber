@@ -107,6 +107,12 @@ Fase 5 pendiente: continuidad operativa
 5. Entregar la Fase 5 por etapas: documentación, ensayo local con datos no sensibles y,
    únicamente tras otra autorización, integración externa. Cada etapa debe incluir
    evidencia, reversión y riesgos pendientes.
+6. Las fases 5A y 5B están completadas. El script local está en
+   `barber/scripts/Invoke-SyntheticBackupDrill.ps1`. El ensayo sintético
+   `20260923T182413Z-a8716c51` probó `mongodump`, cifrado AES-256-GCM, descifrado,
+   `mongorestore`, documentos e índices y produjo un manifiesto `result: passed`. No
+   quedaron bases temporales ni archivos planos. No avances a 5C ni 5D sin una nueva
+   autorización explícita del propietario.
 
 No actúes sobre la credencial `luis`, no borres usuarios Atlas, no cambies secretos y no
 toques producción sin una nueva instrucción explícita del propietario.
