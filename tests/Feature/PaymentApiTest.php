@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Appointment;
 use App\Models\Barber;
+use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\GiftCard;
 use App\Models\MobileApiToken;
@@ -598,5 +599,186 @@ class PaymentApiTest extends TestCase
         );
 
         $response->assertForbidden();
+    }
+
+    /** Cliente con rol, perfil de cliente y token; opcionalmente con Customer de Stripe ya creado. */
+    private function clientWithToken(string $tokenPlain, ?string $stripeCustomerId = null): array
+    {
+        $role = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
+        $user = User::create(['name' => 'Cliente Tarjetas', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+        $client = Client::create([
+            'user_id' => (string) $user->id, 'telefono' => '5550001234', 'nivel' => 'nuevo', 'puntos' => 0,
+            'stripe_customer_id' => $stripeCustomerId,
+        ]);
+
+        return [$user, $client, $this->tokenFor($user, $tokenPlain)];
+    }
+
+    private function chargeableAppointmentFor(Client $client): Appointment
+    {
+        $barberUser = User::create(['name' => 'Barbero Tarjetas', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Tarjetas', 'activo' => true]);
+        $service = Service::create(['nombre' => 'Corte Tarjetas', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+
+        return Appointment::create([
+            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
+            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '11:00:00', 'hora_fin' => '11:30:00', 'estado' => 'confirmada',
+        ]);
+    }
+
+    public function test_transfer_info_gives_the_bank_data_to_an_authenticated_client(): void
+    {
+        BarbershopSetting::query()->delete();
+        BarbershopSetting::create([
+            'nombre' => 'UrbanBlade Test',
+            'datos_bancarios' => ['clabe' => '012345678901234567', 'banco' => 'BBVA', 'beneficiario' => 'UrbanBlade SA', 'concepto' => 'Cita UrbanBlade'],
+        ]);
+        [, , $token] = $this->clientWithToken('test-plaintext-token-transfer-info');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/payments/transfer-info');
+
+        $response->assertOk()
+            ->assertJsonPath('data.configurado', true)
+            ->assertJsonPath('data.clabe', '012345678901234567')
+            ->assertJsonPath('data.banco', 'BBVA')
+            ->assertJsonPath('data.beneficiario', 'UrbanBlade SA')
+            ->assertJsonPath('data.concepto', 'Cita UrbanBlade');
+
+        BarbershopSetting::query()->delete();
+    }
+
+    public function test_transfer_info_says_not_configured_when_the_admin_has_not_set_a_clabe(): void
+    {
+        BarbershopSetting::query()->delete();
+        [, , $token] = $this->clientWithToken('test-plaintext-token-transfer-info-empty');
+
+        $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/payments/transfer-info')
+            ->assertOk()
+            ->assertJsonPath('data.configurado', false)
+            ->assertJsonPath('data.clabe', null);
+    }
+
+    public function test_transfer_info_requires_authentication(): void
+    {
+        $this->getJson('/api/v1/payments/transfer-info')->assertUnauthorized();
+    }
+
+    public function test_saved_cards_is_empty_when_the_client_has_no_stripe_customer(): void
+    {
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldNotReceive('savedCards');
+        });
+        [, , $token] = $this->clientWithToken('test-plaintext-token-cards-empty');
+
+        $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/payments/cards')
+            ->assertOk()
+            ->assertExactJson(['data' => []]);
+    }
+
+    public function test_saved_cards_lists_only_safe_data_of_the_clients_own_customer(): void
+    {
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldReceive('savedCards')->once()->with('cus_test_123')
+                ->andReturn([['id' => 'pm_1', 'brand' => 'visa', 'last4' => '4242', 'exp_month' => 12, 'exp_year' => 2032]]);
+        });
+        [, , $token] = $this->clientWithToken('test-plaintext-token-cards-list', 'cus_test_123');
+
+        $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/payments/cards')
+            ->assertOk()
+            ->assertJsonPath('data.0.last4', '4242')
+            ->assertJsonPath('data.0.brand', 'visa');
+    }
+
+    public function test_saved_cards_falls_back_to_an_empty_list_when_stripe_fails(): void
+    {
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldReceive('savedCards')->once()->andThrow(new \RuntimeException('Stripe caido'));
+        });
+        [, , $token] = $this->clientWithToken('test-plaintext-token-cards-fail', 'cus_test_456');
+
+        $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/payments/cards')
+            ->assertOk()
+            ->assertExactJson(['data' => []]);
+    }
+
+    public function test_saved_cards_are_not_available_to_staff(): void
+    {
+        $user = $this->staffUser('recepcionista', 'recepcion-cards@test.local');
+        $token = $this->tokenFor($user, 'test-plaintext-token-cards-staff');
+
+        $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/payments/cards')->assertForbidden();
+    }
+
+    public function test_stripe_intent_attaches_the_customer_and_saves_the_card_when_the_client_asks_for_it(): void
+    {
+        [, $client, $token] = $this->clientWithToken('test-plaintext-token-intent-save');
+        $appointment = $this->chargeableAppointmentFor($client);
+
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldReceive('customerFor')->once()->andReturn('cus_new_1');
+            $mock->shouldReceive('createPaymentIntent')->once()
+                ->withArgs(fn ($amount, $currency, $metadata, $customerId, $saveCard) => abs($amount - 200) < 0.01
+                    && $customerId === 'cus_new_1' && $saveCard === true)
+                ->andReturn(['client_secret' => 'pi_secret_save', 'payment_intent_id' => 'pi_save']);
+        });
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id, 'guardar_tarjeta' => true])
+            ->assertOk()
+            ->assertJsonPath('data.client_secret', 'pi_secret_save');
+    }
+
+    public function test_stripe_intent_with_a_saved_card_uses_the_customer_but_does_not_save_another(): void
+    {
+        [, $client, $token] = $this->clientWithToken('test-plaintext-token-intent-saved', 'cus_existing');
+        $appointment = $this->chargeableAppointmentFor($client);
+
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldReceive('customerFor')->once()->andReturn('cus_existing');
+            $mock->shouldReceive('createPaymentIntent')->once()
+                ->withArgs(fn ($amount, $currency, $metadata, $customerId, $saveCard) => $customerId === 'cus_existing' && $saveCard === false)
+                ->andReturn(['client_secret' => 'pi_secret_saved', 'payment_intent_id' => 'pi_saved']);
+        });
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id, 'tarjeta_guardada' => true])
+            ->assertOk();
+    }
+
+    public function test_stripe_intent_without_card_flags_does_not_touch_the_stripe_customer(): void
+    {
+        [, $client, $token] = $this->clientWithToken('test-plaintext-token-intent-plain');
+        $appointment = $this->chargeableAppointmentFor($client);
+
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldNotReceive('customerFor');
+            $mock->shouldReceive('createPaymentIntent')->once()
+                ->withArgs(fn ($amount, $currency, $metadata, $customerId, $saveCard) => $customerId === null && $saveCard === false)
+                ->andReturn(['client_secret' => 'pi_secret_plain', 'payment_intent_id' => 'pi_plain']);
+        });
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id])
+            ->assertOk();
+    }
+
+    public function test_stripe_intent_ignores_the_save_card_flags_when_staff_charges(): void
+    {
+        $user = $this->staffUser('recepcionista', 'recepcion-guardar@test.local');
+        $token = $this->tokenFor($user, 'test-plaintext-token-intent-staff-flags');
+        [, $client] = $this->clientWithToken('test-plaintext-token-intent-staff-owner');
+        $appointment = $this->chargeableAppointmentFor($client);
+
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldNotReceive('customerFor');
+            $mock->shouldReceive('createPaymentIntent')->once()
+                ->withArgs(fn ($amount, $currency, $metadata, $customerId, $saveCard) => $customerId === null && $saveCard === false)
+                ->andReturn(['client_secret' => 'pi_secret_staff', 'payment_intent_id' => 'pi_staff']);
+        });
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id, 'guardar_tarjeta' => true])
+            ->assertOk();
     }
 }

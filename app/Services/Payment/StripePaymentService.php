@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Models\Client;
 use Stripe\Invoice;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
@@ -34,21 +35,83 @@ class StripePaymentService
      * Crea un PaymentIntent en Stripe (llamada a API externa) y devuelve
      * el client_secret que el frontend necesita para confirmar el pago.
      */
-    public function createPaymentIntent(float $amount, string $currency = 'mxn', array $metadata = []): array
-    {
-        $intent = $this->client()->paymentIntents->create([
+    public function createPaymentIntent(
+        float $amount,
+        string $currency = 'mxn',
+        array $metadata = [],
+        ?string $customerId = null,
+        bool $saveCard = false,
+    ): array {
+        $params = [
             // Stripe espera el monto en la unidad minima de la moneda
             // (centavos), de ahi el *100 y el redondeo a entero.
             'amount' => (int) round($amount * 100),
             'currency' => $currency,
             'automatic_payment_methods' => ['enabled' => true],
             'metadata' => $metadata,
-        ]);
+        ];
+
+        // Con Customer, Stripe solo deja usar tarjetas que pertenezcan a ese
+        // cliente (una tarjeta ajena se rechaza del lado de Stripe), y con
+        // setup_future_usage la tarjeta nueva queda guardada para la proxima vez.
+        if ($customerId) {
+            $params['customer'] = $customerId;
+            if ($saveCard) {
+                $params['setup_future_usage'] = 'on_session';
+            }
+        }
+
+        $intent = $this->client()->paymentIntents->create($params);
 
         return [
             'client_secret' => $intent->client_secret,
             'payment_intent_id' => $intent->id,
         ];
+    }
+
+    /**
+     * Customer de Stripe del cliente: reutiliza el guardado en `stripe_customer_id`
+     * o lo crea y lo guarda (mismo criterio que MembershipService).
+     */
+    public function customerFor(Client $client): string
+    {
+        if ($client->stripe_customer_id) {
+            return (string) $client->stripe_customer_id;
+        }
+
+        $client->loadMissing('user');
+        $customerId = $this->createCustomer(
+            $client->user?->email ?? 'sin-correo@urbanblade.mx',
+            $client->user?->name ?? 'Cliente UrbanBlade',
+            ['client_id' => (string) $client->id],
+        );
+        $client->update(['stripe_customer_id' => $customerId]);
+
+        return $customerId;
+    }
+
+    /**
+     * Tarjetas guardadas de un Customer, solo los datos seguros de mostrar
+     * (marca, ultimos 4, vencimiento): nunca el numero completo.
+     *
+     * @return list<array{id: string, brand: string, last4: string, exp_month: int, exp_year: int}>
+     */
+    public function savedCards(string $customerId): array
+    {
+        $methods = $this->client()->paymentMethods->all(['customer' => $customerId, 'type' => 'card', 'limit' => 10]);
+
+        $cards = [];
+        foreach ($methods->data as $method) {
+            $cards[] = [
+                'id' => (string) $method->id,
+                'brand' => (string) ($method->card->brand ?? 'card'),
+                'last4' => (string) ($method->card->last4 ?? ''),
+                'exp_month' => (int) ($method->card->exp_month ?? 0),
+                'exp_year' => (int) ($method->card->exp_year ?? 0),
+            ];
+        }
+
+        return $cards;
     }
 
     /**

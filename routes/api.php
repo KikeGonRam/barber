@@ -173,6 +173,10 @@ Route::prefix('v1')->group(function (): void {
         // todo — branching por rol dentro del controlador, mismo criterio que
         // appointments.index()/orders.index()).
         Route::get('payments', [ApiPaymentController::class, 'index']);
+        // Datos bancarios para transferir y tarjetas guardadas del cliente (antes de
+        // payments/{payment}/receipt: son rutas de un solo segmento, sin comodin).
+        Route::get('payments/transfer-info', [ApiPaymentController::class, 'transferInfo']);
+        Route::get('payments/cards', [ApiPaymentController::class, 'cards']);
         Route::get('payments/{payment}/receipt', [ApiPaymentController::class, 'receipt']);
 
         // Autopago del cliente (Fase B del plan Stripe, 2026-09-06): abierta a

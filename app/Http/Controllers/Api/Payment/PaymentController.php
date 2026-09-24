@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Payment;
 use App\Exceptions\Domain\PaymentException;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\BarbershopSetting;
 use App\Models\Payment;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
@@ -249,6 +250,8 @@ class PaymentController extends Controller
             'puntos_canjeados' => ['nullable', 'integer', 'min:0'],
             'codigo_gift_card' => ['nullable', 'string', 'max:20'],
             'propina' => ['nullable', 'numeric', 'min:0'],
+            'guardar_tarjeta' => ['nullable', 'boolean'],
+            'tarjeta_guardada' => ['nullable', 'boolean'],
         ]);
 
         $appointment = Appointment::with('client')->findOrFail($validated['appointment_id']);
@@ -323,6 +326,17 @@ class PaymentController extends Controller
         $montoACobrar = round($monto + $propina, 2);
 
         try {
+            // Tarjetas guardadas (estilo "pagar con la Visa terminada en 4242"):
+            // solo el cliente dueno de la cita, y solo si pidio guardar una
+            // tarjeta nueva o pagar con una guardada. Con Customer en el intent,
+            // Stripe rechaza cualquier tarjeta que no sea de ese cliente.
+            $customerId = null;
+            $guardarTarjeta = false;
+            if ($isClient && $client && ($request->boolean('guardar_tarjeta') || $request->boolean('tarjeta_guardada'))) {
+                $customerId = $this->stripeService->customerFor($client);
+                $guardarTarjeta = $request->boolean('guardar_tarjeta');
+            }
+
             $data = $this->stripeService->createPaymentIntent(
                 $montoACobrar,
                 'mxn',
@@ -331,7 +345,9 @@ class PaymentController extends Controller
                     'puntos_canjeados' => (string) $puntosCanjeados,
                     'codigo_gift_card' => $codigoGiftCard ?? '',
                     'propina' => (string) $propina,
-                ]
+                ],
+                $customerId,
+                $guardarTarjeta,
             );
 
             return response()->json(['data' => $data]);
@@ -346,6 +362,63 @@ class PaymentController extends Controller
                 'message' => 'No se pudo crear el intento de pago Stripe. Intenta de nuevo o usa otro método de pago.',
             ], 422);
         }
+    }
+
+    /**
+     * Tarjetas guardadas del cliente en Stripe (marca, ultimos 4 y vencimiento)
+     * para ofrecer "pagar con tu Visa 4242" o "usar otra tarjeta". Lista vacia
+     * si no tiene ninguna o si Stripe no responde: nunca bloquea el pago.
+     *
+     * @group Pagos
+     *
+     * @authenticated
+     *
+     * @response 200 {"data": [{"id": "pm_123", "brand": "visa", "last4": "4242", "exp_month": 12, "exp_year": 2032}]}
+     */
+    public function cards(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        abort_unless($user?->hasRole('cliente') && $user->clientProfile, 403, 'No autorizado.');
+
+        $customerId = $user->clientProfile->stripe_customer_id;
+        if (! $customerId) {
+            return response()->json(['data' => []]);
+        }
+
+        try {
+            return response()->json(['data' => $this->stripeService->savedCards((string) $customerId)]);
+        } catch (Throwable $exception) {
+            Log::warning('No se pudieron listar las tarjetas guardadas.', ['error' => $exception->getMessage()]);
+
+            return response()->json(['data' => []]);
+        }
+    }
+
+    /**
+     * Datos para pagar por transferencia (banco, beneficiario, CLABE y concepto)
+     * que configura el administrador. Solo para usuarios autenticados: la ficha
+     * publica del negocio no los incluye a proposito.
+     *
+     * @group Pagos
+     *
+     * @authenticated
+     *
+     * @response 200 {"data": {"configurado": true, "banco": "BBVA", "beneficiario": "UrbanBlade SA", "clabe": "012345678901234567", "concepto": "Cita UrbanBlade"}}
+     */
+    public function transferInfo(Request $request): JsonResponse
+    {
+        abort_unless($request->user(), 401, 'No autenticado.');
+
+        $bank = BarbershopSetting::cached()?->datos_bancarios ?? [];
+        $clabe = $bank['clabe'] ?? null;
+
+        return response()->json(['data' => [
+            'configurado' => filled($clabe),
+            'banco' => $bank['banco'] ?? null,
+            'beneficiario' => $bank['beneficiario'] ?? null,
+            'clabe' => $clabe,
+            'concepto' => $bank['concepto'] ?? null,
+        ]]);
     }
 
     /**
