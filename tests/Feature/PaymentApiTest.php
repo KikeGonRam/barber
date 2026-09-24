@@ -781,4 +781,49 @@ class PaymentApiTest extends TestCase
             ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id, 'guardar_tarjeta' => true])
             ->assertOk();
     }
+
+    /** Cita recién reservada con "pagar ahora": pendiente y con el cobro completo como depósito. */
+    private function payNowAppointmentFor(Client $client): Appointment
+    {
+        $appointment = $this->chargeableAppointmentFor($client);
+        $appointment->update(['estado' => 'pendiente', 'deposito_requerido' => true, 'deposito_monto' => 230.0]);
+
+        return $appointment->fresh();
+    }
+
+    public function test_pay_now_deposit_intent_saves_the_new_card_on_the_clients_customer(): void
+    {
+        [, $client, $token] = $this->clientWithToken('test-plaintext-token-deposit-save');
+        $appointment = $this->payNowAppointmentFor($client);
+
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldReceive('customerFor')->once()->andReturn('cus_deposit_1');
+            $mock->shouldReceive('createPaymentIntent')->once()
+                ->withArgs(fn ($amount, $currency, $metadata, $customerId, $saveCard) => abs($amount - 230) < 0.01
+                    && $metadata['es_deposito'] === 'true' && $customerId === 'cus_deposit_1' && $saveCard === true)
+                ->andReturn(['client_secret' => 'pi_secret_deposit', 'payment_intent_id' => 'pi_deposit']);
+        });
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson("/api/v1/appointments/{$appointment->code}/deposit/stripe-intent", ['guardar_tarjeta' => true])
+            ->assertOk()
+            ->assertJsonPath('data.client_secret', 'pi_secret_deposit');
+    }
+
+    public function test_pay_now_deposit_intent_without_card_flags_keeps_working_without_a_customer(): void
+    {
+        [, $client, $token] = $this->clientWithToken('test-plaintext-token-deposit-plain');
+        $appointment = $this->payNowAppointmentFor($client);
+
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldNotReceive('customerFor');
+            $mock->shouldReceive('createPaymentIntent')->once()
+                ->withArgs(fn ($amount, $currency, $metadata, $customerId, $saveCard) => $customerId === null && $saveCard === false)
+                ->andReturn(['client_secret' => 'pi_secret_deposit_plain', 'payment_intent_id' => 'pi_deposit_plain']);
+        });
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson("/api/v1/appointments/{$appointment->code}/deposit/stripe-intent")
+            ->assertOk();
+    }
 }

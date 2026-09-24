@@ -95,7 +95,7 @@ class DepositService
      * del payload del cliente: se relee de appointment.deposito_monto,
      * fijado por AppointmentController::store() al crear la cita.
      */
-    public function createStripeIntent(Appointment $appointment): array
+    public function createStripeIntent(Appointment $appointment, ?string $customerId = null, bool $saveCard = false): array
     {
         $this->guardCanCharge($appointment);
 
@@ -105,7 +105,9 @@ class DepositService
             [
                 'appointment_id' => (string) $appointment->id,
                 'es_deposito' => 'true',
-            ]
+            ],
+            $customerId,
+            $saveCard,
         );
     }
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Payment;
 use App\Services\Payment\DepositService;
+use App\Services\Payment\StripePaymentService;
 use App\Support\ReceiptStorage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,7 @@ class DepositController extends Controller
 {
     public function __construct(
         private readonly DepositService $deposits,
+        private readonly StripePaymentService $stripe,
     ) {}
 
     /**
@@ -32,14 +34,34 @@ class DepositController extends Controller
      *
      * @authenticated
      *
+     * También es el cobro de "pagar ahora" al reservar (pagar_ahora en
+     * AppointmentController::store()). Con guardar_tarjeta o tarjeta_guardada
+     * se usa el Customer de Stripe del cliente, así Stripe solo acepta sus
+     * propias tarjetas y la nueva queda guardada para la próxima vez.
+     * @authenticated
+     *
      * @urlParam appointment string required Código público de la cita. Example: jfb7ffye
+     *
+     * @bodyParam guardar_tarjeta boolean Guardar la tarjeta nueva para próximos pagos. Example: true
+     * @bodyParam tarjeta_guardada boolean El cliente paga con una tarjeta que ya tenía guardada. Example: false
      */
     public function stripeIntent(Request $request, Appointment $appointment): JsonResponse
     {
         $this->authorizeOwner($request, $appointment);
 
+        $request->validate([
+            'guardar_tarjeta' => ['nullable', 'boolean'],
+            'tarjeta_guardada' => ['nullable', 'boolean'],
+        ]);
+
         try {
-            $data = $this->deposits->createStripeIntent($appointment);
+            $customerId = null;
+            $client = $appointment->client;
+            if ($client && ($request->boolean('guardar_tarjeta') || $request->boolean('tarjeta_guardada'))) {
+                $customerId = $this->stripe->customerFor($client);
+            }
+
+            $data = $this->deposits->createStripeIntent($appointment, $customerId, $request->boolean('guardar_tarjeta'));
 
             return response()->json(['data' => $data]);
         } catch (PaymentException $exception) {
