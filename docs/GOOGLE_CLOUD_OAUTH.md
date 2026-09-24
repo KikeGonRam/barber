@@ -74,11 +74,15 @@ Deben coincidir **exactamente** (esquema, host, ruta, sin barra final) con
 | Entorno | URI |
 |---|---|
 | Local (Docker) | `http://localhost:8000/api/v1/auth/google/callback` |
-| Staging AWS | `https://d1s2thm3f8g40t.cloudfront.net/api/v1/auth/google/callback` |
-| Producción (cuando exista dominio) | `https://<dominio-api>/api/v1/auth/google/callback` |
+| Staging AWS | `https://api.urbanblade.com.mx/api/v1/auth/google/callback` (la URL antigua `https://d1s2thm3f8g40t.cloudfront.net/api/v1/auth/google/callback` puede seguir autorizada como respaldo, pero ya no la usa la app) |
+| Producción (cuando exista) | `https://<dominio-api>/api/v1/auth/google/callback` |
 
 Google acepta `http://` solo para `localhost`; cualquier otro host exige `https`. Los
-dominios `*.cloudfront.net` son válidos como URI de redirección.
+dominios `*.cloudfront.net` también son válidos como URI de redirección.
+
+**Solo la ruta, sin nada después.** Un callback con `?token=...` pegado (por ejemplo copiado
+de la barra de direcciones tras iniciar sesión) es un error real que ya ocurrió: deja un
+token de sesión guardado en la consola de Google. Si pasa, borra esa URI y revoca los tokens.
 
 ## Variables
 
