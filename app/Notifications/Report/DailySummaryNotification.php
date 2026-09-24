@@ -42,11 +42,11 @@ class DailySummaryNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Resumen del dia — '.$this->dateLabel)
+            ->subject('Resumen del día — '.$this->dateLabel)
             ->markdown('emails.message', [
                 'accent' => '#d4af37',
                 'badge' => 'Cierre de jornada',
-                'title' => 'Resumen del dia',
+                'title' => 'Resumen del día',
                 'greeting' => 'Hola '.$notifiable->name.',',
                 'intro' => $this->dateLabel.' · el pulso de tu negocio en un vistazo.',
                 'rows' => $this->stats,
@@ -62,7 +62,7 @@ class DailySummaryNotification extends Notification implements ShouldQueue
     {
         return [
             'type' => 'daily_summary',
-            'title' => 'Resumen del dia',
+            'title' => 'Resumen del día',
             'message' => 'Cierre de jornada de '.$this->dateLabel,
             'stats' => $this->stats,
         ];

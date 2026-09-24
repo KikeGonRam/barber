@@ -50,7 +50,7 @@ class LoyaltyNotification extends Notification implements ShouldQueue
                 'accent' => '#d4af37',
                 'badge' => 'Nivel '.$label,
                 'title' => '¡Felicidades, '.$notifiable->name.'!',
-                'intro' => "Alcanzaste el nivel **{$label}** en UrbanBlade. Aqui estan tus nuevos beneficios.",
+                'intro' => "Alcanzaste el nivel **{$label}** en UrbanBlade. Aquí están tus nuevos beneficios.",
                 'rows' => [
                     'Nuevo nivel' => $label,
                     'Descuento' => $this->discount.'% en todos tus servicios',

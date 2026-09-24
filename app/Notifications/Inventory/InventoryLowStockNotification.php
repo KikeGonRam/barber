@@ -55,7 +55,7 @@ class InventoryLowStockNotification extends Notification implements ShouldQueue
                 'badge' => $count.' producto(s)',
                 'title' => 'Stock bajo minimo',
                 'greeting' => 'Hola '.$notifiable->name.',',
-                'intro' => 'Estos productos estan en o por debajo de su stock minimo. Considera reabastecer.',
+                'intro' => 'Estos productos están en o por debajo de su stock mínimo. Considera reabastecer.',
                 'rows' => $rows,
                 'ctaLabel' => 'Ver inventario',
                 'ctaUrl' => $this->inventoryUrl(),

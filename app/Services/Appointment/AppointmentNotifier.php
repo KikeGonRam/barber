@@ -30,22 +30,22 @@ class AppointmentNotifier
 
         // Cliente (con invite de calendario)
         $this->send($appointment->client?->user, $appointment,
-            'Confirmacion de cita', 'Tu cita esta reservada',
-            'Te esperamos. Aqui estan los detalles de tu visita.',
+            'Confirmación de cita', 'Tu cita está reservada',
+            'Te esperamos. Aquí están los detalles de tu visita.',
             'Ver mi cita', $this->frontendUrl('/my/appointments'),
             '#10b981', 'Confirmada', true);
 
         // Barbero
         $this->send($appointment->barber?->user, $appointment,
             'Nueva cita agendada', 'Tienes una nueva cita',
-            "{$cliente} agendo una cita contigo para el {$fecha}.",
+            "{$cliente} agendó una cita contigo para el {$fecha}.",
             'Ver mi agenda', $this->frontendUrl('/barber/agenda'),
             '#5b8def', 'Nueva reserva');
 
         // Recepcion + Admin
         $this->sendStaff($appointment,
             'Nueva reserva', 'Nueva cita en el sistema',
-            "{$cliente} reservo con {$barbero} para el {$fecha}.",
+            "{$cliente} reservó con {$barbero} para el {$fecha}.",
             '#94a3b8', 'Reserva online');
 
         $this->stamp($appointment, 'confirmation_sent_at');
@@ -70,15 +70,15 @@ class AppointmentNotifier
 
         // Barbero
         $this->send($appointment->barber?->user, $appointment,
-            'Cita cancelada', 'Se cancelo una cita',
-            "{$cliente} cancelo su cita contigo{$suffix}.",
+            'Cita cancelada', 'Se canceló una cita',
+            "{$cliente} canceló su cita contigo{$suffix}.",
             'Ver mi agenda', $this->frontendUrl('/barber/agenda'),
             '#ef4444', 'Cancelada');
 
         // Recepcion + Admin
         $this->sendStaff($appointment,
-            'Cita cancelada', 'Se cancelo una cita',
-            "Se cancelo la cita de {$cliente} con {$barbero}{$suffix}.",
+            'Cita cancelada', 'Se canceló una cita',
+            "Se canceló la cita de {$cliente} con {$barbero}{$suffix}.",
             '#ef4444', 'Cancelada');
 
         $this->stamp($appointment, 'cancellation_notified_at');
@@ -94,9 +94,9 @@ class AppointmentNotifier
 
         $map = [
             'completada' => ['Cita completada', 'Gracias por tu visita', 'Tu cita fue completada. Esperamos verte pronto.', '#d4af37', 'Completada'],
-            'confirmada' => ['Cita confirmada', 'Tu cita fue confirmada', 'Tu cita quedo confirmada. Te esperamos.', '#10b981', 'Confirmada'],
-            'en_proceso' => ['Tu cita esta en proceso', 'Estas siendo atendido', 'Tu servicio esta en proceso. Disfrutalo.', '#5b8def', 'En proceso'],
-            'no_asistio' => ['Marcada como no asistio', 'No registramos tu asistencia', 'Tu cita fue marcada como no asistida. Contacta a recepcion si es un error.', '#f59e0b', 'No asistio'],
+            'confirmada' => ['Cita confirmada', 'Tu cita fue confirmada', 'Tu cita quedó confirmada. Te esperamos.', '#10b981', 'Confirmada'],
+            'en_proceso' => ['Tu cita está en proceso', 'Estás siendo atendido', 'Tu servicio está en proceso. Disfrútalo.', '#5b8def', 'En proceso'],
+            'no_asistio' => ['Marcada como no asistió', 'No registramos tu asistencia', 'Tu cita fue marcada como no asistida. Contacta a recepción si es un error.', '#f59e0b', 'No asistió'],
         ];
 
         if (! isset($map[$estado])) {
@@ -161,7 +161,7 @@ class AppointmentNotifier
 
         $this->sendStaff($appointment,
             'Comprobante por revisar', 'Nuevo comprobante de transferencia',
-            "{$cliente} subio un comprobante para {$servicio}. Revisalo antes de aprobarlo.",
+            "{$cliente} subió un comprobante para {$servicio}. Revísalo antes de aprobarlo.",
             '#5b8def', 'Por revisar');
     }
 
