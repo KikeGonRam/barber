@@ -83,6 +83,18 @@ class SystemControllerTest extends TestCase
         $this->assertCount(14, $response->json('scheduled_tasks'));
     }
 
+    public function test_redis_is_reported_as_not_used_when_nothing_is_configured_with_redis(): void
+    {
+        // Como staging en AWS: caché y sesiones en archivo, cola síncrona. Antes esto salía "down".
+        config(['cache.default' => 'file', 'session.driver' => 'file', 'queue.default' => 'sync']);
+        $token = $this->ingenieroToken();
+
+        $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/admin/system/status')
+            ->assertOk()
+            ->assertJsonPath('redis.status', 'no_usado')
+            ->assertJsonPath('redis.latency_ms', null);
+    }
+
     public function test_scheduled_task_monitor_records_success_and_failure(): void
     {
         $monitor = app(ScheduledTaskMonitor::class);

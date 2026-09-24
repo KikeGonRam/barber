@@ -73,6 +73,12 @@ class SystemController
 
     private function redisStatus(): array
     {
+        // Si ni la caché, ni las sesiones, ni la cola usan Redis (staging corre con
+        // file/sync), no hay nada que revisar: reportarlo como caído era una falsa alarma.
+        if (! $this->usesRedis()) {
+            return ['status' => 'no_usado', 'latency_ms' => null];
+        }
+
         $start = microtime(true);
 
         try {
@@ -89,6 +95,15 @@ class SystemController
                 'error' => $e->getMessage(),
             ];
         }
+    }
+
+    private function usesRedis(): bool
+    {
+        return in_array('redis', [
+            config('cache.default'),
+            config('session.driver'),
+            config('queue.default'),
+        ], true);
     }
 
     /**
