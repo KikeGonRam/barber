@@ -3998,12 +3998,6 @@ parameters:
 			path: app/Services/Membership/MembershipService.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$stripe_price_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/Membership/MembershipService.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 1
