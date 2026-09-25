@@ -10,6 +10,7 @@ use App\Models\MembershipPlan;
 use App\Services\Payment\StripePaymentService;
 use Illuminate\Support\Facades\Log;
 use MongoDB\Driver\Exception\BulkWriteException;
+use Stripe\Exception\InvalidRequestException;
 
 /**
  * Membresía recurrente (roadmap P1, la última pieza del roadmap de mercado):
@@ -108,10 +109,37 @@ class MembershipService
             $client->update(['stripe_customer_id' => $customerId]);
         }
 
-        $result = $this->stripe->createSubscription($customerId, $plan->stripe_price_id, [
+        $metadata = [
             'client_id' => (string) $client->id,
             'membership_plan_id' => (string) $plan->id,
-        ]);
+        ];
+
+        try {
+            $result = $this->stripe->createSubscription($customerId, (string) $plan->getAttribute('stripe_price_id'), $metadata);
+        } catch (InvalidRequestException $e) {
+            // El plan apunta a un Price que no existe en esta cuenta de Stripe (planes sembrados con
+            // IDs de demostración, o una cuenta de Stripe distinta): se crea el Price real con el
+            // precio del plan, se guarda en el plan y se reintenta una vez.
+            if ($e->getStripeCode() !== 'resource_missing' || ! str_contains((string) $e->getStripeParam(), 'price')) {
+                throw $e;
+            }
+
+            $stripeData = $this->stripe->createMonthlyPrice(
+                (string) $plan->getAttribute('nombre'),
+                (float) $plan->getAttribute('precio_mensual'),
+                ['membership_plan_id' => (string) $plan->getKey()],
+            );
+            $plan->update([
+                'stripe_product_id' => $stripeData['product_id'],
+                'stripe_price_id' => $stripeData['price_id'],
+            ]);
+            Log::info('Plan de membresía sin Price válido en Stripe: se creó uno nuevo.', [
+                'membership_plan_id' => (string) $plan->getKey(),
+                'stripe_price_id' => $stripeData['price_id'],
+            ]);
+
+            $result = $this->stripe->createSubscription($customerId, $stripeData['price_id'], $metadata);
+        }
 
         try {
             $membership = ClientMembership::create([

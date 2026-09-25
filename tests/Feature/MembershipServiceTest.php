@@ -17,6 +17,7 @@ use App\Services\Payment\PaymentService;
 use App\Services\Payment\StripePaymentService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
+use Stripe\Exception\InvalidRequestException;
 use Tests\TestCase;
 
 /**
@@ -87,6 +88,47 @@ class MembershipServiceTest extends TestCase
         $this->assertSame(ClientMembership::ESTADO_PENDIENTE, $result['membership']->estado);
         $this->assertSame('sub_test_123', $result['membership']->stripe_subscription_id);
         $this->assertSame('cus_test_123', $client->fresh()->stripe_customer_id);
+    }
+
+    public function test_subscribe_creates_the_real_stripe_price_when_the_plan_has_a_missing_one(): void
+    {
+        $client = $this->makeClient();
+        $client->update(['stripe_customer_id' => 'cus_existing_789']);
+        $plan = $this->makePlan();
+
+        $missing = InvalidRequestException::factory(
+            "No such price: 'price_test_123'", 400, null, null, null, 'resource_missing', 'items[0][price]'
+        );
+        $this->mock(StripePaymentService::class, function ($mock) use ($missing) {
+            $mock->shouldReceive('createSubscription')->once()->withArgs(fn ($c, $price) => $price === 'price_test_123')->andThrow($missing);
+            $mock->shouldReceive('createMonthlyPrice')->once()->andReturn(['product_id' => 'prod_real_1', 'price_id' => 'price_real_1']);
+            $mock->shouldReceive('createSubscription')->once()->withArgs(fn ($c, $price) => $price === 'price_real_1')->andReturn([
+                'subscription_id' => 'sub_real_1',
+                'client_secret' => 'pi_real_secret',
+            ]);
+        });
+
+        $result = app(MembershipService::class)->subscribe($client, $plan);
+
+        $this->assertSame('pi_real_secret', $result['client_secret']);
+        $this->assertSame('price_real_1', $plan->fresh()->getAttribute('stripe_price_id'));
+        $this->assertSame('prod_real_1', $plan->fresh()->getAttribute('stripe_product_id'));
+    }
+
+    public function test_subscribe_does_not_hide_other_stripe_errors(): void
+    {
+        $client = $this->makeClient();
+        $client->update(['stripe_customer_id' => 'cus_existing_790']);
+        $plan = $this->makePlan();
+
+        $other = InvalidRequestException::factory('No such customer', 400, null, null, null, 'resource_missing', 'customer');
+        $this->mock(StripePaymentService::class, function ($mock) use ($other) {
+            $mock->shouldReceive('createSubscription')->once()->andThrow($other);
+            $mock->shouldReceive('createMonthlyPrice')->never();
+        });
+
+        $this->expectException(InvalidRequestException::class);
+        app(MembershipService::class)->subscribe($client, $plan);
     }
 
     public function test_subscribe_reuses_an_existing_stripe_customer_id(): void
