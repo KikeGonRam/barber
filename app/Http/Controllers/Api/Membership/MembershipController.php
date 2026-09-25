@@ -57,6 +57,12 @@ class MembershipController extends Controller
 
         $membership = $this->memberships->currentFor($user->clientProfile);
 
+        // Si el primer pago o una renovación siguen sin confirmarse aquí, se le pregunta a Stripe:
+        // no depende solo de que llegue el webhook de la suscripción.
+        if ($membership && $this->memberships->needsReconcile($membership)) {
+            $membership = $this->memberships->reconcileWithStripe($membership);
+        }
+
         return response()->json([
             'data' => $membership ? $this->payload($membership->fresh('plan')) : null,
         ]);

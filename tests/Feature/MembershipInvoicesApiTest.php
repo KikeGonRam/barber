@@ -109,4 +109,65 @@ class MembershipInvoicesApiTest extends TestCase
         $this->withToken($otherToken)->getJson("/api/v1/memberships/invoices/{$invoice->id}/receipt-link")
             ->assertForbidden();
     }
+
+    private function pendingMembershipFor(Client $client): ClientMembership
+    {
+        $plan = MembershipPlan::create([
+            'nombre' => 'Básico', 'descripcion' => '10% de descuento', 'precio_mensual' => 199, 'descuento_pct' => 10,
+            'stripe_product_id' => 'prod_b', 'stripe_price_id' => 'price_b', 'activo' => true,
+        ]);
+
+        return ClientMembership::create([
+            'client_id' => (string) $client->id, 'membership_plan_id' => (string) $plan->id,
+            'stripe_customer_id' => 'cus_b', 'stripe_subscription_id' => 'sub_pendiente_b',
+            'estado' => ClientMembership::ESTADO_PENDIENTE, 'bloquea_membresia' => true, 'cancelar_al_finalizar' => false,
+        ]);
+    }
+
+    public function test_mine_activates_a_paid_pending_membership_even_if_the_webhook_never_arrived(): void
+    {
+        [$client, $token] = $this->clientWithToken('cliente-concilia@test.local');
+        $membership = $this->pendingMembershipFor($client);
+        $finPeriodo = now()->addMonth()->timestamp;
+        $this->mock(StripePaymentService::class, fn ($mock) => $mock->shouldReceive('subscriptionSnapshot')->twice()->with('sub_pendiente_b')->andReturn([
+            'status' => 'active', 'cancel_at_period_end' => false, 'current_period_end' => $finPeriodo,
+            'invoice' => ['id' => 'in_primero_b', 'status' => 'paid', 'amount_paid' => 19900, 'paid_at' => now()->timestamp],
+        ]));
+
+        $this->withToken($token)->getJson('/api/v1/memberships/mine')
+            ->assertOk()
+            ->assertJsonPath('data.estado', ClientMembership::ESTADO_ACTIVA);
+
+        $this->assertSame(ClientMembership::ESTADO_ACTIVA, $membership->fresh()->getAttribute('estado'));
+        $this->assertSame(1, MembershipInvoice::where('client_membership_id', (string) $membership->id)->count());
+        $this->assertSame(199.0, (float) MembershipInvoice::first()->getAttribute('monto'));
+
+        // Consultar de nuevo antes de que la membresía quede vigente no duplica la factura.
+        $membership->update(['periodo_actual_fin' => null]);
+        $this->withToken($token)->getJson('/api/v1/memberships/mine')->assertOk();
+        $this->assertSame(1, MembershipInvoice::where('client_membership_id', (string) $membership->id)->count());
+    }
+
+    public function test_mine_does_not_call_stripe_for_an_active_membership_within_its_period(): void
+    {
+        [$client, $token] = $this->clientWithToken('cliente-vigente@test.local');
+        $membership = $this->pendingMembershipFor($client);
+        $membership->update(['estado' => ClientMembership::ESTADO_ACTIVA, 'periodo_actual_fin' => now()->addDays(20)]);
+        $this->mock(StripePaymentService::class, fn ($mock) => $mock->shouldReceive('subscriptionSnapshot')->never());
+
+        $this->withToken($token)->getJson('/api/v1/memberships/mine')
+            ->assertOk()
+            ->assertJsonPath('data.estado', ClientMembership::ESTADO_ACTIVA);
+    }
+
+    public function test_mine_still_answers_when_stripe_is_down(): void
+    {
+        [$client, $token] = $this->clientWithToken('cliente-stripe-caido@test.local');
+        $this->pendingMembershipFor($client);
+        $this->mock(StripePaymentService::class, fn ($mock) => $mock->shouldReceive('subscriptionSnapshot')->once()->andThrow(new \RuntimeException('Stripe no responde')));
+
+        $this->withToken($token)->getJson('/api/v1/memberships/mine')
+            ->assertOk()
+            ->assertJsonPath('data.estado', ClientMembership::ESTADO_PENDIENTE);
+    }
 }

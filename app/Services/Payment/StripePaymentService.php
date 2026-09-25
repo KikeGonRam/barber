@@ -237,6 +237,34 @@ class StripePaymentService
     }
 
     /**
+     * Estado actual de una suscripción, con su última factura, para conciliar una membresía cuando
+     * el webhook no llegó (ver MembershipService::reconcileWithStripe()). Devuelve solo lo que se
+     * necesita, ya normalizado entre versiones de la API de Stripe.
+     *
+     * @return array{status: string, cancel_at_period_end: bool, current_period_end: ?int, invoice: ?array{id: string, status: ?string, amount_paid: int, paid_at: ?int}}
+     */
+    public function subscriptionSnapshot(string $subscriptionId): array
+    {
+        $subscription = $this->client()->subscriptions->retrieve($subscriptionId, ['expand' => ['latest_invoice']])->toArray();
+        $invoice = is_array($subscription['latest_invoice'] ?? null) ? $subscription['latest_invoice'] : null;
+
+        return [
+            'status' => (string) ($subscription['status'] ?? ''),
+            'cancel_at_period_end' => (bool) ($subscription['cancel_at_period_end'] ?? false),
+            // Esta cuenta movió current_period_end a cada SubscriptionItem (ver StripeWebhookController).
+            'current_period_end' => $subscription['current_period_end']
+                ?? $subscription['items']['data'][0]['current_period_end']
+                ?? null,
+            'invoice' => $invoice === null ? null : [
+                'id' => (string) $invoice['id'],
+                'status' => $invoice['status'] ?? null,
+                'amount_paid' => (int) ($invoice['amount_paid'] ?? 0),
+                'paid_at' => $invoice['status_transitions']['paid_at'] ?? null,
+            ],
+        ];
+    }
+
+    /**
      * client_secret del primer cobro de una suscripción que sigue incompleta (el cliente no
      * terminó de pagar o su tarjeta fue rechazada), para reintentar el pago sin crear otra.
      * Null si la factura ya no está abierta (pagada, anulada o la suscripción ya no existe).

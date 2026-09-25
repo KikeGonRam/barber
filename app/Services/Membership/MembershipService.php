@@ -8,6 +8,7 @@ use App\Models\ClientMembership;
 use App\Models\MembershipInvoice;
 use App\Models\MembershipPlan;
 use App\Services\Payment\StripePaymentService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use MongoDB\Driver\Exception\BulkWriteException;
 use Stripe\Exception\InvalidRequestException;
@@ -251,6 +252,61 @@ class MembershipService
         } catch (BulkWriteException $e) {
             Log::info('Stripe webhook: cobro de membresía ya registrado (carrera con otra entrega del webhook), se omite', ['stripe_invoice_id' => $stripeInvoiceId]);
         }
+    }
+
+    /**
+     * ¿Conviene preguntarle a Stripe por esta membresía? Sí mientras el primer pago no se confirma
+     * (pendiente o pago fallido) o cuando ya pasó el fin del periodo (hubo o debió haber renovación).
+     */
+    public function needsReconcile(ClientMembership $membership): bool
+    {
+        if (! $membership->getAttribute('stripe_subscription_id') || $membership->getAttribute('estado') === ClientMembership::ESTADO_CANCELADA) {
+            return false;
+        }
+
+        $fin = $membership->getAttribute('periodo_actual_fin');
+
+        return in_array($membership->getAttribute('estado'), [ClientMembership::ESTADO_PENDIENTE, ClientMembership::ESTADO_PAGO_FALLIDO], true)
+            || $fin === null
+            || Carbon::parse($fin)->isPast();
+    }
+
+    /**
+     * Concilia la membresía con Stripe sin depender del webhook: aplica el estado real de la
+     * suscripción y registra su última factura si ya está pagada. Usa los mismos métodos que el
+     * webhook (syncFromStripeStatus / recordSuccessfulInvoice), que son idempotentes, así que no
+     * importa si después también llega el evento. Si Stripe no responde, se deja como estaba.
+     */
+    public function reconcileWithStripe(ClientMembership $membership): ClientMembership
+    {
+        $subscriptionId = (string) $membership->getAttribute('stripe_subscription_id');
+
+        try {
+            $snapshot = $this->stripe->subscriptionSnapshot($subscriptionId);
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo conciliar la membresía con Stripe.', ['stripe_subscription_id' => $subscriptionId, 'error' => $e->getMessage()]);
+
+            return $membership;
+        }
+
+        $this->syncFromStripeStatus(
+            $subscriptionId,
+            $snapshot['status'],
+            $snapshot['current_period_end'] !== null ? Carbon::createFromTimestamp($snapshot['current_period_end']) : null,
+            $snapshot['cancel_at_period_end'],
+        );
+
+        $invoice = $snapshot['invoice'];
+        if ($invoice !== null && $invoice['status'] === 'paid' && $invoice['amount_paid'] > 0) {
+            $this->recordSuccessfulInvoice(
+                $subscriptionId,
+                $invoice['id'],
+                $invoice['amount_paid'] / 100,
+                $invoice['paid_at'] !== null ? Carbon::createFromTimestamp($invoice['paid_at']) : null,
+            );
+        }
+
+        return $membership->fresh() ?? $membership;
     }
 
     /**
