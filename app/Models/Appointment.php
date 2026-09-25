@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Order\OrderService;
 use App\Traits\HasPublicCode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -119,6 +120,22 @@ class Appointment extends Model
             $appointment->newQueryWithoutScopes()
                 ->where($appointment->getKeyName(), $appointment->getKey())
                 ->update(['bloquea_horario' => false]);
+        });
+
+        // Si la cita se cancela (por el cliente, recepción, el barbero o un comando), los productos
+        // que el cliente agregó al reservar ya no se van a recoger: se cancela su pedido pendiente
+        // y el stock vuelve al inventario. Va en el modelo para cubrir todos los caminos de cancelación.
+        static::updated(function (self $appointment) {
+            if (! $appointment->wasChanged('estado') || $appointment->estado !== 'cancelada') {
+                return;
+            }
+
+            $orders = app(OrderService::class);
+            Order::query()
+                ->where('appointment_id', (string) $appointment->getKey())
+                ->where('estado', 'pendiente')
+                ->get()
+                ->each(fn (Order $order) => $orders->cancel($order));
         });
     }
 

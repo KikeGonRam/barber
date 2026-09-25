@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\MobileApiToken;
 use App\Models\Order;
@@ -9,6 +10,8 @@ use App\Models\Permission;
 use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Appointment\AppointmentStatusService;
+use App\Services\Order\OrderService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\PermissionRegistrar;
@@ -38,6 +41,7 @@ class OrderApiTest extends TestCase
     protected function tearDown(): void
     {
         Order::query()->delete();
+        Appointment::withTrashed()->forceDelete();
         Product::withTrashed()->forceDelete();
         Client::query()->delete();
         MobileApiToken::query()->delete();
@@ -190,6 +194,53 @@ class OrderApiTest extends TestCase
         $cancel->assertJsonPath('data.estado', 'cancelado');
         $this->assertSame(10, $product->fresh()->stock_actual);
         $this->assertSame((string) $client->id, Order::find($orderId)->client_id);
+    }
+
+    private function appointmentWithProducts(Client $client, Product $product, int $cantidad): array
+    {
+        $appointment = Appointment::create([
+            'client_id' => (string) $client->id,
+            'barber_id' => 'barbero-pedidos',
+            'service_id' => 'servicio-pedidos',
+            'fecha' => now()->addDays(2)->format('Y-m-d'),
+            'hora_inicio' => '10:00:00',
+            'hora_fin' => '10:30:00',
+            'estado' => 'pendiente',
+        ]);
+        $order = app(OrderService::class)->place(
+            $client,
+            [['product_id' => (string) $product->id, 'cantidad' => $cantidad]],
+            'cita',
+            (string) $appointment->id
+        );
+
+        return [$appointment, $order];
+    }
+
+    public function test_cancelling_an_appointment_cancels_its_pending_products_and_restores_stock(): void
+    {
+        [, $client] = $this->clientUser('cliente-orders-cita-cancel@test.local');
+        $product = $this->sellableProduct('Aceite', 200, 10);
+        [$appointment, $order] = $this->appointmentWithProducts($client, $product, 2);
+
+        $this->assertSame(8, $product->fresh()->stock_actual);
+
+        app(AppointmentStatusService::class)->transition($appointment, 'cancelada');
+
+        $this->assertSame('cancelado', $order->fresh()->estado);
+        $this->assertSame(10, $product->fresh()->stock_actual);
+    }
+
+    public function test_confirming_an_appointment_keeps_its_products_order(): void
+    {
+        [, $client] = $this->clientUser('cliente-orders-cita-ok@test.local');
+        $product = $this->sellableProduct('Aceite', 200, 10);
+        [$appointment, $order] = $this->appointmentWithProducts($client, $product, 1);
+
+        app(AppointmentStatusService::class)->transition($appointment, 'confirmada');
+
+        $this->assertSame('pendiente', $order->fresh()->estado);
+        $this->assertSame(9, $product->fresh()->stock_actual);
     }
 
     public function test_cliente_cannot_deliver_or_download_receipt(): void
