@@ -588,7 +588,8 @@ class AppointmentController extends Controller
             'notas' => $validated['notas'] ?? null,
         ];
 
-        if ($validated['estado'] === 'cancelada' && (string) $appointment->estado !== 'cancelada') {
+        $becameCancelled = $validated['estado'] === 'cancelada' && (string) $appointment->estado !== 'cancelada';
+        if ($becameCancelled) {
             $payload['cancelada_en'] = now();
         }
 
@@ -606,6 +607,12 @@ class AppointmentController extends Controller
             return response()->json([
                 'message' => $exception->getMessage(),
             ], 422);
+        }
+
+        // La cancela el negocio (administración editando la cita): si el cliente pagó al
+        // reservar, se le devuelve, igual que cuando él cancela a tiempo.
+        if ($becameCancelled) {
+            $this->deposits->refundIfAny($appointment->fresh());
         }
 
         return response()->json([
@@ -784,8 +791,11 @@ class AppointmentController extends Controller
 
         // Barbero/staff cancelando también libera el horario para la lista
         // de espera -- no es exclusivo del cliente cancelando su propia cita.
+        // Y como cancela el negocio, lo que el cliente pagó al reservar se le
+        // devuelve (DepositService::refundIfAny(); no-show va por 'no_asistio').
         if ($validated['estado'] === 'cancelada') {
             $this->waitlist->notifyIfAny($appointment);
+            $this->deposits->refundIfAny($appointment);
         }
 
         if (array_key_exists('notas', $validated)) {

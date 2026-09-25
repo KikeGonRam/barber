@@ -7,10 +7,13 @@ use App\Models\Barber;
 use App\Models\Client;
 use App\Models\LoyaltyTransaction;
 use App\Models\MobileApiToken;
+use App\Models\Payment;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Payment\StripePaymentService;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
@@ -44,6 +47,7 @@ class AppointmentStatusApiTest extends TestCase
         // forceDelete(): un delete() masivo deja el registro soft-deleted con
         // bloquea_horario en true y choca con appointments_active_slot_unique.
         Appointment::withTrashed()->forceDelete();
+        Payment::query()->delete();
         Barber::query()->delete();
         Client::query()->delete();
         LoyaltyTransaction::query()->delete();
@@ -210,5 +214,72 @@ class AppointmentStatusApiTest extends TestCase
         $fresh = Appointment::find($appointment->id);
         $this->assertSame('completada', $fresh->estado);
         $this->assertSame('Cliente pidió el mismo corte del mes pasado.', $fresh->notas);
+    }
+
+    /** Lo que el cliente pagó al reservar (anticipo o pago completo por adelantado), ya verificado. */
+    private function prepaid(Appointment $appointment, string $metodo, ?string $paymentIntent = null): Payment
+    {
+        return Payment::create([
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 200,
+            'propina' => 0,
+            'metodo_pago' => $metodo,
+            'es_deposito' => true,
+            'estado' => Payment::ESTADO_VERIFICADO,
+            'stripe_payment_id' => $paymentIntent,
+        ]);
+    }
+
+    public function test_when_reception_cancels_a_prepaid_transfer_is_marked_refunded(): void
+    {
+        Notification::fake();
+        $token = $this->tokenFor('recepcionista', 'recepcion-reembolso@test.local');
+        $appointment = $this->appointment('confirmada');
+        $deposit = $this->prepaid($appointment, 'transferencia');
+
+        $this->withToken($token)
+            ->patchJson('/api/v1/appointments/'.$appointment->getAttribute('code').'/status', ['estado' => 'cancelada'])
+            ->assertOk();
+
+        $this->assertSame(Payment::ESTADO_REEMBOLSADO, $deposit->fresh()->getAttribute('estado'));
+    }
+
+    public function test_when_the_barber_cancels_a_prepaid_card_payment_is_refunded_in_stripe(): void
+    {
+        Notification::fake();
+        $this->mock(StripePaymentService::class, fn ($mock) => $mock->shouldReceive('refund')->once()->with('pi_reembolso_barbero'));
+        [$barber, $token] = $this->barberWithToken('barbero-reembolso@test.local');
+        $appointment = $this->appointment('confirmada', (string) $barber->id);
+        $this->prepaid($appointment, 'tarjeta', 'pi_reembolso_barbero');
+
+        $this->withToken($token)
+            ->patchJson('/api/v1/appointments/'.$appointment->getAttribute('code').'/status', ['estado' => 'cancelada'])
+            ->assertOk();
+    }
+
+    public function test_a_no_show_keeps_what_the_client_prepaid(): void
+    {
+        Notification::fake();
+        $token = $this->tokenFor('administrador', 'admin-noshow-reembolso@test.local');
+        $appointment = $this->appointment('confirmada', null, now()->subDay()->format('Y-m-d'));
+        $deposit = $this->prepaid($appointment, 'transferencia');
+
+        $this->withToken($token)
+            ->patchJson('/api/v1/appointments/'.$appointment->getAttribute('code').'/status', ['estado' => 'no_asistio'])
+            ->assertOk();
+
+        $this->assertSame(Payment::ESTADO_VERIFICADO, $deposit->fresh()->getAttribute('estado'));
+    }
+
+    public function test_a_pending_appointment_that_expires_unconfirmed_refunds_the_prepayment(): void
+    {
+        Notification::fake();
+        $appointment = $this->appointment('pendiente', null, now()->subDays(2)->format('Y-m-d'));
+        $deposit = $this->prepaid($appointment, 'transferencia');
+
+        $this->artisan('appointments:mark-no-show')->assertSuccessful();
+
+        $this->assertSame('cancelada', $appointment->fresh()->getAttribute('estado'));
+        $this->assertSame(Payment::ESTADO_REEMBOLSADO, $deposit->fresh()->getAttribute('estado'));
     }
 }

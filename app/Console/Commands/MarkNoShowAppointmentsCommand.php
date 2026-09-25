@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Appointment;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentStatusService;
+use App\Services\Payment\DepositService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -25,7 +26,7 @@ class MarkNoShowAppointmentsCommand extends Command
      * Recorre todas las citas abiertas y aplica la transición de estado que
      * corresponda según si estaban confirmadas o solo pendientes.
      */
-    public function handle(AppointmentStatusService $status, AppointmentNotifier $notifier): int
+    public function handle(AppointmentStatusService $status, AppointmentNotifier $notifier, DepositService $deposits): int
     {
         $grace = (int) $this->option('grace');
         $tz = config('app.timezone', 'America/Mexico_City');
@@ -55,9 +56,11 @@ class MarkNoShowAppointmentsCommand extends Command
                     $notifier->statusChanged($appt, 'no_asistio');
                     $noShow++;
                 } else {
-                    // Pendiente que nunca fue aprobada y ya paso: expira.
+                    // Pendiente que nunca fue aprobada y ya paso: expira. El cliente
+                    // no tuvo la culpa, así que si pagó al reservar se le devuelve.
                     $status->transition($appt, 'cancelada');
                     $notifier->cancelled($appt, 'expirada sin aprobacion');
+                    $deposits->refundIfAny($appt);
                     $expiradas++;
                 }
             } catch (\Throwable $e) {
