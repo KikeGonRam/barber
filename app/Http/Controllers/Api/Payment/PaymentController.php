@@ -6,6 +6,7 @@ use App\Exceptions\Domain\PaymentException;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\BarbershopSetting;
+use App\Models\Client;
 use App\Models\Payment;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
@@ -332,7 +333,7 @@ class PaymentController extends Controller
             // Stripe rechaza cualquier tarjeta que no sea de ese cliente.
             $customerId = null;
             $guardarTarjeta = false;
-            if ($isClient && $client && ($request->boolean('guardar_tarjeta') || $request->boolean('tarjeta_guardada'))) {
+            if ($isClient && $client instanceof Client && ($request->boolean('guardar_tarjeta') || $request->boolean('tarjeta_guardada'))) {
                 $customerId = $this->stripeService->customerFor($client);
                 $guardarTarjeta = $request->boolean('guardar_tarjeta');
             }
@@ -380,7 +381,7 @@ class PaymentController extends Controller
         $user = $request->user();
         abort_unless($user?->hasRole('cliente') && $user->clientProfile, 403, 'No autorizado.');
 
-        $customerId = $user->clientProfile->stripe_customer_id;
+        $customerId = $user->clientProfile->getAttribute('stripe_customer_id');
         if (! $customerId) {
             return response()->json(['data' => []]);
         }
@@ -407,9 +408,9 @@ class PaymentController extends Controller
      */
     public function transferInfo(Request $request): JsonResponse
     {
-        abort_unless($request->user(), 401, 'No autenticado.');
+        abort_unless($request->user() !== null, 401, 'No autenticado.');
 
-        $bank = BarbershopSetting::cached()?->datos_bancarios ?? [];
+        $bank = BarbershopSetting::cached()?->getAttribute('datos_bancarios') ?? [];
         $clabe = $bank['clabe'] ?? null;
 
         return response()->json(['data' => [

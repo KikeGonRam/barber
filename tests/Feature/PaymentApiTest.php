@@ -805,7 +805,7 @@ class PaymentApiTest extends TestCase
         });
 
         $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson("/api/v1/appointments/{$appointment->code}/deposit/stripe-intent", ['guardar_tarjeta' => true])
+            ->postJson('/api/v1/appointments/'.$appointment->getAttribute('code').'/deposit/stripe-intent', ['guardar_tarjeta' => true])
             ->assertOk()
             ->assertJsonPath('data.client_secret', 'pi_secret_deposit');
     }
@@ -823,7 +823,7 @@ class PaymentApiTest extends TestCase
         });
 
         $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson("/api/v1/appointments/{$appointment->code}/deposit/stripe-intent")
+            ->postJson('/api/v1/appointments/'.$appointment->getAttribute('code').'/deposit/stripe-intent')
             ->assertOk();
     }
 }

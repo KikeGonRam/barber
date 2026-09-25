@@ -180,7 +180,7 @@ class AppointmentStatusApiTest extends TestCase
         $appointment->update(['client_id' => (string) $client->id]);
 
         $this->withToken($token)
-            ->patchJson('/api/v1/appointments/'.$appointment->code.'/status', ['estado' => 'completada'])
+            ->patchJson('/api/v1/appointments/'.$appointment->getAttribute('code').'/status', ['estado' => 'completada'])
             ->assertOk();
 
         $client->refresh();
@@ -190,7 +190,7 @@ class AppointmentStatusApiTest extends TestCase
 
         // Repetir la petición no vuelve a sumar: 'completada' es terminal.
         $this->withToken($token)
-            ->patchJson('/api/v1/appointments/'.$appointment->code.'/status', ['estado' => 'completada'])
+            ->patchJson('/api/v1/appointments/'.$appointment->getAttribute('code').'/status', ['estado' => 'completada'])
             ->assertStatus(422);
         $this->assertSame(10, (int) $client->fresh()->puntos);
     }

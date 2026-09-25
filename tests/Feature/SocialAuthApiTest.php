@@ -143,6 +143,7 @@ class SocialAuthApiTest extends TestCase
         ]);
         $deleted->delete();
 
+        Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
         Socialite::fake('google', $this->fakeGoogleUser('eliminado-google@test.local'));
 
         $response = $this->get('/api/v1/auth/google/callback');

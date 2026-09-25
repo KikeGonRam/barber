@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Payment;
 use App\Exceptions\Domain\PaymentException;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\Client;
 use App\Models\Payment;
 use App\Services\Payment\DepositService;
 use App\Services\Payment\StripePaymentService;
@@ -57,7 +58,7 @@ class DepositController extends Controller
         try {
             $customerId = null;
             $client = $appointment->client;
-            if ($client && ($request->boolean('guardar_tarjeta') || $request->boolean('tarjeta_guardada'))) {
+            if ($client instanceof Client && ($request->boolean('guardar_tarjeta') || $request->boolean('tarjeta_guardada'))) {
                 $customerId = $this->stripe->customerFor($client);
             }
 

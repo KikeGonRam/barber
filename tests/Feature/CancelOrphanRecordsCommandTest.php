@@ -76,7 +76,7 @@ class CancelOrphanRecordsCommandTest extends TestCase
         $this->assertNotNull($orphan->fresh()->cancelada_en);
         $this->assertSame('pendiente', $valid->fresh()->estado);
         $this->assertSame('completada', $finished->fresh()->estado);
-        $this->assertSame(Waitlist::ESTADO_CANCELADO, $orphanWait->fresh()->estado);
-        $this->assertSame(Waitlist::ESTADO_ACTIVO, $validWait->fresh()->estado);
+        $this->assertSame(Waitlist::ESTADO_CANCELADO, $orphanWait->fresh()?->getAttribute('estado'));
+        $this->assertSame(Waitlist::ESTADO_ACTIVO, $validWait->fresh()?->getAttribute('estado'));
     }
 }

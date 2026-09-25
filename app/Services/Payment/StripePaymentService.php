@@ -3,6 +3,7 @@
 namespace App\Services\Payment;
 
 use App\Models\Client;
+use Illuminate\Database\Eloquent\Model;
 use Stripe\Invoice;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
@@ -75,15 +76,17 @@ class StripePaymentService
      */
     public function customerFor(Client $client): string
     {
-        if ($client->stripe_customer_id) {
-            return (string) $client->stripe_customer_id;
+        $stored = $client->getAttribute('stripe_customer_id');
+        if ($stored) {
+            return (string) $stored;
         }
 
         $client->loadMissing('user');
+        $user = $client->getRelation('user');
         $customerId = $this->createCustomer(
-            $client->user?->email ?? 'sin-correo@urbanblade.mx',
-            $client->user?->name ?? 'Cliente UrbanBlade',
-            ['client_id' => (string) $client->id],
+            ($user instanceof Model ? $user->getAttribute('email') : null) ?? 'sin-correo@urbanblade.mx',
+            ($user instanceof Model ? $user->getAttribute('name') : null) ?? 'Cliente UrbanBlade',
+            ['client_id' => (string) $client->getKey()],
         );
         $client->update(['stripe_customer_id' => $customerId]);
 
