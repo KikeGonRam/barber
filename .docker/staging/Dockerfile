@@ -59,6 +59,9 @@ RUN composer install --no-interaction --no-progress --optimize-autoloader --no-s
 COPY .docker/php/php.ini /usr/local/etc/php/conf.d/app-php.ini
 COPY .docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY .docker/caddy/Caddyfile /etc/caddy/Caddyfile
+# Un Caddyfile inválido (p. ej. al tocar las cabeceras de TT10/TT11) debe romper el build,
+# no dejar la tarea de ECS reiniciándose sin servir tráfico.
+RUN caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 storage bootstrap/cache

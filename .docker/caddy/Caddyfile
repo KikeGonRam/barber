@@ -14,7 +14,22 @@
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		# TT10 (HT-04): HTTPS obligatorio por un año. El TLS lo termina CloudFront, que ya
+		# redirige http -> https; sin "preload" porque esa lista es difícil de revertir.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		# TT11 (HT-04): no anunciar software ni versión. Borrar un campo difiere la
+		# operación al final de la respuesta, así que también quita lo que agrega php_fastcgi.
+		-Server
+		-X-Powered-By
+		-Via
 	}
+
+	# TT10 (HT-04): la API solo devuelve JSON, así que su CSP no permite cargar nada.
+	# El resto (Pulse del ingeniero y la documentación de Scribe) solo carga de sus CDN reales.
+	@api path /api/*
+	header @api Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+	@web not path /api/*
+	header @web Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
 
 	# Equivalente a la regla de nginx: bloquea archivos ocultos salvo
 	# /.well-known (requerido por validaciones ACME/dominio). RE2 (el motor
