@@ -138,6 +138,14 @@ class DashboardApiTest extends TestCase
             'role',
             'data' => ['todayLabel', 'kpis', 'nextAppointment', 'visitChart', 'loyalty', 'member', 'recommendation'],
         ]);
+        // Wallet de la app: qué gana al subir, escalera de niveles y reglas de puntos.
+        $response->assertJsonPath('data.loyalty.nextNivel', 'regular');
+        $response->assertJsonPath('data.loyalty.nextDiscountPct', 5);
+        $response->assertJsonPath('data.loyalty.levels.0', ['nivel' => 'nuevo', 'label' => 'Caballero', 'citas' => 0, 'discountPct' => 0]);
+        $response->assertJsonPath('data.loyalty.levels.3.nivel', 'leyenda');
+        $response->assertJsonPath('data.loyalty.earnRules.0', ['descripcion' => 'Cita completada', 'puntos' => 10]);
+        $response->assertJsonPath('data.loyalty.earnRules.3.puntos', 30);
+        $response->assertJsonPath('data.loyalty.maxRedeemPct', 50);
     }
 
     public function test_administrador_gets_the_curated_dashboard_payload(): void

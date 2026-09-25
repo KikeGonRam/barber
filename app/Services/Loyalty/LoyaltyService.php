@@ -32,6 +32,14 @@ class LoyaltyService
         'leyenda' => 15,
     ];
 
+    // Puntos que se ganan por cada evento (antes eran números sueltos en cada método).
+    const CITA_POINTS = 10;
+
+    const RESENA_POINTS = 5;
+
+    // Tope de canje: el cliente paga con puntos hasta este % del total ya con descuento.
+    const MAX_REDEEM_PCT = 50;
+
     const LEVEL_LABELS = [
         'nuevo' => 'Caballero',
         'regular' => 'Regular',
@@ -143,7 +151,7 @@ class LoyaltyService
      */
     public static function maxRedeemablePoints(float $totalDespuesDeNivel, int $puntosDisponibles): int
     {
-        $topePorMitad = (int) floor($totalDespuesDeNivel * 0.5);
+        $topePorMitad = (int) floor($totalDespuesDeNivel * self::MAX_REDEEM_PCT / 100);
 
         return max(0, min($topePorMitad, $puntosDisponibles));
     }
@@ -237,7 +245,7 @@ class LoyaltyService
     {
         $previousNivel = $client->nivel ?? 'nuevo';
 
-        $client->increment('puntos', 10);
+        $client->increment('puntos', self::CITA_POINTS);
         $client->increment('total_citas', 1);
         $client->refresh();
 
@@ -258,7 +266,7 @@ class LoyaltyService
         LoyaltyTransaction::create([
             'client_id' => (string) $client->id,
             'tipo' => 'ganado',
-            'puntos' => 10,
+            'puntos' => self::CITA_POINTS,
             'descripcion' => 'Cita completada',
             'referencia_id' => $appointmentId,
         ]);
@@ -286,12 +294,12 @@ class LoyaltyService
 
     public function awardResenaPoints(Client $client, string $reviewId): void
     {
-        $client->increment('puntos', 5);
+        $client->increment('puntos', self::RESENA_POINTS);
 
         LoyaltyTransaction::create([
             'client_id' => (string) $client->id,
             'tipo' => 'ganado',
-            'puntos' => 5,
+            'puntos' => self::RESENA_POINTS,
             'descripcion' => 'Reseña publicada',
             'referencia_id' => $reviewId,
         ]);

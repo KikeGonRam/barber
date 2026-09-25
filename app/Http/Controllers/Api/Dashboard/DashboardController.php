@@ -230,6 +230,23 @@ class DashboardController extends Controller
                 'discountPct' => $loyalty['discount_pct'],
                 'nextNivel' => $nextNivel,
                 'nextNivelLabel' => $nextNivel ? (LoyaltyService::LEVEL_LABELS[$nextNivel] ?? null) : null,
+                // Aditivo (app Android, Wallet): qué gana el cliente al subir, la escalera de
+                // niveles y cómo se ganan/canjean puntos, leídos de LoyaltyService para que
+                // ningún cliente repita estas reglas a mano.
+                'nextDiscountPct' => $nextNivel ? LoyaltyService::discountPct($nextNivel) : null,
+                'levels' => collect(LoyaltyService::LEVELS)->map(fn (int $citas, string $key) => [
+                    'nivel' => $key,
+                    'label' => LoyaltyService::LEVEL_LABELS[$key] ?? $key,
+                    'citas' => $citas,
+                    'discountPct' => LoyaltyService::discountPct($key),
+                ])->values(),
+                'earnRules' => [
+                    ['descripcion' => 'Cita completada', 'puntos' => LoyaltyService::CITA_POINTS],
+                    ['descripcion' => 'Tu cumpleaños', 'puntos' => LoyaltyService::BIRTHDAY_POINTS],
+                    ['descripcion' => 'Reseña publicada', 'puntos' => LoyaltyService::RESENA_POINTS],
+                    ['descripcion' => 'Amigo referido', 'puntos' => LoyaltyService::REFERRAL_POINTS],
+                ],
+                'maxRedeemPct' => LoyaltyService::MAX_REDEEM_PCT,
                 'citasFaltan' => $loyalty['citas_faltan'],
                 'progressPct' => $loyalty['progress_pct'],
                 'recentTransactions' => collect($loyalty['recent_transactions'])->map(fn ($tx) => [
