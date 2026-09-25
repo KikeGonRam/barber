@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\Membership;
 use App\Exceptions\Domain\MembershipException;
 use App\Http\Controllers\Controller;
 use App\Models\ClientMembership;
+use App\Models\MembershipInvoice;
 use App\Models\MembershipPlan;
 use App\Services\Membership\MembershipService;
+use App\Services\Payment\StripePaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -24,6 +26,7 @@ class MembershipController extends Controller
 {
     public function __construct(
         private readonly MembershipService $memberships,
+        private readonly StripePaymentService $stripe,
     ) {}
 
     /**
@@ -118,6 +121,81 @@ class MembershipController extends Controller
             'message' => 'Tu membresía se cancelará al final del periodo ya pagado.',
             'data' => $this->payload($membership->fresh('plan')),
         ]);
+    }
+
+    /**
+     * Cobros mensuales de membresía del cliente autenticado, para "Mis facturas" (antes solo
+     * contaban para el corte de caja y el cliente no los veía).
+     */
+    public function invoices(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        abort_unless($user?->hasRole('cliente') && $user->clientProfile, 403, 'No autorizado.');
+
+        $membershipIds = ClientMembership::where('client_id', (string) $user->clientProfile->getKey())
+            ->get()
+            ->map(fn (ClientMembership $membership) => (string) $membership->getKey())
+            ->all();
+
+        $invoices = MembershipInvoice::whereIn('client_membership_id', $membershipIds)
+            ->with('membership.plan')
+            ->orderByDesc('pagado_en')
+            ->get();
+
+        return response()->json([
+            'data' => $invoices->map(fn (MembershipInvoice $invoice) => [
+                'id' => (string) $invoice->getKey(),
+                'plan' => $this->planName($invoice),
+                'monto' => (float) $invoice->getAttribute('monto'),
+                'pagado_en' => optional($invoice->getAttribute('pagado_en'))->toIso8601String(),
+            ])->values(),
+            'meta' => [
+                'total_pagado' => (float) $invoices->sum(fn (MembershipInvoice $invoice) => (float) $invoice->getAttribute('monto')),
+            ],
+        ]);
+    }
+
+    /**
+     * Liga al PDF de la factura de Stripe de un cobro de membresía, solo para su dueño.
+     */
+    public function invoiceReceiptLink(Request $request, MembershipInvoice $invoice): JsonResponse
+    {
+        $user = $request->user();
+        abort_unless($user?->hasRole('cliente') && $user->clientProfile, 403, 'No autorizado.');
+
+        $membership = $invoice->membership;
+        abort_unless(
+            $membership instanceof ClientMembership
+                && (string) $membership->getAttribute('client_id') === (string) $user->clientProfile->getKey(),
+            403,
+            'No autorizado.'
+        );
+
+        try {
+            $url = $this->stripe->invoicePdfUrl((string) $invoice->getAttribute('stripe_invoice_id'));
+        } catch (Throwable $exception) {
+            Log::warning('No se pudo obtener el PDF de la factura de membresía.', ['invoice_id' => (string) $invoice->getKey(), 'error' => $exception->getMessage()]);
+            $url = null;
+        }
+
+        if ($url === null) {
+            return response()->json(['message' => 'La factura todavía no está disponible. Intenta más tarde.'], 422);
+        }
+
+        return response()->json([
+            'data' => [
+                'invoice_id' => (string) $invoice->getKey(),
+                'receipt_url' => $url,
+            ],
+        ]);
+    }
+
+    private function planName(MembershipInvoice $invoice): ?string
+    {
+        $membership = $invoice->getRelation('membership');
+        $plan = $membership instanceof ClientMembership ? $membership->getRelation('plan') : null;
+
+        return $plan instanceof MembershipPlan ? $plan->getAttribute('nombre') : null;
     }
 
     private function payload(ClientMembership $membership): array

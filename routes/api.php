@@ -227,6 +227,9 @@ Route::prefix('v1')->group(function (): void {
         Route::get('memberships/mine', [RecurringMembershipController::class, 'mine']);
         Route::post('memberships/subscribe', [RecurringMembershipController::class, 'subscribe']);
         Route::post('memberships/cancel', [RecurringMembershipController::class, 'cancel']);
+        // Cobros mensuales de la membresía en "Mis facturas" y el PDF de su factura de Stripe.
+        Route::get('memberships/invoices', [RecurringMembershipController::class, 'invoices']);
+        Route::get('memberships/invoices/{invoice}/receipt-link', [RecurringMembershipController::class, 'invoiceReceiptLink']);
 
         // Solo administrador y recepcionista: gestión de pagos, clientes e inventario.
         Route::middleware('role.custom:administrador,recepcionista')->group(function (): void {

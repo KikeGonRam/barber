@@ -226,6 +226,38 @@ class StripePaymentService
     }
 
     /**
+     * Liga al PDF de una factura de Stripe (cobro mensual de membresía) para que el cliente la
+     * descargue desde Mis facturas. Null si Stripe todavía no la genera.
+     */
+    public function invoicePdfUrl(string $invoiceId): ?string
+    {
+        $pdf = $this->client()->invoices->retrieve($invoiceId)->invoice_pdf;
+
+        return is_string($pdf) && $pdf !== '' ? $pdf : null;
+    }
+
+    /**
+     * client_secret del primer cobro de una suscripción que sigue incompleta (el cliente no
+     * terminó de pagar o su tarjeta fue rechazada), para reintentar el pago sin crear otra.
+     * Null si la factura ya no está abierta (pagada, anulada o la suscripción ya no existe).
+     */
+    public function pendingSubscriptionClientSecret(string $subscriptionId): ?string
+    {
+        $subscription = $this->client()->subscriptions->retrieve($subscriptionId, [
+            'expand' => ['latest_invoice.confirmation_secret', 'latest_invoice.payment_intent'],
+        ]);
+        $invoice = $subscription->latest_invoice instanceof Invoice ? $subscription->latest_invoice->toArray() : [];
+
+        if (($invoice['status'] ?? null) !== 'open') {
+            return null;
+        }
+
+        return $invoice['confirmation_secret']['client_secret']
+            ?? $invoice['payment_intent']['client_secret']
+            ?? null;
+    }
+
+    /**
      * Marca la suscripción para cancelarse al terminar el periodo ya
      * pagado, en vez de cortar el beneficio de inmediato (decisión de
      * negocio: el cliente sigue disfrutando lo que ya pagó).

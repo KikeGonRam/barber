@@ -134,6 +134,52 @@ class MembershipServiceTest extends TestCase
         $this->memberships->subscribe($client, $plan);
     }
 
+    private function pendingMembership(Client $client, MembershipPlan $plan): ClientMembership
+    {
+        return ClientMembership::create([
+            'client_id' => (string) $client->id,
+            'membership_plan_id' => (string) $plan->id,
+            'stripe_customer_id' => 'cus_test',
+            'stripe_subscription_id' => 'sub_pendiente',
+            'estado' => ClientMembership::ESTADO_PENDIENTE,
+            'bloquea_membresia' => true,
+            'cancelar_al_finalizar' => false,
+        ]);
+    }
+
+    public function test_subscribe_retries_the_payment_of_the_same_pending_plan_without_a_new_subscription(): void
+    {
+        $client = $this->makeClient();
+        $plan = $this->makePlan();
+        $pending = $this->pendingMembership($client, $plan);
+
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldReceive('pendingSubscriptionClientSecret')->once()->with('sub_pendiente')->andReturn('pi_reintento_secret');
+            $mock->shouldReceive('createSubscription')->never();
+        });
+
+        $result = app(MembershipService::class)->subscribe($client, $plan);
+
+        $this->assertSame('pi_reintento_secret', $result['client_secret']);
+        $this->assertSame((string) $pending->id, (string) $result['membership']->id);
+        $this->assertSame(1, ClientMembership::where('client_id', (string) $client->id)->count());
+    }
+
+    public function test_subscribe_still_blocks_a_pending_plan_whose_invoice_is_no_longer_open(): void
+    {
+        $client = $this->makeClient();
+        $plan = $this->makePlan();
+        $this->pendingMembership($client, $plan);
+
+        $this->mock(StripePaymentService::class, function ($mock) {
+            $mock->shouldReceive('pendingSubscriptionClientSecret')->once()->andReturn(null);
+            $mock->shouldReceive('createSubscription')->never();
+        });
+
+        $this->expectException(MembershipException::class);
+        app(MembershipService::class)->subscribe($client, $plan);
+    }
+
     public function test_subscribe_is_allowed_again_after_a_previous_membership_was_cancelled(): void
     {
         $client = $this->makeClient();

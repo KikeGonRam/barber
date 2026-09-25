@@ -81,7 +81,18 @@ class MembershipService
         // (client_id, bloquea_membresia) de la migración es la garantía real
         // ante dos solicitudes casi simultáneas, mismo patrón que
         // WaitlistService::join() / ReferralService::link().
-        if (ClientMembership::where('client_id', (string) $client->id)->where('bloquea_membresia', true)->exists()) {
+        $current = ClientMembership::where('client_id', (string) $client->id)->where('bloquea_membresia', true)->first();
+        if ($current instanceof ClientMembership) {
+            // El mismo plan que quedó pendiente (el primer pago no se completó): se reintenta el
+            // cobro de esa misma suscripción en vez de bloquear al cliente hasta que Stripe la venza.
+            if ($current->getAttribute('estado') === ClientMembership::ESTADO_PENDIENTE
+                && (string) $current->getAttribute('membership_plan_id') === (string) $plan->getKey()) {
+                $secret = $this->stripe->pendingSubscriptionClientSecret((string) $current->getAttribute('stripe_subscription_id'));
+                if ($secret !== null) {
+                    return ['membership' => $current, 'client_secret' => $secret];
+                }
+            }
+
             throw new MembershipException('Ya tienes una membresía activa o pendiente. Cancélala antes de contratar otra.');
         }
 
