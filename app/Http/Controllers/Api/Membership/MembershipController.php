@@ -49,6 +49,15 @@ class MembershipController extends Controller
 
     /**
      * Membresía actual del cliente autenticado (o null si no tiene ninguna).
+     *
+     * Si está pendiente, con pago fallido o ya pasó su fin de periodo, antes de responder se
+     * concilia con Stripe (estado real de la suscripción y su última factura pagada), así que se
+     * activa aunque el webhook no haya llegado.
+     *
+     * @authenticated
+     *
+     * @response 200 {"data": {"id": "66f0a1b2c3d4e5f6a7b8c9d0", "estado": "activa", "cancelar_al_finalizar": false, "periodo_actual_fin": "2026-10-25T16:20:10+00:00", "plan": {"id": "66f0a1b2c3d4e5f6a7b8c9d1", "nombre": "Básico", "precio_mensual": 199, "descuento_pct": 10}}}
+     * @response 200 scenario="Sin membresía" {"data": null}
      */
     public function mine(Request $request): JsonResponse
     {
@@ -132,6 +141,11 @@ class MembershipController extends Controller
     /**
      * Cobros mensuales de membresía del cliente autenticado, para "Mis facturas" (antes solo
      * contaban para el corte de caja y el cliente no los veía).
+     *
+     * @authenticated
+     *
+     * @response 200 {"data": [{"id": "66f0a1b2c3d4e5f6a7b8c9d2", "plan": "Básico", "monto": 199, "pagado_en": "2026-09-25T16:20:13+00:00"}], "meta": {"total_pagado": 199}}
+     * @response 403 {"message": "No autorizado."}
      */
     public function invoices(Request $request): JsonResponse
     {
@@ -163,6 +177,14 @@ class MembershipController extends Controller
 
     /**
      * Liga al PDF de la factura de Stripe de un cobro de membresía, solo para su dueño.
+     *
+     * @authenticated
+     *
+     * @urlParam invoice_id string required ID del cobro de membresía (de GET memberships/invoices). Example: 66f0a1b2c3d4e5f6a7b8c9d2
+     *
+     * @response 200 {"data": {"invoice_id": "66f0a1b2c3d4e5f6a7b8c9d2", "receipt_url": "https://pay.stripe.com/invoice/.../pdf"}}
+     * @response 403 {"message": "No autorizado."}
+     * @response 422 {"message": "La factura todavía no está disponible. Intenta más tarde."}
      */
     public function invoiceReceiptLink(Request $request, MembershipInvoice $invoice): JsonResponse
     {

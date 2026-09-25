@@ -1,533 +1,28 @@
-name: Inventario
+name: Membresías
 description: |-
 
-  Gestión de productos, stock y movimientos de almacén.
+  Suscripción mensual recurrente (roadmap P1, vía Stripe Subscriptions) que
+  otorga un descuento % en cada servicio mientras esté activa. La venta y el
+  cobro real de las renovaciones ocurren enteramente en Stripe -- este
+  controlador solo contrata, consulta y cancela.
 endpoints:
   -
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/inventory/products
+    uri: api/v1/memberships/plans
     metadata:
       custom: []
-      groupName: Inventario
+      groupName: Membresías
       groupDescription: |-
 
-        Gestión de productos, stock y movimientos de almacén.
+        Suscripción mensual recurrente (roadmap P1, vía Stripe Subscriptions) que
+        otorga un descuento % en cada servicio mientras esté activa. La venta y el
+        cobro real de las renovaciones ocurren enteramente en Stripe -- este
+        controlador solo contrata, consulta y cancela.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Listar Productos'
-      description: 'Obtiene el catálogo de productos con su stock actual y alertas de stock bajo.'
-      authenticated: true
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters:
-      categoria:
-        custom: []
-        name: categoria
-        description: 'Filtrar por categoría.'
-        required: false
-        example: Barbería
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: 'Filtrar por tipo (insumo, venta).'
-        required: false
-        example: venta
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanQueryParameters:
-      categoria: Barbería
-      tipo: venta
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 200
-        content: |-
-          {
-           "data": [
-             {
-               "id": 1,
-               "nombre": "Pomada Mate",
-               "categoria": "Fijación",
-               "stock_actual": 15,
-               "low_stock": false,
-               "precio_venta": 25.00
-             }
-           ]
-          }
-        headers: []
-        description: ''
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: api/v1/inventory/products
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: multipart/form-data
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      nombre:
-        custom: []
-        name: nombre
-        description: 'El campo value no debe tener más de 120 caracteres.'
-        required: true
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      categoria:
-        custom: []
-        name: categoria
-        description: 'El campo value no debe tener más de 100 caracteres.'
-        required: true
-        example: 'n'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      descripcion:
-        custom: []
-        name: descripcion
-        description: 'El campo value no debe tener más de 2000 caracteres.'
-        required: false
-        example: g
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      precio_compra:
-        custom: []
-        name: precio_compra
-        description: 'El campo value debe ser al menos 0.'
-        required: true
-        example: 12
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      precio_venta:
-        custom: []
-        name: precio_venta
-        description: 'El campo value debe ser al menos 0.'
-        required: true
-        example: 77
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_actual:
-        custom: []
-        name: stock_actual
-        description: 'El campo value debe ser al menos 0.'
-        required: true
-        example: 8
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_minimo:
-        custom: []
-        name: stock_minimo
-        description: 'El campo value debe ser al menos 0.'
-        required: true
-        example: 76
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: ''
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      imagen:
-        custom: []
-        name: imagen
-        description: 'El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes.'
-        required: false
-        example: null
-        type: file
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      active:
-        custom: []
-        name: active
-        description: ''
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      activo:
-        custom: []
-        name: activo
-        description: ''
-        required: false
-        example: false
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      nombre: b
-      categoria: 'n'
-      descripcion: g
-      precio_compra: 12
-      precio_venta: 77
-      stock_actual: 8
-      stock_minimo: 76
-      tipo: architecto
-      active: true
-      activo: false
-    fileParameters:
-      imagen: null
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - PUT
-    uri: 'api/v1/inventory/products/{product_id}'
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: multipart/form-data
-      Accept: application/json
-    urlParameters:
-      product_id:
-        custom: []
-        name: product_id
-        description: 'The ID of the product.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      product_id: architecto
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      nombre:
-        custom: []
-        name: nombre
-        description: 'El campo value no debe tener más de 120 caracteres.'
-        required: false
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      categoria:
-        custom: []
-        name: categoria
-        description: 'El campo value no debe tener más de 100 caracteres.'
-        required: false
-        example: 'n'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      descripcion:
-        custom: []
-        name: descripcion
-        description: 'El campo value no debe tener más de 2000 caracteres.'
-        required: false
-        example: g
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      precio_compra:
-        custom: []
-        name: precio_compra
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 12
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      precio_venta:
-        custom: []
-        name: precio_venta
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 77
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_actual:
-        custom: []
-        name: stock_actual
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 8
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_minimo:
-        custom: []
-        name: stock_minimo
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 76
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: ''
-        required: false
-        example: null
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      imagen:
-        custom: []
-        name: imagen
-        description: 'El campo value debe ser una imagen. El campo value no debe pesar más de 2048 kilobytes.'
-        required: false
-        example: null
-        type: file
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      active:
-        custom: []
-        name: active
-        description: ''
-        required: false
-        example: false
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      activo:
-        custom: []
-        name: activo
-        description: ''
-        required: false
-        example: false
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      nombre: b
-      categoria: 'n'
-      descripcion: g
-      precio_compra: 12
-      precio_venta: 77
-      stock_actual: 8
-      stock_minimo: 76
-      active: false
-      activo: false
-    fileParameters:
-      imagen: null
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - DELETE
-    uri: 'api/v1/inventory/products/{product_id}'
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      product_id:
-        custom: []
-        name: product_id
-        description: 'The ID of the product.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      product_id: architecto
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: 'api/v1/inventory/products/{product_id}/mark-ordered'
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: |-
-        Marca un producto de stock bajo como "ya pedido" para silenciar la
-        alerta diaria/panel durante Product::RESTOCK_GRACE_DAYS.
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      product_id:
-        custom: []
-        name: product_id
-        description: 'The ID of the product.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      product_id: architecto
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - GET
-    uri: api/v1/inventory/low-stock
-    metadata:
-      custom: []
-      groupName: Inventario
-      groupDescription: |-
-
-        Gestión de productos, stock y movimientos de almacén.
-      subgroup: ''
-      subgroupDescription: ''
-      title: |-
-        Productos en o por debajo de su stock mínimo, para el panel de
-        "marcar como pedido" (silencia la alerta diaria unos días) — visto
-        tanto en el catálogo de productos como en movimientos (web).
+      title: 'Catálogo de planes disponibles para contratar.'
       description: ''
       authenticated: false
       deprecated: false
@@ -560,17 +55,23 @@ endpoints:
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/inventory/movements
+    uri: api/v1/memberships/mine
     metadata:
       custom: []
-      groupName: Inventario
+      groupName: Membresías
       groupDescription: |-
 
-        Gestión de productos, stock y movimientos de almacén.
+        Suscripción mensual recurrente (roadmap P1, vía Stripe Subscriptions) que
+        otorga un descuento % en cada servicio mientras esté activa. La venta y el
+        cobro real de las renovaciones ocurren enteramente en Stripe -- este
+        controlador solo contrata, consulta y cancela.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Historial de Movimientos'
-      description: 'Obtiene el registro de entradas y salidas de productos del almacén.'
+      title: 'Membresía actual del cliente autenticado (o null si no tiene ninguna).'
+      description: |-
+        Si está pendiente, con pago fallido o ya pasó su fin de periodo, antes de responder se
+        concilia con Stripe (estado real de la suscripción y su última factura pagada), así que se
+        activa aunque el webhook no haya llegado.
       authenticated: true
       deprecated: false
     headers:
@@ -587,22 +88,15 @@ endpoints:
       -
         custom: []
         status: 200
-        content: |-
-          {
-           "data": [
-             {
-               "id": 10,
-               "producto": "Shampoo Anti-caspa",
-               "tipo": "entrada",
-               "cantidad": 12,
-               "motivo": "Reposición de stock",
-               "responsable": "Admin",
-               "fecha": "2026-04-10T10:30:00Z"
-             }
-           ]
-          }
+        content: '{"data": {"id": "66f0a1b2c3d4e5f6a7b8c9d0", "estado": "activa", "cancelar_al_finalizar": false, "periodo_actual_fin": "2026-10-25T16:20:10+00:00", "plan": {"id": "66f0a1b2c3d4e5f6a7b8c9d1", "nombre": "Básico", "precio_mensual": 199, "descuento_pct": 10}}}'
         headers: []
         description: ''
+      -
+        custom: []
+        status: 200
+        content: '{"data": null}'
+        headers: []
+        description: 'Sin membresía'
     responseFields: []
     auth: []
     controller: null
@@ -612,16 +106,22 @@ endpoints:
     custom: []
     httpMethods:
       - POST
-    uri: api/v1/inventory/movements
+    uri: api/v1/memberships/subscribe
     metadata:
       custom: []
-      groupName: Inventario
+      groupName: Membresías
       groupDescription: |-
 
-        Gestión de productos, stock y movimientos de almacén.
+        Suscripción mensual recurrente (roadmap P1, vía Stripe Subscriptions) que
+        otorga un descuento % en cada servicio mientras esté activa. La venta y el
+        cobro real de las renovaciones ocurren enteramente en Stripe -- este
+        controlador solo contrata, consulta y cancela.
       subgroup: ''
       subgroupDescription: ''
-      title: ''
+      title: |-
+        Contrata un plan. Devuelve el client_secret para que el frontend
+        confirme el primer pago con Stripe Elements (mismo patrón SCA que el
+        resto de los cobros con tarjeta de esta app).
       description: ''
       authenticated: false
       deprecated: false
@@ -633,80 +133,173 @@ endpoints:
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
-      product_id:
+      membership_plan_id:
         custom: []
-        name: product_id
-        description: 'Must match an existing stored value.'
+        name: membership_plan_id
+        description: 'ID del plan a contratar.'
         required: true
-        example: architecto
+        example: 66f0...
         type: string
         enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: false
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: ''
-        required: false
-        example: null
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      cantidad:
-        custom: []
-        name: cantidad
-        description: 'El campo value debe ser al menos 1.'
-        required: true
-        example: 22
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      motivo:
-        custom: []
-        name: motivo
-        description: 'El campo value no debe tener más de 255 caracteres.'
-        required: false
-        example: g
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      appointment_id:
-        custom: []
-        name: appointment_id
-        description: 'Must match an existing stored value.'
-        required: false
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      fecha:
-        custom: []
-        name: fecha
-        description: 'El campo value no es una fecha válida.'
-        required: false
-        example: '2026-09-13T22:53:37'
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
         deprecated: false
     cleanBodyParameters:
-      product_id: architecto
-      cantidad: 22
-      motivo: g
-      appointment_id: architecto
-      fecha: '2026-09-13T22:53:37'
+      membership_plan_id: 66f0...
     fileParameters: []
     responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/memberships/cancel
+    metadata:
+      custom: []
+      groupName: Membresías
+      groupDescription: |-
+
+        Suscripción mensual recurrente (roadmap P1, vía Stripe Subscriptions) que
+        otorga un descuento % en cada servicio mientras esté activa. La venta y el
+        cobro real de las renovaciones ocurren enteramente en Stripe -- este
+        controlador solo contrata, consulta y cancela.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Cancela la membresía al final del periodo ya pagado.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/memberships/invoices
+    metadata:
+      custom: []
+      groupName: Membresías
+      groupDescription: |-
+
+        Suscripción mensual recurrente (roadmap P1, vía Stripe Subscriptions) que
+        otorga un descuento % en cada servicio mientras esté activa. La venta y el
+        cobro real de las renovaciones ocurren enteramente en Stripe -- este
+        controlador solo contrata, consulta y cancela.
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Cobros mensuales de membresía del cliente autenticado, para "Mis facturas" (antes solo
+        contaban para el corte de caja y el cliente no los veía).
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"data": [{"id": "66f0a1b2c3d4e5f6a7b8c9d2", "plan": "Básico", "monto": 199, "pagado_en": "2026-09-25T16:20:13+00:00"}], "meta": {"total_pagado": 199}}'
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: '{"message": "No autorizado."}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/memberships/invoices/{invoice_id}/receipt-link'
+    metadata:
+      custom: []
+      groupName: Membresías
+      groupDescription: |-
+
+        Suscripción mensual recurrente (roadmap P1, vía Stripe Subscriptions) que
+        otorga un descuento % en cada servicio mientras esté activa. La venta y el
+        cobro real de las renovaciones ocurren enteramente en Stripe -- este
+        controlador solo contrata, consulta y cancela.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Liga al PDF de la factura de Stripe de un cobro de membresía, solo para su dueño.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      invoice_id:
+        custom: []
+        name: invoice_id
+        description: 'ID del cobro de membresía (de GET memberships/invoices).'
+        required: true
+        example: 66f0a1b2c3d4e5f6a7b8c9d2
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      invoice_id: 66f0a1b2c3d4e5f6a7b8c9d2
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"data": {"invoice_id": "66f0a1b2c3d4e5f6a7b8c9d2", "receipt_url": "https://pay.stripe.com/invoice/.../pdf"}}'
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: '{"message": "No autorizado."}'
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: '{"message": "La factura todavía no está disponible. Intenta más tarde."}'
+        headers: []
+        description: ''
     responseFields: []
     auth: []
     controller: null

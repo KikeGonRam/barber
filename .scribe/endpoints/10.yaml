@@ -1,26 +1,23 @@
-name: 'Paquetes prepagados'
-description: |-
-
-  Catálogo de paquetes disponibles, compra (efectivo por staff o tarjeta
-  vía Stripe) y consulta de los paquetes de un cliente.
+name: Pagos
+description: ''
 endpoints:
   -
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/packages/catalog
+    uri: api/v1/payments/transfer-info
     metadata:
       custom: []
-      groupName: 'Paquetes prepagados'
-      groupDescription: |-
-
-        Catálogo de paquetes disponibles, compra (efectivo por staff o tarjeta
-        vía Stripe) y consulta de los paquetes de un cliente.
+      groupName: Pagos
+      groupDescription: ''
       subgroup: ''
       subgroupDescription: ''
-      title: 'Catálogo de paquetes activos disponibles para comprar.'
+      title: |-
+        Datos para pagar por transferencia (banco, beneficiario, CLABE y concepto)
+        que configura el administrador. Solo para usuarios autenticados: la ficha
+        publica del negocio no los incluye a proposito.
       description: ''
-      authenticated: false
+      authenticated: true
       deprecated: false
     headers:
       Content-Type: application/json
@@ -35,13 +32,10 @@ endpoints:
     responses:
       -
         custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
+        status: 200
+        content: '{"data": {"configurado": true, "banco": "BBVA", "beneficiario": "UrbanBlade SA", "clabe": "012345678901234567", "concepto": "Cita UrbanBlade"}}'
+        headers: []
+        description: ''
     responseFields: []
     auth: []
     controller: null
@@ -51,19 +45,19 @@ endpoints:
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/packages
+    uri: api/v1/payments/cards
     metadata:
       custom: []
-      groupName: 'Paquetes prepagados'
-      groupDescription: |-
-
-        Catálogo de paquetes disponibles, compra (efectivo por staff o tarjeta
-        vía Stripe) y consulta de los paquetes de un cliente.
+      groupName: Pagos
+      groupDescription: ''
       subgroup: ''
       subgroupDescription: ''
-      title: 'Mis paquetes (cliente) o los de un cliente indicado (staff).'
+      title: |-
+        Tarjetas guardadas del cliente en Stripe (marca, ultimos 4 y vencimiento)
+        para ofrecer "pagar con tu Visa 4242" o "usar otra tarjeta". Lista vacia
+        si no tiene ninguna o si Stripe no responde: nunca bloquea el pago.
       description: ''
-      authenticated: false
+      authenticated: true
       deprecated: false
     headers:
       Content-Type: application/json
@@ -78,129 +72,10 @@ endpoints:
     responses:
       -
         custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: api/v1/packages/stripe-intent
-    metadata:
-      custom: []
-      groupName: 'Paquetes prepagados'
-      groupDescription: |-
-
-        Catálogo de paquetes disponibles, compra (efectivo por staff o tarjeta
-        vía Stripe) y consulta de los paquetes de un cliente.
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Crea el PaymentIntent de Stripe para comprar un paquete con tarjeta.'
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      service_package_id:
-        custom: []
-        name: service_package_id
-        description: 'ID del paquete.'
-        required: true
-        example: 66f1...
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      client_id:
-        custom: []
-        name: client_id
-        description: 'Must match an existing stored value.'
-        required: false
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanBodyParameters:
-      service_package_id: 66f1...
-      client_id: architecto
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: api/v1/packages
-    metadata:
-      custom: []
-      groupName: 'Paquetes prepagados'
-      groupDescription: |-
-
-        Catálogo de paquetes disponibles, compra (efectivo por staff o tarjeta
-        vía Stripe) y consulta de los paquetes de un cliente.
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Compra en efectivo, registrada por staff (Admin/Recepcionista).'
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      client_id:
-        custom: []
-        name: client_id
-        description: 'ID del cliente.'
-        required: true
-        example: 66f0...
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      service_package_id:
-        custom: []
-        name: service_package_id
-        description: 'ID del paquete.'
-        required: true
-        example: 66f1...
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanBodyParameters:
-      client_id: 66f0...
-      service_package_id: 66f1...
-    fileParameters: []
-    responses: []
+        status: 200
+        content: '{"data": [{"id": "pm_123", "brand": "visa", "last4": "4242", "exp_month": 12, "exp_year": 2032}]}'
+        headers: []
+        description: ''
     responseFields: []
     auth: []
     controller: null

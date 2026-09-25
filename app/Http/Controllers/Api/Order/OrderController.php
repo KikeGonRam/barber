@@ -190,6 +190,8 @@ class OrderController extends Controller
      *
      * @authenticated
      *
+     * @urlParam order_id string required ID del pedido. Example: 66f0a1b2c3d4e5f6a7b8c9d3
+     *
      * @response 200 {"data": {"order_id": "66f...", "receipt_url": "https://..."}}
      * @response 422 {"message": "El comprobante se genera cuando recibes y pagas tu pedido."}
      */

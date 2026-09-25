@@ -304,9 +304,7 @@ endpoints:
         Endpoints para gestionar el perfil del usuario autenticado.
       subgroup: ''
       subgroupDescription: ''
-      title: |-
-        Guarda/actualiza el token de push de Expo del usuario autenticado (app móvil)
-        para poder enviarle notificaciones push.
+      title: 'Guarda el token móvil en el proveedor correcto sin mezclar Expo con FCM.'
       description: ''
       authenticated: false
       deprecated: false
@@ -329,8 +327,70 @@ endpoints:
         exampleWasSpecified: false
         nullable: false
         deprecated: false
+      provider:
+        custom: []
+        name: provider
+        description: ''
+        required: false
+        example: fcm
+        type: string
+        enumValues:
+          - expo
+          - fcm
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
     cleanBodyParameters:
       token: b
+      provider: fcm
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: api/v1/profile/favorite-barber
+    metadata:
+      custom: []
+      groupName: 'Gestión de Perfil'
+      groupDescription: |-
+
+        Endpoints para gestionar el perfil del usuario autenticado.
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Marca o quita el barbero favorito del cliente autenticado. Es solo una
+        preferencia de UI (pre-seleccionar/destacar al reservar) -- nunca
+        bloquea reservar con otro barbero ni afecta ninguna regla de negocio.
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      barber_id:
+        custom: []
+        name: barber_id
+        description: ''
+        required: false
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      barber_id: architecto
     fileParameters: []
     responses: []
     responseFields: []

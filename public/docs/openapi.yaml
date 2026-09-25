@@ -50,8 +50,14 @@ tags:
     name: Membresías
     description: "\nSuscripción mensual recurrente (roadmap P1, vía Stripe Subscriptions) que\notorga un descuento % en cada servicio mientras esté activa. La venta y el\ncobro real de las renovaciones ocurren enteramente en Stripe -- este\ncontrolador solo contrata, consulta y cancela."
   -
+    name: Pagos
+    description: ''
+  -
     name: 'Paquetes prepagados'
     description: "\nCatálogo de paquetes disponibles, compra (efectivo por staff o tarjeta\nvía Stripe) y consulta de los paquetes de un cliente."
+  -
+    name: Pedidos
+    description: ''
   -
     name: 'Portafolio de Barbero'
     description: "\nEndpoints para gestionar el portafolio de trabajos del barbero."
@@ -723,6 +729,32 @@ paths:
                   description: 'Opcional. Notas adicionales.'
                   example: 'Traer foto de referencia.'
                   nullable: true
+                productos:
+                  type: array
+                  description: "Productos que el cliente quiere agregar a su cita (ej. la cera\nque vio en la tienda) -- opcional, se procesa como un Order\naparte (tipo 'cita') para no acoplar inventario a la creación\nde la cita en sí; si falla, la cita igual se crea (ver abajo)."
+                  example: null
+                  items:
+                    type: object
+                    nullable: true
+                    properties:
+                      product_id:
+                        type: string
+                        description: 'This field is required when <code>productos</code> is present.'
+                        example: architecto
+                      cantidad:
+                        type: integer
+                        description: 'This field is required when <code>productos</code> is present. El campo value debe ser al menos 1.'
+                        example: 22
+                propina_sugerida:
+                  type: number
+                  description: "Propina sugerida por el cliente al reservar: solo referencia\npara el staff al cobrar (ver comentario en el modelo). No se\ncobra nada aqui -- PaymentService sigue siendo la autoridad. El campo value debe ser al menos 0."
+                  example: 84
+                  nullable: true
+                pagar_ahora:
+                  type: boolean
+                  description: "Si el cliente elige pagar el servicio completo al reservar (en\nvez de pagar despues en el salon), en vez de inventar un cobro\nnuevo se reutiliza el mecanismo de deposito anti-no-show tal\ncual (mismos endpoints deposit/stripe-intent y deposit/receipt,\nmismo webhook, mismo reembolso automatico si se cancela) -- solo\ncambia que deposito_monto pasa a ser el precio con descuento de\nmembresia mas propina, no el % anti-no-show. Ver comentario mas\nabajo antes de construir $payload."
+                  example: false
+                  nullable: true
                 client_id:
                   type: integer
                   description: 'Requerido solo para Admin/Recepcionista. ID del cliente.'
@@ -811,15 +843,15 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-06'
+                  example: '2052-10-18'
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '22:53'
+                  example: '17:07'
                 estado:
                   type: string
                   description: ''
-                  example: en_proceso
+                  example: no_asistio
                   enum:
                     - pendiente
                     - confirmada
@@ -981,14 +1013,14 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: day
+                  example: week
                   enum:
                     - day
                     - week
                 estado:
                   type: string
                   description: ''
-                  example: no_asistio
+                  example: confirmada
                   enum:
                     - pendiente
                     - confirmada
@@ -1094,6 +1126,23 @@ paths:
       responses: {}
       tags:
         - 'Depósitos anti-no-show'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                guardar_tarjeta:
+                  type: boolean
+                  description: 'Guardar la tarjeta nueva para próximos pagos.'
+                  example: true
+                  nullable: true
+                tarjeta_guardada:
+                  type: boolean
+                  description: 'El cliente paga con una tarjeta que ya tenía guardada.'
+                  example: false
+                  nullable: true
     parameters:
       -
         in: path
@@ -1292,7 +1341,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-06'
+                  example: '2052-10-18'
               required:
                 - barber_id
                 - service_id
@@ -1302,7 +1351,7 @@ paths:
     get:
       summary: 'Redirige al usuario a la pantalla de consentimiento de Google.'
       operationId: redirigeAlUsuarioALaPantallaDeConsentimientoDeGoogle
-      description: ''
+      description: "?target=spark hace que callback() regrese al dashboard de analítica\n(spark, Streamlit) en vez de al frontend del cliente. Viaja como\n`state` -- Google lo devuelve intacto en el callback, y no requiere\nuna redirect_uri nueva en Google Cloud Console porque la URL de\ncallback registrada (esta misma ruta) no cambia."
       parameters: []
       responses:
         302:
@@ -1311,14 +1360,14 @@ paths:
             text/plain:
               schema:
                 type: string
-                example: "<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset=\"UTF-8\" />\n        <meta http-equiv=\"refresh\" content=\"0;url='https://accounts.google.com/o/oauth2/auth?client_id=58196340935-io6n1n0oun410p5op81nnr7ugklnliki.apps.googleusercontent.com&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback&amp;scope=openid+profile+email&amp;response_type=code'\" />\n\n        <title>Redirecting to https://accounts.google.com/o/oauth2/auth?client_id=58196340935-io6n1n0oun410p5op81nnr7ugklnliki.apps.googleusercontent.com&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback&amp;scope=openid+profile+email&amp;response_type=code</title>\n    </head>\n    <body>\n        Redirecting to <a href=\"https://accounts.google.com/o/oauth2/auth?client_id=58196340935-io6n1n0oun410p5op81nnr7ugklnliki.apps.googleusercontent.com&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback&amp;scope=openid+profile+email&amp;response_type=code\">https://accounts.google.com/o/oauth2/auth?client_id=58196340935-io6n1n0oun410p5op81nnr7ugklnliki.apps.googleusercontent.com&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback&amp;scope=openid+profile+email&amp;response_type=code</a>.\n    </body>\n</html>"
+                example: "<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset=\"UTF-8\" />\n        <meta http-equiv=\"refresh\" content=\"0;url='https://accounts.google.com/o/oauth2/auth?client_id=58196340935-io6n1n0oun410p5op81nnr7ugklnliki.apps.googleusercontent.com&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback&amp;scope=openid+profile+email&amp;response_type=code&amp;state=frontend'\" />\n\n        <title>Redirecting to https://accounts.google.com/o/oauth2/auth?client_id=58196340935-io6n1n0oun410p5op81nnr7ugklnliki.apps.googleusercontent.com&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback&amp;scope=openid+profile+email&amp;response_type=code&amp;state=frontend</title>\n    </head>\n    <body>\n        Redirecting to <a href=\"https://accounts.google.com/o/oauth2/auth?client_id=58196340935-io6n1n0oun410p5op81nnr7ugklnliki.apps.googleusercontent.com&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback&amp;scope=openid+profile+email&amp;response_type=code&amp;state=frontend\">https://accounts.google.com/o/oauth2/auth?client_id=58196340935-io6n1n0oun410p5op81nnr7ugklnliki.apps.googleusercontent.com&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback&amp;scope=openid+profile+email&amp;response_type=code&amp;state=frontend</a>.\n    </body>\n</html>"
       tags:
         - Endpoints
       security: []
   /api/v1/auth/google/callback:
     get:
-      summary: "Google redirige aquí con el código de autorización. Busca o crea el\nusuario por email (mismo camino de asignación de rol que\nAuthController::register() -- siempre 'cliente', nunca algo elegido por\nel propio flujo de OAuth), emite un token, y manda al usuario de vuelta\nal frontend con el token en la URL -- mismo patrón que\nResetPassword::createUrlUsing() usa frontend_url."
-      operationId: googleRedirigeAquConElCdigoDeAutorizacinBuscaOCreaElUsuarioPorEmailmismoCaminoDeAsignacinDeRolQueAuthControllerregisterSiempreclienteNuncaAlgoElegidoPorElPropioFlujoDeOAuthEmiteUnTokenYMandaAlUsuarioDeVueltaAlFrontendConElTokenEnLaURLMismoPatrnQueResetPasswordcreateUrlUsingUsaFrontendUrl
+      summary: "Google redirige aquí con el código de autorización. Busca o crea el\nusuario por email (mismo camino de asignación de rol que\nAuthController::register() -- siempre 'cliente', nunca algo elegido por\nel propio flujo de OAuth), emite un token, y manda al usuario de vuelta\nal destino indicado por `state` (frontend del cliente, o spark) con el\ntoken en la URL -- mismo patrón que ResetPassword::createUrlUsing()\nusa frontend_url. spark hace su propia verificación de rol\n(administrador/ingeniero) llamando a GET /api/v1/auth/me con este\ntoken -- este controlador no filtra por rol, solo acredita identidad."
+      operationId: googleRedirigeAquConElCdigoDeAutorizacinBuscaOCreaElUsuarioPorEmailmismoCaminoDeAsignacinDeRolQueAuthControllerregisterSiempreclienteNuncaAlgoElegidoPorElPropioFlujoDeOAuthEmiteUnTokenYMandaAlUsuarioDeVueltaAlDestinoIndicadoPorstatefrontendDelClienteOSparkConElTokenEnLaURLMismoPatrnQueResetPasswordcreateUrlUsingUsaFrontendUrlSparkHaceSuPropiaVerificacinDeRoladministradoringenieroLlamandoAGETapiv1authmeConEsteTokenEsteControladorNoFiltraPorRolSoloAcreditaIdentidad
       description: ''
       parameters: []
       responses:
@@ -1528,7 +1577,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-06'
+                  example: '2052-10-18'
               required:
                 - barber_id
                 - service_id
@@ -1740,7 +1789,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: efectivo
+                  example: tarjeta
                   enum:
                     - efectivo
                     - tarjeta
@@ -1846,6 +1895,16 @@ paths:
                   description: 'El campo value debe ser al menos 0.'
                   example: 62
                   nullable: true
+                guardar_tarjeta:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+                tarjeta_guardada:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
               required:
                 - appointment_id
       security: []
@@ -1912,7 +1971,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: tarjeta
+                  example: efectivo
                   enum:
                     - efectivo
                     - tarjeta
@@ -2161,7 +2220,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -2244,7 +2303,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2287,7 +2346,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -2370,7 +2429,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-13T22:53:36'
+                  example: '2026-09-25T17:07:59'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -2385,7 +2444,7 @@ paths:
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_whatsapp:
                   type: boolean
@@ -2428,7 +2487,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-13T22:53:36'
+                  example: '2026-09-25T17:07:59'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -2443,7 +2502,7 @@ paths:
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_whatsapp:
                   type: boolean
@@ -2812,7 +2871,7 @@ paths:
         in: path
         name: user_id
         description: 'The ID of the user.'
-        example: 6aa51b319ddeabe12709e9e2
+        example: 6ab6f64533684575a6023b0e
         required: true
         schema:
           type: string
@@ -2870,12 +2929,12 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '22:53'
+                  example: '17:07'
                   nullable: true
                 horario_cierre:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>. El campo value debe ser una fecha posterior a <code>horario_apertura</code>.'
-                  example: '2052-10-06'
+                  example: '2052-10-18'
                   nullable: true
                 politica_cancelacion:
                   type: integer
@@ -3002,14 +3061,14 @@ paths:
                 modo:
                   type: string
                   description: ''
-                  example: ahora
+                  example: programar
                   enum:
                     - ahora
                     - programar
                 programada_para:
                   type: string
                   description: 'This field is required when <code>modo</code> is <code>programar</code>. El campo value no es una fecha válida. El campo value debe ser una fecha posterior a <code>now</code>.'
-                  example: '2052-10-07'
+                  example: '2052-10-19'
                   nullable: true
               required:
                 - titulo
@@ -3276,7 +3335,7 @@ paths:
                 in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 email:
                   type: boolean
                   description: ''
@@ -3284,7 +3343,7 @@ paths:
                 sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 whatsapp:
                   type: boolean
                   description: ''
@@ -3292,11 +3351,11 @@ paths:
                 push:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 promociones:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
       security: []
   /api/v1/push/vapid-public-key:
     get:
@@ -3359,7 +3418,7 @@ paths:
                 content_encoding:
                   type: string
                   description: ''
-                  example: aes128gcm
+                  example: aesgcm
                   enum:
                     - aesgcm
                     - aes128gcm
@@ -3914,7 +3973,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 comision_pct:
                   type: number
                   description: 'El campo value debe ser al menos 0. El campo value no debe ser mayor que 100.'
@@ -4218,12 +4277,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -4307,7 +4366,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 active:
                   type: boolean
@@ -4696,7 +4755,7 @@ paths:
                 helpful:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
               required:
                 - message
                 - response
@@ -4932,8 +4991,8 @@ paths:
       security: []
   /api/v1/profile/push-token:
     post:
-      summary: "Guarda/actualiza el token de push de Expo del usuario autenticado (app móvil)\npara poder enviarle notificaciones push."
-      operationId: guardaactualizaElTokenDePushDeExpoDelUsuarioAutenticadoappMvilParaPoderEnviarleNotificacionesPush
+      summary: 'Guarda el token móvil en el proveedor correcto sin mezclar Expo con FCM.'
+      operationId: guardaElTokenMvilEnElProveedorCorrectoSinMezclarExpoConFCM
       description: ''
       parameters: []
       responses: {}
@@ -4950,8 +5009,37 @@ paths:
                   type: string
                   description: 'El campo value no debe tener más de 255 caracteres.'
                   example: b
+                provider:
+                  type: string
+                  description: ''
+                  example: fcm
+                  enum:
+                    - expo
+                    - fcm
               required:
                 - token
+      security: []
+  /api/v1/profile/favorite-barber:
+    put:
+      summary: "Marca o quita el barbero favorito del cliente autenticado. Es solo una\npreferencia de UI (pre-seleccionar/destacar al reservar) -- nunca\nbloquea reservar con otro barbero ni afecta ninguna regla de negocio."
+      operationId: marcaOQuitaElBarberoFavoritoDelClienteAutenticadoEsSoloUnaPreferenciaDeUIpreSeleccionardestacarAlReservarNuncaBloqueaReservarConOtroBarberoNiAfectaNingunaReglaDeNegocio
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Gestión de Perfil'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                barber_id:
+                  type: string
+                  description: ''
+                  example: architecto
+                  nullable: true
       security: []
   /api/v1/barber/me:
     get:
@@ -5372,12 +5460,12 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -5613,7 +5701,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-13T22:53:37'
+                  example: '2026-09-25T17:07:59'
                   nullable: true
               required:
                 - product_id
@@ -5717,24 +5805,72 @@ paths:
     get:
       summary: 'Membresía actual del cliente autenticado (o null si no tiene ninguna).'
       operationId: membresaActualDelClienteAutenticadooNullSiNoTieneNinguna
-      description: ''
+      description: "Si está pendiente, con pago fallido o ya pasó su fin de periodo, antes de responder se\nconcilia con Stripe (estado real de la suscripción y su última factura pagada), así que se\nactiva aunque el webhook no haya llegado."
       parameters: []
       responses:
-        401:
+        200:
           description: ''
           content:
             application/json:
               schema:
-                type: object
-                example:
-                  message: 'No autorizado.'
-                properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
+                oneOf:
+                  -
+                    description: ''
+                    type: object
+                    example:
+                      data:
+                        id: 66f0a1b2c3d4e5f6a7b8c9d0
+                        estado: activa
+                        cancelar_al_finalizar: false
+                        periodo_actual_fin: '2026-10-25T16:20:10+00:00'
+                        plan:
+                          id: 66f0a1b2c3d4e5f6a7b8c9d1
+                          nombre: Básico
+                          precio_mensual: 199
+                          descuento_pct: 10
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: 66f0a1b2c3d4e5f6a7b8c9d0
+                          estado:
+                            type: string
+                            example: activa
+                          cancelar_al_finalizar:
+                            type: boolean
+                            example: false
+                          periodo_actual_fin:
+                            type: string
+                            example: '2026-10-25T16:20:10+00:00'
+                          plan:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                example: 66f0a1b2c3d4e5f6a7b8c9d1
+                              nombre:
+                                type: string
+                                example: Básico
+                              precio_mensual:
+                                type: integer
+                                example: 199
+                              descuento_pct:
+                                type: integer
+                                example: 10
+                  -
+                    description: 'Sin membresía'
+                    type: object
+                    example:
+                      data: null
+                    properties:
+                      data:
+                        type: string
+                        example: null
+                        nullable: true
       tags:
         - Membresías
-      security: []
   /api/v1/memberships/subscribe:
     post:
       summary: "Contrata un plan. Devuelve el client_secret para que el frontend\nconfirme el primer pago con Stripe Elements (mismo patrón SCA que el\nresto de los cobros con tarjeta de esta app)."
@@ -5768,6 +5904,226 @@ paths:
       tags:
         - Membresías
       security: []
+  /api/v1/memberships/invoices:
+    get:
+      summary: "Cobros mensuales de membresía del cliente autenticado, para \"Mis facturas\" (antes solo\ncontaban para el corte de caja y el cliente no los veía)."
+      operationId: cobrosMensualesDeMembresaDelClienteAutenticadoParaMisFacturasantesSoloContabanParaElCorteDeCajaYElClienteNoLosVea
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 66f0a1b2c3d4e5f6a7b8c9d2
+                      plan: Básico
+                      monto: 199
+                      pagado_en: '2026-09-25T16:20:13+00:00'
+                  meta:
+                    total_pagado: 199
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 66f0a1b2c3d4e5f6a7b8c9d2
+                        plan: Básico
+                        monto: 199
+                        pagado_en: '2026-09-25T16:20:13+00:00'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 66f0a1b2c3d4e5f6a7b8c9d2
+                        plan:
+                          type: string
+                          example: Básico
+                        monto:
+                          type: integer
+                          example: 199
+                        pagado_en:
+                          type: string
+                          example: '2026-09-25T16:20:13+00:00'
+                  meta:
+                    type: object
+                    properties:
+                      total_pagado:
+                        type: integer
+                        example: 199
+        403:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Membresías
+  '/api/v1/memberships/invoices/{invoice_id}/receipt-link':
+    get:
+      summary: 'Liga al PDF de la factura de Stripe de un cobro de membresía, solo para su dueño.'
+      operationId: ligaAlPDFDeLaFacturaDeStripeDeUnCobroDeMembresaSoloParaSuDueo
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    invoice_id: 66f0a1b2c3d4e5f6a7b8c9d2
+                    receipt_url: 'https://pay.stripe.com/invoice/.../pdf'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      invoice_id:
+                        type: string
+                        example: 66f0a1b2c3d4e5f6a7b8c9d2
+                      receipt_url:
+                        type: string
+                        example: 'https://pay.stripe.com/invoice/.../pdf'
+        403:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'La factura todavía no está disponible. Intenta más tarde.'
+                properties:
+                  message:
+                    type: string
+                    example: 'La factura todavía no está disponible. Intenta más tarde.'
+      tags:
+        - Membresías
+    parameters:
+      -
+        in: path
+        name: invoice_id
+        description: 'ID del cobro de membresía (de GET memberships/invoices).'
+        example: 66f0a1b2c3d4e5f6a7b8c9d2
+        required: true
+        schema:
+          type: string
+  /api/v1/payments/transfer-info:
+    get:
+      summary: "Datos para pagar por transferencia (banco, beneficiario, CLABE y concepto)\nque configura el administrador. Solo para usuarios autenticados: la ficha\npublica del negocio no los incluye a proposito."
+      operationId: datosParaPagarPorTransferenciabancoBeneficiarioCLABEYConceptoQueConfiguraElAdministradorSoloParaUsuariosAutenticadosLaFichaPublicaDelNegocioNoLosIncluyeAProposito
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    configurado: true
+                    banco: BBVA
+                    beneficiario: 'UrbanBlade SA'
+                    clabe: '012345678901234567'
+                    concepto: 'Cita UrbanBlade'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      configurado:
+                        type: boolean
+                        example: true
+                      banco:
+                        type: string
+                        example: BBVA
+                      beneficiario:
+                        type: string
+                        example: 'UrbanBlade SA'
+                      clabe:
+                        type: string
+                        example: '012345678901234567'
+                      concepto:
+                        type: string
+                        example: 'Cita UrbanBlade'
+      tags:
+        - Pagos
+  /api/v1/payments/cards:
+    get:
+      summary: "Tarjetas guardadas del cliente en Stripe (marca, ultimos 4 y vencimiento)\npara ofrecer \"pagar con tu Visa 4242\" o \"usar otra tarjeta\". Lista vacia\nsi no tiene ninguna o si Stripe no responde: nunca bloquea el pago."
+      operationId: tarjetasGuardadasDelClienteEnStripemarcaUltimos4YVencimientoParaOfrecerpagarConTuVisa4242OusarOtraTarjetaListaVaciaSiNoTieneNingunaOSiStripeNoRespondeNuncaBloqueaElPago
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: pm_123
+                      brand: visa
+                      last4: '4242'
+                      exp_month: 12
+                      exp_year: 2032
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: pm_123
+                        brand: visa
+                        last4: '4242'
+                        exp_month: 12
+                        exp_year: 2032
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: pm_123
+                        brand:
+                          type: string
+                          example: visa
+                        last4:
+                          type: string
+                          example: '4242'
+                        exp_month:
+                          type: integer
+                          example: 12
+                        exp_year:
+                          type: integer
+                          example: 2032
+      tags:
+        - Pagos
   /api/v1/packages/catalog:
     get:
       summary: 'Catálogo de paquetes activos disponibles para comprar.'
@@ -5866,6 +6222,56 @@ paths:
               required:
                 - service_package_id
       security: []
+  '/api/v1/orders/{order_id}/receipt-link':
+    get:
+      summary: "Liga al comprobante PDF de un pedido entregado, para \"Mis facturas\" de la app: el cliente\ndueño del pedido o el personal. Se guarda en el disco 'receipts' (privado en S3) y se\ndevuelve una URL firmada, igual que PaymentController::receipt()."
+      operationId: ligaAlComprobantePDFDeUnPedidoEntregadoParaMisFacturasDeLaAppElClienteDueoDelPedidoOElPersonalSeGuardaEnElDiscoreceiptsprivadoEnS3YSeDevuelveUnaURLFirmadaIgualQuePaymentControllerreceipt
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    order_id: 66f...
+                    receipt_url: 'https://...'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      order_id:
+                        type: string
+                        example: 66f...
+                      receipt_url:
+                        type: string
+                        example: 'https://...'
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'El comprobante se genera cuando recibes y pagas tu pedido.'
+                properties:
+                  message:
+                    type: string
+                    example: 'El comprobante se genera cuando recibes y pagas tu pedido.'
+      tags:
+        - Pedidos
+    parameters:
+      -
+        in: path
+        name: order_id
+        description: 'ID del pedido.'
+        example: 66f0a1b2c3d4e5f6a7b8c9d3
+        required: true
+        schema:
+          type: string
   /api/v1/barber/portfolio:
     get:
       summary: 'Listar Trabajos del Barbero'

@@ -1,183 +1,88 @@
-name: 'Tarjetas de regalo'
+name: 'Depósitos anti-no-show'
 description: |-
 
-  Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
-  código. El canje real ocurre en PaymentController::store() vía
-  "codigo_gift_card" -- este controlador no cobra nada.
+  Cobro del depósito exigido a un cliente con historial reciente de
+  inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+  aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+  controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
 endpoints:
   -
     custom: []
     httpMethods:
-      - GET
-    uri: api/v1/gift-cards/mine
+      - POST
+    uri: 'api/v1/appointments/{appointment_code}/deposit/stripe-intent'
     metadata:
       custom: []
-      groupName: 'Tarjetas de regalo'
+      groupName: 'Depósitos anti-no-show'
       groupDescription: |-
 
-        Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
-        código. El canje real ocurre en PaymentController::store() vía
-        "codigo_gift_card" -- este controlador no cobra nada.
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
       subgroup: ''
       subgroupDescription: ''
-      title: |-
-        Tarjetas de regalo compradas por el cliente autenticado, más recientes
-        primero. Existe para que el frontend pueda revelar el código recién
-        comprado: el webhook de Stripe crea la GiftCard de forma asíncrona
-        (ver StripeWebhookController::onGiftCardPurchaseSucceeded()), así que
-        justo después de confirmar el pago con Stripe todavía no existe -- el
-        mismo patrón de "esperar y refrescar" que ya usa el autopago de citas.
+      title: 'Crea el PaymentIntent de Stripe para el depósito de una cita propia.'
       description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - GET
-    uri: 'api/v1/gift-cards/{code}'
-    metadata:
-      custom: []
-      groupName: 'Tarjetas de regalo'
-      groupDescription: |-
-
-        Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
-        código. El canje real ocurre en PaymentController::store() vía
-        "codigo_gift_card" -- este controlador no cobra nada.
-      subgroup: ''
-      subgroupDescription: ''
-      title: |-
-        Consulta el saldo disponible de una gift card por su código. Sin
-        autenticación de dueño a propósito -- una gift card la usa quien
-        tenga el código, igual que una física.
-      description: ''
-      authenticated: false
+      authenticated: true
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
     urlParameters:
-      code:
+      appointment_code:
         custom: []
-        name: code
-        description: 'Código de la tarjeta.'
+        name: appointment_code
+        description: ''
         required: true
-        example: a1b2c3d4
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      appointment:
+        custom: []
+        name: appointment
+        description: 'Código público de la cita.'
+        required: true
+        example: jfb7ffye
         type: string
         enumValues: []
         exampleWasSpecified: true
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      code: a1b2c3d4
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: api/v1/gift-cards/stripe-intent
-    metadata:
-      custom: []
-      groupName: 'Tarjetas de regalo'
-      groupDescription: |-
-
-        Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
-        código. El canje real ocurre en PaymentController::store() vía
-        "codigo_gift_card" -- este controlador no cobra nada.
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Crea el PaymentIntent de Stripe para comprar una gift card con tarjeta.'
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
+      appointment_code: architecto
+      appointment: jfb7ffye
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
-      monto:
+      guardar_tarjeta:
         custom: []
-        name: monto
-        description: 'Monto de la tarjeta.'
-        required: true
-        example: 500.0
-        type: number
+        name: guardar_tarjeta
+        description: 'Guardar la tarjeta nueva para próximos pagos.'
+        required: false
+        example: true
+        type: boolean
         enumValues: []
         exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      comprador_nombre:
-        custom: []
-        name: comprador_nombre
-        description: 'El campo value no debe tener más de 150 caracteres.'
-        required: false
-        example: m
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
         nullable: true
         deprecated: false
-      destinatario_email:
+      tarjeta_guardada:
         custom: []
-        name: destinatario_email
-        description: 'El campo value debe ser una dirección de correo válida. El campo value no debe tener más de 255 caracteres.'
+        name: tarjeta_guardada
+        description: 'El cliente paga con una tarjeta que ya tenía guardada.'
         required: false
-        example: gulgowski.asia@example.com
-        type: string
+        example: false
+        type: boolean
         enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      monto: 500.0
-      comprador_nombre: m
-      destinatario_email: gulgowski.asia@example.com
+      guardar_tarjeta: true
+      tarjeta_guardada: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -189,18 +94,91 @@ endpoints:
     custom: []
     httpMethods:
       - POST
-    uri: api/v1/gift-cards
+    uri: 'api/v1/appointments/{appointment_code}/deposit/receipt'
     metadata:
       custom: []
-      groupName: 'Tarjetas de regalo'
+      groupName: 'Depósitos anti-no-show'
       groupDescription: |-
 
-        Compra (efectivo por staff o tarjeta vía Stripe) y consulta de saldo por
-        código. El canje real ocurre en PaymentController::store() vía
-        "codigo_gift_card" -- este controlador no cobra nada.
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
       subgroup: ''
       subgroupDescription: ''
-      title: 'Compra en efectivo, registrada por staff (Admin/Recepcionista).'
+      title: 'Sube el comprobante de transferencia del depósito. Queda en revisión.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters:
+      appointment_code:
+        custom: []
+        name: appointment_code
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      appointment:
+        custom: []
+        name: appointment
+        description: 'Código público de la cita.'
+        required: true
+        example: jfb7ffye
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_code: architecto
+      appointment: jfb7ffye
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      comprobante:
+        custom: []
+        name: comprobante
+        description: 'Foto o PDF del comprobante de transferencia.'
+        required: true
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters: []
+    fileParameters:
+      comprobante: null
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/deposits/pending
+    metadata:
+      custom: []
+      groupName: 'Depósitos anti-no-show'
+      groupDescription: |-
+
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Depósitos por transferencia pendientes de revisión (staff).'
       description: ''
       authenticated: false
       deprecated: false
@@ -211,56 +189,125 @@ endpoints:
     cleanUrlParameters: []
     queryParameters: []
     cleanQueryParameters: []
-    bodyParameters:
-      monto:
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
         custom: []
-        name: monto
-        description: 'Monto de la tarjeta.'
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/deposits/{payment_id}/approve'
+    metadata:
+      custom: []
+      groupName: 'Depósitos anti-no-show'
+      groupDescription: |-
+
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Aprueba un depósito en revisión (staff).'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      payment_id:
+        custom: []
+        name: payment_id
+        description: 'The ID of the payment.'
         required: true
-        example: 500.0
-        type: number
+        example: architecto
+        type: string
         enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: false
         deprecated: false
-      client_id:
+    cleanUrlParameters:
+      payment_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/deposits/{payment_id}/reject'
+    metadata:
+      custom: []
+      groupName: 'Depósitos anti-no-show'
+      groupDescription: |-
+
+        Cobro del depósito exigido a un cliente con historial reciente de
+        inasistencias (ver DepositService), mientras su cita sigue 'pendiente' de
+        aprobación por el barbero. Vive separado de Payment\PaymentController: ese
+        controlador solo opera sobre citas ya aprobadas (CHARGEABLE).
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Rechaza un depósito en revisión (staff).'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      payment_id:
         custom: []
-        name: client_id
-        description: 'ID del cliente comprador, si tiene cuenta.'
-        required: false
-        example: 66f0...
+        name: payment_id
+        description: 'The ID of the payment.'
+        required: true
+        example: architecto
         type: string
         enumValues: []
-        exampleWasSpecified: true
-        nullable: true
+        exampleWasSpecified: false
+        nullable: false
         deprecated: false
-      comprador_nombre:
+    cleanUrlParameters:
+      payment_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      motivo_rechazo:
         custom: []
-        name: comprador_nombre
-        description: 'Nombre de quien compra, si no tiene cuenta.'
-        required: false
-        example: 'Juan Pérez'
+        name: motivo_rechazo
+        description: 'El campo value no debe tener más de 500 caracteres.'
+        required: true
+        example: b
         type: string
         enumValues: []
-        exampleWasSpecified: true
-        nullable: true
-        deprecated: false
-      destinatario_email:
-        custom: []
-        name: destinatario_email
-        description: 'Correo de quien la recibe (opcional).'
-        required: false
-        example: regalo@ejemplo.com
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: true
+        exampleWasSpecified: false
+        nullable: false
         deprecated: false
     cleanBodyParameters:
-      monto: 500.0
-      client_id: 66f0...
-      comprador_nombre: 'Juan Pérez'
-      destinatario_email: regalo@ejemplo.com
+      motivo_rechazo: b
     fileParameters: []
     responses: []
     responseFields: []
