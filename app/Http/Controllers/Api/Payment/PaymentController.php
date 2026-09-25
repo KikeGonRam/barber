@@ -120,6 +120,10 @@ class PaymentController extends Controller
                 'monto' => $payment->monto,
                 'metodo_pago' => $payment->metodo_pago,
                 'propina' => $payment->propina,
+                // Aditivo: el cliente distingue un pago cobrado de uno por verificar, rechazado o
+                // reembolsado, y si fue el pago adelantado al reservar (es_deposito).
+                'estado' => $payment->getAttribute('estado'),
+                'es_deposito' => (bool) $payment->es_deposito,
                 'receipt_url' => ReceiptStorage::url($payment->comprobante_pdf),
                 'created_at' => optional($payment->created_at)->toIso8601String(),
                 'appointment' => [
@@ -131,7 +135,12 @@ class PaymentController extends Controller
                 ],
             ])->values(),
             'meta' => [
-                'total_pagado' => (float) $payments->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
+                // Solo lo realmente cobrado: un comprobante por verificar o rechazado, o un pago
+                // reembolsado, no es dinero que el cliente haya dejado en la barbería.
+                // (Los pagos antiguos sin estado sí cuentan: se registraban ya cobrados.)
+                'total_pagado' => (float) $payments
+                    ->whereNotIn('estado', [Payment::ESTADO_PENDIENTE_VERIFICACION, Payment::ESTADO_RECHAZADO, Payment::ESTADO_REEMBOLSADO])
+                    ->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
                 'total_citas' => $appointmentIds->count(),
             ],
         ]);

@@ -627,6 +627,38 @@ class PaymentApiTest extends TestCase
         ]);
     }
 
+    public function test_client_invoices_show_each_payment_state_and_count_only_collected_money(): void
+    {
+        [, $client, $token] = $this->clientWithToken('test-plaintext-token-client-invoices');
+        $cobrado = Payment::create([
+            'appointment_id' => (string) $this->chargeableAppointmentFor($client)->id,
+            'monto' => 200, 'propina' => 20, 'metodo_pago' => 'tarjeta',
+            'estado' => Payment::ESTADO_VERIFICADO, 'es_deposito' => true,
+        ]);
+        Payment::create([
+            'appointment_id' => (string) $this->chargeableAppointmentFor($client)->id,
+            'monto' => 300, 'propina' => 0, 'metodo_pago' => 'tarjeta',
+            'estado' => Payment::ESTADO_REEMBOLSADO, 'es_deposito' => true,
+        ]);
+        Payment::create([
+            'appointment_id' => (string) $this->chargeableAppointmentFor($client)->id,
+            'monto' => 150, 'propina' => 0, 'metodo_pago' => 'transferencia',
+            'estado' => Payment::ESTADO_PENDIENTE_VERIFICACION,
+        ]);
+
+        $response = $this->withToken($token)->getJson('/api/v1/payments');
+
+        $response->assertOk()->assertJsonCount(3, 'data');
+        $this->assertSame(220.0, (float) $response->json('meta.total_pagado'));
+        $estados = collect($response->json('data'))->pluck('estado', 'id');
+        $this->assertSame(Payment::ESTADO_VERIFICADO, $estados[$cobrado->id]);
+        $this->assertEqualsCanonicalizing(
+            [Payment::ESTADO_VERIFICADO, Payment::ESTADO_REEMBOLSADO, Payment::ESTADO_PENDIENTE_VERIFICACION],
+            $estados->values()->all()
+        );
+        $this->assertTrue(collect($response->json('data'))->firstWhere('id', $cobrado->id)['es_deposito']);
+    }
+
     public function test_transfer_info_gives_the_bank_data_to_an_authenticated_client(): void
     {
         BarbershopSetting::query()->delete();
