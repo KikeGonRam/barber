@@ -19,6 +19,7 @@ use App\Services\Appointment\AppointmentService;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Appointment\WaitlistService;
 use App\Services\Loyalty\LoyaltyService;
+use App\Services\Loyalty\ReferralService;
 use App\Services\Membership\MembershipService;
 use App\Services\Order\OrderService;
 use App\Services\Payment\DepositService;
@@ -41,6 +42,8 @@ class AppointmentController extends Controller
         private readonly WaitlistService $waitlist,
         private readonly OrderService $orders,
         private readonly MembershipService $memberships,
+        private readonly LoyaltyService $loyalty,
+        private readonly ReferralService $referrals,
     ) {}
 
     /**
@@ -767,6 +770,16 @@ class AppointmentController extends Controller
             $this->statusService->transition($appointment, $validated['estado']);
         } catch (InvalidAppointmentTransitionException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        // Completar por la agenda (barbero "Terminar", recepción/admin) también da los puntos de
+        // la visita, igual que cobrarla (PaymentService). Solo pasa una vez: la máquina de estados
+        // no permite volver a 'completada', y el cobro posterior ve la cita ya completada y no
+        // los repite. Este camino se perdió al retirar los controladores Blade (97ce9c9).
+        $client = $appointment->client;
+        if ($validated['estado'] === 'completada' && $client instanceof Client) {
+            $this->loyalty->awardCitaPoints($client, (string) $appointment->id);
+            $this->referrals->completeIfEligible($client);
         }
 
         // Barbero/staff cancelando también libera el horario para la lista

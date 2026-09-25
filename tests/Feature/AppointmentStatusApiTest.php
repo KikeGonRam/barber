@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Appointment;
 use App\Models\Barber;
+use App\Models\Client;
+use App\Models\LoyaltyTransaction;
 use App\Models\MobileApiToken;
 use App\Models\Permission;
 use App\Models\Role;
@@ -43,6 +45,8 @@ class AppointmentStatusApiTest extends TestCase
         // bloquea_horario en true y choca con appointments_active_slot_unique.
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
+        Client::query()->delete();
+        LoyaltyTransaction::query()->delete();
         MobileApiToken::query()->delete();
         User::withTrashed()->forceDelete();
         Role::query()->delete();
@@ -164,6 +168,31 @@ class AppointmentStatusApiTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonPath('message', "No se puede pasar la cita de 'completada' a 'pendiente'.");
         $this->assertSame('completada', Appointment::find($appointment->id)->estado);
+    }
+
+    public function test_completing_from_the_agenda_awards_the_visit_points_once(): void
+    {
+        // Regresión: al retirar Blade se perdió el único camino que daba puntos al completar
+        // desde la agenda; solo el cobro los daba, y si la cita ya estaba completada, tampoco.
+        [$barber, $token] = $this->barberWithToken('barbero-puntos@test.local');
+        $client = Client::create(['user_id' => (string) Str::uuid(), 'telefono' => '5550001111', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $appointment = $this->appointment('en_proceso', (string) $barber->id);
+        $appointment->update(['client_id' => (string) $client->id]);
+
+        $this->withToken($token)
+            ->patchJson('/api/v1/appointments/'.$appointment->code.'/status', ['estado' => 'completada'])
+            ->assertOk();
+
+        $client->refresh();
+        $this->assertSame(10, (int) $client->puntos);
+        $this->assertSame(1, (int) $client->total_citas);
+        $this->assertSame(1, LoyaltyTransaction::where('client_id', (string) $client->id)->where('referencia_id', (string) $appointment->id)->count());
+
+        // Repetir la petición no vuelve a sumar: 'completada' es terminal.
+        $this->withToken($token)
+            ->patchJson('/api/v1/appointments/'.$appointment->code.'/status', ['estado' => 'completada'])
+            ->assertStatus(422);
+        $this->assertSame(10, (int) $client->fresh()->puntos);
     }
 
     public function test_notes_can_be_attached_while_changing_the_status(): void
