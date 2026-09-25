@@ -7,11 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Notifications\Order\OrderDeliveredNotification;
 use App\Services\Order\OrderService;
+use App\Support\ReceiptStorage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Pedidos de productos: bandeja de recepción/administración (todos los
@@ -176,9 +178,49 @@ class OrderController extends Controller
         abort_unless($request->user()?->hasAnyRole(['administrador', 'recepcionista']), 403, 'No autorizado.');
         abort_if($order->estado !== 'entregado', 404);
 
+        return $this->receiptPdf($order)->download('pedido-'.$order->folio.'.pdf');
+    }
+
+    /**
+     * Liga al comprobante PDF de un pedido entregado, para "Mis facturas" de la app: el cliente
+     * dueño del pedido o el personal. Se guarda en el disco 'receipts' (privado en S3) y se
+     * devuelve una URL firmada, igual que PaymentController::receipt().
+     *
+     * @group Pedidos
+     *
+     * @authenticated
+     *
+     * @response 200 {"data": {"order_id": "66f...", "receipt_url": "https://..."}}
+     * @response 422 {"message": "El comprobante se genera cuando recibes y pagas tu pedido."}
+     */
+    public function receiptLink(Request $request, Order $order): JsonResponse
+    {
+        $user = $request->user();
+        $isStaff = (bool) $user?->hasAnyRole(['administrador', 'recepcionista']);
+        $clientId = (string) ($user?->clientProfile?->getKey() ?? '');
+        $isOwner = $clientId !== '' && (string) $order->getAttribute('client_id') === $clientId;
+        abort_unless($isStaff || $isOwner, 403, 'No autorizado.');
+
+        if ($order->getAttribute('estado') !== 'entregado') {
+            return response()->json(['message' => 'El comprobante se genera cuando recibes y pagas tu pedido.'], 422);
+        }
+
+        $path = 'comprobantes/pedido-'.$order->getKey().'.pdf';
+        if (! Storage::disk('receipts')->exists($path)) {
+            Storage::disk('receipts')->put($path, $this->receiptPdf($order)->output());
+        }
+
+        return response()->json(['data' => [
+            'order_id' => (string) $order->getKey(),
+            'receipt_url' => ReceiptStorage::url($path),
+        ]]);
+    }
+
+    private function receiptPdf(Order $order): \Barryvdh\DomPDF\PDF
+    {
         $order->loadMissing('client.user');
 
-        $pdf = Pdf::loadView('pdf.order-receipt', [
+        return Pdf::loadView('pdf.order-receipt', [
             'folio' => $order->folio,
             'emitido' => optional($order->entregado_en ?? $order->created_at)->format('d/m/Y'),
             'cliente' => $order->client?->user?->name ?? 'Cliente',
@@ -186,8 +228,6 @@ class OrderController extends Controller
             'total' => (float) $order->total,
             'metodo' => ucfirst($order->metodo_pago ?? '—'),
         ]);
-
-        return $pdf->download('pedido-'.$order->folio.'.pdf');
     }
 
     /**

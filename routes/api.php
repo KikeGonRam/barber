@@ -168,6 +168,9 @@ Route::prefix('v1')->group(function (): void {
         Route::get('orders', [ApiOrderController::class, 'index']);
         Route::post('orders', [ApiOrderController::class, 'store']);
         Route::patch('orders/{order}/cancel', [ApiOrderController::class, 'cancel']);
+        // Liga al comprobante PDF de un pedido entregado: el personal o el cliente dueño
+        // (el controlador lo exige). La app lo abre igual que payments/{payment}/receipt.
+        Route::get('orders/{order}/receipt-link', [ApiOrderController::class, 'receiptLink']);
 
         // Pagos/facturas propias (cliente ve solo lo suyo; admin/recepción ven
         // todo — branching por rol dentro del controlador, mismo criterio que

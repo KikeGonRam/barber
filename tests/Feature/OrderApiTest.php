@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
@@ -206,6 +207,31 @@ class OrderApiTest extends TestCase
         $receipt = $this->withHeader('Authorization', "Bearer {$token}")
             ->getJson("/api/v1/orders/{$order->id}/receipt");
         $receipt->assertForbidden();
+    }
+
+    public function test_client_gets_a_receipt_link_only_for_their_own_delivered_order(): void
+    {
+        Storage::fake('receipts');
+        [$owner, $client] = $this->clientUser('cliente-orders-link@test.local');
+        $token = $this->tokenFor($owner, 'test-plaintext-token-order-link');
+        $delivered = Order::create(['client_id' => (string) $client->id, 'folio' => 'P-LINK01', 'items' => [['nombre' => 'Cera', 'precio' => 120, 'cantidad' => 1, 'subtotal' => 120]], 'total' => 120, 'estado' => 'entregado', 'tipo' => 'cita', 'metodo_pago' => 'efectivo']);
+        $pending = Order::create(['client_id' => (string) $client->id, 'folio' => 'P-LINK02', 'items' => [], 'total' => 80, 'estado' => 'pendiente', 'tipo' => 'tienda']);
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/orders/'.$delivered->getKey().'/receipt-link')
+            ->assertOk()
+            ->assertJsonPath('data.order_id', (string) $delivered->getKey());
+        Storage::disk('receipts')->assertExists('comprobantes/pedido-'.$delivered->getKey().'.pdf');
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/orders/'.$pending->getKey().'/receipt-link')
+            ->assertStatus(422);
+
+        [$stranger] = $this->clientUser('cliente-orders-link2@test.local');
+        $strangerToken = $this->tokenFor($stranger, 'test-plaintext-token-order-link2');
+        $this->withHeader('Authorization', "Bearer {$strangerToken}")
+            ->getJson('/api/v1/orders/'.$delivered->getKey().'/receipt-link')
+            ->assertForbidden();
     }
 
     public function test_staff_can_deliver_a_pending_order(): void
