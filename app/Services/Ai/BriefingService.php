@@ -10,10 +10,13 @@ use function Illuminate\Support\defer;
 /**
  * Resumen corto en lenguaje natural para el inicio de recepción y administración.
  *
- * Nunca hace esperar a quien lo pide: responde al instante con el último resumen de la IA que esté
- * guardado o, si no hay, con uno armado por reglas a partir de los mismos números. Cuando el
- * guardado ya está viejo (o no existe), pide uno nuevo a la IA DESPUÉS de enviar la respuesta
- * (defer), con un candado para que dos peticiones no lo generen a la vez.
+ * Las cifras SIEMPRE las pone el sistema (byRules): el modelo pequeño llegó a decir "no hay citas"
+ * con 2 citas en la agenda. La IA solo aporta un consejo corto que se agrega al final, y se
+ * descarta si trae números, niega algo que sí existe o es demasiado largo.
+ *
+ * Nunca hace esperar: responde al instante con el último consejo guardado (o sin consejo) y, si
+ * ya está viejo, pide uno nuevo a la IA DESPUÉS de enviar la respuesta (defer), con un candado para
+ * que dos peticiones no lo generen a la vez.
  */
 class BriefingService
 {
@@ -41,10 +44,10 @@ class BriefingService
         if ($stale && $this->ai->available()) {
             defer(function () use ($audience, $facts, $key, $factsHash) {
                 Cache::lock($key.':lock', 60)->get(function () use ($audience, $facts, $key, $factsHash) {
-                    $text = $this->ai->complete($this->prompt($audience, $facts), 90, 45.0, 0.3);
-                    if ($text !== null) {
+                    $tip = $this->safeTip($this->ai->complete($this->prompt($audience, $facts), 50, 45.0, 0.3));
+                    if ($tip !== null) {
                         Cache::put($key, [
-                            'text' => $this->clean($text),
+                            'text' => $tip,
                             'generated_at' => now()->toIso8601String(),
                             'facts_hash' => $factsHash,
                         ], 86400);
@@ -53,11 +56,14 @@ class BriefingService
             });
         }
 
-        if ($cached !== null) {
-            return ['text' => $cached['text'], 'source' => 'ia', 'generated_at' => $cached['generated_at']];
+        $factsText = $this->byRules($audience, $facts);
+
+        // El consejo guardado solo se usa si es de estos mismos números (si cambiaron, podría no aplicar).
+        if ($cached !== null && $cached['facts_hash'] === $factsHash) {
+            return ['text' => $factsText.' '.$cached['text'], 'source' => 'ia', 'generated_at' => $cached['generated_at']];
         }
 
-        return ['text' => $this->byRules($audience, $facts), 'source' => 'reglas', 'generated_at' => null];
+        return ['text' => $factsText, 'source' => 'reglas', 'generated_at' => null];
     }
 
     /** @param array<string, int|float|string|null> $facts */
@@ -66,17 +72,35 @@ class BriefingService
         $who = $audience === 'admin' ? 'el administrador de la barbería' : 'la recepcionista de la barbería';
         $lines = collect($facts)->map(fn ($v, $k) => "- {$k}: ".($v ?? 'sin dato'))->implode("\n");
 
-        return "Eres el asistente de UrbanBlade, una barbería en México. Escribe para {$who} un resumen "
-            .'del día en español de México, en 2 frases cortas (máximo 40 palabras en total), tono amable '
-            .'y práctico: primero cómo va el día y luego lo que conviene atender primero. Usa SOLO estos '
-            ."datos, no inventes números ni nombres, no uses listas ni emojis.\n\nDatos de hoy:\n{$lines}\n\nResumen:";
+        return "Eres el asistente de UrbanBlade, una barbería en México. Con estos datos de hoy, escribe para {$who} "
+            .'UN solo consejo práctico de una frase (máximo 20 palabras), en español de México, empezando con un '
+            .'verbo (por ejemplo: "Aprovecha…", "Revisa…", "Prepara…"). No repitas cifras ni escribas números, '
+            ."no saludes, no uses listas ni emojis.\n\nDatos de hoy:\n{$lines}\n\nConsejo:";
     }
 
-    private function clean(string $text): string
+    /**
+     * El consejo de la IA solo se acepta si es breve, no trae cifras (las cifras son del sistema) y no
+     * niega nada ("no hay…"), que es donde el modelo pequeño se equivoca. Si no pasa, no se usa.
+     */
+    private function safeTip(?string $text): ?string
     {
-        $text = trim(preg_replace('/\s+/', ' ', strip_tags($text)) ?? '');
+        if ($text === null) {
+            return null;
+        }
+        // Sin espacios de más ni comillas alrededor (regex /u: trim() cortaría bytes de «» o ¿).
+        $tip = preg_replace('/^[\s"\'«»]+|[\s"\'«»]+$/u', '', preg_replace('/\s+/u', ' ', strip_tags($text)) ?? '') ?? '';
+        $tip = preg_replace('/^(consejo|tip)\s*:\s*/iu', '', $tip) ?? $tip;
+        $words = str_word_count($tip, 0, 'áéíóúñÁÉÍÓÚÑü');
 
-        return mb_strlen($text) > 320 ? rtrim(mb_substr($text, 0, 317)).'…' : $text;
+        if ($tip === '' || $words < 3 || $words > 26
+            || preg_match('/\d/', $tip)
+            || preg_match('/\b(no hay|ning[uú]n|ninguna|nada|hola|asistente|datos)\b/iu', $tip)) {
+            return null;
+        }
+
+        $tip = mb_strtoupper(mb_substr($tip, 0, 1)).mb_substr($tip, 1);
+
+        return preg_match('/[.!?]$/u', $tip) ? $tip : $tip.'.';
     }
 
     /**

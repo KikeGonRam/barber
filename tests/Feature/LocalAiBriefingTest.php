@@ -101,8 +101,9 @@ class LocalAiBriefingTest extends TestCase
 
         $briefing = app(BriefingService::class)->briefing('recepcion', $facts);
 
+        // Las cifras las pone el sistema; la IA solo agrega su consejo al final.
         $this->assertSame('ia', $briefing['source']);
-        $this->assertSame('Día tranquilo; revisa los cobros pendientes.', $briefing['text']);
+        $this->assertSame('Hoy hay 3 citas en la agenda. No hay pendientes urgentes. Día tranquilo; revisa los cobros pendientes.', $briefing['text']);
         Http::assertNothingSent();
     }
 
@@ -118,5 +119,27 @@ class LocalAiBriefingTest extends TestCase
         $this->withToken($this->tokenFor('cliente', 'cliente-ia@test.local'))
             ->getJson('/api/v1/ai/briefing')
             ->assertForbidden();
+    }
+
+    private function safeTip(?string $text): ?string
+    {
+        $method = new \ReflectionMethod(BriefingService::class, 'safeTip');
+
+        return $method->invoke(app(BriefingService::class), $text);
+    }
+
+    public function test_ai_tip_is_rejected_when_it_states_numbers_or_denies_facts(): void
+    {
+        // Lo que pasó en staging el 25-sep: "No hay citas para hoy" con 2 citas en la agenda.
+        $this->assertNull($this->safeTip('El día está bien. No hay citas para hoy, no hay cobro.'));
+        $this->assertNull($this->safeTip('Tienes 6 productos con stock bajo, pídelos.'));
+        $this->assertNull($this->safeTip('¡Hola! Soy tu asistente y con estos datos te ayudo.'));
+        $this->assertNull($this->safeTip(null));
+    }
+
+    public function test_a_short_practical_tip_is_kept_and_tidied(): void
+    {
+        $this->assertSame('Aprovecha las horas libres para reabastecer el inventario.', $this->safeTip('  "aprovecha las horas libres para reabastecer el inventario"  '));
+        $this->assertSame('¿Ya confirmaste las citas de la tarde?', $this->safeTip('Consejo: ¿Ya confirmaste las citas de la tarde?'));
     }
 }
