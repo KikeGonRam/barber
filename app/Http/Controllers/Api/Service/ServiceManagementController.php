@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api\Service;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use App\Services\Service\ServiceService;
+use App\Support\UploadedImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * API de administración del catálogo de servicios (crear/editar/eliminar/listar),
@@ -50,10 +50,14 @@ class ServiceManagementController extends Controller
             'categoria' => ['required', 'string', 'max:100'],
             'precio' => ['required', 'numeric', 'min:0'],
             'duracion_min' => ['required', 'integer', 'min:5', 'max:600'],
-            'imagen' => ['nullable', 'string', 'max:255'],
+            'imagen' => UploadedImage::rules($request, 'imagen'),
             'descripcion' => ['nullable', 'string', 'max:2000'],
             'activo' => ['nullable', 'boolean'],
         ]);
+
+        if ($path = UploadedImage::store($request, 'imagen', 'services')) {
+            $data['imagen'] = $path;
+        }
 
         $created = $this->serviceService->create($data);
 
@@ -64,7 +68,8 @@ class ServiceManagementController extends Controller
     }
 
     /**
-     * Actualiza los datos de un servicio existente.
+     * Actualiza los datos de un servicio existente. Con imagen como archivo, enviar POST
+     * multipart con _method=PUT.
      */
     public function update(Request $request, Service $service): JsonResponse
     {
@@ -75,10 +80,14 @@ class ServiceManagementController extends Controller
             'categoria' => ['required', 'string', 'max:100'],
             'precio' => ['required', 'numeric', 'min:0'],
             'duracion_min' => ['required', 'integer', 'min:5', 'max:600'],
-            'imagen' => ['nullable', 'string', 'max:255'],
+            'imagen' => UploadedImage::rules($request, 'imagen'),
             'descripcion' => ['nullable', 'string', 'max:2000'],
             'activo' => ['nullable', 'boolean'],
         ]);
+
+        if ($path = UploadedImage::store($request, 'imagen', 'services', $service->imagen)) {
+            $data['imagen'] = $path;
+        }
 
         $this->serviceService->update($service, $data);
         $service->refresh();
@@ -129,7 +138,7 @@ class ServiceManagementController extends Controller
             'precio' => $service->precio,
             'duracion_min' => $service->duracion_min,
             'imagen' => $service->imagen,
-            'imagen_url' => $service->imagen ? Storage::disk('public')->url($service->imagen) : null,
+            'imagen_url' => UploadedImage::url($service->imagen),
             'descripcion' => $service->descripcion,
             'activo' => (bool) $service->activo,
         ];

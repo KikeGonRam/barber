@@ -2,6 +2,7 @@
 
 namespace App\Services\Chatbot;
 
+use App\Models\BarbershopSetting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -266,18 +267,19 @@ EOQ;
             return 'Para encontrar barbershops cercanas, ingresa tu ubicación o consulta con nuestro equipo.';
         }
 
-        // DIRECTIONS
-        if (str_contains($message, 'cómo llego') || str_contains($message, 'ruta')) {
-            // NOTA: direccion hardcodeada, no viene de BarbershopSetting.
-            $mapsUrl = $this->getGoogleMapsUrl('Av. Reforma 123, CDMX');
+        // Dirección real de la ficha del negocio; sin dirección registrada no se inventa una.
+        $address = BarbershopSetting::cached()?->direccion;
 
-            return "CÓMO LLEGAR:\nAv. Reforma 123, CDMX\nVer en Google Maps: {$mapsUrl}";
+        // DIRECTIONS
+        if ($address && (str_contains($message, 'cómo llego') || str_contains($message, 'ruta'))) {
+            $mapsUrl = $this->getGoogleMapsUrl($address);
+
+            return "Estamos en {$address}.\nVer en Google Maps: {$mapsUrl}";
         }
 
         // LOCATION DETAILS
-        if (str_contains($message, 'dónde estamos') || str_contains($message, 'ubicación')) {
-            // NOTA: misma direccion hardcodeada que arriba.
-            $location = $this->getLocationInfo('Av. Reforma 123, CDMX');
+        if ($address && (str_contains($message, 'dónde estamos') || str_contains($message, 'ubicación'))) {
+            $location = $this->getLocationInfo($address);
 
             if ($location) {
                 $mapsUrl = $this->getGoogleMapsUrl($location['address']);

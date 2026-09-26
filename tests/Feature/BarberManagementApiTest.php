@@ -8,6 +8,8 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
@@ -107,6 +109,47 @@ class BarberManagementApiTest extends TestCase
         $this->assertFalse((bool) $fresh->activo);
         $this->assertSame('Nombre Nuevo', $fresh->user->name);
         $this->assertSame(45.0, (float) $fresh->comision_pct);
+    }
+
+    public function test_update_accepts_a_photo_file_and_keeps_it_when_the_form_does_not_send_it(): void
+    {
+        Storage::fake('public');
+        $barber = $this->makeBarber('Con Foto', 'con-foto-'.Str::uuid().'@test.local');
+        $email = 'con-foto-'.Str::uuid().'@test.local';
+
+        // Archivo elegido en el dispositivo: POST multipart con _method=PUT (PHP no lee archivos en PUT).
+        $response = $this->withToken($this->adminToken)->post('/api/v1/barbers/manage/'.$barber->getRouteKey(), [
+            '_method' => 'PUT',
+            'name' => 'Con Foto',
+            'email' => $email,
+            'activo' => '1',
+            'foto' => UploadedFile::fake()->image('foto.png', 400, 400),
+        ], ['Accept' => 'application/json']);
+
+        $response->assertOk();
+        $path = $barber->fresh()->foto;
+        $this->assertStringStartsWith('barbers/', $path);
+        Storage::disk('public')->assertExists($path);
+        $this->assertNotNull($response->json('data.foto_url'));
+
+        // Editar otros datos sin tocar la foto ya no la borra.
+        $this->withToken($this->adminToken)->putJson('/api/v1/barbers/manage/'.$barber->getRouteKey(), [
+            'name' => 'Con Foto Editado', 'email' => $email, 'activo' => true,
+        ])->assertOk();
+        $this->assertSame($path, $barber->fresh()->foto);
+    }
+
+    public function test_update_rejects_a_file_that_is_not_an_image(): void
+    {
+        Storage::fake('public');
+        $barber = $this->makeBarber('Sin Pdf', 'sin-pdf-'.Str::uuid().'@test.local');
+
+        $this->withToken($this->adminToken)->post('/api/v1/barbers/manage/'.$barber->getRouteKey(), [
+            '_method' => 'PUT',
+            'name' => 'Sin Pdf',
+            'email' => 'sin-pdf-'.Str::uuid().'@test.local',
+            'foto' => UploadedFile::fake()->create('doc.pdf', 100, 'application/pdf'),
+        ], ['Accept' => 'application/json'])->assertUnprocessable()->assertJsonValidationErrors('foto');
     }
 
     public function test_update_requires_name_and_a_valid_unique_email(): void

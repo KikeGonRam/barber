@@ -8,6 +8,8 @@ use App\Models\Role;
 use App\Models\Service;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
@@ -99,6 +101,41 @@ class ServiceManagementApiTest extends TestCase
         $deleted = $this->withHeader('Authorization', "Bearer {$token}")->deleteJson("/api/v1/services/manage/{$serviceSlug}");
         $deleted->assertOk();
         $this->assertNull(Service::find($serviceId));
+    }
+
+    public function test_admin_can_upload_the_service_image_as_a_file(): void
+    {
+        Storage::fake('public');
+        $admin = $this->roleUser('administrador', 'admin-services-img@test.local');
+        $token = $this->tokenFor($admin, 'test-plaintext-token-services-img');
+        $headers = ['Authorization' => "Bearer {$token}", 'Accept' => 'application/json'];
+
+        $created = $this->post('/api/v1/services/manage', [
+            'nombre' => 'Fade con foto', 'categoria' => 'corte', 'precio' => 200, 'duracion_min' => 40,
+            'imagen' => UploadedFile::fake()->image('fade.png', 600, 400),
+        ], $headers);
+        $created->assertCreated();
+        $first = $created->json('data.imagen');
+        $this->assertStringStartsWith('services/', $first);
+        Storage::disk('public')->assertExists($first);
+        $this->assertNotNull($created->json('data.imagen_url'));
+
+        // Reemplazar la imagen al editar (POST multipart + _method=PUT) borra el archivo anterior.
+        $updated = $this->post('/api/v1/services/manage/'.$created->json('data.slug'), [
+            '_method' => 'PUT',
+            'nombre' => 'Fade con foto', 'categoria' => 'corte', 'precio' => 200, 'duracion_min' => 40,
+            'imagen' => UploadedFile::fake()->image('fade2.png', 600, 400),
+        ], $headers);
+        $updated->assertOk();
+        Storage::disk('public')->assertExists($updated->json('data.imagen'));
+        Storage::disk('public')->assertMissing($first);
+
+        // Una URL completa guardada como texto se devuelve tal cual.
+        $byUrl = $this->postJson('/api/v1/services/manage', [
+            'nombre' => 'Con URL', 'categoria' => 'corte', 'precio' => 100, 'duracion_min' => 30,
+            'imagen' => 'https://example.com/corte.jpg',
+        ], $headers);
+        $byUrl->assertCreated()->assertJsonPath('data.imagen_url', 'https://example.com/corte.jpg');
     }
 
     public function test_recepcionista_cannot_manage_services(): void

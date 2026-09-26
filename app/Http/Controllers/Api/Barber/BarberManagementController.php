@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api\Barber;
 
 use App\Http\Controllers\Controller;
 use App\Models\Barber;
+use App\Support\UploadedImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Controlador de gestión de barberos (solo administrador).
@@ -49,7 +49,7 @@ class BarberManagementController extends Controller
                 'especialidades' => $barber->especialidades,
                 'descripcion' => $barber->descripcion,
                 'foto' => $barber->foto,
-                'foto_url' => $barber->foto ? Storage::disk('public')->url($barber->foto) : null,
+                'foto_url' => UploadedImage::url($barber->foto),
                 'activo' => (bool) $barber->activo,
                 // % de comisión sobre el precio de lista de cada servicio
                 // que completa (ver BarberCommissionService), editable solo
@@ -74,7 +74,8 @@ class BarberManagementController extends Controller
         ]);
     }
 
-    // Actualiza datos del usuario asociado (name/email) y del perfil de barbero en dos updates separados
+    // Actualiza datos del usuario asociado (name/email) y del perfil de barbero en dos updates separados.
+    // Con la foto como archivo, enviar POST multipart con _method=PUT.
     public function update(Request $request, Barber $barber): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -84,7 +85,7 @@ class BarberManagementController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,'.$barber->user_id],
             'especialidades' => ['nullable', 'string', 'max:1000'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
-            'foto' => ['nullable', 'string', 'max:255'],
+            'foto' => UploadedImage::rules($request, 'foto'),
             'activo' => ['nullable', 'boolean'],
             'comision_pct' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
@@ -94,13 +95,22 @@ class BarberManagementController extends Controller
             'email' => $data['email'],
         ]);
 
-        $barber->update([
+        $profile = [
             'especialidades' => $data['especialidades'] ?? null,
             'descripcion' => $data['descripcion'] ?? null,
-            'foto' => $data['foto'] ?? null,
             'activo' => (bool) ($data['activo'] ?? false),
             'comision_pct' => $data['comision_pct'] ?? 0,
-        ]);
+        ];
+
+        // La foto solo cambia si llega: un archivo nuevo o el campo "foto" (texto, o vacío para
+        // quitarla). Un formulario que no la toca ya no la borra por omisión.
+        if ($path = UploadedImage::store($request, 'foto', 'barbers', $barber->foto)) {
+            $profile['foto'] = $path;
+        } elseif ($request->exists('foto')) {
+            $profile['foto'] = $data['foto'] ?? null;
+        }
+
+        $barber->update($profile);
 
         $barber->load('user:id,name,email');
 
@@ -112,7 +122,7 @@ class BarberManagementController extends Controller
                 'especialidades' => $barber->especialidades,
                 'descripcion' => $barber->descripcion,
                 'foto' => $barber->foto,
-                'foto_url' => $barber->foto ? Storage::disk('public')->url($barber->foto) : null,
+                'foto_url' => UploadedImage::url($barber->foto),
                 'activo' => (bool) $barber->activo,
                 'comision_pct' => (float) $barber->comision_pct,
                 'user' => [

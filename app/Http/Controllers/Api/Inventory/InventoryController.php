@@ -7,9 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Services\Inventory\InventoryService;
+use App\Support\UploadedImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 /**
@@ -348,7 +348,7 @@ class InventoryController extends Controller
             'active' => $product->isActive(),
             'low_stock' => (int) $product->stock_actual <= (int) $product->stock_minimo,
             'pending_restock' => $product->hasPendingRestockOrder(),
-            'imagen_url' => $product->imagen ? Storage::disk('public')->url($product->imagen) : null,
+            'imagen_url' => UploadedImage::url($product->imagen),
         ];
     }
 }

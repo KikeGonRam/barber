@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Chatbot;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Barber;
+use App\Models\BarbershopSetting;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Service;
@@ -15,6 +16,7 @@ use App\Services\Chatbot\ChatbotIntelligenceService;
 use App\Services\Chatbot\ChatbotLearningService;
 use App\Services\Chatbot\ChatbotUserProfileService;
 use App\Services\Chatbot\Contracts\ChatbotAiProvider;
+use App\Services\Loyalty\LoyaltyService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,20 +33,6 @@ use Illuminate\Support\Str;
  */
 class ChatbotController extends Controller
 {
-    // Base de conocimiento manual de respaldo (última línea antes de usar IA)
-    private array $fallbackKnowledgeBase = [
-        'sistema' => [
-            'puntos' => 'Cada cita completada te otorga 10 Puntos de Estilo. Puedes verlos en tu Dashboard.',
-            'membresia' => 'Nuestros niveles son: Caballero, V.I.P y Leyenda.',
-            'cancelacion' => 'Puedes cancelar hasta 24 horas antes sin cargo.',
-            'pago' => 'Aceptamos Efectivo, Tarjeta, Transferencia y QR.',
-        ],
-        'general' => [
-            'ubicacion' => 'Estamos en Av. Reforma 123, CDMX.',
-            'horario' => 'Lunes a Sábado de 9AM a 9PM.',
-        ],
-    ];
-
     public function __construct(
         private ChatbotAiProvider $aiService,
         private ChatbotIntelligenceService $intelligenceService,
@@ -201,7 +189,7 @@ class ChatbotController extends Controller
                     set_time_limit(60);
                     $basePrompt = $this->aiService->buildSystemPrompt($contextData);
                     $augmentedPrompt = $this->contextService->generateAugmentedPrompt($message, $basePrompt, $userId);
-                    $aiResponse = $this->aiService->generateResponseWithPrompt($augmentedPrompt);
+                    $aiResponse = $this->tidyAiResponse($this->aiService->generateResponseWithPrompt($augmentedPrompt));
 
                     if ($aiResponse &&
                         ! str_contains($aiResponse, 'MODO OFFLINE') &&
@@ -311,6 +299,27 @@ class ChatbotController extends Controller
     }
 
     /**
+     * Datos reales del negocio desde su ficha (BarbershopSetting). Antes el chat tenía fijos una
+     * dirección, un correo y un horario que no eran del negocio y ofrecía pago con QR.
+     *
+     * @return array{nombre: string, direccion: ?string, telefono: ?string, horario: ?string, cancelacion_horas: int}
+     */
+    private function businessFacts(): array
+    {
+        $setting = BarbershopSetting::cached();
+        $open = $setting?->horario_apertura;
+        $close = $setting?->horario_cierre;
+
+        return [
+            'nombre' => $setting?->nombre ?: 'UrbanBlade',
+            'direccion' => $setting?->direccion ?: null,
+            'telefono' => $setting?->telefono ?: null,
+            'horario' => $open && $close ? "de {$open} a {$close}" : null,
+            'cancelacion_horas' => (int) ($setting?->politica_cancelacion ?: 24),
+        ];
+    }
+
+    /**
      * Arma el contexto (servicios, barberos, datos del usuario) que se inyecta
      * tanto en las respuestas manuales como en el prompt de la IA.
      */
@@ -344,6 +353,7 @@ class ChatbotController extends Controller
         }
 
         return [
+            'business' => $this->businessFacts(),
             'services' => $services,
             'barbers' => $barbers,
             'user_name' => $user?->name,
@@ -395,27 +405,44 @@ class ChatbotController extends Controller
 
         // ============ PREGUNTAS SOBRE HORARIOS ============
         if ($this->matchesKeywords($message, ['horario', 'abierto', 'cierre', 'qué hora', 'cuándo atienden', 'hora de apertura'])) {
-            return "HORARIOS DE ATENCIÓN:\nLunes a Sábado: 9:00 AM - 9:00 PM\nDomingos: Cerrado\n\n¿Necesitas agendar algo?";
+            $horario = $data['business']['horario'] ?? null;
+
+            return $horario
+                ? "Atendemos {$horario}. ¿Quieres que te ayude a reservar?"
+                : 'Consulta el horario con recepción. ¿Quieres que te ayude a reservar?';
         }
 
         // ============ PREGUNTAS SOBRE UBICACIÓN/CONTACTO ============
+        // Datos de la ficha del negocio (BarbershopSetting), no fijos en el código.
         if ($this->matchesKeywords($message, ['ubicación', 'dirección', 'dónde están', 'cómo llego', 'google maps', 'contacto', 'teléfono'])) {
-            return "UBICACIÓN:\nAv. Reforma 123, CDMX\n\nTeléfono: Disponible en la sección Contacto\nEmail: info@barberpro.com\n\n¿Necesitas indicaciones?";
+            $lines = array_filter([
+                ! empty($data['business']['direccion']) ? "Estamos en {$data['business']['direccion']}." : null,
+                ! empty($data['business']['telefono']) ? "Teléfono: {$data['business']['telefono']}." : null,
+            ]);
+
+            return $lines ? implode("\n", $lines) : 'Pregunta la dirección y el teléfono en recepción.';
         }
 
         // ============ PREGUNTAS SOBRE CANCELACIÓN/REEMBOLSO ============
         if ($this->matchesKeywords($message, ['cancelar', 'cancelación', 'reembolso', 'devolver', 'anular cita', 'cambiar cita'])) {
-            return "POLÍTICA DE CANCELACIÓN:\n— Hasta 24h antes: GRATIS (sin penalización)\n— Menos de 24h: Se aplica cargo del 50%\n— Sin aviso previo: Cargo del 100%\n\n¿Necesitas cancelar tu cita?";
+            $horas = $data['business']['cancelacion_horas'] ?? 24;
+
+            return "Puedes cancelar sin costo hasta {$horas} horas antes desde \"Mis citas\". Si pagaste con tarjeta, el reembolso se hace a la misma tarjeta. Con menos anticipación, comunícate con recepción.";
         }
 
         // ============ PREGUNTAS SOBRE PAGOS ============
         if ($this->matchesKeywords($message, ['pago', 'tarjeta', 'efectivo', 'transferencia', 'qr', 'cómo pago', 'métodos de pago'])) {
-            return "MÉTODOS DE PAGO ACEPTADOS:\n— Efectivo\n— Tarjeta de Crédito/Débito\n— Transferencia Bancaria\n— Código QR (Mercado Pago, OXXO Pay, etc.)\n\nTodos los métodos disponibles en sucursal y en línea.";
+            return 'Aceptamos efectivo, transferencia y tarjeta de crédito o débito (también en línea al reservar).';
         }
 
         // ============ PREGUNTAS SOBRE PUNTOS/MEMBRESÍA ============
+        // Niveles y puntos salen de LoyaltyService para no volver a desfasarse.
         if ($this->matchesKeywords($message, ['punto', 'miembro', 'membresia', 'nivel', 'caballero', 'vip', 'leyenda', 'recompensa', 'beneficio'])) {
-            return "SISTEMA DE PUNTOS 'ESTILO':\nGanas 10 Puntos por cada cita completada\n\nNIVELES DE MEMBRESÍA:\n— CABALLERO (0-50 puntos): Acceso básico\n— V.I.P (51-150 puntos): Descuentos + Prioridad en reservas\n— LEYENDA (150+ puntos): Beneficios exclusivos + Sorpresas especiales\n\n¿Cuál es tu nivel actual?";
+            $levels = collect(LoyaltyService::LEVELS)
+                ->map(fn (int $citas, string $key) => LoyaltyService::LEVEL_LABELS[$key]." ({$citas} citas".(LoyaltyService::DISCOUNTS[$key] > 0 ? ', '.LoyaltyService::DISCOUNTS[$key].'% de descuento' : '').')')
+                ->implode(', ');
+
+            return 'Ganas '.LoyaltyService::CITA_POINTS.' puntos por cita completada y '.LoyaltyService::RESENA_POINTS." por reseña. Tu nivel sube con tus citas completadas: {$levels}. Revísalo en Beneficios.";
         }
 
         // ============ PREGUNTAS PARA ADMINISTRADORES ============
@@ -557,10 +584,23 @@ class ChatbotController extends Controller
     }
 
     /**
-     * Detecta si la respuesta manual fue el fallback genérico ("no estoy
-     * seguro"), señal usada para decidir si vale la pena intentar datos
-     * externos o IA en vez de devolver esa respuesta tal cual.
+     * Deja la respuesta de la IA lista para mostrarse tal cual en web y app: sin marcas de
+     * formato (**negritas**, títulos, `código`) y, si el límite de tokens la cortó a media
+     * frase, hasta la última oración completa.
      */
+    private function tidyAiResponse(string $text): string
+    {
+        $text = preg_replace(['/\*\*|__|`/u', '/^#+\s*/mu', '/^\s*[*-]\s+/mu', "/\n{3,}/u"], ['', '', '• ', "\n\n"], $text) ?? $text;
+        $text = trim($text);
+
+        // Cortada: se queda hasta el último . ! ? que cierre una frase (no el de "3." de una lista).
+        if ($text !== '' && ! preg_match('/[.!?…)]$/u', $text) && preg_match('/^.*[^\d\s][.!?](?=\s|$)/su', $text, $m)) {
+            $text = $m[0];
+        }
+
+        return $text;
+    }
+
     /**
      * Servicio activo del catálogo que la respuesta de la IA menciona por su nombre (el más largo
      * gana: «Corte Clásico» antes que «Corte»), o null. Sin acentos ni mayúsculas para comparar.
@@ -588,6 +628,11 @@ class ChatbotController extends Controller
         ];
     }
 
+    /**
+     * Detecta si la respuesta manual fue el fallback genérico ("no estoy
+     * seguro"), señal usada para decidir si vale la pena intentar datos
+     * externos o IA en vez de devolver esa respuesta tal cual.
+     */
     private function isManualFallbackResponse(string $response): bool
     {
         $normalizedResponse = strtolower($response);

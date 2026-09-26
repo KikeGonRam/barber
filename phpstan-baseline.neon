@@ -1099,12 +1099,6 @@ parameters:
 			path: app/Http/Controllers/Chatbot/ChatbotController.php
 
 		-
-			message: '#^Property App\\Http\\Controllers\\Chatbot\\ChatbotController\:\:\$fallbackKnowledgeBase is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Http/Controllers/Chatbot/ChatbotController.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Connection\:\:getDatabase\(\)\.$#'
 			identifier: method.notFound
 			count: 1

@@ -8,6 +8,7 @@ use App\Models\Reaction;
 use App\Models\SavedWork;
 use App\Models\Work;
 use App\Models\WorkImage;
+use App\Support\UploadedImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -62,11 +63,11 @@ class BarberPortfolioController extends Controller
                     'description' => $work->description,
                     'media' => $work->images->map(fn (WorkImage $item) => [
                         'id' => (string) $item->id,
-                        'url' => Storage::disk('public')->url($item->image),
+                        'url' => UploadedImage::urlFor($item->image),
                         'type' => $item->isVideo() ? 'video' : 'image',
                         'mime_type' => $item->mime_type,
                     ])->values(),
-                    'images' => $work->images->map(fn ($img) => Storage::disk('public')->url($img->image))->values(),
+                    'images' => $work->images->map(fn ($img) => UploadedImage::urlFor($img->image))->values(),
                     'reactions_count' => $work->reactions->count(),
                     'comments_count' => $work->comments->count(),
                     'created_at' => $work->created_at,
@@ -159,7 +160,7 @@ class BarberPortfolioController extends Controller
                 'description' => $work->description,
                 'media' => $work->images->map(fn (WorkImage $item) => [
                     'id' => (string) $item->id,
-                    'url' => Storage::disk('public')->url($item->image),
+                    'url' => UploadedImage::urlFor($item->image),
                     'type' => $item->isVideo() ? 'video' : 'image',
                     'mime_type' => $item->mime_type,
                 ])->values(),

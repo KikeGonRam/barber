@@ -9,6 +9,8 @@ use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
@@ -140,6 +142,26 @@ class InventoryApiTest extends TestCase
             ->deleteJson("/api/v1/inventory/products/{$productId}");
         $deleted->assertOk();
         $this->assertNull(Product::find($productId));
+    }
+
+    public function test_admin_can_replace_the_product_image_with_a_multipart_method_override(): void
+    {
+        Storage::fake('public');
+        $admin = $this->staffUser('administrador', 'admin-inventory-img@test.local');
+        $token = $this->tokenFor($admin, 'test-plaintext-token-inventory-img');
+        $product = $this->product();
+
+        // Web y Android editan con POST multipart + _method=PUT: PHP no lee archivos de un PUT.
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->post("/api/v1/inventory/products/{$product->id}", [
+            '_method' => 'PUT',
+            'precio_venta' => 180,
+            'imagen' => UploadedFile::fake()->image('cera.png', 300, 300),
+        ], ['Accept' => 'application/json']);
+
+        $response->assertOk()->assertJsonPath('data.precio_venta', 180);
+        $path = $product->fresh()->imagen;
+        $this->assertStringStartsWith('products/', $path);
+        Storage::disk('public')->assertExists($path);
     }
 
     public function test_recepcionista_can_only_register_salida_movements(): void

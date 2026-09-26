@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\BarbershopSetting;
 use App\Models\ChatMessage;
 use App\Models\Service;
+use App\Services\Chatbot\Concerns\BuildsBarberSystemPrompt;
 use App\Services\Chatbot\Contracts\ChatbotAiProvider;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -62,5 +64,53 @@ class ChatbotSuggestedServiceTest extends TestCase
         $this->postJson('/api/v1/chatbot/query', ['message' => 'mi cabello es rizado y quiero verme ordenado'])
             ->assertOk()
             ->assertJsonPath('suggested_service', null);
+    }
+
+    public function test_ai_answer_is_shown_without_markdown_and_without_a_cut_sentence(): void
+    {
+        Service::create(['nombre' => 'Corte Clásico', 'precio' => 180, 'duracion_min' => 30, 'activo' => true]);
+        // Lo que se vio en el cel el 26-sep: asteriscos a la vista y la frase cortada por el límite de tokens.
+        $this->aiSays("Te recomiendo el **Corte Clásico** por \$180. Deja la barba con forma.\n\n3. **Skin Fade**: Un corte que te hace look más atractivo y te sienta bien en tu");
+
+        $this->postJson('/api/v1/chatbot/query', ['message' => 'mi cabello es rizado y quiero verme ordenado'])
+            ->assertOk()
+            ->assertJsonPath('response', 'Te recomiendo el Corte Clásico por $180. Deja la barba con forma.');
+    }
+
+    public function test_the_prompt_uses_the_real_business_data_and_never_offers_qr(): void
+    {
+        BarbershopSetting::query()->delete();
+        BarbershopSetting::create([
+            'nombre' => 'UrbanBlade Centro', 'direccion' => 'Av. Juárez 120, Toluca', 'telefono' => '722 000 0000',
+            'horario_apertura' => '09:00', 'horario_cierre' => '20:00', 'politica_cancelacion' => 12,
+        ]);
+        Cache::flush();
+        Service::create(['nombre' => 'Corte Clásico', 'precio' => 180, 'duracion_min' => 30, 'activo' => true]);
+
+        $prompt = null;
+        $this->mock(ChatbotAiProvider::class, function ($mock) use (&$prompt) {
+            $mock->shouldReceive('isEnabled')->andReturn(true);
+            $mock->shouldReceive('buildSystemPrompt')->andReturnUsing(function (array $data) use (&$prompt) {
+                $prompt = (new class
+                {
+                    use BuildsBarberSystemPrompt;
+                })->buildSystemPrompt($data);
+
+                return $prompt;
+            });
+            $mock->shouldReceive('generateResponseWithPrompt')->andReturn('Te recomiendo el Corte Clásico.');
+            $mock->shouldReceive('label')->andReturn('ollama:test');
+        });
+
+        $this->postJson('/api/v1/chatbot/query', ['message' => 'mi cabello es rizado y quiero verme ordenado'])->assertOk();
+
+        $this->assertStringContainsString('Av. Juárez 120, Toluca', $prompt);
+        $this->assertStringContainsString('de 09:00 a 20:00', $prompt);
+        $this->assertStringContainsString('Corte Clásico ($180)', $prompt);
+        $this->assertStringContainsString('hasta 12 horas antes', $prompt);
+        $this->assertStringNotContainsString('Reforma', $prompt);
+        $this->assertStringNotContainsString('QR', $prompt);
+
+        BarbershopSetting::query()->delete();
     }
 }
