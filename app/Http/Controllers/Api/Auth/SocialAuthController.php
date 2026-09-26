@@ -274,7 +274,7 @@ class SocialAuthController extends Controller
             }
         }
 
-        if (! $user->avatar_url || $this->isGoogleAvatarUrl($user->avatar_url)) {
+        if (! $user->avatar_url || $this->isGoogleAvatarUrl($user->avatar_url) || $this->isStaleStoredAvatar($user->avatar_url)) {
             $importedAvatar = $this->importGoogleAvatar($user, $avatarUrl);
 
             if ($importedAvatar) {
@@ -323,6 +323,19 @@ class SocialAuthController extends Controller
 
             return $avatarUrl;
         }
+    }
+
+    /**
+     * Foto guardada en un disco que ya no es el actual: p. ej. las que se subieron al disco local
+     * del contenedor antes de que staging usara S3 (…/storage/avatars/…). Un contenedor nuevo ya
+     * no las tiene y responden 404; así se reimporta la de Google en el siguiente inicio de sesión.
+     */
+    private function isStaleStoredAvatar(string $avatarUrl): bool
+    {
+        $path = (string) parse_url($avatarUrl, PHP_URL_PATH);
+
+        return str_contains($path, '/avatars/')
+            && ! str_starts_with($avatarUrl, rtrim(Storage::disk('public')->url(''), '/').'/');
     }
 
     private function isGoogleAvatarUrl(?string $avatarUrl): bool

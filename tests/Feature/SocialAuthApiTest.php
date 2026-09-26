@@ -9,6 +9,7 @@ use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Tests\TestCase;
@@ -167,6 +168,34 @@ class SocialAuthApiTest extends TestCase
 
         $response->assertRedirect();
         $this->assertStringContainsString('/storage/avatars/'.(string) $admin->id.'/', User::find($admin->id)->avatar_url);
+    }
+
+    public function test_callback_reimports_an_avatar_left_on_a_disk_that_no_longer_has_it(): void
+    {
+        Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
+        // Caso real de staging (26-sep): foto guardada en el disco local de un contenedor anterior,
+        // que ya responde 404. Antes nunca se reimportaba porque "ya tenía avatar".
+        $user = User::create(['name' => 'Foto Perdida', 'email' => 'foto-perdida@test.local', 'password' => 'password']);
+        $user->forceFill(['avatar_url' => 'https://api-vieja.example.com/storage/avatars/'.(string) $user->id.'/vieja.jpg'])->save();
+
+        Socialite::fake('google', $this->fakeGoogleUser('foto-perdida@test.local', 'Foto Perdida'));
+        $this->get('/api/v1/auth/google/callback')->assertRedirect();
+
+        $this->assertStringStartsWith(rtrim(Storage::disk('public')->url(''), '/').'/avatars/', (string) $user->refresh()->getAttribute('avatar_url'));
+    }
+
+    public function test_callback_keeps_a_current_avatar_the_user_uploaded(): void
+    {
+        Http::fake();
+        $user = User::create(['name' => 'Foto Propia', 'email' => 'foto-propia@test.local', 'password' => 'password']);
+        $own = Storage::disk('public')->url('avatars/'.(string) $user->id.'/propia.jpg');
+        $user->forceFill(['avatar_url' => $own])->save();
+
+        Socialite::fake('google', $this->fakeGoogleUser('foto-propia@test.local', 'Foto Propia'));
+        $this->get('/api/v1/auth/google/callback')->assertRedirect();
+
+        $this->assertSame($own, $user->refresh()->getAttribute('avatar_url'));
+        Http::assertNothingSent();
     }
 
     public function test_callback_redirects_to_login_with_an_error_when_google_fails(): void
