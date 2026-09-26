@@ -20,6 +20,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 /**
  * Controlador del asistente conversacional del sitio (endpoints públicos/cliente).
@@ -197,7 +198,7 @@ class ChatbotController extends Controller
                     // max_execution_time por defecto de PHP-FPM (30s); el
                     // propio cliente HTTP ya espera hasta OLLAMA_TIMEOUT (90s
                     // por defecto), asi que el limite de PHP debe ser mayor.
-                    set_time_limit(120);
+                    set_time_limit(60);
                     $basePrompt = $this->aiService->buildSystemPrompt($contextData);
                     $augmentedPrompt = $this->contextService->generateAugmentedPrompt($message, $basePrompt, $userId);
                     $aiResponse = $this->aiService->generateResponseWithPrompt($augmentedPrompt);
@@ -221,7 +222,11 @@ class ChatbotController extends Controller
                             'estimated_cost_usd' => $this->estimateAiCostUsd($totalTokens),
                         ]);
 
-                        return response()->json(['response' => $aiResponse]);
+                        // Aditivo: si la IA recomendó un servicio del catálogo, la app muestra «Reservar».
+                        return response()->json([
+                            'response' => $aiResponse,
+                            'suggested_service' => $this->suggestedService($aiResponse),
+                        ]);
                     }
                 } catch (\Exception $e) {
                     $this->businessEventService->record('chatbot', 'chatbot_ai_error', [
@@ -556,6 +561,33 @@ class ChatbotController extends Controller
      * seguro"), señal usada para decidir si vale la pena intentar datos
      * externos o IA en vez de devolver esa respuesta tal cual.
      */
+    /**
+     * Servicio activo del catálogo que la respuesta de la IA menciona por su nombre (el más largo
+     * gana: «Corte Clásico» antes que «Corte»), o null. Sin acentos ni mayúsculas para comparar.
+     *
+     * @return array{id: string, nombre: string, precio: float, duracion_min: int}|null
+     */
+    private function suggestedService(string $text): ?array
+    {
+        $normalize = fn (string $value): string => mb_strtolower(Str::ascii($value));
+        $haystack = $normalize($text);
+
+        $match = Service::query()
+            ->where('activo', true)
+            ->get(['_id', 'nombre', 'precio', 'duracion_min'])
+            ->filter(fn ($service) => ($name = trim((string) $service->getAttribute('nombre'))) !== ''
+                && str_contains($haystack, $normalize($name)))
+            ->sortByDesc(fn ($service) => mb_strlen((string) $service->getAttribute('nombre')))
+            ->first();
+
+        return $match === null ? null : [
+            'id' => (string) $match->getKey(),
+            'nombre' => (string) $match->getAttribute('nombre'),
+            'precio' => (float) $match->getAttribute('precio'),
+            'duracion_min' => (int) $match->getAttribute('duracion_min'),
+        ];
+    }
+
     private function isManualFallbackResponse(string $response): bool
     {
         $normalizedResponse = strtolower($response);

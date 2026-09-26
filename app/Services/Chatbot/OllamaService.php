@@ -2,10 +2,9 @@
 
 namespace App\Services\Chatbot;
 
+use App\Services\Ai\LocalAi;
 use App\Services\Chatbot\Concerns\BuildsBarberSystemPrompt;
 use App\Services\Chatbot\Contracts\ChatbotAiProvider;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Proveedor de IA local via Ollama. Corre 100% en la maquina (sin API key ni
@@ -23,18 +22,12 @@ class OllamaService implements ChatbotAiProvider
 
     private int $timeout;
 
-    private string $keepAlive;
-
     public function __construct()
     {
         // Sin barra final para evitar // al concatenar la ruta.
         $this->baseUrl = rtrim((string) config('chatbot.ai.ollama.url', 'http://host.docker.internal:11434'), '/');
         $this->model = (string) config('chatbot.ai.ollama.model', 'qwen2.5:3b');
         $this->timeout = (int) config('chatbot.ai.ollama.timeout', 90);
-        // Mantiene el modelo residente en (V)RAM entre peticiones: la primera
-        // carga en frio tarda decenas de segundos, pero ya caliente responde
-        // en ~1s. Evita recargar el modelo en cada consulta.
-        $this->keepAlive = (string) config('chatbot.ai.ollama.keep_alive', '30m');
     }
 
     /**
@@ -42,7 +35,8 @@ class OllamaService implements ChatbotAiProvider
      */
     public function isEnabled(): bool
     {
-        return $this->baseUrl !== '' && $this->model !== '';
+        // Con el cortacircuito abierto (IA caída o lenta) ni se intenta: respuesta sin IA al instante.
+        return $this->baseUrl !== '' && $this->model !== '' && app(LocalAi::class)->available();
     }
 
     /**
@@ -54,40 +48,12 @@ class OllamaService implements ChatbotAiProvider
     }
 
     /**
-     * Envía el prompt ya armado al servidor Ollama y devuelve el texto generado.
-     * Efecto secundario: llamada HTTP al servidor Ollama local (host.docker.internal)
-     * y log de errores si falla o hay excepción de conexión.
+     * Envía el prompt ya armado al modelo local por LocalAi (límite de tiempo y cortacircuito
+     * compartidos). Devuelve '' si la IA no respondió a tiempo: el controlador entonces contesta
+     * con la respuesta sin IA, en vez de mostrarle al cliente un error de conexión.
      */
     public function generateResponseWithPrompt(string $fullPrompt): string
     {
-        try {
-            $response = Http::timeout($this->timeout)
-                ->acceptJson()
-                ->post("{$this->baseUrl}/api/generate", [
-                    'model' => $this->model,
-                    'prompt' => $fullPrompt,
-                    'stream' => false,
-                    'keep_alive' => $this->keepAlive,
-                    'options' => [
-                        'temperature' => 0.7,
-                        // Limita la longitud de la respuesta (concierge breve).
-                        'num_predict' => 220,
-                    ],
-                ]);
-
-            if ($response->failed()) {
-                Log::error('Ollama API Error: '.$response->body());
-
-                return 'Lo siento, mi conexion neuronal esta experimentando interferencias. Podrias preguntar de otra forma?';
-            }
-
-            $text = trim((string) $response->json('response', ''));
-
-            return $text !== '' ? $text : 'No pude generar una respuesta.';
-        } catch (\Throwable $e) {
-            Log::error('Ollama Connection Exception: '.$e->getMessage());
-
-            return 'Error de conexion con el servicio de IA local.';
-        }
+        return app(LocalAi::class)->complete($fullPrompt, 160, (float) $this->timeout, 0.5) ?? '';
     }
 }

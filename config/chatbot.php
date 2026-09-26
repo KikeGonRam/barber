@@ -13,7 +13,10 @@ return [
             'model' => env('OLLAMA_MODEL', 'qwen2.5:3b'),
             // Red de seguridad para la primera carga en frio del modelo (~decenas
             // de segundos con poca RAM libre). Ya caliente responde en ~1s.
-            'timeout' => env('OLLAMA_TIMEOUT', 90),
+            // Segundos que Bladebot espera al modelo antes de contestar sin IA.
+            'timeout' => env('OLLAMA_TIMEOUT', 15),
+            // Tras un fallo o una espera de más, minutos sin intentar la IA (ver App\Services\Ai\LocalAi).
+            'cooldown_seconds' => env('OLLAMA_COOLDOWN_SECONDS', 120),
             // Cuanto mantener el modelo cargado en (V)RAM entre consultas.
             'keep_alive' => env('OLLAMA_KEEP_ALIVE', '30m'),
         ],

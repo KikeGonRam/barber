@@ -4,10 +4,9 @@ namespace App\Services\Prediction;
 
 use App\Models\Appointment;
 use App\Models\Payment;
+use App\Services\Ai\LocalAi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Genera predicciones de negocio (ingresos, citas, servicios populares,
@@ -17,10 +16,6 @@ use Illuminate\Support\Facades\Log;
  */
 class PredictionService
 {
-    private string $ollamaUrl = 'http://ollama:11434';
-
-    private string $model = 'qwen2.5:0.5b';
-
     private array $historicalData = [];
 
     public function __construct()
@@ -291,27 +286,8 @@ Responde brevemente para optimizar el horario.";
      */
     private function callOllama(string $prompt): string
     {
-        try {
-            $response = Http::timeout(30)->post(
-                "{$this->ollamaUrl}/api/generate",
-                [
-                    'model' => $this->model,
-                    'prompt' => $prompt,
-                    'stream' => false,
-                    'temperature' => 0.7,
-                ]
-            );
-
-            if ($response->successful()) {
-                $data = $response->json();
-
-                return $data['response'] ?? 'No se pudo generar la predicción.';
-            }
-        } catch (\Exception $e) {
-            Log::warning('Ollama prediction error: '.$e->getMessage());
-        }
-
-        return 'Predicción no disponible en este momento.';
+        // Mismo cliente que Bladebot (URL y modelo de config/chatbot.php, límite y cortacircuito).
+        return app(LocalAi::class)->complete($prompt, 200, 30.0, 0.4) ?? 'Predicción no disponible en este momento.';
     }
 
     private function parseNumericPrediction(string $text, string $pattern): ?float

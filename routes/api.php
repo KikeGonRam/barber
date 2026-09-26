@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\Package\ServicePackageController as AdminServ
 use App\Http\Controllers\Api\Admin\Report\ReportAdminController;
 use App\Http\Controllers\Api\Admin\System\BackupController;
 use App\Http\Controllers\Api\Admin\System\SystemController;
+use App\Http\Controllers\Api\Ai\BriefingController;
 use App\Http\Controllers\Api\Analytics\AnalyticsController as ApiAnalyticsController;
 use App\Http\Controllers\Api\Appointment\AppointmentController;
 use App\Http\Controllers\Api\Appointment\AppointmentManageController;
@@ -134,6 +135,8 @@ Route::prefix('v1')->group(function (): void {
 
         // Dashboard
         Route::get('dashboard', [DashboardController::class, 'index']);
+        // Resumen del día con IA local para recepción y administración (el controlador valida el rol).
+        Route::get('ai/briefing', [BriefingController::class, 'show']);
 
         // Tarjeta de membresia (PDF descargable, solo cliente -- 403 en el
         // controlador para quien no tenga clientProfile).
