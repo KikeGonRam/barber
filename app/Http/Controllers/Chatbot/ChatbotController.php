@@ -103,7 +103,9 @@ class ChatbotController extends Controller
         // 1. PRIORIDAD: Historial local (MÁS RÁPIDO, CONSISTENTE)
         $similarQuestions = $this->contextService->findSimilarQuestions($message, $userId, 70);
         if (! empty($similarQuestions) && $similarQuestions[0]['similarity'] > 80) {
-            $response = $similarQuestions[0]['answer'];
+            // La respuesta guardada pudo venir de la IA antes de limpiarlas (asteriscos, frase cortada):
+            // se limpia igual que una nueva y conserva el botón «Reservar».
+            $response = $this->tidyAiResponse($similarQuestions[0]['answer']);
             $this->contextService->addMessage($message, $response, 'bot', $userId);
             $this->learningService->recordFeedback($message, $response, true, $userId);
 
@@ -111,7 +113,7 @@ class ChatbotController extends Controller
                 'similarity' => $similarQuestions[0]['similarity'],
             ]);
 
-            return response()->json(['response' => $response]);
+            return response()->json(['response' => $response, 'suggested_service' => $this->suggestedService($response)]);
         }
 
         // 2. SEGUNDO: Respuesta Inteligente de BD (Local, contextual)

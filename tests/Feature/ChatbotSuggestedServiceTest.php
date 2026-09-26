@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\BarbershopSetting;
 use App\Models\ChatMessage;
 use App\Models\Service;
+use App\Services\Chatbot\ChatbotContextService;
 use App\Services\Chatbot\Concerns\BuildsBarberSystemPrompt;
 use App\Services\Chatbot\Contracts\ChatbotAiProvider;
 use Illuminate\Support\Facades\Cache;
@@ -75,6 +76,23 @@ class ChatbotSuggestedServiceTest extends TestCase
         $this->postJson('/api/v1/chatbot/query', ['message' => 'mi cabello es rizado y quiero verme ordenado'])
             ->assertOk()
             ->assertJsonPath('response', 'Te recomiendo el Corte Clásico por $180. Deja la barba con forma.');
+    }
+
+    public function test_a_repeated_question_answered_from_memory_is_tidied_and_keeps_the_booking_suggestion(): void
+    {
+        Service::create(['nombre' => 'Corte Clásico', 'precio' => 180, 'duracion_min' => 30, 'activo' => true]);
+        $this->aiSays('No debería llamarse a la IA.');
+        // Respuesta guardada antes de que existiera la limpieza (lo que el cel repetía el 26-sep).
+        app(ChatbotContextService::class)->addMessage(
+            'que corte me recomiendas si tengo barba larga',
+            "1. **Corte Clásico**: Un clásico que te queda bien.\n\n3. **Skin Fade**: Un corte que te sienta bien en tu",
+            'bot'
+        );
+
+        $this->postJson('/api/v1/chatbot/query', ['message' => 'Que corte me recomiendas si tengo barba larga'])
+            ->assertOk()
+            ->assertJsonPath('response', '1. Corte Clásico: Un clásico que te queda bien.')
+            ->assertJsonPath('suggested_service.nombre', 'Corte Clásico');
     }
 
     public function test_the_prompt_uses_the_real_business_data_and_never_offers_qr(): void
