@@ -29,6 +29,20 @@ for i in {1..20}; do
     sleep 3
 done
 
+# Push con Firebase (HU-02): ECS entrega la cuenta de servicio como variable de entorno
+# (secreto urbanblade/staging/barber/FIREBASE_CREDENTIALS_JSON en Secrets Manager), pero
+# FcmPushService lee un archivo. Se escribe a un archivo privado antes de cachear la
+# configuracion y la variable se borra del entorno. Sin el secreto, el push queda apagado.
+if [ -n "${FIREBASE_CREDENTIALS_JSON:-}" ]; then
+    install -d -m 750 -o root -g www-data /run/app-secrets
+    printf '%s' "$FIREBASE_CREDENTIALS_JSON" > /run/app-secrets/firebase.json
+    chown root:www-data /run/app-secrets/firebase.json
+    chmod 440 /run/app-secrets/firebase.json
+    export FIREBASE_CREDENTIALS_PATH=/run/app-secrets/firebase.json
+    unset FIREBASE_CREDENTIALS_JSON
+    echo "Credenciales de Firebase listas."
+fi
+
 echo "Cacheando configuracion, rutas y vistas..."
 php artisan config:cache
 php artisan route:cache
