@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarberReview;
 use App\Models\Client;
+use App\Models\Service;
 use App\Models\User;
 use App\Notifications\Barber\BarberReviewFlaggedNotification;
 use App\Services\Loyalty\LoyaltyService;
@@ -39,6 +40,29 @@ class BarberReviewService
             ->exists();
     }
 
+    /**
+     * Servicios que el cliente tuvo completados con el barbero (para elegir cuál califica).
+     *
+     * @return array<int, array{id: string, nombre: string}>
+     */
+    public function completedServices(Client $client, Barber $barber): array
+    {
+        $ids = Appointment::where('barber_id', (string) $barber->id)
+            ->where('client_id', (string) $client->id)
+            ->where('estado', 'completada')
+            ->pluck('service_id')
+            ->map(fn ($id) => (string) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return Service::whereIn('_id', $ids)->get(['nombre'])
+            ->map(fn ($s) => ['id' => (string) $s->id, 'nombre' => (string) $s->nombre])
+            ->values()
+            ->all();
+    }
+
     public function alreadyReviewed(Client $client, Barber $barber): bool
     {
         return BarberReview::where('barber_id', (string) $barber->id)
@@ -53,10 +77,15 @@ class BarberReviewService
      * @throws ReviewNotEligibleException si el cliente nunca tuvo una cita completada con el barbero
      * @throws DuplicateReviewException si el cliente ya reseñó a este barbero
      */
-    public function submit(Client $client, Barber $barber, int $rating, ?string $comment): BarberReview
+    public function submit(Client $client, Barber $barber, int $rating, ?string $comment, ?string $serviceId = null): BarberReview
     {
         if (! $this->hasCompletedAppointment($client, $barber)) {
             throw new ReviewNotEligibleException('Solo puedes reseñar barberos con los que hayas tenido una cita completada.');
+        }
+
+        // Si se califica un servicio, debe ser uno que el cliente tuvo completado con este barbero.
+        if ($serviceId !== null && ! collect($this->completedServices($client, $barber))->contains('id', $serviceId)) {
+            throw new ReviewNotEligibleException('Solo puedes calificar un servicio que hayas recibido con este barbero.');
         }
 
         if ($this->alreadyReviewed($client, $barber)) {
@@ -69,6 +98,7 @@ class BarberReviewService
                 'client_id' => (string) $client->id,
                 'rating' => $rating,
                 'comment' => $comment,
+                'service_id' => $serviceId,
             ]);
         } catch (BulkWriteException $e) {
             // El chequeo alreadyReviewed() de arriba no es atomico: si dos

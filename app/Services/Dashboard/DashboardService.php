@@ -290,10 +290,31 @@ class DashboardService
         $barberIds = $barberStats->pluck('barber_id')->filter()->all();
         $barbers = Barber::with('user')->find($barberIds)->keyBy(fn ($b) => (string) $b->id);
 
+        // Citas de barberos que ya no existen (dados de baja): antes salían como varias barras
+        // "Sin nombre"; ahora se juntan en una sola al final para no confundir.
+        /** @var array<string, string> $names */
+        $names = $barbers->map(fn (Barber $b) => (string) $b->user?->getAttribute('name'))->filter()->all();
+        $rows = [];
+        $gone = ['appointments' => 0, 'revenue' => 0.0];
+        foreach ($barberStats as $row) {
+            $name = $names[(string) $row['barber_id']] ?? null;
+            if ($name === null) {
+                $gone['appointments'] += $row['appointments'];
+                $gone['revenue'] += (float) $row['revenue'];
+
+                continue;
+            }
+            $rows[] = ['label' => $name, 'appointments' => $row['appointments'], 'revenue' => (float) $row['revenue']];
+        }
+        if ($gone['appointments'] > 0) {
+            $rows[] = ['label' => 'Barberos dados de baja'] + $gone;
+        }
+        $rows = collect($rows);
+
         return [
-            'labels' => $barberStats->map(fn ($row) => $barbers->get((string) $row['barber_id'])?->user?->name ?? 'Sin nombre')->all(),
-            'appointments' => $barberStats->pluck('appointments')->all(),
-            'revenue' => $barberStats->pluck('revenue')->map(fn ($v) => (float) ($v ?? 0))->all(),
+            'labels' => $rows->pluck('label')->all(),
+            'appointments' => $rows->pluck('appointments')->all(),
+            'revenue' => $rows->pluck('revenue')->all(),
         ];
     }
 

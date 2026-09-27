@@ -115,7 +115,7 @@ class ChatbotIntelligenceService
     private function getTopComments(): array
     {
         $comments = Comment::where('rating', '>=', 4)
-            ->with('user', 'work.barber.user')
+            ->with('user', 'work.barberUser')
             ->orderByDesc('rating')
             ->limit(5)
             ->get()
@@ -124,7 +124,8 @@ class ChatbotIntelligenceService
                     'author' => $comment->user?->name,
                     'rating' => $comment->rating,
                     'text' => substr((string) $comment->comment, 0, 100).'...',
-                    'barber' => $comment->work?->barber?->user?->name,
+                    // Work se liga al usuario barbero (barberUser); no tiene relación "barber" (daba error en cada consulta).
+                    'barber' => $comment->work?->barberUser?->name,
                 ];
             })
             ->toArray();

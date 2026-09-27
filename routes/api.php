@@ -490,6 +490,8 @@ Route::prefix('v1')->group(function (): void {
     // público de un barbero (portafolio, reseñas) debe verse sin iniciar
     // sesión, igual que /services y /barbers -- CatalogController::showBarber
     // ya trata $request->user() como opcional (canReview/already_reviewed
-    // quedan en false para visitantes anónimos).
-    Route::get('barbers/{barber}', [CatalogController::class, 'showBarber']);
+    // quedan en false para visitantes anónimos). mobile.auth.optional (26-sep):
+    // sin él $request->user() era siempre null y can_review nunca salía true
+    // aunque el cliente enviara su token.
+    Route::get('barbers/{barber}', [CatalogController::class, 'showBarber'])->middleware('mobile.auth.optional');
 });

@@ -134,7 +134,7 @@ class CatalogController extends Controller
     public function barbers(Request $request): JsonResponse
     {
         $barbers = Barber::query()
-            ->with('user:id,name')
+            ->with('user:id,name,avatar_url')
             ->where('activo', true)
             ->orderBy('id')
             ->get();
@@ -168,7 +168,7 @@ class CatalogController extends Controller
             'user' => $barber->user ? ['id' => $barber->user->id, 'name' => $barber->user->name] : null,
             'especialidades' => $barber->especialidades ?? '',
             'descripcion' => $barber->descripcion ?? '',
-            'foto' => UploadedImage::url($barber->foto),
+            'foto' => $this->barberPhoto($barber),
             'activo' => (bool) ($barber->activo ?? true),
             'avg_rating' => $reviewStats[(string) $barber->id]['avg'] ?? null,
             'total_reviews' => $reviewStats[(string) $barber->id]['count'] ?? 0,
@@ -182,7 +182,7 @@ class CatalogController extends Controller
     // Perfil público de un barbero: portafolio, reseñas y si el cliente actual puede reseñarlo
     public function showBarber(Barber $barber, Request $request): JsonResponse
     {
-        $barber->load('user:id,name,email,created_at');
+        $barber->load('user:id,name,email,created_at,avatar_url');
 
         $works = Work::where('barbero_id', (string) $barber->user_id)
             ->with(['images'])
@@ -198,16 +198,20 @@ class CatalogController extends Controller
             ->with('client.user:id,name')
             ->latest()
             ->get();
+        $reviewedServices = Service::whereIn('_id', $reviews->pluck('service_id')->filter()->map(fn ($id) => (string) $id)->unique()->values()->all())
+            ->get(['nombre'])->keyBy(fn ($s) => (string) $s->id);
 
         $avgRating = $reviews->isNotEmpty() ? round($reviews->avg('rating'), 1) : null;
 
         $client = $request->user()?->clientProfile;
         $alreadyReviewed = false;
         $canReview = false;
+        $reviewableServices = [];
 
         if ($client) {
             $alreadyReviewed = $this->reviews->alreadyReviewed($client, $barber);
             $canReview = ! $alreadyReviewed && $this->reviews->hasCompletedAppointment($client, $barber);
+            $reviewableServices = $canReview ? $this->reviews->completedServices($client, $barber) : [];
         }
 
         return response()->json([
@@ -216,7 +220,8 @@ class CatalogController extends Controller
                 'slug' => $barber->slug,
                 'descripcion' => $barber->descripcion,
                 'especialidades' => $barber->especialidades,
-                'foto' => $barber->foto,
+                // Antes mandaba la ruta interna del archivo (no una URL) y la foto nunca cargaba.
+                'foto' => $this->barberPhoto($barber),
                 'user' => $barber->user ? ['id' => $barber->user->id, 'name' => $barber->user->name] : null,
             ],
             'works' => $works->map(fn (Work $w) => [
@@ -231,12 +236,15 @@ class CatalogController extends Controller
                 'comment' => $r->comment,
                 'created_at' => optional($r->created_at)?->toAtomString(),
                 'client' => ['user' => ['name' => $r->client?->user?->name]],
+                'service' => $r->getAttribute('service_id') ? $reviewedServices->get((string) $r->getAttribute('service_id'))?->getAttribute('nombre') : null,
             ])->values(),
             'avg_rating' => $avgRating,
             'total_reviews' => $reviews->count(),
             'citas_completadas' => $citasCompletadas,
             'can_review' => $canReview,
             'already_reviewed' => $alreadyReviewed,
+            // Servicios que el cliente puede elegir al calificar (aditivo, 26-sep).
+            'reviewable_services' => $reviewableServices,
         ]);
     }
 
@@ -251,10 +259,11 @@ class CatalogController extends Controller
         $validated = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'comment' => ['nullable', 'string', 'max:500'],
+            'service_id' => ['nullable', 'string', 'max:64'],
         ]);
 
         try {
-            $review = $this->reviews->submit($client, $barber, (int) $validated['rating'], $validated['comment'] ?? null);
+            $review = $this->reviews->submit($client, $barber, (int) $validated['rating'], $validated['comment'] ?? null, $validated['service_id'] ?? null);
         } catch (ReviewNotEligibleException|DuplicateReviewException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
@@ -267,5 +276,14 @@ class CatalogController extends Controller
                 'comment' => $review->comment,
             ],
         ], 201);
+    }
+
+    /**
+     * Foto pública del barbero: la de su perfil de barbero o, si no subió una, la de su cuenta
+     * (p. ej. la de Google). Así "Los Maestros" y su ficha no quedan solo con iniciales.
+     */
+    private function barberPhoto(Barber $barber): ?string
+    {
+        return UploadedImage::url($barber->foto) ?? UploadedImage::url($barber->user?->getAttribute('avatar_url'));
     }
 }

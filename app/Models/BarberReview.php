@@ -19,6 +19,8 @@ class BarberReview extends Model
         'client_id',
         'rating',
         'comment',
+        // Servicio que se califica (opcional, 26-sep): uno que el cliente tuvo completado con el barbero.
+        'service_id',
     ];
 
     protected function casts(): array

@@ -52,6 +52,8 @@ class ClientController extends Controller
         return response()->json([
             'data' => $clients->getCollection()->map(fn (Client $client) => [
                 'id' => $client->id,
+                // Para abrir la ficha /clients/{slug} desde el buscador del encabezado (aditivo).
+                'slug' => $client->getAttribute('slug'),
                 'telefono' => $client->telefono,
                 'fecha_nacimiento' => optional($client->fecha_nacimiento)?->toDateString(),
                 'created_at' => optional($client->created_at)?->toAtomString(),

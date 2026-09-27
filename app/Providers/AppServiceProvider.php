@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Notifications\Auth\WelcomeNotification;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use App\Repositories\Contracts\InventoryMovementRepositoryInterface;
 use App\Repositories\Contracts\PaymentRepositoryInterface;
@@ -19,6 +20,7 @@ use App\Services\Chatbot\OllamaService;
 use App\Services\System\QueueFailureMonitor;
 use App\Services\System\ScheduledTaskMonitor;
 use App\Support\DataEnvironmentGuard;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Console\Events\ScheduledTaskFailed;
@@ -29,6 +31,7 @@ use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -105,6 +108,18 @@ class AppServiceProvider extends ServiceProvider
         // failed_jobs conserva el payload para reintentos; este listener deja
         // ademas una senal operativa minima y sin PII en logs/Sentry.
         Event::listen(JobFailed::class, [QueueFailureMonitor::class, 'recordFailed']);
+
+        // Correo de bienvenida al crear la cuenta (registro o primer inicio con Google). Un fallo
+        // del correo nunca debe tumbar el alta: se registra y se sigue.
+        Event::listen(Registered::class, function (Registered $event): void {
+            try {
+                if ($event->user instanceof User) {
+                    $event->user->notify(new WelcomeNotification);
+                }
+            } catch (\Throwable $e) {
+                Log::warning('No se pudo enviar el correo de bienvenida.', ['error' => $e->getMessage()]);
+            }
+        });
 
         // Password::sendResetLink() (AuthController::forgotPassword()) usa esta
         // notificación con su URL por defecto, que apunta a la ruta web

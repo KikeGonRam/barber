@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
+use App\Models\Comment;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\Work;
 use App\Services\Chatbot\ChatbotIntelligenceService;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -47,6 +49,8 @@ class ChatbotIntelligenceServiceTest extends TestCase
 
     protected function tearDown(): void
     {
+        Comment::query()->delete();
+        Work::query()->delete();
         Payment::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
@@ -97,5 +101,19 @@ class ChatbotIntelligenceServiceTest extends TestCase
         $context = $this->service->gatherExtendedContext($user);
 
         $this->assertSame(0.0, $context['user_preferences']['average_spending']);
+    }
+
+    public function test_top_comments_name_the_barber_through_the_work_author(): void
+    {
+        // Regresión (26-sep): se pedía la relación Work->barber, que no existe; tronaba en CADA mensaje
+        // y la telemetría de Bladebot marcaba ~47 % de errores. El autor del trabajo es barberUser.
+        $barberUser = User::create(['name' => 'Nava Panther', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $fan = User::create(['name' => 'Cliente Fan', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $work = Work::create(['barbero_id' => (string) $barberUser->id, 'title' => 'Fade limpio']);
+        Comment::create(['work_id' => (string) $work->id, 'user_id' => (string) $fan->id, 'comment' => 'Quedó perfecto', 'rating' => 5]);
+
+        $context = $this->service->gatherExtendedContext($fan);
+
+        $this->assertSame('Nava Panther', $context['top_comments'][0]['barber']);
     }
 }

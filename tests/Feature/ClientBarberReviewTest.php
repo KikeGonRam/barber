@@ -9,6 +9,7 @@ use App\Models\Client;
 use App\Models\MobileApiToken;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Service;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Str;
@@ -63,6 +64,7 @@ class ClientBarberReviewTest extends TestCase
         BarberReview::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
+        Service::query()->delete();
         Client::query()->delete();
         MobileApiToken::query()->delete();
         User::query()->delete();
@@ -120,5 +122,43 @@ class ClientBarberReviewTest extends TestCase
         ]);
 
         $response->assertUnauthorized();
+    }
+
+    public function test_client_rates_a_service_received_with_the_barber(): void
+    {
+        $service = Service::create(['nombre' => 'Fade clásico', 'categoria' => 'corte', 'precio' => 180, 'duracion_min' => 30, 'activo' => true]);
+        $other = Service::create(['nombre' => 'Tinte', 'categoria' => 'color', 'precio' => 300, 'duracion_min' => 60, 'activo' => true]);
+        Appointment::create([
+            'client_id' => (string) $this->client->id,
+            'barber_id' => (string) $this->barber->id,
+            'service_id' => (string) $service->id,
+            'fecha' => now()->subDays(2)->format('Y-m-d'),
+            'hora_inicio' => '10:00:00',
+            'hora_fin' => '10:30:00',
+            'estado' => 'completada',
+        ]);
+
+        $token = 'test-plaintext-token-service-review';
+        MobileApiToken::create(['user_id' => (string) $this->clientUser->id, 'name' => 'test', 'token_hash' => hash('sha256', $token)]);
+        $auth = ['Authorization' => "Bearer {$token}"];
+
+        $this->withHeaders($auth)->getJson('/api/v1/barbers/'.$this->barber->getRouteKey())
+            ->assertOk()
+            ->assertJsonPath('can_review', true)
+            ->assertJsonPath('reviewable_services.0.nombre', 'Fade clásico');
+
+        // Un servicio que nunca recibió con este barbero no se puede calificar.
+        $this->withHeaders($auth)->postJson('/api/v1/barbers/'.$this->barber->getRouteKey().'/review', [
+            'rating' => 5, 'service_id' => (string) $other->id,
+        ])->assertStatus(422);
+
+        $this->withHeaders($auth)->postJson('/api/v1/barbers/'.$this->barber->getRouteKey().'/review', [
+            'rating' => 5, 'comment' => 'Excelente fade', 'service_id' => (string) $service->id,
+        ])->assertCreated();
+
+        $this->getJson('/api/v1/barbers/'.$this->barber->getRouteKey())
+            ->assertOk()
+            ->assertJsonPath('reviews.0.service', 'Fade clásico')
+            ->assertJsonPath('reviews.0.rating', 5);
     }
 }

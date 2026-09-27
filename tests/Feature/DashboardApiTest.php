@@ -10,6 +10,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
@@ -174,6 +175,33 @@ class DashboardApiTest extends TestCase
                 'insights', 'sparkHighlights',
             ],
         ]);
+    }
+
+    public function test_barber_performance_names_barbers_and_groups_the_ones_that_no_longer_exist(): void
+    {
+        Cache::flush();
+        $role = Role::where('name', 'administrador')->where('guard_name', 'web')->firstOrFail();
+        $admin = User::create(['name' => 'Admin Perf', 'email' => 'admin-perf@test.local', 'password' => 'password']);
+        $admin->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+        MobileApiToken::create(['user_id' => (string) $admin->id, 'name' => 'test', 'token_hash' => hash('sha256', 'token-admin-perf')]);
+
+        $barberUser = User::create(['name' => 'Nava Panther', 'email' => 'nava-perf@test.local', 'password' => 'password']);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Nava', 'activo' => true]);
+        $cita = fn (string $barberId, float $precio) => Appointment::create([
+            'client_id' => (string) Str::uuid(), 'barber_id' => $barberId, 'service_id' => (string) Str::uuid(),
+            'fecha' => now()->startOfMonth()->addDay(), 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00',
+            'estado' => 'completada', 'precio_cobrado' => $precio,
+        ]);
+        $cita((string) $barber->id, 200);
+        // Caso real de staging (26-sep): citas de barberos ya borrados salían como "Sin nombre".
+        $cita('6aaa3a64d95ef709410e360b', 150);
+        $cita('6aaa3a66d95ef709410e360e', 100);
+
+        $this->withToken('token-admin-perf')->getJson('/api/v1/dashboard')
+            ->assertOk()
+            ->assertJsonPath('data.barberPerformance.labels', ['Nava Panther', 'Barberos dados de baja'])
+            ->assertJsonPath('data.barberPerformance.appointments', [1, 2])
+            ->assertJsonPath('data.barberPerformance.revenue', [200, 250]);
     }
 
     public function test_ingeniero_gets_the_module_dashboard_payload_without_client_pii(): void
