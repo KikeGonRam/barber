@@ -52,6 +52,16 @@ php artisan view:cache
 # contenedor -- Docker/ECS lo detiene mandando la señal ahi. Al parar el
 # contenedor completo, la plataforma mata todo el cgroup (no solo PID 1), asi
 # que php-fpm no queda huerfano de forma permanente.
+# Tareas programadas (routes/console.php: recordatorios de 24 h y 2 h, no-shows, pedidos
+# vencidos, lealtad, campañas...). Staging no tiene un servicio "scheduler" aparte, asi que
+# se corre aqui en segundo plano SOLO con RUN_SCHEDULER=true: activarlo escribe en la base
+# real de Atlas. Con una sola tarea de barber no hay ejecuciones duplicadas; si se escala a
+# mas de una, dejarlo en una sola o moverlo a un servicio propio.
+if [ "${RUN_SCHEDULER:-false}" = "true" ]; then
+    echo "Iniciando el scheduler de Laravel..."
+    su -s /bin/sh www-data -c "php /var/www/html/artisan schedule:work" &
+fi
+
 echo "Iniciando PHP-FPM..."
 php-fpm -D
 

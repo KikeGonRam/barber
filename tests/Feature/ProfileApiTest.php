@@ -203,6 +203,28 @@ class ProfileApiTest extends TestCase
         $this->assertSame('ExponentPushToken[Abc123Xyz]', $user->fresh()?->getAttribute('expo_push_token'));
     }
 
+    public function test_android_can_save_fcm_push_token_without_overwriting_expo(): void
+    {
+        $user = User::create([
+            'name' => 'Android Push',
+            'email' => 'android-push@test.local',
+            'password' => 'password',
+            'expo_push_token' => 'ExponentPushToken[Legacy]',
+        ]);
+        $token = $this->tokenFor($user, 'fcm-token-test');
+
+        $this->withToken($token)->postJson('/api/v1/profile/push-token', [
+            'token' => 'fcm-token-123',
+            'provider' => 'fcm',
+        ])->assertOk()
+            ->assertJsonPath('provider', 'fcm');
+
+        $fresh = $user->fresh();
+        $this->assertNotNull($fresh);
+        $this->assertSame('fcm-token-123', $fresh->getAttribute('fcm_token'));
+        $this->assertSame('ExponentPushToken[Legacy]', $fresh->getAttribute('expo_push_token'));
+    }
+
     public function test_user_can_delete_their_own_account_with_correct_password(): void
     {
         $role = Role::firstOrCreate(['name' => 'cliente', 'guard_name' => 'web']);

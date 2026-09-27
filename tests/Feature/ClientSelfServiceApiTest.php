@@ -107,6 +107,7 @@ class ClientSelfServiceApiTest extends TestCase
     public function test_client_appointments_index_exposes_has_payment_and_is_chargeable(): void
     {
         $unpaidChargeable = $this->makeAppointment(['estado' => 'confirmada', 'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00']);
+        $unpaidChargeable->forceFill(['reminder_24h_sent_at' => now()])->save();
         $paidChargeable = $this->makeAppointment(['estado' => 'completada', 'hora_inicio' => '10:00:00', 'hora_fin' => '10:30:00']);
         Payment::create([
             'appointment_id' => (string) $paidChargeable->id, 'monto' => 200, 'metodo_pago' => 'efectivo',
@@ -120,6 +121,8 @@ class ClientSelfServiceApiTest extends TestCase
         $rows = collect($response->json('data'))->keyBy('id');
         $this->assertFalse($rows[(string) $unpaidChargeable->id]['has_payment']);
         $this->assertTrue($rows[(string) $unpaidChargeable->id]['is_chargeable']);
+        $this->assertTrue($rows[(string) $unpaidChargeable->id]['reminder_24h_sent']);
+        $this->assertFalse($rows[(string) $unpaidChargeable->id]['reminder_2h_sent']);
         $this->assertTrue($rows[(string) $paidChargeable->id]['has_payment']);
         $this->assertFalse($rows[(string) $notChargeable->id]['is_chargeable']);
     }

@@ -12,6 +12,7 @@ use App\Models\Client;
 use App\Models\Work;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Membership\MembershipService;
+use App\Services\Push\FcmPushService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -361,10 +362,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * Guarda/actualiza el token de push de Expo del usuario autenticado (app móvil)
-     * para poder enviarle notificaciones push.
-     */
-    /**
      * Marca o quita el barbero favorito del cliente autenticado. Es solo una
      * preferencia de UI (pre-seleccionar/destacar al reservar) -- nunca
      * bloquea reservar con otro barbero ni afecta ninguna regla de negocio.
@@ -390,17 +387,47 @@ class ProfileController extends Controller
         return response()->json(['barbero_favorito_id' => $barberId]);
     }
 
+    /** Guarda el token móvil en el proveedor correcto sin mezclar Expo con FCM. */
     public function savePushToken(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'token' => ['required', 'string', 'max:255'],
+            'provider' => ['sometimes', 'string', 'in:expo,fcm'],
         ]);
 
-        $request->user()->update([
-            'expo_push_token' => $validated['token'],
+        $provider = $validated['provider']
+            ?? (str_starts_with($validated['token'], 'ExponentPushToken[') ? 'expo' : 'fcm');
+        $field = $provider === 'expo' ? 'expo_push_token' : 'fcm_token';
+
+        $request->user()->update([$field => $validated['token']]);
+
+        return response()->json(['message' => 'Token registrado', 'provider' => $provider]);
+    }
+
+    /**
+     * Push de prueba al teléfono del propio usuario (T061: verificar que llega con la app
+     * abierta, en segundo plano y cerrada). Solo a su propio token; la ruta limita los intentos.
+     */
+    public function sendTestPush(Request $request, FcmPushService $fcm): JsonResponse
+    {
+        $user = $request->user();
+
+        if (blank($user->getAttribute('fcm_token'))) {
+            return response()->json(['message' => 'Este usuario no tiene un teléfono registrado para notificaciones.'], 422);
+        }
+        if (! $fcm->isConfigured()) {
+            return response()->json(['message' => 'Las notificaciones push no están configuradas en el servidor.'], 503);
+        }
+
+        $sent = $fcm->sendToUser($user, [
+            'title' => 'Prueba de UrbanBlade',
+            'body' => 'Si ves esto, las notificaciones de tus citas te llegarán a este teléfono.',
+            'url' => '/appointments',
         ]);
 
-        return response()->json(['message' => 'Token registrado']);
+        return $sent
+            ? response()->json(['message' => 'Notificación de prueba enviada.'])
+            : response()->json(['message' => 'No se pudo enviar la notificación de prueba.'], 502);
     }
 
     /**

@@ -130,6 +130,8 @@ Route::prefix('v1')->group(function (): void {
         Route::post('profile/avatar', [ProfileController::class, 'updateAvatar']);
         Route::put('profile/password', [ProfileController::class, 'updatePassword']);
         Route::post('profile/push-token', [ProfileController::class, 'savePushToken']);
+        // Push de prueba solo al propio teléfono (T061); pocos intentos para que no se abuse.
+        Route::post('profile/push-test', [ProfileController::class, 'sendTestPush'])->middleware('throttle:3,1');
         Route::put('profile/favorite-barber', [ProfileController::class, 'updateFavoriteBarber']);
         Route::delete('profile', [ProfileController::class, 'destroy']);
 

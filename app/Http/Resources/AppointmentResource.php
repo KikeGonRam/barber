@@ -3,9 +3,9 @@
 namespace App\Http\Resources;
 
 use App\Services\Appointment\AppointmentStatusService;
+use App\Support\UploadedImage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Transforma una cita a la estructura consumida por la app móvil y la web.
@@ -30,6 +30,10 @@ class AppointmentResource extends JsonResource
             // Resource simplemente no incluyen estos dos campos.
             'has_payment' => $this->when(isset($this->payments_count), fn () => $this->payments_count > 0),
             'is_chargeable' => $this->when(isset($this->payments_count), fn () => in_array($this->estado, AppointmentStatusService::CHARGEABLE, true)),
+            // La app administrativa muestra el estado real del flujo de
+            // recordatorios sin exponer fechas internas ni datos del canal.
+            'reminder_24h_sent' => $this->resource->getAttribute('reminder_24h_sent_at') !== null,
+            'reminder_2h_sent' => $this->resource->getAttribute('reminder_2h_sent_at') !== null,
             // Política anti-no-show (ver DepositService). deposito_estado es
             // null cuando no hay depósito registrado todavía (deposito
             // requerido pero aún no cobrado): el frontend debe ofrecer pagar.
@@ -51,7 +55,10 @@ class AppointmentResource extends JsonResource
                 'id' => $this->barber?->id,
                 'slug' => $this->barber?->slug,
                 'user' => ['name' => $this->barber?->user?->name],
-                'foto_url' => $this->barber?->foto ? Storage::disk('public')->url($this->barber->foto) : null,
+                // URL pública real (S3) y, sin foto de barbero, la de su cuenta (p. ej. Google); antes
+                // armaba una ruta de un disco local que en staging no existe y la app mostraba iniciales.
+                'foto_url' => UploadedImage::url($this->barber?->foto)
+                    ?? UploadedImage::url($this->barber?->user?->getAttribute('avatar_url')),
             ],
             'service' => [
                 'id' => $this->service?->id,

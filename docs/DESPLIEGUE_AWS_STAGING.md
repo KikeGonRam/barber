@@ -102,7 +102,9 @@ Los usuarios de Atlas siguen el mínimo privilegio descrito en
 
 - `barber/`: `APP_KEY`, `MONGODB_URI`, `ANALYTICS_MONGODB_URI`, `STRIPE_KEY`,
   `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
-  `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`.
+  `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` y `FIREBASE_CREDENTIALS_JSON` (el JSON completo de
+  la cuenta de servicio de Firebase para FCM, pegado como texto sin formato; nunca dentro de la
+  imagen ni del repositorio).
 - `spark/`: `MONGO_PASSWORD`, `ANALYTICS_MONGO_PASSWORD`.
 
 Cambiar un secreto no afecta a las tareas en marcha: hay que forzar un nuevo despliegue.
@@ -115,6 +117,22 @@ empieza con `https://` la app fuerza el esquema https: el ALB reescribe
 `SPARK_URL=https://spark.urbanblade.com.mx`, `CORS_ALLOWED_ORIGINS` = dominio raíz y `www`
 (lista separada por comas), `SESSION_DRIVER=file`, `CACHE_STORE=file`,
 `QUEUE_CONNECTION=sync`, `UPLOADS_BUCKET`, `RECEIPTS_BUCKET`, `AWS_DEFAULT_REGION`.
+
+Notificaciones nativas Android (FCM, desde la revisión 8 de `urbanblade-staging-barber`):
+`FIREBASE_PROJECT_ID=barber-c6b3a` como variable y el secreto `FIREBASE_CREDENTIALS_JSON`
+referenciado por ARN. ECS lo entrega como variable de entorno; `.docker/staging/entrypoint.sh`
+lo escribe en `/run/app-secrets/firebase.json` (solo lectura para `www-data`), apunta
+`FIREBASE_CREDENTIALS_PATH` ahí y borra la variable. En el log de arranque aparece
+«Credenciales de Firebase listas.». Sin el secreto, FCM se omite de forma segura y los demás
+canales siguen funcionando. Para probar la entrega en un teléfono: `POST /api/v1/profile/push-test`
+con el token del propio usuario (solo a su teléfono, 3 intentos por minuto).
+
+Tareas programadas: staging **no** tiene un servicio `scheduler` aparte. El contenedor de
+`barber` corre `schedule:work` en segundo plano solo si `RUN_SCHEDULER=true`; por defecto está
+apagado. Activarlo pone a trabajar todas las tareas de `routes/console.php` contra la base real
+(recordatorios de 24 h y 2 h cada diez minutos, no-shows, pedidos vencidos, lealtad, campañas),
+así que hay que decidirlo a propósito. Con más de una tarea de `barber` se ejecutarían en
+paralelo: dejar una sola o mover el scheduler a un servicio propio.
 
 ## Dar acceso a un compañero
 

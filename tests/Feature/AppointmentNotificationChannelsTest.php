@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Appointment;
 use App\Notifications\Appointment\AppointmentNotification;
+use App\Notifications\Channels\FcmPushChannel;
 use App\Notifications\Channels\TwilioChannel;
 use App\Notifications\Channels\WebPushChannel;
 use Tests\TestCase;
@@ -40,6 +41,7 @@ class AppointmentNotificationChannelsTest extends TestCase
         $channels = $this->makeNotification()->via($notifiable);
 
         $this->assertContains(WebPushChannel::class, $channels);
+        $this->assertContains(FcmPushChannel::class, $channels);
         $this->assertNotContains('database', $channels);
         $this->assertNotContains('mail', $channels);
         $this->assertNotContains(TwilioChannel::class, $channels);
@@ -58,6 +60,7 @@ class AppointmentNotificationChannelsTest extends TestCase
         $channels = $this->makeNotification()->via($notifiable);
 
         $this->assertNotContains(WebPushChannel::class, $channels);
+        $this->assertNotContains(FcmPushChannel::class, $channels);
         // Sin ningun canal activo, cae a 'database' para no perder el aviso.
         $this->assertSame(['database'], $channels);
     }

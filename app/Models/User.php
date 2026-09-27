@@ -45,6 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'email_verified_at',
         'expo_push_token',
+        'fcm_token',
         'avatar_url',
         'notification_preferences',
         'verification_code',
@@ -62,6 +63,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
         'verification_code',
         'verification_code_expires_at',
+        'expo_push_token',
+        'fcm_token',
     ];
 
     /**

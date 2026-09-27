@@ -58,6 +58,12 @@ return [
         'subject' => env('VAPID_SUBJECT', 'mailto:soporte@urbanblade.mx'),
     ],
 
+    'firebase' => [
+        'project_id' => env('FIREBASE_PROJECT_ID'),
+        // Ruta dentro del contenedor/servidor. El JSON de servicio nunca se versiona.
+        'credentials' => env('FIREBASE_CREDENTIALS_PATH'),
+    ],
+
     // Login social (auth-polish-plan): claves reales de un proyecto de Google
     // Cloud Console -- vacías hasta que el dueño del proyecto las genere, ver
     // .env.example para los pasos. Sin ellas, el botón "Continuar con Google"

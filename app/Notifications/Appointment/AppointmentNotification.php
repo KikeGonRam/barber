@@ -3,6 +3,7 @@
 namespace App\Notifications\Appointment;
 
 use App\Models\Appointment;
+use App\Notifications\Channels\FcmPushChannel;
 use App\Notifications\Channels\TwilioChannel;
 use App\Notifications\Channels\WebPushChannel;
 use Carbon\Carbon;
@@ -66,6 +67,7 @@ class AppointmentNotification extends Notification implements ShouldQueue
 
         if (method_exists($notifiable, 'wantsNotificationChannel') && $notifiable->wantsNotificationChannel('push')) {
             $channels[] = WebPushChannel::class;
+            $channels[] = FcmPushChannel::class;
         }
 
         return $channels ?: ['database'];
