@@ -8,6 +8,7 @@ use App\Http\Middleware\AuthenticateMobileApiToken;
 use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\OptionalMobileApiToken;
+use App\Http\Middleware\RejectMongoOperators;
 use App\Http\Middleware\Role\EnsureUserHasPermission;
 use App\Http\Middleware\Role\EnsureUserHasRole;
 use Illuminate\Foundation\Application;
@@ -33,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->api(prepend: [
             ForceJsonResponse::class,
+            RejectMongoOperators::class,
         ]);
         $middleware->alias([
             'role.custom' => EnsureUserHasRole::class,

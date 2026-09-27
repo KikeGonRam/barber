@@ -89,7 +89,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Rate Limiter para Login API
         RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by($request->email.$request->ip());
+            // Solo si el correo es texto: un arreglo («email": [...]) tronaba aquí con 500 antes de validar (T054).
+            $email = is_string($request->input('email')) ? mb_strtolower($request->input('email')) : '';
+
+            return Limit::perMinute(5)->by($email.$request->ip());
         });
 
         // Sin este Gate, Laravel Pulse deniega /pulse a todos por defecto
