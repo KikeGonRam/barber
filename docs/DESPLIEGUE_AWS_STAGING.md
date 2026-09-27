@@ -128,10 +128,13 @@ canales siguen funcionando. Para probar la entrega en un teléfono: `POST /api/v
 con el token del propio usuario (solo a su teléfono, 3 intentos por minuto).
 
 Tareas programadas: staging **no** tiene un servicio `scheduler` aparte. El contenedor de
-`barber` corre `schedule:work` en segundo plano solo si `RUN_SCHEDULER=true`; por defecto está
-apagado. Activarlo pone a trabajar todas las tareas de `routes/console.php` contra la base real
-(recordatorios de 24 h y 2 h cada diez minutos, no-shows, pedidos vencidos, lealtad, campañas),
-así que hay que decidirlo a propósito. Con más de una tarea de `barber` se ejecutarían en
+`barber` corre `schedule:work` en segundo plano solo si `RUN_SCHEDULER=true` (sin la variable
+queda apagado). **Está encendido desde el 27-sep-2026** (revisión 9 de
+`urbanblade-staging-barber`, decisión del equipo): todas las tareas de `routes/console.php`
+trabajan contra la base real (recordatorios de 24 h y 2 h cada diez minutos, no-shows, pedidos
+vencidos, lealtad, campañas, cumpleaños, sorteo mensual). En el log se ven como
+`Running ['artisan' appointments:send-reminders] ... DONE`. Para apagarlo, registrar una revisión
+sin `RUN_SCHEDULER` (o con `false`) y forzar el despliegue. Con más de una tarea de `barber` se ejecutarían en
 paralelo: dejar una sola o mover el scheduler a un servicio propio.
 
 ## Dar acceso a un compañero
