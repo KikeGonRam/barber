@@ -767,6 +767,15 @@ class AppointmentController extends Controller
             ], 422);
         }
 
+        // Una cita de otro día todavía no puede empezar, terminarse ni marcarse como no asistida
+        // (26-sep: una cita del 22-oct quedó «completada» el 24-sep y aparecía en el historial).
+        if (in_array($validated['estado'], ['en_proceso', 'completada', 'no_asistio'], true)
+            && Carbon::parse($appointment->fecha)->startOfDay()->gt(now()->startOfDay())) {
+            return response()->json([
+                'message' => 'Esta cita es para el '.Carbon::parse($appointment->fecha)->translatedFormat('j \d\e F').': todavía no se puede marcar así.',
+            ], 422);
+        }
+
         abort_if(
             ! $this->statusService->roleCanSet($validated['estado'], $role),
             403,

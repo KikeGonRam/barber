@@ -128,7 +128,7 @@ class AppointmentStatusApiTest extends TestCase
     public function test_assigned_barber_can_still_change_the_status_of_their_own_appointment(): void
     {
         [$barber, $token] = $this->barberWithToken('barbero-propio@test.local');
-        $appointment = $this->appointment('confirmada', (string) $barber->id);
+        $appointment = $this->appointment('confirmada', (string) $barber->id, now()->format('Y-m-d'));
 
         $response = $this->withToken($token)
             ->patchJson('/api/v1/appointments/'.$appointment->code.'/status', ['estado' => 'en_proceso']);
@@ -180,7 +180,7 @@ class AppointmentStatusApiTest extends TestCase
         // desde la agenda; solo el cobro los daba, y si la cita ya estaba completada, tampoco.
         [$barber, $token] = $this->barberWithToken('barbero-puntos@test.local');
         $client = Client::create(['user_id' => (string) Str::uuid(), 'telefono' => '5550001111', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
-        $appointment = $this->appointment('en_proceso', (string) $barber->id);
+        $appointment = $this->appointment('en_proceso', (string) $barber->id, now()->format('Y-m-d'));
         $appointment->update(['client_id' => (string) $client->id]);
 
         $this->withToken($token)
@@ -199,10 +199,25 @@ class AppointmentStatusApiTest extends TestCase
         $this->assertSame(10, (int) $client->fresh()->puntos);
     }
 
+    public function test_an_appointment_of_a_later_day_cannot_be_completed_yet(): void
+    {
+        // Lo que se vio el 26-sep: una cita del 22-oct marcada «completada» el 24-sep.
+        $token = $this->tokenFor('administrador', 'admin-futura@test.local');
+        $appointment = $this->appointment('confirmada', null, now()->addDays(3)->format('Y-m-d'));
+
+        foreach (['en_proceso', 'completada', 'no_asistio'] as $estado) {
+            $this->withToken($token)
+                ->patchJson('/api/v1/appointments/'.$appointment->getAttribute('code').'/status', ['estado' => $estado])
+                ->assertStatus(422);
+        }
+
+        $this->assertSame('confirmada', Appointment::find($appointment->id)->estado);
+    }
+
     public function test_notes_can_be_attached_while_changing_the_status(): void
     {
         $token = $this->tokenFor('recepcionista', 'recepcion-notas@test.local');
-        $appointment = $this->appointment('confirmada');
+        $appointment = $this->appointment('confirmada', null, now()->format('Y-m-d'));
 
         $this->withToken($token)
             ->patchJson('/api/v1/appointments/'.$appointment->code.'/status', [
