@@ -6,6 +6,7 @@ use App\Exceptions\Domain\PaymentException;
 use App\Http\Middleware\Api\CheckApiMaintenanceMode;
 use App\Http\Middleware\AuthenticateMobileApiToken;
 use App\Http\Middleware\CheckMaintenanceMode;
+use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\OptionalMobileApiToken;
 use App\Http\Middleware\Role\EnsureUserHasPermission;
 use App\Http\Middleware\Role\EnsureUserHasRole;
@@ -29,6 +30,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->web(append: [
             CheckMaintenanceMode::class,
+        ]);
+        $middleware->api(prepend: [
+            ForceJsonResponse::class,
         ]);
         $middleware->alias([
             'role.custom' => EnsureUserHasRole::class,

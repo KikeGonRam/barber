@@ -12,6 +12,7 @@ use App\Models\Reaction;
 use App\Models\Service;
 use App\Models\User;
 use App\Models\Work;
+use App\Support\PublicName;
 use Carbon\Carbon;
 
 class ChatbotIntelligenceService
@@ -121,7 +122,7 @@ class ChatbotIntelligenceService
             ->get()
             ->map(function ($comment) {
                 return [
-                    'author' => $comment->user?->name,
+                    'author' => PublicName::of($comment->user?->name),
                     'rating' => $comment->rating,
                     'text' => substr((string) $comment->comment, 0, 100).'...',
                     // Work se liga al usuario barbero (barberUser); no tiene relación "barber" (daba error en cada consulta).

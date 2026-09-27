@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Reaction;
 use App\Models\SavedWork;
 use App\Models\Work;
+use App\Support\PublicName;
 use App\Support\UploadedImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -60,7 +61,8 @@ class SocialController extends Controller
                     'comments' => $work->comments->take(3)->map(fn ($c) => [
                         'id' => $c->id,
                         'comment' => $c->comment,
-                        'user' => ['name' => $c->user?->name],
+                        // El muro es público: nombre e inicial del apellido, nunca el nombre completo.
+                        'user' => ['name' => $this->authorName($c->user?->name)],
                         'created_at' => optional($c->created_at)?->toAtomString(),
                     ])->values(),
                 ];
@@ -164,5 +166,14 @@ class SocialController extends Controller
                 'created_at' => optional($comment->created_at)?->toAtomString(),
             ],
         ], 201);
+    }
+
+    /**
+     * Nombre público de quien comentó («Luis G.»). Devuelve mixed a propósito: Larastan no
+     * resuelve el tipo del arreglo grande del muro y con un tipo exacto marca un falso error.
+     */
+    private function authorName(mixed $name): mixed
+    {
+        return PublicName::of(is_string($name) ? $name : null);
     }
 }

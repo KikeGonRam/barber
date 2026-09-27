@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\Service;
 use App\Models\Work;
 use App\Services\Barber\BarberReviewService;
+use App\Support\PublicName;
 use App\Support\UploadedImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -235,7 +236,8 @@ class CatalogController extends Controller
                 'rating' => $r->rating,
                 'comment' => $r->comment,
                 'created_at' => optional($r->created_at)?->toAtomString(),
-                'client' => ['user' => ['name' => $r->client?->user?->name]],
+                // Público: solo nombre e inicial del apellido de quien reseñó.
+                'client' => ['user' => ['name' => PublicName::of($r->client?->user?->name)]],
                 'service' => $r->getAttribute('service_id') ? $reviewedServices->get((string) $r->getAttribute('service_id'))?->getAttribute('nombre') : null,
             ])->values(),
             'avg_rating' => $avgRating,
