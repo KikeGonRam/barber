@@ -100,6 +100,18 @@ class ChatbotController extends Controller
         // GUARDAR CONTEXTO DEL USUARIO
         $this->profileService->updateTopics($message, $userId);
 
+        // 0b. Saludo y servicio del catálogo: se contestan al momento con datos actuales y antes que
+        // la memoria (26-sep): la memoria repetía un saludo viejo («Concierge», nombre duplicado) y
+        // «quiero un taper fade» acababa en un texto de Wikipedia sin botón de Reservar.
+        $direct = $this->directResponse($message, $user);
+        if ($direct !== null) {
+            $this->contextService->addMessage($message, $direct['response'], 'bot', $userId);
+            $this->profileService->updateIntent($realIntent, $userId);
+            $this->recordProviderTelemetry($userId, 'direct', 'success', $requestStartedAt);
+
+            return response()->json($direct);
+        }
+
         // 1. PRIORIDAD: Historial local (MÁS RÁPIDO, CONSISTENTE)
         $similarQuestions = $this->contextService->findSimilarQuestions($message, $userId, 70);
         if (! empty($similarQuestions) && $similarQuestions[0]['similarity'] > 80) {
@@ -492,7 +504,7 @@ class ChatbotController extends Controller
         // ============ RESPUESTAS CONTEXTUALES POR ROL ============
         if ($user) {
             if (str_contains($message, 'hola') || str_contains($message, 'buenos') || str_contains($message, 'hi')) {
-                return "¡Hola {$user->name}! Soy el Concierge de UrbanBlade. ¿En qué puedo ayudarte hoy?";
+                return $this->greeting($user);
             }
         }
 
@@ -601,6 +613,40 @@ class ChatbotController extends Controller
         }
 
         return $text;
+    }
+
+    /**
+     * Respuesta inmediata para un saludo corto o un mensaje que nombra un servicio del catálogo;
+     * null si no aplica y sigue la cascada normal.
+     *
+     * @return array{response: string, suggested_service: array{id: string, nombre: string, precio: float, duracion_min: int}|null}|null
+     */
+    private function directResponse(string $message, mixed $user): ?array
+    {
+        $normalized = trim(Str::ascii($message));
+        if (mb_strlen($normalized) <= 40 && preg_match('/^(hola|buen[oa]s|hey|hi|que tal)\b/u', $normalized)) {
+            return ['response' => $this->greeting($user), 'suggested_service' => null];
+        }
+
+        $service = $this->suggestedService($message);
+        if ($service === null) {
+            return null;
+        }
+
+        return [
+            'response' => "{$service['nombre']}: \$".number_format($service['precio'], 0)
+                ." y dura {$service['duracion_min']} min. ¿Te lo reservo? Elige barbero y horario con el botón Reservar.",
+            'suggested_service' => $service,
+        ];
+    }
+
+    /** Saludo de Bladebot con el primer nombre del usuario (o sin nombre para visitantes). */
+    private function greeting(mixed $user): string
+    {
+        $firstName = $user ? Str::before(trim((string) $user->name), ' ') : '';
+
+        return ($firstName !== '' ? "¡Hola {$firstName}!" : '¡Hola!')
+            .' Soy Bladebot, el asistente de UrbanBlade. ¿En qué puedo ayudarte hoy?';
     }
 
     /**

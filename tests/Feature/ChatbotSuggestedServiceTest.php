@@ -95,6 +95,29 @@ class ChatbotSuggestedServiceTest extends TestCase
             ->assertJsonPath('suggested_service.nombre', 'Corte Clásico');
     }
 
+    public function test_naming_a_catalog_service_answers_with_its_price_and_the_booking_button(): void
+    {
+        $taper = Service::create(['nombre' => 'Taper Fade', 'precio' => 220, 'duracion_min' => 40, 'activo' => true]);
+        $this->aiSays('No debería llamarse a la IA.');
+        // Lo que se vio en el cel el 26-sep: un texto de Wikipedia sobre el hi-top fade y sin Reservar.
+        app(ChatbotContextService::class)->addMessage('quiero un taper fade', "fade:\nEl hi-top fade...\n\n¿Te interesa este look?", 'bot');
+
+        $this->postJson('/api/v1/chatbot/query', ['message' => 'Quiero un taper fade'])
+            ->assertOk()
+            ->assertJsonPath('suggested_service.id', (string) $taper->id)
+            ->assertJsonPath('response', 'Taper Fade: $220 y dura 40 min. ¿Te lo reservo? Elige barbero y horario con el botón Reservar.');
+    }
+
+    public function test_a_greeting_is_fresh_from_bladebot_even_with_an_old_one_in_memory(): void
+    {
+        $this->aiSays('No debería llamarse a la IA.');
+        app(ChatbotContextService::class)->addMessage('hola', '¡Hola Kike Gonzalez (Kike Gonzalez)! Soy el Concierge de UrbanBlade.', 'bot');
+
+        $this->postJson('/api/v1/chatbot/query', ['message' => 'Hola'])
+            ->assertOk()
+            ->assertJsonPath('response', '¡Hola! Soy Bladebot, el asistente de UrbanBlade. ¿En qué puedo ayudarte hoy?');
+    }
+
     public function test_the_prompt_uses_the_real_business_data_and_never_offers_qr(): void
     {
         BarbershopSetting::query()->delete();
