@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Http\Controllers\Api\Profile\ProfileController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\Client;
@@ -178,6 +179,9 @@ class AuthController extends Controller
     {
         return response()->json([
             'user' => new UserResource($request->user()),
+            // Aditivo (30-sep): la sesión se abrió con Google, así que para eliminar la cuenta se
+            // confirma escribiendo ELIMINAR en lugar de una contraseña que el usuario no conoce.
+            'sesion_con_google' => ProfileController::sessionOpenedWithGoogle($request),
         ]);
     }
 

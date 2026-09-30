@@ -9,6 +9,7 @@ use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarberReview;
 use App\Models\Client;
+use App\Models\MobileApiToken;
 use App\Models\Work;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Membership\MembershipService;
@@ -436,14 +437,26 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'password' => ['required'],
-        ]);
+        // Quien entró con Google no conoce su contraseña (se genera al azar): en una sesión abierta
+        // con Google, Google ya acreditó su identidad y basta con escribir ELIMINAR. En cualquier
+        // otra sesión se sigue pidiendo la contraseña.
+        if (self::sessionOpenedWithGoogle($request)) {
+            $request->validate([
+                'confirmacion' => ['required', 'string', 'in:ELIMINAR'],
+            ], [
+                'confirmacion.required' => 'Escribe ELIMINAR para confirmar.',
+                'confirmacion.in' => 'Escribe ELIMINAR, en mayúsculas, para confirmar.',
+            ]);
+        } else {
+            $validated = $request->validate([
+                'password' => ['required'],
+            ]);
 
-        if (! Hash::check($validated['password'], $request->user()->password)) {
-            return response()->json([
-                'message' => 'Contraseña incorrecta.',
-            ], 422);
+            if (! Hash::check($validated['password'], $request->user()->password)) {
+                return response()->json([
+                    'message' => 'Contraseña incorrecta.',
+                ], 422);
+            }
         }
 
         $user = $request->user();
@@ -475,5 +488,16 @@ class ProfileController extends Controller
         return response()->json([
             'message' => 'Cuenta eliminada exitosamente',
         ]);
+    }
+
+    /**
+     * true si el token de esta petición se emitió al entrar con Google (web «Google OAuth» o app
+     * «Google Android»; renovarlo conserva el nombre). Lo usan destroy() y /auth/me.
+     */
+    public static function sessionOpenedWithGoogle(Request $request): bool
+    {
+        $token = $request->attributes->get('mobile_token');
+
+        return $token instanceof MobileApiToken && str_starts_with((string) $token->getAttribute('name'), 'Google');
     }
 }

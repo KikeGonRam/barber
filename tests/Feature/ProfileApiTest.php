@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ProfileApiTest extends TestCase
@@ -246,6 +247,34 @@ class ProfileApiTest extends TestCase
         $this->assertSame(0, MobileApiToken::where('user_id', (string) $user->id)->count());
     }
 
+    public function test_google_session_deletes_the_account_by_typing_eliminar(): void
+    {
+        // Quien entra con Google no conoce su contraseña: antes no podía eliminar su cuenta.
+        $role = Role::firstOrCreate(['name' => 'cliente', 'guard_name' => 'web']);
+        $user = User::create(['name' => 'Google User', 'email' => 'google-delete@test.local', 'password' => Hash::make(Str::random(40))]);
+        $user->assignRole($role);
+        $token = $this->tokenFor($user, 'google-delete-token', 'Google Android');
+
+        $this->withToken($token)->getJson('/api/v1/auth/me')->assertJsonPath('sesion_con_google', true);
+        $this->withToken($token)->deleteJson('/api/v1/profile', [])->assertStatus(422);
+        $this->withToken($token)->deleteJson('/api/v1/profile', ['confirmacion' => 'eliminar'])->assertStatus(422);
+
+        $this->withToken($token)->deleteJson('/api/v1/profile', ['confirmacion' => 'ELIMINAR'])->assertOk();
+        $this->assertSoftDeleted('users', ['_id' => $user->id]);
+    }
+
+    public function test_a_normal_session_still_needs_the_password_even_typing_eliminar(): void
+    {
+        $role = Role::firstOrCreate(['name' => 'cliente', 'guard_name' => 'web']);
+        $user = User::create(['name' => 'Normal User', 'email' => 'normal-delete@test.local', 'password' => Hash::make('normal-password-123')]);
+        $user->assignRole($role);
+        $token = $this->tokenFor($user, 'normal-delete-token');
+
+        $this->withToken($token)->getJson('/api/v1/auth/me')->assertJsonPath('sesion_con_google', false);
+        $this->withToken($token)->deleteJson('/api/v1/profile', ['confirmacion' => 'ELIMINAR'])->assertStatus(422);
+        $this->assertNotSoftDeleted('users', ['_id' => $user->id]);
+    }
+
     public function test_delete_account_fails_with_wrong_password(): void
     {
         $user = User::create([
@@ -350,11 +379,11 @@ class ProfileApiTest extends TestCase
         $this->withToken($clientToken)->getJson('/api/v1/barber/me')->assertStatus(403);
     }
 
-    private function tokenFor(User $user, string $plaintext): string
+    private function tokenFor(User $user, string $plaintext, string $name = 'test'): string
     {
         MobileApiToken::create([
             'user_id' => (string) $user->id,
-            'name' => 'test',
+            'name' => $name,
             'token_hash' => hash('sha256', $plaintext),
         ]);
 
