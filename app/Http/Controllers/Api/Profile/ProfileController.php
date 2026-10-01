@@ -10,6 +10,7 @@ use App\Models\Barber;
 use App\Models\BarberReview;
 use App\Models\Client;
 use App\Models\MobileApiToken;
+use App\Models\User;
 use App\Models\Work;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Membership\MembershipService;
@@ -400,9 +401,31 @@ class ProfileController extends Controller
             ?? (str_starts_with($validated['token'], 'ExponentPushToken[') ? 'expo' : 'fcm');
         $field = $provider === 'expo' ? 'expo_push_token' : 'fcm_token';
 
-        $request->user()->update([$field => $validated['token']]);
+        $user = $request->user();
+        $changes = [$field => $validated['token']];
+
+        // El canal push viene apagado por defecto y antes solo se encendía con el interruptor
+        // "En este teléfono": quien nunca lo tocó no recibía ningún aviso de sus citas aunque el
+        // teléfono ya tuviera permiso y token. Registrar el token de Android es aceptar avisos en
+        // ese teléfono, así que se enciende -- solo si el usuario nunca eligió; si lo apagó, se respeta.
+        if ($provider === 'fcm' && ! self::pushChoiceMade($user)) {
+            $own = $user->getAttribute('notification_preferences');
+            $changes['notification_preferences'] = array_merge(is_array($own) ? $own : [], ['push' => true]);
+        }
+
+        $user->update($changes);
 
         return response()->json(['message' => 'Token registrado', 'provider' => $provider]);
+    }
+
+    /** Si el usuario ya eligió algo sobre el canal push (en su cuenta o en el perfil de cliente heredado). */
+    private static function pushChoiceMade(User $user): bool
+    {
+        $own = $user->getAttribute('notification_preferences');
+        $legacy = $user->clientProfile?->getAttribute('preferencias_notificacion');
+
+        return (is_array($own) && array_key_exists('push', $own))
+            || (is_array($legacy) && array_key_exists('push', $legacy));
     }
 
     /**

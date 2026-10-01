@@ -226,6 +226,44 @@ class ProfileApiTest extends TestCase
         $this->assertSame('ExponentPushToken[Legacy]', $fresh->getAttribute('expo_push_token'));
     }
 
+    public function test_registering_an_android_token_turns_on_push_when_the_user_never_chose(): void
+    {
+        $user = User::create(['name' => 'Nuevo Push', 'email' => 'nuevo-push@test.local', 'password' => 'password']);
+        $this->assertFalse($user->wantsNotificationChannel('push'));
+
+        $this->withToken($this->tokenFor($user, 'fcm-default-on'))->postJson('/api/v1/profile/push-token', [
+            'token' => 'fcm-token-nuevo',
+            'provider' => 'fcm',
+        ])->assertOk();
+
+        $fresh = $user->fresh();
+        $this->assertNotNull($fresh);
+        $this->assertTrue($fresh->wantsNotificationChannel('push'));
+        // Las demás preferencias no se tocan.
+        $this->assertTrue($fresh->wantsNotificationChannel('email'));
+    }
+
+    public function test_registering_an_android_token_respects_push_turned_off_by_the_user(): void
+    {
+        $user = User::create([
+            'name' => 'Sin Push',
+            'email' => 'sin-push@test.local',
+            'password' => 'password',
+            'notification_preferences' => ['push' => false, 'email' => false],
+        ]);
+
+        $this->withToken($this->tokenFor($user, 'fcm-respect-off'))->postJson('/api/v1/profile/push-token', [
+            'token' => 'fcm-token-sin-push',
+            'provider' => 'fcm',
+        ])->assertOk();
+
+        $fresh = $user->fresh();
+        $this->assertNotNull($fresh);
+        $this->assertSame('fcm-token-sin-push', $fresh->getAttribute('fcm_token'));
+        $this->assertFalse($fresh->wantsNotificationChannel('push'));
+        $this->assertFalse($fresh->wantsNotificationChannel('email'));
+    }
+
     public function test_user_can_delete_their_own_account_with_correct_password(): void
     {
         $role = Role::firstOrCreate(['name' => 'cliente', 'guard_name' => 'web']);
