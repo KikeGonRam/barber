@@ -607,7 +607,7 @@ repeated in full here.
   `Gate::define('viewPulse', ...)` in `AppServiceProvider` (administrador or ingeniero)
   rather than relying on Pulse's default-deny-on-undefined-ability behavior.
 - Also done in the same session, adjacent to this plan but not part of it: CORS opened
-  for the Vercel-deployed frontend (`config/cors.php` regex pattern covering any deploy
+  for the Vercel-deployed frontend (**retired 2026-10-02**: the web is served from AWS now and the default pattern was removed from `config/cors.php`; it was a regex covering any deploy
   of the `frontend-urbanblade` project, commit `dde578b`), and a mascot/brand system
   (Bladebot/Nava/Bruno error pages, SVG brand mark) that existed as the project owner's
   own uncommitted work in both repos and was committed/pushed on request (`f2753c8`).

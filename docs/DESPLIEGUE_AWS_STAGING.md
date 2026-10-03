@@ -116,7 +116,18 @@ empieza con `https://` la app fuerza el esquema https: el ALB reescribe
 `X-Forwarded-Proto`), `FRONTEND_URL=https://urbanblade.com.mx`,
 `SPARK_URL=https://spark.urbanblade.com.mx`, `CORS_ALLOWED_ORIGINS` = dominio raíz y `www`
 (lista separada por comas), `SESSION_DRIVER=file`, `CACHE_STORE=file`,
-`QUEUE_CONNECTION=sync`, `UPLOADS_BUCKET`, `RECEIPTS_BUCKET`, `AWS_DEFAULT_REGION`.
+`QUEUE_CONNECTION=sync`, `UPLOADS_BUCKET`, `RECEIPTS_BUCKET`, `AWS_DEFAULT_REGION`,
+`TRUSTED_PROXY_HOPS=2`.
+
+**`TRUSTED_PROXY_HOPS=2` es obligatoria** (pendiente de agregar a la task definition al
+desplegar el cambio que la introduce). Le dice a Laravel que delante hay dos proxies
+propios, CloudFront y el ALB (`App\Http\Middleware\TrustProxyChain`). Sin ella, el
+contenedor ve la IP privada del ALB en todas las peticiones y los límites por IP
+(registro, horarios, Google, enlaces de cita) se vuelven globales para todo el sitio.
+Solo se confía en `X-Forwarded-For`, nunca en `X-Forwarded-Port`/`-Proto` (el ALB manda
+`8080` y `http`, que romperían las URL). Para comprobarlo tras desplegar: agotar los 30 por minuto
+de `GET /api/v1/availability/slots` desde la computadora (responde 429) y, en ese mismo
+minuto, pedirlo desde el celular con datos móviles: debe responder 200.
 
 Notificaciones nativas Android (FCM, desde la revisión 8 de `urbanblade-staging-barber`):
 `FIREBASE_PROJECT_ID=barber-c6b3a` como variable y el secreto `FIREBASE_CREDENTIALS_JSON`
@@ -259,16 +270,32 @@ for s in barber frontend spark; do aws ecs update-service --cluster urbanblade-s
 **Desplegar una imagen nueva** (ejemplo `barber`; `frontend-urban` y `spark` igual con su repo):
 
 ```powershell
-docker build -f .docker/staging/Dockerfile -t 209479293733.dkr.ecr.us-east-1.amazonaws.com/urbanblade/barber:latest .
+$repo = "209479293733.dkr.ecr.us-east-1.amazonaws.com/urbanblade/barber"
+$sha = git rev-parse --short HEAD
+docker build -f .docker/staging/Dockerfile -t "${repo}:latest" -t "${repo}:$sha" .
 (aws ecr get-login-password --region us-east-1) | docker login --username AWS --password-stdin 209479293733.dkr.ecr.us-east-1.amazonaws.com
-docker push 209479293733.dkr.ecr.us-east-1.amazonaws.com/urbanblade/barber:latest
+docker push "${repo}:$sha"
+docker push "${repo}:latest"
 aws ecs update-service --cluster urbanblade-staging --service uba-stg-barber --force-new-deployment --region us-east-1
 ```
 
 ```bash
-docker build -f .docker/staging/Dockerfile -t 209479293733.dkr.ecr.us-east-1.amazonaws.com/urbanblade/barber:latest .
+repo=209479293733.dkr.ecr.us-east-1.amazonaws.com/urbanblade/barber
+sha=$(git rev-parse --short HEAD)
+docker build -f .docker/staging/Dockerfile -t "$repo:latest" -t "$repo:$sha" .
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 209479293733.dkr.ecr.us-east-1.amazonaws.com
-docker push 209479293733.dkr.ecr.us-east-1.amazonaws.com/urbanblade/barber:latest
+docker push "$repo:$sha"
+docker push "$repo:latest"
+aws ecs update-service --cluster urbanblade-staging --service uba-stg-barber --force-new-deployment --region us-east-1
+```
+
+Cada imagen se sube con **dos etiquetas**: `:latest` (la que usa la task definition) y el
+hash corto del commit. Así siempre hay una versión anterior identificable a la cual
+volver: para revertir, volver a etiquetar esa imagen como `:latest` y forzar el despliegue.
+
+```powershell
+$old = "a1b2c3d"   # hash del commit al que se quiere volver
+docker pull "${repo}:$old"; docker tag "${repo}:$old" "${repo}:latest"; docker push "${repo}:latest"
 aws ecs update-service --cluster urbanblade-staging --service uba-stg-barber --force-new-deployment --region us-east-1
 ```
 
@@ -486,8 +513,16 @@ queda el ALB (~16–18 USD/mes) más centavos de ECR, S3 y Secrets Manager.
 ## Limitaciones conocidas
 
 - `QUEUE_CONNECTION=sync`, `SESSION_DRIVER=file`, `CACHE_STORE=file`: no hay Redis ni
-  worker ni scheduler. Recordatorios y tareas programadas **no corren** en staging, y
-  la sesión/caché se pierden al reiniciar la tarea.
+  worker aparte. Las colas se ejecutan dentro de la misma petición, y la sesión y la
+  caché se pierden al reiniciar la tarea. Las tareas programadas **sí corren** desde el
+  27-sep-2026 dentro del contenedor de `barber` (`RUN_SCHEDULER=true`, ver "Tareas
+  programadas" arriba).
+- Como la caché es por archivo, los límites de intentos (`throttle`) se cuentan por
+  tarea: con una sola tarea de `barber` funcionan; con dos o más, cada una lleva su
+  propia cuenta y el límite real se multiplica. **Antes de escalar a más de una tarea**,
+  agregar `CACHE_LIMITER_STORE=mongodb` a la task definition: los contadores pasan a las
+  colecciones `cache` y `cache_locks` de `barber_db` y todas las tareas comparten la
+  cuenta (`config/cache.php`, probado en `RateLimiterMongoStoreTest`).
 - El ALB solo acepta tráfico de CloudFront (lista de prefijos `pl-3b927c52`), con un
   grupo de seguridad por puerto (`uba-stg-alb-cf-80`, `-8080`, `-8501`) porque la lista
   cuenta como ~55 reglas y el límite es 60 por grupo. Las tareas aceptan tráfico de

@@ -22,13 +22,11 @@ return [
     | in .env is a comma-separated list; set it to the real Nuxt prod domain
     | once deployed instead of relying on the dev default below.
     |
-    | CORS_ALLOWED_ORIGIN_PATTERNS (regex, comma-separated) exists because
-    | Vercel preview deployments get a new random subdomain
-    | (frontend-urbanblade-<hash>-kikegonrams-projects.vercel.app) on every
-    | push -- an exact-match entry in CORS_ALLOWED_ORIGINS would need
-    | updating by hand after each deploy. The default pattern below matches
-    | any deployment of this specific Vercel project (preview or
-    | production), not arbitrary vercel.app subdomains.
+    | CORS_ALLOWED_ORIGIN_PATTERNS (regex, comma-separated) is for origins
+    | whose subdomain changes on every deploy (e.g. preview deployments).
+    | Empty by default since 2026-10-02: the web is served from AWS
+    | (urbanblade.com.mx) and no longer from Vercel, so the old default that
+    | accepted any frontend-urbanblade-*.vercel.app deployment was removed.
     |
     */
 
@@ -38,10 +36,7 @@ return [
 
     'allowed_origins' => array_filter(explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000'))),
 
-    'allowed_origins_patterns' => array_filter(explode(',', env(
-        'CORS_ALLOWED_ORIGIN_PATTERNS',
-        '#^https://frontend-urbanblade(-[a-z0-9]+)?(-kikegonrams-projects)?\.vercel\.app$#'
-    ))),
+    'allowed_origins_patterns' => array_filter(explode(',', (string) env('CORS_ALLOWED_ORIGIN_PATTERNS', ''))),
 
     'allowed_headers' => ['*'],
 

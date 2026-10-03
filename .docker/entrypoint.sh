@@ -23,22 +23,30 @@ if [ "$1" = "php-fpm" ]; then
     # diferencia de MongoDB, el driver sqlite de Laravel no lo crea solo.
     touch /var/www/html/database/pulse.sqlite
 
-    # Las migraciones corren en background: con backfills grandes contra un
-    # cluster Atlas M0 (lento) esto puede tardar minutos, y no debe bloquear
-    # el arranque de php-fpm (nginx devuelve 502 mientras tanto).
+    # Las migraciones ya NO corren solas al arrancar: este contenedor recibe el
+    # .env real, que en desarrollo apunta a la misma barber_db de Atlas que usa
+    # staging, y un "docker compose up" no debe poder escribir ahi sin que nadie
+    # lo pida. Para migrar: RUN_MIGRATIONS=true en el entorno del contenedor, o a
+    # mano con "docker compose exec app php artisan migrate" tras confirmar a que
+    # base apunta .env. Corren en background: contra un cluster Atlas M0 (lento)
+    # pueden tardar minutos, y no deben bloquear el arranque de php-fpm.
     (
-        echo "Conectando a MongoDB Atlas y aplicando migraciones..."
-        for i in {1..20}; do
-            if php artisan migrate --force --no-interaction; then
-                echo "MongoDB Atlas conectada y migraciones aplicadas."
-                break
-            fi
-            if [ $i -eq 20 ]; then
-                echo "No se pudo conectar a MongoDB Atlas despues de 20 intentos, continuando..."
-            fi
-            echo "Reintentando conexion a Atlas... ($i/20)"
-            sleep 3
-        done
+        if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
+            echo "RUN_MIGRATIONS=true: aplicando migraciones..."
+            for i in {1..20}; do
+                if php artisan migrate --force --no-interaction; then
+                    echo "Migraciones aplicadas."
+                    break
+                fi
+                if [ $i -eq 20 ]; then
+                    echo "No se pudo conectar a MongoDB despues de 20 intentos, continuando..."
+                fi
+                echo "Reintentando conexion... ($i/20)"
+                sleep 3
+            done
+        else
+            echo "Migraciones omitidas (RUN_MIGRATIONS no es true)."
+        fi
 
         echo "Optimizando aplicacion..."
         php artisan optimize

@@ -1,5 +1,9 @@
 name: Docker Image CI
 
+# Construye las dos imagenes del repo para detectar a tiempo un Dockerfile roto. No
+# publica nada: el despliegue a staging sigue siendo manual (ver
+# docs/DESPLIEGUE_AWS_STAGING.md), porque el CI no tiene credenciales de AWS.
+
 on:
   push:
     branches: [ "main" ]
@@ -9,10 +13,22 @@ on:
 jobs:
 
   build:
-
+    name: Build ${{ matrix.image.name }}
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          # Imagen de desarrollo local (docker-compose.yml).
+          - name: desarrollo
+            dockerfile: Dockerfile
+          # Imagen de staging en AWS (PHP-FPM + Caddy). Su build valida el Caddyfile
+          # con "caddy validate", asi que tambien protege las cabeceras de seguridad.
+          - name: staging
+            dockerfile: .docker/staging/Dockerfile
 
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file ${{ matrix.image.dockerfile }} --tag urbanblade/barber-${{ matrix.image.name }}:${{ github.sha }}

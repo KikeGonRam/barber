@@ -91,6 +91,17 @@ return [
             'driver' => 'octane',
         ],
 
+        // Caché compartida en MongoDB (driver de mongodb/laravel-mongodb), pensada para
+        // los contadores de throttle cuando hay más de una tarea de la API y no hay
+        // Redis (staging en AWS). Colecciones 'cache' y 'cache_locks' de la conexión
+        // principal. Ver 'limiter' abajo.
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'connection' => 'mongodb',
+            'collection' => 'cache',
+            'lock_collection' => 'cache_locks',
+        ],
+
         'failover' => [
             'driver' => 'failover',
             'stores' => [
@@ -100,6 +111,20 @@ return [
         ],
 
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Limiter Store
+    |--------------------------------------------------------------------------
+    |
+    | Dónde guarda RateLimiter (los throttle de routes/api.php) sus contadores.
+    | Sin valor usa el store por defecto. Con CACHE_STORE=file, cada tarea de
+    | ECS cuenta por su lado: con dos tareas, el límite real se duplica. Para
+    | compartir el contador entre tareas sin Redis: CACHE_LIMITER_STORE=mongodb.
+    |
+    */
+
+    'limiter' => env('CACHE_LIMITER_STORE'),
 
     /*
     |--------------------------------------------------------------------------

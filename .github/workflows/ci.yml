@@ -135,12 +135,18 @@ jobs:
     name: Security scan
     runs-on: ubuntu-latest
 
+    # BLOQUEANTE desde el 2026-10-02: antes ambos pasos llevaban continue-on-error y
+    # nunca detenian el pipeline. Gitleaks falla si un commit del push trae un secreto;
+    # Trivy falla con vulnerabilidades HIGH/CRITICAL que ya tienen version corregida
+    # (ignore-unfixed: una sin parche no se puede resolver actualizando).
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Gitleaks revisa los commits del push: necesita el historial, no solo el ultimo.
+          fetch-depth: 0
 
       - name: Gitleaks
         uses: gitleaks/gitleaks-action@v2
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -150,14 +156,9 @@ jobs:
           scan-type: fs
           scan-ref: .
           format: table
-          output: trivy-results.txt
-        continue-on-error: true
-
-      - name: Upload Trivy results
-        uses: github/codeql-action/upload-sarif@v3
-        if: false
-        with:
-          sarif_file: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
 
   smoke:
     name: Smoke test (HTTP routes)

@@ -56,7 +56,8 @@ RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framew
 # no existen en build time -- el entrypoint corre migrate/cache despues.
 RUN composer install --no-interaction --no-progress --optimize-autoloader --no-scripts 2>&1
 
-COPY .docker/php/php.ini /usr/local/etc/php/conf.d/app-php.ini
+# php.ini propio de staging (OPcache sin revalidar); el de .docker/php/ es el de desarrollo.
+COPY .docker/staging/php.ini /usr/local/etc/php/conf.d/app-php.ini
 COPY .docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY .docker/caddy/Caddyfile /etc/caddy/Caddyfile
 # Un Caddyfile inválido (p. ej. al tocar las cabeceras de TT10/TT11) debe romper el build,
