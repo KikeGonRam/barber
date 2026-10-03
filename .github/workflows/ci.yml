@@ -254,3 +254,25 @@ jobs:
           echo "login -> ${login_redirect}"
           echo "${home_redirect}" | grep -q "localhost:3000"
           echo "${login_redirect}" | grep -q "localhost:3000/login"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Detecta deriva entre routes/api.php y public/docs/openapi.yaml. Importa
+      # porque frontend-urban y UrbanBladeMobile consumen esta API como contrato
+      # externo, y las pruebas E2E del frontend interceptan la API en el navegador:
+      # ambos clientes pueden quedar en verde mientras el backend cambia.
+      #
+      # continue-on-error: el OpenAPI committed esta desactualizado a proposito
+      # conocido (faltan rutas recientes como profile/push-test y
+      # orders/{order}/receipt-link). El paso reporta el detalle en el log sin
+      # tumbar el pipeline. Una vez ejecutado `php artisan scribe:generate` y
+      # confirmado el resultado, quitar `continue-on-error` para volverlo un gate.
+      # Ver PLAN_CONTRATO_API.md.
+      - name: Verificar contrato OpenAPI
+        continue-on-error: true
+        run: |
+          php artisan route:list --json > /tmp/rutas.json
+          node scripts/verificar_contrato_api.mjs /tmp/rutas.json public/docs/openapi.yaml
