@@ -1,41 +1,36 @@
-name: Pedidos
-description: ''
+name: Referidos
+description: |-
+
+  Cada cliente tiene un código propio para invitar. Quien invita gana
+  puntos de lealtad cuando la persona referida completa su primera cita
+  (nunca por solo registrarse) -- ver ReferralService.
 endpoints:
   -
     custom: []
     httpMethods:
       - GET
-    uri: 'api/v1/orders/{order_id}/receipt-link'
+    uri: api/v1/referrals/mine
     metadata:
       custom: []
-      groupName: Pedidos
-      groupDescription: ''
+      groupName: Referidos
+      groupDescription: |-
+
+        Cada cliente tiene un código propio para invitar. Quien invita gana
+        puntos de lealtad cuando la persona referida completa su primera cita
+        (nunca por solo registrarse) -- ver ReferralService.
       subgroup: ''
       subgroupDescription: ''
       title: |-
-        Liga al comprobante PDF de un pedido entregado, para "Mis facturas" de la app: el cliente
-        dueño del pedido o el personal. Se guarda en el disco 'receipts' (privado en S3) y se
-        devuelve una URL firmada, igual que PaymentController::receipt().
+        Mi código y mis referidos: a quién he invitado y cuántos ya
+        completaron su primera cita (y me dieron puntos).
       description: ''
-      authenticated: true
+      authenticated: false
       deprecated: false
     headers:
       Content-Type: application/json
       Accept: application/json
-    urlParameters:
-      order_id:
-        custom: []
-        name: order_id
-        description: 'ID del pedido.'
-        required: true
-        example: 66f0a1b2c3d4e5f6a7b8c9d3
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      order_id: 66f0a1b2c3d4e5f6a7b8c9d3
+    urlParameters: []
+    cleanUrlParameters: []
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -44,16 +39,60 @@ endpoints:
     responses:
       -
         custom: []
-        status: 200
-        content: '{"data": {"order_id": "66f...", "receipt_url": "https://..."}}'
-        headers: []
-        description: ''
-      -
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/referrals/link
+    metadata:
+      custom: []
+      groupName: Referidos
+      groupDescription: |-
+
+        Cada cliente tiene un código propio para invitar. Quien invita gana
+        puntos de lealtad cuando la persona referida completa su primera cita
+        (nunca por solo registrarse) -- ver ReferralService.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Registra quién me refirió. Solo puede hacerse una vez por cliente.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      codigo:
         custom: []
-        status: 422
-        content: '{"message": "El comprobante se genera cuando recibes y pagas tu pedido."}'
-        headers: []
-        description: ''
+        name: codigo
+        description: 'Código de referido de quien te invitó.'
+        required: true
+        example: A1B2C3
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      codigo: A1B2C3
+    fileParameters: []
+    responses: []
     responseFields: []
     auth: []
     controller: null

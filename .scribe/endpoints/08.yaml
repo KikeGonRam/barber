@@ -1,28 +1,27 @@
-name: Referidos
+name: 'Lista de espera'
 description: |-
 
-  Cada cliente tiene un código propio para invitar. Quien invita gana
-  puntos de lealtad cuando la persona referida completa su primera cita
-  (nunca por solo registrarse) -- ver ReferralService.
+  Un cliente se anota cuando un barbero+servicio+fecha ya no tiene
+  horarios disponibles, para que se le avise si se libera uno.
 endpoints:
   -
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/referrals/mine
+    uri: api/v1/waitlist
     metadata:
       custom: []
-      groupName: Referidos
+      groupName: 'Lista de espera'
       groupDescription: |-
 
-        Cada cliente tiene un código propio para invitar. Quien invita gana
-        puntos de lealtad cuando la persona referida completa su primera cita
-        (nunca por solo registrarse) -- ver ReferralService.
+        Un cliente se anota cuando un barbero+servicio+fecha ya no tiene
+        horarios disponibles, para que se le avise si se libera uno.
       subgroup: ''
       subgroupDescription: ''
       title: |-
-        Mi código y mis referidos: a quién he invitado y cuántos ya
-        completaron su primera cita (y me dieron puntos).
+        Mis anotaciones en lista de espera (cliente) o, para staff, las de
+        un barbero+fecha (filtros opcionales) -- vista operativa de cuánta
+        demanda hay para un día ya lleno.
       description: ''
       authenticated: false
       deprecated: false
@@ -55,20 +54,19 @@ endpoints:
     custom: []
     httpMethods:
       - POST
-    uri: api/v1/referrals/link
+    uri: api/v1/waitlist
     metadata:
       custom: []
-      groupName: Referidos
+      groupName: 'Lista de espera'
       groupDescription: |-
 
-        Cada cliente tiene un código propio para invitar. Quien invita gana
-        puntos de lealtad cuando la persona referida completa su primera cita
-        (nunca por solo registrarse) -- ver ReferralService.
+        Un cliente se anota cuando un barbero+servicio+fecha ya no tiene
+        horarios disponibles, para que se le avise si se libera uno.
       subgroup: ''
       subgroupDescription: ''
-      title: 'Registra quién me refirió. Solo puede hacerse una vez por cliente.'
+      title: 'Anotarse en la lista de espera'
       description: ''
-      authenticated: false
+      authenticated: true
       deprecated: false
     headers:
       Content-Type: application/json
@@ -78,19 +76,89 @@ endpoints:
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
-      codigo:
+      barber_id:
         custom: []
-        name: codigo
-        description: 'Código de referido de quien te invitó.'
+        name: barber_id
+        description: 'ID del barbero.'
         required: true
-        example: A1B2C3
+        example: 66f0...
         type: string
         enumValues: []
         exampleWasSpecified: true
         nullable: false
         deprecated: false
+      service_id:
+        custom: []
+        name: service_id
+        description: 'ID del servicio.'
+        required: true
+        example: 66f1...
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      fecha:
+        custom: []
+        name: fecha
+        description: 'Fecha deseada (YYYY-MM-DD).'
+        required: true
+        example: '2026-09-20'
+        type: date
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
     cleanBodyParameters:
-      codigo: A1B2C3
+      barber_id: 66f0...
+      service_id: 66f1...
+      fecha: '2026-09-20'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/waitlist/{waitlist_id}'
+    metadata:
+      custom: []
+      groupName: 'Lista de espera'
+      groupDescription: |-
+
+        Un cliente se anota cuando un barbero+servicio+fecha ya no tiene
+        horarios disponibles, para que se le avise si se libera uno.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Cancela la propia anotación.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      waitlist_id:
+        custom: []
+        name: waitlist_id
+        description: 'The ID of the waitlist.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      waitlist_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
     fileParameters: []
     responses: []
     responseFields: []

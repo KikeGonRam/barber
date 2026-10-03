@@ -41,6 +41,9 @@ tags:
     name: 'Horarios de Barbero'
     description: "\nEndpoints para gestionar los horarios del barbero."
   -
+    name: 'Inteligencia artificial'
+    description: "\nResumen del día en lenguaje natural para el inicio de recepción y de administración."
+  -
     name: Inventario
     description: "\nGestión de productos, stock y movimientos de almacén."
   -
@@ -753,7 +756,7 @@ paths:
                 pagar_ahora:
                   type: boolean
                   description: "Si el cliente elige pagar el servicio completo al reservar (en\nvez de pagar despues en el salon), en vez de inventar un cobro\nnuevo se reutiliza el mecanismo de deposito anti-no-show tal\ncual (mismos endpoints deposit/stripe-intent y deposit/receipt,\nmismo webhook, mismo reembolso automatico si se cancela) -- solo\ncambia que deposito_monto pasa a ser el precio con descuento de\nmembresia mas propina, no el % anti-no-show. Ver comentario mas\nabajo antes de construir $payload."
-                  example: false
+                  example: true
                   nullable: true
                 client_id:
                   type: integer
@@ -843,15 +846,15 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-18'
+                  example: '2052-10-25'
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '17:07'
+                  example: '22:21'
                 estado:
                   type: string
                   description: ''
-                  example: no_asistio
+                  example: en_proceso
                   enum:
                     - pendiente
                     - confirmada
@@ -1013,14 +1016,14 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: week
+                  example: day
                   enum:
                     - day
                     - week
                 estado:
                   type: string
                   description: ''
-                  example: confirmada
+                  example: cancelada
                   enum:
                     - pendiente
                     - confirmada
@@ -1341,7 +1344,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-18'
+                  example: '2052-10-25'
               required:
                 - barber_id
                 - service_id
@@ -1577,7 +1580,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-18'
+                  example: '2052-10-25'
               required:
                 - barber_id
                 - service_id
@@ -1903,7 +1906,7 @@ paths:
                 tarjeta_guardada:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - appointment_id
@@ -2220,7 +2223,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2303,7 +2306,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -2346,7 +2349,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2429,17 +2432,17 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-25T17:07:59'
+                  example: '2026-10-02T22:21:43'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_sms:
                   type: boolean
@@ -2449,7 +2452,7 @@ paths:
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - name
@@ -2487,7 +2490,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-25T17:07:59'
+                  example: '2026-10-02T22:21:43'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -2497,7 +2500,7 @@ paths:
                 pref_email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_sms:
                   type: boolean
@@ -2507,7 +2510,7 @@ paths:
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - name
@@ -2586,13 +2589,12 @@ paths:
                   example: 16
                 imagen:
                   type: string
-                  description: 'El campo value no debe tener más de 255 caracteres.'
-                  example: m
-                  nullable: true
+                  description: ''
+                  example: null
                 descripcion:
                   type: string
                   description: 'El campo value no debe tener más de 2000 caracteres.'
-                  example: i
+                  example: m
                   nullable: true
                 activo:
                   type: boolean
@@ -2607,8 +2609,8 @@ paths:
       security: []
   '/api/v1/services/manage/{service_slug}':
     put:
-      summary: 'Actualiza los datos de un servicio existente.'
-      operationId: actualizaLosDatosDeUnServicioExistente
+      summary: "Actualiza los datos de un servicio existente. Con imagen como archivo, enviar POST\nmultipart con _method=PUT."
+      operationId: actualizaLosDatosDeUnServicioExistenteConImagenComoArchivoEnviarPOSTMultipartConMethodPUT
       description: ''
       parameters: []
       responses: {}
@@ -2639,18 +2641,17 @@ paths:
                   example: 16
                 imagen:
                   type: string
-                  description: 'El campo value no debe tener más de 255 caracteres.'
-                  example: m
-                  nullable: true
+                  description: ''
+                  example: null
                 descripcion:
                   type: string
                   description: 'El campo value no debe tener más de 2000 caracteres.'
-                  example: i
+                  example: m
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2734,13 +2735,12 @@ paths:
                   nullable: true
                 foto:
                   type: string
-                  description: 'El campo value no debe tener más de 255 caracteres.'
-                  example: v
-                  nullable: true
+                  description: ''
+                  example: null
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 comision_pct:
                   type: number
@@ -2871,7 +2871,7 @@ paths:
         in: path
         name: user_id
         description: 'The ID of the user.'
-        example: 6ab6f64533684575a6023b0e
+        example: architecto
         required: true
         schema:
           type: string
@@ -2929,12 +2929,12 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '17:07'
+                  example: '22:21'
                   nullable: true
                 horario_cierre:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>. El campo value debe ser una fecha posterior a <code>horario_apertura</code>.'
-                  example: '2052-10-18'
+                  example: '2052-10-25'
                   nullable: true
                 politica_cancelacion:
                   type: integer
@@ -3061,14 +3061,14 @@ paths:
                 modo:
                   type: string
                   description: ''
-                  example: programar
+                  example: ahora
                   enum:
                     - ahora
                     - programar
                 programada_para:
                   type: string
                   description: 'This field is required when <code>modo</code> is <code>programar</code>. El campo value no es una fecha válida. El campo value debe ser una fecha posterior a <code>now</code>.'
-                  example: '2052-10-19'
+                  example: '2052-10-26'
                   nullable: true
               required:
                 - titulo
@@ -3335,15 +3335,15 @@ paths:
                 in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 email:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 sms:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 whatsapp:
                   type: boolean
                   description: ''
@@ -3355,7 +3355,7 @@ paths:
                 promociones:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
       security: []
   /api/v1/push/vapid-public-key:
     get:
@@ -3973,7 +3973,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 comision_pct:
                   type: number
                   description: 'El campo value debe ser al menos 0. El campo value no debe ser mayor que 100.'
@@ -4277,12 +4277,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -4411,7 +4411,7 @@ paths:
                 tipo:
                   type: string
                   description: ''
-                  example: salida
+                  example: entrada
                   enum:
                     - entrada
                     - salida
@@ -4586,6 +4586,11 @@ paths:
                   type: string
                   description: 'El campo value no debe tener más de 500 caracteres.'
                   example: 'n'
+                  nullable: true
+                service_id:
+                  type: string
+                  description: 'El campo value no debe tener más de 64 caracteres.'
+                  example: g
                   nullable: true
               required:
                 - rating
@@ -4895,19 +4900,6 @@ paths:
       responses: {}
       tags:
         - 'Gestión de Perfil'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                password:
-                  type: string
-                  description: ''
-                  example: architecto
-              required:
-                - password
       security: []
   /api/v1/profile/avatar:
     post:
@@ -5018,6 +5010,16 @@ paths:
                     - fcm
               required:
                 - token
+      security: []
+  /api/v1/profile/push-test:
+    post:
+      summary: "Push de prueba al teléfono del propio usuario (T061: verificar que llega con la app\nabierta, en segundo plano y cerrada). Solo a su propio token; la ruta limita los intentos."
+      operationId: pushDePruebaAlTelfonoDelPropioUsuarioT061VerificarQueLlegaConLaAppAbiertaEnSegundoPlanoYCerradaSoloASuPropioTokenLaRutaLimitaLosIntentos
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Gestión de Perfil'
       security: []
   /api/v1/profile/favorite-barber:
     put:
@@ -5328,6 +5330,52 @@ paths:
               required:
                 - schedules
       security: []
+  /api/v1/ai/briefing:
+    get:
+      summary: 'Resumen del día.'
+      operationId: resumenDelDa
+      description: "Responde al instante: el último resumen de la IA local (source \"ia\") o, si todavía no hay\nuno, una versión armada por reglas con los mismos números (source \"reglas\"). La IA genera el\nsiguiente en segundo plano, después de responder, así que nunca hace esperar a la pantalla."
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    text: 'Hoy hay 8 citas en la agenda. Conviene atender primero: 2 por cobrar, 1 pedido por entregar.'
+                    source: reglas
+                    generated_at: null
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                        example: 'Hoy hay 8 citas en la agenda. Conviene atender primero: 2 por cobrar, 1 pedido por entregar.'
+                      source:
+                        type: string
+                        example: reglas
+                      generated_at:
+                        type: string
+                        example: null
+                        nullable: true
+        403:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - 'Inteligencia artificial'
   /api/v1/inventory/products:
     get:
       summary: 'Listar Productos'
@@ -5460,12 +5508,12 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -5538,7 +5586,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -5701,7 +5749,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-09-25T17:07:59'
+                  example: '2026-10-02T22:21:43'
                   nullable: true
               required:
                 - product_id

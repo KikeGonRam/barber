@@ -1,21 +1,26 @@
-name: Analítica
-description: ''
+name: 'Inteligencia artificial'
+description: |-
+
+  Resumen del día en lenguaje natural para el inicio de recepción y de administración.
 endpoints:
   -
     custom: []
     httpMethods:
       - GET
-    uri: api/v1/analytics
+    uri: api/v1/ai/briefing
     metadata:
       custom: []
-      groupName: Analítica
-      groupDescription: ''
+      groupName: 'Inteligencia artificial'
+      groupDescription: |-
+
+        Resumen del día en lenguaje natural para el inicio de recepción y de administración.
       subgroup: ''
       subgroupDescription: ''
-      title: |-
-        Análisis por rol. operational es un resumen actual de citas/pagos,
-        exclusivo para administrador y recepción; los insights históricos se conservan.
-      description: ''
+      title: 'Resumen del día.'
+      description: |-
+        Responde al instante: el último resumen de la IA local (source "ia") o, si todavía no hay
+        uno, una versión armada por reglas con los mismos números (source "reglas"). La IA genera el
+        siguiente en segundo plano, después de responder, así que nunca hace esperar a la pantalla.
       authenticated: true
       deprecated: false
     headers:
@@ -31,13 +36,16 @@ endpoints:
     responses:
       -
         custom: []
-        status: 401
-        content: '{"message":"No autorizado."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
+        status: 200
+        content: '{"data": {"text": "Hoy hay 8 citas en la agenda. Conviene atender primero: 2 por cobrar, 1 pedido por entregar.", "source": "reglas", "generated_at": null}}'
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: '{"message": "No autorizado."}'
+        headers: []
+        description: ''
     responseFields: []
     auth: []
     controller: null

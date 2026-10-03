@@ -265,14 +265,13 @@ jobs:
       # externo, y las pruebas E2E del frontend interceptan la API en el navegador:
       # ambos clientes pueden quedar en verde mientras el backend cambia.
       #
-      # continue-on-error: el OpenAPI committed esta desactualizado a proposito
-      # conocido (faltan rutas recientes como profile/push-test y
-      # orders/{order}/receipt-link). El paso reporta el detalle en el log sin
-      # tumbar el pipeline. Una vez ejecutado `php artisan scribe:generate` y
-      # confirmado el resultado, quitar `continue-on-error` para volverlo un gate.
+      # BLOQUEANTE desde el 2026-10-02: el spec se regenero con scribe:generate
+      # (estaba en 111 paths frente a 160 rutas reales) y ahora coincide 160/160.
+      # Antes iba con continue-on-error porque nacia en rojo, y una puerta que
+      # siempre falla se termina ignorando. Si esto falla: regenerar con
+      # `php artisan scribe:generate` y revisar el diff antes de commitear.
       # Ver PLAN_CONTRATO_API.md.
       - name: Verificar contrato OpenAPI
-        continue-on-error: true
         run: |
           php artisan route:list --json > /tmp/rutas.json
           node scripts/verificar_contrato_api.mjs /tmp/rutas.json public/docs/openapi.yaml

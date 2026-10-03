@@ -35,7 +35,12 @@ const METODOS = new Set(['get', 'post', 'put', 'patch', 'delete', 'head', 'optio
 
 function normalizar(uri) {
   const ruta = '/' + String(uri).replace(/^\//, '').replace(/\{\s*(\w+)\s*\?\s*\}/g, '{$1}');
-  return ruta.length > 1 ? ruta.replace(/\/+$/, '') : ruta;
+  const sinBarra = ruta.length > 1 ? ruta.replace(/\/+$/, '') : ruta;
+  // Scribe renombra los parametros de ruta ('/appointments/{appointment}' pasa a
+  // '/appointments/{appointment_code}'), asi que se compara la FORMA de la ruta y
+  // no el nombre del parametro. Sin esto, todas las rutas con parametro se
+  // reportaban como "sin documentar" aunque estuvieran documentadas.
+  return sinBarra.replace(/\{[^}]*\}/g, '{}');
 }
 
 function leerRutas(contenido, origen) {
@@ -87,9 +92,10 @@ function leerSpec(contenido) {
     }
     if (!enPaths) continue;
 
-    const ruta = linea.match(/^ {2}(\/\S*):\s*$/);
+    const ruta = linea.match(/^ {2}'?(\/[^':]*)'?:\s*$/);
     if (ruta) {
-      rutaActual = ruta[1];
+      // YAML cita las rutas cuando contienen llaves: '  ''/api/v1/x/{param}'':'
+      rutaActual = normalizar(ruta[1]);
       if (!paths.has(rutaActual)) paths.set(rutaActual, new Set());
       continue;
     }
