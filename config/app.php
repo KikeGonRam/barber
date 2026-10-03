@@ -76,6 +76,11 @@ return [
     // dashboard solo deja pasar administrador/ingeniero (ver spark).
     'spark_url' => env('SPARK_URL', 'http://localhost:8501'),
 
+    // Cuántos proxies propios hay delante de la aplicación (ver
+    // App\Http\Middleware\TrustProxyChain). Staging en AWS: 2 (CloudFront y
+    // ALB). Local y pruebas: 0, no se confía en ninguna cabecera X-Forwarded-*.
+    'trusted_proxy_hops' => (int) env('TRUSTED_PROXY_HOPS', 0),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

@@ -11,9 +11,11 @@ use App\Http\Middleware\OptionalMobileApiToken;
 use App\Http\Middleware\RejectMongoOperators;
 use App\Http\Middleware\Role\EnsureUserHasPermission;
 use App\Http\Middleware\Role\EnsureUserHasRole;
+use App\Http\Middleware\TrustProxyChain;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\TrustProxies;
 use Sentry\Laravel\Integration;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -25,6 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // IP real del cliente detrás de CloudFront + ALB (TRUSTED_PROXY_HOPS). Sin esto,
+        // en staging todos los visitantes compartían la IP del ALB y los throttle por
+        // IP eran globales. Ver TrustProxyChain.
+        $middleware->replace(TrustProxies::class, TrustProxyChain::class);
+
         $middleware->validateCsrfTokens(except: [
             'api/v1/auth/get-api-token',
             '_boost/browser-logs',
