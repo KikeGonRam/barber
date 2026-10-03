@@ -32,7 +32,7 @@ in both repos).
 Repo: `https://github.com/KikeGonRam/barber.git`, working branch `main` (the only
 branch — history from `feature/mongodb-migration` was merged forward and the rest
 deleted). This folder is one of several independent repos gathered under the
-`UrbanBlade/` parent folder — see `../ACCESOS.md` for cross-project context.
+`UrbanBlade/` parent folder — see `../_seguridad/ACCESOS.md` for cross-project context.
 
 ## Stack
 
