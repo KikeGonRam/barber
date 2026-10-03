@@ -61,6 +61,12 @@ deleted). This folder is one of several independent repos gathered under the
 - `docs/` — project documentation: `DOCUMENTACION_TECNICA.md` (architecture), `ACCESOS.md`
   (credentials — single source of truth, don't duplicate), `MANUAL_USUARIO.md` (end-user
   guide), `DEMO_DEMOSTRACION.md` (presentation script), `STRIPE_PRUEBAS_LOCALES.md`.
+  Aquí viven además los documentos de **todo el workspace**, que antes estaban sueltos
+  fuera de cualquier repositorio y sin respaldo: `CLONAR_PROYECTOS.md`,
+  `COMO_DESCARGAR_LOS_PROYECTOS.txt`, `PLAN_ROTACION_CREDENCIALES.md`,
+  `PLAN_ENDURECIMIENTO_ATLAS.md` y `PLAN_CONTRATO_API.md`.
+- `scripts/verificacion/` — sandbox de verificación del workspace: `verificar.ps1` corre
+  las pruebas de los cuatro proyectos antes de subir. Ver su `README.md`.
 - `setup.ps1` — PowerShell bootstrap script (requires a real `.env`, not committed)
 - `docker-compose.yml`, `Dockerfile`, `.docker/` — containerized dev environment
 
@@ -103,6 +109,25 @@ ones needed to boot; other team accounts are documented individually in
 - `routes/api.php` / `app/Http/Controllers/Api/**` are a real external contract for
   `frontend-urban` and a future native Android app — prefer additive changes, keep
   Scribe docs (`php artisan scribe:generate`) in sync.
+
+## Verificación antes de subir
+
+El sandbox del workspace corre las pruebas de los cuatro proyectos de una vez:
+
+```powershell
+cd scripts\verificacion
+.\verificar.ps1
+```
+
+Empieza por una **puerta de seguridad** que aborta si alguna configuración apunta a
+datos reales — existe por el incidente del 2026-08-28. Los tests de este repo los
+ejecuta **vía `test.ps1`**; el sandbox no inventa un camino propio. Detalles en
+`scripts/verificacion/README.md`.
+
+Los controles de seguridad de la API tienen pruebas propias en `tests/Unit/`:
+`DataEnvironmentGuardTest` (rechaza configuraciones de entorno mixtas),
+`RejectMongoOperatorsTest` (inyección NoSQL, en las dos direcciones: rechaza los
+operadores `$` y acepta las peticiones legítimas) y `QueueConfigurationTest`.
 
 ## Test database
 

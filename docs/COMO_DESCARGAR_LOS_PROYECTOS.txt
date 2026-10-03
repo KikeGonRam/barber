@@ -1,0 +1,188 @@
+========================================================================
+ COMO DESCARGAR Y PRENDER LOS PROYECTOS DE URBANBLADE
+ (Guia para quien nunca ha hecho esto, paso por paso, sin brincarse nada)
+========================================================================
+
+Hay 4 proyectos separados:
+  1) "barber"            -> el sistema de la barberia (la API, citas, pagos)
+  2) "frontend-urban"    -> la pagina web que usa la gente
+  3) "spark"             -> el analisis de datos (graficas, dashboard, IA)
+  4) "UrbanBladeMobile"  -> la app de Android
+
+Cada uno vive en su propia "carpeta" en internet (se llama repositorio).
+Esta guia te lleva paso a paso por los DOS que se prenden en tu
+computadora: "barber" y "spark". Los otros dos se abren distinto
+(frontend-urban con npm, UrbanBladeMobile con Android Studio) y su
+propio README lo explica.
+
+IMPORTANTE: los cuatro usan la MISMA rama, que se llama "main". Si en
+algun lado ves un comando con "--branch" seguido de otra cosa, esta
+viejo: las ramas viejas ya se borraron.
+
+Vamos a bajar cada uno a tu computadora paso por paso.
+
+
+------------------------------------------------------------------------
+PASO 0: LO QUE NECESITAS TENER INSTALADO ANTES DE EMPEZAR
+------------------------------------------------------------------------
+
+Instala estos 3 programas (si no los tienes). Dale clic al link, descarga,
+instala normal (siguiente, siguiente, siguiente):
+
+  1. Git
+     https://git-scm.com/download/win
+     (esto sirve para "descargar" el proyecto)
+
+  2. Docker Desktop
+     https://www.docker.com/products/docker-desktop/
+     (esto sirve para "prender" el proyecto de la barberia)
+     Despues de instalarlo, ABRELO y espera a que diga que ya esta
+     corriendo (icono de la ballenita en la barra de tareas, sin
+     animacion de carga).
+
+  3. Node.js (version LTS, el boton grande verde)
+     https://nodejs.org/
+     (esto sirve para que se vean bien las paginas web)
+
+Si usas el proyecto de "spark" (analisis de datos), tambien necesitas
+Windows con WSL, pero el script que armamos te ayuda a instalarlo solo,
+no te preocupes por eso todavia.
+
+
+------------------------------------------------------------------------
+PASO 1: ABRIR LA TERMINAL (PowerShell)
+------------------------------------------------------------------------
+
+1. Dale clic al boton de inicio de Windows (la banderita)
+2. Escribe: PowerShell
+3. Dale clic donde diga "Windows PowerShell"
+4. Se va a abrir una ventana negra o azul con texto - esa es la terminal,
+   ahi vamos a escribir los comandos (no le tengas miedo)
+
+TIP: para pegar algo que copiaste, en la terminal usas clic derecho
+(no Ctrl+V).
+
+
+------------------------------------------------------------------------
+PASO 2: ELEGIR EN DONDE VAS A GUARDAR LOS PROYECTOS
+------------------------------------------------------------------------
+
+En la terminal que abriste, escribe esto y dale Enter (esto te lleva a
+tu carpeta de Documentos):
+
+    cd Documents
+
+Si quieres, puedes crear una carpeta especial para todo esto:
+
+    mkdir UrbanBlade
+    cd UrbanBlade
+
+
+------------------------------------------------------------------------
+PASO 3: DESCARGAR EL PROYECTO "BARBER" (la barberia)
+------------------------------------------------------------------------
+
+Copia esta linea completa, pegala en la terminal (clic derecho) y dale
+Enter:
+
+    git clone https://github.com/KikeGonRam/barber.git barber
+
+Espera a que termine (va a mostrar textito bajando, es normal).
+
+Ahora entra a esa carpeta:
+
+    cd barber
+
+Ahora prende todo con este comando (va a tardar varios minutos la
+primera vez, es normal, no cierres la ventana):
+
+    .\setup.ps1
+
+SI TE PIDE UN ARCHIVO ".env":
+  Eso es normal. Ese archivo tiene contraseñas y NO se puede compartir
+  asi nada mas. Pidele ese archivo a la persona encargada del proyecto
+  (por WhatsApp, USB, lo que sea) y ponlo dentro de la carpeta "barber"
+  que acabas de crear. Luego vuelve a escribir:
+
+    .\setup.ps1
+
+Cuando ya termine sin errores, abre tu navegador (Chrome/Edge) y entra a:
+
+    http://localhost:8000
+
+Ahi deberia aparecer la pagina de la barberia.
+
+
+------------------------------------------------------------------------
+PASO 4: DESCARGAR EL PROYECTO "SPARK" (el analisis de datos)
+------------------------------------------------------------------------
+
+Regresa a la carpeta de antes (Documents o UrbanBlade). Si sigues dentro
+de la carpeta "barber", sal de ahi con:
+
+    cd ..
+
+Ahora descarga el proyecto de spark, copia y pega esto:
+
+    git clone https://github.com/KikeGonRam/spark.git spark
+
+Entra a la carpeta:
+
+    cd spark
+
+Prende todo con:
+
+    .\setup-spark.ps1
+
+Este script tarda MAS que el otro porque instala varias cosas
+(Java, Miniconda, etc.). Es normal, dejalo trabajar, no cierres la
+ventana aunque parezca que no hace nada por un rato.
+
+SI TE PIDE UN ARCHIVO ".env":
+  Mismo caso que el proyecto anterior: pidele el archivo a la persona
+  encargada, ponlo dentro de la carpeta "spark", y vuelve a correr:
+
+    .\setup-spark.ps1
+
+
+------------------------------------------------------------------------
+COSAS IMPORTANTES QUE DEBES SABER
+------------------------------------------------------------------------
+
+- NUNCA compartas el archivo ".env" por internet ni lo subas a ningun
+  lado publico. Tiene contraseñas reales.
+
+- Si algo sale mal (error rojo en la terminal), toma captura de pantalla
+  completa del error y mandasela a la persona encargada del proyecto.
+  NO le muevas nada por tu cuenta ni borres carpetas.
+
+- Docker Desktop debe estar ABIERTO Y CORRIENDO siempre que quieras usar
+  el proyecto "barber". Si la ballenita en la barra de tareas esta
+  animandose (cargando), espera a que termine antes de hacer algo.
+
+- Si cierras la terminal y quieres volver a trabajar despues, no hace
+  falta volver a correr todo desde cero. Solo:
+    Proyecto barber:  docker compose up -d      (dentro de la carpeta barber)
+    Proyecto spark:   conda activate spark_env  (dentro de WSL)
+
+
+------------------------------------------------------------------------
+RESUMEN RAPIDO (copiar y pegar todo junto)
+------------------------------------------------------------------------
+
+cd Documents
+mkdir UrbanBlade
+cd UrbanBlade
+
+git clone https://github.com/KikeGonRam/barber.git barber
+cd barber
+.\setup.ps1
+cd ..
+
+git clone https://github.com/KikeGonRam/spark.git spark
+cd spark
+.\setup-spark.ps1
+
+========================================================================
+Si te trabas en cualquier paso, no le sigas moviendo solo - pregunta.
+========================================================================
