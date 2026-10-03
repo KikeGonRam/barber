@@ -1,8 +1,9 @@
+/* Tailwind 4 (vía @tailwindcss/vite). La configuración sigue en tailwind.config.js
+   (tokens de tema, darkMode 'class', @tailwindcss/forms) y se carga con @config. */
+@import 'tailwindcss';
 @import './animations.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@config '../../tailwind.config.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SISTEMA DE TOKENS DE COLOR — UrbanBlade Design System
@@ -220,7 +221,11 @@ html[data-theme="libreta"] {
     }
 
     /* ── Tarjeta premium (con gradiente y hover elevado) ── */
-    .ui-card-premium {
+    /* .ui-surface y .ui-kpi-card comparten esta base: Tailwind 4 ya no permite
+       "@apply ui-card-premium" con una clase propia. */
+    .ui-card-premium,
+    .ui-surface,
+    .ui-kpi-card {
         position: relative;
         overflow: hidden;
         background: linear-gradient(160deg, var(--card-premium-from) 0%, var(--card-premium-to) 100%);
@@ -296,7 +301,10 @@ html[data-theme="libreta"] {
     /* ── Botón dorado principal ──────────────────────────────────────────
        Para cambiar el color del botón: modifica --gold y --gold-dim en :root
        ─────────────────────────────────────────────────────────────────── */
-    .ui-btn {
+    /* .ui-btn-secondary comparte la base de .ui-btn (antes "@apply ui-btn", que
+       Tailwind 4 no admite con clases propias) y la sobrescribe más abajo. */
+    .ui-btn,
+    .ui-btn-secondary {
         @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all duration-300 active:scale-95;
         background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dim) 100%);
         color: #000;
@@ -331,7 +339,6 @@ html[data-theme="libreta"] {
 
     /* ── Botón secundario ── */
     .ui-btn-secondary {
-        @apply ui-btn;
         background: var(--bg-accent);
         background-image: none;
         color: var(--gold);
@@ -394,14 +401,14 @@ html[data-theme="libreta"] {
     .ui-divider { border-top: 1px solid var(--line); }
 
     /* ── Surface (ui-card-premium + padding) ── */
-    .ui-surface { @apply ui-card-premium p-8; }
+    .ui-surface { @apply p-8; }
 
     /* ── Toolbar ── */
     .ui-toolbar { @apply mb-6 flex flex-wrap items-center justify-between gap-4; }
 
     /* ── KPI Card (dashboard) ── */
     .ui-kpi-card {
-        @apply ui-card-premium p-6;
+        @apply p-6;
         position: relative;
     }
 

@@ -42,7 +42,7 @@ deleted). This folder is one of several independent repos gathered under the
 - Redis (cache, sessions, queue — `queue:work`/`schedule:work` run as their own Docker
   services, see `docker-compose.yml`)
 - Frontend build (for the surviving Blade pages only — the real product frontend is
-  `frontend-urban`): Vite, Tailwind CSS 3, Alpine.js
+  `frontend-urban`): Vite, Tailwind CSS 4 (`@tailwindcss/vite`, config en `tailwind.config.js` vía `@config`), Alpine.js
 - Notable packages: laravel/breeze (auth scaffolding), laravel/socialite (Google
   login), laravel/pulse (ops dashboard for the `ingeniero` role, own `sqlite`
   connection), spatie/laravel-permission, spatie/laravel-activitylog, stripe/stripe-php,

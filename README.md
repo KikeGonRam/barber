@@ -43,7 +43,7 @@ antes, el 2026-09-06 — ver `.claude/skills/urbanblade-guardrails/SKILL.md` (gu
 - PHP 8.3+, Laravel 13
 - MongoDB con mongodb/laravel-mongodb (Atlas, compartida con `spark/`)
 - Redis para caché, sesiones y cola (workers dedicados: `queue:work`, `schedule:work`)
-- Vite + Tailwind CSS 3 + Alpine.js — solo para landing/auth/chatbot/páginas de error;
+- Vite + Tailwind CSS 4 + Alpine.js — solo para landing/auth/chatbot/páginas de error;
   el frontend real es Nuxt 4 en `frontend-urban`
 - Stripe, Socialite (login con Google), Laravel Pulse (panel de operación para
   "ingeniero"), Scribe (documentación de la API)
