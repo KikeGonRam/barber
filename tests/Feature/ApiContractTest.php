@@ -199,7 +199,7 @@ class ApiContractTest extends TestCase
 
         $login = $spec['paths']['/api/v1/auth/login']['post']['responses'];
         $schema = $login[200]['content']['application/json']['schema'];
-        $this->assertEqualsCanonicalizing(['message', 'token_type', 'token', 'user'], $schema['required']);
+        $this->assertEqualsCanonicalizing(['message', 'token_type', 'token', 'expires_at', 'user'], $schema['required']);
         $this->assertContains('roles', $schema['properties']['user']['required']);
 
         // Las respuestas escritas a mano no tienen la garantía de la prueba: sin `required`.

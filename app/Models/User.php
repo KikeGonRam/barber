@@ -146,12 +146,17 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // Genera un token nuevo en texto plano, guarda solo su hash y devuelve ambos (el plano no se puede recuperar después).
-    public function issueMobileApiToken(string $name = 'Mobile App', ?array $abilities = null, ?Carbon $expiresAt = null): array
+    public function issueMobileApiToken(string $name = 'Mobile App', ?array $abilities = null, ?Carbon $expiresAt = null, ?string $plataforma = null): array
     {
         $plainToken = bin2hex(random_bytes(32));
 
+        // Todo token caduca: sin fecha explícita vale la vigencia de su plataforma.
+        $plataforma = MobileApiToken::resolvePlataforma($plataforma, $name);
+        $expiresAt ??= now()->addDays(MobileApiToken::ttlDays($plataforma));
+
         $token = $this->mobileApiTokens()->create([
             'name' => $name,
+            'plataforma' => $plataforma,
             'token_hash' => hash('sha256', $plainToken),
             'abilities' => $abilities,
             'last_used_at' => now(),

@@ -65,10 +65,22 @@ endpoints:
         exampleWasSpecified: true
         nullable: true
         deprecated: false
+      plataforma:
+        custom: []
+        name: plataforma
+        description: 'Cliente que inicia sesión: `web` o `movil`. Define cuánto dura el token (config/auth.php: 30 días web, 180 móvil, deslizantes). Si se omite se infiere de device_name.'
+        required: false
+        example: movil
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
     cleanBodyParameters:
       email: cliente@urbanblade.com
       password: password123
       device_name: 'iPhone 15 Pro'
+      plataforma: movil
     fileParameters: []
     responses:
       -
@@ -79,6 +91,7 @@ endpoints:
               "message": "Autenticación exitosa.",
               "token_type": "Bearer",
               "token": "TOKEN_DE_EJEMPLO",
+              "expires_at": "2026-11-04T12:00:00.000000Z",
               "user": {
                   "id": "6710a1b2c3d4e5f607182930",
                   "name": "Juan Pérez",
@@ -182,6 +195,17 @@ endpoints:
         exampleWasSpecified: true
         nullable: true
         deprecated: false
+      plataforma:
+        custom: []
+        name: plataforma
+        description: 'Cliente que se registra: `web` o `movil` (ver login).'
+        required: false
+        example: movil
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
       password_confirmation:
         custom: []
         name: password_confirmation
@@ -198,6 +222,7 @@ endpoints:
       email: nuevo@urbanblade.com
       password: password123
       device_name: 'Android Emulator'
+      plataforma: movil
       password_confirmation: password123
     fileParameters: []
     responses:

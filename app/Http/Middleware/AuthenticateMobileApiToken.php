@@ -47,7 +47,23 @@ class AuthenticateMobileApiToken
 
         // Se actualiza en cada request autenticado; sirve para detectar
         // tokens inactivos/abandonados desde el panel de administración.
-        $token->forceFill(['last_used_at' => now()])->save();
+        $cambios = ['last_used_at' => now()];
+
+        // Vigencia deslizante por plataforma (web / móvil, ver config/auth.php): se
+        // renueva cuando queda menos de la mitad, para no escribir la fecha en cada
+        // petición. También asigna plataforma y fecha a los tokens anteriores a este
+        // campo, que se emitieron sin caducidad.
+        $plataforma = $token->plataformaEfectiva();
+        $ttlDias = MobileApiToken::ttlDays($plataforma);
+
+        if ($token->getAttribute('plataforma') === null) {
+            $cambios['plataforma'] = $plataforma;
+        }
+        if ($token->expires_at === null || $token->expires_at->lt(now()->addHours($ttlDias * 12))) {
+            $cambios['expires_at'] = now()->addDays($ttlDias);
+        }
+
+        $token->forceFill($cambios)->save();
 
         Auth::guard('web')->setUser($token->user);
 

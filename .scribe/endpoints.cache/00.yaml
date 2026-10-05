@@ -1011,7 +1011,7 @@ endpoints:
         name: guardar_tarjeta
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1022,7 +1022,7 @@ endpoints:
         name: tarjeta_guardada
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1033,8 +1033,8 @@ endpoints:
       puntos_canjeados: 39
       codigo_gift_card: gzmiyvdljnikhway
       propina: 62
-      guardar_tarjeta: false
-      tarjeta_guardada: true
+      guardar_tarjeta: true
+      tarjeta_guardada: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -1166,7 +1166,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: transferencia
+        example: tarjeta
         type: string
         enumValues:
           - efectivo
@@ -1176,7 +1176,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      metodo_pago: transferencia
+      metodo_pago: tarjeta
     fileParameters: []
     responses: []
     responseFields: []
@@ -1339,7 +1339,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: tarjeta
+        example: transferencia
         type: string
         enumValues:
           - efectivo
@@ -1417,7 +1417,7 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: tarjeta
+      metodo_pago: transferencia
       propina: 77
       puntos_canjeados: 8
       usar_premio_rifa: true
@@ -1996,7 +1996,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2007,7 +2007,7 @@ endpoints:
       descripcion: 'n'
       precio_mensual: 67
       descuento_pct: 16
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2280,7 +2280,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-10-05T00:26:36'
+        example: '2026-10-05T01:06:05'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2291,7 +2291,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2313,7 +2313,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2335,10 +2335,10 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-10-05T00:26:36'
-      pref_in_app: true
+      fecha_nacimiento: '2026-10-05T01:06:05'
+      pref_in_app: false
       pref_email: true
-      pref_sms: false
+      pref_sms: true
       pref_whatsapp: false
     fileParameters: []
     responses: []
@@ -2420,7 +2420,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-10-05T00:26:36'
+        example: '2026-10-05T01:06:05'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2431,7 +2431,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2442,7 +2442,7 @@ endpoints:
         name: pref_email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2453,7 +2453,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2464,7 +2464,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2474,11 +2474,11 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-10-05T00:26:36'
-      pref_in_app: true
-      pref_email: true
-      pref_sms: true
-      pref_whatsapp: false
+      fecha_nacimiento: '2026-10-05T01:06:05'
+      pref_in_app: false
+      pref_email: false
+      pref_sms: false
+      pref_whatsapp: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2989,7 +2989,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3011,7 +3011,7 @@ endpoints:
       email: zbailey@example.net
       especialidades: i
       descripcion: 'y'
-      activo: false
+      activo: true
       comision_pct: 1
     fileParameters: []
     responses: []
@@ -3374,7 +3374,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '00:26'
+        example: '01:06'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3510,7 +3510,7 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '00:26'
+      horario_apertura: '01:06'
       horario_cierre: '2052-10-28'
       politica_cancelacion: 22
       deposito_no_show_umbral: 7
@@ -4233,7 +4233,7 @@ endpoints:
         name: email
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4244,7 +4244,7 @@ endpoints:
         name: sms
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4255,7 +4255,7 @@ endpoints:
         name: whatsapp
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4266,7 +4266,7 @@ endpoints:
         name: push
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4277,7 +4277,7 @@ endpoints:
         name: promociones
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4285,11 +4285,11 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       in_app: false
-      email: true
-      sms: false
-      whatsapp: true
-      push: true
-      promociones: true
+      email: false
+      sms: true
+      whatsapp: false
+      push: false
+      promociones: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -5977,7 +5977,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -6003,7 +6003,7 @@ endpoints:
       precio_compra: 77
       descripcion: architecto
       tipo: architecto
-      activo: true
+      activo: false
       active: false
     fileParameters: []
     responses: []

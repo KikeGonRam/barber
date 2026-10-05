@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Throwable;
 
 /**
@@ -38,6 +39,7 @@ class AuthController extends Controller
      * @bodyParam email string required El correo del usuario. Example: cliente@urbanblade.com
      * @bodyParam password string required La contraseña del usuario. Example: password123
      * @bodyParam device_name string Nombre del dispositivo. Example: iPhone 15 Pro
+     * @bodyParam plataforma string Cliente que inicia sesión: `web` o `movil`. Define cuánto dura el token (config/auth.php: 30 días web, 180 móvil, deslizantes). Si se omite se infiere de device_name. Example: movil
      *
      * @responseFile docs/contrato/auth-login.200.json
      *
@@ -51,6 +53,7 @@ class AuthController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
             'device_name' => ['nullable', 'string', 'max:100'],
+            'plataforma' => ['nullable', 'string', Rule::in(MobileApiToken::PLATAFORMAS)],
         ]);
 
         $user = User::query()->where('email', $credentials['email'])->first();
@@ -68,12 +71,13 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $issued = $user->issueMobileApiToken($credentials['device_name'] ?? 'Mobile App');
+        $issued = $user->issueMobileApiToken($credentials['device_name'] ?? 'Mobile App', null, null, $credentials['plataforma'] ?? null);
 
         return response()->json([
             'message' => 'Autenticación exitosa.',
             'token_type' => 'Bearer',
             'token' => $issued['token'],
+            'expires_at' => $issued['token_model']->expires_at?->toISOString(),
             'user' => new UserResource($user),
         ]);
     }
@@ -90,6 +94,7 @@ class AuthController extends Controller
      * @bodyParam password string required Al menos 8 caracteres. Example: password123
      * @bodyParam password_confirmation string required Debe coincidir con password. Example: password123
      * @bodyParam device_name string Nombre del dispositivo. Example: Android Emulator
+     * @bodyParam plataforma string Cliente que se registra: `web` o `movil` (ver login). Example: movil
      *
      * @response 201 {
      *  "message": "Registro exitoso.",
@@ -105,6 +110,7 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'device_name' => ['nullable', 'string', 'max:100'],
+            'plataforma' => ['nullable', 'string', Rule::in(MobileApiToken::PLATAFORMAS)],
         ]);
 
         // El primer usuario físico de la base (incluso si hubo cuentas
@@ -158,12 +164,13 @@ class AuthController extends Controller
         event(new Registered($user));
 
         // Generate token for immediate login
-        $issued = $user->issueMobileApiToken($validated['device_name'] ?? 'Mobile App');
+        $issued = $user->issueMobileApiToken($validated['device_name'] ?? 'Mobile App', null, null, $validated['plataforma'] ?? null);
 
         return response()->json([
             'message' => 'Cuenta creada exitosamente.',
             'token_type' => 'Bearer',
             'token' => $issued['token'],
+            'expires_at' => $issued['token_model']->expires_at?->toISOString(),
             'user' => new UserResource($user),
         ], 201);
     }
@@ -230,11 +237,12 @@ class AuthController extends Controller
                 ->where('name', 'Dashboard Web')
                 ->delete();
 
-            // Nuevo token que expira en 30 días
+            // Nuevo token web: su vigencia sale de config/auth.php (api_token_ttl_days.web)
             $issued = $user->issueMobileApiToken(
                 'Dashboard Web',
                 ['*'],
-                now()->addDays(30)
+                null,
+                MobileApiToken::PLATAFORMA_WEB
             );
 
             return response()->json([
@@ -302,11 +310,13 @@ class AuthController extends Controller
         // Revocar token actual
         $currentToken->delete();
 
-        // Emitir nuevo token con expiración de 6 meses
+        // El nuevo token conserva la plataforma del anterior (un token web sigue
+        // siendo web) y con ella su vigencia (config/auth.php, api_token_ttl_days).
         $issued = $user->issueMobileApiToken(
             $currentToken->name ?? 'Mobile App',
             $currentToken->abilities ?? ['*'],
-            now()->addMonths(6)
+            null,
+            $currentToken->plataformaEfectiva()
         );
 
         return response()->json([

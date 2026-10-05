@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\Client;
+use App\Models\MobileApiToken;
 use App\Models\Role;
 use App\Models\User;
 use Firebase\JWT\JWK;
@@ -100,7 +101,13 @@ class SocialAuthController extends Controller
             return redirect($target === 'spark' ? "{$sparkUrl}/?google_error=retry" : "{$frontendUrl}/login?error=google_retry");
         }
 
-        $issued = $user->issueMobileApiToken($target === 'spark' ? 'Google OAuth (spark)' : 'Google OAuth');
+        // El callback por redirección siempre vuelve a un navegador (Nuxt o el panel de spark).
+        $issued = $user->issueMobileApiToken(
+            $target === 'spark' ? 'Google OAuth (spark)' : 'Google OAuth',
+            null,
+            null,
+            MobileApiToken::PLATAFORMA_WEB,
+        );
 
         if ($target === 'spark') {
             return redirect("{$sparkUrl}/?google_token={$issued['token']}");
@@ -165,12 +172,13 @@ class SocialAuthController extends Controller
             return response()->json(['message' => 'No se pudo completar el inicio de sesión, intenta de nuevo.'], 409);
         }
 
-        $issued = $user->issueMobileApiToken('Google Android');
+        $issued = $user->issueMobileApiToken('Google Android', null, null, MobileApiToken::PLATAFORMA_MOVIL);
 
         return response()->json([
             'message' => 'Autenticación exitosa.',
             'token_type' => 'Bearer',
             'token' => $issued['token'],
+            'expires_at' => $issued['token_model']->expires_at?->toISOString(),
             'user' => new UserResource($user),
         ]);
     }
