@@ -108,12 +108,23 @@ paths:
                 example:
                   message: 'Autenticación exitosa.'
                   token_type: Bearer
-                  token: 1|abc123def456...
+                  token: TOKEN_DE_EJEMPLO
                   user:
-                    id: 1
+                    id: 6710a1b2c3d4e5f607182930
                     name: 'Juan Pérez'
                     email: juan@example.com
-                    role: cliente
+                    avatar_url: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                    roles:
+                      - cliente
+                    profile_complete: true
+                    profile_missing:
+                      - telefono
+                    client_id: 6710a1b2c3d4e5f607182931
+                    barber_id: 6710a1b2c3d4e5f607182932
+                    client:
+                      telefono: '5512345678'
+                      fecha_nacimiento: '1995-04-12'
+                      sexo: masculino
                 properties:
                   message:
                     type: string
@@ -123,22 +134,75 @@ paths:
                     example: Bearer
                   token:
                     type: string
-                    example: 1|abc123def456...
+                    example: TOKEN_DE_EJEMPLO
                   user:
                     type: object
                     properties:
                       id:
-                        type: integer
-                        example: 1
+                        type: string
+                        example: 6710a1b2c3d4e5f607182930
                       name:
                         type: string
                         example: 'Juan Pérez'
                       email:
                         type: string
                         example: juan@example.com
-                      role:
+                      avatar_url:
                         type: string
-                        example: cliente
+                        example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                      roles:
+                        type: array
+                        example:
+                          - cliente
+                        items:
+                          type: string
+                      profile_complete:
+                        type: boolean
+                        example: true
+                      profile_missing:
+                        type: array
+                        example:
+                          - telefono
+                        items:
+                          type: string
+                      client_id:
+                        type: string
+                        example: 6710a1b2c3d4e5f607182931
+                      barber_id:
+                        type: string
+                        example: 6710a1b2c3d4e5f607182932
+                      client:
+                        type: object
+                        properties:
+                          telefono:
+                            type: string
+                            example: '5512345678'
+                          fecha_nacimiento:
+                            type: string
+                            example: '1995-04-12'
+                          sexo:
+                            type: string
+                            example: masculino
+                        required:
+                          - telefono
+                          - fecha_nacimiento
+                          - sexo
+                    required:
+                      - id
+                      - name
+                      - email
+                      - avatar_url
+                      - roles
+                      - profile_complete
+                      - profile_missing
+                      - client_id
+                      - barber_id
+                      - client
+                required:
+                  - message
+                  - token_type
+                  - token
+                  - user
         422:
           description: ''
           content:
@@ -367,26 +431,112 @@ paths:
       security: []
   /api/v1/auth/me:
     get:
-      summary: 'Devuelve los datos del usuario autenticado (según el token Bearer enviado).'
-      operationId: devuelveLosDatosDelUsuarioAutenticadosegnElTokenBearerEnviado
-      description: ''
+      summary: 'Usuario autenticado'
+      operationId: usuarioAutenticado
+      description: 'Devuelve los datos del usuario autenticado (según el token Bearer enviado).'
       parameters: []
       responses:
-        401:
+        200:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No autorizado.'
+                  user:
+                    id: 6710a1b2c3d4e5f607182930
+                    name: 'Juan Pérez'
+                    email: juan@example.com
+                    avatar_url: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                    roles:
+                      - cliente
+                    profile_complete: true
+                    profile_missing:
+                      - telefono
+                    client_id: 6710a1b2c3d4e5f607182931
+                    barber_id: 6710a1b2c3d4e5f607182932
+                    client:
+                      telefono: '5512345678'
+                      fecha_nacimiento: '1995-04-12'
+                      sexo: masculino
+                      descuento_activo_pct: 10
+                  sesion_con_google: false
                 properties:
-                  message:
-                    type: string
-                    example: 'No autorizado.'
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 6710a1b2c3d4e5f607182930
+                      name:
+                        type: string
+                        example: 'Juan Pérez'
+                      email:
+                        type: string
+                        example: juan@example.com
+                      avatar_url:
+                        type: string
+                        example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                      roles:
+                        type: array
+                        example:
+                          - cliente
+                        items:
+                          type: string
+                      profile_complete:
+                        type: boolean
+                        example: true
+                      profile_missing:
+                        type: array
+                        example:
+                          - telefono
+                        items:
+                          type: string
+                      client_id:
+                        type: string
+                        example: 6710a1b2c3d4e5f607182931
+                      barber_id:
+                        type: string
+                        example: 6710a1b2c3d4e5f607182932
+                      client:
+                        type: object
+                        properties:
+                          telefono:
+                            type: string
+                            example: '5512345678'
+                          fecha_nacimiento:
+                            type: string
+                            example: '1995-04-12'
+                          sexo:
+                            type: string
+                            example: masculino
+                          descuento_activo_pct:
+                            type: integer
+                            example: 10
+                        required:
+                          - telefono
+                          - fecha_nacimiento
+                          - sexo
+                          - descuento_activo_pct
+                    required:
+                      - id
+                      - name
+                      - email
+                      - avatar_url
+                      - roles
+                      - profile_complete
+                      - profile_missing
+                      - client_id
+                      - barber_id
+                      - client
+                  sesion_con_google:
+                    type: boolean
+                    example: false
+                required:
+                  - user
+                  - sesion_con_google
       tags:
         - Autenticación
-      security: []
   /api/v1/auth/logout:
     post:
       summary: 'Revoca el token móvil actual (el middleware de auth lo deja en request->attributes).'
@@ -581,88 +731,627 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                example:
-                  data:
-                    -
-                      id: 1
-                      client_id: 10
-                      barber_id: 2
-                      service_id: 5
-                      fecha: '2026-04-15'
-                      hora_inicio: '10:00:00'
-                      hora_fin: '11:00:00'
-                      estado: confirmada
-                      notas: 'Corte de cabello degradado.'
-                      client_name: 'Juan Pérez'
-                      barber_name: 'Carlos Barbero'
-                      service_name: 'Corte Clásico'
-                      service_duration: 60
-                      created_at: '2026-04-10T15:00:00Z'
-                properties:
-                  data:
-                    type: array
+                oneOf:
+                  -
+                    description: 'Administración, recepción y barbero'
+                    type: object
                     example:
-                      -
-                        id: 1
-                        client_id: 10
-                        barber_id: 2
-                        service_id: 5
-                        fecha: '2026-04-15'
+                      data:
+                        -
+                          id: 6710a1b2c3d4e5f607182940
+                          code: jfb7ffye
+                          fecha: '2026-10-15'
+                          hora_inicio: '10:00:00'
+                          hora_fin: '10:30:00'
+                          estado: confirmada
+                          notas: 'Traer foto de referencia.'
+                          precio_cobrado: 250
+                          propina_sugerida: 25
+                          has_payment: false
+                          is_chargeable: true
+                          reminder_24h_sent: false
+                          reminder_2h_sent: false
+                          deposito_requerido: true
+                          deposito_monto: 100
+                          deposito_estado: pagado
+                          client:
+                            id: 6710a1b2c3d4e5f607182931
+                            user:
+                              name: 'Juan Pérez'
+                              avatar_url: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                          barber:
+                            id: 6710a1b2c3d4e5f607182932
+                            slug: carlos-barbero
+                            user:
+                              name: 'Carlos Barbero'
+                            foto_url: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                          service:
+                            id: 6710a1b2c3d4e5f607182933
+                            nombre: 'Corte Clásico'
+                            precio: 250
+                            duracion_min: 30
+                    properties:
+                      data:
+                        type: array
+                        example:
+                          -
+                            id: 6710a1b2c3d4e5f607182940
+                            code: jfb7ffye
+                            fecha: '2026-10-15'
+                            hora_inicio: '10:00:00'
+                            hora_fin: '10:30:00'
+                            estado: confirmada
+                            notas: 'Traer foto de referencia.'
+                            precio_cobrado: 250
+                            propina_sugerida: 25
+                            has_payment: false
+                            is_chargeable: true
+                            reminder_24h_sent: false
+                            reminder_2h_sent: false
+                            deposito_requerido: true
+                            deposito_monto: 100
+                            deposito_estado: pagado
+                            client:
+                              id: 6710a1b2c3d4e5f607182931
+                              user:
+                                name: 'Juan Pérez'
+                                avatar_url: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                            barber:
+                              id: 6710a1b2c3d4e5f607182932
+                              slug: carlos-barbero
+                              user:
+                                name: 'Carlos Barbero'
+                              foto_url: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                            service:
+                              id: 6710a1b2c3d4e5f607182933
+                              nombre: 'Corte Clásico'
+                              precio: 250
+                              duracion_min: 30
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 6710a1b2c3d4e5f607182940
+                            code:
+                              type: string
+                              example: jfb7ffye
+                            fecha:
+                              type: string
+                              example: '2026-10-15'
+                            hora_inicio:
+                              type: string
+                              example: '10:00:00'
+                            hora_fin:
+                              type: string
+                              example: '10:30:00'
+                            estado:
+                              type: string
+                              example: confirmada
+                            notas:
+                              type: string
+                              example: 'Traer foto de referencia.'
+                            precio_cobrado:
+                              type: integer
+                              example: 250
+                            propina_sugerida:
+                              type: integer
+                              example: 25
+                            has_payment:
+                              type: boolean
+                              example: false
+                            is_chargeable:
+                              type: boolean
+                              example: true
+                            reminder_24h_sent:
+                              type: boolean
+                              example: false
+                            reminder_2h_sent:
+                              type: boolean
+                              example: false
+                            deposito_requerido:
+                              type: boolean
+                              example: true
+                            deposito_monto:
+                              type: integer
+                              example: 100
+                            deposito_estado:
+                              type: string
+                              example: pagado
+                            client:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  example: 6710a1b2c3d4e5f607182931
+                                user:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                      example: 'Juan Pérez'
+                                    avatar_url:
+                                      type: string
+                                      example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                                  required:
+                                    - name
+                                    - avatar_url
+                              required:
+                                - id
+                                - user
+                            barber:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  example: 6710a1b2c3d4e5f607182932
+                                slug:
+                                  type: string
+                                  example: carlos-barbero
+                                user:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                      example: 'Carlos Barbero'
+                                  required:
+                                    - name
+                                foto_url:
+                                  type: string
+                                  example: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                              required:
+                                - id
+                                - slug
+                                - user
+                                - foto_url
+                            service:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  example: 6710a1b2c3d4e5f607182933
+                                nombre:
+                                  type: string
+                                  example: 'Corte Clásico'
+                                precio:
+                                  type: integer
+                                  example: 250
+                                duracion_min:
+                                  type: integer
+                                  example: 30
+                              required:
+                                - id
+                                - nombre
+                                - precio
+                                - duracion_min
+                          required:
+                            - id
+                            - code
+                            - fecha
+                            - hora_inicio
+                            - hora_fin
+                            - estado
+                            - notas
+                            - precio_cobrado
+                            - propina_sugerida
+                            - has_payment
+                            - is_chargeable
+                            - reminder_24h_sent
+                            - reminder_2h_sent
+                            - deposito_requerido
+                            - deposito_monto
+                            - deposito_estado
+                            - client
+                            - barber
+                            - service
+                    required:
+                      - data
+                  -
+                    description: 'Cliente (agrega stats, next y cancellation_policy_hours)'
+                    type: object
+                    example:
+                      data:
+                        -
+                          id: 6710a1b2c3d4e5f607182940
+                          code: jfb7ffye
+                          fecha: '2026-10-15'
+                          hora_inicio: '10:00:00'
+                          hora_fin: '10:30:00'
+                          estado: confirmada
+                          notas: 'Traer foto de referencia.'
+                          precio_cobrado: 250
+                          propina_sugerida: 25
+                          has_payment: false
+                          is_chargeable: true
+                          reminder_24h_sent: false
+                          reminder_2h_sent: false
+                          deposito_requerido: true
+                          deposito_monto: 100
+                          deposito_estado: pagado
+                          client:
+                            id: 6710a1b2c3d4e5f607182931
+                            user:
+                              name: 'Juan Pérez'
+                              avatar_url: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                          barber:
+                            id: 6710a1b2c3d4e5f607182932
+                            slug: carlos-barbero
+                            user:
+                              name: 'Carlos Barbero'
+                            foto_url: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                          service:
+                            id: 6710a1b2c3d4e5f607182933
+                            nombre: 'Corte Clásico'
+                            precio: 250
+                            duracion_min: 30
+                      stats:
+                        total: 8
+                        proximas: 2
+                        completadas: 5
+                        canceladas: 1
+                      next:
+                        id: 6710a1b2c3d4e5f607182940
+                        code: jfb7ffye
+                        fecha: '2026-10-15'
                         hora_inicio: '10:00:00'
-                        hora_fin: '11:00:00'
+                        hora_fin: '10:30:00'
                         estado: confirmada
-                        notas: 'Corte de cabello degradado.'
-                        client_name: 'Juan Pérez'
-                        barber_name: 'Carlos Barbero'
-                        service_name: 'Corte Clásico'
-                        service_duration: 60
-                        created_at: '2026-04-10T15:00:00Z'
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          example: 1
-                        client_id:
-                          type: integer
-                          example: 10
-                        barber_id:
-                          type: integer
-                          example: 2
-                        service_id:
-                          type: integer
-                          example: 5
-                        fecha:
-                          type: string
-                          example: '2026-04-15'
-                        hora_inicio:
-                          type: string
-                          example: '10:00:00'
-                        hora_fin:
-                          type: string
-                          example: '11:00:00'
-                        estado:
-                          type: string
-                          example: confirmada
-                        notas:
-                          type: string
-                          example: 'Corte de cabello degradado.'
-                        client_name:
-                          type: string
-                          example: 'Juan Pérez'
-                        barber_name:
-                          type: string
-                          example: 'Carlos Barbero'
-                        service_name:
-                          type: string
-                          example: 'Corte Clásico'
-                        service_duration:
-                          type: integer
-                          example: 60
-                        created_at:
-                          type: string
-                          example: '2026-04-10T15:00:00Z'
+                        notas: 'Traer foto de referencia.'
+                        precio_cobrado: 250
+                        propina_sugerida: 25
+                        reminder_24h_sent: false
+                        reminder_2h_sent: false
+                        deposito_requerido: true
+                        deposito_monto: 100
+                        deposito_estado: pagado
+                        client:
+                          id: 6710a1b2c3d4e5f607182931
+                          user:
+                            name: 'Juan Pérez'
+                            avatar_url: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                        barber:
+                          id: 6710a1b2c3d4e5f607182932
+                          slug: carlos-barbero
+                          user:
+                            name: 'Carlos Barbero'
+                          foto_url: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                        service:
+                          id: 6710a1b2c3d4e5f607182933
+                          nombre: 'Corte Clásico'
+                          precio: 250
+                          duracion_min: 30
+                      cancellation_policy_hours: 24
+                    properties:
+                      data:
+                        type: array
+                        example:
+                          -
+                            id: 6710a1b2c3d4e5f607182940
+                            code: jfb7ffye
+                            fecha: '2026-10-15'
+                            hora_inicio: '10:00:00'
+                            hora_fin: '10:30:00'
+                            estado: confirmada
+                            notas: 'Traer foto de referencia.'
+                            precio_cobrado: 250
+                            propina_sugerida: 25
+                            has_payment: false
+                            is_chargeable: true
+                            reminder_24h_sent: false
+                            reminder_2h_sent: false
+                            deposito_requerido: true
+                            deposito_monto: 100
+                            deposito_estado: pagado
+                            client:
+                              id: 6710a1b2c3d4e5f607182931
+                              user:
+                                name: 'Juan Pérez'
+                                avatar_url: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                            barber:
+                              id: 6710a1b2c3d4e5f607182932
+                              slug: carlos-barbero
+                              user:
+                                name: 'Carlos Barbero'
+                              foto_url: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                            service:
+                              id: 6710a1b2c3d4e5f607182933
+                              nombre: 'Corte Clásico'
+                              precio: 250
+                              duracion_min: 30
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 6710a1b2c3d4e5f607182940
+                            code:
+                              type: string
+                              example: jfb7ffye
+                            fecha:
+                              type: string
+                              example: '2026-10-15'
+                            hora_inicio:
+                              type: string
+                              example: '10:00:00'
+                            hora_fin:
+                              type: string
+                              example: '10:30:00'
+                            estado:
+                              type: string
+                              example: confirmada
+                            notas:
+                              type: string
+                              example: 'Traer foto de referencia.'
+                            precio_cobrado:
+                              type: integer
+                              example: 250
+                            propina_sugerida:
+                              type: integer
+                              example: 25
+                            has_payment:
+                              type: boolean
+                              example: false
+                            is_chargeable:
+                              type: boolean
+                              example: true
+                            reminder_24h_sent:
+                              type: boolean
+                              example: false
+                            reminder_2h_sent:
+                              type: boolean
+                              example: false
+                            deposito_requerido:
+                              type: boolean
+                              example: true
+                            deposito_monto:
+                              type: integer
+                              example: 100
+                            deposito_estado:
+                              type: string
+                              example: pagado
+                            client:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  example: 6710a1b2c3d4e5f607182931
+                                user:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                      example: 'Juan Pérez'
+                                    avatar_url:
+                                      type: string
+                                      example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                                  required:
+                                    - name
+                                    - avatar_url
+                              required:
+                                - id
+                                - user
+                            barber:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  example: 6710a1b2c3d4e5f607182932
+                                slug:
+                                  type: string
+                                  example: carlos-barbero
+                                user:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                      example: 'Carlos Barbero'
+                                  required:
+                                    - name
+                                foto_url:
+                                  type: string
+                                  example: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                              required:
+                                - id
+                                - slug
+                                - user
+                                - foto_url
+                            service:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  example: 6710a1b2c3d4e5f607182933
+                                nombre:
+                                  type: string
+                                  example: 'Corte Clásico'
+                                precio:
+                                  type: integer
+                                  example: 250
+                                duracion_min:
+                                  type: integer
+                                  example: 30
+                              required:
+                                - id
+                                - nombre
+                                - precio
+                                - duracion_min
+                          required:
+                            - id
+                            - code
+                            - fecha
+                            - hora_inicio
+                            - hora_fin
+                            - estado
+                            - notas
+                            - precio_cobrado
+                            - propina_sugerida
+                            - has_payment
+                            - is_chargeable
+                            - reminder_24h_sent
+                            - reminder_2h_sent
+                            - deposito_requerido
+                            - deposito_monto
+                            - deposito_estado
+                            - client
+                            - barber
+                            - service
+                      stats:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 8
+                          proximas:
+                            type: integer
+                            example: 2
+                          completadas:
+                            type: integer
+                            example: 5
+                          canceladas:
+                            type: integer
+                            example: 1
+                        required:
+                          - total
+                          - proximas
+                          - completadas
+                          - canceladas
+                      next:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: 6710a1b2c3d4e5f607182940
+                          code:
+                            type: string
+                            example: jfb7ffye
+                          fecha:
+                            type: string
+                            example: '2026-10-15'
+                          hora_inicio:
+                            type: string
+                            example: '10:00:00'
+                          hora_fin:
+                            type: string
+                            example: '10:30:00'
+                          estado:
+                            type: string
+                            example: confirmada
+                          notas:
+                            type: string
+                            example: 'Traer foto de referencia.'
+                          precio_cobrado:
+                            type: integer
+                            example: 250
+                          propina_sugerida:
+                            type: integer
+                            example: 25
+                          reminder_24h_sent:
+                            type: boolean
+                            example: false
+                          reminder_2h_sent:
+                            type: boolean
+                            example: false
+                          deposito_requerido:
+                            type: boolean
+                            example: true
+                          deposito_monto:
+                            type: integer
+                            example: 100
+                          deposito_estado:
+                            type: string
+                            example: pagado
+                          client:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                example: 6710a1b2c3d4e5f607182931
+                              user:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    example: 'Juan Pérez'
+                                  avatar_url:
+                                    type: string
+                                    example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                                required:
+                                  - name
+                                  - avatar_url
+                            required:
+                              - id
+                              - user
+                          barber:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                example: 6710a1b2c3d4e5f607182932
+                              slug:
+                                type: string
+                                example: carlos-barbero
+                              user:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    example: 'Carlos Barbero'
+                                required:
+                                  - name
+                              foto_url:
+                                type: string
+                                example: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                            required:
+                              - id
+                              - slug
+                              - user
+                              - foto_url
+                          service:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                example: 6710a1b2c3d4e5f607182933
+                              nombre:
+                                type: string
+                                example: 'Corte Clásico'
+                              precio:
+                                type: integer
+                                example: 250
+                              duracion_min:
+                                type: integer
+                                example: 30
+                            required:
+                              - id
+                              - nombre
+                              - precio
+                              - duracion_min
+                        required:
+                          - id
+                          - code
+                          - fecha
+                          - hora_inicio
+                          - hora_fin
+                          - estado
+                          - notas
+                          - precio_cobrado
+                          - propina_sugerida
+                          - reminder_24h_sent
+                          - reminder_2h_sent
+                          - deposito_requerido
+                          - deposito_monto
+                          - deposito_estado
+                          - client
+                          - barber
+                          - service
+                      cancellation_policy_hours:
+                        type: integer
+                        example: 24
+                    required:
+                      - data
+                      - stats
+                      - next
+                      - cancellation_policy_hours
       tags:
         - Citas
     post:
@@ -674,10 +1363,250 @@ paths:
         201:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                example: "{\n \"message\": \"Cita creada correctamente.\",\n \"data\": { \"id\": 1, \"estado\": \"confirmada\", ... }\n}"
+                type: object
+                example:
+                  message: 'Cita creada correctamente.'
+                  data:
+                    id: 6710a1b2c3d4e5f607182940
+                    code: jfb7ffye
+                    fecha: '2026-10-15'
+                    hora_inicio: '10:00:00'
+                    hora_fin: '10:30:00'
+                    estado: pendiente
+                    notas: 'Traer foto de referencia.'
+                    precio_cobrado: 250
+                    propina_sugerida: 25
+                    reminder_24h_sent: false
+                    reminder_2h_sent: false
+                    deposito_requerido: false
+                    deposito_monto: 100
+                    deposito_estado: pagado
+                    client:
+                      id: 6710a1b2c3d4e5f607182931
+                      user:
+                        name: 'Juan Pérez'
+                        avatar_url: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                    barber:
+                      id: 6710a1b2c3d4e5f607182932
+                      slug: carlos-barbero
+                      user:
+                        name: 'Carlos Barbero'
+                      foto_url: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                    service:
+                      id: 6710a1b2c3d4e5f607182933
+                      nombre: 'Corte Clásico'
+                      precio: 250
+                      duracion_min: 30
+                  productos_agregados:
+                    id: 6710a1b2c3d4e5f607182950
+                    folio: P-K3X9QZ
+                    total: '120.00'
+                    items:
+                      -
+                        product_id: 6710a1b2c3d4e5f607182951
+                        nombre: 'Cera mate'
+                        precio: 120
+                        cantidad: 1
+                        subtotal: 120
+                  productos_error: 'Sin stock suficiente de Cera mate.'
+                  descuento_pct: 10
+                properties:
+                  message:
+                    type: string
+                    example: 'Cita creada correctamente.'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 6710a1b2c3d4e5f607182940
+                      code:
+                        type: string
+                        example: jfb7ffye
+                      fecha:
+                        type: string
+                        example: '2026-10-15'
+                      hora_inicio:
+                        type: string
+                        example: '10:00:00'
+                      hora_fin:
+                        type: string
+                        example: '10:30:00'
+                      estado:
+                        type: string
+                        example: pendiente
+                      notas:
+                        type: string
+                        example: 'Traer foto de referencia.'
+                      precio_cobrado:
+                        type: integer
+                        example: 250
+                      propina_sugerida:
+                        type: integer
+                        example: 25
+                      reminder_24h_sent:
+                        type: boolean
+                        example: false
+                      reminder_2h_sent:
+                        type: boolean
+                        example: false
+                      deposito_requerido:
+                        type: boolean
+                        example: false
+                      deposito_monto:
+                        type: integer
+                        example: 100
+                      deposito_estado:
+                        type: string
+                        example: pagado
+                      client:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: 6710a1b2c3d4e5f607182931
+                          user:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                example: 'Juan Pérez'
+                              avatar_url:
+                                type: string
+                                example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                            required:
+                              - name
+                              - avatar_url
+                        required:
+                          - id
+                          - user
+                      barber:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: 6710a1b2c3d4e5f607182932
+                          slug:
+                            type: string
+                            example: carlos-barbero
+                          user:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                example: 'Carlos Barbero'
+                            required:
+                              - name
+                          foto_url:
+                            type: string
+                            example: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                        required:
+                          - id
+                          - slug
+                          - user
+                          - foto_url
+                      service:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: 6710a1b2c3d4e5f607182933
+                          nombre:
+                            type: string
+                            example: 'Corte Clásico'
+                          precio:
+                            type: integer
+                            example: 250
+                          duracion_min:
+                            type: integer
+                            example: 30
+                        required:
+                          - id
+                          - nombre
+                          - precio
+                          - duracion_min
+                    required:
+                      - id
+                      - code
+                      - fecha
+                      - hora_inicio
+                      - hora_fin
+                      - estado
+                      - notas
+                      - precio_cobrado
+                      - propina_sugerida
+                      - reminder_24h_sent
+                      - reminder_2h_sent
+                      - deposito_requerido
+                      - deposito_monto
+                      - deposito_estado
+                      - client
+                      - barber
+                      - service
+                  productos_agregados:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 6710a1b2c3d4e5f607182950
+                      folio:
+                        type: string
+                        example: P-K3X9QZ
+                      total:
+                        type: string
+                        example: '120.00'
+                      items:
+                        type: array
+                        example:
+                          -
+                            product_id: 6710a1b2c3d4e5f607182951
+                            nombre: 'Cera mate'
+                            precio: 120
+                            cantidad: 1
+                            subtotal: 120
+                        items:
+                          type: object
+                          properties:
+                            product_id:
+                              type: string
+                              example: 6710a1b2c3d4e5f607182951
+                            nombre:
+                              type: string
+                              example: 'Cera mate'
+                            precio:
+                              type: integer
+                              example: 120
+                            cantidad:
+                              type: integer
+                              example: 1
+                            subtotal:
+                              type: integer
+                              example: 120
+                          required:
+                            - product_id
+                            - nombre
+                            - precio
+                            - cantidad
+                            - subtotal
+                    required:
+                      - id
+                      - folio
+                      - total
+                      - items
+                  productos_error:
+                    type: string
+                    example: 'Sin stock suficiente de Cera mate.'
+                  descuento_pct:
+                    type: integer
+                    example: 10
+                required:
+                  - message
+                  - data
+                  - productos_agregados
+                  - productos_error
+                  - descuento_pct
         403:
           description: ''
           content:
@@ -712,13 +1641,13 @@ paths:
               type: object
               properties:
                 barber_id:
-                  type: integer
-                  description: 'El ID del barbero.'
-                  example: 2
+                  type: string
+                  description: 'El id del barbero (ObjectId de Mongo, string).'
+                  example: 6710a1b2c3d4e5f607182932
                 service_id:
-                  type: integer
-                  description: 'El ID del servicio.'
-                  example: 5
+                  type: string
+                  description: 'El id del servicio (ObjectId de Mongo, string).'
+                  example: 6710a1b2c3d4e5f607182933
                 fecha:
                   type: date
                   description: 'La fecha de la cita (YYYY-MM-DD).'
@@ -734,20 +1663,21 @@ paths:
                   nullable: true
                 productos:
                   type: array
-                  description: "Productos que el cliente quiere agregar a su cita (ej. la cera\nque vio en la tienda) -- opcional, se procesa como un Order\naparte (tipo 'cita') para no acoplar inventario a la creación\nde la cita en sí; si falla, la cita igual se crea (ver abajo)."
-                  example: null
+                  description: 'Opcional. Productos a agregar a la cita; si alguno no tiene stock la cita se crea igual y `productos_error` lo explica.'
+                  example:
+                    - []
                   items:
                     type: object
                     nullable: true
                     properties:
                       product_id:
                         type: string
-                        description: 'This field is required when <code>productos</code> is present.'
-                        example: architecto
+                        description: 'required_with:productos Id del producto.'
+                        example: 6710a1b2c3d4e5f607182951
                       cantidad:
                         type: integer
-                        description: 'This field is required when <code>productos</code> is present. El campo value debe ser al menos 1.'
-                        example: 22
+                        description: 'required_with:productos Unidades (mínimo 1).'
+                        example: 1
                 propina_sugerida:
                   type: number
                   description: "Propina sugerida por el cliente al reservar: solo referencia\npara el staff al cobrar (ver comentario en el modelo). No se\ncobra nada aqui -- PaymentService sigue siendo la autoridad. El campo value debe ser al menos 0."
@@ -759,9 +1689,9 @@ paths:
                   example: true
                   nullable: true
                 client_id:
-                  type: integer
-                  description: 'Requerido solo para Admin/Recepcionista. ID del cliente.'
-                  example: 10
+                  type: string
+                  description: 'Requerido solo para Admin/Recepcionista. Id del cliente (ObjectId de Mongo, string).'
+                  example: 6710a1b2c3d4e5f607182931
                 estado:
                   type: string
                   description: 'Requerido solo para Admin/Recepcionista. Uno de: pendiente, confirmada, en_proceso, completada, cancelada, no_asistio.'
@@ -846,15 +1776,15 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-25'
+                  example: '2052-10-28'
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '22:21'
+                  example: '00:26'
                 estado:
                   type: string
                   description: ''
-                  example: en_proceso
+                  example: pendiente
                   enum:
                     - pendiente
                     - confirmada
@@ -1016,14 +1946,14 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: day
+                  example: week
                   enum:
                     - day
                     - week
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: pendiente
                   enum:
                     - pendiente
                     - confirmada
@@ -1344,7 +2274,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-25'
+                  example: '2052-10-28'
               required:
                 - barber_id
                 - service_id
@@ -1580,7 +2510,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-25'
+                  example: '2052-10-28'
               required:
                 - barber_id
                 - service_id
@@ -1810,7 +2740,7 @@ paths:
                 usar_premio_rifa:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 usar_paquete_id:
                   type: string
@@ -1906,7 +2836,7 @@ paths:
                 tarjeta_guardada:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - appointment_id
@@ -1974,7 +2904,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: efectivo
+                  example: transferencia
                   enum:
                     - efectivo
                     - tarjeta
@@ -2175,7 +3105,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2306,7 +3236,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -2349,7 +3279,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -2432,7 +3362,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-10-02T22:21:43'
+                  example: '2026-10-05T00:26:36'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -2490,7 +3420,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-10-02T22:21:43'
+                  example: '2026-10-05T00:26:36'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -2651,7 +3581,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -2929,12 +3859,12 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '22:21'
+                  example: '00:26'
                   nullable: true
                 horario_cierre:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>. El campo value debe ser una fecha posterior a <code>horario_apertura</code>.'
-                  example: '2052-10-25'
+                  example: '2052-10-28'
                   nullable: true
                 politica_cancelacion:
                   type: integer
@@ -3068,7 +3998,7 @@ paths:
                 programada_para:
                   type: string
                   description: 'This field is required when <code>modo</code> is <code>programar</code>. El campo value no es una fecha válida. El campo value debe ser una fecha posterior a <code>now</code>.'
-                  example: '2052-10-26'
+                  example: '2052-10-28'
                   nullable: true
               required:
                 - titulo
@@ -3335,15 +4265,15 @@ paths:
                 in_app:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 whatsapp:
                   type: boolean
                   description: ''
@@ -3355,7 +4285,7 @@ paths:
                 promociones:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
       security: []
   /api/v1/push/vapid-public-key:
     get:
@@ -3973,7 +4903,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 comision_pct:
                   type: number
                   description: 'El campo value debe ser al menos 0. El campo value no debe ser mayor que 100.'
@@ -4277,12 +5207,12 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -4371,7 +5301,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -5508,12 +6438,12 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -5581,7 +6511,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 activo:
                   type: boolean
@@ -5749,7 +6679,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-10-02T22:21:43'
+                  example: '2026-10-05T00:26:36'
                   nullable: true
               required:
                 - product_id

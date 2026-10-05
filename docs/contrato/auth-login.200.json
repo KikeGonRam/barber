@@ -1,0 +1,21 @@
+{
+    "message": "Autenticación exitosa.",
+    "token_type": "Bearer",
+    "token": "TOKEN_DE_EJEMPLO",
+    "user": {
+        "id": "6710a1b2c3d4e5f607182930",
+        "name": "Juan Pérez",
+        "email": "juan@example.com",
+        "avatar_url": "https://urbanblade.example/storage/avatars/juan.jpg",
+        "roles": ["cliente"],
+        "profile_complete": true,
+        "profile_missing": ["telefono"],
+        "client_id": "6710a1b2c3d4e5f607182931",
+        "barber_id": "6710a1b2c3d4e5f607182932",
+        "client": {
+            "telefono": "5512345678",
+            "fecha_nacimiento": "1995-04-12",
+            "sexo": "masculino"
+        }
+    }
+}

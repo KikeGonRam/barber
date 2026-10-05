@@ -39,12 +39,8 @@ class AuthController extends Controller
      * @bodyParam password string required La contraseña del usuario. Example: password123
      * @bodyParam device_name string Nombre del dispositivo. Example: iPhone 15 Pro
      *
-     * @response {
-     *  "message": "Autenticación exitosa.",
-     *  "token_type": "Bearer",
-     *  "token": "1|abc123def456...",
-     *  "user": { "id": 1, "name": "Juan Pérez", "email": "juan@example.com", "role": "cliente" }
-     * }
+     * @responseFile docs/contrato/auth-login.200.json
+     *
      * @response 422 {
      *  "message": "Las credenciales no son válidas."
      * }
@@ -173,7 +169,13 @@ class AuthController extends Controller
     }
 
     /**
+     * Usuario autenticado
+     *
      * Devuelve los datos del usuario autenticado (según el token Bearer enviado).
+     *
+     * @authenticated
+     *
+     * @responseFile docs/contrato/auth-me.200.json
      */
     public function me(Request $request): JsonResponse
     {

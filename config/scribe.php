@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Docs\ContractRequiredFieldsGenerator;
 use Knuckles\Scribe\Config\AuthIn;
 use Knuckles\Scribe\Config\Defaults;
 use Knuckles\Scribe\Extracting\Strategies;
@@ -168,7 +169,10 @@ return [
 
         // Additional generators to use when generating the OpenAPI spec.
         // Should extend `Knuckles\Scribe\Writing\OpenApiSpecGenerators\OpenApiGenerator`.
-        'generators' => [],
+        'generators' => [
+            // Marca `required` en las respuestas atadas a docs/contrato/*.json (ver la clase).
+            ContractRequiredFieldsGenerator::class,
+        ],
     ],
 
     'groups' => [
