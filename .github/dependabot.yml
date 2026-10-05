@@ -1,0 +1,75 @@
+# Dependabot (HT-08 / TT22): PR semanales con actualizaciones de dependencias.
+#
+# Proceso de actualización:
+# 1. Dependabot abre los PR los lunes. Menores y parches van agrupados en un
+#    solo PR por ecosistema; cada versión mayor llega en su propio PR.
+# 2. El CI de cada PR tiene que pasar antes de fusionar: Pint, Larastan,
+#    PHPUnit, composer audit, ESLint + build + npm audit, Gitleaks, Trivy y
+#    el smoke test. Una versión mayor (Laravel, PHP, laravel-mongodb, Stripe)
+#    se revisa además con su guía de migración y se corre .\test.ps1 en local.
+# 3. Los PR de la imagen base (php:8.4-fpm) no los cubre el CI de staging:
+#    antes de fusionarlos se construye .docker/staging/Dockerfile en local y,
+#    ya fusionado, se despliega con el agente urbanblade-deploy.
+# 4. Los PR de seguridad inmediatos (sin esperar al lunes) requieren activar
+#    "Dependabot alerts" y "Dependabot security updates" en Settings >
+#    Code security del repo; este archivo solo cubre las versiones.
+# 5. Si un aviso HIGH/CRITICAL no tiene versión corregida, se documenta en el
+#    PR o issue con fecha de revisión, nunca desactivando composer audit,
+#    npm audit ni Trivy.
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: America/Mexico_City
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(deps)
+    groups:
+      composer-menores:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: America/Mexico_City
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(deps)
+    groups:
+      npm-menores:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directories:
+      - /
+      - /.docker/staging
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: America/Mexico_City
+    commit-message:
+      prefix: chore(docker)
+    groups:
+      imagen-base:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: America/Mexico_City
+    commit-message:
+      prefix: chore(ci)
+    groups:
+      actions:
+        update-types: [minor, patch, major]
