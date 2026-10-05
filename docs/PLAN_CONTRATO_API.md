@@ -4,7 +4,12 @@
 > *"el contrato de API no se verifica"*.
 >
 > **Cerrado el 2026-10-02**: el spec se regeneró, coincide 160/160 con las rutas
-> reales, y el job de CI ya es bloqueante. Queda pendiente la generación de clientes.
+> reales, y el job de CI ya es bloqueante.
+>
+> **Actualizado el 2026-10-05** (T094 / HU-27, ver la skill `api-contract-plan`): las
+> *formas de respuesta* de auth y citas ya son verdaderas y están atadas a la API real
+> por `ApiContractTest`; el frontend genera sus tipos del spec y el CI lo verifica.
+> Quedan pendientes la ampliación a más endpoints y los DTO de Android.
 
 ## El problema
 
@@ -90,28 +95,45 @@ los valores de Atlas al arrancar, y con la caché puesta los `--env-file` no tie
 Resultado: **160 rutas reales = 160 paths en el spec**, comparador en código 0. El spec
 generado se escaneó en busca de credenciales antes de darlo por bueno: limpio.
 
-## Pendiente: generar los clientes desde el OpenAPI
+## Hecho el 2026-10-05: respuestas veraces y tipos generados (web)
 
-El entorno de trabajo no tiene salida a red para npm, y agregar una dependencia de
-generación de código a ciegas habría dejado el `package.json` apuntando a algo no
-instalable. Ahora que el spec es fiel, el camino es:
+El plan original pedía generar tipos del spec, pero al mirar el spec resultó que las
+**respuestas estaban inventadas** (ids `integer` donde Mongo da strings, `user.role` donde
+el API devuelve `user.roles`, citas planas en vez de `client{}`/`barber{}`/`service{}`):
+generar tipos de eso habría dado tipos falsos con aspecto oficial. Se resolvió así:
 
-**Web (`frontend-urban`):**
+- **barber** (PR #12): `docs/contrato/*.json` son los ejemplos que Scribe publica
+  (`@responseFile`) y los mismos contra los que `tests/Feature/ApiContractTest.php` compara
+  la respuesta real (mismo conjunto de claves y tipo JSON). `ContractRequiredFieldsGenerator`
+  marca `required` en esas respuestas, porque Scribe nunca lo emite y sin eso todo sale
+  opcional. Cubre `auth/login`, `auth/me`, `GET`/`POST /appointments`.
+- **frontend-urban** (PR #9): `contract/openapi.yaml` es una copia versionada del spec,
+  `app/types/api.d.ts` se genera con `openapi-typescript`, y el job `contract` del CI falla
+  si no corresponden (`npm run contract:check`) y avisa si la copia quedó atrás de
+  `barber@main` (`npm run contract:drift`). `app/types/contract.ts` corrige los `null`.
+- Al tipar salieron divergencias reales: `productos_agregados.total` es string
+  (`decimal:2`), el mock del E2E omitía `client`, y `descuento_activo_pct` solo viene en
+  `/me`.
 
-```bash
-npm install --save-dev openapi-typescript
-npx openapi-typescript ../barber/public/docs/openapi.yaml -o app/types/api.d.ts
-```
+**Lección:** un ejemplo con aspecto de secreto (`ub_3f9c...`) disparó GitGuardian y Sonar
+S6418; el token de ejemplo es `TOKEN_DE_EJEMPLO`.
+
+## Pendiente
 
 **Móvil (`UrbanBladeMobile`):** `openapi-generator` (generador `kotlin`) o
 `openapi-typescript` + conversión. La app ya tiene su contrato en
 `data/model/Models.kt`, `AccountModels.kt` y `ChatbotModels.kt`; conviene generar solo
-los DTO y no las capas de Retrofit, que ya funcionan.
+los DTO y no las capas de Retrofit, que ya funcionan. Solo sirve para los endpoints con
+ejemplo veraz.
+
+Resto del backlog (más endpoints, `operationId` ilegibles, `vue-tsc`, exclusiones de
+Sonar): ver la sección «Fase 4» de `.claude/skills/api-contract-plan/SKILL.md`.
 
 ## Orden recomendado
 
 1. ~~Regenerar el spec (`scribe:generate`) y commitearlo.~~ Hecho.
 2. ~~Volver bloqueante el job de contrato.~~ Hecho.
-3. Agregar un paso de generación de tipos en CI que falle si `app/types/api.d.ts`
-   queda desactualizado (mismo patrón que `git diff --exit-code`).
-4. Evaluar el mismo paso para los modelos Kotlin.
+3. ~~Agregar un paso de generación de tipos en CI que falle si `app/types/api.d.ts`
+   queda desactualizado.~~ Hecho (frontend-urban, `contract:check`).
+4. Evaluar el mismo paso para los modelos Kotlin (pendiente).
+5. Extender los ejemplos veraces a pagos, pedidos, dashboards, inventario y perfil.
