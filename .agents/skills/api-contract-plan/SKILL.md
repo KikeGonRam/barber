@@ -61,7 +61,7 @@ ejemplo veraz da un schema veraz, sin inventar un segundo formato.
 
 Estados: ⬜ pendiente · 🔄 en curso · ✅ hecha (con commit y CI en verde).
 
-### Fase 1 — Contrato verdadero en barber (auth + citas) — 🔄 en PR (2026-10-05)
+### Fase 1 — Contrato verdadero en barber (auth + citas) — ✅ (2026-10-05, barber PR #12, merge `975b62a`, CI de `main` verde)
 
 - `docs/contrato/` con ejemplos de `auth/login`, `auth/me`, `appointments` (staff y
   cliente) y `appointments` POST 201.
@@ -73,7 +73,7 @@ Estados: ⬜ pendiente · 🔄 en curso · ✅ hecha (con commit y CI en verde).
   contrato de rutas 160 = 160. Hallazgo de la propia prueba: `productos_agregados.total`
   es **string** (`decimal:2`), no number como se habria escrito a mano.
 
-### Fase 2 — Tipos generados y CI en frontend-urban — ⬜
+### Fase 2 — Tipos generados y CI en frontend-urban — ✅ (2026-10-05, frontend PR #9, merge `171399d`, CI de `main` verde)
 
 - `openapi-typescript` como devDependency; copia versionada del spec en
   `frontend-urban/contract/openapi.yaml` (el repo es independiente, no puede leer
@@ -83,14 +83,14 @@ Estados: ⬜ pendiente · 🔄 en curso · ✅ hecha (con commit y CI en verde).
 - Job `contract` en `.github/workflows/ci.yml`; compara tambien contra el spec de `main` de
   `barber` y avisa (no bloquea) si la copia quedo atras.
 
-### Fase 3 — Frontend usa los tipos; mocks tipados — ⬜
+### Fase 3 — Frontend usa los tipos; mocks tipados — ✅ (2026-10-05, mismo PR #9 de frontend-urban)
 
 - Alias en `app/types/` (`ApiUser`, `ApiAppointment`...) derivados de `api.d.ts`.
 - Migrar primero lo de mayor riesgo: `useAuth.ts`, citas del cliente y del staff.
 - `e2e/support/api-mock.ts` y `dashboard-fixtures.ts` tipados con esos mismos alias: un
   mock que no cabe en el contrato no compila.
 
-### Fase 4 — Cierre y ampliacion — ⬜
+### Fase 4 — Cierre y ampliacion — ✅ cierre; la ampliacion queda como backlog (abajo)
 
 - Actualizar `PLAN_CONTRATO_API.md` (pasos 3 y 4 del orden recomendado) y esta skill.
 - Lista de endpoints pendientes de ejemplo veraz, por prioridad: pagos
@@ -98,6 +98,20 @@ Estados: ⬜ pendiente · 🔄 en curso · ✅ hecha (con commit y CI en verde).
   Cada uno: archivo en `docs/contrato/` + caso en `ApiContractTest`.
 - Android: evaluar el mismo spec para los DTO de `UrbanBladeMobile` (solo modelos, no
   Retrofit).
+
+**Backlog que deja la fase (no hecho):**
+
+1. Mas endpoints con ejemplo veraz (pagos, pedidos, dashboards, inventario, perfil).
+   Cada respuesta sin ejemplo atado sigue siendo documentacion inventada: no confiar en
+   su tipo generado.
+2. `operationId` ilegibles: los docblocks sin titulo generan ids como
+   `feedPaginadoDeTrabajosPublicados...` (cientos de caracteres). Dar titulo (primera
+   linea del docblock) a cada metodo.
+3. `vue-tsc` no esta instalado en `frontend-urban`: 29 errores previos en dashboards,
+   analytics y agenda. Con `tsc` solo no se analiza el `<script setup>` de los `.vue`.
+4. Sonar en barber: excluir `public/docs` (HTML generado) y `docs/contrato` (ejemplos
+   duplicados a proposito) de la duplicacion y la fiabilidad.
+5. DTO de Android desde el mismo spec.
 
 ## Reglas
 
