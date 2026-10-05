@@ -156,6 +156,9 @@ Validación completada el 2026-09-23:
 ### 5C. Integración externa controlada
 
 - **AUTORIZADA por el propietario el 2026-10-03.**
+- **Excepción (2026-10-04, propietario):** el despliegue de barber y frontend-urban a
+  staging (push de imagen a ECR y `ecs update-service`) lo hace el agente
+  `urbanblade-deploy`; no cubre S3, IAM, secretos ni los respaldos de esta fase.
 - **⚠️ Regla operativa (2026-10-03, por el propietario): MODO SOLO LECTURA.** Ningún
   agente ni proveedor de IA ejecutará acciones de escritura en AWS (crear bucket,
   políticas, usuarios IAM, access keys, `s3 cp`, etc.), aunque estén autorizadas en

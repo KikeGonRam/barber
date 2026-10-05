@@ -9,8 +9,9 @@ description: >
   dependencies", "clean up docker"). Also consult before editing `setup.ps1`, `.env*`, or
   anything touching `PaymentService`/`InventoryService`/`OrderService` (payment amounts,
   product prices, transactions), and before preparing a Git handoff. Work goes on a
-  branch and reaches the protected `main` only through a PR with green CI; an AI commits,
-  pushes or opens/merges PRs only with the owner's explicit OK for that change. Also
+  branch and reaches the protected `main` only through a PR with green CI; once the owner
+  orders a change uploaded, the AI commits, pushes, opens the PR and, if all goes well,
+  merges and deploys to staging. Also
   consult before changing `routes/api.php` or `app/Http/Controllers/Api/**` — the API is
   a real external contract for a native Android app being built separately, not just
   internal code. ALSO consult before editing or creating ANY `.md` file in this repo
@@ -118,10 +119,13 @@ real `.env`, not in CI.
 required, admins included). Every change goes on its own branch from `origin/main`
 (`feat/t114-...`, `fix/tt04-...`), is validated locally (`.\test.ps1` plus the applicable
 `pint --test`, Larastan, `eslint` and `npm run build`), pushed, opened as a PR and merged
-with a merge commit **without deleting the branch**. An AI runs `git commit`, `git push`,
-`gh pr create` or `gh pr merge` only after the owner explicitly authorizes that specific
-change in the chat; otherwise it hands over the exact commands. Never force-push,
-rewrite published history or delete published branches. Full rules and commit format:
+with a merge commit **without deleting the branch**. The owner's order to upload a change
+authorizes the AI to commit, push and open the PR, and then -- if local validation, every
+required check and the post-merge CI are green -- to merge and to deploy `barber` and
+`frontend-urban` to staging with the `urbanblade-deploy` agent, with an automatic rollback if
+verification fails. It still needs a fresh "yes" for migrations/seeders, any Atlas write,
+production, secrets or anything outside those two staging services. Never force-push,
+rewrite published history or delete published branches. Full rules:
 `git-commit-conventions`.
 
 ## 10. Active coordinated scope and branch

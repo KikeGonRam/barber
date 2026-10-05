@@ -15,6 +15,13 @@ Refresco PATH en scripts nuevos:
 > propietario en su terminal NUEVA (fuera del sandbox), directamente o usando
 > el script de compuerta doble `scripts/OWNER-Run-5C-Interactive.ps1`.
 >
+> **Excepción acotada del 2026-10-04 (propietario):** el despliegue de `barber` y
+> `frontend-urban` a staging sí lo ejecuta el agente `urbanblade-deploy` -- solo
+> `docker push` y etiqueta de respaldo en los repos ECR `urbanblade/barber` y
+> `urbanblade/frontend-urban`, y `ecs update-service --force-new-deployment` en
+> `uba-stg-barber` y `uba-stg-frontend`. Todo lo demás de AWS (S3, IAM, secretos, task
+> definitions, respaldos de la Fase 5) sigue en solo lectura para la IA.
+>
 > **Incidente documentado en FASE-5-CONTINUIDAD-OPERATIVA.md §5C:**
 > antes de firmarse esta regla, una llamada `aws s3api create-bucket` se lanzó
 > sin autorización y creó el bucket vacío

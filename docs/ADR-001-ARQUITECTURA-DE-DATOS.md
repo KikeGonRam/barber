@@ -267,7 +267,7 @@ flowchart LR
 
 Actualizada el 2026-10-04: cada cambio va en su propia rama y entra a `main` (protegida)
 por PR con el CI en verde; las ramas se conservan. Un proveedor o agente de IA solo hace
-commit, push, PR o merge con autorización explícita del propietario para ese cambio;
-sin ella entrega en español el resumen, los archivos afectados, las pruebas y los
-comandos. Nunca push forzado ni reescritura de historial. Detalle en
+commit, push y PR cuando el propietario lo ordena, y fusiona y despliega a staging si todo
+sale bien; sin esa orden entrega en español el resumen, los archivos afectados, las
+pruebas y los comandos. Nunca push forzado ni reescritura de historial. Detalle en
 `git-commit-conventions`.

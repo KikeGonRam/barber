@@ -136,5 +136,5 @@ pruebas), Bladebot (historias técnicas y checklist), Nava (estados vacíos).
 4. Reportar: historias, tareas y puntos totales, completados, en progreso y pendientes,
    % de avance (puntos completados / totales) y la tabla de sprints.
 5. Git: cada cambio en su rama y por PR a `main` con el CI en verde, sin borrar la rama;
-   la IA solo hace commit, push o PR con autorización explícita del dueño para ese cambio
-   (ver `git-commit-conventions`); los mensajes de commit van en español.
+   la IA hace commit, push y PR cuando el dueño lo ordena y, si todo sale bien, fusiona y
+   despliega (ver `git-commit-conventions`); los mensajes de commit van en español.
