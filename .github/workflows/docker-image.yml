@@ -10,6 +10,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Solo construye imágenes: no necesita escribir en el repositorio ni publicar paquetes.
+permissions:
+  contents: read
+
 jobs:
 
   build:

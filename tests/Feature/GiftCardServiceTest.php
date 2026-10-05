@@ -223,4 +223,33 @@ class GiftCardServiceTest extends TestCase
         $response->assertJsonPath('data.0.code', $newer->code);
         $response->assertJsonPath('data.1.code', $older->code);
     }
+
+    public function test_looking_up_gift_cards_by_code_is_rate_limited_per_user_and_never_says_why_a_code_failed(): void
+    {
+        // El código son 8 caracteres y la consulta confirma si existe y con cuánto saldo:
+        // sin límite se podrían probar códigos a ritmo libre. 20 por minuto por usuario.
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        $this->seed(RolePermissionSeeder::class);
+
+        $role = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
+        $user = User::create(['name' => 'Cliente Throttle', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+        $token = 'test-plaintext-token-gift-card-throttle';
+        MobileApiToken::create(['user_id' => (string) $user->id, 'name' => 'test', 'token_hash' => hash('sha256', $token)]);
+
+        // Dentro de un mismo test la app se reutiliza y la primera petición cuenta con otra
+        // clave que las siguientes, así que el corte llega entre la 21 y la 22.
+        for ($i = 1; $i <= 20; $i++) {
+            $this->withHeader('Authorization', "Bearer {$token}")
+                ->getJson('/api/v1/gift-cards/codigo'.$i)
+                ->assertNotFound()
+                ->assertJsonPath('message', 'Código no válido o tarjeta sin saldo.');
+        }
+
+        $bloqueadas = collect([21, 22])->filter(
+            fn (int $i) => $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/gift-cards/codigo'.$i)->status() === 429
+        );
+
+        $this->assertNotEmpty($bloqueadas, 'Pasadas 20 consultas por minuto debe responder 429.');
+    }
 }

@@ -222,7 +222,9 @@ Route::prefix('v1')->group(function (): void {
         // 'mine' antes de '{code}' -- si no, el comodín lo tragaría como
         // si fuera un código de tarjeta.
         Route::get('gift-cards/mine', [GiftCardController::class, 'mine']);
-        Route::get('gift-cards/{code}', [GiftCardController::class, 'show']);
+        // Con throttle por usuario: el código son 8 caracteres y esta consulta confirma si
+        // existe y con cuánto saldo, así que sin límite se podrían probar códigos a ritmo libre.
+        Route::get('gift-cards/{code}', [GiftCardController::class, 'show'])->middleware('throttle:20,1');
         Route::post('gift-cards/stripe-intent', [GiftCardController::class, 'stripeIntent']);
 
         // Membresía recurrente (roadmap P1, Stripe Subscriptions): catálogo de
