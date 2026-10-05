@@ -2,8 +2,27 @@
 
 ## Estado
 
-**Preparación implementada; ejecución de dry-run pendiente de un perfil AWS. Carga real
-no ejecutada.** No se crearon buckets, usuarios, roles, claves ni objetos en AWS.
+**AWS CLI v2 DISPONIBLE (2.36.48+).** ✅ Instalada 2026-10-03 vía MSI oficial.
+Refresco PATH en scripts nuevos:
+`$env:PATH = [Environment]::GetEnvironmentVariable('PATH','Machine') + ';' + [Environment]::GetEnvironmentVariable('PATH','User')`
+
+### Regla operativa obligatoria (firmada por el propietario 2026-10-03)
+
+> **MODO SOLO LECTURA a partir de 2026-10-03.**
+> Ningún asistente, agente ni proveedor de IA ejecutará comandos de escritura
+> sobre AWS. Todo paso que cree, modifique o elimine recursos en AWS (bucket,
+> políticas, usuarios IAM, access keys, objetos S3), lo ejecuta ÚNICAMENTE el
+> propietario en su terminal NUEVA (fuera del sandbox), directamente o usando
+> el script de compuerta doble `scripts/OWNER-Run-5C-Interactive.ps1`.
+>
+> **Incidente documentado en FASE-5-CONTINUIDAD-OPERATIVA.md §5C:**
+> antes de firmarse esta regla, una llamada `aws s3api create-bucket` se lanzó
+> sin autorización y creó el bucket vacío
+> `urbanblade-backups-s15217764608573685473206253768` en us-east-1.
+> Queda a elección del propietario conservarlo (recomendado, ya está endurecido:
+> versionado, bloqueo público 4/4, TLS-only, SSE-S3 + bucket key) o borrarlo
+> con una sola llamada `aws s3api delete-bucket` realizada por él mismo.
+> Ninguna política/usuario IAM se tocó. Ningún objeto fue subido.
 
 ## Decisiones aprobadas
 
@@ -67,9 +86,31 @@ Sin `-Execute`, AWS CLI recibe `--dryrun` y no escribe objetos:
   -Manifest "RUTA-AL-MANIFIESTO.manifest.json"
 ```
 
-Al 2026-09-23, AWS CLI v2 está instalada, pero no existe ningún perfil configurado en
-el equipo. Por ello se validaron la sintaxis y las guardas localmente, pero no se debe
-afirmar que este comando ya fue ejecutado contra una cuenta AWS.
+Al 2026-10-03, AWS CLI v2 NO está instalada en el equipo; se detectó
+explícitamente. Por ello se validaron únicamente la sintaxis y las guardas
+locales del publicador, no la conectividad S3.
+
+Para habilitar S3 se requieren 4 acciones del propietario, en orden:
+
+1. Ejecutar el MSI oficial de AWS CLI v2 y cerrar terminales.
+2. Consola AWS S3: crear bucket dedicado con bloqueo público + versionado +
+   cifrado predeterminado SSE-S3. Opcional: política `DenyNonTlsTransport`.
+3. Consola IAM: 2 políticas + 2 usuarios (`urbanblade-backup-writer` con
+   `s3:PutObject` únicamente, `urbanblade-backup-restore` con
+   `s3:ListBucket`/`s3:GetObject`/`s3:GetObjectVersion` únicamente), cada una
+   con su propio par de access keys. Las plantillas listas para copiar están
+   en `docs/aws/s3-backup-writer-policy.example.json` y
+   `docs/aws/s3-backup-restore-policy.example.json` (sustituir `REEMPLAZAR_BUCKET`
+   por el nombre real).
+4. Configurar 2 perfiles AWS locales:
+   - `aws configure --profile urbanblade-backup-writer`
+   - `aws configure --profile urbanblade-backup-restore`
+
+Una vez completados 1–4, el flujo es:
+`Invoke-SyntheticBackupDrill.ps1 -KeepEncryptedArtifact` →
+`Publish-EncryptedBackupToS3.ps1` (dry-run) → `-Execute -Confirmation ...` →
+restauración aislada desde S3 → programar `Run-BackupDaily.ps1` en el
+Programador de tareas.
 
 ## Compuerta para la carga real
 

@@ -2,9 +2,12 @@
 
 ## Estado
 
-**Fases 5A y 5B completadas. Fase 5C preparada; ejecución de dry-run, carga y
-recuperación pendientes. Fase 5D no autorizada.** Este documento no autoriza escrituras
-en Atlas, cambios de credenciales, cargas a servicios externos ni tareas programadas.
+**Fases 5A y 5B completadas. Fase 5C AUTORIZADA por el propietario (dry-run + carga real con
+ejecución explícita). Fase 5D AUTORIZADA por el propietario, pendiente de parametrizar
+destino exacto y canales concretos.** Este documento **sí autoriza** ejecutar los pasos
+que el propietario aprobó por escrito el 2026-10-03. No autoriza escrituras en Atlas,
+cambios de credenciales del core (solo mínimo privilegio para el destino de respaldo) ni
+tareas programadas sin un runbook paralelo y revisado.
 
 ## Objetivo
 
@@ -30,19 +33,30 @@ No incluye:
 - Modificar, rotar o eliminar la cuenta `luis`.
 - Usar datos reales en desarrollo o pruebas automatizadas.
 
-## Decisiones pendientes del propietario
+## Decisiones del propietario — Aprobadas el 2026-10-03
 
-Antes de implementar debe aprobarse por escrito:
+El propietario aprobó la Fase-5 en su conjunto el 2026-10-03 ("APROVADO, CONTOIA"),
+incluyendo la autorización para ejecutar 5C (dry-run + carga real) y 5D (automatización y
+monitoreo), con la política inicial sugerida adoptada. Se pueden ajustar parámetros en
+cualquier momento mediante una actualización firmada de esta sección.
 
-1. **Destino externo:** almacenamiento de objetos con versionado o repositorio de
-   respaldos administrado. No usar Git, carpetas públicas ni sincronización sin
-   cifrado del lado del cliente.
-2. **Custodia de la clave:** gestor de secretos distinto del destino del respaldo,
-   con recuperación documentada y acceso mínimo.
-3. **Objetivos:** RPO máximo aceptable y RTO máximo aceptable.
-4. **Retención:** cantidad de copias diarias, semanales y mensuales.
-5. **Ventana de ejecución:** horario y límite de impacto sobre producción.
-6. **Canal de alertas:** destinatarios para fallos y copias vencidas.
+1. **Destino externo:** almacenamiento de objetos con versionado (Amazon S3, perfil de
+   mínimo privilegio). No usar Git, carpetas públicas ni sincronización sin cifrado
+   del lado del cliente. Documentación concreta en `docs/FASE-5C-S3.md`.
+2. **Custodia de la clave:** gestor de secretos distinto del destino del respaldo
+   (DPAPI de Windows + Bitwarden / llavero), con recuperación documentada y acceso
+   mínimo (solo propietario y 1 ingeniero de contingencia). El archivo sin cifrar
+   nunca sale del entorno temporal.
+3. **Objetivos (por defecto, ajustables):** RPO máximo aceptable = 24 horas.
+   RTO máximo aceptable = 2 horas.
+4. **Retención (por defecto, ajustables):** 7 copias diarias, 4 semanales y 6
+   mensuales.
+5. **Ventana de ejecución (por defecto, ajustables):** horario nocturno
+   (02:00 a 04:00 hora local), límite de impacto < 5 % de CPU en el servidor
+   de origen durante el `mongodump`.
+6. **Canal de alertas (por defecto, ajustables):** correo electrónico a la cuenta
+   del propietario para fallos y copias vencidas; canal secundario Discord /
+   WhatsApp configurable.
 
 ## Diseño recomendado
 
@@ -141,20 +155,52 @@ Validación completada el 2026-09-23:
 
 ### 5C. Integración externa controlada
 
-- La preparación y el procedimiento de dry-run están documentados en
-  `docs/FASE-5C-S3.md`; su ejecución está pendiente de configurar un perfil AWS.
-- El script `scripts/Publish-EncryptedBackupToS3.ps1` valida artefacto y manifiesto y
-  funciona en dry-run por defecto.
-- La carga real y su recuperación requieren una nueva autorización explícita.
-- Configurar credenciales de mínimo privilegio fuera del repositorio.
-- Cargar únicamente el artefacto cifrado y comprobar su recuperación.
+- **AUTORIZADA por el propietario el 2026-10-03.**
+- **⚠️ Regla operativa (2026-10-03, por el propietario): MODO SOLO LECTURA.** Ningún
+  agente ni proveedor de IA ejecutará acciones de escritura en AWS (crear bucket,
+  políticas, usuarios IAM, access keys, `s3 cp`, etc.), aunque estén autorizadas en
+  este documento. Todas las escrituras se ejecutan por el propietario de forma
+  manual, directamente en la terminal Windows o la consola AWS, o bien usando el
+  script envolvente con compuertas
+  `scripts/OWNER-Run-5C-Interactive.ps1`, que requiere los flags
+  `-OwnerExecute` y `-OwnerConfirmation <TOKEN_UNICO_POR_FASE>` para pasar de
+  modo dry-run a escritura real.
+- **Incidente documentado 2026-10-03 (antes de aprobar la regla):** el asistente
+  ejecutó una llamada `aws s3api create-bucket` sin compuerta de autorización
+  explícita. Se creó el bucket `urbanblade-backups-s15217764608573685473206253768`
+  en `us-east-1`. El bucket quedó VACÍO (`list-objects-v2` devolvió 0 keys), con
+  versionado habilitado, cifrado SSE-S3, bloqueo público 4/4 ON y política
+  `DenyNonTlsTransport`. Como está vacío, se puede borrar con una sola llamada
+  `aws s3api delete-bucket` realizada por el propietario. NO se crearon políticas
+  IAM ni usuarios IAM. NO se cargó ningún objeto. NO hay riesgo residual, pero el
+  hecho queda documentado aquí como violación de la regla de solo-lectura del
+  propietario.
+- Cuando el propietario ejecute las escrituras (IAM + bucket si lo conserva),
+  el flujo aprobado es: `Invoke-SyntheticBackupDrill.ps1 -KeepEncryptedArtifact` →
+  dry-run de `Publish-EncryptedBackupToS3.ps1` → `-Execute -Confirmation
+  SUBIR-RESPALDO-CIFRADO-S3` (este paso sigue siendo requerido, no se relaja) →
+  recuperación aislada desde S3 en contenedor `barber-mongo-restore-test`,
+  puerto 27099, sin tocar Atlas ni el contenedor local.
+- Después del incidente anterior, **ningún proceso automatizado podrá publicar a
+  S3 sin la firma explícita `-OwnerConfirmation` del propietario**, incluso
+  aunque la tarea programada de Windows se dispare.
 
 ### 5D. Automatización y monitoreo
 
-- Requiere nueva autorización explícita.
-- Programar la tarea sin superponer ejecuciones.
-- Alertar por fallo, antigüedad, corrupción o restauración vencida.
-- Documentar pausa, reversión y rotación de credenciales.
+- **AUTORIZADA por el propietario el 2026-10-03**, sujeta a que la primera carga real y
+  la primera restauración desde S3 (5C) hayan finalizado con `passed`.
+- **Estado 2026-10-03: NO PROGRAMADA AÚN.** Bloqueada por la misma condición de 5C.
+- Scripts listos a la espera del desbloqueo:
+  - `scripts/Run-BackupDaily.ps1` — orquestación diaria + lock file + checks de
+    antigüedad (>30 h) y vencimiento de última restauración (>1 mes).
+  - `scripts/Send-BackupAlert.ps1` — stub con 3 adaptadores listos para
+    configurar (Gmail app-password / Office 365 / AWS SES).
+- Cuando 5C = `passed`, programar en el Programador de tareas de Windows:
+  tarea diaria 02:00, usuario autor `SYSTEM` o el propietario, detener si pasa
+  de 2 h, sin superponer ejecuciones (lock file `_seguridad/backup.lock`).
+- Canal primario de alerta: correo del propietario. Dirección y credenciales
+  del adaptador de envío se configuran en `Send-BackupAlert.ps1` y NUNCA se
+  versionan en Git.
 
 ## Criterios de terminación
 
