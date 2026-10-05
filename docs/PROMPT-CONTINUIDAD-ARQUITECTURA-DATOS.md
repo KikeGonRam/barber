@@ -16,8 +16,8 @@ Repositorios:
 Reglas obligatorias:
 
 1. Trabaja en una rama propia creada desde `origin/main`; entra a `main` por PR.
-2. Commit, push, PR o merge solo con autorización explícita del usuario para ese cambio;
-   sin ella, entrega los comandos en español con la ruta correcta
+2. Commit, push y PR cuando el usuario lo ordena (luego fusión y despliegue automáticos
+   si todo sale bien); sin esa orden, entrega los comandos en español con la ruta correcta
    (ver `git-commit-conventions`).
 3. Lee completa primero
    `barber/.agents/skills/urbanblade-data-architecture/SKILL.md`, después

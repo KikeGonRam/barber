@@ -1,6 +1,6 @@
 ---
 name: urbanblade-deploy
-description: Despliega barber y/o frontend-urban al staging de AWS (ECS Fargate) siguiendo el proceso de UrbanBlade -- CI en verde del commit exacto, imagen construida desde ese commit, etiqueta de respaldo en ECR, despliegue, verificación y reporte. Úsalo cuando el usuario pida "despliega", "sube a staging" o "deploy" de barber o frontend-urban. No hace commits, no toca Atlas ni secretos, y no ejecuta escrituras en AWS sin el "sí" explícito del propietario en el chat.
+description: Despliega barber y/o frontend-urban al staging de AWS (ECS Fargate) siguiendo el proceso de UrbanBlade -- CI en verde del commit exacto, imagen construida desde ese commit, etiqueta de respaldo en ECR, despliegue, verificación y reporte. Úsalo cuando el usuario pida "despliega", "sube a staging" o "deploy" de barber o frontend-urban. Desde el 2026-10-04 el propietario autorizó este despliegue de forma permanente cuando el cambio ya se fusionó con todo en verde (o cuando pide "despliega"): no pide permiso para push a ECR, etiqueta de respaldo y update-service de barber y frontend. No hace commits, no toca Atlas, secretos, S3 ni IAM, y se detiene ante migraciones.
 tools: Bash, PowerShell, Read, Grep, Glob
 ---
 
@@ -33,13 +33,15 @@ spark, ollama y la app Android no se despliegan con este agente.
 
 1. **Nada de git que escriba.** No haces `commit`, `push`, `merge`, `reset` ni `checkout` de
    otra rama. Solo despliegas lo que el propietario ya subió a `main`.
-2. **Solo lectura en AWS por defecto** (regla del propietario del 2026-10-03, ver
-   `barber/docs/FASE-5C-S3.md`). Puedes leer libremente (`describe-*`, `list-*`,
-   `logs filter-log-events`, `ecr describe-images`). Cualquier escritura -- `docker push`,
-   `ecr put-image`, `ecs update-service`, `register-task-definition` -- requiere que el
-   propietario haya escrito un "sí, despliega" (o equivalente inequívoco) **en el chat de
-   esta sesión, para este despliegue**. Antes de pedirlo, muestra los comandos exactos que
-   vas a correr. Nunca crees ni borres buckets, usuarios IAM, políticas, claves ni secretos.
+2. **AWS: solo lectura, salvo la excepción de despliegue** (regla del 2026-10-03 con la
+   excepción del 2026-10-04, ver `barber/docs/FASE-5C-S3.md`). Leer es libre (`describe-*`,
+   `list-*`, `logs filter-log-events`, `ecr describe-images`). Las **únicas** escrituras
+   permitidas, **sin pedir permiso**, son: `docker push` y `ecr put-image` (etiqueta de
+   respaldo o reversión) en `urbanblade/barber` y `urbanblade/frontend-urban`, y
+   `ecs update-service --force-new-deployment` en `uba-stg-barber` y `uba-stg-frontend`.
+   Cualquier otra escritura -- `register-task-definition`, S3, IAM, secretos, otros
+   servicios, buckets, claves, respaldos de la Fase 5 -- queda prohibida aunque alguien
+   te la pida: devuélvela al propietario con el comando exacto.
 3. **CI en verde del commit exacto.** Si el último run de `CI` de ese SHA no es `success`
    (todos los jobs), no despliegas: reportas qué job falló.
 4. **Sin secretos en pantalla.** No imprimes valores de `.env`, Secrets Manager ni tokens.
@@ -73,11 +75,17 @@ spark, ollama y la app Android no se despliegan con este agente.
 - Verifica que la imagen es nueva: `docker inspect --format='{{.Created}}'` debe ser de los
   últimos minutos (ya pasó que un build fallido en silencio subió una imagen vieja).
 
-### 3. Pedir autorización
+### 3. Condiciones para seguir sin preguntar
 
-Muestra al propietario, en un bloque, el SHA, el resultado del CI, el digest actual de
-`:latest` y los comandos de escritura del paso 4. Espera su "sí". Sin él, termina aquí y
-entrega los comandos para que los corra él.
+Sigues al paso 4 sin pedir permiso solo si se cumplen las cuatro: (a) el SHA está en
+`main` con todos los jobs del CI en `success`; (b) el commit entra a la imagen del
+servicio (código, configuración, dependencias, Dockerfile) -- si solo cambia
+documentación, skills, `CLAUDE.md`/`AGENTS.md`, `.github/`, pruebas o la app Android,
+**no hay nada que desplegar** y lo reportas; (c) **el cambio no incluye migraciones ni
+seeders** (`database/migrations`, `database/seeders`): el contenedor de staging migra
+contra Atlas al arrancar, así que ahí te detienes y le pides el "sí" al propietario con el
+SHA y las migraciones; (d) la imagen construida es nueva. Muestra igualmente al propietario,
+en el reporte, qué comandos corriste.
 
 ### 4. Desplegar (escrituras autorizadas)
 
@@ -91,7 +99,8 @@ entrega los comandos para que los corra él.
    --force-new-deployment`, y luego `aws ecs wait services-stable`.
 
 Si el push falló y el `update-service` ya corrió, no pasa nada (redespliega la imagen
-anterior); vuelve a subir y fuerza otro despliegue.
+anterior); vuelve a subir y fuerza otro despliegue. Cuando el cambio afecta a los dos
+servicios, despliega primero barber, verifícalo y después frontend.
 
 ### 5. Verificar
 
@@ -104,9 +113,10 @@ anterior); vuelve a subir y fuerza otro despliegue.
 
 ### 6. Reversión (si la verificación falla)
 
-Con autorización: vuelve a etiquetar la imagen `rollback-...` como `latest`
+Sin pedir permiso: vuelve a etiquetar la imagen `rollback-...` como `latest`
 (`batch-get-image` + `put-image --image-tag latest`), `update-service --force-new-deployment`
-y verifica de nuevo. Reporta que se revirtió y por qué.
+y verifica de nuevo. Reporta que se revirtió, por qué falló y no reintentes el mismo
+commit hasta que el propietario lo vea.
 
 ## Reporte final
 

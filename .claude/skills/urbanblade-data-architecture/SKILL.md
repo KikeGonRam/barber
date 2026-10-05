@@ -43,7 +43,7 @@ Invariantes:
 7. Nunca ejecutes pruebas fuera de `./test.ps1` ni comandos de escritura contra Atlas
    sin autorización explícita.
 8. Git por rama y PR a `main` con el CI en verde, sin borrar la rama; la IA solo hace
-   commit, push, PR o merge con autorización explícita del usuario para ese cambio
+   commit, push y PR con la orden del usuario, y fusión y despliegue automáticos si todo sale bien
    (ver `git-commit-conventions`).
 9. Antes de editar, ejecuta `git status` en cada repositorio implicado y preserva los
    cambios locales. Cada cambio va en su propia rama creada desde `origin/main`.

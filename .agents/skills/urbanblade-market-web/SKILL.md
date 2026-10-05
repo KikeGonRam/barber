@@ -13,7 +13,7 @@ Convertir `frontend-urban` en una experiencia web/PWA vendible para barberías m
 
 - La UI real vive en `C:\Users\luis1\Documents\UrbanBlade\frontend-urban`; `barber` es una API JSON. Inspecciona ambos repositorios, pero no cambies el backend salvo que el flujo requiera un contrato aditivo explícito.
 - No crear un marketplace nacional, una app nativa ni una nueva identidad visual como parte de una mejora puntual.
-- Commit, push y PR solo por rama con autorización explícita (ver `git-commit-conventions`); el
+- Commit, push y PR por rama con la orden del propietario, y fusión y despliegue automáticos si todo sale bien (ver `git-commit-conventions`); el
   despliegue solo con el agente `urbanblade-deploy`. Cambiar secretos, migrar, sembrar o
   modificar datos reales requiere autorización expresa y sigue sujeto a los guardrails.
 - Conserva los cuatro temas por tokens, navegación desktop/móvil separada, accesibilidad, estados de carga/error/vacío y trabajo local ajeno. No reinicies el servidor de desarrollo si no se pidió.

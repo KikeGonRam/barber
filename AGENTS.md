@@ -182,9 +182,12 @@ Highlights, all covered in much more depth there:
   forzado, solo PR con el CI en verde (también para administradores). Rama por cambio
   desde `origin/main`, validar con `.\test.ps1` (más `pint --test` y Larastan para PHP,
   `eslint` + `npm run build` para JS), push de la rama, PR y merge **sin borrar la rama**.
-  La IA solo hace commit, push, PR o merge con autorización explícita del usuario en el
-  chat para ese cambio; si no, entrega el mensaje en español y los comandos. Detalle en
-  `git-commit-conventions`.
+  Cuando el usuario ordena subir un cambio, la IA hace commit, push y PR y, **si todo sale
+  bien (validación local, checks del PR y CI de `main` en verde), fusiona y despliega
+  barber/frontend-urban a staging sin volver a preguntar**, con reversión automática si
+  falla la verificación; migraciones, Atlas, producción y secretos siguen pidiendo el "sí".
+  Sin la orden de subir, entrega el mensaje en español y los comandos. Detalle y límites
+  en `git-commit-conventions`.
 - `barber_db` was fully wiped and reseeded on 2026-09-04 after accumulating ~200k
   synthetic rows from repeated full-seeder runs — **never run the full `DatabaseSeeder`
   again** without explicit confirmation.
