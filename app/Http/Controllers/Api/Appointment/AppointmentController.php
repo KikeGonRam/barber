@@ -54,26 +54,8 @@ class AppointmentController extends Controller
      *
      * @authenticated
      *
-     * @response {
-     *  "data": [
-     *    {
-     *      "id": 1,
-     *      "client_id": 10,
-     *      "barber_id": 2,
-     *      "service_id": 5,
-     *      "fecha": "2026-04-15",
-     *      "hora_inicio": "10:00:00",
-     *      "hora_fin": "11:00:00",
-     *      "estado": "confirmada",
-     *      "notas": "Corte de cabello degradado.",
-     *      "client_name": "Juan Pérez",
-     *      "barber_name": "Carlos Barbero",
-     *      "service_name": "Corte Clásico",
-     *      "service_duration": 60,
-     *      "created_at": "2026-04-10T15:00:00Z"
-     *    }
-     *  ]
-     * }
+     * @responseFile status=200 scenario="Administración, recepción y barbero" docs/contrato/appointments-index.200.json
+     * @responseFile status=200 scenario="Cliente (agrega stats, next y cancellation_policy_hours)" docs/contrato/appointments-index-cliente.200.json
      */
     public function index(Request $request): JsonResponse
     {
@@ -385,18 +367,19 @@ class AppointmentController extends Controller
      *
      * @authenticated
      *
-     * @bodyParam barber_id int required El ID del barbero. Example: 2
-     * @bodyParam service_id int required El ID del servicio. Example: 5
+     * @bodyParam barber_id string required El id del barbero (ObjectId de Mongo, string). Example: 6710a1b2c3d4e5f607182932
+     * @bodyParam service_id string required El id del servicio (ObjectId de Mongo, string). Example: 6710a1b2c3d4e5f607182933
      * @bodyParam fecha date required La fecha de la cita (YYYY-MM-DD). Example: 2026-04-15
      * @bodyParam hora_inicio string required La hora de inicio (HH:mm). Example: 10:00
-     * @bodyParam client_id int Requerido solo para Admin/Recepcionista. ID del cliente. Example: 10
+     * @bodyParam client_id string Requerido solo para Admin/Recepcionista. Id del cliente (ObjectId de Mongo, string). Example: 6710a1b2c3d4e5f607182931
      * @bodyParam estado string Requerido solo para Admin/Recepcionista. Uno de: pendiente, confirmada, en_proceso, completada, cancelada, no_asistio. Example: confirmada
      * @bodyParam notas string Opcional. Notas adicionales. Example: Traer foto de referencia.
+     * @bodyParam productos object[] Opcional. Productos a agregar a la cita; si alguno no tiene stock la cita se crea igual y `productos_error` lo explica.
+     * @bodyParam productos[].product_id string required_with:productos Id del producto. Example: 6710a1b2c3d4e5f607182951
+     * @bodyParam productos[].cantidad integer required_with:productos Unidades (mínimo 1). Example: 1
      *
-     * @response 201 {
-     *  "message": "Cita creada correctamente.",
-     *  "data": { "id": 1, "estado": "confirmada", ... }
-     * }
+     * @responseFile 201 docs/contrato/appointments-store.201.json
+     *
      * @response 422 {
      *  "message": "El barbero ya tiene una cita en ese horario."
      * }

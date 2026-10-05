@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "e1af1686-b993-4caa-ab66-164d7e76bcce",
+        "_postman_id": "96188375-9f75-45ad-8c7c-965b78a68beb",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -103,7 +103,7 @@
                         {
                             "header": [],
                             "code": 200,
-                            "body": "{\n \"message\": \"Autenticaci\u00f3n exitosa.\",\n \"token_type\": \"Bearer\",\n \"token\": \"1|abc123def456...\",\n \"user\": { \"id\": 1, \"name\": \"Juan P\u00e9rez\", \"email\": \"juan@example.com\", \"role\": \"cliente\" }\n}",
+                            "body": "{\n    \"message\": \"Autenticaci\u00f3n exitosa.\",\n    \"token_type\": \"Bearer\",\n    \"token\": \"ub_3f9c1d7e5a2b4c6d8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d\",\n    \"user\": {\n        \"id\": \"6710a1b2c3d4e5f607182930\",\n        \"name\": \"Juan P\u00e9rez\",\n        \"email\": \"juan@example.com\",\n        \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\",\n        \"roles\": [\"cliente\"],\n        \"profile_complete\": true,\n        \"profile_missing\": [\"telefono\"],\n        \"client_id\": \"6710a1b2c3d4e5f607182931\",\n        \"barber_id\": \"6710a1b2c3d4e5f607182932\",\n        \"client\": {\n            \"telefono\": \"5512345678\",\n            \"fecha_nacimiento\": \"1995-04-12\",\n            \"sexo\": \"masculino\"\n        }\n    }\n}\n",
                             "name": ""
                         },
                         {
@@ -241,7 +241,7 @@
                     ]
                 },
                 {
-                    "name": "Devuelve los datos del usuario autenticado (seg\u00fan el token Bearer enviado).",
+                    "name": "Usuario autenticado",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
@@ -261,29 +261,13 @@
                             }
                         ],
                         "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
+                        "description": "Devuelve los datos del usuario autenticado (seg\u00fan el token Bearer enviado)."
                     },
                     "response": [
                         {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "vary",
-                                    "value": "Origin"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"No autorizado.\"}",
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n    \"user\": {\n        \"id\": \"6710a1b2c3d4e5f607182930\",\n        \"name\": \"Juan P\u00e9rez\",\n        \"email\": \"juan@example.com\",\n        \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\",\n        \"roles\": [\"cliente\"],\n        \"profile_complete\": true,\n        \"profile_missing\": [\"telefono\"],\n        \"client_id\": \"6710a1b2c3d4e5f607182931\",\n        \"barber_id\": \"6710a1b2c3d4e5f607182932\",\n        \"client\": {\n            \"telefono\": \"5512345678\",\n            \"fecha_nacimiento\": \"1995-04-12\",\n            \"sexo\": \"masculino\",\n            \"descuento_activo_pct\": 10\n        }\n    },\n    \"sesion_con_google\": false\n}\n",
                             "name": ""
                         }
                     ]
@@ -463,8 +447,14 @@
                         {
                             "header": [],
                             "code": 200,
-                            "body": "{\n \"data\": [\n   {\n     \"id\": 1,\n     \"client_id\": 10,\n     \"barber_id\": 2,\n     \"service_id\": 5,\n     \"fecha\": \"2026-04-15\",\n     \"hora_inicio\": \"10:00:00\",\n     \"hora_fin\": \"11:00:00\",\n     \"estado\": \"confirmada\",\n     \"notas\": \"Corte de cabello degradado.\",\n     \"client_name\": \"Juan P\u00e9rez\",\n     \"barber_name\": \"Carlos Barbero\",\n     \"service_name\": \"Corte Cl\u00e1sico\",\n     \"service_duration\": 60,\n     \"created_at\": \"2026-04-10T15:00:00Z\"\n   }\n ]\n}",
-                            "name": ""
+                            "body": "{\n    \"data\": [\n        {\n            \"id\": \"6710a1b2c3d4e5f607182940\",\n            \"code\": \"jfb7ffye\",\n            \"fecha\": \"2026-10-15\",\n            \"hora_inicio\": \"10:00:00\",\n            \"hora_fin\": \"10:30:00\",\n            \"estado\": \"confirmada\",\n            \"notas\": \"Traer foto de referencia.\",\n            \"precio_cobrado\": 250,\n            \"propina_sugerida\": 25,\n            \"has_payment\": false,\n            \"is_chargeable\": true,\n            \"reminder_24h_sent\": false,\n            \"reminder_2h_sent\": false,\n            \"deposito_requerido\": true,\n            \"deposito_monto\": 100,\n            \"deposito_estado\": \"pagado\",\n            \"client\": {\n                \"id\": \"6710a1b2c3d4e5f607182931\",\n                \"user\": {\n                    \"name\": \"Juan P\u00e9rez\",\n                    \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n                }\n            },\n            \"barber\": {\n                \"id\": \"6710a1b2c3d4e5f607182932\",\n                \"slug\": \"carlos-barbero\",\n                \"user\": {\n                    \"name\": \"Carlos Barbero\"\n                },\n                \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n            },\n            \"service\": {\n                \"id\": \"6710a1b2c3d4e5f607182933\",\n                \"nombre\": \"Corte Cl\u00e1sico\",\n                \"precio\": 250,\n                \"duracion_min\": 30\n            }\n        }\n    ]\n}\n",
+                            "name": "Administraci\u00f3n, recepci\u00f3n y barbero"
+                        },
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n    \"data\": [\n        {\n            \"id\": \"6710a1b2c3d4e5f607182940\",\n            \"code\": \"jfb7ffye\",\n            \"fecha\": \"2026-10-15\",\n            \"hora_inicio\": \"10:00:00\",\n            \"hora_fin\": \"10:30:00\",\n            \"estado\": \"confirmada\",\n            \"notas\": \"Traer foto de referencia.\",\n            \"precio_cobrado\": 250,\n            \"propina_sugerida\": 25,\n            \"has_payment\": false,\n            \"is_chargeable\": true,\n            \"reminder_24h_sent\": false,\n            \"reminder_2h_sent\": false,\n            \"deposito_requerido\": true,\n            \"deposito_monto\": 100,\n            \"deposito_estado\": \"pagado\",\n            \"client\": {\n                \"id\": \"6710a1b2c3d4e5f607182931\",\n                \"user\": {\n                    \"name\": \"Juan P\u00e9rez\",\n                    \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n                }\n            },\n            \"barber\": {\n                \"id\": \"6710a1b2c3d4e5f607182932\",\n                \"slug\": \"carlos-barbero\",\n                \"user\": {\n                    \"name\": \"Carlos Barbero\"\n                },\n                \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n            },\n            \"service\": {\n                \"id\": \"6710a1b2c3d4e5f607182933\",\n                \"nombre\": \"Corte Cl\u00e1sico\",\n                \"precio\": 250,\n                \"duracion_min\": 30\n            }\n        }\n    ],\n    \"stats\": {\n        \"total\": 8,\n        \"proximas\": 2,\n        \"completadas\": 5,\n        \"canceladas\": 1\n    },\n    \"next\": {\n        \"id\": \"6710a1b2c3d4e5f607182940\",\n        \"code\": \"jfb7ffye\",\n        \"fecha\": \"2026-10-15\",\n        \"hora_inicio\": \"10:00:00\",\n        \"hora_fin\": \"10:30:00\",\n        \"estado\": \"confirmada\",\n        \"notas\": \"Traer foto de referencia.\",\n        \"precio_cobrado\": 250,\n        \"propina_sugerida\": 25,\n        \"reminder_24h_sent\": false,\n        \"reminder_2h_sent\": false,\n        \"deposito_requerido\": true,\n        \"deposito_monto\": 100,\n        \"deposito_estado\": \"pagado\",\n        \"client\": {\n            \"id\": \"6710a1b2c3d4e5f607182931\",\n            \"user\": {\n                \"name\": \"Juan P\u00e9rez\",\n                \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n            }\n        },\n        \"barber\": {\n            \"id\": \"6710a1b2c3d4e5f607182932\",\n            \"slug\": \"carlos-barbero\",\n            \"user\": {\n                \"name\": \"Carlos Barbero\"\n            },\n            \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n        },\n        \"service\": {\n            \"id\": \"6710a1b2c3d4e5f607182933\",\n            \"nombre\": \"Corte Cl\u00e1sico\",\n            \"precio\": 250,\n            \"duracion_min\": 30\n        }\n    },\n    \"cancellation_policy_hours\": 24\n}\n",
+                            "name": "Cliente (agrega stats, next y cancellation_policy_hours)"
                         }
                     ]
                 },
@@ -586,7 +576,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":2,\"service_id\":5,\"fecha\":\"2026-04-15\",\"hora_inicio\":\"10:00\",\"notas\":\"Traer foto de referencia.\",\"propina_sugerida\":84,\"pagar_ahora\":true,\"productos\":[{\"product_id\":\"architecto\",\"cantidad\":22}],\"client_id\":10,\"estado\":\"confirmada\"}"
+                            "raw": "{\"barber_id\":\"6710a1b2c3d4e5f607182932\",\"service_id\":\"6710a1b2c3d4e5f607182933\",\"fecha\":\"2026-04-15\",\"hora_inicio\":\"10:00\",\"notas\":\"Traer foto de referencia.\",\"productos\":[{\"product_id\":\"6710a1b2c3d4e5f607182951\",\"cantidad\":1}],\"propina_sugerida\":84,\"pagar_ahora\":false,\"client_id\":\"6710a1b2c3d4e5f607182931\",\"estado\":\"confirmada\"}"
                         },
                         "description": "Registra una nueva cita en el sistema validando la disponibilidad del barbero."
                     },
@@ -594,7 +584,7 @@
                         {
                             "header": [],
                             "code": 201,
-                            "body": "{\n \"message\": \"Cita creada correctamente.\",\n \"data\": { \"id\": 1, \"estado\": \"confirmada\", ... }\n}",
+                            "body": "{\n    \"message\": \"Cita creada correctamente.\",\n    \"data\": {\n        \"id\": \"6710a1b2c3d4e5f607182940\",\n        \"code\": \"jfb7ffye\",\n        \"fecha\": \"2026-10-15\",\n        \"hora_inicio\": \"10:00:00\",\n        \"hora_fin\": \"10:30:00\",\n        \"estado\": \"pendiente\",\n        \"notas\": \"Traer foto de referencia.\",\n        \"precio_cobrado\": 250,\n        \"propina_sugerida\": 25,\n        \"reminder_24h_sent\": false,\n        \"reminder_2h_sent\": false,\n        \"deposito_requerido\": false,\n        \"deposito_monto\": 100,\n        \"deposito_estado\": \"pagado\",\n        \"client\": {\n            \"id\": \"6710a1b2c3d4e5f607182931\",\n            \"user\": {\n                \"name\": \"Juan P\u00e9rez\",\n                \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n            }\n        },\n        \"barber\": {\n            \"id\": \"6710a1b2c3d4e5f607182932\",\n            \"slug\": \"carlos-barbero\",\n            \"user\": {\n                \"name\": \"Carlos Barbero\"\n            },\n            \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n        },\n        \"service\": {\n            \"id\": \"6710a1b2c3d4e5f607182933\",\n            \"nombre\": \"Corte Cl\u00e1sico\",\n            \"precio\": 250,\n            \"duracion_min\": 30\n        }\n    },\n    \"productos_agregados\": {\n        \"id\": \"6710a1b2c3d4e5f607182950\",\n        \"folio\": \"P-K3X9QZ\",\n        \"total\": \"120.00\",\n        \"items\": [\n            {\n                \"product_id\": \"6710a1b2c3d4e5f607182951\",\n                \"nombre\": \"Cera mate\",\n                \"precio\": 120,\n                \"cantidad\": 1,\n                \"subtotal\": 120\n            }\n        ]\n    },\n    \"productos_error\": \"Sin stock suficiente de Cera mate.\",\n    \"descuento_pct\": 10\n}\n",
                             "name": ""
                         },
                         {
@@ -641,7 +631,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-25\",\"hora_inicio\":\"22:21\",\"estado\":\"en_proceso\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-28\",\"hora_inicio\":\"00:07\",\"estado\":\"completada\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -769,7 +759,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"period\":\"day\",\"estado\":\"cancelada\",\"offset\":-364}"
+                            "raw": "{\"period\":\"day\",\"estado\":\"en_proceso\",\"offset\":-364}"
                         },
                         "description": "",
                         "auth": {
@@ -1204,7 +1194,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-25\"}"
+                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-28\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1571,7 +1561,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-25\"}"
+                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-28\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2021,7 +2011,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"puntos_canjeados\":39,\"codigo_gift_card\":\"gzmiyvdljnikhway\",\"propina\":62,\"guardar_tarjeta\":false,\"tarjeta_guardada\":false}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"puntos_canjeados\":39,\"codigo_gift_card\":\"gzmiyvdljnikhway\",\"propina\":62,\"guardar_tarjeta\":true,\"tarjeta_guardada\":false}"
                         },
                         "description": "Autopago del cliente (Fase B del plan Stripe): un cliente autenticado\npuede pagar su PROPIA cita con tarjeta exactamente por el mismo camino\nque usa staff -- el webhook (StripeWebhookController::onSucceeded())\nno distingue qui\u00e9n cre\u00f3 el intent, solo lee metadata.appointment_id y\nllama PaymentService::create() igual en ambos casos. No hace falta\nduplicar l\u00f3gica de completar el cobro.\n\nEl monto del SERVICIO no se recibe del cliente: se calcula aqui mismo\n(precio base del servicio -> descuento de nivel -> puntos canjeados ->\ngift card) para que lo que Stripe realmente cobra por ese concepto sea\nsiempre el mismo numero que create()\/el webhook usaran despues para\nregistrar el pago \u2014 nunca se confia en un monto que venga del frontend\npara mover dinero real. La propina SI es una eleccion del cliente (no\nhay \"precio correcto\" que releer), se valida como numero >= 0 y se\nsuma aparte al total que ve Stripe; PaymentService::create() la guarda\nen su propio campo, nunca se mezcla con precio_cobrado.",
                         "auth": {
@@ -2114,7 +2104,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"metodo_pago\":\"efectivo\"}"
+                            "raw": "{\"metodo_pago\":\"transferencia\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2249,7 +2239,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"tarjeta\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":false,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"transferencia\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2632,7 +2622,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2747,7 +2737,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-10-02T22:21:43\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-10-05T00:08:00\",\"pref_in_app\":false,\"pref_email\":true,\"pref_sms\":true,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2786,7 +2776,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-10-02T22:21:43\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":true,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-10-05T00:08:00\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":true,\"pref_whatsapp\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2940,7 +2930,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"descripcion\":\"m\",\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"descripcion\":\"m\",\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -3063,7 +3053,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"activo\":false,\"comision_pct\":1}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"activo\":true,\"comision_pct\":1}"
                         },
                         "description": "",
                         "auth": {
@@ -3296,7 +3286,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"22:21\",\"horario_cierre\":\"2052-10-25\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"00:08\",\"horario_cierre\":\"2052-10-28\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3403,7 +3393,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"ahora\",\"programada_para\":\"2052-10-26\"}"
+                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"programar\",\"programada_para\":\"2052-10-28\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3932,7 +3922,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"in_app\":true,\"email\":false,\"sms\":true,\"whatsapp\":true,\"push\":true,\"promociones\":false}"
+                            "raw": "{\"in_app\":false,\"email\":false,\"sms\":false,\"whatsapp\":false,\"push\":true,\"promociones\":true}"
                         },
                         "description": "Igual que la versi\u00f3n web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los dem\u00e1s.",
                         "auth": {
@@ -4011,7 +4001,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"endpoint\":\"b\",\"keys\":{\"p256dh\":\"architecto\",\"auth\":\"architecto\"},\"content_encoding\":\"aesgcm\"}"
+                            "raw": "{\"endpoint\":\"b\",\"keys\":{\"p256dh\":\"architecto\",\"auth\":\"architecto\"},\"content_encoding\":\"aes128gcm\"}"
                         },
                         "description": "",
                         "auth": {
@@ -5515,7 +5505,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -5554,7 +5544,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -5629,7 +5619,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tipo\":\"entrada\",\"cantidad\":16,\"motivo\":\"architecto\"}"
+                            "raw": "{\"tipo\":\"salida\",\"cantidad\":16,\"motivo\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -6282,7 +6272,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":true}"
+                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":false}"
                         },
                         "description": "Marca una respuesta puntual del chatbot como \u00fatil o no. Antes de\neste endpoint, ChatbotController::query() llamaba a\nrecordFeedback() con $wasHelpful hardcodeado en `true` en cada una\nde sus 5 ramas de respuesta \u2014 el sistema de aprendizaje nunca hab\u00eda\nrecibido una se\u00f1al negativa real de ning\u00fan usuario. Este endpoint le\nda al frontend (el widget de chat en Nuxt) una forma de mandar la\nse\u00f1al real.",
                         "auth": {
@@ -7144,13 +7134,13 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "1",
+                                    "value": "",
                                     "type": "text",
                                     "description": ""
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7243,7 +7233,7 @@
                                 },
                                 {
                                     "key": "active",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7446,7 +7436,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-10-02T22:21:43\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-10-05T00:08:00\"}"
                         },
                         "description": "",
                         "auth": {

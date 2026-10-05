@@ -36,29 +36,145 @@ endpoints:
       -
         custom: []
         status: 200
-        content: |-
+        content: |
           {
-           "data": [
-             {
-               "id": 1,
-               "client_id": 10,
-               "barber_id": 2,
-               "service_id": 5,
-               "fecha": "2026-04-15",
-               "hora_inicio": "10:00:00",
-               "hora_fin": "11:00:00",
-               "estado": "confirmada",
-               "notas": "Corte de cabello degradado.",
-               "client_name": "Juan Pérez",
-               "barber_name": "Carlos Barbero",
-               "service_name": "Corte Clásico",
-               "service_duration": 60,
-               "created_at": "2026-04-10T15:00:00Z"
-             }
-           ]
+              "data": [
+                  {
+                      "id": "6710a1b2c3d4e5f607182940",
+                      "code": "jfb7ffye",
+                      "fecha": "2026-10-15",
+                      "hora_inicio": "10:00:00",
+                      "hora_fin": "10:30:00",
+                      "estado": "confirmada",
+                      "notas": "Traer foto de referencia.",
+                      "precio_cobrado": 250,
+                      "propina_sugerida": 25,
+                      "has_payment": false,
+                      "is_chargeable": true,
+                      "reminder_24h_sent": false,
+                      "reminder_2h_sent": false,
+                      "deposito_requerido": true,
+                      "deposito_monto": 100,
+                      "deposito_estado": "pagado",
+                      "client": {
+                          "id": "6710a1b2c3d4e5f607182931",
+                          "user": {
+                              "name": "Juan Pérez",
+                              "avatar_url": "https://urbanblade.example/storage/avatars/juan.jpg"
+                          }
+                      },
+                      "barber": {
+                          "id": "6710a1b2c3d4e5f607182932",
+                          "slug": "carlos-barbero",
+                          "user": {
+                              "name": "Carlos Barbero"
+                          },
+                          "foto_url": "https://urbanblade.example/storage/barbers/carlos.jpg"
+                      },
+                      "service": {
+                          "id": "6710a1b2c3d4e5f607182933",
+                          "nombre": "Corte Clásico",
+                          "precio": 250,
+                          "duracion_min": 30
+                      }
+                  }
+              ]
           }
         headers: []
-        description: ''
+        description: 'Administración, recepción y barbero'
+      -
+        custom: []
+        status: 200
+        content: |
+          {
+              "data": [
+                  {
+                      "id": "6710a1b2c3d4e5f607182940",
+                      "code": "jfb7ffye",
+                      "fecha": "2026-10-15",
+                      "hora_inicio": "10:00:00",
+                      "hora_fin": "10:30:00",
+                      "estado": "confirmada",
+                      "notas": "Traer foto de referencia.",
+                      "precio_cobrado": 250,
+                      "propina_sugerida": 25,
+                      "has_payment": false,
+                      "is_chargeable": true,
+                      "reminder_24h_sent": false,
+                      "reminder_2h_sent": false,
+                      "deposito_requerido": true,
+                      "deposito_monto": 100,
+                      "deposito_estado": "pagado",
+                      "client": {
+                          "id": "6710a1b2c3d4e5f607182931",
+                          "user": {
+                              "name": "Juan Pérez",
+                              "avatar_url": "https://urbanblade.example/storage/avatars/juan.jpg"
+                          }
+                      },
+                      "barber": {
+                          "id": "6710a1b2c3d4e5f607182932",
+                          "slug": "carlos-barbero",
+                          "user": {
+                              "name": "Carlos Barbero"
+                          },
+                          "foto_url": "https://urbanblade.example/storage/barbers/carlos.jpg"
+                      },
+                      "service": {
+                          "id": "6710a1b2c3d4e5f607182933",
+                          "nombre": "Corte Clásico",
+                          "precio": 250,
+                          "duracion_min": 30
+                      }
+                  }
+              ],
+              "stats": {
+                  "total": 8,
+                  "proximas": 2,
+                  "completadas": 5,
+                  "canceladas": 1
+              },
+              "next": {
+                  "id": "6710a1b2c3d4e5f607182940",
+                  "code": "jfb7ffye",
+                  "fecha": "2026-10-15",
+                  "hora_inicio": "10:00:00",
+                  "hora_fin": "10:30:00",
+                  "estado": "confirmada",
+                  "notas": "Traer foto de referencia.",
+                  "precio_cobrado": 250,
+                  "propina_sugerida": 25,
+                  "reminder_24h_sent": false,
+                  "reminder_2h_sent": false,
+                  "deposito_requerido": true,
+                  "deposito_monto": 100,
+                  "deposito_estado": "pagado",
+                  "client": {
+                      "id": "6710a1b2c3d4e5f607182931",
+                      "user": {
+                          "name": "Juan Pérez",
+                          "avatar_url": "https://urbanblade.example/storage/avatars/juan.jpg"
+                      }
+                  },
+                  "barber": {
+                      "id": "6710a1b2c3d4e5f607182932",
+                      "slug": "carlos-barbero",
+                      "user": {
+                          "name": "Carlos Barbero"
+                      },
+                      "foto_url": "https://urbanblade.example/storage/barbers/carlos.jpg"
+                  },
+                  "service": {
+                      "id": "6710a1b2c3d4e5f607182933",
+                      "nombre": "Corte Clásico",
+                      "precio": 250,
+                      "duracion_min": 30
+                  }
+              },
+              "cancellation_policy_hours": 24
+          }
+        headers: []
+        description: 'Cliente (agrega stats, next y cancellation_policy_hours)'
     responseFields: []
     auth: []
     controller: null
@@ -192,10 +308,10 @@ endpoints:
       barber_id:
         custom: []
         name: barber_id
-        description: 'El ID del barbero.'
+        description: 'El id del barbero (ObjectId de Mongo, string).'
         required: true
-        example: 2
-        type: integer
+        example: 6710a1b2c3d4e5f607182932
+        type: string
         enumValues: []
         exampleWasSpecified: true
         nullable: false
@@ -203,10 +319,10 @@ endpoints:
       service_id:
         custom: []
         name: service_id
-        description: 'El ID del servicio.'
+        description: 'El id del servicio (ObjectId de Mongo, string).'
         required: true
-        example: 5
-        type: integer
+        example: 6710a1b2c3d4e5f607182933
+        type: string
         enumValues: []
         exampleWasSpecified: true
         nullable: false
@@ -247,13 +363,10 @@ endpoints:
       productos:
         custom: []
         name: productos
-        description: |-
-          Productos que el cliente quiere agregar a su cita (ej. la cera
-          que vio en la tienda) -- opcional, se procesa como un Order
-          aparte (tipo 'cita') para no acoplar inventario a la creación
-          de la cita en sí; si falla, la cita igual se crea (ver abajo).
+        description: 'Opcional. Productos a agregar a la cita; si alguno no tiene stock la cita se crea igual y `productos_error` lo explica.'
         required: false
-        example: null
+        example:
+          - []
         type: 'object[]'
         enumValues: []
         exampleWasSpecified: false
@@ -286,7 +399,7 @@ endpoints:
           membresia mas propina, no el % anti-no-show. Ver comentario mas
           abajo antes de construir $payload.
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -295,32 +408,32 @@ endpoints:
       'productos[].product_id':
         custom: []
         name: 'productos[].product_id'
-        description: 'This field is required when <code>productos</code> is present.'
+        description: 'required_with:productos Id del producto.'
         required: false
-        example: architecto
+        example: 6710a1b2c3d4e5f607182951
         type: string
         enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: false
         deprecated: false
       'productos[].cantidad':
         custom: []
         name: 'productos[].cantidad'
-        description: 'This field is required when <code>productos</code> is present. El campo value debe ser al menos 1.'
+        description: 'required_with:productos Unidades (mínimo 1).'
         required: false
-        example: 22
+        example: 1
         type: integer
         enumValues: []
-        exampleWasSpecified: false
+        exampleWasSpecified: true
         nullable: false
         deprecated: false
       client_id:
         custom: []
         name: client_id
-        description: 'Requerido solo para Admin/Recepcionista. ID del cliente.'
+        description: 'Requerido solo para Admin/Recepcionista. Id del cliente (ObjectId de Mongo, string).'
         required: false
-        example: 10
-        type: integer
+        example: 6710a1b2c3d4e5f607182931
+        type: string
         enumValues: []
         exampleWasSpecified: true
         nullable: false
@@ -337,28 +450,80 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      barber_id: 2
-      service_id: 5
+      barber_id: 6710a1b2c3d4e5f607182932
+      service_id: 6710a1b2c3d4e5f607182933
       fecha: '2026-04-15'
       hora_inicio: '10:00'
       notas: 'Traer foto de referencia.'
-      propina_sugerida: 84
-      pagar_ahora: true
       productos:
         -
-          product_id: architecto
-          cantidad: 22
-      client_id: 10
+          product_id: 6710a1b2c3d4e5f607182951
+          cantidad: 1
+      propina_sugerida: 84
+      pagar_ahora: false
+      client_id: 6710a1b2c3d4e5f607182931
       estado: confirmada
     fileParameters: []
     responses:
       -
         custom: []
         status: 201
-        content: |-
+        content: |
           {
-           "message": "Cita creada correctamente.",
-           "data": { "id": 1, "estado": "confirmada", ... }
+              "message": "Cita creada correctamente.",
+              "data": {
+                  "id": "6710a1b2c3d4e5f607182940",
+                  "code": "jfb7ffye",
+                  "fecha": "2026-10-15",
+                  "hora_inicio": "10:00:00",
+                  "hora_fin": "10:30:00",
+                  "estado": "pendiente",
+                  "notas": "Traer foto de referencia.",
+                  "precio_cobrado": 250,
+                  "propina_sugerida": 25,
+                  "reminder_24h_sent": false,
+                  "reminder_2h_sent": false,
+                  "deposito_requerido": false,
+                  "deposito_monto": 100,
+                  "deposito_estado": "pagado",
+                  "client": {
+                      "id": "6710a1b2c3d4e5f607182931",
+                      "user": {
+                          "name": "Juan Pérez",
+                          "avatar_url": "https://urbanblade.example/storage/avatars/juan.jpg"
+                      }
+                  },
+                  "barber": {
+                      "id": "6710a1b2c3d4e5f607182932",
+                      "slug": "carlos-barbero",
+                      "user": {
+                          "name": "Carlos Barbero"
+                      },
+                      "foto_url": "https://urbanblade.example/storage/barbers/carlos.jpg"
+                  },
+                  "service": {
+                      "id": "6710a1b2c3d4e5f607182933",
+                      "nombre": "Corte Clásico",
+                      "precio": 250,
+                      "duracion_min": 30
+                  }
+              },
+              "productos_agregados": {
+                  "id": "6710a1b2c3d4e5f607182950",
+                  "folio": "P-K3X9QZ",
+                  "total": "120.00",
+                  "items": [
+                      {
+                          "product_id": "6710a1b2c3d4e5f607182951",
+                          "nombre": "Cera mate",
+                          "precio": 120,
+                          "cantidad": 1,
+                          "subtotal": 120
+                      }
+                  ]
+              },
+              "productos_error": "Sin stock suficiente de Cera mate.",
+              "descuento_pct": 10
           }
         headers: []
         description: ''
@@ -462,7 +627,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-25'
+        example: '2052-10-28'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -473,7 +638,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '22:21'
+        example: '00:07'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -484,7 +649,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: en_proceso
+        example: completada
         type: string
         enumValues:
           - pendiente
@@ -511,9 +676,9 @@ endpoints:
       client_id: architecto
       barber_id: architecto
       service_id: architecto
-      fecha: '2052-10-25'
-      hora_inicio: '22:21'
-      estado: en_proceso
+      fecha: '2052-10-28'
+      hora_inicio: '00:07'
+      estado: completada
       notas: 'n'
     fileParameters: []
     responses: []
@@ -741,7 +906,7 @@ endpoints:
         name: estado
         description: ''
         required: false
-        example: cancelada
+        example: en_proceso
         type: string
         enumValues:
           - pendiente
@@ -766,7 +931,7 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       period: day
-      estado: cancelada
+      estado: en_proceso
       offset: -364
     fileParameters: []
     responses:
