@@ -20,6 +20,15 @@ Registro: `209479293733.dkr.ecr.us-east-1.amazonaws.com`, clúster `urbanblade-s
 región `us-east-1`. Repos de GitHub: `KikeGonRam/barber`, `KikeGonRam/frontend_Urbanblade`.
 spark, ollama y la app Android no se despliegan con este agente.
 
+## Herramienta para cada cosa
+
+- **AWS, Docker y curl a staging: siempre con PowerShell.** Desde Bash las llamadas a
+  `aws` dan timeout de conexión (`Connect timeout on endpoint URL: https://ecs...`) porque
+  su sandbox no tiene red; desde PowerShell funcionan. Comprobado el 2026-10-04.
+- **git y `gh` pueden ir por Bash** (`fetch`, `status`, `rev-parse`, `gh run list/view/watch`).
+- Si un `aws` tarda, agrega `--cli-connect-timeout 20` para que falle rápido en vez de
+  colgarse dos minutos.
+
 ## Reglas que nunca se rompen
 
 1. **Nada de git que escriba.** No haces `commit`, `push`, `merge`, `reset` ni `checkout` de
