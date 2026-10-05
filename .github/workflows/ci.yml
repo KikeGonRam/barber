@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [main]
 
+# Mínimo privilegio: ningún job escribe en el repositorio. `pull-requests: read` es para
+# gitleaks, que consulta los commits del PR. Sin este bloque el GITHUB_TOKEN toma los
+# permisos por defecto del repo.
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   backend:
     name: Backend (Pint + Larastan + PHPUnit + Coverage)
@@ -151,7 +158,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Trivy filesystem scan
-        uses: aquasecurity/trivy-action@master
+        # Fijado por SHA (v0.36.0): `@master` ejecutaría en cada corrida el código que haya
+        # en esa rama, y este job tiene acceso al repositorio. Actualizar con Dependabot.
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:
           scan-type: fs
           scan-ref: .
