@@ -29,6 +29,6 @@ jobs:
             dockerfile: .docker/staging/Dockerfile
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Build the Docker image
       run: docker build . --file ${{ matrix.image.dockerfile }} --tag urbanblade/barber-${{ matrix.image.name }}:${{ github.sha }}
