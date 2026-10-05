@@ -108,7 +108,7 @@ paths:
                 example:
                   message: 'Autenticación exitosa.'
                   token_type: Bearer
-                  token: ub_3f9c1d7e5a2b4c6d8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d
+                  token: TOKEN_DE_EJEMPLO
                   user:
                     id: 6710a1b2c3d4e5f607182930
                     name: 'Juan Pérez'
@@ -134,7 +134,7 @@ paths:
                     example: Bearer
                   token:
                     type: string
-                    example: ub_3f9c1d7e5a2b4c6d8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d
+                    example: TOKEN_DE_EJEMPLO
                   user:
                     type: object
                     properties:
@@ -183,6 +183,26 @@ paths:
                           sexo:
                             type: string
                             example: masculino
+                        required:
+                          - telefono
+                          - fecha_nacimiento
+                          - sexo
+                    required:
+                      - id
+                      - name
+                      - email
+                      - avatar_url
+                      - roles
+                      - profile_complete
+                      - profile_missing
+                      - client_id
+                      - barber_id
+                      - client
+                required:
+                  - message
+                  - token_type
+                  - token
+                  - user
         422:
           description: ''
           content:
@@ -493,9 +513,28 @@ paths:
                           descuento_activo_pct:
                             type: integer
                             example: 10
+                        required:
+                          - telefono
+                          - fecha_nacimiento
+                          - sexo
+                          - descuento_activo_pct
+                    required:
+                      - id
+                      - name
+                      - email
+                      - avatar_url
+                      - roles
+                      - profile_complete
+                      - profile_missing
+                      - client_id
+                      - barber_id
+                      - client
                   sesion_con_google:
                     type: boolean
                     example: false
+                required:
+                  - user
+                  - sesion_con_google
       tags:
         - Autenticación
   /api/v1/auth/logout:
@@ -834,6 +873,12 @@ paths:
                                     avatar_url:
                                       type: string
                                       example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                                  required:
+                                    - name
+                                    - avatar_url
+                              required:
+                                - id
+                                - user
                             barber:
                               type: object
                               properties:
@@ -849,9 +894,16 @@ paths:
                                     name:
                                       type: string
                                       example: 'Carlos Barbero'
+                                  required:
+                                    - name
                                 foto_url:
                                   type: string
                                   example: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                              required:
+                                - id
+                                - slug
+                                - user
+                                - foto_url
                             service:
                               type: object
                               properties:
@@ -867,6 +919,33 @@ paths:
                                 duracion_min:
                                   type: integer
                                   example: 30
+                              required:
+                                - id
+                                - nombre
+                                - precio
+                                - duracion_min
+                          required:
+                            - id
+                            - code
+                            - fecha
+                            - hora_inicio
+                            - hora_fin
+                            - estado
+                            - notas
+                            - precio_cobrado
+                            - propina_sugerida
+                            - has_payment
+                            - is_chargeable
+                            - reminder_24h_sent
+                            - reminder_2h_sent
+                            - deposito_requerido
+                            - deposito_monto
+                            - deposito_estado
+                            - client
+                            - barber
+                            - service
+                    required:
+                      - data
                   -
                     description: 'Cliente (agrega stats, next y cancellation_policy_hours)'
                     type: object
@@ -1045,6 +1124,12 @@ paths:
                                     avatar_url:
                                       type: string
                                       example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                                  required:
+                                    - name
+                                    - avatar_url
+                              required:
+                                - id
+                                - user
                             barber:
                               type: object
                               properties:
@@ -1060,9 +1145,16 @@ paths:
                                     name:
                                       type: string
                                       example: 'Carlos Barbero'
+                                  required:
+                                    - name
                                 foto_url:
                                   type: string
                                   example: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                              required:
+                                - id
+                                - slug
+                                - user
+                                - foto_url
                             service:
                               type: object
                               properties:
@@ -1078,6 +1170,31 @@ paths:
                                 duracion_min:
                                   type: integer
                                   example: 30
+                              required:
+                                - id
+                                - nombre
+                                - precio
+                                - duracion_min
+                          required:
+                            - id
+                            - code
+                            - fecha
+                            - hora_inicio
+                            - hora_fin
+                            - estado
+                            - notas
+                            - precio_cobrado
+                            - propina_sugerida
+                            - has_payment
+                            - is_chargeable
+                            - reminder_24h_sent
+                            - reminder_2h_sent
+                            - deposito_requerido
+                            - deposito_monto
+                            - deposito_estado
+                            - client
+                            - barber
+                            - service
                       stats:
                         type: object
                         properties:
@@ -1093,6 +1210,11 @@ paths:
                           canceladas:
                             type: integer
                             example: 1
+                        required:
+                          - total
+                          - proximas
+                          - completadas
+                          - canceladas
                       next:
                         type: object
                         properties:
@@ -1153,6 +1275,12 @@ paths:
                                   avatar_url:
                                     type: string
                                     example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                                required:
+                                  - name
+                                  - avatar_url
+                            required:
+                              - id
+                              - user
                           barber:
                             type: object
                             properties:
@@ -1168,9 +1296,16 @@ paths:
                                   name:
                                     type: string
                                     example: 'Carlos Barbero'
+                                required:
+                                  - name
                               foto_url:
                                 type: string
                                 example: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                            required:
+                              - id
+                              - slug
+                              - user
+                              - foto_url
                           service:
                             type: object
                             properties:
@@ -1186,9 +1321,37 @@ paths:
                               duracion_min:
                                 type: integer
                                 example: 30
+                            required:
+                              - id
+                              - nombre
+                              - precio
+                              - duracion_min
+                        required:
+                          - id
+                          - code
+                          - fecha
+                          - hora_inicio
+                          - hora_fin
+                          - estado
+                          - notas
+                          - precio_cobrado
+                          - propina_sugerida
+                          - reminder_24h_sent
+                          - reminder_2h_sent
+                          - deposito_requerido
+                          - deposito_monto
+                          - deposito_estado
+                          - client
+                          - barber
+                          - service
                       cancellation_policy_hours:
                         type: integer
                         example: 24
+                    required:
+                      - data
+                      - stats
+                      - next
+                      - cancellation_policy_hours
       tags:
         - Citas
     post:
@@ -1313,6 +1476,12 @@ paths:
                               avatar_url:
                                 type: string
                                 example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                            required:
+                              - name
+                              - avatar_url
+                        required:
+                          - id
+                          - user
                       barber:
                         type: object
                         properties:
@@ -1328,9 +1497,16 @@ paths:
                               name:
                                 type: string
                                 example: 'Carlos Barbero'
+                            required:
+                              - name
                           foto_url:
                             type: string
                             example: 'https://urbanblade.example/storage/barbers/carlos.jpg'
+                        required:
+                          - id
+                          - slug
+                          - user
+                          - foto_url
                       service:
                         type: object
                         properties:
@@ -1346,6 +1522,29 @@ paths:
                           duracion_min:
                             type: integer
                             example: 30
+                        required:
+                          - id
+                          - nombre
+                          - precio
+                          - duracion_min
+                    required:
+                      - id
+                      - code
+                      - fecha
+                      - hora_inicio
+                      - hora_fin
+                      - estado
+                      - notas
+                      - precio_cobrado
+                      - propina_sugerida
+                      - reminder_24h_sent
+                      - reminder_2h_sent
+                      - deposito_requerido
+                      - deposito_monto
+                      - deposito_estado
+                      - client
+                      - barber
+                      - service
                   productos_agregados:
                     type: object
                     properties:
@@ -1385,12 +1584,29 @@ paths:
                             subtotal:
                               type: integer
                               example: 120
+                          required:
+                            - product_id
+                            - nombre
+                            - precio
+                            - cantidad
+                            - subtotal
+                    required:
+                      - id
+                      - folio
+                      - total
+                      - items
                   productos_error:
                     type: string
                     example: 'Sin stock suficiente de Cera mate.'
                   descuento_pct:
                     type: integer
                     example: 10
+                required:
+                  - message
+                  - data
+                  - productos_agregados
+                  - productos_error
+                  - descuento_pct
         403:
           description: ''
           content:
@@ -1470,7 +1686,7 @@ paths:
                 pagar_ahora:
                   type: boolean
                   description: "Si el cliente elige pagar el servicio completo al reservar (en\nvez de pagar despues en el salon), en vez de inventar un cobro\nnuevo se reutiliza el mecanismo de deposito anti-no-show tal\ncual (mismos endpoints deposit/stripe-intent y deposit/receipt,\nmismo webhook, mismo reembolso automatico si se cancela) -- solo\ncambia que deposito_monto pasa a ser el precio con descuento de\nmembresia mas propina, no el % anti-no-show. Ver comentario mas\nabajo antes de construir $payload."
-                  example: false
+                  example: true
                   nullable: true
                 client_id:
                   type: string
@@ -1564,11 +1780,11 @@ paths:
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '00:07'
+                  example: '00:26'
                 estado:
                   type: string
                   description: ''
-                  example: completada
+                  example: pendiente
                   enum:
                     - pendiente
                     - confirmada
@@ -1730,14 +1946,14 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: day
+                  example: week
                   enum:
                     - day
                     - week
                 estado:
                   type: string
                   description: ''
-                  example: en_proceso
+                  example: pendiente
                   enum:
                     - pendiente
                     - confirmada
@@ -2506,7 +2722,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: transferencia
+                  example: tarjeta
                   enum:
                     - efectivo
                     - tarjeta
@@ -2615,12 +2831,12 @@ paths:
                 guardar_tarjeta:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 tarjeta_guardada:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - appointment_id
@@ -2889,7 +3105,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -3020,7 +3236,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -3146,12 +3362,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-10-05T00:08:00'
+                  example: '2026-10-05T00:26:36'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_email:
                   type: boolean
@@ -3161,12 +3377,12 @@ paths:
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - name
@@ -3204,7 +3420,7 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-10-05T00:08:00'
+                  example: '2026-10-05T00:26:36'
                   nullable: true
                 pref_in_app:
                   type: boolean
@@ -3454,7 +3670,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 comision_pct:
                   type: number
@@ -3643,7 +3859,7 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '00:08'
+                  example: '00:26'
                   nullable: true
                 horario_cierre:
                   type: string
@@ -3775,7 +3991,7 @@ paths:
                 modo:
                   type: string
                   description: ''
-                  example: programar
+                  example: ahora
                   enum:
                     - ahora
                     - programar
@@ -4053,7 +4269,7 @@ paths:
                 email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 sms:
                   type: boolean
                   description: ''
@@ -4061,7 +4277,7 @@ paths:
                 whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 push:
                   type: boolean
                   description: ''
@@ -4132,7 +4348,7 @@ paths:
                 content_encoding:
                   type: string
                   description: ''
-                  example: aes128gcm
+                  example: aesgcm
                   enum:
                     - aesgcm
                     - aes128gcm
@@ -4687,7 +4903,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 comision_pct:
                   type: number
                   description: 'El campo value debe ser al menos 0. El campo value no debe ser mayor que 100.'
@@ -4991,7 +5207,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 active:
                   type: boolean
@@ -5125,7 +5341,7 @@ paths:
                 tipo:
                   type: string
                   description: ''
-                  example: salida
+                  example: entrada
                   enum:
                     - entrada
                     - salida
@@ -5474,7 +5690,7 @@ paths:
                 helpful:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
               required:
                 - message
                 - response
@@ -6463,7 +6679,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-10-05T00:08:00'
+                  example: '2026-10-05T00:26:36'
                   nullable: true
               required:
                 - product_id

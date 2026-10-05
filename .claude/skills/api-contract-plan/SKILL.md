@@ -43,6 +43,19 @@ ejemplo veraz da un schema veraz, sin inventar un segundo formato.
   de los dos lados es comodin, porque `null` no dice nada del tipo). Una clave nueva sin
   documentar, o una documentada que desaparecio, rompe la prueba.
 - Los ejemplos usan valores realistas (ids de 24 hex, fechas ISO), nunca datos reales.
+- **Nada que parezca un secreto.** Un token inventado de aspecto aleatorio
+  (`ub_3f9c1d7e...`) disparo GitGuardian ("5 secrets", se propago a 5 archivos generados)
+  y Sonar S6418 (Security Rating E) en el PR #12. El valor del token es literalmente
+  `TOKEN_DE_EJEMPLO`. Antes de commitear, mirar los checks de GitGuardian y Sonar, no solo
+  los obligatorios.
+- **`required`:** Scribe nunca emite `required`, asi que `openapi-typescript` tipa todo como
+  opcional. `App\Support\Docs\ContractRequiredFieldsGenerator` (registrado en
+  `config/scribe.php`, `openapi.generators`) lo agrega a las respuestas cuyos ejemplos son
+  archivos de `docs/contrato/`: es seguro porque la prueba exige el mismo conjunto de
+  claves que la respuesta real. Las respuestas escritas a mano quedan sin `required`.
+- **`null`:** un ejemplo no dice que campos pueden ser nulos; el schema los da como
+  `string`. La capa de tipos del frontend (`app/types/contract.ts`, `Nullable<T, K>`)
+  lo corrige con claves comprobadas por el compilador.
 
 ## Fases
 

@@ -401,7 +401,7 @@ endpoints:
           membresia mas propina, no el % anti-no-show. Ver comentario mas
           abajo antes de construir $payload.
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -462,7 +462,7 @@ endpoints:
           product_id: 6710a1b2c3d4e5f607182951
           cantidad: 1
       propina_sugerida: 84
-      pagar_ahora: false
+      pagar_ahora: true
       client_id: 6710a1b2c3d4e5f607182931
       estado: confirmada
     fileParameters: []
@@ -640,7 +640,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '00:07'
+        example: '00:26'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -651,7 +651,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: completada
+        example: pendiente
         type: string
         enumValues:
           - pendiente
@@ -679,8 +679,8 @@ endpoints:
       barber_id: architecto
       service_id: architecto
       fecha: '2052-10-28'
-      hora_inicio: '00:07'
-      estado: completada
+      hora_inicio: '00:26'
+      estado: pendiente
       notas: 'n'
     fileParameters: []
     responses: []
@@ -895,7 +895,7 @@ endpoints:
         name: period
         description: ''
         required: false
-        example: day
+        example: week
         type: string
         enumValues:
           - day
@@ -908,7 +908,7 @@ endpoints:
         name: estado
         description: ''
         required: false
-        example: en_proceso
+        example: pendiente
         type: string
         enumValues:
           - pendiente
@@ -932,8 +932,8 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      period: day
-      estado: en_proceso
+      period: week
+      estado: pendiente
       offset: -364
     fileParameters: []
     responses:

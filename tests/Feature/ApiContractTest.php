@@ -12,10 +12,12 @@ use App\Models\Product;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\User;
+use App\Support\Docs\ContractRequiredFieldsGenerator;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\AssertionFailedError;
 use Spatie\Permission\PermissionRegistrar;
+use Symfony\Component\Yaml\Yaml;
 use Tests\TestCase;
 
 /**
@@ -34,6 +36,8 @@ use Tests\TestCase;
  */
 class ApiContractTest extends TestCase
 {
+    private const APPOINTMENTS_URL = '/api/v1/appointments';
+
     private User $adminUser;
 
     private User $clientUser;
@@ -127,7 +131,7 @@ class ApiContractTest extends TestCase
         $this->appointmentFor($this->clientProfile, now()->addDays(5)->format('Y-m-d'));
         $token = $this->tokenFor($this->adminUser, 'token-contrato-index-admin');
 
-        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/appointments');
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson(self::APPOINTMENTS_URL);
 
         $response->assertOk();
         $this->assertNotEmpty($response->json('data'));
@@ -139,7 +143,7 @@ class ApiContractTest extends TestCase
         $this->appointmentFor($this->clientProfile, now()->addDays(5)->format('Y-m-d'));
         $token = $this->tokenFor($this->clientUser, 'token-contrato-index-cliente');
 
-        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/appointments');
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson(self::APPOINTMENTS_URL);
 
         $response->assertOk();
         $this->assertNotEmpty($response->json('data'));
@@ -156,7 +160,7 @@ class ApiContractTest extends TestCase
         ]);
         $token = $this->tokenFor($this->adminUser, 'token-contrato-store');
 
-        $response = $this->withHeader('Authorization', "Bearer {$token}")->postJson('/api/v1/appointments', [
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->postJson(self::APPOINTMENTS_URL, [
             'client_id' => (string) $this->clientProfile->id,
             'barber_id' => (string) $this->barber->id,
             'service_id' => (string) $this->service->id,
@@ -168,6 +172,38 @@ class ApiContractTest extends TestCase
         $response->assertCreated();
         $this->assertNotNull($response->json('productos_agregados'), 'El caso debe ejercitar productos_agregados.');
         $this->assertMatchesContract('appointments-store.201.json', $response->json());
+    }
+
+    public function test_mark_required_flags_every_object_property_recursively(): void
+    {
+        $schema = [
+            'type' => 'object',
+            'properties' => [
+                'id' => ['type' => 'string'],
+                'items' => ['type' => 'array', 'items' => ['type' => 'object', 'properties' => ['n' => ['type' => 'integer']]]],
+            ],
+        ];
+
+        $marked = ContractRequiredFieldsGenerator::markRequired($schema);
+
+        $this->assertSame(['id', 'items'], $marked['required']);
+        $this->assertSame(['n'], $marked['properties']['items']['items']['required']);
+        $this->assertArrayNotHasKey('required', $marked['properties']['id']);
+    }
+
+    public function test_the_published_spec_marks_contract_responses_as_required_and_leaves_the_rest_alone(): void
+    {
+        // Si alguien regenera el spec sin el generador (o lo quita de config/scribe.php),
+        // los tipos del frontend vuelven a salir con todo opcional: esto lo detecta.
+        $spec = Yaml::parseFile(base_path('public/docs/openapi.yaml'));
+
+        $login = $spec['paths']['/api/v1/auth/login']['post']['responses'];
+        $schema = $login[200]['content']['application/json']['schema'];
+        $this->assertEqualsCanonicalizing(['message', 'token_type', 'token', 'user'], $schema['required']);
+        $this->assertContains('roles', $schema['properties']['user']['required']);
+
+        // Las respuestas escritas a mano no tienen la garantía de la prueba: sin `required`.
+        $this->assertArrayNotHasKey('required', $login[422]['content']['application/json']['schema']);
     }
 
     public function test_the_comparator_detects_an_undocumented_key_and_a_wrong_type(): void

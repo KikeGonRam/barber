@@ -1,7 +1,7 @@
 {
     "message": "Autenticación exitosa.",
     "token_type": "Bearer",
-    "token": "ub_3f9c1d7e5a2b4c6d8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d",
+    "token": "TOKEN_DE_EJEMPLO",
     "user": {
         "id": "6710a1b2c3d4e5f607182930",
         "name": "Juan Pérez",
