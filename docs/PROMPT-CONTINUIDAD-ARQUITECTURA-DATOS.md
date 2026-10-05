@@ -15,9 +15,10 @@ Repositorios:
 
 Reglas obligatorias:
 
-1. Trabaja únicamente en `main`; no crees ramas.
-2. Ninguna IA puede ejecutar commit, push, merge, rebase ni publicar PR. El usuario
-   humano realiza Git. Entrega comandos de commit en español y con la ruta correcta.
+1. Trabaja en una rama propia creada desde `origin/main`; entra a `main` por PR.
+2. Commit, push, PR o merge solo con autorización explícita del usuario para ese cambio;
+   sin ella, entrega los comandos en español con la ruta correcta
+   (ver `git-commit-conventions`).
 3. Lee completa primero
    `barber/.agents/skills/urbanblade-data-architecture/SKILL.md`, después
    `barber/docs/ADR-001-ARQUITECTURA-DE-DATOS.md` y

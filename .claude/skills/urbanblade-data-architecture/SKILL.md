@@ -42,7 +42,8 @@ Invariantes:
    ensayo local, corte reversible y ventana sin borrar el origen.
 7. Nunca ejecutes pruebas fuera de `./test.ps1` ni comandos de escritura contra Atlas
    sin autorización explícita.
-8. Ninguna IA ejecuta `git commit`, `git push`, merge, rebase ni publica PR. Entrega al
-   usuario el resumen, validaciones y mensaje de commit sugerido en español.
+8. Git por rama y PR a `main` con el CI en verde, sin borrar la rama; la IA solo hace
+   commit, push, PR o merge con autorización explícita del usuario para ese cambio
+   (ver `git-commit-conventions`).
 9. Antes de editar, ejecuta `git status` en cada repositorio implicado y preserva los
-   cambios locales. Trabaja únicamente en `main`.
+   cambios locales. Cada cambio va en su propia rama creada desde `origin/main`.

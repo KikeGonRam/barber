@@ -28,7 +28,8 @@ git clone https://github.com/KikeGonRam/spark.git spark
 git clone https://github.com/al140605/UrbanBladeMobile.git UrbanBladeMobile
 ```
 
-Cada repo se clona solo en `main` porque es la única rama. Para verificar:
+Cada repo se clona en `main`, la rama de integración protegida; el trabajo se hace en
+ramas propias que entran por PR (ver `git-commit-conventions`). Para verificar:
 
 ```bash
 cd barber && git branch --show-current        # main

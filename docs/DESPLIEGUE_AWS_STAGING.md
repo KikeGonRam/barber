@@ -187,8 +187,9 @@ independientes:
   invita a la organización, si migran a una).
 - MongoDB Atlas tiene sus propios usuarios de base de datos, documentados en
   [`MONGODB_ATLAS.md`](MONGODB_ATLAS.md) — un acceso de AWS no da acceso a Atlas.
-- Ninguna IA hace commits ni push en estos repos (ver `git-commit-conventions`); esto
-  aplica igual a cualquier compañero nuevo, no es una regla solo para el dueño.
+- Todo cambio entra a `main` por rama y PR con el CI en verde, y una IA solo hace commit,
+  push o PR con autorización explícita del dueño (ver `git-commit-conventions`); aplica
+  igual a cualquier compañero nuevo. El despliegue lo hace el agente `urbanblade-deploy`.
 
 ## Puesta en marcha desde cero
 
