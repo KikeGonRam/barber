@@ -66,11 +66,14 @@ Puntos 1, 3 o 5; 1 punto = 8 horas. Estados: Pendiente, En progreso, Completado.
 5. **Implementar lo mínimo** que cumple el criterio, con sus pruebas.
 6. **Validar** con los comandos de este repositorio (sección de abajo). Sin validación
    no hay commit.
-7. **Entregar al usuario**: resumen, archivos, resultado de pruebas y los comandos
-   completos para PowerShell (`cd` al repo, `git add` con rutas, `git commit`,
-   `git push origin main`). El mensaje de commit va en español, con el ID de la tarea:
-   `feat(pagos): T144 mensajes claros al cancelar el pago con tarjeta`.
-   **La IA no ejecuta `git commit` ni `git push`**: solo el usuario, y solo en `main`.
+7. **Entregar por rama y PR** (desde el 2026-10-04 `main` está protegida): rama
+   `tipo/idtarea-descripcion` desde `origin/main`, commit en español con el ID de la
+   tarea (`feat(pagos): T144 mensajes claros al cancelar el pago con tarjeta`), push de la
+   rama, PR a `main` y merge con el CI en verde **sin borrar la rama**. La IA solo hace
+   commit, push, PR o merge con autorización explícita del usuario en el chat para ese
+   cambio; si no la hay, entrega resumen, archivos, pruebas y los comandos exactos
+   (`git switch -c`, `git add` con rutas, `git commit`, `git push -u origin <rama>`,
+   `gh pr create`). Detalle en `git-commit-conventions`.
 8. **Marcar el estado con evidencia**: una tarea pasa a *Completado* solo con evidencia
    verificable (commit en `main` + prueba que pasa, o registro de QA). Código subido sin
    probar = *En progreso*. "NO INVENTES AVANCE".

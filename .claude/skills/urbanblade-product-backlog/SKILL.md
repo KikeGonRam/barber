@@ -135,6 +135,6 @@ pruebas), Bladebot (historias técnicas y checklist), Nava (estados vacíos).
    0 errores de fórmula y que todas las filas de "Validación Final" digan `✓ Cumple`.
 4. Reportar: historias, tareas y puntos totales, completados, en progreso y pendientes,
    % de avance (puntos completados / totales) y la tabla de sprints.
-5. Git: ninguna IA hace `commit` ni `push` en los repos de UrbanBlade salvo autorización
-   explícita del dueño para ese cambio (ver `git-commit-conventions`); los mensajes de
-   commit van en español.
+5. Git: cada cambio en su rama y por PR a `main` con el CI en verde, sin borrar la rama;
+   la IA solo hace commit, push o PR con autorización explícita del dueño para ese cambio
+   (ver `git-commit-conventions`); los mensajes de commit van en español.

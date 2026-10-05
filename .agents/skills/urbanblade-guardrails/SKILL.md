@@ -8,8 +8,9 @@ description: >
   routine ("run the tests", "seed the database", "reset my local env", "reinstall
   dependencies", "clean up docker"). Also consult before editing `setup.ps1`, `.env*`, or
   anything touching `PaymentService`/`InventoryService`/`OrderService` (payment amounts,
-  product prices, transactions), and before preparing a Git handoff. AI providers never
-  run `git commit` or `git push`; only the user does so after a clean `.\test.ps1`. Also
+  product prices, transactions), and before preparing a Git handoff. Work goes on a
+  branch and reaches the protected `main` only through a PR with green CI; an AI commits,
+  pushes or opens/merges PRs only with the owner's explicit OK for that change. Also
   consult before changing `routes/api.php` or `app/Http/Controllers/Api/**` — the API is
   a real external contract for a native Android app being built separately, not just
   internal code. ALSO consult before editing or creating ANY `.md` file in this repo
@@ -84,8 +85,8 @@ initialized replica set.
 ## 5. `setup.ps1` currently defaults to the wrong branch
 
 `setup.ps1` still has `param([string]$Branch = "feature/mongodb-migration", ...)`
-(line ~35) even though `main` has been the only branch for a while and that branch's
-history was already merged forward. Don't rely on the script's default — pass
+(line ~35) even though that branch's history was merged into `main` long ago and
+`main` is what every clone should start from. Don't rely on the script's default — pass
 `-Branch main` explicitly, or fix the default (low-risk, ask the user first since it's a
 committed script, not a local file).
 
@@ -111,19 +112,24 @@ itself (`--replSet rs0`), never Atlas, and has no deploy/publish step. It's fine
 CI run freely — the risk in this repo is entirely in local/Docker commands that reuse the
 real `.env`, not in CI.
 
-## 9. Git delivery belongs to the user
+## 9. Git delivery: branch, PR, green CI (since 2026-10-04)
 
-No AI provider runs `git commit`, `git push`, merge, rebase, history rewrites or PR
-publication in this repo. Run `.\test.ps1` and the applicable `pint --test`, Larastan,
-`eslint` and `npm run build` checks, then report results and a commit message in Spanish.
-The user reviews the diff, creates the commit and pushes it personally. Do not ask for
-authorization to take over those Git actions; they are permanently human-owned.
+`main` is protected on GitHub (no direct or force pushes, no deletion, PR with green CI
+required, admins included). Every change goes on its own branch from `origin/main`
+(`feat/t114-...`, `fix/tt04-...`), is validated locally (`.\test.ps1` plus the applicable
+`pint --test`, Larastan, `eslint` and `npm run build`), pushed, opened as a PR and merged
+with a merge commit **without deleting the branch**. An AI runs `git commit`, `git push`,
+`gh pr create` or `gh pr merge` only after the owner explicitly authorizes that specific
+change in the chat; otherwise it hands over the exact commands. Never force-push,
+rewrite published history or delete published branches. Full rules and commit format:
+`git-commit-conventions`.
 
 ## 10. Active coordinated scope and branch
 
-As of 2026-09-16, active work includes `barber`, `frontend-urban` and `spark`. All three
-repositories use `main` as their only working branch. Do not create feature branches or
-continue work on the former `urbanblade-analytics` branch. The data-sharing risk in rule
+Active work covers `barber`, `frontend-urban` and the native Android app
+`UrbanBladeMobile` (`spark` is no longer actively developed). All of them use short-lived
+work branches merged into `main` by PR (rule 9). Do not continue work on the former
+`urbanblade-analytics` branch. The data-sharing risk in rule
 6 remains: coordinate schema and connector changes across `barber` and `spark`.
 
 `mobil` (the Expo app) is **fully discontinued** — the user is rebuilding the mobile

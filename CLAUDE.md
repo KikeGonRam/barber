@@ -29,9 +29,10 @@ now lives — most day-to-day feature work happens there, coordinated against th
 repo's API via `.claude/skills/urbanblade-completion-roadmap/SKILL.md` (same skill name
 in both repos).
 
-Repo: `https://github.com/KikeGonRam/barber.git`, working branch `main` (the only
-branch — history from `feature/mongodb-migration` was merged forward and the rest
-deleted). This folder is one of several independent repos gathered under the
+Repo: `https://github.com/KikeGonRam/barber.git`. `main` is the protected integration
+branch (history from `feature/mongodb-migration` was merged forward long ago); since
+2026-10-04 every change goes on its own branch and enters `main` by PR with green CI,
+and work branches are kept, not deleted — see `.claude/skills/git-commit-conventions/`. This folder is one of several independent repos gathered under the
 `UrbanBlade/` parent folder — see `../_seguridad/ACCESOS.md` for cross-project context.
 
 ## Stack
@@ -177,9 +178,13 @@ Highlights, all covered in much more depth there:
 - `make setup`/`make seed`/`make migrate`/`composer run setup`, and any
   `docker compose down --volumes`, can hit the real Atlas DB or destroy local volumes —
   confirm what `.env` points to and confirm with the user first.
-- **Ninguna IA ejecuta `git commit` ni `git push`**. Debe validar con `.\test.ps1`
-  (más `pint --test` y Larastan para PHP, `eslint` + `npm run build` para JS) y entregar
-  al usuario un mensaje de commit en español. Solo el usuario crea el commit y hace push.
+- **Git por rama y PR (desde 2026-10-04).** `main` está protegida: sin push directo ni
+  forzado, solo PR con el CI en verde (también para administradores). Rama por cambio
+  desde `origin/main`, validar con `.\test.ps1` (más `pint --test` y Larastan para PHP,
+  `eslint` + `npm run build` para JS), push de la rama, PR y merge **sin borrar la rama**.
+  La IA solo hace commit, push, PR o merge con autorización explícita del usuario en el
+  chat para ese cambio; si no, entrega el mensaje en español y los comandos. Detalle en
+  `git-commit-conventions`.
 - `barber_db` was fully wiped and reseeded on 2026-09-04 after accumulating ~200k
   synthetic rows from repeated full-seeder runs — **never run the full `DatabaseSeeder`
   again** without explicit confirmation.
@@ -187,8 +192,9 @@ Highlights, all covered in much more depth there:
   reread the source of truth server-side inside the service layer. Payment methods are
   exactly three: efectivo, transferencia, tarjeta (beta, real Stripe charge) — no QR as
   an active option.
-- El alcance activo coordinado incluye `barber`, `frontend-urban` y `spark`; los tres
-  trabajan únicamente en `main`. `mobil` (Expo) está discontinuado.
+- El alcance activo coordinado incluye `barber`, `frontend-urban` y la app Android
+  `UrbanBladeMobile` (`spark` ya no se desarrolla activamente); todos integran en `main`
+  por PR. `mobil` (Expo) está discontinuado.
 - Docs live in specific places — `docs/ACCESOS.md` is the single source of truth for
   credentials. Before editing/creating any `.md`, grep the whole repo for related
   content first — this repo has real history of docs drifting into duplicate,
