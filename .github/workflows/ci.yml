@@ -42,7 +42,7 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Start MongoDB (single-node replica set)
         run: |
@@ -75,7 +75,7 @@ jobs:
           coverage: xdebug
 
       - name: Cache Composer packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: vendor
           key: composer-${{ hashFiles('composer.lock') }}
@@ -100,7 +100,7 @@ jobs:
         run: php artisan test --coverage-clover=coverage/coverage.xml
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: php-coverage
@@ -111,10 +111,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: 'npm'
@@ -140,13 +140,13 @@ jobs:
     # Trivy falla con vulnerabilidades HIGH/CRITICAL que ya tienen version corregida
     # (ignore-unfixed: una sin parche no se puede resolver actualizando).
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Gitleaks revisa los commits del push: necesita el historial, no solo el ultimo.
           fetch-depth: 0
 
       - name: Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -192,7 +192,7 @@ jobs:
           - 6379:6379
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Start MongoDB (single-node replica set)
         run: |
@@ -257,7 +257,7 @@ jobs:
           echo "${login_redirect}" | grep -q "localhost:3000/login"
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
