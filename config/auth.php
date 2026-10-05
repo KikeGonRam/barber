@@ -121,6 +121,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Vigencia de los tokens de API por plataforma
+    |--------------------------------------------------------------------------
+    |
+    | Días que dura un token de cada cliente. Es una ventana deslizante: se
+    | renueva sola mientras se use (ver AuthenticateMobileApiToken), así que es
+    | en realidad el tiempo máximo de inactividad. La web es más corta porque el
+    | token vive en una cookie legible por JS; la app nativa lo guarda en el
+    | dispositivo y no debería pedir login cada mes.
+    |
+    */
+    'api_token_ttl_days' => [
+        'web' => (int) env('API_TOKEN_TTL_WEB_DAYS', 30),
+        'movil' => (int) env('API_TOKEN_TTL_MOVIL_DAYS', 180),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Bootstrap Admin Registration
     |--------------------------------------------------------------------------
     |
