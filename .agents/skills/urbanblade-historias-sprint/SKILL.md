@@ -79,6 +79,25 @@ Puntos 1, 3 o 5; 1 punto = 8 horas. Estados: Pendiente, En progreso, Completado.
    verificable (commit en `main` + prueba que pasa, o registro de QA). Código subido sin
    probar = *En progreso*. "NO INVENTES AVANCE".
 
+## Reglas de ingeniería (adaptadas de mattpocock/skills)
+
+- **Prueba roja primero.** Para un bug o una regla de negocio, escribe la prueba que falla
+  con el síntoma exacto, luego el mínimo código para ponerla en verde, de una rebanada a la
+  vez. Las pruebas se escriben en la interfaz pública (la ruta de la API, la pantalla, el
+  servicio), no con *mocks* de colaboradores internos ni repitiendo en la aserción el cálculo
+  del código. En `barber`, siempre con `.\test.ps1`.
+- **Bug difícil: primero un bucle que falle por ese bug.** Antes de proponer una causa,
+  consigue un comando rápido y determinista que ya hayas corrido y que se ponga rojo por el
+  síntoma real (una prueba, un `curl`, un script de Playwright, la repetición de una petición
+  guardada). Sin ese comando no hay hipótesis. Después reduce el caso al mínimo, formula de 3
+  a 5 hipótesis ordenadas antes de probar ninguna y deja la prueba como regresión.
+- **Al mostrar salidas, tachar secretos** (`<REDACTED>`): claves, tokens, `.env`, Secrets
+  Manager. Construye los bucles contra variables de entorno, no con el valor pegado.
+- **Al escribir o editar skills, `CLAUDE.md` o `AGENTS.md`:** una sola fuente de verdad por
+  regla (apunta a ella en vez de copiarla), no repitas lo que ya dicen `package.json`, el CI
+  o la estructura de carpetas, y que cada paso termine en un criterio comprobable de
+  "terminado". Una descripción de skill nombra solo casos de uso distintos entre sí.
+
 ## Reglas de alcance
 
 - Tecnología real: Laravel 13 + MongoDB (`laravel-mongodb`), token Bearer propio
