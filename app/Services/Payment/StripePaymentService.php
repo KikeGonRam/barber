@@ -105,16 +105,31 @@ class StripePaymentService
 
         $cards = [];
         foreach ($methods->data as $method) {
-            $cards[] = [
-                'id' => (string) $method->id,
-                'brand' => (string) ($method->card->brand ?? 'card'),
-                'last4' => (string) ($method->card->last4 ?? ''),
-                'exp_month' => (int) ($method->card->exp_month ?? 0),
-                'exp_year' => (int) ($method->card->exp_year ?? 0),
-            ];
+            $cards[] = self::presentCard($method);
         }
 
         return $cards;
+    }
+
+    /**
+     * Lo único de una tarjeta que sale hacia la app: marca, últimos 4, vencimiento y el nombre del titular
+     * que la persona escribió al guardarla (dato de facturación del método de pago; null si no lo hay,
+     * como en las tarjetas guardadas antes de pedirlo). Nunca el número completo ni el CVC.
+     *
+     * @return array{id: string, brand: string, last4: string, exp_month: int, exp_year: int, holder: string|null}
+     */
+    public static function presentCard(object $method): array
+    {
+        $holder = trim((string) preg_replace('/ +/', ' ', str_replace([chr(0), chr(9), chr(10), chr(13)], ' ', (string) ($method->billing_details->name ?? ''))));
+
+        return [
+            'id' => (string) $method->id,
+            'brand' => (string) ($method->card->brand ?? 'card'),
+            'last4' => (string) ($method->card->last4 ?? ''),
+            'exp_month' => (int) ($method->card->exp_month ?? 0),
+            'exp_year' => (int) ($method->card->exp_year ?? 0),
+            'holder' => $holder !== '' ? mb_substr($holder, 0, 40) : null,
+        ];
     }
 
     /**

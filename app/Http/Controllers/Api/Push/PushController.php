@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Push;
 
+use App\Http\Controllers\Api\Profile\ProfileController;
 use App\Http\Controllers\Controller;
 use App\Models\PushSubscription;
 use Illuminate\Http\JsonResponse;
@@ -52,6 +53,14 @@ class PushController extends Controller
                 'content_encoding' => $validated['content_encoding'] ?? 'aes128gcm',
             ],
         );
+
+        // Suscribir el navegador es aceptar avisos: el canal push viene apagado por defecto y, sin
+        // esto, el servidor descartaba todo aviso aunque la suscripción existiera. Igual que con el
+        // token de Android, solo se enciende si la persona nunca eligió; si lo apagó, se respeta.
+        if (! ProfileController::pushChoiceMade($user)) {
+            $own = $user->getAttribute('notification_preferences');
+            $user->update(['notification_preferences' => array_merge(is_array($own) ? $own : [], ['push' => true])]);
+        }
 
         return response()->json(['message' => 'Suscripción registrada.'], 201);
     }

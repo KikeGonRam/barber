@@ -3,6 +3,7 @@
 namespace App\Notifications\Payment;
 
 use App\Models\Payment;
+use App\Notifications\Concerns\PushesToDevices;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -15,6 +16,7 @@ use Illuminate\Notifications\Notification;
  */
 class TransferReceiptNotification extends Notification implements ShouldQueue
 {
+    use PushesToDevices;
     use Queueable;
 
     public function __construct(public readonly Payment $payment, public readonly string $status, public readonly ?string $motivo = null) {}
@@ -34,6 +36,8 @@ class TransferReceiptNotification extends Notification implements ShouldQueue
         if (method_exists($notifiable, 'wantsNotificationChannel') && $notifiable->wantsNotificationChannel('email')) {
             $channels[] = 'mail';
         }
+
+        $channels = [...$channels, ...$this->pushChannels($notifiable)];
 
         return $channels ?: ['database'];
     }
@@ -86,6 +90,7 @@ class TransferReceiptNotification extends Notification implements ShouldQueue
             'payment_id' => $this->payment->id,
             'appointment_id' => $this->payment->appointment_id,
             'status' => $this->status,
+            'title' => $this->status === 'rechazado' ? 'Comprobante rechazado' : 'Comprobante en revisión',
             'message' => $this->status === 'rechazado'
                 ? 'Tu comprobante fue rechazado.'.($this->motivo ? ' Motivo: '.$this->motivo : '').' Sube uno nuevo.'
                 : 'Recibimos tu comprobante, está en revisión.',

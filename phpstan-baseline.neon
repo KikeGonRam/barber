@@ -849,13 +849,13 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 2
 			path: app/Http/Controllers/Api/Order/OrderController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
 			identifier: property.notFound
-			count: 6
+			count: 5
 			path: app/Http/Controllers/Api/Order/OrderController.php
 
 		-
@@ -873,19 +873,14 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 2
 			path: app/Http/Controllers/Api/Order/OrderController.php
 
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Api/Order/OrderController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$created_at\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/Http/Controllers/Api/Order/OrderController.php
 
 		-

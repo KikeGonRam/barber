@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Loyalty;
 
+use App\Notifications\Concerns\PushesToDevices;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -15,6 +16,7 @@ use Illuminate\Notifications\Notification;
  */
 class LoyaltyPointsExpiredNotification extends Notification implements ShouldQueue
 {
+    use PushesToDevices;
     use Queueable;
 
     public function __construct(public readonly int $puntosPerdidos) {}
@@ -27,7 +29,7 @@ class LoyaltyPointsExpiredNotification extends Notification implements ShouldQue
             $channels[] = 'mail';
         }
 
-        return $channels;
+        return [...$channels, ...$this->pushChannels($notifiable)];
     }
 
     public function toMail(object $notifiable): MailMessage

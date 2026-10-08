@@ -3,12 +3,14 @@
 namespace App\Notifications\Payment;
 
 use App\Models\Payment;
+use App\Notifications\Concerns\PushesToDevices;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Comprobante de pago (factura) enviado al cliente. Se dispara desde
@@ -17,6 +19,7 @@ use Illuminate\Support\Facades\Log;
  */
 class PaymentReceiptNotification extends Notification implements ShouldQueue
 {
+    use PushesToDevices;
     use Queueable;
 
     public function __construct(public readonly Payment $payment) {}
@@ -36,6 +39,8 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
         if (method_exists($notifiable, 'wantsNotificationChannel') && $notifiable->wantsNotificationChannel('email')) {
             $channels[] = 'mail';
         }
+
+        $channels = [...$channels, ...$this->pushChannels($notifiable)];
 
         return $channels ?: ['database'];
     }
@@ -70,16 +75,28 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
                 'badge' => 'Pagado',
                 'title' => 'Gracias por tu visita',
                 'greeting' => 'Hola '.$notifiable->name.',',
-                'intro' => 'Tu pago fue registrado correctamente. Adjuntamos tu factura en PDF.',
+                'intro' => 'Tu pago fue registrado correctamente. Adjuntamos tu comprobante y tu factura en PDF.',
                 'rows' => $rows,
                 'total' => ['label' => 'Total', 'value' => '$'.number_format($monto + $propina, 2)],
                 'ctaLabel' => 'Ver mis facturas',
                 'ctaUrl' => $url,
             ]);
 
+        $folio = 'F-'.strtoupper(substr((string) $this->payment->id, -6));
+
+        // Adjunta el comprobante que ya se generó al cobrar (el mismo que se descarga en la app y la web).
+        // No es crítico: si no existe o falla la lectura, el correo igual sale con la factura.
+        try {
+            $comprobante = (string) $this->payment->comprobante_pdf;
+            if ($comprobante !== '' && Storage::disk('receipts')->exists($comprobante)) {
+                $mail->attachData(Storage::disk('receipts')->get($comprobante), 'comprobante-'.$folio.'.pdf', ['mime' => 'application/pdf']);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo adjuntar el comprobante de pago', ['payment_id' => $this->payment->id, 'error' => $e->getMessage()]);
+        }
+
         // Adjunta la factura en PDF (no critico: si falla, el correo igual sale).
         try {
-            $folio = 'F-'.strtoupper(substr((string) $this->payment->id, -6));
             $pdf = Pdf::loadView('pdf.invoice', [
                 'folio' => $folio,
                 'emitido' => now()->format('d/m/Y'),
@@ -112,7 +129,8 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
             'type' => 'payment',
             'payment_id' => $this->payment->id,
             'appointment_id' => $this->payment->appointment_id,
-            'message' => 'Se registró tu pago #'.$this->payment->id,
+            'title' => 'Pago recibido',
+            'message' => 'Recibimos tu pago de $'.number_format((float) $this->payment->monto, 2).' MXN. Ya puedes ver tu comprobante.',
             'monto' => (float) $this->payment->monto,
             'propina' => (float) $this->payment->propina,
             'metodo_pago' => $this->payment->metodo_pago,

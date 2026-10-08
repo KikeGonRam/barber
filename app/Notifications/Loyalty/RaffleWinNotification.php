@@ -3,6 +3,7 @@
 namespace App\Notifications\Loyalty;
 
 use App\Models\RaffleResult;
+use App\Notifications\Concerns\PushesToDevices;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -17,6 +18,7 @@ use Illuminate\Notifications\Notification;
  */
 class RaffleWinNotification extends Notification implements ShouldQueue
 {
+    use PushesToDevices;
     use Queueable;
 
     public function __construct(public readonly RaffleResult $prize) {}
@@ -29,7 +31,7 @@ class RaffleWinNotification extends Notification implements ShouldQueue
             $channels[] = 'mail';
         }
 
-        return $channels;
+        return [...$channels, ...$this->pushChannels($notifiable)];
     }
 
     public function toMail(object $notifiable): MailMessage

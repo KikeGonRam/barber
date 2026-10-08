@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Loyalty;
 
+use App\Notifications\Concerns\PushesToDevices;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,6 +16,7 @@ use Illuminate\Notifications\Notification;
  */
 class ClientBirthdayNotification extends Notification implements ShouldQueue
 {
+    use PushesToDevices;
     use Queueable;
 
     public function via(object $notifiable): array
@@ -25,7 +27,7 @@ class ClientBirthdayNotification extends Notification implements ShouldQueue
             $channels[] = 'mail';
         }
 
-        return $channels;
+        return [...$channels, ...$this->pushChannels($notifiable)];
     }
 
     public function toMail(object $notifiable): MailMessage

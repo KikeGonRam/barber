@@ -113,6 +113,10 @@ class AppointmentManageController extends Controller
             'bloquea_horario' => false,
         ]);
 
+        // Antes se llamaba a statusChanged(), que no avisa de las cancelaciones: el cliente que cancelaba
+        // desde el enlace del recordatorio nunca recibía confirmación ni lo sabían el barbero y el personal.
+        $this->notifier->cancelled($appointment, 'enlace del recordatorio');
+
         // withinPolicy() ya garantizó arriba que esto es una cancelación a
         // tiempo, no un no-show -- devuelve el depósito verificado si había.
         $this->deposits->refundIfAny($appointment);
@@ -120,8 +124,6 @@ class AppointmentManageController extends Controller
         // Libera el horario para quien esperaba exactamente este barbero+
         // servicio+fecha (ver WaitlistService).
         $this->waitlist->notifyIfAny($appointment);
-
-        $this->notifier->statusChanged($appointment, 'cancelada');
 
         return response()->json([
             'message' => 'Tu cita fue cancelada.',

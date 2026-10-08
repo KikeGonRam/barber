@@ -52,9 +52,14 @@ class AppointmentNotifier
     }
 
     /**
-     * Cita cancelada. $origin describe de donde vino (web, app movil, etc.).
+     * Cita cancelada. $origin describe de donde vino (web, app movil, etc.). $byClient dice si la
+     * canceló el propio cliente (el barbero lee «X canceló su cita») o el negocio desde la agenda
+     * (el barbero lee «se canceló tu cita con X»).
+     *
+     * Toda ruta que cancele una cita debe llamar a este método: estados distintos de `cancelada`
+     * pasan por statusChanged(), que a propósito no avisa de las cancelaciones.
      */
-    public function cancelled(Appointment $appointment, string $origin = ''): void
+    public function cancelled(Appointment $appointment, string $origin = '', bool $byClient = true): void
     {
         $appointment->loadMissing(['client.user', 'barber.user', 'service']);
         $cliente = $appointment->client?->user?->name ?? 'Un cliente';
@@ -71,7 +76,7 @@ class AppointmentNotifier
         // Barbero
         $this->send($appointment->barber?->user, $appointment,
             'Cita cancelada', 'Se canceló una cita',
-            "{$cliente} canceló su cita contigo{$suffix}.",
+            $byClient ? "{$cliente} canceló su cita contigo{$suffix}." : "Se canceló tu cita con {$cliente}{$suffix}.",
             'Ver mi agenda', $this->frontendUrl('/barber/agenda'),
             '#ef4444', 'Cancelada');
 
