@@ -595,6 +595,7 @@ class AppointmentController extends Controller
         // La cancela el negocio (administración editando la cita): si el cliente pagó al
         // reservar, se le devuelve, igual que cuando él cancela a tiempo.
         if ($becameCancelled) {
+            $this->notifier->cancelled($appointment->fresh(), 'edición de la cita', false);
             $this->deposits->refundIfAny($appointment->fresh());
         }
 
@@ -786,6 +787,9 @@ class AppointmentController extends Controller
         // Y como cancela el negocio, lo que el cliente pagó al reservar se le
         // devuelve (DepositService::refundIfAny(); no-show va por 'no_asistio').
         if ($validated['estado'] === 'cancelada') {
+            // statusChanged() no avisa de las cancelaciones: sin esta llamada, cancelar desde la agenda
+            // (web o app del personal) no mandaba ningún aviso ni push al cliente, al barbero ni al personal.
+            $this->notifier->cancelled($appointment, 'agenda', false);
             $this->waitlist->notifyIfAny($appointment);
             $this->deposits->refundIfAny($appointment);
         }
@@ -834,6 +838,10 @@ class AppointmentController extends Controller
             'cancelada_en' => now(),
         ]);
 
+        // El aviso va primero: un fallo al reembolsar o al avisar a la lista de espera no debe
+        // dejar a cliente, barbero y personal sin saber que la cita se canceló.
+        $this->notifier->cancelled($appointment, 'app movil', $isOwner && ! $isAdmin);
+
         // Cancelación a tiempo (ya validada arriba), nunca no-show: si había
         // un depósito verificado, se devuelve (ver DepositService::refundIfAny()).
         $this->deposits->refundIfAny($appointment);
@@ -841,8 +849,6 @@ class AppointmentController extends Controller
         // El horario que ocupaba esta cita queda libre -- avisa a quien
         // esperaba exactamente ese barbero+servicio+fecha (ver WaitlistService).
         $this->waitlist->notifyIfAny($appointment);
-
-        $this->notifier->cancelled($appointment, 'app movil');
 
         return response()->json([
             'message' => 'Cita cancelada correctamente.',
