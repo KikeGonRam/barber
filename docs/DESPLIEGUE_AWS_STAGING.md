@@ -138,6 +138,41 @@ lo escribe en `/run/app-secrets/firebase.json` (solo lectura para `www-data`), a
 canales siguen funcionando. Para probar la entrega en un teléfono: `POST /api/v1/profile/push-test`
 con el token del propio usuario (solo a su teléfono, 3 intentos por minuto).
 
+### Correo saliente (Gmail SMTP)
+
+**Hasta el 2026-10-08 staging no tenía ninguna variable `MAIL_*`**: Laravel usaba el mailer `log` y
+todos los correos (bienvenida y código de verificación, olvido de contraseña, comprobantes y facturas
+de pagos, factura de membresía, pedidos, citas, lealtad, promociones) solo se escribían en el log de
+CloudWatch. La app respondía «enviado» sin error alguno. Los avisos de la bandeja y el push no
+dependen del correo, por eso sí funcionaban.
+
+Configuración elegida (la que ya se usaba antes): **Gmail SMTP** con una contraseña de aplicación.
+Requiere verificación en dos pasos y una contraseña de aplicación de 16 caracteres
+(<https://myaccount.google.com/apppasswords>). Gmail reescribe el remitente a la cuenta autenticada,
+así que `MAIL_FROM_ADDRESS` es la misma cuenta.
+
+| Variable | Valor | Tipo |
+|---|---|---|
+| `MAIL_MAILER` | `smtp` | variable |
+| `MAIL_HOST` | `smtp.gmail.com` | variable |
+| `MAIL_PORT` | `587` (STARTTLS automático) | variable |
+| `MAIL_USERNAME` | la cuenta de Gmail | variable |
+| `MAIL_FROM_ADDRESS` | la misma cuenta de Gmail | variable |
+| `MAIL_FROM_NAME` | `UrbanBlade` | variable |
+| `MAIL_PASSWORD` | contraseña de aplicación, secreto `urbanblade/staging/barber/MAIL_PASSWORD` referenciado por ARN | **secreto** |
+
+No definir `MAIL_SCHEME` (`tls` no es un esquema válido). Para aplicarlo: `scripts/Configurar-CorreoStaging.ps1`
+(simulación por defecto; con `-Aplicar` crea el secreto, registra una revisión nueva de la task definition y
+redespliega). Lo debe correr el propietario con un perfil de AWS con permisos de Secrets Manager y
+`ecs:RegisterTaskDefinition`; el usuario `staging-deploy` no los tiene. Si la tarea no arranca por permisos, el
+rol `ecsTaskExecutionRole` necesita `secretsmanager:GetSecretValue` sobre el secreto nuevo.
+
+Comprobar (tras redesplegar): `php artisan urbanblade:mail-check correo@dominio.com` manda una prueba y
+muestra proveedor, cuenta enmascarada y remitente (nunca la contraseña); avisa si el mailer sigue en `log`.
+Además, en producción la app deja en el log una advertencia («Correo saliente sin configurar…», una vez por
+hora) mientras el correo no entregue de verdad. Límite de Gmail: ~500 correos al día; para volumen real o
+dominio propio conviene migrar a SES (identidad de `urbanblade.com.mx`, DKIM/SPF/DMARC en Route 53).
+
 Tareas programadas: staging **no** tiene un servicio `scheduler` aparte. El contenedor de
 `barber` corre `schedule:work` en segundo plano solo si `RUN_SCHEDULER=true` (sin la variable
 queda apagado). **Está encendido desde el 27-sep-2026** (revisión 9 de

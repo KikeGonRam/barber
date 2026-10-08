@@ -33,13 +33,13 @@
 </style>
 </head>
 <body>
+@php $shop = \App\Services\Mail\ShopBranding::contact(); @endphp
 <div class="sheet">
 
     <table class="top">
         <tr>
             <td>
-                <div class="brand">Urban<span>Blade</span></div>
-                <div class="brand-sub">Elite Grooming Studio</div>
+                <table style="border-collapse:collapse;"><tr><td style="padding-right:12px;"><img src="{{ \App\Services\Mail\ShopBranding::logoDataUri() }}" width="54" height="54" alt="UrbanBlade"></td><td><div class="brand">URBAN<span>BLADE</span></div><div class="brand-sub">Elite Grooming Studio</div></td></tr></table>
             </td>
             <td class="doc">
                 <div class="h">Recibo de pedido</div>
@@ -59,7 +59,7 @@
             </td>
             <td>
                 <div class="label">Emisor</div>
-                <div class="val">UrbanBlade<small>Av. Reforma 123, CDMX</small><small>hola@urbanblade.com · +52 55 1234 5678</small></div>
+                <div class="val">{{ $shop['nombre'] }}@if($shop['direccion'])<small>{{ $shop['direccion'] }}</small>@endif@if($shop['email'] || $shop['telefono'])<small>{{ collect([$shop['email'], $shop['telefono']])->filter()->implode(' · ') }}</small>@endif</div>
             </td>
         </tr>
     </table>

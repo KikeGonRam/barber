@@ -32,7 +32,7 @@
 @endisset
 
 @isset($ctaUrl)
-@component('mail::button', ['url' => $ctaUrl, 'color' => 'primary'])
+@component('mail::button', ['url' => \App\Services\Mail\ShopBranding::smartLink((string) $ctaUrl), 'color' => 'primary'])
 {{ $ctaLabel ?? 'Ver' }}
 @endcomponent
 @endisset

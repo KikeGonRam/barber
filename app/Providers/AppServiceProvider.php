@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Listeners\EmbedMailLogo;
 use App\Models\User;
 use App\Notifications\Auth\WelcomeNotification;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
@@ -17,6 +18,7 @@ use App\Repositories\Eloquent\ServiceRepository;
 use App\Services\Chatbot\Contracts\ChatbotAiProvider;
 use App\Services\Chatbot\GeminiService;
 use App\Services\Chatbot\OllamaService;
+use App\Services\Mail\MailConfigCheck;
 use App\Services\System\QueueFailureMonitor;
 use App\Services\System\ScheduledTaskMonitor;
 use App\Support\DataEnvironmentGuard;
@@ -26,9 +28,12 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Console\Events\ScheduledTaskFailed;
 use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -59,10 +64,44 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
+     * En producción, deja una advertencia en el log (una vez por hora) si el correo no está configurado para
+     * entregar mensajes de verdad. Sin MAIL_* Laravel usa el mailer "log" y la app responde "enviado" sin
+     * mandar nada: pasó en staging y no daba ningún error. Nunca rompe el arranque.
+     */
+    private function warnIfMailIsNotDelivering(): void
+    {
+        if (! $this->app->isProduction()) {
+            return;
+        }
+
+        try {
+            $mailer = (string) config('mail.default');
+            $config = (array) config("mail.mailers.{$mailer}", []);
+            $problems = MailConfigCheck::problems(
+                $mailer,
+                isset($config['host']) ? (string) $config['host'] : null,
+                (string) config('mail.from.address'),
+                isset($config['username']) ? (string) $config['username'] : null,
+            );
+
+            if ($problems !== [] && Cache::add('mail-config-warning', true, now()->addHour())) {
+                Log::warning('Correo saliente sin configurar: los correos NO están llegando a los usuarios.', ['problemas' => $problems]);
+            }
+        } catch (\Throwable) {
+            // Es solo un aviso: si falla (p. ej. la caché), no debe tumbar la aplicación.
+        }
+    }
+
+    /**
      * Bootstrap any application services.
      */
     public function boot(): void
     {
+        $this->warnIfMailIsNotDelivering();
+
+        // Logo incrustado en todos los correos (imagen cid:), para que se vea aunque el cliente bloquee imágenes remotas.
+        Event::listen(MessageSending::class, EmbedMailLogo::class);
+
         DataEnvironmentGuard::assertSafe(
             (string) config('app.env'),
             (string) config('database.data_environment'),
@@ -134,6 +173,34 @@ class AppServiceProvider extends ServiceProvider
             $email = urlencode($user->getEmailForPasswordReset());
 
             return config('app.frontend_url')."/reset-password?token={$token}&email={$email}";
+        });
+
+        // Correo de restablecer contraseña con la marca y en español (antes salía con la plantilla en inglés de
+        // Laravel: «Reset your password», «Hello!», «Regards»). El enlace sigue yendo a la web: el token no pasa por la app.
+        ResetPassword::toMailUsing(function (User $user, string $token): MailMessage {
+            $minutes = (int) config('auth.passwords.'.config('auth.defaults.passwords').'.expire', 60);
+            $email = urlencode($user->getEmailForPasswordReset());
+
+            $url = config('app.frontend_url')."/reset-password?token={$token}&email={$email}";
+
+            $mail = (new MailMessage)
+                ->subject('Restablece tu contraseña — UrbanBlade')
+                ->markdown('emails.message', [
+                    'accent' => '#d4af37',
+                    'badge' => 'Seguridad',
+                    'title' => 'Restablece tu contraseña',
+                    'greeting' => 'Hola '.$user->name.',',
+                    'intro' => "Recibimos una solicitud para restablecer la contraseña de tu cuenta. El enlace vence en {$minutes} minutos.",
+                    'ctaLabel' => 'Restablecer contraseña',
+                    'ctaUrl' => $url,
+                    'secondary' => 'Si no fuiste tú, ignora este correo: tu contraseña no cambia.',
+                ]);
+
+            // Se conserva el contrato de MailMessage (quien lo inspecciona, p. ej. las pruebas, lee el enlace aquí).
+            $mail->actionText = 'Restablecer contraseña';
+            $mail->actionUrl = $url;
+
+            return $mail;
         });
     }
 }
