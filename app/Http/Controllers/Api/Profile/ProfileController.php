@@ -419,7 +419,7 @@ class ProfileController extends Controller
     }
 
     /** Si el usuario ya eligió algo sobre el canal push (en su cuenta o en el perfil de cliente heredado). */
-    private static function pushChoiceMade(User $user): bool
+    public static function pushChoiceMade(User $user): bool
     {
         $own = $user->getAttribute('notification_preferences');
         $legacy = $user->clientProfile?->getAttribute('preferencias_notificacion');

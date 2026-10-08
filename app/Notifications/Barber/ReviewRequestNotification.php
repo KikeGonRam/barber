@@ -3,6 +3,7 @@
 namespace App\Notifications\Barber;
 
 use App\Models\Appointment;
+use App\Notifications\Concerns\PushesToDevices;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -14,6 +15,7 @@ use Illuminate\Notifications\Notification;
  */
 class ReviewRequestNotification extends Notification implements ShouldQueue
 {
+    use PushesToDevices;
     use Queueable;
 
     public function __construct(public readonly Appointment $appointment) {}
@@ -29,7 +31,7 @@ class ReviewRequestNotification extends Notification implements ShouldQueue
             $channels[] = 'mail';
         }
 
-        return $channels;
+        return [...$channels, ...$this->pushChannels($notifiable)];
     }
 
     /**

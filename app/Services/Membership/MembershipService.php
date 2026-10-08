@@ -7,6 +7,8 @@ use App\Models\Client;
 use App\Models\ClientMembership;
 use App\Models\MembershipInvoice;
 use App\Models\MembershipPlan;
+use App\Models\User;
+use App\Notifications\Membership\MembershipInvoiceNotification;
 use App\Services\Payment\StripePaymentService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -243,7 +245,7 @@ class MembershipService
         }
 
         try {
-            MembershipInvoice::create([
+            $invoice = MembershipInvoice::create([
                 'client_membership_id' => (string) $membership->id,
                 'monto' => $monto,
                 'stripe_invoice_id' => $stripeInvoiceId,
@@ -251,6 +253,19 @@ class MembershipService
             ]);
         } catch (BulkWriteException $e) {
             Log::info('Stripe webhook: cobro de membresía ya registrado (carrera con otra entrega del webhook), se omite', ['stripe_invoice_id' => $stripeInvoiceId]);
+
+            return;
+        }
+
+        // Factura por correo (y aviso/push). Solo se llega aquí la primera vez que se registra cada factura de
+        // Stripe, así que no se repite. Un fallo al avisar nunca deshace el registro del cobro.
+        try {
+            $user = data_get($membership, 'client.user');
+            if ($user instanceof User) {
+                $user->notify(new MembershipInvoiceNotification($invoice, (string) (data_get($membership, 'plan.nombre') ?? 'UrbanBlade')));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo avisar la factura de la membresía', ['stripe_invoice_id' => $stripeInvoiceId, 'error' => $e->getMessage()]);
         }
     }
 

@@ -204,6 +204,9 @@ class AppointmentNotification extends Notification implements ShouldQueue
             'title' => $this->title,
             'body' => $this->message,
             'url' => $this->actionUrl ?? config('app.frontend_url').'/my/appointments',
+            'type' => 'appointment',
+            'channel' => 'citas',
+            'route' => 'appointments',
         ];
     }
 

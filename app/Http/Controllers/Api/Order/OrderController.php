@@ -6,6 +6,7 @@ use App\Exceptions\Domain\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Notifications\Order\OrderDeliveredNotification;
+use App\Services\Order\OrderReceiptPdf;
 use App\Services\Order\OrderService;
 use App\Support\ReceiptStorage;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -220,16 +221,7 @@ class OrderController extends Controller
 
     private function receiptPdf(Order $order): \Barryvdh\DomPDF\PDF
     {
-        $order->loadMissing('client.user');
-
-        return Pdf::loadView('pdf.order-receipt', [
-            'folio' => $order->folio,
-            'emitido' => optional($order->entregado_en ?? $order->created_at)->format('d/m/Y'),
-            'cliente' => $order->client?->user?->name ?? 'Cliente',
-            'items' => $order->items ?? [],
-            'total' => (float) $order->total,
-            'metodo' => ucfirst($order->metodo_pago ?? '—'),
-        ]);
+        return OrderReceiptPdf::make($order);
     }
 
     /**

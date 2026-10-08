@@ -47,7 +47,7 @@ class FcmPushService
                         )->all(),
                         'android' => [
                             'priority' => 'high',
-                            'notification' => ['channel_id' => 'citas'],
+                            'notification' => ['channel_id' => PushRouting::channel($payload['channel'] ?? null)],
                         ],
                     ],
                 ]);

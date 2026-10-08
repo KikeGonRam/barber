@@ -383,7 +383,7 @@ class PaymentController extends Controller
      *
      * @authenticated
      *
-     * @response 200 {"data": [{"id": "pm_123", "brand": "visa", "last4": "4242", "exp_month": 12, "exp_year": 2032}]}
+     * @response 200 {"data": [{"id": "pm_123", "brand": "visa", "last4": "4242", "exp_month": 12, "exp_year": 2032, "holder": "LUIS GONZALEZ"}]}
      */
     public function cards(Request $request): JsonResponse
     {

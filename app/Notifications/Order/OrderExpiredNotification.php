@@ -3,6 +3,7 @@
 namespace App\Notifications\Order;
 
 use App\Models\Order;
+use App\Notifications\Concerns\PushesToDevices;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -15,6 +16,7 @@ use Illuminate\Notifications\Notification;
  */
 class OrderExpiredNotification extends Notification implements ShouldQueue
 {
+    use PushesToDevices;
     use Queueable;
 
     public function __construct(public readonly Order $order) {}
@@ -27,7 +29,7 @@ class OrderExpiredNotification extends Notification implements ShouldQueue
             $channels[] = 'mail';
         }
 
-        return $channels;
+        return [...$channels, ...$this->pushChannels($notifiable)];
     }
 
     public function toMail(object $notifiable): MailMessage

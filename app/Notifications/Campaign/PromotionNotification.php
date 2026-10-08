@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Campaign;
 
+use App\Notifications\Concerns\PushesToDevices;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -14,6 +15,7 @@ use Illuminate\Notifications\Notification;
  */
 class PromotionNotification extends Notification implements ShouldQueue
 {
+    use PushesToDevices;
     use Queueable;
 
     public function __construct(
@@ -42,7 +44,7 @@ class PromotionNotification extends Notification implements ShouldQueue
             $channels[] = 'mail';
         }
 
-        return $channels;
+        return [...$channels, ...$this->pushChannels($notifiable)];
     }
 
     /**

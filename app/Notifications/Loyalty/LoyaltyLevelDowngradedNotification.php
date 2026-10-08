@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Loyalty;
 
+use App\Notifications\Concerns\PushesToDevices;
 use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,6 +17,7 @@ use Illuminate\Notifications\Notification;
  */
 class LoyaltyLevelDowngradedNotification extends Notification implements ShouldQueue
 {
+    use PushesToDevices;
     use Queueable;
 
     public function __construct(
@@ -31,7 +33,7 @@ class LoyaltyLevelDowngradedNotification extends Notification implements ShouldQ
             $channels[] = 'mail';
         }
 
-        return $channels;
+        return [...$channels, ...$this->pushChannels($notifiable)];
     }
 
     public function toMail(object $notifiable): MailMessage
