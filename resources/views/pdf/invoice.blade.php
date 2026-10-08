@@ -42,7 +42,7 @@
     <table class="top">
         <tr>
             <td>
-                <table style="border-collapse:collapse;"><tr><td style="padding-right:12px;"><img src="{{ \App\Services\Mail\ShopBranding::logoDataUri() }}" width="54" height="54" alt="UrbanBlade"></td><td><div class="brand">URBAN<span>BLADE</span></div><div class="brand-sub">Elite Grooming Studio</div></td></tr></table>
+                <table role="presentation" style="border-collapse:collapse;"><tr><td style="padding-right:12px;"><img src="{{ \App\Services\Mail\ShopBranding::logoDataUri() }}" width="54" height="54" alt="UrbanBlade"></td><td><div class="brand">URBAN<span>BLADE</span></div><div class="brand-sub">Elite Grooming Studio</div></td></tr></table>
             </td>
             <td class="doc">
                 <div class="h">Recibo</div>
