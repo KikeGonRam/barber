@@ -110,7 +110,7 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="header-title">Urban<span>Blade</span></h1>
+        <img src="{{ \App\Services\Mail\ShopBranding::logoDataUri() }}" width="52" height="52" alt="UrbanBlade" style="vertical-align:middle;margin-right:10px;"><h1 class="header-title" style="display:inline-block;vertical-align:middle;margin:0;">Urban<span>Blade</span></h1>
         <div class="invoice-info">
             <p>Factura No: <span>#{{ strtoupper(mb_substr((string) $payment->id, -8)) }}</span></p>
             <p>Fecha: <span>{{ $payment->created_at?->format('d/m/Y') }}</span></p>
@@ -223,8 +223,9 @@
         </div>
     </div>
 
+    @php $shop = \App\Services\Mail\ShopBranding::contact(); @endphp
     <div class="footer">
-        UrbanBlade &bull; www.urbanblade.com &bull; +52 123 456 7890
+        {{ $shop['nombre'] }}@if($shop['direccion']) &bull; {{ $shop['direccion'] }}@endif@if($shop['telefono']) &bull; {{ $shop['telefono'] }}@endif @if($shop['email']) &bull; {{ $shop['email'] }}@endif
     </div>
 </body>
 </html>

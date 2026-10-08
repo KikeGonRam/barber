@@ -1,4 +1,4 @@
-/* BarberPro Premium Dark Theme */
+/* UrbanBlade: tema de correo. Paleta del logo: negro #0C0D0F, dorado #D4AF37, crema #F6F0E2. */
 
 body,
 body *:not(html):not(style):not(br):not(tr):not(code) {
@@ -10,7 +10,7 @@ body *:not(html):not(style):not(br):not(tr):not(code) {
 body {
     -webkit-text-size-adjust: none;
     background-color: #0a0a0a;
-    color: #f2f2f2;
+    color: #f6f0e2;
     height: 100%;
     line-height: 1.6;
     margin: 0;
@@ -22,7 +22,7 @@ p,
 ul,
 ol,
 blockquote {
-    line-height: 1.6;
+    line-height: 1.65;
     text-align: start;
 }
 
@@ -32,20 +32,21 @@ a {
     font-weight: bold;
 }
 
-/* Typography */
+/* Tipografía */
 
 h1 {
-    color: #d4af37;
-    font-size: 22px;
+    color: #f6f0e2;
+    font-size: 26px;
     font-weight: 900;
-    margin-top: 0;
+    line-height: 1.2;
+    margin-top: 6px;
+    margin-bottom: 14px;
     text-align: start;
-    text-transform: uppercase;
     letter-spacing: -0.02em;
 }
 
 h2 {
-    color: #ffffff;
+    color: #f6f0e2;
     font-size: 18px;
     font-weight: 800;
     margin-top: 0;
@@ -53,14 +54,15 @@ h2 {
 }
 
 p {
-    font-size: 16px;
-    line-height: 1.6em;
+    font-size: 15px;
+    line-height: 1.65em;
     margin-top: 0;
+    margin-bottom: 14px;
     text-align: left;
-    color: #a3a3a3;
+    color: #d6d0c2;
 }
 
-/* Layout */
+/* Estructura */
 
 .wrapper {
     background-color: #0a0a0a;
@@ -70,36 +72,39 @@ p {
 }
 
 .header {
-    padding: 40px 0;
+    padding: 40px 0 26px;
     text-align: center;
 }
 
-.header a {
-    color: #ffffff;
-    font-size: 24px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: -0.05em;
+.logo {
+    height: 84px;
+    width: 84px;
 }
 
-.logo {
-    height: 56px;
-    width: 56px;
+.brand-word {
+    color: #f6f0e2;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.22em;
+    text-align: center;
+}
+
+.brand-blade {
+    color: #d4af37;
 }
 
 .tagline {
-    color: #6b6b6b;
+    color: #8c867a;
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.32em;
-    margin-top: 6px;
+    letter-spacing: 0.34em;
+    margin-top: 8px;
+    text-align: center;
 }
 
 .body {
     background-color: #0a0a0a;
-    border-bottom: 1px solid #1a1a1a;
-    border-top: 1px solid #1a1a1a;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -107,174 +112,162 @@ p {
 
 .inner-body {
     background-color: #141414;
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
+    border: 1px solid #2c2a25;
+    border-radius: 18px;
     margin: 0 auto;
     padding: 0;
-    width: 570px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    width: 600px;
 }
 
 .content-cell {
-    padding: 40px;
+    padding: 38px 42px 34px;
 }
 
-/* Footer */
+/* Pie */
 
 .footer {
     margin: 0 auto;
-    padding: 32px 0;
+    padding: 30px 0 10px;
     text-align: center;
-    width: 570px;
+    width: 600px;
 }
 
 .footer p {
-    color: #525252;
+    color: #6f6a5f;
     font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
     text-align: center;
 }
 
 .foot-brand {
-    color: #ffffff;
-    font-size: 15px;
+    color: #f6f0e2;
+    font-size: 14px;
     font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.22em;
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .foot-contact {
-    color: #8a8a8a;
-    font-size: 11px;
+    color: #9b958a;
+    font-size: 12px;
+    line-height: 1.6;
     text-align: center;
     margin-bottom: 8px;
 }
 
 .foot-social {
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .foot-social a {
     color: #d4af37;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
 }
 
 .foot-legal {
-    color: #5a5a5a;
-    font-size: 10px;
+    color: #6f6a5f;
+    font-size: 11px;
+    line-height: 1.6;
     text-align: center;
-    letter-spacing: 0.04em;
 }
 
 .foot-legal a {
-    color: #7a7a7a;
+    color: #8c867a;
     font-weight: 700;
     text-decoration: underline;
 }
 
-/* Badge de estado */
+/* Etiqueta de estado */
 .badge {
     display: inline-block;
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     padding: 6px 14px;
     border-radius: 999px;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
 }
 
 /* Tarjeta de detalle (filas etiqueta/valor) */
 .detail {
     width: 100%;
     border-collapse: separate;
-    background-color: #181818;
-    border: 1px solid #333333;
+    background-color: #1b1b1b;
+    border: 1px solid #2f2d28;
     border-radius: 12px;
-    margin: 22px 0;
+    margin: 22px 0 26px;
 }
 
 .detail td {
-    padding: 12px 18px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 13px 18px;
+    border-bottom: 1px solid #2a2823;
     font-size: 14px;
     vertical-align: middle;
 }
 
-.detail tr:last-child td {
-    border-bottom: 0;
-}
-
 .detail .k {
-    color: #8a8a8a;
+    color: #9b958a;
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
 }
 
 .detail .v {
-    color: #f2f2f2;
+    color: #f6f0e2;
     font-weight: 700;
     text-align: right;
 }
 
-.detail .v-gold {
-    color: #d4af37;
-    font-weight: 900;
-}
-
 .detail-total td {
-    border-top: 2px solid #333333;
+    border-top: 2px solid #3a372f;
     border-bottom: 0;
-    padding-top: 14px;
+    padding-top: 16px;
+    padding-bottom: 16px;
 }
 
 .detail-total .k {
-    color: #cccccc;
+    color: #d6d0c2;
     font-size: 12px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
 }
 
 .detail-total .v {
     color: #d4af37;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 900;
 }
 
-/* Buttons */
+/* Botones */
 
 .button {
     border-radius: 12px;
-    color: #000000 !important;
+    color: #0c0d0f !important;
     display: inline-block;
+    font-size: 14px;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-decoration: none;
 }
 
 .button-primary {
     background-color: #d4af37;
-    border-bottom: 12px solid #d4af37;
-    border-left: 24px solid #d4af37;
-    border-right: 24px solid #d4af37;
-    border-top: 12px solid #d4af37;
+    border-bottom: 14px solid #d4af37;
+    border-left: 30px solid #d4af37;
+    border-right: 30px solid #d4af37;
+    border-top: 14px solid #d4af37;
 }
 
-/* Panels */
+/* Paneles */
 
 .panel {
     border-left: #d4af37 solid 4px;
-    background-color: #1a1a1a;
+    background-color: #1b1b1b;
     margin: 24px 0;
 }
 
@@ -283,6 +276,18 @@ p {
 }
 
 .panel-content p {
-    color: #ffffff;
+    color: #f6f0e2;
     font-weight: 600;
+}
+
+/* Pantallas angostas */
+@media only screen and (max-width: 640px) {
+    .inner-body,
+    .footer {
+        width: 100% !important;
+    }
+
+    .content-cell {
+        padding: 28px 22px 26px !important;
+    }
 }
