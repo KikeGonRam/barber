@@ -29,6 +29,7 @@ class UpdateBarbershopSettingRequest extends FormRequest
             'politica_cancelacion' => ['required', 'integer', 'min:1', 'max:168'],
             'deposito_no_show_umbral' => ['nullable', 'integer', 'min:0', 'max:20'],
             'deposito_no_show_porcentaje' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'comision_no_show_porcentaje' => ['nullable', 'integer', 'min:0', 'max:100'],
             'instagram' => ['nullable', 'string', 'max:255'],
             'facebook' => ['nullable', 'string', 'max:255'],
             'tiktok' => ['nullable', 'string', 'max:255'],

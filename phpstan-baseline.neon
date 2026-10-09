@@ -31,26 +31,8 @@ parameters:
 			path: app/Console/Commands/DrawMonthlyRaffle.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$servicio_iniciado_en\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Console/Commands/NotifyServiceOverrunCommand.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$ultimo_aviso_barbero_en\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Console/Commands/NotifyServiceOverrunCommand.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$duracion_min\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Console/Commands/NotifyServiceOverrunCommand.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>duracion_min" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Console/Commands/NotifyServiceOverrunCommand.php
 

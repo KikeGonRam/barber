@@ -21,6 +21,7 @@ Schedule::command('inventory:low-stock-alert')->dailyAt('09:00')->description('i
 Schedule::command('reports:daily-summary')->dailyAt('21:30')->description('reports:daily-summary'); // Resumen diario para administración
 Schedule::command('campaigns:dispatch-due')->everyFiveMinutes()->description('campaigns:dispatch-due'); // Envía campañas de correo programadas que ya vencieron
 Schedule::command('appointments:mark-no-show')->hourly()->description('appointments:mark-no-show'); // Marca citas vencidas sin asistencia como "no-show"
+Schedule::command('appointments:notify-service-ending')->everyMinute()->description('appointments:notify-service-ending'); // Avisa al barbero 5 min antes de que termine el servicio en curso (terminar ya / agregar tiempo)
 Schedule::command('appointments:notify-service-overrun')->everyFiveMinutes()->description('appointments:notify-service-overrun'); // Avisa si un servicio se está alargando más de lo esperado
 Schedule::command('loyalty:apply-inactivity')->dailyAt('04:00')->description('loyalty:apply-inactivity'); // Baja de nivel (180+ días) y caducidad de puntos (365+ días) por inactividad
 Schedule::command('barbers:monthly-performance')->monthlyOn(1, '08:30')->description('barbers:monthly-performance'); // Reporte mensual de desempeño de barberos (mejor mes y caídas fuertes)

@@ -97,6 +97,12 @@ class StripeWebhookController extends Controller
             return;
         }
 
+        // Cargo por inasistencia cobrado a la tarjeta guardada (NoShowFeeService::tryCard): ya quedó registrado en
+        // el momento del cobro, no es un pago de cita ni hay nada que reconciliar aquí.
+        if (($intent->metadata->tipo ?? null) === 'cargo_inasistencia') {
+            return;
+        }
+
         if (($intent->metadata->tipo ?? null) === 'gift_card') {
             $this->onGiftCardPurchaseSucceeded($intent);
 

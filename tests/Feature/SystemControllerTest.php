@@ -78,9 +78,9 @@ class SystemControllerTest extends TestCase
             ],
         ]);
 
-        // Cubre las 14 tareas reales de routes/console.php -- si alguna vez
+        // Cubre las 15 tareas reales de routes/console.php -- si alguna vez
         // se agrega/quita una tarea ahí sin querer, este número lo delata.
-        $this->assertCount(14, $response->json('scheduled_tasks'));
+        $this->assertCount(15, $response->json('scheduled_tasks'));
     }
 
     public function test_redis_is_reported_as_not_used_when_nothing_is_configured_with_redis(): void

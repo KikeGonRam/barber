@@ -12,6 +12,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Payment\StripePaymentService;
+use Carbon\Carbon;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
@@ -128,11 +129,18 @@ class AppointmentStatusApiTest extends TestCase
     public function test_assigned_barber_can_still_change_the_status_of_their_own_appointment(): void
     {
         [$barber, $token] = $this->barberWithToken('barbero-propio@test.local');
+        // Iniciar exige el día de la cita (desde unos minutos antes de su hora, 09:00) y el pago resuelto.
+        Carbon::setTestNow(now()->setTime(9, 0));
         $appointment = $this->appointment('confirmada', (string) $barber->id, now()->format('Y-m-d'));
+        Payment::create([
+            'appointment_id' => (string) $appointment->id, 'monto' => 100, 'metodo_pago' => 'efectivo',
+            'propina' => 0, 'estado' => Payment::ESTADO_VERIFICADO,
+        ]);
 
         $response = $this->withToken($token)
             ->patchJson('/api/v1/appointments/'.$appointment->code.'/status', ['estado' => 'en_proceso']);
 
+        Carbon::setTestNow();
         $response->assertOk();
         $this->assertSame('en_proceso', Appointment::find($appointment->id)->estado);
     }

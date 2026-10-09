@@ -23,6 +23,7 @@ class BarbershopSettingResource extends JsonResource
             'politica_cancelacion' => $this->politica_cancelacion,
             'deposito_no_show_umbral' => $this->deposito_no_show_umbral ?? 2,
             'deposito_no_show_porcentaje' => $this->deposito_no_show_porcentaje ?? 50,
+            'comision_no_show_porcentaje' => $this->comision_no_show_porcentaje ?? 50,
             'maintenance_mode' => (bool) $this->maintenance_mode,
             'redes_sociales' => $this->redes_sociales ?? [],
             'datos_bancarios' => $this->datos_bancarios ?? [],

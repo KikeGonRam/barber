@@ -3,11 +3,14 @@
 namespace App\Services\Appointment;
 
 use App\Models\Appointment;
+use App\Models\NoShowFee;
 use App\Models\Payment;
 use App\Models\User;
 use App\Notifications\Appointment\AppointmentNotification;
+use App\Notifications\Appointment\ServiceEndingNotification;
 use App\Notifications\Appointment\ServiceOverrunNotification;
 use App\Notifications\Barber\ReviewRequestNotification;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
@@ -28,19 +31,38 @@ class AppointmentNotifier
         $barbero = $appointment->barber?->user?->name ?? 'el barbero';
         $fecha = optional($appointment->fecha)->format('d/m/Y') ?? 'la fecha indicada';
 
-        // Cliente (con invite de calendario)
-        $this->send($appointment->client?->user, $appointment,
-            'Confirmación de cita', 'Tu cita está reservada',
-            'Te esperamos. Aquí están los detalles de tu visita.',
-            'Ver mi cita', $this->frontendUrl('/my/appointments'),
-            '#10b981', 'Confirmada', true);
+        $clientUser = $appointment->client?->user;
+        $barberUser = $appointment->barber?->user;
 
-        // Barbero
-        $this->send($appointment->barber?->user, $appointment,
-            'Nueva cita agendada', 'Tienes una nueva cita',
-            "{$cliente} agendó una cita contigo para el {$fecha}.",
-            'Ver mi agenda', $this->frontendUrl('/barber/agenda'),
-            '#5b8def', 'Nueva reserva');
+        // Una cita nace «pendiente»: el barbero la aprueba y solo entonces queda confirmada (statusChanged()).
+        // Decirle al cliente «confirmada» antes de eso era engañoso.
+        if ($appointment->estado === 'pendiente') {
+            $this->send($clientUser, $appointment,
+                'Recibimos tu solicitud de cita', 'Tu cita espera aprobación',
+                'Tu barbero revisará tu solicitud y te avisaremos en cuanto la confirme. Hasta entonces no necesitas hacer nada más.',
+                'Ver mi cita', $this->frontendUrl('/my/appointments'),
+                '#f59e0b', 'Pendiente');
+
+            $this->send($barberUser, $appointment,
+                'Cita por aprobar', 'Tienes una cita por aprobar',
+                "{$cliente} solicitó una cita contigo para el {$fecha}. Apruébala o recházala desde tu agenda.",
+                'Revisar en mi agenda', $this->frontendUrl('/barber/agenda'),
+                '#f59e0b', 'Por aprobar');
+        } else {
+            // Cliente (con invite de calendario)
+            $this->send($clientUser, $appointment,
+                'Confirmación de cita', 'Tu cita está reservada',
+                'Te esperamos. Aquí están los detalles de tu visita.',
+                'Ver mi cita', $this->frontendUrl('/my/appointments'),
+                '#10b981', 'Confirmada', true);
+
+            // Barbero
+            $this->send($barberUser, $appointment,
+                'Nueva cita agendada', 'Tienes una nueva cita',
+                "{$cliente} agendó una cita contigo para el {$fecha}.",
+                'Ver mi agenda', $this->frontendUrl('/barber/agenda'),
+                '#5b8def', 'Nueva reserva');
+        }
 
         // Recepcion + Admin
         $this->sendStaff($appointment,
@@ -156,6 +178,54 @@ class AppointmentNotifier
     }
 
     /**
+     * Servicio en curso a punto de terminar (NotifyServiceEndingCommand): avisa al barbero para que lo termine ya o
+     * agregue tiempo antes de pasarse. Bandeja + push (ver ServiceEndingNotification).
+     */
+    public function serviceEnding(Appointment $appointment, int $minutesLeft): void
+    {
+        $appointment->loadMissing(['client.user', 'barber.user', 'service']);
+
+        $barber = $appointment->barber?->getRelationValue('user');
+        if (! $barber instanceof User) {
+            return;
+        }
+
+        try {
+            $barber->notify(new ServiceEndingNotification($appointment, $minutesLeft));
+        } catch (\Throwable $e) {
+            Log::warning('Fallo aviso de servicio por terminar', [
+                'appointment_id' => (string) $appointment->id,
+                'barber_user_id' => (string) $barber->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /** El barbero agregó tiempo al servicio: se le avisa al cliente cuánto y a qué hora terminará aproximadamente. */
+    public function serviceExtended(Appointment $appointment, int $extraMinutes, Carbon $newEnd): void
+    {
+        $appointment->loadMissing(['client.user', 'service']);
+
+        $this->send($appointment->client?->getRelationValue('user'), $appointment,
+            'Tu servicio se extendió', 'Tu servicio llevará un poco más',
+            "Tu barbero agregó {$extraMinutes} minutos a tu servicio; terminará aproximadamente a las {$newEnd->format('H:i')}.",
+            'Ver mi cita', $this->frontendUrl('/my/appointments'),
+            '#5b8def', 'En proceso');
+    }
+
+    /** El servicio anterior se extendió y puede empezar tarde la cita de este cliente. */
+    public function possibleDelay(Appointment $next, Carbon $estimatedStart): void
+    {
+        $next->loadMissing(['client.user', 'service']);
+
+        $this->send($next->client?->getRelationValue('user'), $next,
+            'Tu cita podría empezar un poco tarde', 'Pequeño retraso en tu cita',
+            "El servicio anterior se está alargando; tu cita podría comenzar alrededor de las {$estimatedStart->format('H:i')}. Gracias por tu paciencia.",
+            'Ver mi cita', $this->frontendUrl('/my/appointments'),
+            '#f59e0b', 'Retraso');
+    }
+
+    /**
      * El cliente subio un comprobante de transferencia pendiente de revision.
      * Avisa a recepcion/admin para que lo revisen.
      */
@@ -189,6 +259,45 @@ class AppointmentNotifier
             "Se liberó un horario con {$barbero} el {$fecha} para {$servicio}. Entra a la app para reservarlo antes que alguien más.",
             'Reservar ahora', $this->frontendUrl('/reservar'),
             '#10b981', 'Disponible');
+    }
+
+    /**
+     * Cargo por inasistencia (ver NoShowFeeService): avisa al cliente si se cobró solo a su tarjeta, si lo cubrió un
+     * pago anticipado o si queda como adeudo por pagar en recepción (y que mientras tanto no puede reservar), y deja
+     * constancia al personal cuando queda pendiente.
+     */
+    public function noShowFee(Appointment $appointment, NoShowFee $fee): void
+    {
+        $appointment->loadMissing(['client.user', 'service']);
+        $fecha = optional($appointment->fecha)->format('d/m/Y') ?? 'la fecha indicada';
+        $monto = '$'.number_format((float) ($fee->estado === NoShowFee::ESTADO_PENDIENTE ? $fee->monto : $fee->monto_base), 2);
+
+        $clientUser = $appointment->client?->getRelationValue('user');
+
+        if ($fee->estado === NoShowFee::ESTADO_PENDIENTE) {
+            $this->send($clientUser, $appointment,
+                'Tienes un adeudo por inasistencia', 'Cargo por no asistir',
+                "No registramos tu asistencia a la cita del {$fecha}, así que se generó un cargo de {$monto}. Pásalo a pagar en recepción; mientras esté pendiente no podrás reservar nuevas citas.",
+                'Ver mis citas', $this->frontendUrl('/my/appointments'),
+                '#f59e0b', 'Adeudo');
+
+            $this->sendStaff($appointment,
+                'Adeudo por inasistencia', 'Cargo por inasistencia pendiente',
+                "El cliente no asistió a su cita del {$fecha}: {$monto} pendientes de cobrar en sucursal.",
+                '#f59e0b', 'Adeudo');
+
+            return;
+        }
+
+        $detalle = $fee->metodo_cobro === 'tarjeta'
+            ? "Cobramos {$monto} a tu tarjeta guardada."
+            : 'Lo cubrimos con el pago que hiciste al reservar.';
+
+        $this->send($clientUser, $appointment,
+            'Cargo por inasistencia', 'Cargo por no asistir',
+            "No registramos tu asistencia a la cita del {$fecha}. {$detalle}",
+            'Ver mis citas', $this->frontendUrl('/my/appointments'),
+            '#f59e0b', 'Cargo aplicado');
     }
 
     /**

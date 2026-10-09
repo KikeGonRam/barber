@@ -269,14 +269,14 @@ endpoints:
         name: product_id
         description: 'The ID of the product.'
         required: true
-        example: architecto
+        example: 6aaa3a4ad95ef709410e35c7
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      product_id: architecto
+      product_id: 6aaa3a4ad95ef709410e35c7
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -395,7 +395,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -410,7 +410,7 @@ endpoints:
       stock_actual: 8
       stock_minimo: 76
       active: false
-      activo: false
+      activo: true
     fileParameters:
       imagen: null
     responses: []
@@ -445,14 +445,14 @@ endpoints:
         name: product_id
         description: 'The ID of the product.'
         required: true
-        example: architecto
+        example: 6aaa3a4ad95ef709410e35c7
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      product_id: architecto
+      product_id: 6aaa3a4ad95ef709410e35c7
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -492,14 +492,14 @@ endpoints:
         name: product_id
         description: 'The ID of the product.'
         required: true
-        example: architecto
+        example: 6aaa3a4ad95ef709410e35c7
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      product_id: architecto
+      product_id: 6aaa3a4ad95ef709410e35c7
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -693,7 +693,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-10-05T01:06:05'
+        example: '2026-10-08T13:59:37'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -704,7 +704,7 @@ endpoints:
       cantidad: 22
       motivo: g
       appointment_id: architecto
-      fecha: '2026-10-05T01:06:05'
+      fecha: '2026-10-08T13:59:37'
     fileParameters: []
     responses: []
     responseFields: []

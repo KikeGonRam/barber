@@ -259,7 +259,8 @@ class DepositServiceTest extends TestCase
 
         // 300 (precio) - 150 (deposito ya pagado) = 150.
         $this->assertEquals(150.0, (float) $finalPayment->monto);
-        $this->assertSame('completada', Appointment::find($appointment->id)->estado);
+        // Cobrar antes de iniciar no completa la cita: la inicia y termina el barbero.
+        $this->assertSame('confirmada', Appointment::find($appointment->id)->estado);
     }
 
     public function test_refund_if_any_marks_a_transfer_deposit_as_reembolsado(): void

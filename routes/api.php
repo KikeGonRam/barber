@@ -13,7 +13,9 @@ use App\Http\Controllers\Api\Ai\BriefingController;
 use App\Http\Controllers\Api\Analytics\AnalyticsController as ApiAnalyticsController;
 use App\Http\Controllers\Api\Appointment\AppointmentController;
 use App\Http\Controllers\Api\Appointment\AppointmentManageController;
+use App\Http\Controllers\Api\Appointment\AppointmentTicketController;
 use App\Http\Controllers\Api\Appointment\AvailabilityController;
+use App\Http\Controllers\Api\Appointment\ServiceTimeController;
 use App\Http\Controllers\Api\Appointment\WaitlistController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\SocialAuthController;
@@ -36,6 +38,7 @@ use App\Http\Controllers\Api\Package\GiftCardController;
 use App\Http\Controllers\Api\Package\PackagePurchaseController;
 use App\Http\Controllers\Api\Payment\CashCloseController;
 use App\Http\Controllers\Api\Payment\DepositController;
+use App\Http\Controllers\Api\Payment\NoShowFeeController;
 use App\Http\Controllers\Api\Payment\PaymentController as ApiPaymentController;
 use App\Http\Controllers\Api\Payment\StripeWebhookController;
 use App\Http\Controllers\Api\Prediction\PredictionController;
@@ -154,6 +157,10 @@ Route::prefix('v1')->group(function (): void {
         Route::post('appointments', [AppointmentController::class, 'store']);
         Route::put('appointments/{appointment}', [AppointmentController::class, 'update']);
         Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
+        // Agregar tiempo al servicio en curso (barbero de la cita o personal; el controlador lo valida).
+        Route::post('appointments/{appointment}/extend', [ServiceTimeController::class, 'extend']);
+        // Ticket del servicio terminado (cliente dueño, barbero de la cita o personal; el controlador lo valida).
+        Route::get('appointments/{appointment}/ticket', [AppointmentTicketController::class, 'show']);
         Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy']);
 
         // Lista de espera: cliente se anota/consulta/cancela la suya; staff
@@ -205,6 +212,10 @@ Route::prefix('v1')->group(function (): void {
         // dueño de la cita, mismo patrón que stripe-intent de arriba).
         Route::post('appointments/{appointment}/deposit/stripe-intent', [DepositController::class, 'stripeIntent']);
         Route::post('appointments/{appointment}/deposit/receipt', [DepositController::class, 'uploadReceipt']);
+
+        // Cargos por inasistencia: el cliente ve los suyos; el personal, los pendientes (el controlador decide
+        // por rol, mismo criterio que appointments.index()). Cobrar y condonar van en el grupo de personal.
+        Route::get('no-show-fees', [NoShowFeeController::class, 'index']);
 
         // Paquetes prepagados: catálogo y "mis paquetes" abiertos a cualquier
         // autenticado (cliente ve lo suyo, staff filtra por client_id) --
@@ -261,6 +272,10 @@ Route::prefix('v1')->group(function (): void {
             Route::get('deposits/pending', [DepositController::class, 'pending']);
             Route::post('deposits/{payment}/approve', [DepositController::class, 'approve']);
             Route::post('deposits/{payment}/reject', [DepositController::class, 'reject']);
+
+            // Cargos por inasistencia: cobro en sucursal (Admin/Recepcionista) y condonación (solo Admin, la valida el controlador)
+            Route::post('no-show-fees/{fee}/pay', [NoShowFeeController::class, 'pay']);
+            Route::post('no-show-fees/{fee}/waive', [NoShowFeeController::class, 'waive']);
 
             // Venta de un paquete prepagado en efectivo (Admin/Recepcionista)
             Route::post('packages', [PackagePurchaseController::class, 'store']);

@@ -36,8 +36,11 @@ ve un menú distinto adaptado a lo que necesita hacer.
    completos, el campo de hora solo te ofrece los horarios realmente libres de
    ese barbero ese día — si no queda ninguno, te lo dice en vez de dejarte
    elegir cualquier hora.
-3. Confirma. Tu cita queda en estado **pendiente** hasta que el barbero la
-   apruebe — recibirás una notificación cuando eso ocurra.
+3. Marca la casilla **«Acepto el cargo por inasistencia»** (ver 2.6) y confirma.
+   Tu cita queda en estado **pendiente** hasta que el barbero la apruebe —
+   recibirás una notificación cuando eso ocurra.
+4. Si tienes un **adeudo por inasistencia** pendiente, no podrás reservar hasta
+   pagarlo en la barbería (el sistema te dice cuánto es).
 
 > La compra de productos (por ejemplo, algo que quieras que te tengan listo) es
 > independiente de la reserva: se hace desde **Tienda**/**Carrito**, no dentro
@@ -50,6 +53,26 @@ ve un menú distinto adaptado a lo que necesita hacer.
 - Puedes **cancelar** una cita mientras no haya iniciado el servicio.
 - Cuando confirman tu cita, te llega un correo con la opción de agregarla a tu
   calendario (Google Calendar o archivo `.ics`).
+- Cada estado te dice qué sigue: *pendiente* (espera la aprobación del
+  barbero), *confirmada* (aprobada; debe pagarse antes de que empiece el
+  servicio), *en proceso* y *completada*.
+- **Cómo pagar una cita aprobada:** con **tarjeta** desde la app o la web;
+  con **transferencia**, subiendo tu comprobante (recepción lo verifica); o en
+  **efectivo**, en recepción al llegar. El barbero no puede iniciar el servicio
+  hasta que el pago esté resuelto.
+- Al terminar el servicio recibes por correo tu **comprobante y tu factura**, y
+  puedes abrir el **ticket** desde *Ver ticket* en tu historial.
+
+### 2.6 Cargo por inasistencia
+
+- Si no llegas a tu cita y el barbero la marca como *no asistió*, se genera un
+  cargo (por defecto el 50 % del servicio; lo configura la barbería).
+- Si tienes una **tarjeta guardada**, se cobra sola y te avisamos. Si no se
+  puede, queda como **adeudo**: debes pagarlo en la barbería (efectivo o
+  transferencia) para volver a reservar. Si ya habías pagado por adelantado,
+  eso se descuenta.
+- Para evitarlo, **cancela a tiempo** (hasta el plazo de tu política de
+  cancelación) o reagenda.
 
 ### 2.3 Tienda
 
@@ -81,9 +104,26 @@ ve un menú distinto adaptado a lo que necesita hacer.
 - Tu panel muestra las **citas del día** con vista de línea de tiempo.
 - Las citas nuevas llegan en estado **pendiente**: debes **aprobar o
   rechazar** cada una desde tu agenda antes de que se puedan cobrar o
-  atender.
+  atender (recepción y administración pueden aprobar como respaldo).
 - Un botón de acción rápida en cada cita te lleva directo al siguiente paso
   según su estado (aprobar, iniciar servicio, marcar como completada).
+- **Iniciar servicio** solo funciona **el día de la cita** (desde 15 minutos
+  antes de su hora) y **con el pago resuelto** (tarjeta cobrada, transferencia
+  verificada o efectivo cobrado en recepción). Si no se puede, el botón queda
+  deshabilitado y la cita te explica por qué.
+- Si el cliente no llegó, marca **No asistió**: se le genera el cargo por
+  inasistencia (ver 2.6). Esto no lo hace el sistema solo.
+
+### 3.1.1 Servicio en curso: aviso y tiempo extra
+
+- Mientras el servicio está en proceso ves cuánto tiempo queda.
+- **5 minutos antes** de que termine recibes una notificación con tres botones:
+  **Terminar ya**, **+10 min** y **+15 min**. Funcionan sin abrir la app.
+- Al agregar tiempo se avisa al cliente. Si el nuevo fin choca con la siguiente
+  cita, la app te pregunta si extiendes de todos modos (y avisa al siguiente
+  cliente que podría empezar tarde). El máximo es 60 minutos extra por cita.
+- Al terminar el servicio ves el **ticket** y el cliente recibe su comprobante
+  y factura por correo.
 
 ### 3.2 Historial y propinas
 
@@ -111,10 +151,23 @@ ve un menú distinto adaptado a lo que necesita hacer.
 - El cobro solo está disponible para citas ya **aprobadas** (confirmada, en
   proceso o completada) — nunca para una cita pendiente sin revisar por el
   barbero.
-- Al completar el servicio puedes **cobrar en un solo paso**: se registra el
-  pago, la propina y automáticamente se generan los puntos de lealtad del
-  cliente.
-- Se genera un recibo/factura en PDF que puedes reenviar o imprimir.
+- **El pago se resuelve antes de iniciar el servicio.** Cobra en efectivo (o con
+  tarjeta) cuando el cliente llega, o verifica su transferencia en *Comprobantes
+  por revisar*. Cobrar **ya no completa la cita**: la inicia y la termina el
+  barbero, y los puntos de lealtad se dan al terminar.
+- Mientras el pago no esté resuelto, «Iniciar» aparece bloqueado en la cita
+  con el motivo.
+- Se genera un recibo en PDF al cobrar; el **correo con comprobante y factura**
+  le llega al cliente cuando el servicio termina.
+
+### 4.2.1 Adeudos por inasistencia
+
+- En *Comprobantes por revisar* aparece **Adeudos por inasistencia**: clientes
+  que no llegaron a su cita y a quienes no se pudo cobrar en su tarjeta.
+- Cobra el adeudo en **efectivo** o **transferencia**; el cliente puede volver
+  a reservar de inmediato. Los cobros entran al **corte de caja** del día.
+- Solo **administración** puede **condonar** un cargo, y debe escribir el
+  motivo (queda registrado).
 
 ### 4.3 Bandeja de pedidos
 

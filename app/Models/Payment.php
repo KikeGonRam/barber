@@ -60,6 +60,8 @@ class Payment extends Model
         // transferencia, corte de caja y CashCloseService, pero nunca se
         // confunden entre sí (ver el índice único compuesto de la migración).
         'es_deposito',
+        // Cuándo se envió al cliente el ticket (comprobante + factura) de este pago; evita enviarlo dos veces.
+        'ticket_enviado_en',
     ];
 
     protected function casts(): array
@@ -75,6 +77,7 @@ class Payment extends Model
             'bloquea_cita' => 'boolean',
             'loyalty_refund_reconciled_at' => 'datetime',
             'es_deposito' => 'boolean',
+            'ticket_enviado_en' => 'datetime',
         ];
     }
 

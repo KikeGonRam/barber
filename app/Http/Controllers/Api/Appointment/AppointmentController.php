@@ -12,20 +12,25 @@ use App\Models\Barber;
 use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\ClientPackage;
+use App\Models\NoShowFee;
 use App\Models\RaffleResult;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentNotifier;
 use App\Services\Appointment\AppointmentService;
 use App\Services\Appointment\AppointmentStatusService;
+use App\Services\Appointment\ServiceStartGuard;
 use App\Services\Appointment\WaitlistService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Loyalty\ReferralService;
 use App\Services\Membership\MembershipService;
 use App\Services\Order\OrderService;
 use App\Services\Payment\DepositService;
+use App\Services\Payment\NoShowFeeService;
+use App\Services\Payment\ServiceTicketService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @group Citas
@@ -44,6 +49,9 @@ class AppointmentController extends Controller
         private readonly MembershipService $memberships,
         private readonly LoyaltyService $loyalty,
         private readonly ReferralService $referrals,
+        private readonly ServiceStartGuard $startGuard,
+        private readonly NoShowFeeService $noShowFees,
+        private readonly ServiceTicketService $tickets,
     ) {}
 
     /**
@@ -418,6 +426,8 @@ class AppointmentController extends Controller
             // membresia mas propina, no el % anti-no-show. Ver comentario mas
             // abajo antes de construir $payload.
             'pagar_ahora' => ['nullable', 'boolean'],
+            // El cliente acepta el cargo por inasistencia (NoShowFeeService) en el último paso de la reserva.
+            'acepta_cargo_inasistencia' => ['nullable', 'boolean'],
         ];
 
         if ($user->hasAnyRole(['administrador', 'recepcionista'])) {
@@ -432,6 +442,24 @@ class AppointmentController extends Controller
         $client = $user->hasRole('cliente')
             ? ($user->clientProfile ?? $user->clientProfile()->create())
             : Client::findOrFail($validated['client_id']);
+
+        // Adeudo por inasistencia (NoShowFeeService): mientras exista un cargo pendiente no se puede reservar.
+        $adeudo = $this->noShowFees->outstandingTotal($client);
+        if ($adeudo > 0) {
+            return response()->json([
+                'message' => 'Tienes un adeudo por inasistencia de $'.number_format($adeudo, 2).'. Págalo en recepción para volver a reservar.',
+                'adeudo_inasistencia' => $adeudo,
+            ], 422);
+        }
+
+        // El cliente acepta el cargo por inasistencia al reservar. Obligatorio solo cuando las pantallas ya lo piden
+        // (APPOINTMENT_REQUIRE_NO_SHOW_ACCEPTANCE), para no romper a las versiones que aún no lo envían.
+        $acceptedNoShowFee = (bool) ($validated['acepta_cargo_inasistencia'] ?? false);
+        if ($user->hasRole('cliente') && config('appointments.require_no_show_acceptance') && ! $acceptedNoShowFee) {
+            return response()->json([
+                'message' => 'Para reservar debes aceptar el cargo por inasistencia.',
+            ], 422);
+        }
 
         $service = Service::findOrFail($validated['service_id']);
 
@@ -477,6 +505,10 @@ class AppointmentController extends Controller
             'deposito_monto' => $deposito['monto'],
             'propina_sugerida' => $validated['propina_sugerida'] ?? null,
         ];
+
+        if ($acceptedNoShowFee) {
+            $payload['cargo_inasistencia_aceptado_en'] = now();
+        }
 
         try {
             $appointment = $this->appointmentService->createAppointment($payload);
@@ -556,6 +588,14 @@ class AppointmentController extends Controller
             ], 422);
         }
 
+        // Iniciar el servicio por la edición completa sigue las mismas reglas que el PATCH de estado:
+        // el día de la cita y con el pago resuelto.
+        if ($validated['estado'] === 'en_proceso' && (string) $appointment->estado !== 'en_proceso') {
+            if ($reason = $this->startGuard->reasonCannotStart($appointment)) {
+                return response()->json(['message' => $reason], 422);
+            }
+        }
+
         $service = Service::findOrFail($validated['service_id']);
         $start = Carbon::parse($validated['fecha'].' '.$validated['hora_inicio']);
         $end = $start->copy()->addMinutes((int) $service->duracion_min);
@@ -597,6 +637,16 @@ class AppointmentController extends Controller
         if ($becameCancelled) {
             $this->notifier->cancelled($appointment->fresh(), 'edición de la cita', false);
             $this->deposits->refundIfAny($appointment->fresh());
+        }
+
+        // Marcarla «no asistió» desde la edición completa también genera el cargo por inasistencia.
+        if ($validated['estado'] === 'no_asistio') {
+            $this->assessNoShowFee($appointment);
+        }
+
+        // Y completarla desde ahí también emite el ticket del servicio.
+        if ($validated['estado'] === 'completada') {
+            $this->tickets->issueOnCompletion($appointment->fresh() ?? $appointment, (string) $request->user()?->id);
         }
 
         return response()->json([
@@ -766,6 +816,13 @@ class AppointmentController extends Controller
             'Tu rol no puede poner la cita en ese estado.'
         );
 
+        // Iniciar el servicio: solo el día de la cita (desde unos minutos antes) y con el pago resuelto.
+        if ($validated['estado'] === 'en_proceso' && (string) $appointment->estado !== 'en_proceso') {
+            if ($reason = $this->startGuard->reasonCannotStart($appointment)) {
+                return response()->json(['message' => $reason], 422);
+            }
+        }
+
         try {
             $this->statusService->transition($appointment, $validated['estado']);
         } catch (InvalidAppointmentTransitionException $e) {
@@ -780,6 +837,14 @@ class AppointmentController extends Controller
         if ($validated['estado'] === 'completada' && $client instanceof Client) {
             $this->loyalty->awardCitaPoints($client, (string) $appointment->id);
             $this->referrals->completeIfEligible($client);
+        }
+
+        // Al terminar el servicio sale el ticket (correo con comprobante y factura) y las apps lo muestran en pantalla.
+        $ticket = null;
+        if ($validated['estado'] === 'completada') {
+            $completed = $appointment->fresh() ?? $appointment;
+            $this->tickets->issueOnCompletion($completed, (string) $user->id);
+            $ticket = $this->tickets->ticketFor($completed);
         }
 
         // Barbero/staff cancelando también libera el horario para la lista
@@ -798,12 +863,36 @@ class AppointmentController extends Controller
             $appointment->update(['notas' => $validated['notas']]);
         }
 
-        $this->notifier->statusChanged($appointment, $validated['estado']);
+        // No asistió: se genera el cargo por inasistencia (y su aviso al cliente reemplaza al genérico).
+        $noShowFee = $validated['estado'] === 'no_asistio' ? $this->assessNoShowFee($appointment) : null;
+
+        if ($noShowFee === null) {
+            $this->notifier->statusChanged($appointment, $validated['estado']);
+        }
 
         return response()->json([
             'message' => 'Estado actualizado correctamente.',
             'data' => new AppointmentResource($appointment->fresh(['client.user', 'barber.user', 'service'])),
+            'ticket' => $ticket,
         ]);
+    }
+
+    /**
+     * Genera el cargo por inasistencia de una cita ya marcada «no asistió». Un fallo del cobro o del aviso nunca
+     * debe impedir registrar la inasistencia: se deja en el log y el cargo, si se alcanzó a crear, queda pendiente.
+     */
+    private function assessNoShowFee(Appointment $appointment): ?NoShowFee
+    {
+        try {
+            return $this->noShowFees->assess($appointment->fresh() ?? $appointment);
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo generar el cargo por inasistencia.', [
+                'appointment_id' => (string) $appointment->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 
     /**

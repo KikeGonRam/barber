@@ -199,7 +199,8 @@ class PaymentApiTest extends TestCase
             ->postJson("/api/v1/payments/{$paymentToApprove->id}/approve");
         $approve->assertOk();
         $approve->assertJsonPath('data.estado', Payment::ESTADO_VERIFICADO);
-        $this->assertSame('completada', $appointmentToApprove->fresh()->estado);
+        // Verificar la transferencia resuelve el pago; no completa la cita (la termina el barbero).
+        $this->assertSame('confirmada', $appointmentToApprove->fresh()->estado);
 
         $reject = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson("/api/v1/payments/{$paymentToReject->id}/reject", ['motivo_rechazo' => 'Monto no coincide con el servicio.']);

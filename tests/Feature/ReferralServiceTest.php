@@ -183,7 +183,8 @@ class ReferralServiceTest extends TestCase
             'fecha' => now()->addDay()->format('Y-m-d'),
             'hora_inicio' => '10:00:00',
             'hora_fin' => '10:30:00',
-            'estado' => 'confirmada',
+            // Servicio en proceso: cobrarlo lo completa y dispara la recompensa por referido.
+            'estado' => 'en_proceso',
         ]);
 
         app(PaymentService::class)->create([

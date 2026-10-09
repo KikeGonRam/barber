@@ -132,7 +132,8 @@ class PackageServiceTest extends TestCase
 
         $this->assertEquals(0.0, (float) $payment->monto);
         $this->assertSame((string) $clientPackage->id, $payment->client_package_id);
-        $this->assertSame('completada', Appointment::find($appointment->id)->estado);
+        // El paquete cubre el pago (queda resuelto); la cita la inicia y termina el barbero.
+        $this->assertSame('confirmada', Appointment::find($appointment->id)->estado);
         $this->assertSame(4, ClientPackage::find($clientPackage->id)->usos_restantes);
     }
 

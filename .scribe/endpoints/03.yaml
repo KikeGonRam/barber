@@ -47,14 +47,14 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: architecto
+        example: fxp9vtie
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: architecto
+      appointment_code: fxp9vtie
     queryParameters:
       t:
         custom: []
@@ -78,7 +78,7 @@ endpoints:
         status: 404
         content: |-
           {
-              "message": "No query results for model [App\\Models\\Appointment] architecto"
+              "message": ""
           }
         headers:
           cache-control: 'no-cache, private'
@@ -127,14 +127,14 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: architecto
+        example: fxp9vtie
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: architecto
+      appointment_code: fxp9vtie
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -184,14 +184,14 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: architecto
+        example: fxp9vtie
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: architecto
+      appointment_code: fxp9vtie
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:

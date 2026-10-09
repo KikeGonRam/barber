@@ -27,6 +27,7 @@ final class PushRouting
         'client_birthday' => ['fidelidad', 'wallet'],
         'promotion' => ['promociones', 'notifications'],
         'service_overrun' => ['operacion', 'appointments'],
+        'service_ending' => ['operacion', 'barber_agenda'],
         'inventory_low_stock' => ['operacion', 'inventory'],
     ];
 

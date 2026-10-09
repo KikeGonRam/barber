@@ -330,7 +330,7 @@ endpoints:
         name: provider
         description: ''
         required: false
-        example: expo
+        example: fcm
         type: string
         enumValues:
           - expo
@@ -340,7 +340,7 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       token: b
-      provider: expo
+      provider: fcm
     fileParameters: []
     responses: []
     responseFields: []

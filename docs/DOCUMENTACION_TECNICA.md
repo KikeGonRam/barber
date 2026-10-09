@@ -91,8 +91,45 @@ en_proceso  → completada | cancelada
 
 El cobro solo se habilita desde `confirmada`, `en_proceso` o `completada` — nunca
 desde una cita `pendiente` sin aprobar. El barbero aprueba/rechaza sus propias
-citas; el cliente solo puede cancelar. Un job programado marca automáticamente
-como `no_asistio` las citas confirmadas cuyo horario ya pasó.
+citas (recepción y administración, como respaldo); el cliente solo puede
+cancelar. Un job programado marca automáticamente como `no_asistio` las citas
+confirmadas cuyo horario ya pasó, **sin cobrar cargo** (no sabe si el barbero
+olvidó registrar la visita).
+
+**Flujo de citas V2** (plan y decisiones en
+[`PLAN_FLUJO_CITAS_V2.md`](PLAN_FLUJO_CITAS_V2.md)): la cita y el pago son
+máquinas de estado separadas.
+
+- *Iniciar* (`confirmada → en_proceso`) lo valida `ServiceStartGuard`: solo el
+  día de la cita, desde `appointments.start_margin_minutes` antes de su hora, y
+  con el pago resuelto (`Payment` verificado no-depósito, o depósito verificado
+  que cubre `PaymentService::amountDueFor`). Se aplica en `PATCH
+  /appointments/{cita}/status` y `PUT /appointments/{cita}`; `AppointmentResource`
+  expone `pago_resuelto`, `puede_iniciar`, `motivo_no_iniciar` (solo en
+  `confirmada`).
+- **Cobrar una cita `confirmada` ya no la completa** (`PaymentService::completeCharge`):
+  solo registra el pago y genera el PDF. La completa el barbero (ahí se dan los
+  puntos). Si la cita ya iba `en_proceso`/`completada`, cobrar la completa como antes.
+- **Ticket** (`ServiceTicketService`): al pasar a `completada` se envía una sola
+  vez (`payments.ticket_enviado_en`) el correo con comprobante y factura; si se
+  pagó todo al reservar se registra un cobro final neto $0. `GET
+  /appointments/{cita}/ticket` lo devuelve para las apps y la respuesta de
+  «completada» trae `ticket`.
+- **Tiempo del servicio**: `appointments:notify-service-ending` (cada minuto)
+  avisa al barbero 5 min antes (`ServiceEndingNotification`, push con acciones
+  `terminar,extender_10,extender_15`; `FcmPushService` lo envía solo como datos
+  para que Android dibuje los botones). `POST /appointments/{cita}/extend`
+  (`ServiceTimeService`) agrega 10/15/20/30 min (máx. `appointments.max_extra_minutes`),
+  avisa al cliente y, si choca con la siguiente cita, exige `forzar` y avisa a ese cliente.
+- **Cargo por inasistencia** (`NoShowFeeService`, colección `no_show_fees`): al
+  marcar `no_asistio` una persona se genera el cargo
+  (`BarbershopSetting.comision_no_show_porcentaje`, 50 % por defecto, 0 lo apaga),
+  descontando pagos anticipados. Se intenta cobrar a la tarjeta guardada
+  (`StripePaymentService::chargeSavedCard`, off-session); si no, queda `pendiente` y
+  bloquea nuevas reservas (`422` con `adeudo_inasistencia`) hasta `POST
+  /no-show-fees/{id}/pay` (recepción/admin) o `…/waive` (solo admin, con motivo).
+  Los cobros entran a `CashCloseService`. `acepta_cargo_inasistencia` queda en la
+  cita; se vuelve obligatorio con `APPOINTMENT_REQUIRE_NO_SHOW_ACCEPTANCE=true`.
 
 **Pagos y fidelización**: cada cita completada genera un `Payment` (monto,
 propina, método) y una `LoyaltyTransaction` (puntos ganados). El nivel del

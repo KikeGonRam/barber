@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "UrbanBlade API Documentation",
-        "_postman_id": "43e85f9d-714f-4771-a7bf-1c67a37c2163",
+        "_postman_id": "f8935e55-6c29-4679-820d-c8302de1a113",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -447,13 +447,13 @@
                         {
                             "header": [],
                             "code": 200,
-                            "body": "{\n    \"data\": [\n        {\n            \"id\": \"6710a1b2c3d4e5f607182940\",\n            \"code\": \"jfb7ffye\",\n            \"fecha\": \"2026-10-15\",\n            \"hora_inicio\": \"10:00:00\",\n            \"hora_fin\": \"10:30:00\",\n            \"estado\": \"confirmada\",\n            \"notas\": \"Traer foto de referencia.\",\n            \"precio_cobrado\": 250,\n            \"propina_sugerida\": 25,\n            \"has_payment\": false,\n            \"is_chargeable\": true,\n            \"reminder_24h_sent\": false,\n            \"reminder_2h_sent\": false,\n            \"deposito_requerido\": true,\n            \"deposito_monto\": 100,\n            \"deposito_estado\": \"pagado\",\n            \"client\": {\n                \"id\": \"6710a1b2c3d4e5f607182931\",\n                \"user\": {\n                    \"name\": \"Juan P\u00e9rez\",\n                    \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n                }\n            },\n            \"barber\": {\n                \"id\": \"6710a1b2c3d4e5f607182932\",\n                \"slug\": \"carlos-barbero\",\n                \"user\": {\n                    \"name\": \"Carlos Barbero\"\n                },\n                \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n            },\n            \"service\": {\n                \"id\": \"6710a1b2c3d4e5f607182933\",\n                \"nombre\": \"Corte Cl\u00e1sico\",\n                \"precio\": 250,\n                \"duracion_min\": 30\n            }\n        }\n    ]\n}\n",
+                            "body": "{\n    \"data\": [\n        {\n            \"id\": \"6710a1b2c3d4e5f607182940\",\n            \"code\": \"jfb7ffye\",\n            \"fecha\": \"2026-10-15\",\n            \"hora_inicio\": \"10:00:00\",\n            \"hora_fin\": \"10:30:00\",\n            \"estado\": \"confirmada\",\n            \"notas\": \"Traer foto de referencia.\",\n            \"precio_cobrado\": 250,\n            \"propina_sugerida\": 25,\n            \"has_payment\": false,\n            \"is_chargeable\": true,\n            \"pago_resuelto\": false,\n            \"puede_iniciar\": false,\n            \"motivo_no_iniciar\": \"El pago de esta cita a\u00fan no est\u00e1 resuelto. C\u00f3brala en recepci\u00f3n o espera a que se verifique la transferencia antes de iniciar el servicio.\",\n            \"fin_estimado\": null,\n            \"minutos_extra\": null,\n            \"reminder_24h_sent\": false,\n            \"reminder_2h_sent\": false,\n            \"deposito_requerido\": true,\n            \"deposito_monto\": 100,\n            \"deposito_estado\": \"pagado\",\n            \"client\": {\n                \"id\": \"6710a1b2c3d4e5f607182931\",\n                \"user\": {\n                    \"name\": \"Juan P\u00e9rez\",\n                    \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n                }\n            },\n            \"barber\": {\n                \"id\": \"6710a1b2c3d4e5f607182932\",\n                \"slug\": \"carlos-barbero\",\n                \"user\": {\n                    \"name\": \"Carlos Barbero\"\n                },\n                \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n            },\n            \"service\": {\n                \"id\": \"6710a1b2c3d4e5f607182933\",\n                \"nombre\": \"Corte Cl\u00e1sico\",\n                \"precio\": 250,\n                \"duracion_min\": 30\n            }\n        }\n    ]\n}\n",
                             "name": "Administraci\u00f3n, recepci\u00f3n y barbero"
                         },
                         {
                             "header": [],
                             "code": 200,
-                            "body": "{\n    \"data\": [\n        {\n            \"id\": \"6710a1b2c3d4e5f607182940\",\n            \"code\": \"jfb7ffye\",\n            \"fecha\": \"2026-10-15\",\n            \"hora_inicio\": \"10:00:00\",\n            \"hora_fin\": \"10:30:00\",\n            \"estado\": \"confirmada\",\n            \"notas\": \"Traer foto de referencia.\",\n            \"precio_cobrado\": 250,\n            \"propina_sugerida\": 25,\n            \"has_payment\": false,\n            \"is_chargeable\": true,\n            \"reminder_24h_sent\": false,\n            \"reminder_2h_sent\": false,\n            \"deposito_requerido\": true,\n            \"deposito_monto\": 100,\n            \"deposito_estado\": \"pagado\",\n            \"client\": {\n                \"id\": \"6710a1b2c3d4e5f607182931\",\n                \"user\": {\n                    \"name\": \"Juan P\u00e9rez\",\n                    \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n                }\n            },\n            \"barber\": {\n                \"id\": \"6710a1b2c3d4e5f607182932\",\n                \"slug\": \"carlos-barbero\",\n                \"user\": {\n                    \"name\": \"Carlos Barbero\"\n                },\n                \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n            },\n            \"service\": {\n                \"id\": \"6710a1b2c3d4e5f607182933\",\n                \"nombre\": \"Corte Cl\u00e1sico\",\n                \"precio\": 250,\n                \"duracion_min\": 30\n            }\n        }\n    ],\n    \"stats\": {\n        \"total\": 8,\n        \"proximas\": 2,\n        \"completadas\": 5,\n        \"canceladas\": 1\n    },\n    \"next\": {\n        \"id\": \"6710a1b2c3d4e5f607182940\",\n        \"code\": \"jfb7ffye\",\n        \"fecha\": \"2026-10-15\",\n        \"hora_inicio\": \"10:00:00\",\n        \"hora_fin\": \"10:30:00\",\n        \"estado\": \"confirmada\",\n        \"notas\": \"Traer foto de referencia.\",\n        \"precio_cobrado\": 250,\n        \"propina_sugerida\": 25,\n        \"reminder_24h_sent\": false,\n        \"reminder_2h_sent\": false,\n        \"deposito_requerido\": true,\n        \"deposito_monto\": 100,\n        \"deposito_estado\": \"pagado\",\n        \"client\": {\n            \"id\": \"6710a1b2c3d4e5f607182931\",\n            \"user\": {\n                \"name\": \"Juan P\u00e9rez\",\n                \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n            }\n        },\n        \"barber\": {\n            \"id\": \"6710a1b2c3d4e5f607182932\",\n            \"slug\": \"carlos-barbero\",\n            \"user\": {\n                \"name\": \"Carlos Barbero\"\n            },\n            \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n        },\n        \"service\": {\n            \"id\": \"6710a1b2c3d4e5f607182933\",\n            \"nombre\": \"Corte Cl\u00e1sico\",\n            \"precio\": 250,\n            \"duracion_min\": 30\n        }\n    },\n    \"cancellation_policy_hours\": 24\n}\n",
+                            "body": "{\n    \"data\": [\n        {\n            \"id\": \"6710a1b2c3d4e5f607182940\",\n            \"code\": \"jfb7ffye\",\n            \"fecha\": \"2026-10-15\",\n            \"hora_inicio\": \"10:00:00\",\n            \"hora_fin\": \"10:30:00\",\n            \"estado\": \"confirmada\",\n            \"notas\": \"Traer foto de referencia.\",\n            \"precio_cobrado\": 250,\n            \"propina_sugerida\": 25,\n            \"has_payment\": false,\n            \"is_chargeable\": true,\n            \"pago_resuelto\": false,\n            \"puede_iniciar\": false,\n            \"motivo_no_iniciar\": \"El pago de esta cita a\u00fan no est\u00e1 resuelto. C\u00f3brala en recepci\u00f3n o espera a que se verifique la transferencia antes de iniciar el servicio.\",\n            \"fin_estimado\": null,\n            \"minutos_extra\": null,\n            \"reminder_24h_sent\": false,\n            \"reminder_2h_sent\": false,\n            \"deposito_requerido\": true,\n            \"deposito_monto\": 100,\n            \"deposito_estado\": \"pagado\",\n            \"client\": {\n                \"id\": \"6710a1b2c3d4e5f607182931\",\n                \"user\": {\n                    \"name\": \"Juan P\u00e9rez\",\n                    \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n                }\n            },\n            \"barber\": {\n                \"id\": \"6710a1b2c3d4e5f607182932\",\n                \"slug\": \"carlos-barbero\",\n                \"user\": {\n                    \"name\": \"Carlos Barbero\"\n                },\n                \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n            },\n            \"service\": {\n                \"id\": \"6710a1b2c3d4e5f607182933\",\n                \"nombre\": \"Corte Cl\u00e1sico\",\n                \"precio\": 250,\n                \"duracion_min\": 30\n            }\n        }\n    ],\n    \"stats\": {\n        \"total\": 8,\n        \"proximas\": 2,\n        \"completadas\": 5,\n        \"canceladas\": 1\n    },\n    \"next\": {\n        \"id\": \"6710a1b2c3d4e5f607182940\",\n        \"code\": \"jfb7ffye\",\n        \"fecha\": \"2026-10-15\",\n        \"hora_inicio\": \"10:00:00\",\n        \"hora_fin\": \"10:30:00\",\n        \"estado\": \"confirmada\",\n        \"notas\": \"Traer foto de referencia.\",\n        \"precio_cobrado\": 250,\n        \"propina_sugerida\": 25,\n        \"pago_resuelto\": false,\n        \"puede_iniciar\": false,\n        \"motivo_no_iniciar\": \"El pago de esta cita a\u00fan no est\u00e1 resuelto. C\u00f3brala en recepci\u00f3n o espera a que se verifique la transferencia antes de iniciar el servicio.\",\n        \"fin_estimado\": null,\n        \"minutos_extra\": null,\n        \"reminder_24h_sent\": false,\n        \"reminder_2h_sent\": false,\n        \"deposito_requerido\": true,\n        \"deposito_monto\": 100,\n        \"deposito_estado\": \"pagado\",\n        \"client\": {\n            \"id\": \"6710a1b2c3d4e5f607182931\",\n            \"user\": {\n                \"name\": \"Juan P\u00e9rez\",\n                \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n            }\n        },\n        \"barber\": {\n            \"id\": \"6710a1b2c3d4e5f607182932\",\n            \"slug\": \"carlos-barbero\",\n            \"user\": {\n                \"name\": \"Carlos Barbero\"\n            },\n            \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n        },\n        \"service\": {\n            \"id\": \"6710a1b2c3d4e5f607182933\",\n            \"nombre\": \"Corte Cl\u00e1sico\",\n            \"precio\": 250,\n            \"duracion_min\": 30\n        }\n    },\n    \"cancellation_policy_hours\": 24\n}\n",
                             "name": "Cliente (agrega stats, next y cancellation_policy_hours)"
                         }
                     ]
@@ -576,7 +576,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":\"6710a1b2c3d4e5f607182932\",\"service_id\":\"6710a1b2c3d4e5f607182933\",\"fecha\":\"2026-04-15\",\"hora_inicio\":\"10:00\",\"notas\":\"Traer foto de referencia.\",\"productos\":[{\"product_id\":\"6710a1b2c3d4e5f607182951\",\"cantidad\":1}],\"propina_sugerida\":84,\"pagar_ahora\":true,\"client_id\":\"6710a1b2c3d4e5f607182931\",\"estado\":\"confirmada\"}"
+                            "raw": "{\"barber_id\":\"6710a1b2c3d4e5f607182932\",\"service_id\":\"6710a1b2c3d4e5f607182933\",\"fecha\":\"2026-04-15\",\"hora_inicio\":\"10:00\",\"notas\":\"Traer foto de referencia.\",\"productos\":[{\"product_id\":\"6710a1b2c3d4e5f607182951\",\"cantidad\":1}],\"propina_sugerida\":84,\"pagar_ahora\":true,\"acepta_cargo_inasistencia\":false,\"client_id\":\"6710a1b2c3d4e5f607182931\",\"estado\":\"confirmada\"}"
                         },
                         "description": "Registra una nueva cita en el sistema validando la disponibilidad del barbero."
                     },
@@ -584,7 +584,7 @@
                         {
                             "header": [],
                             "code": 201,
-                            "body": "{\n    \"message\": \"Cita creada correctamente.\",\n    \"data\": {\n        \"id\": \"6710a1b2c3d4e5f607182940\",\n        \"code\": \"jfb7ffye\",\n        \"fecha\": \"2026-10-15\",\n        \"hora_inicio\": \"10:00:00\",\n        \"hora_fin\": \"10:30:00\",\n        \"estado\": \"pendiente\",\n        \"notas\": \"Traer foto de referencia.\",\n        \"precio_cobrado\": 250,\n        \"propina_sugerida\": 25,\n        \"reminder_24h_sent\": false,\n        \"reminder_2h_sent\": false,\n        \"deposito_requerido\": false,\n        \"deposito_monto\": 100,\n        \"deposito_estado\": \"pagado\",\n        \"client\": {\n            \"id\": \"6710a1b2c3d4e5f607182931\",\n            \"user\": {\n                \"name\": \"Juan P\u00e9rez\",\n                \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n            }\n        },\n        \"barber\": {\n            \"id\": \"6710a1b2c3d4e5f607182932\",\n            \"slug\": \"carlos-barbero\",\n            \"user\": {\n                \"name\": \"Carlos Barbero\"\n            },\n            \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n        },\n        \"service\": {\n            \"id\": \"6710a1b2c3d4e5f607182933\",\n            \"nombre\": \"Corte Cl\u00e1sico\",\n            \"precio\": 250,\n            \"duracion_min\": 30\n        }\n    },\n    \"productos_agregados\": {\n        \"id\": \"6710a1b2c3d4e5f607182950\",\n        \"folio\": \"P-K3X9QZ\",\n        \"total\": \"120.00\",\n        \"items\": [\n            {\n                \"product_id\": \"6710a1b2c3d4e5f607182951\",\n                \"nombre\": \"Cera mate\",\n                \"precio\": 120,\n                \"cantidad\": 1,\n                \"subtotal\": 120\n            }\n        ]\n    },\n    \"productos_error\": \"Sin stock suficiente de Cera mate.\",\n    \"descuento_pct\": 10\n}\n",
+                            "body": "{\n    \"message\": \"Cita creada correctamente.\",\n    \"data\": {\n        \"id\": \"6710a1b2c3d4e5f607182940\",\n        \"code\": \"jfb7ffye\",\n        \"fecha\": \"2026-10-15\",\n        \"hora_inicio\": \"10:00:00\",\n        \"hora_fin\": \"10:30:00\",\n        \"estado\": \"pendiente\",\n        \"notas\": \"Traer foto de referencia.\",\n        \"precio_cobrado\": 250,\n        \"propina_sugerida\": 25,\n        \"pago_resuelto\": null,\n        \"puede_iniciar\": null,\n        \"motivo_no_iniciar\": null,\n        \"fin_estimado\": null,\n        \"minutos_extra\": null,\n        \"reminder_24h_sent\": false,\n        \"reminder_2h_sent\": false,\n        \"deposito_requerido\": false,\n        \"deposito_monto\": 100,\n        \"deposito_estado\": \"pagado\",\n        \"client\": {\n            \"id\": \"6710a1b2c3d4e5f607182931\",\n            \"user\": {\n                \"name\": \"Juan P\u00e9rez\",\n                \"avatar_url\": \"https:\/\/urbanblade.example\/storage\/avatars\/juan.jpg\"\n            }\n        },\n        \"barber\": {\n            \"id\": \"6710a1b2c3d4e5f607182932\",\n            \"slug\": \"carlos-barbero\",\n            \"user\": {\n                \"name\": \"Carlos Barbero\"\n            },\n            \"foto_url\": \"https:\/\/urbanblade.example\/storage\/barbers\/carlos.jpg\"\n        },\n        \"service\": {\n            \"id\": \"6710a1b2c3d4e5f607182933\",\n            \"nombre\": \"Corte Cl\u00e1sico\",\n            \"precio\": 250,\n            \"duracion_min\": 30\n        }\n    },\n    \"productos_agregados\": {\n        \"id\": \"6710a1b2c3d4e5f607182950\",\n        \"folio\": \"P-K3X9QZ\",\n        \"total\": \"120.00\",\n        \"items\": [\n            {\n                \"product_id\": \"6710a1b2c3d4e5f607182951\",\n                \"nombre\": \"Cera mate\",\n                \"precio\": 120,\n                \"cantidad\": 1,\n                \"subtotal\": 120\n            }\n        ]\n    },\n    \"productos_error\": \"Sin stock suficiente de Cera mate.\",\n    \"descuento_pct\": 10\n}\n",
                             "name": ""
                         },
                         {
@@ -613,7 +613,7 @@
                                 {
                                     "id": "appointment_code",
                                     "key": "appointment_code",
-                                    "value": "architecto",
+                                    "value": "fxp9vtie",
                                     "description": ""
                                 }
                             ]
@@ -631,7 +631,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-28\",\"hora_inicio\":\"01:06\",\"estado\":\"cancelada\",\"notas\":\"n\"}"
+                            "raw": "{\"client_id\":\"architecto\",\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"fecha\":\"2052-10-31\",\"hora_inicio\":\"13:59\",\"estado\":\"completada\",\"notas\":\"n\"}"
                         },
                         "description": "",
                         "auth": {
@@ -652,7 +652,7 @@
                                 {
                                     "id": "appointment_code",
                                     "key": "appointment_code",
-                                    "value": "architecto",
+                                    "value": "fxp9vtie",
                                     "description": ""
                                 },
                                 {
@@ -713,7 +713,7 @@
                                 {
                                     "id": "appointment_code",
                                     "key": "appointment_code",
-                                    "value": "architecto",
+                                    "value": "fxp9vtie",
                                     "description": ""
                                 }
                             ]
@@ -759,7 +759,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"period\":\"day\",\"estado\":\"confirmada\",\"offset\":-364}"
+                            "raw": "{\"period\":\"week\",\"estado\":\"en_proceso\",\"offset\":-364}"
                         },
                         "description": "",
                         "auth": {
@@ -937,7 +937,7 @@
                                 {
                                     "id": "appointment_code",
                                     "key": "appointment_code",
-                                    "value": "architecto",
+                                    "value": "fxp9vtie",
                                     "description": ""
                                 },
                                 {
@@ -979,7 +979,7 @@
                                 {
                                     "id": "appointment_code",
                                     "key": "appointment_code",
-                                    "value": "architecto",
+                                    "value": "fxp9vtie",
                                     "description": ""
                                 },
                                 {
@@ -1075,7 +1075,7 @@
                                 {
                                     "id": "payment_id",
                                     "key": "payment_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3af6d95ef709410e37b3",
                                     "description": "The ID of the payment."
                                 }
                             ]
@@ -1111,7 +1111,7 @@
                                 {
                                     "id": "payment_id",
                                     "key": "payment_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3af6d95ef709410e37b3",
                                     "description": "The ID of the payment."
                                 }
                             ]
@@ -1194,7 +1194,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-28\"}"
+                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-31\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1438,7 +1438,7 @@
                                 }
                             ],
                             "code": 200,
-                            "body": "{\"data\":[]}",
+                            "body": "{\"data\":[{\"id\":\"6aaa3a46d95ef709410e35bc\",\"nombre\":\"Afeitado Cl\\u00e1sico\",\"categoria\":\"Barba\",\"precio\":180,\"duracion_min\":30,\"descripcion\":\"Afeitado tradicional con navaja y toalla caliente.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/OBSXla86DdParNhf0RnGAfg4HL2cdpCfcnQQnNkk.webp\"},{\"id\":\"6aaa3a46d95ef709410e35bb\",\"nombre\":\"Arreglo de Barba\",\"categoria\":\"Barba\",\"precio\":100,\"duracion_min\":15,\"descripcion\":\"Recorte y perfilado r\\u00e1pido de barba.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/YcC3ru4tjNMf4OkBKmzAT9TiQoSVS3NzvDDd85Tp.jpg\"},{\"id\":\"6aaa3a46d95ef709410e35bd\",\"nombre\":\"Combo Corte + Barba\",\"categoria\":\"Combos\",\"precio\":320,\"duracion_min\":60,\"descripcion\":\"Paquete completo de corte y arreglo de barba.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/dy5873ujL0jLV7lmPThhS0vsM4kC6BTcXh4ReftD.jpg\"},{\"id\":\"6aaa3a47d95ef709410e35be\",\"nombre\":\"Combo Premium\",\"categoria\":\"Combos\",\"precio\":450,\"duracion_min\":75,\"descripcion\":\"Corte, barba, tratamiento capilar y toalla caliente.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/Syot8UweGG8qNu47uzcNcBxtwa3o7A0ZzA4TA5bZ.jpg\"},{\"id\":\"6aaa3a43d95ef709410e35b3\",\"nombre\":\"Corte Cl\\u00e1sico\",\"categoria\":\"Cortes\",\"precio\":180,\"duracion_min\":30,\"descripcion\":\"Corte de cabello tradicional con tijera y m\\u00e1quina, acabado prolijo.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/FdATpKjZg0K5RWA42p978vXgRig5q722RpSdc8bh.jpg\"},{\"id\":\"6aaa3a45d95ef709410e35b9\",\"nombre\":\"Corte Infantil\",\"categoria\":\"Cortes\",\"precio\":150,\"duracion_min\":25,\"descripcion\":\"Corte para ni\\u00f1os, ambiente relajado y paciente.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/LSkeehcKQeM2Uu0UPkYqEfl45MoyMt6Ul9H0cVXs.jpg\"},{\"id\":\"6aaa3a45d95ef709410e35b8\",\"nombre\":\"Corte Mohicano\",\"categoria\":\"Cortes\",\"precio\":260,\"duracion_min\":45,\"descripcion\":\"Cresta central marcada con laterales rapados.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/j4JvHxOdgDjCB8455h4zpUjda3nIDJuZB2uHgLrT.jpg\"},{\"id\":\"6aaa3a49d95ef709410e35c3\",\"nombre\":\"Corte a Navaja\",\"categoria\":\"Cortes\",\"precio\":260,\"duracion_min\":40,\"descripcion\":\"Corte completo trabajado enteramente a navaja.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/vYPyy5B6SMEmorRv9fKiyPHPsmj4VLikZXpWvcgv.jpg\"},{\"id\":\"6aaa3a45d95ef709410e35ba\",\"nombre\":\"Dise\\u00f1o de Barba\",\"categoria\":\"Barba\",\"precio\":150,\"duracion_min\":25,\"descripcion\":\"Perfilado y dise\\u00f1o de barba con navaja.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/her9jzuzKKrSixaLq9yZuDgnrHp5xypfCHMEX87K.jpg\"},{\"id\":\"6aaa3a48d95ef709410e35c2\",\"nombre\":\"Keratina Express\",\"categoria\":\"Tratamientos\",\"precio\":350,\"duracion_min\":50,\"descripcion\":\"Alisado ligero con keratina, brillo inmediato.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/eFUUmGJD7PGLfYGqkz7T0QTsBBYr8WcBNpsft3iM.jpg\"},{\"id\":\"6aaa3a48d95ef709410e35c1\",\"nombre\":\"Perfilado de Cejas\",\"categoria\":\"Tratamientos\",\"precio\":90,\"duracion_min\":15,\"descripcion\":\"Dise\\u00f1o y limpieza de cejas con navaja o pinza.\",\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/services\\\/p0PTL1D81mmPq1pL1pqCWUK6gqIr34JH36HZ8bu5.webp\"},{\"id\":\"6aaa3a44d95ef709410e35b7\",\"nombre\":\"Pompadour\",\"categoria\":\"Cortes\",\"precio\":240,\"duracion_min\":45,\"descripcion\":\"Corte con volumen frontal peinado hacia atr\\u00e1s.\",\"imagen\":null},{\"id\":\"6aaa3a49d95ef709410e35c4\",\"nombre\":\"Rapado Total\",\"categoria\":\"Cortes\",\"precio\":130,\"duracion_min\":20,\"descripcion\":\"Rapado uniforme de toda la cabeza.\",\"imagen\":null},{\"id\":\"6aaa3a4ad95ef709410e35c6\",\"nombre\":\"Retoque Express\",\"categoria\":\"Cortes\",\"precio\":120,\"duracion_min\":15,\"descripcion\":\"Retoque r\\u00e1pido de contornos entre cortes.\",\"imagen\":null},{\"id\":\"6aaa3a44d95ef709410e35b5\",\"nombre\":\"Skin Fade\",\"categoria\":\"Cortes\",\"precio\":250,\"duracion_min\":45,\"descripcion\":\"Degradado a piel, look moderno y muy definido.\",\"imagen\":null},{\"id\":\"6aaa3a4ad95ef709410e35c5\",\"nombre\":\"Spa Capilar\",\"categoria\":\"Tratamientos\",\"precio\":300,\"duracion_min\":40,\"descripcion\":\"Masaje, mascarilla y limpieza profunda del cabello.\",\"imagen\":null},{\"id\":\"6aaa3a43d95ef709410e35b4\",\"nombre\":\"Taper Fade\",\"categoria\":\"Cortes\",\"precio\":220,\"duracion_min\":40,\"descripcion\":\"Degradado progresivo en los laterales con transici\\u00f3n suave.\",\"imagen\":null},{\"id\":\"6aaa3a47d95ef709410e35c0\",\"nombre\":\"Tinte \\\/ Color\",\"categoria\":\"Tratamientos\",\"precio\":380,\"duracion_min\":60,\"descripcion\":\"Coloraci\\u00f3n completa o mechas seg\\u00fan preferencia.\",\"imagen\":null},{\"id\":\"6aaa3a47d95ef709410e35bf\",\"nombre\":\"Tratamiento Capilar\",\"categoria\":\"Tratamientos\",\"precio\":280,\"duracion_min\":35,\"descripcion\":\"Hidrataci\\u00f3n y nutrici\\u00f3n profunda del cuero cabelludo.\",\"imagen\":null},{\"id\":\"6aaa3a44d95ef709410e35b6\",\"nombre\":\"Undercut\",\"categoria\":\"Cortes\",\"precio\":230,\"duracion_min\":40,\"descripcion\":\"Rapado en laterales con volumen conservado arriba.\",\"imagen\":null}]}",
                             "name": ""
                         }
                     ]
@@ -1486,7 +1486,7 @@
                                 }
                             ],
                             "code": 200,
-                            "body": "{\"data\":[]}",
+                            "body": "{\"data\":[{\"id\":\"6aadd78765a6ba4bd80adfc2\",\"slug\":\"gonzalez-ramirez-luis-enrique\",\"user\":{\"id\":\"6aab96924c163e944d0b36d5\",\"name\":\"Gonzalez Ramirez Luis Enrique\"},\"especialidades\":\"\",\"descripcion\":\"Barbero profesional de UrbanBlade.\",\"foto\":\"https:\\\/\\\/urbanblade-staging-uploads-209479293733.s3.us-east-1.amazonaws.com\\\/avatars\\\/6aab96924c163e944d0b36d5\\\/77335daf-1099-431b-adfc-44780e9aeab1.jpg\",\"activo\":true,\"avg_rating\":3,\"total_reviews\":1,\"citas_conmigo\":null,\"es_favorito\":false}]}",
                             "name": ""
                         }
                     ]
@@ -1534,7 +1534,7 @@
                                 }
                             ],
                             "code": 200,
-                            "body": "{\"data\":[]}",
+                            "body": "{\"data\":[{\"id\":\"6aaa3a51d95ef709410e35d9\",\"nombre\":\"Aceite de Barba Premium\",\"categoria\":\"Barba\",\"descripcion\":\"Aceite de Barba Premium \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":200,\"stock_actual\":4,\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/products\\\/ldHXKkwwr7h14r9EQ73jaaezDCfhwxUoT7LM7TMD.jpg\"},{\"id\":\"6aaa3a4fd95ef709410e35d5\",\"nombre\":\"Acondicionador Hidratante\",\"categoria\":\"Cuidado Capilar\",\"descripcion\":\"Acondicionador Hidratante \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":160,\"stock_actual\":29,\"imagen\":null},{\"id\":\"6aaa3a53d95ef709410e35df\",\"nombre\":\"Aftershave Refrescante\",\"categoria\":\"Afeitado\",\"descripcion\":\"Aftershave Refrescante \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":140,\"stock_actual\":52,\"imagen\":null},{\"id\":\"6aaa3a4dd95ef709410e35cd\",\"nombre\":\"Arcilla Modeladora\",\"categoria\":\"Styling\",\"descripcion\":\"Arcilla Modeladora \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":160,\"stock_actual\":57,\"imagen\":null},{\"id\":\"6aaa3a51d95ef709410e35db\",\"nombre\":\"Balsamo de Barba\",\"categoria\":\"Barba\",\"descripcion\":\"Balsamo de Barba \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":180,\"stock_actual\":22,\"imagen\":null},{\"id\":\"6aaa3a56d95ef709410e35e9\",\"nombre\":\"Cepillo para Barba\",\"categoria\":\"Accesorios\",\"descripcion\":\"Cepillo para Barba \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":110,\"stock_actual\":12,\"imagen\":null},{\"id\":\"6aaa3a4ad95ef709410e35c7\",\"nombre\":\"Cera Mate Fijacion Fuerte\",\"categoria\":\"Styling\",\"descripcion\":\"Cera Mate Fijacion Fuerte \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":150,\"stock_actual\":25,\"imagen\":null},{\"id\":\"6aaa3a5ed95ef709410e35ff\",\"nombre\":\"Colonia UrbanBlade Signature\",\"categoria\":\"Fragancias\",\"descripcion\":\"Colonia UrbanBlade Signature \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":420,\"stock_actual\":5,\"imagen\":null},{\"id\":\"6aaa3a54d95ef709410e35e1\",\"nombre\":\"Crema de Afeitar Clasica\",\"categoria\":\"Afeitado\",\"descripcion\":\"Crema de Afeitar Clasica \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":120,\"stock_actual\":26,\"imagen\":null},{\"id\":\"6aaa3a4cd95ef709410e35cb\",\"nombre\":\"Gel Fijador Extra Fuerte\",\"categoria\":\"Styling\",\"descripcion\":\"Gel Fijador Extra Fuerte \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":110,\"stock_actual\":8,\"imagen\":null},{\"id\":\"6aaa3a5dd95ef709410e35fb\",\"nombre\":\"Jabon de Barba Artesanal\",\"categoria\":\"Barba\",\"descripcion\":\"Jabon de Barba Artesanal \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":125,\"stock_actual\":11,\"imagen\":null},{\"id\":\"6aaa3a52d95ef709410e35dd\",\"nombre\":\"Kit Aceite y Balsamo de Barba\",\"categoria\":\"Barba\",\"descripcion\":\"Kit Aceite y Balsamo de Barba \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":320,\"stock_actual\":34,\"imagen\":null},{\"id\":\"6aaa3a54d95ef709410e35e3\",\"nombre\":\"Locion Post Afeitado\",\"categoria\":\"Afeitado\",\"descripcion\":\"Locion Post Afeitado \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":130,\"stock_actual\":10,\"imagen\":null},{\"id\":\"6aaa3a50d95ef709410e35d7\",\"nombre\":\"Mascarilla Capilar Nutritiva\",\"categoria\":\"Cuidado Capilar\",\"descripcion\":\"Mascarilla Capilar Nutritiva \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":210,\"stock_actual\":9,\"imagen\":null},{\"id\":\"6aaa3a55d95ef709410e35e5\",\"nombre\":\"Navajas de Afeitar (5 pzas)\",\"categoria\":\"Afeitado\",\"descripcion\":\"Navajas de Afeitar (5 pzas) \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":95,\"stock_actual\":38,\"imagen\":null},{\"id\":\"6aaa3a55d95ef709410e35e7\",\"nombre\":\"Peine de Madera\",\"categoria\":\"Accesorios\",\"descripcion\":\"Peine de Madera \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":90,\"stock_actual\":58,\"imagen\":null},{\"id\":\"6aaa3a4bd95ef709410e35c9\",\"nombre\":\"Pomada Brillante Clasica\",\"categoria\":\"Styling\",\"descripcion\":\"Pomada Brillante Clasica \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":140,\"stock_actual\":19,\"imagen\":null},{\"id\":\"6aaa3a5cd95ef709410e35f9\",\"nombre\":\"Serum Brillo Instantaneo\",\"categoria\":\"Styling\",\"descripcion\":\"Serum Brillo Instantaneo \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":165,\"stock_actual\":57,\"imagen\":null},{\"id\":\"6aaa3a5dd95ef709410e35fd\",\"nombre\":\"Set de Viaje Grooming\",\"categoria\":\"Accesorios\",\"descripcion\":\"Set de Viaje Grooming \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":350,\"stock_actual\":29,\"imagen\":null},{\"id\":\"6aaa3a4ed95ef709410e35d1\",\"nombre\":\"Shampoo Anticaida\",\"categoria\":\"Cuidado Capilar\",\"descripcion\":\"Shampoo Anticaida \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":180,\"stock_actual\":23,\"imagen\":null},{\"id\":\"6aaa3a4fd95ef709410e35d3\",\"nombre\":\"Shampoo Carbon Activado\",\"categoria\":\"Cuidado Capilar\",\"descripcion\":\"Shampoo Carbon Activado \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":170,\"stock_actual\":38,\"imagen\":null},{\"id\":\"6aaa3a4dd95ef709410e35cf\",\"nombre\":\"Spray Fijador Profesional\",\"categoria\":\"Styling\",\"descripcion\":\"Spray Fijador Profesional \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":130,\"stock_actual\":47,\"imagen\":null},{\"id\":\"6aaa3a5ad95ef709410e35f5\",\"nombre\":\"Talco Refrescante\",\"categoria\":\"Afeitado\",\"descripcion\":\"Talco Refrescante \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":95,\"stock_actual\":40,\"imagen\":null},{\"id\":\"6ab70e856688e1bd7b0103dd\",\"nombre\":\"Test\",\"categoria\":\"Test\",\"descripcion\":\"Etgdb\",\"precio_venta\":200,\"stock_actual\":15,\"imagen\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/products\\\/jJT13Q4rBMwzzX5MGnAiMy2OwLlqLWseWRKSyFWl.jpg\"},{\"id\":\"6aaa3a57d95ef709410e35eb\",\"nombre\":\"Toalla Facial Premium\",\"categoria\":\"Accesorios\",\"descripcion\":\"Toalla Facial Premium \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":140,\"stock_actual\":27,\"imagen\":null},{\"id\":\"6aaa3a5bd95ef709410e35f7\",\"nombre\":\"Tonico Capilar Anticaspa\",\"categoria\":\"Cuidado Capilar\",\"descripcion\":\"Tonico Capilar Anticaspa \\u2014 producto profesional UrbanBlade.\",\"precio_venta\":150,\"stock_actual\":6,\"imagen\":null}]}",
                             "name": ""
                         }
                     ]
@@ -1561,7 +1561,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-28\"}"
+                            "raw": "{\"barber_id\":\"architecto\",\"service_id\":\"architecto\",\"date\":\"2052-10-31\"}"
                         },
                         "description": "",
                         "auth": {
@@ -1641,7 +1641,7 @@
                                 }
                             ],
                             "code": 200,
-                            "body": "{\"data\":[],\"meta\":{\"current_page\":1,\"last_page\":1,\"total\":0}}",
+                            "body": "{\"data\":[{\"id\":\"6ab535ef96a5df8c0a01f10e\",\"title\":\"test\",\"description\":\"Ejemplo\",\"work_date\":\"2026-09-24\",\"barber\":{\"id\":\"6aab96924c163e944d0b36d5\",\"name\":\"Gonzalez Ramirez Luis Enrique\",\"slug\":\"gonzalez-ramirez-luis-enrique\",\"foto\":null},\"images\":[\"http:\\\/\\\/localhost:8000\\\/storage\\\/portfolio\\\/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg\"],\"media\":[{\"url\":\"http:\\\/\\\/localhost:8000\\\/storage\\\/portfolio\\\/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg\",\"type\":\"image\"}],\"reactions_count\":2,\"comments_count\":0,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false,\"comments\":[]},{\"id\":\"6aaa3b11d95ef709410e3841\",\"title\":\"Degradado quirurgico\",\"description\":\"Transformando looks, un cliente a la vez.\",\"work_date\":\"2025-11-29\",\"barber\":{\"id\":null,\"name\":null,\"slug\":null,\"foto\":null},\"images\":[\"https:\\\/\\\/images.unsplash.com\\\/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85\"],\"media\":[{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"}],\"reactions_count\":21,\"comments_count\":3,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false,\"comments\":[{\"id\":\"6aaa3b12d95ef709410e3898\",\"comment\":\"Se ve buenisimo, recomendado al 100%.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"},{\"id\":\"6aaa3b12d95ef709410e3899\",\"comment\":\"Ya quiero mi cita para que me dejen asi.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"},{\"id\":\"6aaa3b12d95ef709410e3897\",\"comment\":\"Un artista con las tijeras.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"}]},{\"id\":\"6aaa3b11d95ef709410e3840\",\"title\":\"Fade limpio de la semana\",\"description\":\"Cada corte cuenta una historia. Este es el resultado de hoy.\",\"work_date\":\"2026-06-25\",\"barber\":{\"id\":null,\"name\":null,\"slug\":null,\"foto\":null},\"images\":[\"https:\\\/\\\/images.unsplash.com\\\/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85\"],\"media\":[{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"}],\"reactions_count\":11,\"comments_count\":3,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false,\"comments\":[{\"id\":\"6aaa3b12d95ef709410e3895\",\"comment\":\"Vengo desde hace a\\u00f1os y nunca falla.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"},{\"id\":\"6aaa3b12d95ef709410e3896\",\"comment\":\"Vengo desde hace a\\u00f1os y nunca falla.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"},{\"id\":\"6aaa3b12d95ef709410e3894\",\"comment\":\"Trabajo limpio y profesional.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"}]},{\"id\":\"6aaa3b11d95ef709410e383f\",\"title\":\"Estilo moderno urbano\",\"description\":\"Transformando looks, un cliente a la vez.\",\"work_date\":\"2026-01-01\",\"barber\":{\"id\":null,\"name\":null,\"slug\":null,\"foto\":null},\"images\":[\"https:\\\/\\\/images.unsplash.com\\\/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85\"],\"media\":[{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"}],\"reactions_count\":18,\"comments_count\":1,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false,\"comments\":[{\"id\":\"6aaa3b12d95ef709410e3893\",\"comment\":\"Vengo desde hace a\\u00f1os y nunca falla.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"}]},{\"id\":\"6aaa3b11d95ef709410e383e\",\"title\":\"Degradado quirurgico\",\"description\":\"Cada corte cuenta una historia. Este es el resultado de hoy.\",\"work_date\":\"2026-08-21\",\"barber\":{\"id\":null,\"name\":null,\"slug\":null,\"foto\":null},\"images\":[\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85\"],\"media\":[{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"}],\"reactions_count\":10,\"comments_count\":3,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false,\"comments\":[{\"id\":\"6aaa3b12d95ef709410e3890\",\"comment\":\"Que nivel de detalle, impresionante.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"},{\"id\":\"6aaa3b12d95ef709410e3891\",\"comment\":\"Que precision en el degradado.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"},{\"id\":\"6aaa3b12d95ef709410e3892\",\"comment\":\"Que precision en el degradado.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"}]},{\"id\":\"6aaa3b11d95ef709410e383d\",\"title\":\"Precision en cada linea\",\"description\":\"Cada corte cuenta una historia. Este es el resultado de hoy.\",\"work_date\":\"2025-07-24\",\"barber\":{\"id\":null,\"name\":null,\"slug\":null,\"foto\":null},\"images\":[\"https:\\\/\\\/images.unsplash.com\\\/photo-1599351431202-1e0f0137899a?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\"],\"media\":[{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1599351431202-1e0f0137899a?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"}],\"reactions_count\":20,\"comments_count\":2,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false,\"comments\":[{\"id\":\"6aaa3b12d95ef709410e388f\",\"comment\":\"El mejor barbero de la zona, sin duda.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"},{\"id\":\"6aaa3b12d95ef709410e388e\",\"comment\":\"Que precision en el degradado.\",\"user\":{\"name\":null},\"created_at\":\"2026-09-16T00:45:38-06:00\"}]},{\"id\":\"6aaa3b10d95ef709410e383c\",\"title\":\"Corte clasico con estilo\",\"description\":\"Trabajo minucioso, resultado impecable. Agenda tu cita.\",\"work_date\":\"2025-04-13\",\"barber\":{\"id\":null,\"name\":null,\"slug\":null,\"foto\":null},\"images\":[\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1585747860715-2ba37e788b70?w=900&h=1100&auto=format&fit=crop&q=85\"],\"media\":[{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1585747860715-2ba37e788b70?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"}],\"reactions_count\":5,\"comments_count\":0,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false,\"comments\":[]},{\"id\":\"6aaa3b10d95ef709410e383b\",\"title\":\"Look renovado para el finde\",\"description\":\"Otro cliente satisfecho saliendo con estilo de UrbanBlade.\",\"work_date\":\"2025-12-02\",\"barber\":{\"id\":null,\"name\":null,\"slug\":null,\"foto\":null},\"images\":[\"https:\\\/\\\/images.unsplash.com\\\/photo-1507003211169-0a1dd7228f2d?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85\"],\"media\":[{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1507003211169-0a1dd7228f2d?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"}],\"reactions_count\":0,\"comments_count\":0,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false,\"comments\":[]},{\"id\":\"6aaa3b10d95ef709410e383a\",\"title\":\"Transformacion total\",\"description\":\"Trabajo minucioso, resultado impecable. Agenda tu cita.\",\"work_date\":\"2026-01-17\",\"barber\":{\"id\":null,\"name\":null,\"slug\":null,\"foto\":null},\"images\":[\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1519345182560-3f2917c472ef?w=900&h=1100&auto=format&fit=crop&q=85\"],\"media\":[{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1519345182560-3f2917c472ef?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"}],\"reactions_count\":20,\"comments_count\":0,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false,\"comments\":[]},{\"id\":\"6aaa3b10d95ef709410e3839\",\"title\":\"Trabajo de detalle\",\"description\":null,\"work_date\":\"2026-07-15\",\"barber\":{\"id\":null,\"name\":null,\"slug\":null,\"foto\":null},\"images\":[\"https:\\\/\\\/images.unsplash.com\\\/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1621605815971-fbc98d665033?w=900&h=1100&auto=format&fit=crop&q=85\",\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\"],\"media\":[{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1621605815971-fbc98d665033?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"},{\"url\":\"https:\\\/\\\/images.unsplash.com\\\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85\",\"type\":\"image\"}],\"reactions_count\":0,\"comments_count\":0,\"saved_count\":0,\"is_reacted\":false,\"is_saved\":false,\"comments\":[]}],\"meta\":{\"current_page\":1,\"last_page\":3,\"total\":24}}",
                             "name": ""
                         }
                     ]
@@ -1771,6 +1771,107 @@
                     ]
                 },
                 {
+                    "name": "Agregar tiempo al servicio en curso",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/appointments\/:appointment_code\/extend",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/appointments\/:appointment_code\/extend",
+                            "variable": [
+                                {
+                                    "id": "appointment_code",
+                                    "key": "appointment_code",
+                                    "value": "fxp9vtie",
+                                    "description": ""
+                                },
+                                {
+                                    "id": "appointment",
+                                    "key": "appointment",
+                                    "value": "jfb7ffye",
+                                    "description": "C\u00f3digo p\u00fablico de la cita."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"minutos\":10,\"forzar\":false}"
+                        },
+                        "description": "El barbero de la cita (o recepci\u00f3n\/administraci\u00f3n) agrega minutos a un servicio en proceso. Si el nuevo fin\nchoca con la siguiente cita responde 422 con `choca_con`; repetir con `forzar=true` extiende de todos modos y\navisa al siguiente cliente."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Ticket de una cita completada",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/appointments\/:appointment_code\/ticket",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/appointments\/:appointment_code\/ticket",
+                            "variable": [
+                                {
+                                    "id": "appointment_code",
+                                    "key": "appointment_code",
+                                    "value": "fxp9vtie",
+                                    "description": ""
+                                },
+                                {
+                                    "id": "appointment",
+                                    "key": "appointment",
+                                    "value": "jfb7ffye",
+                                    "description": "C\u00f3digo p\u00fablico de la cita."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Resumen del servicio y del pago (monto, propina, dep\u00f3sito aplicado, m\u00e9todo) con el enlace temporal al\ncomprobante en PDF. Lo ve el cliente due\u00f1o de la cita, su barbero y el personal."
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
                     "name": "Lista pedidos: un cliente ve solo los suyos; admin\/recepci\u00f3n ven\ntodos, con filtros opcionales (estado\/folio) y las mismas\nestad\u00edsticas r\u00e1pidas que Reception\\OrderController::index() (web).",
                     "request": {
                         "url": {
@@ -1861,7 +1962,7 @@
                                 {
                                     "id": "order_id",
                                     "key": "order_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3afed95ef709410e3803",
                                     "description": "The ID of the order."
                                 }
                             ]
@@ -1945,7 +2046,7 @@
                                 {
                                     "id": "payment_id",
                                     "key": "payment_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3af6d95ef709410e37b3",
                                     "description": "The ID of the payment."
                                 }
                             ]
@@ -1983,8 +2084,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Payment] architecto\"\n}",
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
                             "name": ""
                         }
                     ]
@@ -2011,7 +2112,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"puntos_canjeados\":39,\"codigo_gift_card\":\"gzmiyvdljnikhway\",\"propina\":62,\"guardar_tarjeta\":true,\"tarjeta_guardada\":false}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"puntos_canjeados\":39,\"codigo_gift_card\":\"gzmiyvdljnikhway\",\"propina\":62,\"guardar_tarjeta\":false,\"tarjeta_guardada\":false}"
                         },
                         "description": "Autopago del cliente (Fase B del plan Stripe): un cliente autenticado\npuede pagar su PROPIA cita con tarjeta exactamente por el mismo camino\nque usa staff -- el webhook (StripeWebhookController::onSucceeded())\nno distingue qui\u00e9n cre\u00f3 el intent, solo lee metadata.appointment_id y\nllama PaymentService::create() igual en ambos casos. No hace falta\nduplicar l\u00f3gica de completar el cobro.\n\nEl monto del SERVICIO no se recibe del cliente: se calcula aqui mismo\n(precio base del servicio -> descuento de nivel -> puntos canjeados ->\ngift card) para que lo que Stripe realmente cobra por ese concepto sea\nsiempre el mismo numero que create()\/el webhook usaran despues para\nregistrar el pago \u2014 nunca se confia en un monto que venga del frontend\npara mover dinero real. La propina SI es una eleccion del cliente (no\nhay \"precio correcto\" que releer), se valida como numero >= 0 y se\nsuma aparte al total que ve Stripe; PaymentService::create() la guarda\nen su propio campo, nunca se mezcla con precio_cobrado.",
                         "auth": {
@@ -2032,7 +2133,7 @@
                                 {
                                     "id": "appointment_code",
                                     "key": "appointment_code",
-                                    "value": "architecto",
+                                    "value": "fxp9vtie",
                                     "description": ""
                                 },
                                 {
@@ -2075,6 +2176,64 @@
                     "response": []
                 },
                 {
+                    "name": "Listar cargos por inasistencia",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/no-show-fees",
+                            "query": [
+                                {
+                                    "key": "estado",
+                                    "value": "pendiente",
+                                    "description": "pendiente|pagado|condonado (solo personal).",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "client_id",
+                                    "value": "architecto",
+                                    "description": "Filtra por cliente (solo personal).",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/no-show-fees?estado=pendiente&client_id=architecto"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Cliente: los suyos (con el total adeudado). Recepci\u00f3n\/administraci\u00f3n: por estado (pendiente por defecto) y,\nopcionalmente, de un cliente."
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "vary",
+                                    "value": "Origin"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
                     "name": "Marca un pedido como entregado y registra el m\u00e9todo de cobro (staff).",
                     "request": {
                         "url": {
@@ -2086,7 +2245,7 @@
                                 {
                                     "id": "order_id",
                                     "key": "order_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3afed95ef709410e3803",
                                     "description": "The ID of the order."
                                 }
                             ]
@@ -2104,7 +2263,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"metodo_pago\":\"tarjeta\"}"
+                            "raw": "{\"metodo_pago\":\"transferencia\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2125,7 +2284,7 @@
                                 {
                                     "id": "order_id",
                                     "key": "order_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3afed95ef709410e3803",
                                     "description": "The ID of the order."
                                 }
                             ]
@@ -2163,8 +2322,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Order] architecto\"\n}",
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
                             "name": ""
                         }
                     ]
@@ -2239,7 +2398,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"transferencia\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":true,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
+                            "raw": "{\"appointment_id\":\"architecto\",\"monto\":4326.41688,\"metodo_pago\":\"efectivo\",\"propina\":77,\"puntos_canjeados\":8,\"usar_premio_rifa\":false,\"usar_paquete_id\":\"architecto\",\"codigo_gift_card\":\"ngzmiyvdljnikhwa\",\"stripe_payment_id\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2260,7 +2419,7 @@
                                 {
                                     "id": "payment_id",
                                     "key": "payment_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3af6d95ef709410e37b3",
                                     "description": "The ID of the payment."
                                 }
                             ]
@@ -2296,7 +2455,7 @@
                                 {
                                     "id": "payment_id",
                                     "key": "payment_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3af6d95ef709410e37b3",
                                     "description": "The ID of the payment."
                                 }
                             ]
@@ -2335,7 +2494,7 @@
                                 {
                                     "id": "payment_id",
                                     "key": "payment_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3af6d95ef709410e37b3",
                                     "description": "The ID of the payment."
                                 }
                             ]
@@ -2356,6 +2515,78 @@
                         "auth": {
                             "type": "noauth"
                         }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cobrar un cargo en sucursal",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/no-show-fees\/:fee_id\/pay",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/no-show-fees\/:fee_id\/pay",
+                            "variable": [
+                                {
+                                    "id": "fee_id",
+                                    "key": "fee_id",
+                                    "value": "architecto",
+                                    "description": "The ID of the fee."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"metodo\":\"efectivo\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Condonar un cargo (solo administraci\u00f3n)",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/no-show-fees\/:fee_id\/waive",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/no-show-fees\/:fee_id\/waive",
+                            "variable": [
+                                {
+                                    "id": "fee_id",
+                                    "key": "fee_id",
+                                    "value": "architecto",
+                                    "description": "The ID of the fee."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"motivo\":\"Cliente con emergencia m\u00e9dica.\"}"
+                        },
+                        "description": ""
                     },
                     "response": []
                 },
@@ -2429,7 +2660,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":false}"
+                            "raw": "{\"nombre\":\"b\",\"service_id\":\"architecto\",\"cantidad_usos\":22,\"precio\":84,\"vigencia_dias\":16,\"activo\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2450,7 +2681,7 @@
                                 {
                                     "id": "servicePackage_id",
                                     "key": "servicePackage_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3b1ad95ef709410e3983",
                                     "description": "The ID of the servicePackage."
                                 }
                             ]
@@ -2489,7 +2720,7 @@
                                 {
                                     "id": "servicePackage_id",
                                     "key": "servicePackage_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3b1ad95ef709410e3983",
                                     "description": "The ID of the servicePackage."
                                 }
                             ]
@@ -2583,7 +2814,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2604,7 +2835,7 @@
                                 {
                                     "id": "membershipPlan_id",
                                     "key": "membershipPlan_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3b16d95ef709410e3968",
                                     "description": "The ID of the membershipPlan."
                                 }
                             ]
@@ -2622,7 +2853,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"descripcion\":\"n\",\"precio_mensual\":67,\"descuento_pct\":16,\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2643,7 +2874,7 @@
                                 {
                                     "id": "membershipPlan_id",
                                     "key": "membershipPlan_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3b16d95ef709410e3968",
                                     "description": "The ID of the membershipPlan."
                                 }
                             ]
@@ -2737,7 +2968,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-10-05T01:06:05\",\"pref_in_app\":false,\"pref_email\":true,\"pref_sms\":true,\"pref_whatsapp\":false}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"-0pBNvYgxw\",\"telefono\":\"a\",\"fecha_nacimiento\":\"2026-10-08T13:59:36\",\"pref_in_app\":true,\"pref_email\":true,\"pref_sms\":false,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2758,7 +2989,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "architecto",
+                                    "value": "luis-enrique-gonzalez-ramirez",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -2776,7 +3007,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-10-05T01:06:05\",\"pref_in_app\":false,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":true}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"telefono\":\"i\",\"fecha_nacimiento\":\"2026-10-08T13:59:36\",\"pref_in_app\":true,\"pref_email\":false,\"pref_sms\":false,\"pref_whatsapp\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -2797,7 +3028,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "architecto",
+                                    "value": "luis-enrique-gonzalez-ramirez",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -2912,7 +3143,7 @@
                                 {
                                     "id": "service_slug",
                                     "key": "service_slug",
-                                    "value": "architecto",
+                                    "value": "skin-fade",
                                     "description": "The slug of the service."
                                 }
                             ]
@@ -2930,7 +3161,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"descripcion\":\"m\",\"activo\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"n\",\"precio\":84,\"duracion_min\":16,\"descripcion\":\"m\",\"activo\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -2951,7 +3182,7 @@
                                 {
                                     "id": "service_slug",
                                     "key": "service_slug",
-                                    "value": "architecto",
+                                    "value": "skin-fade",
                                     "description": "The slug of the service."
                                 }
                             ]
@@ -3035,7 +3266,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "architecto",
+                                    "value": "gonzalez-ramirez-luis-enrique",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -3053,7 +3284,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"activo\":true,\"comision_pct\":1}"
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"especialidades\":\"i\",\"descripcion\":\"y\",\"activo\":false,\"comision_pct\":1}"
                         },
                         "description": "",
                         "auth": {
@@ -3153,7 +3384,7 @@
                                 {
                                     "id": "user_id",
                                     "key": "user_id",
-                                    "value": "architecto",
+                                    "value": "6aa51b319ddeabe12709e9e2",
                                     "description": "The ID of the user."
                                 }
                             ]
@@ -3192,7 +3423,7 @@
                                 {
                                     "id": "user_id",
                                     "key": "user_id",
-                                    "value": "architecto",
+                                    "value": "6aa51b319ddeabe12709e9e2",
                                     "description": "The ID of the user."
                                 }
                             ]
@@ -3286,7 +3517,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"01:06\",\"horario_cierre\":\"2052-10-28\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"instagram\":\"m\",\"facebook\":\"i\",\"tiktok\":\"y\",\"clabe\":\"vdljnikhwaykcmyu\",\"banco\":\"w\",\"beneficiario\":\"p\",\"concepto\":\"w\"}"
+                            "raw": "{\"nombre\":\"b\",\"direccion\":\"n\",\"telefono\":\"g\",\"horario_apertura\":\"13:59\",\"horario_cierre\":\"2052-10-31\",\"politica_cancelacion\":22,\"deposito_no_show_umbral\":7,\"deposito_no_show_porcentaje\":16,\"comision_no_show_porcentaje\":17,\"instagram\":\"i\",\"facebook\":\"y\",\"tiktok\":\"v\",\"clabe\":\"dljnikhwaykcmyuw\",\"banco\":\"p\",\"beneficiario\":\"w\",\"concepto\":\"l\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3393,7 +3624,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"ahora\",\"programada_para\":\"2052-10-28\"}"
+                            "raw": "{\"titulo\":\"b\",\"cuerpo\":\"n\",\"cta_label\":\"g\",\"cta_url\":\"http:\\\/\\\/www.okuneva.com\\\/fugiat-sunt-nihil-accusantium-harum-mollitia.html\",\"segmento\":\"architecto\",\"modo\":\"programar\",\"programada_para\":\"2052-11-01\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3922,7 +4153,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"in_app\":false,\"email\":false,\"sms\":true,\"whatsapp\":false,\"push\":false,\"promociones\":false}"
+                            "raw": "{\"in_app\":false,\"email\":true,\"sms\":false,\"whatsapp\":true,\"push\":true,\"promociones\":false}"
                         },
                         "description": "Igual que la versi\u00f3n web (Notification\\NotificationController), hace\nmerge sobre las preferencias actuales en vez de reemplazarlas por\ncompleto, para que un cliente que solo manda un subconjunto de\ncanales (p. ej. solo \"push\") no borre los dem\u00e1s.",
                         "auth": {
@@ -4001,7 +4232,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"endpoint\":\"b\",\"keys\":{\"p256dh\":\"architecto\",\"auth\":\"architecto\"},\"content_encoding\":\"aesgcm\"}"
+                            "raw": "{\"endpoint\":\"b\",\"keys\":{\"p256dh\":\"architecto\",\"auth\":\"architecto\"},\"content_encoding\":\"aes128gcm\"}"
                         },
                         "description": "",
                         "auth": {
@@ -4053,7 +4284,7 @@
                                 {
                                     "id": "work_id",
                                     "key": "work_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3b0dd95ef709410e382b",
                                     "description": "The ID of the work."
                                 }
                             ]
@@ -4089,7 +4320,7 @@
                                 {
                                     "id": "work_id",
                                     "key": "work_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3b0dd95ef709410e382b",
                                     "description": "The ID of the work."
                                 }
                             ]
@@ -4125,7 +4356,7 @@
                                 {
                                     "id": "work_id",
                                     "key": "work_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3b0dd95ef709410e382b",
                                     "description": "The ID of the work."
                                 }
                             ]
@@ -4996,7 +5227,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "architecto",
+                                    "value": "gonzalez-ramirez-luis-enrique",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -5034,8 +5265,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Barber] architecto\"\n}",
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
                             "name": ""
                         }
                     ]
@@ -5052,7 +5283,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "architecto",
+                                    "value": "gonzalez-ramirez-luis-enrique",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -5090,8 +5321,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Barber] architecto\"\n}",
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
                             "name": ""
                         }
                     ]
@@ -5108,7 +5339,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "architecto",
+                                    "value": "gonzalez-ramirez-luis-enrique",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -5146,8 +5377,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Barber] architecto\"\n}",
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
                             "name": ""
                         }
                     ]
@@ -5164,7 +5395,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "architecto",
+                                    "value": "gonzalez-ramirez-luis-enrique",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -5202,8 +5433,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Barber] architecto\"\n}",
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
                             "name": ""
                         }
                     ]
@@ -5220,7 +5451,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "architecto",
+                                    "value": "gonzalez-ramirez-luis-enrique",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -5238,7 +5469,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"especialidades\":\"b\",\"descripcion\":\"architecto\",\"activo\":true,\"comision_pct\":22}"
+                            "raw": "{\"especialidades\":\"b\",\"descripcion\":\"architecto\",\"activo\":false,\"comision_pct\":22}"
                         },
                         "description": "",
                         "auth": {
@@ -5355,7 +5586,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "architecto",
+                                    "value": "luis-enrique-gonzalez-ramirez",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -5439,7 +5670,7 @@
                                 {
                                     "id": "productId",
                                     "key": "productId",
-                                    "value": "architecto",
+                                    "value": "6aaa3a4ad95ef709410e35c7",
                                     "description": ""
                                 }
                             ]
@@ -5505,7 +5736,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":false}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
                         },
                         "description": "",
                         "auth": {
@@ -5526,7 +5757,7 @@
                                 {
                                     "id": "productId",
                                     "key": "productId",
-                                    "value": "architecto",
+                                    "value": "6aaa3a4ad95ef709410e35c7",
                                     "description": ""
                                 }
                             ]
@@ -5544,7 +5775,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":true}"
+                            "raw": "{\"nombre\":\"b\",\"categoria\":\"architecto\",\"stock_actual\":39,\"stock_minimo\":84,\"precio_venta\":12,\"precio_compra\":77,\"descripcion\":\"architecto\",\"tipo\":\"architecto\",\"activo\":false,\"active\":false}"
                         },
                         "description": "",
                         "auth": {
@@ -5565,7 +5796,7 @@
                                 {
                                     "id": "productId",
                                     "key": "productId",
-                                    "value": "architecto",
+                                    "value": "6aaa3a4ad95ef709410e35c7",
                                     "description": ""
                                 }
                             ]
@@ -5601,7 +5832,7 @@
                                 {
                                     "id": "productId",
                                     "key": "productId",
-                                    "value": "architecto",
+                                    "value": "6aaa3a4ad95ef709410e35c7",
                                     "description": ""
                                 }
                             ]
@@ -5619,7 +5850,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tipo\":\"entrada\",\"cantidad\":16,\"motivo\":\"architecto\"}"
+                            "raw": "{\"tipo\":\"salida\",\"cantidad\":16,\"motivo\":\"architecto\"}"
                         },
                         "description": "",
                         "auth": {
@@ -5832,7 +6063,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "architecto",
+                                    "value": "luis-enrique-gonzalez-ramirez",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -5870,8 +6101,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Client] architecto\"\n}",
+                            "code": 401,
+                            "body": "{\"message\":\"No autorizado.\"}",
                             "name": ""
                         }
                     ]
@@ -5919,7 +6150,7 @@
                                 {
                                     "id": "client_slug",
                                     "key": "client_slug",
-                                    "value": "architecto",
+                                    "value": "luis-enrique-gonzalez-ramirez",
                                     "description": "The slug of the client."
                                 }
                             ]
@@ -5958,7 +6189,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "architecto",
+                                    "value": "gonzalez-ramirez-luis-enrique",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -5997,7 +6228,7 @@
                                 {
                                     "id": "barber_slug",
                                     "key": "barber_slug",
-                                    "value": "architecto",
+                                    "value": "gonzalez-ramirez-luis-enrique",
                                     "description": "The slug of the barber."
                                 }
                             ]
@@ -6035,8 +6266,8 @@
                                     "value": "Origin"
                                 }
                             ],
-                            "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Barber] architecto\"\n}",
+                            "code": 200,
+                            "body": "{\"barber\":{\"id\":\"6aadd78765a6ba4bd80adfc2\",\"slug\":\"gonzalez-ramirez-luis-enrique\",\"descripcion\":\"Barbero profesional de UrbanBlade.\",\"especialidades\":null,\"foto\":\"https:\\\/\\\/urbanblade-staging-uploads-209479293733.s3.us-east-1.amazonaws.com\\\/avatars\\\/6aab96924c163e944d0b36d5\\\/77335daf-1099-431b-adfc-44780e9aeab1.jpg\",\"user\":{\"id\":\"6aab96924c163e944d0b36d5\",\"name\":\"Gonzalez Ramirez Luis Enrique\"}},\"works\":[{\"id\":\"6ab535ef96a5df8c0a01f10e\",\"title\":\"test\",\"description\":\"Ejemplo\",\"images\":[\"http:\\\/\\\/localhost:8000\\\/storage\\\/portfolio\\\/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg\"]}],\"reviews\":[{\"id\":\"6ab88e5edcaf4f6afe0123d0\",\"rating\":3,\"comment\":\"es malo\",\"created_at\":\"2026-09-26T21:32:46-06:00\",\"client\":{\"user\":{\"name\":\"Luis G.\"}},\"service\":\"Combo Corte + Barba\"}],\"avg_rating\":3,\"total_reviews\":1,\"citas_completadas\":1,\"can_review\":false,\"already_reviewed\":false,\"reviewable_services\":[]}",
                             "name": ""
                         }
                     ]
@@ -6272,7 +6503,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":false}"
+                            "raw": "{\"message\":\"b\",\"response\":\"n\",\"helpful\":true}"
                         },
                         "description": "Marca una respuesta puntual del chatbot como \u00fatil o no. Antes de\neste endpoint, ChatbotController::query() llamaba a\nrecordFeedback() con $wasHelpful hardcodeado en `true` en cada una\nde sus 5 ramas de respuesta \u2014 el sistema de aprendizaje nunca hab\u00eda\nrecibido una se\u00f1al negativa real de ning\u00fan usuario. Este endpoint le\nda al frontend (el widget de chat en Nuxt) una forma de mandar la\nse\u00f1al real.",
                         "auth": {
@@ -6463,7 +6694,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"token\":\"b\",\"provider\":\"expo\"}"
+                            "raw": "{\"token\":\"b\",\"provider\":\"fcm\"}"
                         },
                         "description": "",
                         "auth": {
@@ -6760,7 +6991,7 @@
                                 {
                                     "id": "appointment_code",
                                     "key": "appointment_code",
-                                    "value": "architecto",
+                                    "value": "fxp9vtie",
                                     "description": ""
                                 }
                             ]
@@ -6807,7 +7038,7 @@
                                 }
                             ],
                             "code": 404,
-                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Appointment] architecto\"\n}",
+                            "body": "{\n    \"message\": \"\"\n}",
                             "name": ""
                         }
                     ]
@@ -6824,7 +7055,7 @@
                                 {
                                     "id": "appointment_code",
                                     "key": "appointment_code",
-                                    "value": "architecto",
+                                    "value": "fxp9vtie",
                                     "description": ""
                                 }
                             ]
@@ -6860,7 +7091,7 @@
                                 {
                                     "id": "appointment_code",
                                     "key": "appointment_code",
-                                    "value": "architecto",
+                                    "value": "fxp9vtie",
                                     "description": ""
                                 }
                             ]
@@ -7170,7 +7401,7 @@
                                 {
                                     "id": "product_id",
                                     "key": "product_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3a4ad95ef709410e35c7",
                                     "description": "The ID of the product."
                                 }
                             ]
@@ -7239,7 +7470,7 @@
                                 },
                                 {
                                     "key": "activo",
-                                    "value": "",
+                                    "value": "1",
                                     "type": "text",
                                     "description": ""
                                 },
@@ -7274,7 +7505,7 @@
                                 {
                                     "id": "product_id",
                                     "key": "product_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3a4ad95ef709410e35c7",
                                     "description": "The ID of the product."
                                 }
                             ]
@@ -7310,7 +7541,7 @@
                                 {
                                     "id": "product_id",
                                     "key": "product_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3a4ad95ef709410e35c7",
                                     "description": "The ID of the product."
                                 }
                             ]
@@ -7436,7 +7667,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-10-05T01:06:05\"}"
+                            "raw": "{\"product_id\":\"architecto\",\"cantidad\":22,\"motivo\":\"g\",\"appointment_id\":\"architecto\",\"fecha\":\"2026-10-08T13:59:37\"}"
                         },
                         "description": "",
                         "auth": {
@@ -7539,7 +7770,7 @@
                                 {
                                     "id": "waitlist_id",
                                     "key": "waitlist_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3ba8aff2bc58c30245ec",
                                     "description": "The ID of the waitlist."
                                 }
                             ]
@@ -7869,7 +8100,7 @@
                         {
                             "header": [],
                             "code": 200,
-                            "body": "{\"data\": [{\"id\": \"pm_123\", \"brand\": \"visa\", \"last4\": \"4242\", \"exp_month\": 12, \"exp_year\": 2032}]}",
+                            "body": "{\"data\": [{\"id\": \"pm_123\", \"brand\": \"visa\", \"last4\": \"4242\", \"exp_month\": 12, \"exp_year\": 2032, \"holder\": \"LUIS GONZALEZ\"}]}",
                             "name": ""
                         }
                     ]
@@ -8205,7 +8436,7 @@
                                 {
                                     "id": "work_id",
                                     "key": "work_id",
-                                    "value": "architecto",
+                                    "value": "6aaa3b0dd95ef709410e382b",
                                     "description": "The ID of the work."
                                 }
                             ]
@@ -8419,6 +8650,14 @@
                                 {
                                     "key": "content-type",
                                     "value": "application\/json"
+                                },
+                                {
+                                    "key": "x-ratelimit-limit",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "x-ratelimit-remaining",
+                                    "value": "14"
                                 },
                                 {
                                     "key": "vary",
