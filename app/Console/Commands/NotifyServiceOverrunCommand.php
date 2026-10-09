@@ -36,7 +36,7 @@ class NotifyServiceOverrunCommand extends Command
 
         foreach ($enProceso as $appt) {
             try {
-                $finEsperado = $this->expectedEnd($appt, $tz);
+                $finEsperado = $appt->expectedServiceEnd($tz);
 
                 if (! $finEsperado || ! $finEsperado->isPast()) {
                     continue;
@@ -65,26 +65,5 @@ class NotifyServiceOverrunCommand extends Command
         $this->info("Avisos de servicio con tiempo excedido enviados: {$avisadas}.");
 
         return self::SUCCESS;
-    }
-
-    /**
-     * Fin esperado del servicio: hora real de inicio + duracion del servicio.
-     * Si la cita es vieja y no tiene servicio_iniciado_en (creada antes de
-     * este feature), usa fecha+hora_fin como respaldo.
-     */
-    private function expectedEnd(Appointment $appt, string $tz): ?Carbon
-    {
-        if ($appt->servicio_iniciado_en) {
-            $duracion = (int) ($appt->service?->duracion_min ?? 30);
-
-            return Carbon::parse($appt->servicio_iniciado_en, $tz)->addMinutes($duracion);
-        }
-
-        $fecha = optional($appt->fecha)->format('Y-m-d');
-        if (! $fecha || ! $appt->hora_fin) {
-            return null;
-        }
-
-        return Carbon::parse($fecha.' '.$appt->hora_fin, $tz);
     }
 }

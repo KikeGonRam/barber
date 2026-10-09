@@ -52,6 +52,9 @@ class BarbershopSetting extends Model
         // precio del servicio que se cobra como depósito.
         'deposito_no_show_umbral',
         'deposito_no_show_porcentaje',
+        // Cargo por inasistencia (ver NoShowFeeService): % del servicio que se cobra cuando el personal marca
+        // «no asistió». Vacío = 50; 0 lo desactiva.
+        'comision_no_show_porcentaje',
     ];
 
     protected function casts(): array
@@ -62,6 +65,7 @@ class BarbershopSetting extends Model
             'maintenance_mode' => 'boolean',
             'deposito_no_show_umbral' => 'integer',
             'deposito_no_show_porcentaje' => 'integer',
+            'comision_no_show_porcentaje' => 'integer',
         ];
     }
 }

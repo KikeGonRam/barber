@@ -5,6 +5,7 @@ namespace App\Services\Payment;
 use App\Models\ClientPackage;
 use App\Models\GiftCard;
 use App\Models\MembershipInvoice;
+use App\Models\NoShowFee;
 use App\Models\Order;
 use App\Models\Payment;
 use Carbon\Carbon;
@@ -42,7 +43,7 @@ class CashCloseService
     /**
      * Desglose del día: totales por método, propinas y gran total.
      *
-     * @return array{por_metodo: array<string, float>, propinas: float, total: float, pagos: int, pedidos: int, paquetes: int, gift_cards: int, membresias: int}
+     * @return array{por_metodo: array<string, float>, propinas: float, total: float, pagos: int, pedidos: int, paquetes: int, gift_cards: int, membresias: int, cargos_inasistencia: int}
      */
     public function expectedFor(Carbon $date): array
     {
@@ -97,6 +98,19 @@ class CashCloseService
             $porMetodo['tarjeta'] = ($porMetodo['tarjeta'] ?? 0.0) + (float) ($invoice->monto ?? 0);
         }
 
+        // Cargos por inasistencia cobrados (a la tarjeta guardada, o en sucursal en efectivo/transferencia), fechados
+        // por cobrado_en. Los cubiertos por un pago anticipado (metodo 'anticipo') no suman: ese dinero ya entró
+        // con el depósito, que es un Payment.
+        $noShowFees = NoShowFee::where('estado', NoShowFee::ESTADO_PAGADO)
+            ->whereIn('metodo_cobro', ['efectivo', 'transferencia', 'tarjeta'])
+            ->whereBetween('cobrado_en', [$start, $end])
+            ->get(['metodo_cobro', 'monto']);
+
+        foreach ($noShowFees as $fee) {
+            $metodo = $this->methodKey($fee->metodo_cobro);
+            $porMetodo[$metodo] = ($porMetodo[$metodo] ?? 0.0) + (float) ($fee->monto ?? 0);
+        }
+
         $porMetodo = array_map(fn (float $v) => round($v, 2), $porMetodo);
         ksort($porMetodo);
 
@@ -109,6 +123,7 @@ class CashCloseService
             'paquetes' => $packages->count(),
             'gift_cards' => $giftCards->count(),
             'membresias' => $membershipInvoices->count(),
+            'cargos_inasistencia' => $noShowFees->count(),
         ];
     }
 

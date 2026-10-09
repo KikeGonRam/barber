@@ -33,24 +33,31 @@ class FcmPushService
 
         try {
             $project = (string) config('services.firebase.project_id');
+            $message = [
+                'token' => $token,
+                'notification' => [
+                    'title' => (string) ($payload['title'] ?? 'UrbanBlade'),
+                    'body' => (string) ($payload['body'] ?? ''),
+                ],
+                'data' => collect($payload)->mapWithKeys(
+                    fn ($value, $key) => [(string) $key => (string) $value]
+                )->all(),
+                'android' => [
+                    'priority' => 'high',
+                    'notification' => ['channel_id' => PushRouting::channel($payload['channel'] ?? null)],
+                ],
+            ];
+
+            // Con botones de acción (p. ej. «terminar / +10 min») el mensaje viaja solo como datos: con un bloque
+            // `notification` Android lo dibuja él mismo con la app en segundo plano y los botones no aparecerían.
+            // La app arma la notificación con título y texto de `data`.
+            if (! empty($payload['acciones'])) {
+                unset($message['notification'], $message['android']['notification']);
+            }
+
             $response = Http::withToken($this->accessToken())
                 ->timeout(10)
-                ->post("https://fcm.googleapis.com/v1/projects/{$project}/messages:send", [
-                    'message' => [
-                        'token' => $token,
-                        'notification' => [
-                            'title' => (string) ($payload['title'] ?? 'UrbanBlade'),
-                            'body' => (string) ($payload['body'] ?? ''),
-                        ],
-                        'data' => collect($payload)->mapWithKeys(
-                            fn ($value, $key) => [(string) $key => (string) $value]
-                        )->all(),
-                        'android' => [
-                            'priority' => 'high',
-                            'notification' => ['channel_id' => PushRouting::channel($payload['channel'] ?? null)],
-                        ],
-                    ],
-                ]);
+                ->post("https://fcm.googleapis.com/v1/projects/{$project}/messages:send", ['message' => $message]);
 
             if ($response->successful()) {
                 return true;

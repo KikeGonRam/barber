@@ -59,6 +59,19 @@ class PaymentService
     }
 
     /**
+     * Lo que el cliente debe pagar por el servicio de esta cita: precio base con el mejor descuento
+     * (nivel o membresía), sin propina ni depósitos. Autoridad única del monto, también para decidir
+     * si un pago hecho al reservar ya cubre el servicio completo (ServiceStartGuard).
+     */
+    public function amountDueFor(Appointment $appointment): float
+    {
+        $appointment->loadMissing(['client', 'service']);
+        $precioBase = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
+
+        return $this->applyBestDiscount($precioBase, $appointment->client);
+    }
+
+    /**
      * Lista pagos paginados aplicando filtros del repositorio.
      */
     public function list(array $filters = [], int $perPage = 15)
@@ -270,8 +283,7 @@ class PaymentService
         // Mismo calculo que ClientPaymentController::create() ya le mostro al
         // cliente antes de que transfiriera, para que el monto registrado
         // coincida exactamente con lo que se le pidio transferir.
-        $precioBase = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
-        $monto = $this->applyBestDiscount($precioBase, $appointment->client);
+        $monto = $this->amountDueFor($appointment);
 
         try {
             $payment = $this->payments->create([
@@ -386,18 +398,27 @@ class PaymentService
         // el dropdown de estado de recepcion/admin).
         $wasCompletada = $appointment->estado === 'completada';
 
-        // Efecto secundario: transiciona la cita a "completada" (fin del
-        // flujo de estados) y fija el precio realmente cobrado.
-        $appointment->update([
-            'estado' => 'completada',
-            'precio_cobrado' => $monto,
-        ]);
+        // Flujo «se paga antes de iniciar»: cobrar una cita que aún no empieza (confirmada) solo registra
+        // el pago y fija el precio; la cita la inicia y la termina el barbero (ahí se dan los puntos).
+        // Si el servicio ya va en proceso o terminó, cobrar sí la completa, como siempre.
+        $completes = in_array($appointment->estado, ['en_proceso', 'completada'], true);
+
+        if ($completes) {
+            // Efecto secundario: transiciona la cita a "completada" (fin del
+            // flujo de estados) y fija el precio realmente cobrado.
+            $appointment->update([
+                'estado' => 'completada',
+                'precio_cobrado' => $monto,
+            ]);
+        } else {
+            $appointment->update(['precio_cobrado' => $monto]);
+        }
 
         // Otorga puntos de lealtad la primera vez que la cita se completa.
         // Antes solo pasaba si se completaba desde el dropdown de estado o
         // la agenda del barbero; el flujo de cobro (el mas comun en la
         // practica) nunca lo disparaba.
-        if (! $wasCompletada) {
+        if ($completes && ! $wasCompletada) {
             $client = $appointment->client;
             if ($client) {
                 $this->loyalty->awardCitaPoints($client, (string) $appointment->id);
@@ -422,22 +443,44 @@ class PaymentService
 
         $payment = $payment->fresh(['appointment.client.user']);
 
-        $user = $payment->appointment?->client?->user;
-
-        // Notifica al cliente el recibo de pago; el fallo de notificacion
-        // se registra pero no revierte el cobro ya completado.
-        if ($user) {
-            try {
-                $user->notify(new PaymentReceiptNotification($payment));
-            } catch (\Throwable $e) {
-                Log::warning('Fallo notificación comprobante de pago', [
-                    'payment_id' => $payment->id,
-                    'user_id' => $user->id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
+        // Flujo «se paga antes de iniciar»: el comprobante ya quedó generado, pero el ticket (correo con comprobante y
+        // factura) sale cuando el servicio termina (ServiceTicketService). Si el servicio ya iba en proceso o terminó,
+        // se envía de inmediato, como siempre.
+        if ($completes) {
+            $this->sendTicket($payment);
         }
 
         return $payment;
+    }
+
+    /**
+     * Envía al cliente el ticket del pago (comprobante + factura en PDF) y deja constancia de que ya salió, para que
+     * ni el cobro ni el cierre del servicio lo manden dos veces. Un fallo del aviso nunca revierte el cobro.
+     */
+    public function sendTicket(Payment $payment): void
+    {
+        // Se relee: quien llama puede traer una copia anterior al envío que ya se hizo en este mismo flujo.
+        $payment = $payment->fresh() ?? $payment;
+
+        if ($payment->getAttribute('ticket_enviado_en')) {
+            return;
+        }
+
+        $payment->loadMissing('appointment.client.user');
+        $user = $payment->appointment?->client?->user;
+        if (! $user) {
+            return;
+        }
+
+        try {
+            $user->notify(new PaymentReceiptNotification($payment));
+            $this->payments->update($payment->id, ['ticket_enviado_en' => now()]);
+        } catch (\Throwable $e) {
+            Log::warning('Fallo notificación comprobante de pago', [
+                'payment_id' => $payment->id,
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

@@ -35,7 +35,7 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: architecto
+        example: fxp9vtie
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -53,7 +53,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: architecto
+      appointment_code: fxp9vtie
       appointment: jfb7ffye
     queryParameters: []
     cleanQueryParameters: []
@@ -119,7 +119,7 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: architecto
+        example: fxp9vtie
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -137,7 +137,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: architecto
+      appointment_code: fxp9vtie
       appointment: jfb7ffye
     queryParameters: []
     cleanQueryParameters: []
@@ -236,14 +236,14 @@ endpoints:
         name: payment_id
         description: 'The ID of the payment.'
         required: true
-        example: architecto
+        example: 6aaa3af6d95ef709410e37b3
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      payment_id: architecto
+      payment_id: 6aaa3af6d95ef709410e37b3
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -284,14 +284,14 @@ endpoints:
         name: payment_id
         description: 'The ID of the payment.'
         required: true
-        example: architecto
+        example: 6aaa3af6d95ef709410e37b3
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      payment_id: architecto
+      payment_id: 6aaa3af6d95ef709410e37b3
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:

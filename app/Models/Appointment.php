@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Services\Order\OrderService;
 use App\Traits\HasPublicCode;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -62,6 +63,12 @@ class Appointment extends Model
         // faltar, para no mover la meta a media reserva ya confirmada.
         'deposito_requerido',
         'deposito_monto',
+        // Cuándo aceptó el cliente el cargo por inasistencia al reservar (ver NoShowFeeService).
+        'cargo_inasistencia_aceptado_en',
+        // Tiempo que el barbero agregó al servicio en curso (ServiceTimeService) y cuándo se le avisó que está por
+        // terminar (NotifyServiceEndingCommand); al extender, el aviso se vuelve a armar para el nuevo fin.
+        'minutos_extra',
+        'aviso_fin_enviado_en',
     ];
 
     // $hidden, no solo disciplina: cualquier toArray()/toJson() de una cita
@@ -86,6 +93,9 @@ class Appointment extends Model
             'bloquea_horario' => 'boolean',
             'deposito_requerido' => 'boolean',
             'deposito_monto' => 'float',
+            'cargo_inasistencia_aceptado_en' => 'datetime',
+            'minutos_extra' => 'integer',
+            'aviso_fin_enviado_en' => 'datetime',
         ];
     }
 
@@ -174,6 +184,32 @@ class Appointment extends Model
     public function inventoryMovements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class);
+    }
+
+    /**
+     * Fin esperado del servicio en curso: hora real de inicio + duración del servicio + el tiempo extra que el
+     * barbero haya agregado. Si la cita es vieja y no tiene servicio_iniciado_en (creada antes de esa función),
+     * usa fecha + hora_fin como respaldo. Null si no hay datos suficientes.
+     */
+    public function expectedServiceEnd(?string $tz = null): ?Carbon
+    {
+        $tz ??= (string) config('app.timezone', 'America/Mexico_City');
+        $started = $this->getAttribute('servicio_iniciado_en');
+
+        if ($started) {
+            $duration = (int) ($this->service?->getAttribute('duracion_min') ?? 30);
+
+            return Carbon::parse($started, $tz)->addMinutes($duration + (int) $this->getAttribute('minutos_extra'));
+        }
+
+        $rawDate = $this->getAttribute('fecha');
+        $date = $rawDate ? Carbon::parse($rawDate)->format('Y-m-d') : null;
+        $end = $this->getAttribute('hora_fin');
+        if (! $date || ! $end) {
+            return null;
+        }
+
+        return Carbon::parse($date.' '.$end, $tz)->addMinutes((int) $this->getAttribute('minutos_extra'));
     }
 
     // Configuracion de Spatie Activitylog: registra solo cambios (dirty) en campos fillable,

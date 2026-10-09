@@ -49,6 +49,8 @@ class SettingController extends Controller
             // cualquiera de los dos desactiva la exigencia de depósito.
             'deposito_no_show_umbral' => ['nullable', 'integer', 'min:0', 'max:20'],
             'deposito_no_show_porcentaje' => ['nullable', 'integer', 'min:0', 'max:100'],
+            // Cargo por inasistencia (NoShowFeeService): % del servicio; 0 lo desactiva. Opcional como los de arriba.
+            'comision_no_show_porcentaje' => ['nullable', 'integer', 'min:0', 'max:100'],
             'instagram' => ['nullable', 'string', 'max:255'],
             'facebook' => ['nullable', 'string', 'max:255'],
             'tiktok' => ['nullable', 'string', 'max:255'],
@@ -68,6 +70,7 @@ class SettingController extends Controller
             'politica_cancelacion' => $validated['politica_cancelacion'],
             'deposito_no_show_umbral' => $validated['deposito_no_show_umbral'] ?? $setting->deposito_no_show_umbral ?? 2,
             'deposito_no_show_porcentaje' => $validated['deposito_no_show_porcentaje'] ?? $setting->deposito_no_show_porcentaje ?? 50,
+            'comision_no_show_porcentaje' => $validated['comision_no_show_porcentaje'] ?? $setting->comision_no_show_porcentaje ?? 50,
             'redes_sociales' => [
                 'instagram' => $validated['instagram'] ?? null,
                 'facebook' => $validated['facebook'] ?? null,

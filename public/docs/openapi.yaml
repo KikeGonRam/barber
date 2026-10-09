@@ -764,6 +764,11 @@ paths:
                           propina_sugerida: 25
                           has_payment: false
                           is_chargeable: true
+                          pago_resuelto: false
+                          puede_iniciar: false
+                          motivo_no_iniciar: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
+                          fin_estimado: null
+                          minutos_extra: null
                           reminder_24h_sent: false
                           reminder_2h_sent: false
                           deposito_requerido: true
@@ -801,6 +806,11 @@ paths:
                             propina_sugerida: 25
                             has_payment: false
                             is_chargeable: true
+                            pago_resuelto: false
+                            puede_iniciar: false
+                            motivo_no_iniciar: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
+                            fin_estimado: null
+                            minutos_extra: null
                             reminder_24h_sent: false
                             reminder_2h_sent: false
                             deposito_requerido: true
@@ -858,6 +868,23 @@ paths:
                             is_chargeable:
                               type: boolean
                               example: true
+                            pago_resuelto:
+                              type: boolean
+                              example: false
+                            puede_iniciar:
+                              type: boolean
+                              example: false
+                            motivo_no_iniciar:
+                              type: string
+                              example: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
+                            fin_estimado:
+                              type: string
+                              example: null
+                              nullable: true
+                            minutos_extra:
+                              type: string
+                              example: null
+                              nullable: true
                             reminder_24h_sent:
                               type: boolean
                               example: false
@@ -951,6 +978,11 @@ paths:
                             - propina_sugerida
                             - has_payment
                             - is_chargeable
+                            - pago_resuelto
+                            - puede_iniciar
+                            - motivo_no_iniciar
+                            - fin_estimado
+                            - minutos_extra
                             - reminder_24h_sent
                             - reminder_2h_sent
                             - deposito_requerido
@@ -978,6 +1010,11 @@ paths:
                           propina_sugerida: 25
                           has_payment: false
                           is_chargeable: true
+                          pago_resuelto: false
+                          puede_iniciar: false
+                          motivo_no_iniciar: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
+                          fin_estimado: null
+                          minutos_extra: null
                           reminder_24h_sent: false
                           reminder_2h_sent: false
                           deposito_requerido: true
@@ -1014,6 +1051,11 @@ paths:
                         notas: 'Traer foto de referencia.'
                         precio_cobrado: 250
                         propina_sugerida: 25
+                        pago_resuelto: false
+                        puede_iniciar: false
+                        motivo_no_iniciar: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
+                        fin_estimado: null
+                        minutos_extra: null
                         reminder_24h_sent: false
                         reminder_2h_sent: false
                         deposito_requerido: true
@@ -1052,6 +1094,11 @@ paths:
                             propina_sugerida: 25
                             has_payment: false
                             is_chargeable: true
+                            pago_resuelto: false
+                            puede_iniciar: false
+                            motivo_no_iniciar: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
+                            fin_estimado: null
+                            minutos_extra: null
                             reminder_24h_sent: false
                             reminder_2h_sent: false
                             deposito_requerido: true
@@ -1109,6 +1156,23 @@ paths:
                             is_chargeable:
                               type: boolean
                               example: true
+                            pago_resuelto:
+                              type: boolean
+                              example: false
+                            puede_iniciar:
+                              type: boolean
+                              example: false
+                            motivo_no_iniciar:
+                              type: string
+                              example: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
+                            fin_estimado:
+                              type: string
+                              example: null
+                              nullable: true
+                            minutos_extra:
+                              type: string
+                              example: null
+                              nullable: true
                             reminder_24h_sent:
                               type: boolean
                               example: false
@@ -1202,6 +1266,11 @@ paths:
                             - propina_sugerida
                             - has_payment
                             - is_chargeable
+                            - pago_resuelto
+                            - puede_iniciar
+                            - motivo_no_iniciar
+                            - fin_estimado
+                            - minutos_extra
                             - reminder_24h_sent
                             - reminder_2h_sent
                             - deposito_requerido
@@ -1260,6 +1329,23 @@ paths:
                           propina_sugerida:
                             type: integer
                             example: 25
+                          pago_resuelto:
+                            type: boolean
+                            example: false
+                          puede_iniciar:
+                            type: boolean
+                            example: false
+                          motivo_no_iniciar:
+                            type: string
+                            example: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
+                          fin_estimado:
+                            type: string
+                            example: null
+                            nullable: true
+                          minutos_extra:
+                            type: string
+                            example: null
+                            nullable: true
                           reminder_24h_sent:
                             type: boolean
                             example: false
@@ -1351,6 +1437,11 @@ paths:
                           - notas
                           - precio_cobrado
                           - propina_sugerida
+                          - pago_resuelto
+                          - puede_iniciar
+                          - motivo_no_iniciar
+                          - fin_estimado
+                          - minutos_extra
                           - reminder_24h_sent
                           - reminder_2h_sent
                           - deposito_requerido
@@ -1393,6 +1484,11 @@ paths:
                     notas: 'Traer foto de referencia.'
                     precio_cobrado: 250
                     propina_sugerida: 25
+                    pago_resuelto: null
+                    puede_iniciar: null
+                    motivo_no_iniciar: null
+                    fin_estimado: null
+                    minutos_extra: null
                     reminder_24h_sent: false
                     reminder_2h_sent: false
                     deposito_requerido: false
@@ -1461,6 +1557,26 @@ paths:
                       propina_sugerida:
                         type: integer
                         example: 25
+                      pago_resuelto:
+                        type: string
+                        example: null
+                        nullable: true
+                      puede_iniciar:
+                        type: string
+                        example: null
+                        nullable: true
+                      motivo_no_iniciar:
+                        type: string
+                        example: null
+                        nullable: true
+                      fin_estimado:
+                        type: string
+                        example: null
+                        nullable: true
+                      minutos_extra:
+                        type: string
+                        example: null
+                        nullable: true
                       reminder_24h_sent:
                         type: boolean
                         example: false
@@ -1552,6 +1668,11 @@ paths:
                       - notas
                       - precio_cobrado
                       - propina_sugerida
+                      - pago_resuelto
+                      - puede_iniciar
+                      - motivo_no_iniciar
+                      - fin_estimado
+                      - minutos_extra
                       - reminder_24h_sent
                       - reminder_2h_sent
                       - deposito_requerido
@@ -1703,6 +1824,11 @@ paths:
                   description: "Si el cliente elige pagar el servicio completo al reservar (en\nvez de pagar despues en el salon), en vez de inventar un cobro\nnuevo se reutiliza el mecanismo de deposito anti-no-show tal\ncual (mismos endpoints deposit/stripe-intent y deposit/receipt,\nmismo webhook, mismo reembolso automatico si se cancela) -- solo\ncambia que deposito_monto pasa a ser el precio con descuento de\nmembresia mas propina, no el % anti-no-show. Ver comentario mas\nabajo antes de construir $payload."
                   example: true
                   nullable: true
+                acepta_cargo_inasistencia:
+                  type: boolean
+                  description: 'El cliente acepta el cargo por inasistencia (NoShowFeeService) en el último paso de la reserva.'
+                  example: false
+                  nullable: true
                 client_id:
                   type: string
                   description: 'Requerido solo para Admin/Recepcionista. Id del cliente (ObjectId de Mongo, string).'
@@ -1791,15 +1917,15 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-28'
+                  example: '2052-10-31'
                 hora_inicio:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '01:06'
+                  example: '13:59'
                 estado:
                   type: string
                   description: ''
-                  example: cancelada
+                  example: completada
                   enum:
                     - pendiente
                     - confirmada
@@ -1834,7 +1960,7 @@ paths:
         in: path
         name: appointment_code
         description: ''
-        example: architecto
+        example: fxp9vtie
         required: true
         schema:
           type: string
@@ -1918,7 +2044,7 @@ paths:
         in: path
         name: appointment_code
         description: ''
-        example: architecto
+        example: fxp9vtie
         required: true
         schema:
           type: string
@@ -1961,14 +2087,14 @@ paths:
                 period:
                   type: string
                   description: ''
-                  example: day
+                  example: week
                   enum:
                     - day
                     - week
                 estado:
                   type: string
                   description: ''
-                  example: confirmada
+                  example: en_proceso
                   enum:
                     - pendiente
                     - confirmada
@@ -2096,7 +2222,7 @@ paths:
         in: path
         name: appointment_code
         description: ''
-        example: architecto
+        example: fxp9vtie
         required: true
         schema:
           type: string
@@ -2135,7 +2261,7 @@ paths:
         in: path
         name: appointment_code
         description: ''
-        example: architecto
+        example: fxp9vtie
         required: true
         schema:
           type: string
@@ -2184,7 +2310,7 @@ paths:
         in: path
         name: payment_id
         description: 'The ID of the payment.'
-        example: architecto
+        example: 6aaa3af6d95ef709410e37b3
         required: true
         schema:
           type: string
@@ -2216,7 +2342,7 @@ paths:
         in: path
         name: payment_id
         description: 'The ID of the payment.'
-        example: architecto
+        example: 6aaa3af6d95ef709410e37b3
         required: true
         schema:
           type: string
@@ -2289,7 +2415,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-28'
+                  example: '2052-10-31'
               required:
                 - barber_id
                 - service_id
@@ -2414,11 +2540,355 @@ paths:
               schema:
                 type: object
                 example:
-                  data: []
+                  data:
+                    -
+                      id: 6aaa3a46d95ef709410e35bc
+                      nombre: 'Afeitado Clásico'
+                      categoria: Barba
+                      precio: 180
+                      duracion_min: 30
+                      descripcion: 'Afeitado tradicional con navaja y toalla caliente.'
+                      imagen: 'http://localhost:8000/storage/services/OBSXla86DdParNhf0RnGAfg4HL2cdpCfcnQQnNkk.webp'
+                    -
+                      id: 6aaa3a46d95ef709410e35bb
+                      nombre: 'Arreglo de Barba'
+                      categoria: Barba
+                      precio: 100
+                      duracion_min: 15
+                      descripcion: 'Recorte y perfilado rápido de barba.'
+                      imagen: 'http://localhost:8000/storage/services/YcC3ru4tjNMf4OkBKmzAT9TiQoSVS3NzvDDd85Tp.jpg'
+                    -
+                      id: 6aaa3a46d95ef709410e35bd
+                      nombre: 'Combo Corte + Barba'
+                      categoria: Combos
+                      precio: 320
+                      duracion_min: 60
+                      descripcion: 'Paquete completo de corte y arreglo de barba.'
+                      imagen: 'http://localhost:8000/storage/services/dy5873ujL0jLV7lmPThhS0vsM4kC6BTcXh4ReftD.jpg'
+                    -
+                      id: 6aaa3a47d95ef709410e35be
+                      nombre: 'Combo Premium'
+                      categoria: Combos
+                      precio: 450
+                      duracion_min: 75
+                      descripcion: 'Corte, barba, tratamiento capilar y toalla caliente.'
+                      imagen: 'http://localhost:8000/storage/services/Syot8UweGG8qNu47uzcNcBxtwa3o7A0ZzA4TA5bZ.jpg'
+                    -
+                      id: 6aaa3a43d95ef709410e35b3
+                      nombre: 'Corte Clásico'
+                      categoria: Cortes
+                      precio: 180
+                      duracion_min: 30
+                      descripcion: 'Corte de cabello tradicional con tijera y máquina, acabado prolijo.'
+                      imagen: 'http://localhost:8000/storage/services/FdATpKjZg0K5RWA42p978vXgRig5q722RpSdc8bh.jpg'
+                    -
+                      id: 6aaa3a45d95ef709410e35b9
+                      nombre: 'Corte Infantil'
+                      categoria: Cortes
+                      precio: 150
+                      duracion_min: 25
+                      descripcion: 'Corte para niños, ambiente relajado y paciente.'
+                      imagen: 'http://localhost:8000/storage/services/LSkeehcKQeM2Uu0UPkYqEfl45MoyMt6Ul9H0cVXs.jpg'
+                    -
+                      id: 6aaa3a45d95ef709410e35b8
+                      nombre: 'Corte Mohicano'
+                      categoria: Cortes
+                      precio: 260
+                      duracion_min: 45
+                      descripcion: 'Cresta central marcada con laterales rapados.'
+                      imagen: 'http://localhost:8000/storage/services/j4JvHxOdgDjCB8455h4zpUjda3nIDJuZB2uHgLrT.jpg'
+                    -
+                      id: 6aaa3a49d95ef709410e35c3
+                      nombre: 'Corte a Navaja'
+                      categoria: Cortes
+                      precio: 260
+                      duracion_min: 40
+                      descripcion: 'Corte completo trabajado enteramente a navaja.'
+                      imagen: 'http://localhost:8000/storage/services/vYPyy5B6SMEmorRv9fKiyPHPsmj4VLikZXpWvcgv.jpg'
+                    -
+                      id: 6aaa3a45d95ef709410e35ba
+                      nombre: 'Diseño de Barba'
+                      categoria: Barba
+                      precio: 150
+                      duracion_min: 25
+                      descripcion: 'Perfilado y diseño de barba con navaja.'
+                      imagen: 'http://localhost:8000/storage/services/her9jzuzKKrSixaLq9yZuDgnrHp5xypfCHMEX87K.jpg'
+                    -
+                      id: 6aaa3a48d95ef709410e35c2
+                      nombre: 'Keratina Express'
+                      categoria: Tratamientos
+                      precio: 350
+                      duracion_min: 50
+                      descripcion: 'Alisado ligero con keratina, brillo inmediato.'
+                      imagen: 'http://localhost:8000/storage/services/eFUUmGJD7PGLfYGqkz7T0QTsBBYr8WcBNpsft3iM.jpg'
+                    -
+                      id: 6aaa3a48d95ef709410e35c1
+                      nombre: 'Perfilado de Cejas'
+                      categoria: Tratamientos
+                      precio: 90
+                      duracion_min: 15
+                      descripcion: 'Diseño y limpieza de cejas con navaja o pinza.'
+                      imagen: 'http://localhost:8000/storage/services/p0PTL1D81mmPq1pL1pqCWUK6gqIr34JH36HZ8bu5.webp'
+                    -
+                      id: 6aaa3a44d95ef709410e35b7
+                      nombre: Pompadour
+                      categoria: Cortes
+                      precio: 240
+                      duracion_min: 45
+                      descripcion: 'Corte con volumen frontal peinado hacia atrás.'
+                      imagen: null
+                    -
+                      id: 6aaa3a49d95ef709410e35c4
+                      nombre: 'Rapado Total'
+                      categoria: Cortes
+                      precio: 130
+                      duracion_min: 20
+                      descripcion: 'Rapado uniforme de toda la cabeza.'
+                      imagen: null
+                    -
+                      id: 6aaa3a4ad95ef709410e35c6
+                      nombre: 'Retoque Express'
+                      categoria: Cortes
+                      precio: 120
+                      duracion_min: 15
+                      descripcion: 'Retoque rápido de contornos entre cortes.'
+                      imagen: null
+                    -
+                      id: 6aaa3a44d95ef709410e35b5
+                      nombre: 'Skin Fade'
+                      categoria: Cortes
+                      precio: 250
+                      duracion_min: 45
+                      descripcion: 'Degradado a piel, look moderno y muy definido.'
+                      imagen: null
+                    -
+                      id: 6aaa3a4ad95ef709410e35c5
+                      nombre: 'Spa Capilar'
+                      categoria: Tratamientos
+                      precio: 300
+                      duracion_min: 40
+                      descripcion: 'Masaje, mascarilla y limpieza profunda del cabello.'
+                      imagen: null
+                    -
+                      id: 6aaa3a43d95ef709410e35b4
+                      nombre: 'Taper Fade'
+                      categoria: Cortes
+                      precio: 220
+                      duracion_min: 40
+                      descripcion: 'Degradado progresivo en los laterales con transición suave.'
+                      imagen: null
+                    -
+                      id: 6aaa3a47d95ef709410e35c0
+                      nombre: 'Tinte / Color'
+                      categoria: Tratamientos
+                      precio: 380
+                      duracion_min: 60
+                      descripcion: 'Coloración completa o mechas según preferencia.'
+                      imagen: null
+                    -
+                      id: 6aaa3a47d95ef709410e35bf
+                      nombre: 'Tratamiento Capilar'
+                      categoria: Tratamientos
+                      precio: 280
+                      duracion_min: 35
+                      descripcion: 'Hidratación y nutrición profunda del cuero cabelludo.'
+                      imagen: null
+                    -
+                      id: 6aaa3a44d95ef709410e35b6
+                      nombre: Undercut
+                      categoria: Cortes
+                      precio: 230
+                      duracion_min: 40
+                      descripcion: 'Rapado en laterales con volumen conservado arriba.'
+                      imagen: null
                 properties:
                   data:
                     type: array
-                    example: []
+                    example:
+                      -
+                        id: 6aaa3a46d95ef709410e35bc
+                        nombre: 'Afeitado Clásico'
+                        categoria: Barba
+                        precio: 180
+                        duracion_min: 30
+                        descripcion: 'Afeitado tradicional con navaja y toalla caliente.'
+                        imagen: 'http://localhost:8000/storage/services/OBSXla86DdParNhf0RnGAfg4HL2cdpCfcnQQnNkk.webp'
+                      -
+                        id: 6aaa3a46d95ef709410e35bb
+                        nombre: 'Arreglo de Barba'
+                        categoria: Barba
+                        precio: 100
+                        duracion_min: 15
+                        descripcion: 'Recorte y perfilado rápido de barba.'
+                        imagen: 'http://localhost:8000/storage/services/YcC3ru4tjNMf4OkBKmzAT9TiQoSVS3NzvDDd85Tp.jpg'
+                      -
+                        id: 6aaa3a46d95ef709410e35bd
+                        nombre: 'Combo Corte + Barba'
+                        categoria: Combos
+                        precio: 320
+                        duracion_min: 60
+                        descripcion: 'Paquete completo de corte y arreglo de barba.'
+                        imagen: 'http://localhost:8000/storage/services/dy5873ujL0jLV7lmPThhS0vsM4kC6BTcXh4ReftD.jpg'
+                      -
+                        id: 6aaa3a47d95ef709410e35be
+                        nombre: 'Combo Premium'
+                        categoria: Combos
+                        precio: 450
+                        duracion_min: 75
+                        descripcion: 'Corte, barba, tratamiento capilar y toalla caliente.'
+                        imagen: 'http://localhost:8000/storage/services/Syot8UweGG8qNu47uzcNcBxtwa3o7A0ZzA4TA5bZ.jpg'
+                      -
+                        id: 6aaa3a43d95ef709410e35b3
+                        nombre: 'Corte Clásico'
+                        categoria: Cortes
+                        precio: 180
+                        duracion_min: 30
+                        descripcion: 'Corte de cabello tradicional con tijera y máquina, acabado prolijo.'
+                        imagen: 'http://localhost:8000/storage/services/FdATpKjZg0K5RWA42p978vXgRig5q722RpSdc8bh.jpg'
+                      -
+                        id: 6aaa3a45d95ef709410e35b9
+                        nombre: 'Corte Infantil'
+                        categoria: Cortes
+                        precio: 150
+                        duracion_min: 25
+                        descripcion: 'Corte para niños, ambiente relajado y paciente.'
+                        imagen: 'http://localhost:8000/storage/services/LSkeehcKQeM2Uu0UPkYqEfl45MoyMt6Ul9H0cVXs.jpg'
+                      -
+                        id: 6aaa3a45d95ef709410e35b8
+                        nombre: 'Corte Mohicano'
+                        categoria: Cortes
+                        precio: 260
+                        duracion_min: 45
+                        descripcion: 'Cresta central marcada con laterales rapados.'
+                        imagen: 'http://localhost:8000/storage/services/j4JvHxOdgDjCB8455h4zpUjda3nIDJuZB2uHgLrT.jpg'
+                      -
+                        id: 6aaa3a49d95ef709410e35c3
+                        nombre: 'Corte a Navaja'
+                        categoria: Cortes
+                        precio: 260
+                        duracion_min: 40
+                        descripcion: 'Corte completo trabajado enteramente a navaja.'
+                        imagen: 'http://localhost:8000/storage/services/vYPyy5B6SMEmorRv9fKiyPHPsmj4VLikZXpWvcgv.jpg'
+                      -
+                        id: 6aaa3a45d95ef709410e35ba
+                        nombre: 'Diseño de Barba'
+                        categoria: Barba
+                        precio: 150
+                        duracion_min: 25
+                        descripcion: 'Perfilado y diseño de barba con navaja.'
+                        imagen: 'http://localhost:8000/storage/services/her9jzuzKKrSixaLq9yZuDgnrHp5xypfCHMEX87K.jpg'
+                      -
+                        id: 6aaa3a48d95ef709410e35c2
+                        nombre: 'Keratina Express'
+                        categoria: Tratamientos
+                        precio: 350
+                        duracion_min: 50
+                        descripcion: 'Alisado ligero con keratina, brillo inmediato.'
+                        imagen: 'http://localhost:8000/storage/services/eFUUmGJD7PGLfYGqkz7T0QTsBBYr8WcBNpsft3iM.jpg'
+                      -
+                        id: 6aaa3a48d95ef709410e35c1
+                        nombre: 'Perfilado de Cejas'
+                        categoria: Tratamientos
+                        precio: 90
+                        duracion_min: 15
+                        descripcion: 'Diseño y limpieza de cejas con navaja o pinza.'
+                        imagen: 'http://localhost:8000/storage/services/p0PTL1D81mmPq1pL1pqCWUK6gqIr34JH36HZ8bu5.webp'
+                      -
+                        id: 6aaa3a44d95ef709410e35b7
+                        nombre: Pompadour
+                        categoria: Cortes
+                        precio: 240
+                        duracion_min: 45
+                        descripcion: 'Corte con volumen frontal peinado hacia atrás.'
+                        imagen: null
+                      -
+                        id: 6aaa3a49d95ef709410e35c4
+                        nombre: 'Rapado Total'
+                        categoria: Cortes
+                        precio: 130
+                        duracion_min: 20
+                        descripcion: 'Rapado uniforme de toda la cabeza.'
+                        imagen: null
+                      -
+                        id: 6aaa3a4ad95ef709410e35c6
+                        nombre: 'Retoque Express'
+                        categoria: Cortes
+                        precio: 120
+                        duracion_min: 15
+                        descripcion: 'Retoque rápido de contornos entre cortes.'
+                        imagen: null
+                      -
+                        id: 6aaa3a44d95ef709410e35b5
+                        nombre: 'Skin Fade'
+                        categoria: Cortes
+                        precio: 250
+                        duracion_min: 45
+                        descripcion: 'Degradado a piel, look moderno y muy definido.'
+                        imagen: null
+                      -
+                        id: 6aaa3a4ad95ef709410e35c5
+                        nombre: 'Spa Capilar'
+                        categoria: Tratamientos
+                        precio: 300
+                        duracion_min: 40
+                        descripcion: 'Masaje, mascarilla y limpieza profunda del cabello.'
+                        imagen: null
+                      -
+                        id: 6aaa3a43d95ef709410e35b4
+                        nombre: 'Taper Fade'
+                        categoria: Cortes
+                        precio: 220
+                        duracion_min: 40
+                        descripcion: 'Degradado progresivo en los laterales con transición suave.'
+                        imagen: null
+                      -
+                        id: 6aaa3a47d95ef709410e35c0
+                        nombre: 'Tinte / Color'
+                        categoria: Tratamientos
+                        precio: 380
+                        duracion_min: 60
+                        descripcion: 'Coloración completa o mechas según preferencia.'
+                        imagen: null
+                      -
+                        id: 6aaa3a47d95ef709410e35bf
+                        nombre: 'Tratamiento Capilar'
+                        categoria: Tratamientos
+                        precio: 280
+                        duracion_min: 35
+                        descripcion: 'Hidratación y nutrición profunda del cuero cabelludo.'
+                        imagen: null
+                      -
+                        id: 6aaa3a44d95ef709410e35b6
+                        nombre: Undercut
+                        categoria: Cortes
+                        precio: 230
+                        duracion_min: 40
+                        descripcion: 'Rapado en laterales con volumen conservado arriba.'
+                        imagen: null
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 6aaa3a46d95ef709410e35bc
+                        nombre:
+                          type: string
+                          example: 'Afeitado Clásico'
+                        categoria:
+                          type: string
+                          example: Barba
+                        precio:
+                          type: integer
+                          example: 180
+                        duracion_min:
+                          type: integer
+                          example: 30
+                        descripcion:
+                          type: string
+                          example: 'Afeitado tradicional con navaja y toalla caliente.'
+                        imagen:
+                          type: string
+                          example: 'http://localhost:8000/storage/services/OBSXla86DdParNhf0RnGAfg4HL2cdpCfcnQQnNkk.webp'
       tags:
         - Endpoints
       security: []
@@ -2436,11 +2906,82 @@ paths:
               schema:
                 type: object
                 example:
-                  data: []
+                  data:
+                    -
+                      id: 6aadd78765a6ba4bd80adfc2
+                      slug: gonzalez-ramirez-luis-enrique
+                      user:
+                        id: 6aab96924c163e944d0b36d5
+                        name: 'Gonzalez Ramirez Luis Enrique'
+                      especialidades: ''
+                      descripcion: 'Barbero profesional de UrbanBlade.'
+                      foto: 'https://urbanblade-staging-uploads-209479293733.s3.us-east-1.amazonaws.com/avatars/6aab96924c163e944d0b36d5/77335daf-1099-431b-adfc-44780e9aeab1.jpg'
+                      activo: true
+                      avg_rating: 3
+                      total_reviews: 1
+                      citas_conmigo: null
+                      es_favorito: false
                 properties:
                   data:
                     type: array
-                    example: []
+                    example:
+                      -
+                        id: 6aadd78765a6ba4bd80adfc2
+                        slug: gonzalez-ramirez-luis-enrique
+                        user:
+                          id: 6aab96924c163e944d0b36d5
+                          name: 'Gonzalez Ramirez Luis Enrique'
+                        especialidades: ''
+                        descripcion: 'Barbero profesional de UrbanBlade.'
+                        foto: 'https://urbanblade-staging-uploads-209479293733.s3.us-east-1.amazonaws.com/avatars/6aab96924c163e944d0b36d5/77335daf-1099-431b-adfc-44780e9aeab1.jpg'
+                        activo: true
+                        avg_rating: 3
+                        total_reviews: 1
+                        citas_conmigo: null
+                        es_favorito: false
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 6aadd78765a6ba4bd80adfc2
+                        slug:
+                          type: string
+                          example: gonzalez-ramirez-luis-enrique
+                        user:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 6aab96924c163e944d0b36d5
+                            name:
+                              type: string
+                              example: 'Gonzalez Ramirez Luis Enrique'
+                        especialidades:
+                          type: string
+                          example: ''
+                        descripcion:
+                          type: string
+                          example: 'Barbero profesional de UrbanBlade.'
+                        foto:
+                          type: string
+                          example: 'https://urbanblade-staging-uploads-209479293733.s3.us-east-1.amazonaws.com/avatars/6aab96924c163e944d0b36d5/77335daf-1099-431b-adfc-44780e9aeab1.jpg'
+                        activo:
+                          type: boolean
+                          example: true
+                        avg_rating:
+                          type: integer
+                          example: 3
+                        total_reviews:
+                          type: integer
+                          example: 1
+                        citas_conmigo:
+                          type: string
+                          example: null
+                          nullable: true
+                        es_favorito:
+                          type: boolean
+                          example: false
       tags:
         - Endpoints
       security: []
@@ -2458,11 +2999,451 @@ paths:
               schema:
                 type: object
                 example:
-                  data: []
+                  data:
+                    -
+                      id: 6aaa3a51d95ef709410e35d9
+                      nombre: 'Aceite de Barba Premium'
+                      categoria: Barba
+                      descripcion: 'Aceite de Barba Premium — producto profesional UrbanBlade.'
+                      precio_venta: 200
+                      stock_actual: 4
+                      imagen: 'http://localhost:8000/storage/products/ldHXKkwwr7h14r9EQ73jaaezDCfhwxUoT7LM7TMD.jpg'
+                    -
+                      id: 6aaa3a4fd95ef709410e35d5
+                      nombre: 'Acondicionador Hidratante'
+                      categoria: 'Cuidado Capilar'
+                      descripcion: 'Acondicionador Hidratante — producto profesional UrbanBlade.'
+                      precio_venta: 160
+                      stock_actual: 29
+                      imagen: null
+                    -
+                      id: 6aaa3a53d95ef709410e35df
+                      nombre: 'Aftershave Refrescante'
+                      categoria: Afeitado
+                      descripcion: 'Aftershave Refrescante — producto profesional UrbanBlade.'
+                      precio_venta: 140
+                      stock_actual: 52
+                      imagen: null
+                    -
+                      id: 6aaa3a4dd95ef709410e35cd
+                      nombre: 'Arcilla Modeladora'
+                      categoria: Styling
+                      descripcion: 'Arcilla Modeladora — producto profesional UrbanBlade.'
+                      precio_venta: 160
+                      stock_actual: 57
+                      imagen: null
+                    -
+                      id: 6aaa3a51d95ef709410e35db
+                      nombre: 'Balsamo de Barba'
+                      categoria: Barba
+                      descripcion: 'Balsamo de Barba — producto profesional UrbanBlade.'
+                      precio_venta: 180
+                      stock_actual: 22
+                      imagen: null
+                    -
+                      id: 6aaa3a56d95ef709410e35e9
+                      nombre: 'Cepillo para Barba'
+                      categoria: Accesorios
+                      descripcion: 'Cepillo para Barba — producto profesional UrbanBlade.'
+                      precio_venta: 110
+                      stock_actual: 12
+                      imagen: null
+                    -
+                      id: 6aaa3a4ad95ef709410e35c7
+                      nombre: 'Cera Mate Fijacion Fuerte'
+                      categoria: Styling
+                      descripcion: 'Cera Mate Fijacion Fuerte — producto profesional UrbanBlade.'
+                      precio_venta: 150
+                      stock_actual: 25
+                      imagen: null
+                    -
+                      id: 6aaa3a5ed95ef709410e35ff
+                      nombre: 'Colonia UrbanBlade Signature'
+                      categoria: Fragancias
+                      descripcion: 'Colonia UrbanBlade Signature — producto profesional UrbanBlade.'
+                      precio_venta: 420
+                      stock_actual: 5
+                      imagen: null
+                    -
+                      id: 6aaa3a54d95ef709410e35e1
+                      nombre: 'Crema de Afeitar Clasica'
+                      categoria: Afeitado
+                      descripcion: 'Crema de Afeitar Clasica — producto profesional UrbanBlade.'
+                      precio_venta: 120
+                      stock_actual: 26
+                      imagen: null
+                    -
+                      id: 6aaa3a4cd95ef709410e35cb
+                      nombre: 'Gel Fijador Extra Fuerte'
+                      categoria: Styling
+                      descripcion: 'Gel Fijador Extra Fuerte — producto profesional UrbanBlade.'
+                      precio_venta: 110
+                      stock_actual: 8
+                      imagen: null
+                    -
+                      id: 6aaa3a5dd95ef709410e35fb
+                      nombre: 'Jabon de Barba Artesanal'
+                      categoria: Barba
+                      descripcion: 'Jabon de Barba Artesanal — producto profesional UrbanBlade.'
+                      precio_venta: 125
+                      stock_actual: 11
+                      imagen: null
+                    -
+                      id: 6aaa3a52d95ef709410e35dd
+                      nombre: 'Kit Aceite y Balsamo de Barba'
+                      categoria: Barba
+                      descripcion: 'Kit Aceite y Balsamo de Barba — producto profesional UrbanBlade.'
+                      precio_venta: 320
+                      stock_actual: 34
+                      imagen: null
+                    -
+                      id: 6aaa3a54d95ef709410e35e3
+                      nombre: 'Locion Post Afeitado'
+                      categoria: Afeitado
+                      descripcion: 'Locion Post Afeitado — producto profesional UrbanBlade.'
+                      precio_venta: 130
+                      stock_actual: 10
+                      imagen: null
+                    -
+                      id: 6aaa3a50d95ef709410e35d7
+                      nombre: 'Mascarilla Capilar Nutritiva'
+                      categoria: 'Cuidado Capilar'
+                      descripcion: 'Mascarilla Capilar Nutritiva — producto profesional UrbanBlade.'
+                      precio_venta: 210
+                      stock_actual: 9
+                      imagen: null
+                    -
+                      id: 6aaa3a55d95ef709410e35e5
+                      nombre: 'Navajas de Afeitar (5 pzas)'
+                      categoria: Afeitado
+                      descripcion: 'Navajas de Afeitar (5 pzas) — producto profesional UrbanBlade.'
+                      precio_venta: 95
+                      stock_actual: 38
+                      imagen: null
+                    -
+                      id: 6aaa3a55d95ef709410e35e7
+                      nombre: 'Peine de Madera'
+                      categoria: Accesorios
+                      descripcion: 'Peine de Madera — producto profesional UrbanBlade.'
+                      precio_venta: 90
+                      stock_actual: 58
+                      imagen: null
+                    -
+                      id: 6aaa3a4bd95ef709410e35c9
+                      nombre: 'Pomada Brillante Clasica'
+                      categoria: Styling
+                      descripcion: 'Pomada Brillante Clasica — producto profesional UrbanBlade.'
+                      precio_venta: 140
+                      stock_actual: 19
+                      imagen: null
+                    -
+                      id: 6aaa3a5cd95ef709410e35f9
+                      nombre: 'Serum Brillo Instantaneo'
+                      categoria: Styling
+                      descripcion: 'Serum Brillo Instantaneo — producto profesional UrbanBlade.'
+                      precio_venta: 165
+                      stock_actual: 57
+                      imagen: null
+                    -
+                      id: 6aaa3a5dd95ef709410e35fd
+                      nombre: 'Set de Viaje Grooming'
+                      categoria: Accesorios
+                      descripcion: 'Set de Viaje Grooming — producto profesional UrbanBlade.'
+                      precio_venta: 350
+                      stock_actual: 29
+                      imagen: null
+                    -
+                      id: 6aaa3a4ed95ef709410e35d1
+                      nombre: 'Shampoo Anticaida'
+                      categoria: 'Cuidado Capilar'
+                      descripcion: 'Shampoo Anticaida — producto profesional UrbanBlade.'
+                      precio_venta: 180
+                      stock_actual: 23
+                      imagen: null
+                    -
+                      id: 6aaa3a4fd95ef709410e35d3
+                      nombre: 'Shampoo Carbon Activado'
+                      categoria: 'Cuidado Capilar'
+                      descripcion: 'Shampoo Carbon Activado — producto profesional UrbanBlade.'
+                      precio_venta: 170
+                      stock_actual: 38
+                      imagen: null
+                    -
+                      id: 6aaa3a4dd95ef709410e35cf
+                      nombre: 'Spray Fijador Profesional'
+                      categoria: Styling
+                      descripcion: 'Spray Fijador Profesional — producto profesional UrbanBlade.'
+                      precio_venta: 130
+                      stock_actual: 47
+                      imagen: null
+                    -
+                      id: 6aaa3a5ad95ef709410e35f5
+                      nombre: 'Talco Refrescante'
+                      categoria: Afeitado
+                      descripcion: 'Talco Refrescante — producto profesional UrbanBlade.'
+                      precio_venta: 95
+                      stock_actual: 40
+                      imagen: null
+                    -
+                      id: 6ab70e856688e1bd7b0103dd
+                      nombre: Test
+                      categoria: Test
+                      descripcion: Etgdb
+                      precio_venta: 200
+                      stock_actual: 15
+                      imagen: 'http://localhost:8000/storage/products/jJT13Q4rBMwzzX5MGnAiMy2OwLlqLWseWRKSyFWl.jpg'
+                    -
+                      id: 6aaa3a57d95ef709410e35eb
+                      nombre: 'Toalla Facial Premium'
+                      categoria: Accesorios
+                      descripcion: 'Toalla Facial Premium — producto profesional UrbanBlade.'
+                      precio_venta: 140
+                      stock_actual: 27
+                      imagen: null
+                    -
+                      id: 6aaa3a5bd95ef709410e35f7
+                      nombre: 'Tonico Capilar Anticaspa'
+                      categoria: 'Cuidado Capilar'
+                      descripcion: 'Tonico Capilar Anticaspa — producto profesional UrbanBlade.'
+                      precio_venta: 150
+                      stock_actual: 6
+                      imagen: null
                 properties:
                   data:
                     type: array
-                    example: []
+                    example:
+                      -
+                        id: 6aaa3a51d95ef709410e35d9
+                        nombre: 'Aceite de Barba Premium'
+                        categoria: Barba
+                        descripcion: 'Aceite de Barba Premium — producto profesional UrbanBlade.'
+                        precio_venta: 200
+                        stock_actual: 4
+                        imagen: 'http://localhost:8000/storage/products/ldHXKkwwr7h14r9EQ73jaaezDCfhwxUoT7LM7TMD.jpg'
+                      -
+                        id: 6aaa3a4fd95ef709410e35d5
+                        nombre: 'Acondicionador Hidratante'
+                        categoria: 'Cuidado Capilar'
+                        descripcion: 'Acondicionador Hidratante — producto profesional UrbanBlade.'
+                        precio_venta: 160
+                        stock_actual: 29
+                        imagen: null
+                      -
+                        id: 6aaa3a53d95ef709410e35df
+                        nombre: 'Aftershave Refrescante'
+                        categoria: Afeitado
+                        descripcion: 'Aftershave Refrescante — producto profesional UrbanBlade.'
+                        precio_venta: 140
+                        stock_actual: 52
+                        imagen: null
+                      -
+                        id: 6aaa3a4dd95ef709410e35cd
+                        nombre: 'Arcilla Modeladora'
+                        categoria: Styling
+                        descripcion: 'Arcilla Modeladora — producto profesional UrbanBlade.'
+                        precio_venta: 160
+                        stock_actual: 57
+                        imagen: null
+                      -
+                        id: 6aaa3a51d95ef709410e35db
+                        nombre: 'Balsamo de Barba'
+                        categoria: Barba
+                        descripcion: 'Balsamo de Barba — producto profesional UrbanBlade.'
+                        precio_venta: 180
+                        stock_actual: 22
+                        imagen: null
+                      -
+                        id: 6aaa3a56d95ef709410e35e9
+                        nombre: 'Cepillo para Barba'
+                        categoria: Accesorios
+                        descripcion: 'Cepillo para Barba — producto profesional UrbanBlade.'
+                        precio_venta: 110
+                        stock_actual: 12
+                        imagen: null
+                      -
+                        id: 6aaa3a4ad95ef709410e35c7
+                        nombre: 'Cera Mate Fijacion Fuerte'
+                        categoria: Styling
+                        descripcion: 'Cera Mate Fijacion Fuerte — producto profesional UrbanBlade.'
+                        precio_venta: 150
+                        stock_actual: 25
+                        imagen: null
+                      -
+                        id: 6aaa3a5ed95ef709410e35ff
+                        nombre: 'Colonia UrbanBlade Signature'
+                        categoria: Fragancias
+                        descripcion: 'Colonia UrbanBlade Signature — producto profesional UrbanBlade.'
+                        precio_venta: 420
+                        stock_actual: 5
+                        imagen: null
+                      -
+                        id: 6aaa3a54d95ef709410e35e1
+                        nombre: 'Crema de Afeitar Clasica'
+                        categoria: Afeitado
+                        descripcion: 'Crema de Afeitar Clasica — producto profesional UrbanBlade.'
+                        precio_venta: 120
+                        stock_actual: 26
+                        imagen: null
+                      -
+                        id: 6aaa3a4cd95ef709410e35cb
+                        nombre: 'Gel Fijador Extra Fuerte'
+                        categoria: Styling
+                        descripcion: 'Gel Fijador Extra Fuerte — producto profesional UrbanBlade.'
+                        precio_venta: 110
+                        stock_actual: 8
+                        imagen: null
+                      -
+                        id: 6aaa3a5dd95ef709410e35fb
+                        nombre: 'Jabon de Barba Artesanal'
+                        categoria: Barba
+                        descripcion: 'Jabon de Barba Artesanal — producto profesional UrbanBlade.'
+                        precio_venta: 125
+                        stock_actual: 11
+                        imagen: null
+                      -
+                        id: 6aaa3a52d95ef709410e35dd
+                        nombre: 'Kit Aceite y Balsamo de Barba'
+                        categoria: Barba
+                        descripcion: 'Kit Aceite y Balsamo de Barba — producto profesional UrbanBlade.'
+                        precio_venta: 320
+                        stock_actual: 34
+                        imagen: null
+                      -
+                        id: 6aaa3a54d95ef709410e35e3
+                        nombre: 'Locion Post Afeitado'
+                        categoria: Afeitado
+                        descripcion: 'Locion Post Afeitado — producto profesional UrbanBlade.'
+                        precio_venta: 130
+                        stock_actual: 10
+                        imagen: null
+                      -
+                        id: 6aaa3a50d95ef709410e35d7
+                        nombre: 'Mascarilla Capilar Nutritiva'
+                        categoria: 'Cuidado Capilar'
+                        descripcion: 'Mascarilla Capilar Nutritiva — producto profesional UrbanBlade.'
+                        precio_venta: 210
+                        stock_actual: 9
+                        imagen: null
+                      -
+                        id: 6aaa3a55d95ef709410e35e5
+                        nombre: 'Navajas de Afeitar (5 pzas)'
+                        categoria: Afeitado
+                        descripcion: 'Navajas de Afeitar (5 pzas) — producto profesional UrbanBlade.'
+                        precio_venta: 95
+                        stock_actual: 38
+                        imagen: null
+                      -
+                        id: 6aaa3a55d95ef709410e35e7
+                        nombre: 'Peine de Madera'
+                        categoria: Accesorios
+                        descripcion: 'Peine de Madera — producto profesional UrbanBlade.'
+                        precio_venta: 90
+                        stock_actual: 58
+                        imagen: null
+                      -
+                        id: 6aaa3a4bd95ef709410e35c9
+                        nombre: 'Pomada Brillante Clasica'
+                        categoria: Styling
+                        descripcion: 'Pomada Brillante Clasica — producto profesional UrbanBlade.'
+                        precio_venta: 140
+                        stock_actual: 19
+                        imagen: null
+                      -
+                        id: 6aaa3a5cd95ef709410e35f9
+                        nombre: 'Serum Brillo Instantaneo'
+                        categoria: Styling
+                        descripcion: 'Serum Brillo Instantaneo — producto profesional UrbanBlade.'
+                        precio_venta: 165
+                        stock_actual: 57
+                        imagen: null
+                      -
+                        id: 6aaa3a5dd95ef709410e35fd
+                        nombre: 'Set de Viaje Grooming'
+                        categoria: Accesorios
+                        descripcion: 'Set de Viaje Grooming — producto profesional UrbanBlade.'
+                        precio_venta: 350
+                        stock_actual: 29
+                        imagen: null
+                      -
+                        id: 6aaa3a4ed95ef709410e35d1
+                        nombre: 'Shampoo Anticaida'
+                        categoria: 'Cuidado Capilar'
+                        descripcion: 'Shampoo Anticaida — producto profesional UrbanBlade.'
+                        precio_venta: 180
+                        stock_actual: 23
+                        imagen: null
+                      -
+                        id: 6aaa3a4fd95ef709410e35d3
+                        nombre: 'Shampoo Carbon Activado'
+                        categoria: 'Cuidado Capilar'
+                        descripcion: 'Shampoo Carbon Activado — producto profesional UrbanBlade.'
+                        precio_venta: 170
+                        stock_actual: 38
+                        imagen: null
+                      -
+                        id: 6aaa3a4dd95ef709410e35cf
+                        nombre: 'Spray Fijador Profesional'
+                        categoria: Styling
+                        descripcion: 'Spray Fijador Profesional — producto profesional UrbanBlade.'
+                        precio_venta: 130
+                        stock_actual: 47
+                        imagen: null
+                      -
+                        id: 6aaa3a5ad95ef709410e35f5
+                        nombre: 'Talco Refrescante'
+                        categoria: Afeitado
+                        descripcion: 'Talco Refrescante — producto profesional UrbanBlade.'
+                        precio_venta: 95
+                        stock_actual: 40
+                        imagen: null
+                      -
+                        id: 6ab70e856688e1bd7b0103dd
+                        nombre: Test
+                        categoria: Test
+                        descripcion: Etgdb
+                        precio_venta: 200
+                        stock_actual: 15
+                        imagen: 'http://localhost:8000/storage/products/jJT13Q4rBMwzzX5MGnAiMy2OwLlqLWseWRKSyFWl.jpg'
+                      -
+                        id: 6aaa3a57d95ef709410e35eb
+                        nombre: 'Toalla Facial Premium'
+                        categoria: Accesorios
+                        descripcion: 'Toalla Facial Premium — producto profesional UrbanBlade.'
+                        precio_venta: 140
+                        stock_actual: 27
+                        imagen: null
+                      -
+                        id: 6aaa3a5bd95ef709410e35f7
+                        nombre: 'Tonico Capilar Anticaspa'
+                        categoria: 'Cuidado Capilar'
+                        descripcion: 'Tonico Capilar Anticaspa — producto profesional UrbanBlade.'
+                        precio_venta: 150
+                        stock_actual: 6
+                        imagen: null
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 6aaa3a51d95ef709410e35d9
+                        nombre:
+                          type: string
+                          example: 'Aceite de Barba Premium'
+                        categoria:
+                          type: string
+                          example: Barba
+                        descripcion:
+                          type: string
+                          example: 'Aceite de Barba Premium — producto profesional UrbanBlade.'
+                        precio_venta:
+                          type: integer
+                          example: 200
+                        stock_actual:
+                          type: integer
+                          example: 4
+                        imagen:
+                          type: string
+                          example: 'http://localhost:8000/storage/products/ldHXKkwwr7h14r9EQ73jaaezDCfhwxUoT7LM7TMD.jpg'
       tags:
         - Endpoints
       security: []
@@ -2525,7 +3506,7 @@ paths:
                 date:
                   type: string
                   description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
-                  example: '2052-10-28'
+                  example: '2052-10-31'
               required:
                 - barber_id
                 - service_id
@@ -2545,15 +3526,773 @@ paths:
               schema:
                 type: object
                 example:
-                  data: []
+                  data:
+                    -
+                      id: 6ab535ef96a5df8c0a01f10e
+                      title: test
+                      description: Ejemplo
+                      work_date: '2026-09-24'
+                      barber:
+                        id: 6aab96924c163e944d0b36d5
+                        name: 'Gonzalez Ramirez Luis Enrique'
+                        slug: gonzalez-ramirez-luis-enrique
+                        foto: null
+                      images:
+                        - 'http://localhost:8000/storage/portfolio/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg'
+                      media:
+                        -
+                          url: 'http://localhost:8000/storage/portfolio/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg'
+                          type: image
+                      reactions_count: 2
+                      comments_count: 0
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
+                      comments: []
+                    -
+                      id: 6aaa3b11d95ef709410e3841
+                      title: 'Degradado quirurgico'
+                      description: 'Transformando looks, un cliente a la vez.'
+                      work_date: '2025-11-29'
+                      barber:
+                        id: null
+                        name: null
+                        slug: null
+                        foto: null
+                      images:
+                        - 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85'
+                      media:
+                        -
+                          url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                      reactions_count: 21
+                      comments_count: 3
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
+                      comments:
+                        -
+                          id: 6aaa3b12d95ef709410e3898
+                          comment: 'Se ve buenisimo, recomendado al 100%.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                        -
+                          id: 6aaa3b12d95ef709410e3899
+                          comment: 'Ya quiero mi cita para que me dejen asi.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                        -
+                          id: 6aaa3b12d95ef709410e3897
+                          comment: 'Un artista con las tijeras.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                    -
+                      id: 6aaa3b11d95ef709410e3840
+                      title: 'Fade limpio de la semana'
+                      description: 'Cada corte cuenta una historia. Este es el resultado de hoy.'
+                      work_date: '2026-06-25'
+                      barber:
+                        id: null
+                        name: null
+                        slug: null
+                        foto: null
+                      images:
+                        - 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                      media:
+                        -
+                          url: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                      reactions_count: 11
+                      comments_count: 3
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
+                      comments:
+                        -
+                          id: 6aaa3b12d95ef709410e3895
+                          comment: 'Vengo desde hace años y nunca falla.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                        -
+                          id: 6aaa3b12d95ef709410e3896
+                          comment: 'Vengo desde hace años y nunca falla.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                        -
+                          id: 6aaa3b12d95ef709410e3894
+                          comment: 'Trabajo limpio y profesional.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                    -
+                      id: 6aaa3b11d95ef709410e383f
+                      title: 'Estilo moderno urbano'
+                      description: 'Transformando looks, un cliente a la vez.'
+                      work_date: '2026-01-01'
+                      barber:
+                        id: null
+                        name: null
+                        slug: null
+                        foto: null
+                      images:
+                        - 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85'
+                      media:
+                        -
+                          url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                      reactions_count: 18
+                      comments_count: 1
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
+                      comments:
+                        -
+                          id: 6aaa3b12d95ef709410e3893
+                          comment: 'Vengo desde hace años y nunca falla.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                    -
+                      id: 6aaa3b11d95ef709410e383e
+                      title: 'Degradado quirurgico'
+                      description: 'Cada corte cuenta una historia. Este es el resultado de hoy.'
+                      work_date: '2026-08-21'
+                      barber:
+                        id: null
+                        name: null
+                        slug: null
+                        foto: null
+                      images:
+                        - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                      media:
+                        -
+                          url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                      reactions_count: 10
+                      comments_count: 3
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
+                      comments:
+                        -
+                          id: 6aaa3b12d95ef709410e3890
+                          comment: 'Que nivel de detalle, impresionante.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                        -
+                          id: 6aaa3b12d95ef709410e3891
+                          comment: 'Que precision en el degradado.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                        -
+                          id: 6aaa3b12d95ef709410e3892
+                          comment: 'Que precision en el degradado.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                    -
+                      id: 6aaa3b11d95ef709410e383d
+                      title: 'Precision en cada linea'
+                      description: 'Cada corte cuenta una historia. Este es el resultado de hoy.'
+                      work_date: '2025-07-24'
+                      barber:
+                        id: null
+                        name: null
+                        slug: null
+                        foto: null
+                      images:
+                        - 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                      media:
+                        -
+                          url: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                      reactions_count: 20
+                      comments_count: 2
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
+                      comments:
+                        -
+                          id: 6aaa3b12d95ef709410e388f
+                          comment: 'El mejor barbero de la zona, sin duda.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                        -
+                          id: 6aaa3b12d95ef709410e388e
+                          comment: 'Que precision en el degradado.'
+                          user:
+                            name: null
+                          created_at: '2026-09-16T00:45:38-06:00'
+                    -
+                      id: 6aaa3b10d95ef709410e383c
+                      title: 'Corte clasico con estilo'
+                      description: 'Trabajo minucioso, resultado impecable. Agenda tu cita.'
+                      work_date: '2025-04-13'
+                      barber:
+                        id: null
+                        name: null
+                        slug: null
+                        foto: null
+                      images:
+                        - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=900&h=1100&auto=format&fit=crop&q=85'
+                      media:
+                        -
+                          url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                      reactions_count: 5
+                      comments_count: 0
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
+                      comments: []
+                    -
+                      id: 6aaa3b10d95ef709410e383b
+                      title: 'Look renovado para el finde'
+                      description: 'Otro cliente satisfecho saliendo con estilo de UrbanBlade.'
+                      work_date: '2025-12-02'
+                      barber:
+                        id: null
+                        name: null
+                        slug: null
+                        foto: null
+                      images:
+                        - 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                      media:
+                        -
+                          url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                      reactions_count: 0
+                      comments_count: 0
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
+                      comments: []
+                    -
+                      id: 6aaa3b10d95ef709410e383a
+                      title: 'Transformacion total'
+                      description: 'Trabajo minucioso, resultado impecable. Agenda tu cita.'
+                      work_date: '2026-01-17'
+                      barber:
+                        id: null
+                        name: null
+                        slug: null
+                        foto: null
+                      images:
+                        - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=900&h=1100&auto=format&fit=crop&q=85'
+                      media:
+                        -
+                          url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                      reactions_count: 20
+                      comments_count: 0
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
+                      comments: []
+                    -
+                      id: 6aaa3b10d95ef709410e3839
+                      title: 'Trabajo de detalle'
+                      description: null
+                      work_date: '2026-07-15'
+                      barber:
+                        id: null
+                        name: null
+                        slug: null
+                        foto: null
+                      images:
+                        - 'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=900&h=1100&auto=format&fit=crop&q=85'
+                        - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                      media:
+                        -
+                          url: 'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                        -
+                          url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                          type: image
+                      reactions_count: 0
+                      comments_count: 0
+                      saved_count: 0
+                      is_reacted: false
+                      is_saved: false
+                      comments: []
                   meta:
                     current_page: 1
-                    last_page: 1
-                    total: 0
+                    last_page: 3
+                    total: 24
                 properties:
                   data:
                     type: array
-                    example: []
+                    example:
+                      -
+                        id: 6ab535ef96a5df8c0a01f10e
+                        title: test
+                        description: Ejemplo
+                        work_date: '2026-09-24'
+                        barber:
+                          id: 6aab96924c163e944d0b36d5
+                          name: 'Gonzalez Ramirez Luis Enrique'
+                          slug: gonzalez-ramirez-luis-enrique
+                          foto: null
+                        images:
+                          - 'http://localhost:8000/storage/portfolio/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg'
+                        media:
+                          -
+                            url: 'http://localhost:8000/storage/portfolio/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg'
+                            type: image
+                        reactions_count: 2
+                        comments_count: 0
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                        comments: []
+                      -
+                        id: 6aaa3b11d95ef709410e3841
+                        title: 'Degradado quirurgico'
+                        description: 'Transformando looks, un cliente a la vez.'
+                        work_date: '2025-11-29'
+                        barber:
+                          id: null
+                          name: null
+                          slug: null
+                          foto: null
+                        images:
+                          - 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85'
+                        media:
+                          -
+                            url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                        reactions_count: 21
+                        comments_count: 3
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                        comments:
+                          -
+                            id: 6aaa3b12d95ef709410e3898
+                            comment: 'Se ve buenisimo, recomendado al 100%.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                          -
+                            id: 6aaa3b12d95ef709410e3899
+                            comment: 'Ya quiero mi cita para que me dejen asi.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                          -
+                            id: 6aaa3b12d95ef709410e3897
+                            comment: 'Un artista con las tijeras.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                      -
+                        id: 6aaa3b11d95ef709410e3840
+                        title: 'Fade limpio de la semana'
+                        description: 'Cada corte cuenta una historia. Este es el resultado de hoy.'
+                        work_date: '2026-06-25'
+                        barber:
+                          id: null
+                          name: null
+                          slug: null
+                          foto: null
+                        images:
+                          - 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                        media:
+                          -
+                            url: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                        reactions_count: 11
+                        comments_count: 3
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                        comments:
+                          -
+                            id: 6aaa3b12d95ef709410e3895
+                            comment: 'Vengo desde hace años y nunca falla.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                          -
+                            id: 6aaa3b12d95ef709410e3896
+                            comment: 'Vengo desde hace años y nunca falla.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                          -
+                            id: 6aaa3b12d95ef709410e3894
+                            comment: 'Trabajo limpio y profesional.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                      -
+                        id: 6aaa3b11d95ef709410e383f
+                        title: 'Estilo moderno urbano'
+                        description: 'Transformando looks, un cliente a la vez.'
+                        work_date: '2026-01-01'
+                        barber:
+                          id: null
+                          name: null
+                          slug: null
+                          foto: null
+                        images:
+                          - 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85'
+                        media:
+                          -
+                            url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                        reactions_count: 18
+                        comments_count: 1
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                        comments:
+                          -
+                            id: 6aaa3b12d95ef709410e3893
+                            comment: 'Vengo desde hace años y nunca falla.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                      -
+                        id: 6aaa3b11d95ef709410e383e
+                        title: 'Degradado quirurgico'
+                        description: 'Cada corte cuenta una historia. Este es el resultado de hoy.'
+                        work_date: '2026-08-21'
+                        barber:
+                          id: null
+                          name: null
+                          slug: null
+                          foto: null
+                        images:
+                          - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                        media:
+                          -
+                            url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                        reactions_count: 10
+                        comments_count: 3
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                        comments:
+                          -
+                            id: 6aaa3b12d95ef709410e3890
+                            comment: 'Que nivel de detalle, impresionante.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                          -
+                            id: 6aaa3b12d95ef709410e3891
+                            comment: 'Que precision en el degradado.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                          -
+                            id: 6aaa3b12d95ef709410e3892
+                            comment: 'Que precision en el degradado.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                      -
+                        id: 6aaa3b11d95ef709410e383d
+                        title: 'Precision en cada linea'
+                        description: 'Cada corte cuenta una historia. Este es el resultado de hoy.'
+                        work_date: '2025-07-24'
+                        barber:
+                          id: null
+                          name: null
+                          slug: null
+                          foto: null
+                        images:
+                          - 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                        media:
+                          -
+                            url: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                        reactions_count: 20
+                        comments_count: 2
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                        comments:
+                          -
+                            id: 6aaa3b12d95ef709410e388f
+                            comment: 'El mejor barbero de la zona, sin duda.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                          -
+                            id: 6aaa3b12d95ef709410e388e
+                            comment: 'Que precision en el degradado.'
+                            user:
+                              name: null
+                            created_at: '2026-09-16T00:45:38-06:00'
+                      -
+                        id: 6aaa3b10d95ef709410e383c
+                        title: 'Corte clasico con estilo'
+                        description: 'Trabajo minucioso, resultado impecable. Agenda tu cita.'
+                        work_date: '2025-04-13'
+                        barber:
+                          id: null
+                          name: null
+                          slug: null
+                          foto: null
+                        images:
+                          - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=900&h=1100&auto=format&fit=crop&q=85'
+                        media:
+                          -
+                            url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                        reactions_count: 5
+                        comments_count: 0
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                        comments: []
+                      -
+                        id: 6aaa3b10d95ef709410e383b
+                        title: 'Look renovado para el finde'
+                        description: 'Otro cliente satisfecho saliendo con estilo de UrbanBlade.'
+                        work_date: '2025-12-02'
+                        barber:
+                          id: null
+                          name: null
+                          slug: null
+                          foto: null
+                        images:
+                          - 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                        media:
+                          -
+                            url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                        reactions_count: 0
+                        comments_count: 0
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                        comments: []
+                      -
+                        id: 6aaa3b10d95ef709410e383a
+                        title: 'Transformacion total'
+                        description: 'Trabajo minucioso, resultado impecable. Agenda tu cita.'
+                        work_date: '2026-01-17'
+                        barber:
+                          id: null
+                          name: null
+                          slug: null
+                          foto: null
+                        images:
+                          - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=900&h=1100&auto=format&fit=crop&q=85'
+                        media:
+                          -
+                            url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                        reactions_count: 20
+                        comments_count: 0
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                        comments: []
+                      -
+                        id: 6aaa3b10d95ef709410e3839
+                        title: 'Trabajo de detalle'
+                        description: null
+                        work_date: '2026-07-15'
+                        barber:
+                          id: null
+                          name: null
+                          slug: null
+                          foto: null
+                        images:
+                          - 'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=900&h=1100&auto=format&fit=crop&q=85'
+                          - 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                        media:
+                          -
+                            url: 'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                          -
+                            url: 'https://images.unsplash.com/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85'
+                            type: image
+                        reactions_count: 0
+                        comments_count: 0
+                        saved_count: 0
+                        is_reacted: false
+                        is_saved: false
+                        comments: []
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 6ab535ef96a5df8c0a01f10e
+                        title:
+                          type: string
+                          example: test
+                        description:
+                          type: string
+                          example: Ejemplo
+                        work_date:
+                          type: string
+                          example: '2026-09-24'
+                        barber:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 6aab96924c163e944d0b36d5
+                            name:
+                              type: string
+                              example: 'Gonzalez Ramirez Luis Enrique'
+                            slug:
+                              type: string
+                              example: gonzalez-ramirez-luis-enrique
+                            foto:
+                              type: string
+                              example: null
+                              nullable: true
+                        images:
+                          type: array
+                          example:
+                            - 'http://localhost:8000/storage/portfolio/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg'
+                          items:
+                            type: string
+                        media:
+                          type: array
+                          example:
+                            -
+                              url: 'http://localhost:8000/storage/portfolio/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg'
+                              type: image
+                          items:
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                                example: 'http://localhost:8000/storage/portfolio/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg'
+                              type:
+                                type: string
+                                example: image
+                        reactions_count:
+                          type: integer
+                          example: 2
+                        comments_count:
+                          type: integer
+                          example: 0
+                        saved_count:
+                          type: integer
+                          example: 0
+                        is_reacted:
+                          type: boolean
+                          example: false
+                        is_saved:
+                          type: boolean
+                          example: false
+                        comments:
+                          type: array
+                          example: []
                   meta:
                     type: object
                     properties:
@@ -2562,10 +4301,10 @@ paths:
                         example: 1
                       last_page:
                         type: integer
-                        example: 1
+                        example: 3
                       total:
                         type: integer
-                        example: 0
+                        example: 24
       tags:
         - Endpoints
       security: []
@@ -2623,6 +4362,88 @@ paths:
       tags:
         - Endpoints
       security: []
+  '/api/v1/appointments/{appointment_code}/extend':
+    post:
+      summary: 'Agregar tiempo al servicio en curso'
+      operationId: agregarTiempoAlServicioEnCurso
+      description: "El barbero de la cita (o recepción/administración) agrega minutos a un servicio en proceso. Si el nuevo fin\nchoca con la siguiente cita responde 422 con `choca_con`; repetir con `forzar=true` extiende de todos modos y\navisa al siguiente cliente."
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                minutos:
+                  type: integer
+                  description: 'Minutos a agregar (10, 15, 20 o 30).'
+                  example: 10
+                forzar:
+                  type: boolean
+                  description: 'Extender aunque choque con la siguiente cita.'
+                  example: false
+                  nullable: true
+              required:
+                - minutos
+    parameters:
+      -
+        in: path
+        name: appointment_code
+        description: ''
+        example: fxp9vtie
+        required: true
+        schema:
+          type: string
+      -
+        in: path
+        name: appointment
+        description: 'Código público de la cita.'
+        example: jfb7ffye
+        required: true
+        schema:
+          type: string
+  '/api/v1/appointments/{appointment_code}/ticket':
+    get:
+      summary: 'Ticket de una cita completada'
+      operationId: ticketDeUnaCitaCompletada
+      description: "Resumen del servicio y del pago (monto, propina, depósito aplicado, método) con el enlace temporal al\ncomprobante en PDF. Lo ve el cliente dueño de la cita, su barbero y el personal."
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+    parameters:
+      -
+        in: path
+        name: appointment_code
+        description: ''
+        example: fxp9vtie
+        required: true
+        schema:
+          type: string
+      -
+        in: path
+        name: appointment
+        description: 'Código público de la cita.'
+        example: jfb7ffye
+        required: true
+        schema:
+          type: string
   /api/v1/orders:
     get:
       summary: "Lista pedidos: un cliente ve solo los suyos; admin/recepción ven\ntodos, con filtros opcionales (estado/folio) y las mismas\nestadísticas rápidas que Reception\\OrderController::index() (web)."
@@ -2685,7 +4506,7 @@ paths:
         in: path
         name: order_id
         description: 'The ID of the order.'
-        example: architecto
+        example: 6aaa3afed95ef709410e3803
         required: true
         schema:
           type: string
@@ -2737,7 +4558,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: transferencia
+                  example: efectivo
                   enum:
                     - efectivo
                     - tarjeta
@@ -2755,7 +4576,7 @@ paths:
                 usar_premio_rifa:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 usar_paquete_id:
                   type: string
@@ -2784,18 +4605,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        404:
+        401:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No query results for model [App\Models\Payment] architecto'
+                  message: 'No autorizado.'
                 properties:
                   message:
                     type: string
-                    example: 'No query results for model [App\Models\Payment] architecto'
+                    example: 'No autorizado.'
       tags:
         - Endpoints
       security: []
@@ -2804,7 +4625,7 @@ paths:
         in: path
         name: payment_id
         description: 'The ID of the payment.'
-        example: architecto
+        example: 6aaa3af6d95ef709410e37b3
         required: true
         schema:
           type: string
@@ -2846,7 +4667,7 @@ paths:
                 guardar_tarjeta:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 tarjeta_guardada:
                   type: boolean
@@ -2888,7 +4709,7 @@ paths:
         in: path
         name: appointment_code
         description: ''
-        example: architecto
+        example: fxp9vtie
         required: true
         schema:
           type: string
@@ -2900,6 +4721,47 @@ paths:
         required: true
         schema:
           type: string
+  /api/v1/no-show-fees:
+    get:
+      summary: 'Listar cargos por inasistencia'
+      operationId: listarCargosPorInasistencia
+      description: "Cliente: los suyos (con el total adeudado). Recepción/administración: por estado (pendiente por defecto) y,\nopcionalmente, de un cliente."
+      parameters:
+        -
+          in: query
+          name: estado
+          description: 'pendiente|pagado|condonado (solo personal).'
+          example: pendiente
+          required: false
+          schema:
+            type: string
+            description: 'pendiente|pagado|condonado (solo personal).'
+            example: pendiente
+        -
+          in: query
+          name: client_id
+          description: 'Filtra por cliente (solo personal).'
+          example: architecto
+          required: false
+          schema:
+            type: string
+            description: 'Filtra por cliente (solo personal).'
+            example: architecto
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
   '/api/v1/orders/{order_id}/deliver':
     patch:
       summary: 'Marca un pedido como entregado y registra el método de cobro (staff).'
@@ -2919,7 +4781,7 @@ paths:
                 metodo_pago:
                   type: string
                   description: ''
-                  example: tarjeta
+                  example: transferencia
                   enum:
                     - efectivo
                     - tarjeta
@@ -2932,7 +4794,7 @@ paths:
         in: path
         name: order_id
         description: 'The ID of the order.'
-        example: architecto
+        example: 6aaa3afed95ef709410e3803
         required: true
         schema:
           type: string
@@ -2943,18 +4805,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        404:
+        401:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No query results for model [App\Models\Order] architecto'
+                  message: 'No autorizado.'
                 properties:
                   message:
                     type: string
-                    example: 'No query results for model [App\Models\Order] architecto'
+                    example: 'No autorizado.'
       tags:
         - Endpoints
       security: []
@@ -2963,7 +4825,7 @@ paths:
         in: path
         name: order_id
         description: 'The ID of the order.'
-        example: architecto
+        example: 6aaa3afed95ef709410e3803
         required: true
         schema:
           type: string
@@ -3004,7 +4866,7 @@ paths:
         in: path
         name: payment_id
         description: 'The ID of the payment.'
-        example: architecto
+        example: 6aaa3af6d95ef709410e37b3
         required: true
         schema:
           type: string
@@ -3036,7 +4898,7 @@ paths:
         in: path
         name: payment_id
         description: 'The ID of the payment.'
-        example: architecto
+        example: 6aaa3af6d95ef709410e37b3
         required: true
         schema:
           type: string
@@ -3055,6 +4917,68 @@ paths:
         in: path
         name: payment_id
         description: 'The ID of the payment.'
+        example: 6aaa3af6d95ef709410e37b3
+        required: true
+        schema:
+          type: string
+  '/api/v1/no-show-fees/{fee_id}/pay':
+    post:
+      summary: 'Cobrar un cargo en sucursal'
+      operationId: cobrarUnCargoEnSucursal
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metodo:
+                  type: string
+                  description: efectivo|transferencia.
+                  example: efectivo
+              required:
+                - metodo
+    parameters:
+      -
+        in: path
+        name: fee_id
+        description: 'The ID of the fee.'
+        example: architecto
+        required: true
+        schema:
+          type: string
+  '/api/v1/no-show-fees/{fee_id}/waive':
+    post:
+      summary: 'Condonar un cargo (solo administración)'
+      operationId: condonarUnCargosoloAdministracin
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                motivo:
+                  type: string
+                  description: 'Por qué se perdona el cargo.'
+                  example: 'Cliente con emergencia médica.'
+              required:
+                - motivo
+    parameters:
+      -
+        in: path
+        name: fee_id
+        description: 'The ID of the fee.'
         example: architecto
         required: true
         schema:
@@ -3120,7 +5044,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -3190,7 +5114,7 @@ paths:
         in: path
         name: servicePackage_id
         description: 'The ID of the servicePackage.'
-        example: architecto
+        example: 6aaa3b1ad95ef709410e3983
         required: true
         schema:
           type: string
@@ -3251,7 +5175,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -3294,7 +5218,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -3315,7 +5239,7 @@ paths:
         in: path
         name: membershipPlan_id
         description: 'The ID of the membershipPlan.'
-        example: architecto
+        example: 6aaa3b16d95ef709410e3968
         required: true
         schema:
           type: string
@@ -3377,12 +5301,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-10-05T01:06:05'
+                  example: '2026-10-08T13:59:36'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_email:
                   type: boolean
@@ -3392,12 +5316,12 @@ paths:
                 pref_sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 pref_whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - name
@@ -3435,12 +5359,12 @@ paths:
                 fecha_nacimiento:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-10-05T01:06:05'
+                  example: '2026-10-08T13:59:36'
                   nullable: true
                 pref_in_app:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
                 pref_email:
                   type: boolean
@@ -3475,7 +5399,7 @@ paths:
         in: path
         name: client_slug
         description: 'The slug of the client.'
-        example: architecto
+        example: luis-enrique-gonzalez-ramirez
         required: true
         schema:
           type: string
@@ -3596,7 +5520,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
               required:
                 - nombre
@@ -3618,7 +5542,7 @@ paths:
         in: path
         name: service_slug
         description: 'The slug of the service.'
-        example: architecto
+        example: skin-fade
         required: true
         schema:
           type: string
@@ -3685,7 +5609,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
                 comision_pct:
                   type: number
@@ -3701,7 +5625,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         required: true
         schema:
           type: string
@@ -3816,7 +5740,7 @@ paths:
         in: path
         name: user_id
         description: 'The ID of the user.'
-        example: architecto
+        example: 6aa51b319ddeabe12709e9e2
         required: true
         schema:
           type: string
@@ -3874,12 +5798,12 @@ paths:
                 horario_apertura:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>.'
-                  example: '01:06'
+                  example: '13:59'
                   nullable: true
                 horario_cierre:
                   type: string
                   description: 'Must be a valid date in the format <code>H:i</code>. El campo value debe ser una fecha posterior a <code>horario_apertura</code>.'
-                  example: '2052-10-28'
+                  example: '2052-10-31'
                   nullable: true
                 politica_cancelacion:
                   type: integer
@@ -3895,40 +5819,45 @@ paths:
                   description: 'El campo value debe ser al menos 0. El campo value no debe ser mayor que 100.'
                   example: 16
                   nullable: true
-                instagram:
-                  type: string
-                  description: 'El campo value no debe tener más de 255 caracteres.'
-                  example: m
+                comision_no_show_porcentaje:
+                  type: integer
+                  description: 'Cargo por inasistencia (NoShowFeeService): % del servicio; 0 lo desactiva. Opcional como los de arriba. El campo value debe ser al menos 0. El campo value no debe ser mayor que 100.'
+                  example: 17
                   nullable: true
-                facebook:
+                instagram:
                   type: string
                   description: 'El campo value no debe tener más de 255 caracteres.'
                   example: i
                   nullable: true
-                tiktok:
+                facebook:
                   type: string
                   description: 'El campo value no debe tener más de 255 caracteres.'
                   example: 'y'
                   nullable: true
+                tiktok:
+                  type: string
+                  description: 'El campo value no debe tener más de 255 caracteres.'
+                  example: v
+                  nullable: true
                 clabe:
                   type: string
                   description: 'El campo value no debe tener más de 18 caracteres.'
-                  example: vdljnikhwaykcmyu
+                  example: dljnikhwaykcmyuw
                   nullable: true
                 banco:
                   type: string
                   description: 'El campo value no debe tener más de 100 caracteres.'
-                  example: w
+                  example: p
                   nullable: true
                 beneficiario:
                   type: string
                   description: 'El campo value no debe tener más de 150 caracteres.'
-                  example: p
+                  example: w
                   nullable: true
                 concepto:
                   type: string
                   description: 'El campo value no debe tener más de 100 caracteres.'
-                  example: w
+                  example: l
                   nullable: true
               required:
                 - nombre
@@ -4006,14 +5935,14 @@ paths:
                 modo:
                   type: string
                   description: ''
-                  example: ahora
+                  example: programar
                   enum:
                     - ahora
                     - programar
                 programada_para:
                   type: string
                   description: 'This field is required when <code>modo</code> is <code>programar</code>. El campo value no es una fecha válida. El campo value debe ser una fecha posterior a <code>now</code>.'
-                  example: '2052-10-28'
+                  example: '2052-11-01'
                   nullable: true
               required:
                 - titulo
@@ -4284,19 +6213,19 @@ paths:
                 email:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 sms:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 whatsapp:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 push:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                 promociones:
                   type: boolean
                   description: ''
@@ -4363,7 +6292,7 @@ paths:
                 content_encoding:
                   type: string
                   description: ''
-                  example: aesgcm
+                  example: aes128gcm
                   enum:
                     - aesgcm
                     - aes128gcm
@@ -4409,7 +6338,7 @@ paths:
         in: path
         name: work_id
         description: 'The ID of the work.'
-        example: architecto
+        example: 6aaa3b0dd95ef709410e382b
         required: true
         schema:
           type: string
@@ -4428,7 +6357,7 @@ paths:
         in: path
         name: work_id
         description: 'The ID of the work.'
-        example: architecto
+        example: 6aaa3b0dd95ef709410e382b
         required: true
         schema:
           type: string
@@ -4460,7 +6389,7 @@ paths:
         in: path
         name: work_id
         description: 'The ID of the work.'
-        example: architecto
+        example: 6aaa3b0dd95ef709410e382b
         required: true
         schema:
           type: string
@@ -4875,18 +6804,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        404:
+        401:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No query results for model [App\Models\Barber] architecto'
+                  message: 'No autorizado.'
                 properties:
                   message:
                     type: string
-                    example: 'No query results for model [App\Models\Barber] architecto'
+                    example: 'No autorizado.'
       tags:
         - Endpoints
       security: []
@@ -4918,7 +6847,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 comision_pct:
                   type: number
                   description: 'El campo value debe ser al menos 0. El campo value no debe ser mayor que 100.'
@@ -4930,7 +6859,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         required: true
         schema:
           type: string
@@ -4941,18 +6870,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        404:
+        401:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No query results for model [App\Models\Barber] architecto'
+                  message: 'No autorizado.'
                 properties:
                   message:
                     type: string
-                    example: 'No query results for model [App\Models\Barber] architecto'
+                    example: 'No autorizado.'
       tags:
         - Endpoints
       security: []
@@ -4961,7 +6890,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         required: true
         schema:
           type: string
@@ -4972,18 +6901,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        404:
+        401:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No query results for model [App\Models\Barber] architecto'
+                  message: 'No autorizado.'
                 properties:
                   message:
                     type: string
-                    example: 'No query results for model [App\Models\Barber] architecto'
+                    example: 'No autorizado.'
       tags:
         - Endpoints
       security: []
@@ -4992,7 +6921,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         required: true
         schema:
           type: string
@@ -5003,18 +6932,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        404:
+        401:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No query results for model [App\Models\Barber] architecto'
+                  message: 'No autorizado.'
                 properties:
                   message:
                     type: string
-                    example: 'No query results for model [App\Models\Barber] architecto'
+                    example: 'No autorizado.'
       tags:
         - Endpoints
       security: []
@@ -5023,7 +6952,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         required: true
         schema:
           type: string
@@ -5087,18 +7016,18 @@ paths:
       description: ''
       parameters: []
       responses:
-        404:
+        401:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No query results for model [App\Models\Client] architecto'
+                  message: 'No autorizado.'
                 properties:
                   message:
                     type: string
-                    example: 'No query results for model [App\Models\Client] architecto'
+                    example: 'No autorizado.'
       tags:
         - Endpoints
       security: []
@@ -5143,7 +7072,7 @@ paths:
         in: path
         name: client_slug
         description: 'The slug of the client.'
-        example: architecto
+        example: luis-enrique-gonzalez-ramirez
         required: true
         schema:
           type: string
@@ -5227,7 +7156,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
               required:
                 - nombre
@@ -5316,7 +7245,7 @@ paths:
                 active:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                   nullable: true
       security: []
     delete:
@@ -5333,7 +7262,7 @@ paths:
         in: path
         name: productId
         description: ''
-        example: architecto
+        example: 6aaa3a4ad95ef709410e35c7
         required: true
         schema:
           type: string
@@ -5356,7 +7285,7 @@ paths:
                 tipo:
                   type: string
                   description: ''
-                  example: entrada
+                  example: salida
                   enum:
                     - entrada
                     - salida
@@ -5378,7 +7307,7 @@ paths:
         in: path
         name: productId
         description: ''
-        example: architecto
+        example: 6aaa3a4ad95ef709410e35c7
         required: true
         schema:
           type: string
@@ -5545,7 +7474,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         required: true
         schema:
           type: string
@@ -5556,18 +7485,158 @@ paths:
       description: ''
       parameters: []
       responses:
-        404:
+        200:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: 'No query results for model [App\Models\Barber] architecto'
+                  barber:
+                    id: 6aadd78765a6ba4bd80adfc2
+                    slug: gonzalez-ramirez-luis-enrique
+                    descripcion: 'Barbero profesional de UrbanBlade.'
+                    especialidades: null
+                    foto: 'https://urbanblade-staging-uploads-209479293733.s3.us-east-1.amazonaws.com/avatars/6aab96924c163e944d0b36d5/77335daf-1099-431b-adfc-44780e9aeab1.jpg'
+                    user:
+                      id: 6aab96924c163e944d0b36d5
+                      name: 'Gonzalez Ramirez Luis Enrique'
+                  works:
+                    -
+                      id: 6ab535ef96a5df8c0a01f10e
+                      title: test
+                      description: Ejemplo
+                      images:
+                        - 'http://localhost:8000/storage/portfolio/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg'
+                  reviews:
+                    -
+                      id: 6ab88e5edcaf4f6afe0123d0
+                      rating: 3
+                      comment: 'es malo'
+                      created_at: '2026-09-26T21:32:46-06:00'
+                      client:
+                        user:
+                          name: 'Luis G.'
+                      service: 'Combo Corte + Barba'
+                  avg_rating: 3
+                  total_reviews: 1
+                  citas_completadas: 1
+                  can_review: false
+                  already_reviewed: false
+                  reviewable_services: []
                 properties:
-                  message:
-                    type: string
-                    example: 'No query results for model [App\Models\Barber] architecto'
+                  barber:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 6aadd78765a6ba4bd80adfc2
+                      slug:
+                        type: string
+                        example: gonzalez-ramirez-luis-enrique
+                      descripcion:
+                        type: string
+                        example: 'Barbero profesional de UrbanBlade.'
+                      especialidades:
+                        type: string
+                        example: null
+                        nullable: true
+                      foto:
+                        type: string
+                        example: 'https://urbanblade-staging-uploads-209479293733.s3.us-east-1.amazonaws.com/avatars/6aab96924c163e944d0b36d5/77335daf-1099-431b-adfc-44780e9aeab1.jpg'
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: 6aab96924c163e944d0b36d5
+                          name:
+                            type: string
+                            example: 'Gonzalez Ramirez Luis Enrique'
+                  works:
+                    type: array
+                    example:
+                      -
+                        id: 6ab535ef96a5df8c0a01f10e
+                        title: test
+                        description: Ejemplo
+                        images:
+                          - 'http://localhost:8000/storage/portfolio/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 6ab535ef96a5df8c0a01f10e
+                        title:
+                          type: string
+                          example: test
+                        description:
+                          type: string
+                          example: Ejemplo
+                        images:
+                          type: array
+                          example:
+                            - 'http://localhost:8000/storage/portfolio/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg'
+                          items:
+                            type: string
+                  reviews:
+                    type: array
+                    example:
+                      -
+                        id: 6ab88e5edcaf4f6afe0123d0
+                        rating: 3
+                        comment: 'es malo'
+                        created_at: '2026-09-26T21:32:46-06:00'
+                        client:
+                          user:
+                            name: 'Luis G.'
+                        service: 'Combo Corte + Barba'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 6ab88e5edcaf4f6afe0123d0
+                        rating:
+                          type: integer
+                          example: 3
+                        comment:
+                          type: string
+                          example: 'es malo'
+                        created_at:
+                          type: string
+                          example: '2026-09-26T21:32:46-06:00'
+                        client:
+                          type: object
+                          properties:
+                            user:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                  example: 'Luis G.'
+                        service:
+                          type: string
+                          example: 'Combo Corte + Barba'
+                  avg_rating:
+                    type: integer
+                    example: 3
+                  total_reviews:
+                    type: integer
+                    example: 1
+                  citas_completadas:
+                    type: integer
+                    example: 1
+                  can_review:
+                    type: boolean
+                    example: false
+                  already_reviewed:
+                    type: boolean
+                    example: false
+                  reviewable_services:
+                    type: array
+                    example: []
       tags:
         - Endpoints
       security: []
@@ -5576,7 +7645,7 @@ paths:
         in: path
         name: barber_slug
         description: 'The slug of the barber.'
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         required: true
         schema:
           type: string
@@ -5705,7 +7774,7 @@ paths:
                 helpful:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
               required:
                 - message
                 - response
@@ -5949,7 +8018,7 @@ paths:
                 provider:
                   type: string
                   description: ''
-                  example: expo
+                  example: fcm
                   enum:
                     - expo
                     - fcm
@@ -6114,11 +8183,11 @@ paths:
               schema:
                 type: object
                 example:
-                  message: 'No query results for model [App\Models\Appointment] architecto'
+                  message: ''
                 properties:
                   message:
                     type: string
-                    example: 'No query results for model [App\Models\Appointment] architecto'
+                    example: ''
       tags:
         - 'Gestión de cita por enlace'
       security: []
@@ -6127,7 +8196,7 @@ paths:
         in: path
         name: appointment_code
         description: ''
-        example: architecto
+        example: fxp9vtie
         required: true
         schema:
           type: string
@@ -6146,7 +8215,7 @@ paths:
         in: path
         name: appointment_code
         description: ''
-        example: architecto
+        example: fxp9vtie
         required: true
         schema:
           type: string
@@ -6183,7 +8252,7 @@ paths:
         in: path
         name: appointment_code
         description: ''
-        example: architecto
+        example: fxp9vtie
         required: true
         schema:
           type: string
@@ -6531,7 +8600,7 @@ paths:
                 activo:
                   type: boolean
                   description: ''
-                  example: false
+                  example: true
                   nullable: true
       security: []
     delete:
@@ -6548,7 +8617,7 @@ paths:
         in: path
         name: product_id
         description: 'The ID of the product.'
-        example: architecto
+        example: 6aaa3a4ad95ef709410e35c7
         required: true
         schema:
           type: string
@@ -6567,7 +8636,7 @@ paths:
         in: path
         name: product_id
         description: 'The ID of the product.'
-        example: architecto
+        example: 6aaa3a4ad95ef709410e35c7
         required: true
         schema:
           type: string
@@ -6694,7 +8763,7 @@ paths:
                 fecha:
                   type: string
                   description: 'El campo value no es una fecha válida.'
-                  example: '2026-10-05T01:06:05'
+                  example: '2026-10-08T13:59:37'
                   nullable: true
               required:
                 - product_id
@@ -6768,7 +8837,7 @@ paths:
         in: path
         name: waitlist_id
         description: 'The ID of the waitlist.'
-        example: architecto
+        example: 6aaa3ba8aff2bc58c30245ec
         required: true
         schema:
           type: string
@@ -7087,6 +9156,7 @@ paths:
                       last4: '4242'
                       exp_month: 12
                       exp_year: 2032
+                      holder: 'LUIS GONZALEZ'
                 properties:
                   data:
                     type: array
@@ -7097,6 +9167,7 @@ paths:
                         last4: '4242'
                         exp_month: 12
                         exp_year: 2032
+                        holder: 'LUIS GONZALEZ'
                     items:
                       type: object
                       properties:
@@ -7115,6 +9186,9 @@ paths:
                         exp_year:
                           type: integer
                           example: 2032
+                        holder:
+                          type: string
+                          example: 'LUIS GONZALEZ'
       tags:
         - Pagos
   /api/v1/packages/catalog:
@@ -7414,7 +9488,7 @@ paths:
         in: path
         name: work_id
         description: 'The ID of the work.'
-        example: architecto
+        example: 6aaa3b0dd95ef709410e382b
         required: true
         schema:
           type: string

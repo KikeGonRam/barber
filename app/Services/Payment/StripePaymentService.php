@@ -4,6 +4,7 @@ namespace App\Services\Payment;
 
 use App\Models\Client;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Stripe\Invoice;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
@@ -91,6 +92,45 @@ class StripePaymentService
         $client->update(['stripe_customer_id' => $customerId]);
 
         return $customerId;
+    }
+
+    /**
+     * Cobra sin que el cliente esté presente (cargo por inasistencia) a la primera tarjeta guardada de su
+     * Customer. Devuelve el id del PaymentIntent si el cobro quedó confirmado, o null si no hay tarjeta guardada
+     * o Stripe lo rechazó/pidió autenticación: en ese caso el cargo queda como adeudo, nunca se pierde.
+     *
+     * @param  array<string, string>  $metadata  No debe llevar `appointment_id`: el webhook lo trataría como un cobro de cita.
+     */
+    public function chargeSavedCard(Client $client, float $amount, array $metadata = []): ?string
+    {
+        $customerId = $client->getAttribute('stripe_customer_id');
+        if (! $customerId || $amount <= 0) {
+            return null;
+        }
+
+        try {
+            $methods = $this->client()->paymentMethods->all(['customer' => (string) $customerId, 'type' => 'card', 'limit' => 1]);
+            $method = $methods->data[0] ?? null;
+            if ($method === null) {
+                return null;
+            }
+
+            $intent = $this->client()->paymentIntents->create([
+                'amount' => (int) round($amount * 100),
+                'currency' => 'mxn',
+                'customer' => (string) $customerId,
+                'payment_method' => $method->id,
+                'off_session' => true,
+                'confirm' => true,
+                'metadata' => $metadata,
+            ]);
+
+            return $intent->status === 'succeeded' ? (string) $intent->id : null;
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo cobrar el cargo por inasistencia a la tarjeta guardada.', ['error' => $e->getMessage()]);
+
+            return null;
+        }
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Services\Appointment\AppointmentStatusService;
+use App\Services\Appointment\ServiceStartGuard;
 use App\Support\UploadedImage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -15,6 +16,9 @@ class AppointmentResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $confirmada = $this->resource->getAttribute('estado') === 'confirmada';
+        $startReason = $confirmada ? app(ServiceStartGuard::class)->reasonCannotStart($this->resource) : null;
+
         return [
             'id' => $this->id,
             'code' => $this->code,
@@ -30,6 +34,15 @@ class AppointmentResource extends JsonResource
             // Resource simplemente no incluyen estos dos campos.
             'has_payment' => $this->when(isset($this->payments_count), fn () => $this->payments_count > 0),
             'is_chargeable' => $this->when(isset($this->payments_count), fn () => in_array($this->estado, AppointmentStatusService::CHARGEABLE, true)),
+            // Reglas para iniciar el servicio (ServiceStartGuard), solo en citas confirmadas: las apps
+            // deshabilitan «Iniciar» y muestran el motivo en vez de dejar que el servidor responda 422.
+            // Siempre presentes (null fuera de «confirmada») para que el contrato de la API sea estable.
+            'pago_resuelto' => $confirmada ? app(ServiceStartGuard::class)->isPaymentResolved($this->resource) : null,
+            'puede_iniciar' => $confirmada ? $startReason === null : null,
+            'motivo_no_iniciar' => $startReason,
+            // Servicio en curso: fin estimado (con el tiempo extra) y minutos agregados; null en otros estados.
+            'fin_estimado' => $this->resource->getAttribute('estado') === 'en_proceso' ? $this->resource->expectedServiceEnd()?->toIso8601String() : null,
+            'minutos_extra' => $this->resource->getAttribute('estado') === 'en_proceso' ? (int) $this->resource->getAttribute('minutos_extra') : null,
             // La app administrativa muestra el estado real del flujo de
             // recordatorios sin exponer fechas internas ni datos del canal.
             'reminder_24h_sent' => $this->resource->getAttribute('reminder_24h_sent_at') !== null,

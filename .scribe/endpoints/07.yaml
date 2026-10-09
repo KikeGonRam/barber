@@ -51,6 +51,11 @@ endpoints:
                       "propina_sugerida": 25,
                       "has_payment": false,
                       "is_chargeable": true,
+                      "pago_resuelto": false,
+                      "puede_iniciar": false,
+                      "motivo_no_iniciar": "El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.",
+                      "fin_estimado": null,
+                      "minutos_extra": null,
                       "reminder_24h_sent": false,
                       "reminder_2h_sent": false,
                       "deposito_requerido": true,
@@ -100,6 +105,11 @@ endpoints:
                       "propina_sugerida": 25,
                       "has_payment": false,
                       "is_chargeable": true,
+                      "pago_resuelto": false,
+                      "puede_iniciar": false,
+                      "motivo_no_iniciar": "El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.",
+                      "fin_estimado": null,
+                      "minutos_extra": null,
                       "reminder_24h_sent": false,
                       "reminder_2h_sent": false,
                       "deposito_requerido": true,
@@ -144,6 +154,11 @@ endpoints:
                   "notas": "Traer foto de referencia.",
                   "precio_cobrado": 250,
                   "propina_sugerida": 25,
+                  "pago_resuelto": false,
+                  "puede_iniciar": false,
+                  "motivo_no_iniciar": "El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.",
+                  "fin_estimado": null,
+                  "minutos_extra": null,
                   "reminder_24h_sent": false,
                   "reminder_2h_sent": false,
                   "deposito_requerido": true,
@@ -405,6 +420,17 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      acepta_cargo_inasistencia:
+        custom: []
+        name: acepta_cargo_inasistencia
+        description: 'El cliente acepta el cargo por inasistencia (NoShowFeeService) en el último paso de la reserva.'
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
       'productos[].product_id':
         custom: []
         name: 'productos[].product_id'
@@ -461,6 +487,7 @@ endpoints:
           cantidad: 1
       propina_sugerida: 84
       pagar_ahora: true
+      acepta_cargo_inasistencia: false
       client_id: 6710a1b2c3d4e5f607182931
       estado: confirmada
     fileParameters: []
@@ -481,6 +508,11 @@ endpoints:
                   "notas": "Traer foto de referencia.",
                   "precio_cobrado": 250,
                   "propina_sugerida": 25,
+                  "pago_resuelto": null,
+                  "puede_iniciar": null,
+                  "motivo_no_iniciar": null,
+                  "fin_estimado": null,
+                  "minutos_extra": null,
                   "reminder_24h_sent": false,
                   "reminder_2h_sent": false,
                   "deposito_requerido": false,
@@ -578,14 +610,14 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: architecto
+        example: fxp9vtie
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: architecto
+      appointment_code: fxp9vtie
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -627,7 +659,7 @@ endpoints:
         name: fecha
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-28'
+        example: '2052-10-31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -638,7 +670,7 @@ endpoints:
         name: hora_inicio
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '01:06'
+        example: '13:59'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -649,7 +681,7 @@ endpoints:
         name: estado
         description: ''
         required: true
-        example: cancelada
+        example: completada
         type: string
         enumValues:
           - pendiente
@@ -676,9 +708,9 @@ endpoints:
       client_id: architecto
       barber_id: architecto
       service_id: architecto
-      fecha: '2052-10-28'
-      hora_inicio: '01:06'
-      estado: cancelada
+      fecha: '2052-10-31'
+      hora_inicio: '13:59'
+      estado: completada
       notas: 'n'
     fileParameters: []
     responses: []
@@ -733,7 +765,7 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: architecto
+        example: fxp9vtie
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -751,7 +783,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: architecto
+      appointment_code: fxp9vtie
       appointment: jfb7ffye
     queryParameters: []
     cleanQueryParameters: []
@@ -842,14 +874,14 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: architecto
+        example: fxp9vtie
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: architecto
+      appointment_code: fxp9vtie
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -893,7 +925,7 @@ endpoints:
         name: period
         description: ''
         required: false
-        example: day
+        example: week
         type: string
         enumValues:
           - day
@@ -906,7 +938,7 @@ endpoints:
         name: estado
         description: ''
         required: false
-        example: confirmada
+        example: en_proceso
         type: string
         enumValues:
           - pendiente
@@ -930,8 +962,8 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      period: day
-      estado: confirmada
+      period: week
+      estado: en_proceso
       offset: -364
     fileParameters: []
     responses:

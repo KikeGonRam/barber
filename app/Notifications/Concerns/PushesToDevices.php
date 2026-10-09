@@ -37,6 +37,17 @@ trait PushesToDevices
             'type' => $type,
             'channel' => $channel,
             'route' => $route,
-        ];
+        ] + $this->pushExtras($notifiable);
+    }
+
+    /**
+     * Datos extra del push (por ejemplo `acciones` y `appointment_code` para los botones de la notificación de Android).
+     * Por defecto ninguno; cada notificación puede redefinirlo.
+     *
+     * @return array<string, string>
+     */
+    protected function pushExtras(object $notifiable): array
+    {
+        return [];
     }
 }

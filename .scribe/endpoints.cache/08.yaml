@@ -149,14 +149,14 @@ endpoints:
         name: waitlist_id
         description: 'The ID of the waitlist.'
         required: true
-        example: architecto
+        example: 6aaa3ba8aff2bc58c30245ec
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      waitlist_id: architecto
+      waitlist_id: 6aaa3ba8aff2bc58c30245ec
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []

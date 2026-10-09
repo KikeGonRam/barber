@@ -80,7 +80,8 @@ class PaymentServiceIntegrationTest extends TestCase
         Notification::fake();
         Storage::fake('receipts');
 
-        $appointment = $this->makeChargeableAppointment();
+        // Servicio en proceso: cobrarlo lo completa (una cita confirmada solo registra el pago).
+        $appointment = $this->makeChargeableAppointment(['estado' => 'en_proceso']);
 
         $payment = $this->service->create([
             'appointment_id' => (string) $appointment->id,
@@ -144,7 +145,7 @@ class PaymentServiceIntegrationTest extends TestCase
         Notification::fake();
         Storage::fake('receipts');
 
-        $appointment = $this->makeChargeableAppointment();
+        $appointment = $this->makeChargeableAppointment(['estado' => 'en_proceso']);
         $appointment->client->update(['nivel' => 'vip', 'puntos' => 100]); // 10% desc. + 100 pts disponibles
 
         $payment = $this->service->create([
@@ -505,7 +506,8 @@ class PaymentServiceIntegrationTest extends TestCase
         $this->assertSame(Payment::ESTADO_VERIFICADO, $approved->estado);
         $this->assertNotEmpty($approved->comprobante_pdf);
         Storage::disk('receipts')->assertExists($approved->comprobante_pdf);
-        $this->assertSame('completada', Appointment::find($appointment->id)->estado);
+        // Verificar la transferencia resuelve el pago; no completa la cita (la termina el barbero).
+        $this->assertSame('confirmada', Appointment::find($appointment->id)->estado);
     }
 
     public function test_approve_transfer_throws_when_already_reviewed(): void

@@ -70,7 +70,9 @@ class StripeWebhookControllerTest extends TestCase
             'fecha' => now()->addDays(2)->format('Y-m-d'),
             'hora_inicio' => '09:00:00',
             'hora_fin' => '09:30:00',
-            'estado' => 'confirmada',
+            // En proceso: cobrar un servicio ya iniciado lo completa y da los puntos. Una cita confirmada
+            // que se paga antes de iniciar solo registra el pago (ver AppointmentStartRulesTest).
+            'estado' => 'en_proceso',
         ]);
     }
 
@@ -296,6 +298,25 @@ class StripeWebhookControllerTest extends TestCase
         ]);
 
         $response->assertOk();
+    }
+
+    public function test_no_show_fee_charge_is_ignored_by_the_appointment_payment_flow(): void
+    {
+        $appointment = $this->makeChargeableAppointment();
+
+        // Aun con un appointment_id en la metadata, un cargo por inasistencia no es el cobro de la cita.
+        $response = $this->postWebhook([
+            'id' => 'evt_cargo_inasistencia',
+            'type' => 'payment_intent.succeeded',
+            'data' => ['object' => [
+                'id' => 'pi_cargo_inasistencia',
+                'metadata' => ['tipo' => 'cargo_inasistencia', 'appointment_id' => (string) $appointment->id],
+            ]],
+        ]);
+
+        $response->assertOk();
+        $this->assertSame(0, Payment::count());
+        $this->assertSame('en_proceso', $appointment->fresh()->estado);
     }
 
     public function test_unhandled_event_types_are_a_noop(): void

@@ -84,7 +84,7 @@ endpoints:
         name: date
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-28'
+        example: '2052-10-31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -93,7 +93,7 @@ endpoints:
     cleanBodyParameters:
       barber_id: architecto
       service_id: architecto
-      date: '2052-10-28'
+      date: '2052-10-31'
     fileParameters: []
     responses:
       -
@@ -335,7 +335,7 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '{"data":[]}'
+        content: '{"data":[{"id":"6aaa3a46d95ef709410e35bc","nombre":"Afeitado Cl\u00e1sico","categoria":"Barba","precio":180,"duracion_min":30,"descripcion":"Afeitado tradicional con navaja y toalla caliente.","imagen":"http:\/\/localhost:8000\/storage\/services\/OBSXla86DdParNhf0RnGAfg4HL2cdpCfcnQQnNkk.webp"},{"id":"6aaa3a46d95ef709410e35bb","nombre":"Arreglo de Barba","categoria":"Barba","precio":100,"duracion_min":15,"descripcion":"Recorte y perfilado r\u00e1pido de barba.","imagen":"http:\/\/localhost:8000\/storage\/services\/YcC3ru4tjNMf4OkBKmzAT9TiQoSVS3NzvDDd85Tp.jpg"},{"id":"6aaa3a46d95ef709410e35bd","nombre":"Combo Corte + Barba","categoria":"Combos","precio":320,"duracion_min":60,"descripcion":"Paquete completo de corte y arreglo de barba.","imagen":"http:\/\/localhost:8000\/storage\/services\/dy5873ujL0jLV7lmPThhS0vsM4kC6BTcXh4ReftD.jpg"},{"id":"6aaa3a47d95ef709410e35be","nombre":"Combo Premium","categoria":"Combos","precio":450,"duracion_min":75,"descripcion":"Corte, barba, tratamiento capilar y toalla caliente.","imagen":"http:\/\/localhost:8000\/storage\/services\/Syot8UweGG8qNu47uzcNcBxtwa3o7A0ZzA4TA5bZ.jpg"},{"id":"6aaa3a43d95ef709410e35b3","nombre":"Corte Cl\u00e1sico","categoria":"Cortes","precio":180,"duracion_min":30,"descripcion":"Corte de cabello tradicional con tijera y m\u00e1quina, acabado prolijo.","imagen":"http:\/\/localhost:8000\/storage\/services\/FdATpKjZg0K5RWA42p978vXgRig5q722RpSdc8bh.jpg"},{"id":"6aaa3a45d95ef709410e35b9","nombre":"Corte Infantil","categoria":"Cortes","precio":150,"duracion_min":25,"descripcion":"Corte para ni\u00f1os, ambiente relajado y paciente.","imagen":"http:\/\/localhost:8000\/storage\/services\/LSkeehcKQeM2Uu0UPkYqEfl45MoyMt6Ul9H0cVXs.jpg"},{"id":"6aaa3a45d95ef709410e35b8","nombre":"Corte Mohicano","categoria":"Cortes","precio":260,"duracion_min":45,"descripcion":"Cresta central marcada con laterales rapados.","imagen":"http:\/\/localhost:8000\/storage\/services\/j4JvHxOdgDjCB8455h4zpUjda3nIDJuZB2uHgLrT.jpg"},{"id":"6aaa3a49d95ef709410e35c3","nombre":"Corte a Navaja","categoria":"Cortes","precio":260,"duracion_min":40,"descripcion":"Corte completo trabajado enteramente a navaja.","imagen":"http:\/\/localhost:8000\/storage\/services\/vYPyy5B6SMEmorRv9fKiyPHPsmj4VLikZXpWvcgv.jpg"},{"id":"6aaa3a45d95ef709410e35ba","nombre":"Dise\u00f1o de Barba","categoria":"Barba","precio":150,"duracion_min":25,"descripcion":"Perfilado y dise\u00f1o de barba con navaja.","imagen":"http:\/\/localhost:8000\/storage\/services\/her9jzuzKKrSixaLq9yZuDgnrHp5xypfCHMEX87K.jpg"},{"id":"6aaa3a48d95ef709410e35c2","nombre":"Keratina Express","categoria":"Tratamientos","precio":350,"duracion_min":50,"descripcion":"Alisado ligero con keratina, brillo inmediato.","imagen":"http:\/\/localhost:8000\/storage\/services\/eFUUmGJD7PGLfYGqkz7T0QTsBBYr8WcBNpsft3iM.jpg"},{"id":"6aaa3a48d95ef709410e35c1","nombre":"Perfilado de Cejas","categoria":"Tratamientos","precio":90,"duracion_min":15,"descripcion":"Dise\u00f1o y limpieza de cejas con navaja o pinza.","imagen":"http:\/\/localhost:8000\/storage\/services\/p0PTL1D81mmPq1pL1pqCWUK6gqIr34JH36HZ8bu5.webp"},{"id":"6aaa3a44d95ef709410e35b7","nombre":"Pompadour","categoria":"Cortes","precio":240,"duracion_min":45,"descripcion":"Corte con volumen frontal peinado hacia atr\u00e1s.","imagen":null},{"id":"6aaa3a49d95ef709410e35c4","nombre":"Rapado Total","categoria":"Cortes","precio":130,"duracion_min":20,"descripcion":"Rapado uniforme de toda la cabeza.","imagen":null},{"id":"6aaa3a4ad95ef709410e35c6","nombre":"Retoque Express","categoria":"Cortes","precio":120,"duracion_min":15,"descripcion":"Retoque r\u00e1pido de contornos entre cortes.","imagen":null},{"id":"6aaa3a44d95ef709410e35b5","nombre":"Skin Fade","categoria":"Cortes","precio":250,"duracion_min":45,"descripcion":"Degradado a piel, look moderno y muy definido.","imagen":null},{"id":"6aaa3a4ad95ef709410e35c5","nombre":"Spa Capilar","categoria":"Tratamientos","precio":300,"duracion_min":40,"descripcion":"Masaje, mascarilla y limpieza profunda del cabello.","imagen":null},{"id":"6aaa3a43d95ef709410e35b4","nombre":"Taper Fade","categoria":"Cortes","precio":220,"duracion_min":40,"descripcion":"Degradado progresivo en los laterales con transici\u00f3n suave.","imagen":null},{"id":"6aaa3a47d95ef709410e35c0","nombre":"Tinte \/ Color","categoria":"Tratamientos","precio":380,"duracion_min":60,"descripcion":"Coloraci\u00f3n completa o mechas seg\u00fan preferencia.","imagen":null},{"id":"6aaa3a47d95ef709410e35bf","nombre":"Tratamiento Capilar","categoria":"Tratamientos","precio":280,"duracion_min":35,"descripcion":"Hidrataci\u00f3n y nutrici\u00f3n profunda del cuero cabelludo.","imagen":null},{"id":"6aaa3a44d95ef709410e35b6","nombre":"Undercut","categoria":"Cortes","precio":230,"duracion_min":40,"descripcion":"Rapado en laterales con volumen conservado arriba.","imagen":null}]}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -375,7 +375,7 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '{"data":[]}'
+        content: '{"data":[{"id":"6aadd78765a6ba4bd80adfc2","slug":"gonzalez-ramirez-luis-enrique","user":{"id":"6aab96924c163e944d0b36d5","name":"Gonzalez Ramirez Luis Enrique"},"especialidades":"","descripcion":"Barbero profesional de UrbanBlade.","foto":"https:\/\/urbanblade-staging-uploads-209479293733.s3.us-east-1.amazonaws.com\/avatars\/6aab96924c163e944d0b36d5\/77335daf-1099-431b-adfc-44780e9aeab1.jpg","activo":true,"avg_rating":3,"total_reviews":1,"citas_conmigo":null,"es_favorito":false}]}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -419,7 +419,7 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '{"data":[]}'
+        content: '{"data":[{"id":"6aaa3a51d95ef709410e35d9","nombre":"Aceite de Barba Premium","categoria":"Barba","descripcion":"Aceite de Barba Premium \u2014 producto profesional UrbanBlade.","precio_venta":200,"stock_actual":4,"imagen":"http:\/\/localhost:8000\/storage\/products\/ldHXKkwwr7h14r9EQ73jaaezDCfhwxUoT7LM7TMD.jpg"},{"id":"6aaa3a4fd95ef709410e35d5","nombre":"Acondicionador Hidratante","categoria":"Cuidado Capilar","descripcion":"Acondicionador Hidratante \u2014 producto profesional UrbanBlade.","precio_venta":160,"stock_actual":29,"imagen":null},{"id":"6aaa3a53d95ef709410e35df","nombre":"Aftershave Refrescante","categoria":"Afeitado","descripcion":"Aftershave Refrescante \u2014 producto profesional UrbanBlade.","precio_venta":140,"stock_actual":52,"imagen":null},{"id":"6aaa3a4dd95ef709410e35cd","nombre":"Arcilla Modeladora","categoria":"Styling","descripcion":"Arcilla Modeladora \u2014 producto profesional UrbanBlade.","precio_venta":160,"stock_actual":57,"imagen":null},{"id":"6aaa3a51d95ef709410e35db","nombre":"Balsamo de Barba","categoria":"Barba","descripcion":"Balsamo de Barba \u2014 producto profesional UrbanBlade.","precio_venta":180,"stock_actual":22,"imagen":null},{"id":"6aaa3a56d95ef709410e35e9","nombre":"Cepillo para Barba","categoria":"Accesorios","descripcion":"Cepillo para Barba \u2014 producto profesional UrbanBlade.","precio_venta":110,"stock_actual":12,"imagen":null},{"id":"6aaa3a4ad95ef709410e35c7","nombre":"Cera Mate Fijacion Fuerte","categoria":"Styling","descripcion":"Cera Mate Fijacion Fuerte \u2014 producto profesional UrbanBlade.","precio_venta":150,"stock_actual":25,"imagen":null},{"id":"6aaa3a5ed95ef709410e35ff","nombre":"Colonia UrbanBlade Signature","categoria":"Fragancias","descripcion":"Colonia UrbanBlade Signature \u2014 producto profesional UrbanBlade.","precio_venta":420,"stock_actual":5,"imagen":null},{"id":"6aaa3a54d95ef709410e35e1","nombre":"Crema de Afeitar Clasica","categoria":"Afeitado","descripcion":"Crema de Afeitar Clasica \u2014 producto profesional UrbanBlade.","precio_venta":120,"stock_actual":26,"imagen":null},{"id":"6aaa3a4cd95ef709410e35cb","nombre":"Gel Fijador Extra Fuerte","categoria":"Styling","descripcion":"Gel Fijador Extra Fuerte \u2014 producto profesional UrbanBlade.","precio_venta":110,"stock_actual":8,"imagen":null},{"id":"6aaa3a5dd95ef709410e35fb","nombre":"Jabon de Barba Artesanal","categoria":"Barba","descripcion":"Jabon de Barba Artesanal \u2014 producto profesional UrbanBlade.","precio_venta":125,"stock_actual":11,"imagen":null},{"id":"6aaa3a52d95ef709410e35dd","nombre":"Kit Aceite y Balsamo de Barba","categoria":"Barba","descripcion":"Kit Aceite y Balsamo de Barba \u2014 producto profesional UrbanBlade.","precio_venta":320,"stock_actual":34,"imagen":null},{"id":"6aaa3a54d95ef709410e35e3","nombre":"Locion Post Afeitado","categoria":"Afeitado","descripcion":"Locion Post Afeitado \u2014 producto profesional UrbanBlade.","precio_venta":130,"stock_actual":10,"imagen":null},{"id":"6aaa3a50d95ef709410e35d7","nombre":"Mascarilla Capilar Nutritiva","categoria":"Cuidado Capilar","descripcion":"Mascarilla Capilar Nutritiva \u2014 producto profesional UrbanBlade.","precio_venta":210,"stock_actual":9,"imagen":null},{"id":"6aaa3a55d95ef709410e35e5","nombre":"Navajas de Afeitar (5 pzas)","categoria":"Afeitado","descripcion":"Navajas de Afeitar (5 pzas) \u2014 producto profesional UrbanBlade.","precio_venta":95,"stock_actual":38,"imagen":null},{"id":"6aaa3a55d95ef709410e35e7","nombre":"Peine de Madera","categoria":"Accesorios","descripcion":"Peine de Madera \u2014 producto profesional UrbanBlade.","precio_venta":90,"stock_actual":58,"imagen":null},{"id":"6aaa3a4bd95ef709410e35c9","nombre":"Pomada Brillante Clasica","categoria":"Styling","descripcion":"Pomada Brillante Clasica \u2014 producto profesional UrbanBlade.","precio_venta":140,"stock_actual":19,"imagen":null},{"id":"6aaa3a5cd95ef709410e35f9","nombre":"Serum Brillo Instantaneo","categoria":"Styling","descripcion":"Serum Brillo Instantaneo \u2014 producto profesional UrbanBlade.","precio_venta":165,"stock_actual":57,"imagen":null},{"id":"6aaa3a5dd95ef709410e35fd","nombre":"Set de Viaje Grooming","categoria":"Accesorios","descripcion":"Set de Viaje Grooming \u2014 producto profesional UrbanBlade.","precio_venta":350,"stock_actual":29,"imagen":null},{"id":"6aaa3a4ed95ef709410e35d1","nombre":"Shampoo Anticaida","categoria":"Cuidado Capilar","descripcion":"Shampoo Anticaida \u2014 producto profesional UrbanBlade.","precio_venta":180,"stock_actual":23,"imagen":null},{"id":"6aaa3a4fd95ef709410e35d3","nombre":"Shampoo Carbon Activado","categoria":"Cuidado Capilar","descripcion":"Shampoo Carbon Activado \u2014 producto profesional UrbanBlade.","precio_venta":170,"stock_actual":38,"imagen":null},{"id":"6aaa3a4dd95ef709410e35cf","nombre":"Spray Fijador Profesional","categoria":"Styling","descripcion":"Spray Fijador Profesional \u2014 producto profesional UrbanBlade.","precio_venta":130,"stock_actual":47,"imagen":null},{"id":"6aaa3a5ad95ef709410e35f5","nombre":"Talco Refrescante","categoria":"Afeitado","descripcion":"Talco Refrescante \u2014 producto profesional UrbanBlade.","precio_venta":95,"stock_actual":40,"imagen":null},{"id":"6ab70e856688e1bd7b0103dd","nombre":"Test","categoria":"Test","descripcion":"Etgdb","precio_venta":200,"stock_actual":15,"imagen":"http:\/\/localhost:8000\/storage\/products\/jJT13Q4rBMwzzX5MGnAiMy2OwLlqLWseWRKSyFWl.jpg"},{"id":"6aaa3a57d95ef709410e35eb","nombre":"Toalla Facial Premium","categoria":"Accesorios","descripcion":"Toalla Facial Premium \u2014 producto profesional UrbanBlade.","precio_venta":140,"stock_actual":27,"imagen":null},{"id":"6aaa3a5bd95ef709410e35f7","nombre":"Tonico Capilar Anticaspa","categoria":"Cuidado Capilar","descripcion":"Tonico Capilar Anticaspa \u2014 producto profesional UrbanBlade.","precio_venta":150,"stock_actual":6,"imagen":null}]}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -480,7 +480,7 @@ endpoints:
         name: date
         description: 'El campo value no es una fecha válida. El campo value debe ser una fecha posterior o igual a <code>today</code>.'
         required: true
-        example: '2052-10-28'
+        example: '2052-10-31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -489,7 +489,7 @@ endpoints:
     cleanBodyParameters:
       barber_id: architecto
       service_id: architecto
-      date: '2052-10-28'
+      date: '2052-10-31'
     fileParameters: []
     responses:
       -
@@ -539,7 +539,7 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '{"data":[],"meta":{"current_page":1,"last_page":1,"total":0}}'
+        content: '{"data":[{"id":"6ab535ef96a5df8c0a01f10e","title":"test","description":"Ejemplo","work_date":"2026-09-24","barber":{"id":"6aab96924c163e944d0b36d5","name":"Gonzalez Ramirez Luis Enrique","slug":"gonzalez-ramirez-luis-enrique","foto":null},"images":["http:\/\/localhost:8000\/storage\/portfolio\/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg"],"media":[{"url":"http:\/\/localhost:8000\/storage\/portfolio\/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg","type":"image"}],"reactions_count":2,"comments_count":0,"saved_count":0,"is_reacted":false,"is_saved":false,"comments":[]},{"id":"6aaa3b11d95ef709410e3841","title":"Degradado quirurgico","description":"Transformando looks, un cliente a la vez.","work_date":"2025-11-29","barber":{"id":null,"name":null,"slug":null,"foto":null},"images":["https:\/\/images.unsplash.com\/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85"],"media":[{"url":"https:\/\/images.unsplash.com\/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"}],"reactions_count":21,"comments_count":3,"saved_count":0,"is_reacted":false,"is_saved":false,"comments":[{"id":"6aaa3b12d95ef709410e3898","comment":"Se ve buenisimo, recomendado al 100%.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"},{"id":"6aaa3b12d95ef709410e3899","comment":"Ya quiero mi cita para que me dejen asi.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"},{"id":"6aaa3b12d95ef709410e3897","comment":"Un artista con las tijeras.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"}]},{"id":"6aaa3b11d95ef709410e3840","title":"Fade limpio de la semana","description":"Cada corte cuenta una historia. Este es el resultado de hoy.","work_date":"2026-06-25","barber":{"id":null,"name":null,"slug":null,"foto":null},"images":["https:\/\/images.unsplash.com\/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85"],"media":[{"url":"https:\/\/images.unsplash.com\/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"}],"reactions_count":11,"comments_count":3,"saved_count":0,"is_reacted":false,"is_saved":false,"comments":[{"id":"6aaa3b12d95ef709410e3895","comment":"Vengo desde hace a\u00f1os y nunca falla.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"},{"id":"6aaa3b12d95ef709410e3896","comment":"Vengo desde hace a\u00f1os y nunca falla.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"},{"id":"6aaa3b12d95ef709410e3894","comment":"Trabajo limpio y profesional.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"}]},{"id":"6aaa3b11d95ef709410e383f","title":"Estilo moderno urbano","description":"Transformando looks, un cliente a la vez.","work_date":"2026-01-01","barber":{"id":null,"name":null,"slug":null,"foto":null},"images":["https:\/\/images.unsplash.com\/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85"],"media":[{"url":"https:\/\/images.unsplash.com\/photo-1560250097-0b93528c311a?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"}],"reactions_count":18,"comments_count":1,"saved_count":0,"is_reacted":false,"is_saved":false,"comments":[{"id":"6aaa3b12d95ef709410e3893","comment":"Vengo desde hace a\u00f1os y nunca falla.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"}]},{"id":"6aaa3b11d95ef709410e383e","title":"Degradado quirurgico","description":"Cada corte cuenta una historia. Este es el resultado de hoy.","work_date":"2026-08-21","barber":{"id":null,"name":null,"slug":null,"foto":null},"images":["https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85"],"media":[{"url":"https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"}],"reactions_count":10,"comments_count":3,"saved_count":0,"is_reacted":false,"is_saved":false,"comments":[{"id":"6aaa3b12d95ef709410e3890","comment":"Que nivel de detalle, impresionante.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"},{"id":"6aaa3b12d95ef709410e3891","comment":"Que precision en el degradado.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"},{"id":"6aaa3b12d95ef709410e3892","comment":"Que precision en el degradado.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"}]},{"id":"6aaa3b11d95ef709410e383d","title":"Precision en cada linea","description":"Cada corte cuenta una historia. Este es el resultado de hoy.","work_date":"2025-07-24","barber":{"id":null,"name":null,"slug":null,"foto":null},"images":["https:\/\/images.unsplash.com\/photo-1599351431202-1e0f0137899a?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85"],"media":[{"url":"https:\/\/images.unsplash.com\/photo-1599351431202-1e0f0137899a?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"}],"reactions_count":20,"comments_count":2,"saved_count":0,"is_reacted":false,"is_saved":false,"comments":[{"id":"6aaa3b12d95ef709410e388f","comment":"El mejor barbero de la zona, sin duda.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"},{"id":"6aaa3b12d95ef709410e388e","comment":"Que precision en el degradado.","user":{"name":null},"created_at":"2026-09-16T00:45:38-06:00"}]},{"id":"6aaa3b10d95ef709410e383c","title":"Corte clasico con estilo","description":"Trabajo minucioso, resultado impecable. Agenda tu cita.","work_date":"2025-04-13","barber":{"id":null,"name":null,"slug":null,"foto":null},"images":["https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1585747860715-2ba37e788b70?w=900&h=1100&auto=format&fit=crop&q=85"],"media":[{"url":"https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1580618672591-eb180b1a973f?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1585747860715-2ba37e788b70?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"}],"reactions_count":5,"comments_count":0,"saved_count":0,"is_reacted":false,"is_saved":false,"comments":[]},{"id":"6aaa3b10d95ef709410e383b","title":"Look renovado para el finde","description":"Otro cliente satisfecho saliendo con estilo de UrbanBlade.","work_date":"2025-12-02","barber":{"id":null,"name":null,"slug":null,"foto":null},"images":["https:\/\/images.unsplash.com\/photo-1507003211169-0a1dd7228f2d?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85"],"media":[{"url":"https:\/\/images.unsplash.com\/photo-1507003211169-0a1dd7228f2d?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1503951914875-452162b0f3f1?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1605497787928-40e1c74e4e74?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"}],"reactions_count":0,"comments_count":0,"saved_count":0,"is_reacted":false,"is_saved":false,"comments":[]},{"id":"6aaa3b10d95ef709410e383a","title":"Transformacion total","description":"Trabajo minucioso, resultado impecable. Agenda tu cita.","work_date":"2026-01-17","barber":{"id":null,"name":null,"slug":null,"foto":null},"images":["https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1519345182560-3f2917c472ef?w=900&h=1100&auto=format&fit=crop&q=85"],"media":[{"url":"https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1519345182560-3f2917c472ef?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"}],"reactions_count":20,"comments_count":0,"saved_count":0,"is_reacted":false,"is_saved":false,"comments":[]},{"id":"6aaa3b10d95ef709410e3839","title":"Trabajo de detalle","description":null,"work_date":"2026-07-15","barber":{"id":null,"name":null,"slug":null,"foto":null},"images":["https:\/\/images.unsplash.com\/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1621605815971-fbc98d665033?w=900&h=1100&auto=format&fit=crop&q=85","https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85"],"media":[{"url":"https:\/\/images.unsplash.com\/photo-1534297635766-a262cdcb8ee4?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1621605815971-fbc98d665033?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"},{"url":"https:\/\/images.unsplash.com\/photo-1592647420148-bfcc177e2117?w=900&h=1100&auto=format&fit=crop&q=85","type":"image"}],"reactions_count":0,"comments_count":0,"saved_count":0,"is_reacted":false,"is_saved":false,"comments":[]}],"meta":{"current_page":1,"last_page":3,"total":24}}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -643,6 +643,154 @@ endpoints:
       Accept: application/json
     urlParameters: []
     cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/appointments/{appointment_code}/extend'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Agregar tiempo al servicio en curso'
+      description: |-
+        El barbero de la cita (o recepción/administración) agrega minutos a un servicio en proceso. Si el nuevo fin
+        choca con la siguiente cita responde 422 con `choca_con`; repetir con `forzar=true` extiende de todos modos y
+        avisa al siguiente cliente.
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      appointment_code:
+        custom: []
+        name: appointment_code
+        description: ''
+        required: true
+        example: fxp9vtie
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      appointment:
+        custom: []
+        name: appointment
+        description: 'Código público de la cita.'
+        required: true
+        example: jfb7ffye
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_code: fxp9vtie
+      appointment: jfb7ffye
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      minutos:
+        custom: []
+        name: minutos
+        description: 'Minutos a agregar (10, 15, 20 o 30).'
+        required: true
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      forzar:
+        custom: []
+        name: forzar
+        description: 'Extender aunque choque con la siguiente cita.'
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      minutos: 10
+      forzar: false
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/appointments/{appointment_code}/ticket'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Ticket de una cita completada'
+      description: |-
+        Resumen del servicio y del pago (monto, propina, depósito aplicado, método) con el enlace temporal al
+        comprobante en PDF. Lo ve el cliente dueño de la cita, su barbero y el personal.
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      appointment_code:
+        custom: []
+        name: appointment_code
+        description: ''
+        required: true
+        example: fxp9vtie
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      appointment:
+        custom: []
+        name: appointment
+        description: 'Código público de la cita.'
+        required: true
+        example: jfb7ffye
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      appointment_code: fxp9vtie
+      appointment: jfb7ffye
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -803,14 +951,14 @@ endpoints:
         name: order_id
         description: 'The ID of the order.'
         required: true
-        example: architecto
+        example: 6aaa3afed95ef709410e3803
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      order_id: architecto
+      order_id: 6aaa3afed95ef709410e3803
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -890,14 +1038,14 @@ endpoints:
         name: payment_id
         description: 'The ID of the payment.'
         required: true
-        example: architecto
+        example: 6aaa3af6d95ef709410e37b3
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      payment_id: architecto
+      payment_id: 6aaa3af6d95ef709410e37b3
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -906,11 +1054,8 @@ endpoints:
     responses:
       -
         custom: []
-        status: 404
-        content: |-
-          {
-              "message": "No query results for model [App\\Models\\Payment] architecto"
-          }
+        status: 401
+        content: '{"message":"No autorizado."}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -1011,7 +1156,7 @@ endpoints:
         name: guardar_tarjeta
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1033,7 +1178,7 @@ endpoints:
       puntos_canjeados: 39
       codigo_gift_card: gzmiyvdljnikhway
       propina: 62
-      guardar_tarjeta: true
+      guardar_tarjeta: false
       tarjeta_guardada: false
     fileParameters: []
     responses: []
@@ -1071,7 +1216,7 @@ endpoints:
         name: appointment_code
         description: ''
         required: true
-        example: architecto
+        example: fxp9vtie
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1089,7 +1234,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      appointment_code: architecto
+      appointment_code: fxp9vtie
       appointment: jfb7ffye
     queryParameters: []
     cleanQueryParameters: []
@@ -1129,6 +1274,72 @@ endpoints:
   -
     custom: []
     httpMethods:
+      - GET
+    uri: api/v1/no-show-fees
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Listar cargos por inasistencia'
+      description: |-
+        Cliente: los suyos (con el total adeudado). Recepción/administración: por estado (pendiente por defecto) y,
+        opcionalmente, de un cliente.
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      estado:
+        custom: []
+        name: estado
+        description: 'pendiente|pagado|condonado (solo personal).'
+        required: false
+        example: pendiente
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      client_id:
+        custom: []
+        name: client_id
+        description: 'Filtra por cliente (solo personal).'
+        required: false
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      estado: pendiente
+      client_id: architecto
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"No autorizado."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
       - PATCH
     uri: 'api/v1/orders/{order_id}/deliver'
     metadata:
@@ -1150,14 +1361,14 @@ endpoints:
         name: order_id
         description: 'The ID of the order.'
         required: true
-        example: architecto
+        example: 6aaa3afed95ef709410e3803
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      order_id: architecto
+      order_id: 6aaa3afed95ef709410e3803
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -1166,7 +1377,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: tarjeta
+        example: transferencia
         type: string
         enumValues:
           - efectivo
@@ -1176,7 +1387,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      metodo_pago: tarjeta
+      metodo_pago: transferencia
     fileParameters: []
     responses: []
     responseFields: []
@@ -1212,14 +1423,14 @@ endpoints:
         name: order_id
         description: 'The ID of the order.'
         required: true
-        example: architecto
+        example: 6aaa3afed95ef709410e3803
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      order_id: architecto
+      order_id: 6aaa3afed95ef709410e3803
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -1228,11 +1439,8 @@ endpoints:
     responses:
       -
         custom: []
-        status: 404
-        content: |-
-          {
-              "message": "No query results for model [App\\Models\\Order] architecto"
-          }
+        status: 401
+        content: '{"message":"No autorizado."}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -1339,7 +1547,7 @@ endpoints:
         name: metodo_pago
         description: ''
         required: true
-        example: transferencia
+        example: efectivo
         type: string
         enumValues:
           - efectivo
@@ -1375,7 +1583,7 @@ endpoints:
         name: usar_premio_rifa
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1417,10 +1625,10 @@ endpoints:
     cleanBodyParameters:
       appointment_id: architecto
       monto: 4326.41688
-      metodo_pago: transferencia
+      metodo_pago: efectivo
       propina: 77
       puntos_canjeados: 8
-      usar_premio_rifa: true
+      usar_premio_rifa: false
       usar_paquete_id: architecto
       codigo_gift_card: ngzmiyvdljnikhwa
       stripe_payment_id: architecto
@@ -1457,14 +1665,14 @@ endpoints:
         name: payment_id
         description: 'The ID of the payment.'
         required: true
-        example: architecto
+        example: 6aaa3af6d95ef709410e37b3
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      payment_id: architecto
+      payment_id: 6aaa3af6d95ef709410e37b3
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -1502,14 +1710,14 @@ endpoints:
         name: payment_id
         description: 'The ID of the payment.'
         required: true
-        example: architecto
+        example: 6aaa3af6d95ef709410e37b3
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      payment_id: architecto
+      payment_id: 6aaa3af6d95ef709410e37b3
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -1557,6 +1765,49 @@ endpoints:
         name: payment_id
         description: 'The ID of the payment.'
         required: true
+        example: 6aaa3af6d95ef709410e37b3
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      payment_id: 6aaa3af6d95ef709410e37b3
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/no-show-fees/{fee_id}/pay'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Cobrar un cargo en sucursal'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      fee_id:
+        custom: []
+        name: fee_id
+        description: 'The ID of the fee.'
+        required: true
         example: architecto
         type: string
         enumValues: []
@@ -1564,11 +1815,78 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      payment_id: architecto
+      fee_id: architecto
     queryParameters: []
     cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
+    bodyParameters:
+      metodo:
+        custom: []
+        name: metodo
+        description: efectivo|transferencia.
+        required: true
+        example: efectivo
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      metodo: efectivo
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/no-show-fees/{fee_id}/waive'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Condonar un cargo (solo administración)'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      fee_id:
+        custom: []
+        name: fee_id
+        description: 'The ID of the fee.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      fee_id: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      motivo:
+        custom: []
+        name: motivo
+        description: 'Por qué se perdona el cargo.'
+        required: true
+        example: 'Cliente con emergencia médica.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      motivo: 'Cliente con emergencia médica.'
     fileParameters: []
     responses: []
     responseFields: []
@@ -1699,7 +2017,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1711,7 +2029,7 @@ endpoints:
       cantidad_usos: 22
       precio: 84
       vigencia_dias: 16
-      activo: false
+      activo: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -1745,14 +2063,14 @@ endpoints:
         name: servicePackage_id
         description: 'The ID of the servicePackage.'
         required: true
-        example: architecto
+        example: 6aaa3b1ad95ef709410e3983
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      servicePackage_id: architecto
+      servicePackage_id: 6aaa3b1ad95ef709410e3983
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -1862,14 +2180,14 @@ endpoints:
         name: servicePackage_id
         description: 'The ID of the servicePackage.'
         required: true
-        example: architecto
+        example: 6aaa3b1ad95ef709410e3983
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      servicePackage_id: architecto
+      servicePackage_id: 6aaa3b1ad95ef709410e3983
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -1996,7 +2314,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2007,7 +2325,7 @@ endpoints:
       descripcion: 'n'
       precio_mensual: 67
       descuento_pct: 16
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2044,14 +2362,14 @@ endpoints:
         name: membershipPlan_id
         description: 'The ID of the membershipPlan.'
         required: true
-        example: architecto
+        example: 6aaa3b16d95ef709410e3968
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      membershipPlan_id: architecto
+      membershipPlan_id: 6aaa3b16d95ef709410e3968
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -2104,7 +2422,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2115,7 +2433,7 @@ endpoints:
       descripcion: 'n'
       precio_mensual: 67
       descuento_pct: 16
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2149,14 +2467,14 @@ endpoints:
         name: membershipPlan_id
         description: 'The ID of the membershipPlan.'
         required: true
-        example: architecto
+        example: 6aaa3b16d95ef709410e3968
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      membershipPlan_id: architecto
+      membershipPlan_id: 6aaa3b16d95ef709410e3968
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -2280,7 +2598,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-10-05T01:06:05'
+        example: '2026-10-08T13:59:36'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2291,7 +2609,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2313,7 +2631,7 @@ endpoints:
         name: pref_sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2324,7 +2642,7 @@ endpoints:
         name: pref_whatsapp
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2335,11 +2653,11 @@ endpoints:
       email: zbailey@example.net
       password: '-0pBNvYgxw'
       telefono: a
-      fecha_nacimiento: '2026-10-05T01:06:05'
-      pref_in_app: false
+      fecha_nacimiento: '2026-10-08T13:59:36'
+      pref_in_app: true
       pref_email: true
-      pref_sms: true
-      pref_whatsapp: false
+      pref_sms: false
+      pref_whatsapp: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2371,14 +2689,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: architecto
+        example: luis-enrique-gonzalez-ramirez
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: architecto
+      client_slug: luis-enrique-gonzalez-ramirez
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -2420,7 +2738,7 @@ endpoints:
         name: fecha_nacimiento
         description: 'El campo value no es una fecha válida.'
         required: false
-        example: '2026-10-05T01:06:05'
+        example: '2026-10-08T13:59:36'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2431,7 +2749,7 @@ endpoints:
         name: pref_in_app
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2474,8 +2792,8 @@ endpoints:
       name: b
       email: zbailey@example.net
       telefono: i
-      fecha_nacimiento: '2026-10-05T01:06:05'
-      pref_in_app: false
+      fecha_nacimiento: '2026-10-08T13:59:36'
+      pref_in_app: true
       pref_email: false
       pref_sms: false
       pref_whatsapp: true
@@ -2510,14 +2828,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: architecto
+        example: luis-enrique-gonzalez-ramirez
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: architecto
+      client_slug: luis-enrique-gonzalez-ramirez
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -2709,14 +3027,14 @@ endpoints:
         name: service_slug
         description: 'The slug of the service.'
         required: true
-        example: architecto
+        example: skin-fade
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      service_slug: architecto
+      service_slug: skin-fade
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -2791,7 +3109,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2803,7 +3121,7 @@ endpoints:
       precio: 84
       duracion_min: 16
       descripcion: m
-      activo: true
+      activo: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2835,14 +3153,14 @@ endpoints:
         name: service_slug
         description: 'The slug of the service.'
         required: true
-        example: architecto
+        example: skin-fade
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      service_slug: architecto
+      service_slug: skin-fade
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -2918,14 +3236,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: architecto
+      barber_slug: gonzalez-ramirez-luis-enrique
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -2989,7 +3307,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -3011,7 +3329,7 @@ endpoints:
       email: zbailey@example.net
       especialidades: i
       descripcion: 'y'
-      activo: true
+      activo: false
       comision_pct: 1
     fileParameters: []
     responses: []
@@ -3163,14 +3481,14 @@ endpoints:
         name: user_id
         description: 'The ID of the user.'
         required: true
-        example: architecto
+        example: 6aa51b319ddeabe12709e9e2
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      user_id: architecto
+      user_id: 6aa51b319ddeabe12709e9e2
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -3254,14 +3572,14 @@ endpoints:
         name: user_id
         description: 'The ID of the user.'
         required: true
-        example: architecto
+        example: 6aa51b319ddeabe12709e9e2
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      user_id: architecto
+      user_id: 6aa51b319ddeabe12709e9e2
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -3374,7 +3692,7 @@ endpoints:
         name: horario_apertura
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '01:06'
+        example: '13:59'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3385,7 +3703,7 @@ endpoints:
         name: horario_cierre
         description: 'Must be a valid date in the format <code>H:i</code>. El campo value debe ser una fecha posterior a <code>horario_apertura</code>.'
         required: false
-        example: '2052-10-28'
+        example: '2052-10-31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3429,12 +3747,23 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      comision_no_show_porcentaje:
+        custom: []
+        name: comision_no_show_porcentaje
+        description: 'Cargo por inasistencia (NoShowFeeService): % del servicio; 0 lo desactiva. Opcional como los de arriba. El campo value debe ser al menos 0. El campo value no debe ser mayor que 100.'
+        required: false
+        example: 17
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
       instagram:
         custom: []
         name: instagram
         description: 'El campo value no debe tener más de 255 caracteres.'
         required: false
-        example: m
+        example: i
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3445,7 +3774,7 @@ endpoints:
         name: facebook
         description: 'El campo value no debe tener más de 255 caracteres.'
         required: false
-        example: i
+        example: 'y'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3456,7 +3785,7 @@ endpoints:
         name: tiktok
         description: 'El campo value no debe tener más de 255 caracteres.'
         required: false
-        example: 'y'
+        example: v
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3467,7 +3796,7 @@ endpoints:
         name: clabe
         description: 'El campo value no debe tener más de 18 caracteres.'
         required: false
-        example: vdljnikhwaykcmyu
+        example: dljnikhwaykcmyuw
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3478,7 +3807,7 @@ endpoints:
         name: banco
         description: 'El campo value no debe tener más de 100 caracteres.'
         required: false
-        example: w
+        example: p
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3489,7 +3818,7 @@ endpoints:
         name: beneficiario
         description: 'El campo value no debe tener más de 150 caracteres.'
         required: false
-        example: p
+        example: w
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3500,7 +3829,7 @@ endpoints:
         name: concepto
         description: 'El campo value no debe tener más de 100 caracteres.'
         required: false
-        example: w
+        example: l
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3510,18 +3839,19 @@ endpoints:
       nombre: b
       direccion: 'n'
       telefono: g
-      horario_apertura: '01:06'
-      horario_cierre: '2052-10-28'
+      horario_apertura: '13:59'
+      horario_cierre: '2052-10-31'
       politica_cancelacion: 22
       deposito_no_show_umbral: 7
       deposito_no_show_porcentaje: 16
-      instagram: m
-      facebook: i
-      tiktok: 'y'
-      clabe: vdljnikhwaykcmyu
-      banco: w
-      beneficiario: p
-      concepto: w
+      comision_no_show_porcentaje: 17
+      instagram: i
+      facebook: 'y'
+      tiktok: v
+      clabe: dljnikhwaykcmyuw
+      banco: p
+      beneficiario: w
+      concepto: l
     fileParameters: []
     responses: []
     responseFields: []
@@ -3688,7 +4018,7 @@ endpoints:
         name: modo
         description: ''
         required: true
-        example: ahora
+        example: programar
         type: string
         enumValues:
           - ahora
@@ -3701,7 +4031,7 @@ endpoints:
         name: programada_para
         description: 'This field is required when <code>modo</code> is <code>programar</code>. El campo value no es una fecha válida. El campo value debe ser una fecha posterior a <code>now</code>.'
         required: false
-        example: '2052-10-28'
+        example: '2052-11-01'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3713,8 +4043,8 @@ endpoints:
       cta_label: g
       cta_url: 'http://www.okuneva.com/fugiat-sunt-nihil-accusantium-harum-mollitia.html'
       segmento: architecto
-      modo: ahora
-      programada_para: '2052-10-28'
+      modo: programar
+      programada_para: '2052-11-01'
     fileParameters: []
     responses: []
     responseFields: []
@@ -4233,7 +4563,7 @@ endpoints:
         name: email
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4244,7 +4574,7 @@ endpoints:
         name: sms
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4255,7 +4585,7 @@ endpoints:
         name: whatsapp
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4266,7 +4596,7 @@ endpoints:
         name: push
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4285,10 +4615,10 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       in_app: false
-      email: false
-      sms: true
-      whatsapp: false
-      push: false
+      email: true
+      sms: false
+      whatsapp: true
+      push: true
       promociones: false
     fileParameters: []
     responses: []
@@ -4415,7 +4745,7 @@ endpoints:
         name: content_encoding
         description: ''
         required: false
-        example: aesgcm
+        example: aes128gcm
         type: string
         enumValues:
           - aesgcm
@@ -4428,7 +4758,7 @@ endpoints:
       keys:
         p256dh: architecto
         auth: architecto
-      content_encoding: aesgcm
+      content_encoding: aes128gcm
     fileParameters: []
     responses: []
     responseFields: []
@@ -4506,14 +4836,14 @@ endpoints:
         name: work_id
         description: 'The ID of the work.'
         required: true
-        example: architecto
+        example: 6aaa3b0dd95ef709410e382b
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      work_id: architecto
+      work_id: 6aaa3b0dd95ef709410e382b
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -4549,14 +4879,14 @@ endpoints:
         name: work_id
         description: 'The ID of the work.'
         required: true
-        example: architecto
+        example: 6aaa3b0dd95ef709410e382b
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      work_id: architecto
+      work_id: 6aaa3b0dd95ef709410e382b
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -4592,14 +4922,14 @@ endpoints:
         name: work_id
         description: 'The ID of the work.'
         required: true
-        example: architecto
+        example: 6aaa3b0dd95ef709410e382b
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      work_id: architecto
+      work_id: 6aaa3b0dd95ef709410e382b
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -5359,14 +5689,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: architecto
+      barber_slug: gonzalez-ramirez-luis-enrique
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -5375,11 +5705,8 @@ endpoints:
     responses:
       -
         custom: []
-        status: 404
-        content: |-
-          {
-              "message": "No query results for model [App\\Models\\Barber] architecto"
-          }
+        status: 401
+        content: '{"message":"No autorizado."}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -5414,14 +5741,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: architecto
+      barber_slug: gonzalez-ramirez-luis-enrique
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -5430,11 +5757,8 @@ endpoints:
     responses:
       -
         custom: []
-        status: 404
-        content: |-
-          {
-              "message": "No query results for model [App\\Models\\Barber] architecto"
-          }
+        status: 401
+        content: '{"message":"No autorizado."}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -5469,14 +5793,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: architecto
+      barber_slug: gonzalez-ramirez-luis-enrique
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -5485,11 +5809,8 @@ endpoints:
     responses:
       -
         custom: []
-        status: 404
-        content: |-
-          {
-              "message": "No query results for model [App\\Models\\Barber] architecto"
-          }
+        status: 401
+        content: '{"message":"No autorizado."}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -5524,14 +5845,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: architecto
+      barber_slug: gonzalez-ramirez-luis-enrique
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -5540,11 +5861,8 @@ endpoints:
     responses:
       -
         custom: []
-        status: 404
-        content: |-
-          {
-              "message": "No query results for model [App\\Models\\Barber] architecto"
-          }
+        status: 401
+        content: '{"message":"No autorizado."}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -5579,14 +5897,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: architecto
+      barber_slug: gonzalez-ramirez-luis-enrique
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -5617,7 +5935,7 @@ endpoints:
         name: activo
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5637,7 +5955,7 @@ endpoints:
     cleanBodyParameters:
       especialidades: b
       descripcion: architecto
-      activo: true
+      activo: false
       comision_pct: 22
     fileParameters: []
     responses: []
@@ -5750,14 +6068,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: architecto
+        example: luis-enrique-gonzalez-ramirez
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: architecto
+      client_slug: luis-enrique-gonzalez-ramirez
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -5833,14 +6151,14 @@ endpoints:
         name: productId
         description: ''
         required: true
-        example: architecto
+        example: 6aaa3a4ad95ef709410e35c7
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      productId: architecto
+      productId: 6aaa3a4ad95ef709410e35c7
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -5933,169 +6251,6 @@ endpoints:
         name: precio_venta
         description: 'El campo value debe ser al menos 0.'
         required: true
-        example: 12
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      precio_compra:
-        custom: []
-        name: precio_compra
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 77
-        type: number
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      descripcion:
-        custom: []
-        name: descripcion
-        description: ''
-        required: false
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      tipo:
-        custom: []
-        name: tipo
-        description: ''
-        required: false
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      activo:
-        custom: []
-        name: activo
-        description: ''
-        required: false
-        example: false
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-      active:
-        custom: []
-        name: active
-        description: ''
-        required: false
-        example: false
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      nombre: b
-      categoria: architecto
-      stock_actual: 39
-      stock_minimo: 84
-      precio_venta: 12
-      precio_compra: 77
-      descripcion: architecto
-      tipo: architecto
-      activo: false
-      active: false
-    fileParameters: []
-    responses: []
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - PUT
-    uri: 'api/v1/admin/inventory/products/{productId}'
-    metadata:
-      custom: []
-      groupName: Endpoints
-      groupDescription: ''
-      subgroup: ''
-      subgroupDescription: ''
-      title: ''
-      description: ''
-      authenticated: false
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      productId:
-        custom: []
-        name: productId
-        description: ''
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      productId: architecto
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      nombre:
-        custom: []
-        name: nombre
-        description: 'El campo value no debe tener más de 255 caracteres.'
-        required: false
-        example: b
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      categoria:
-        custom: []
-        name: categoria
-        description: ''
-        required: false
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_actual:
-        custom: []
-        name: stock_actual
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 39
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      stock_minimo:
-        custom: []
-        name: stock_minimo
-        description: 'El campo value debe ser al menos 0.'
-        required: false
-        example: 84
-        type: integer
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      precio_venta:
-        custom: []
-        name: precio_venta
-        description: 'El campo value debe ser al menos 0.'
-        required: false
         example: 12
         type: number
         enumValues: []
@@ -6178,6 +6333,169 @@ endpoints:
   -
     custom: []
     httpMethods:
+      - PUT
+    uri: 'api/v1/admin/inventory/products/{productId}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      productId:
+        custom: []
+        name: productId
+        description: ''
+        required: true
+        example: 6aaa3a4ad95ef709410e35c7
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      productId: 6aaa3a4ad95ef709410e35c7
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      nombre:
+        custom: []
+        name: nombre
+        description: 'El campo value no debe tener más de 255 caracteres.'
+        required: false
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      categoria:
+        custom: []
+        name: categoria
+        description: ''
+        required: false
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      stock_actual:
+        custom: []
+        name: stock_actual
+        description: 'El campo value debe ser al menos 0.'
+        required: false
+        example: 39
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      stock_minimo:
+        custom: []
+        name: stock_minimo
+        description: 'El campo value debe ser al menos 0.'
+        required: false
+        example: 84
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      precio_venta:
+        custom: []
+        name: precio_venta
+        description: 'El campo value debe ser al menos 0.'
+        required: false
+        example: 12
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      precio_compra:
+        custom: []
+        name: precio_compra
+        description: 'El campo value debe ser al menos 0.'
+        required: false
+        example: 77
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      descripcion:
+        custom: []
+        name: descripcion
+        description: ''
+        required: false
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      tipo:
+        custom: []
+        name: tipo
+        description: ''
+        required: false
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      activo:
+        custom: []
+        name: activo
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      active:
+        custom: []
+        name: active
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      nombre: b
+      categoria: architecto
+      stock_actual: 39
+      stock_minimo: 84
+      precio_venta: 12
+      precio_compra: 77
+      descripcion: architecto
+      tipo: architecto
+      activo: false
+      active: false
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
       - DELETE
     uri: 'api/v1/admin/inventory/products/{productId}'
     metadata:
@@ -6199,14 +6517,14 @@ endpoints:
         name: productId
         description: ''
         required: true
-        example: architecto
+        example: 6aaa3a4ad95ef709410e35c7
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      productId: architecto
+      productId: 6aaa3a4ad95ef709410e35c7
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -6242,14 +6560,14 @@ endpoints:
         name: productId
         description: ''
         required: true
-        example: architecto
+        example: 6aaa3a4ad95ef709410e35c7
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      productId: architecto
+      productId: 6aaa3a4ad95ef709410e35c7
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -6258,7 +6576,7 @@ endpoints:
         name: tipo
         description: ''
         required: true
-        example: entrada
+        example: salida
         type: string
         enumValues:
           - entrada
@@ -6289,7 +6607,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      tipo: entrada
+      tipo: salida
       cantidad: 16
       motivo: architecto
     fileParameters: []
@@ -6483,14 +6801,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: architecto
+        example: luis-enrique-gonzalez-ramirez
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: architecto
+      client_slug: luis-enrique-gonzalez-ramirez
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -6499,11 +6817,8 @@ endpoints:
     responses:
       -
         custom: []
-        status: 404
-        content: |-
-          {
-              "message": "No query results for model [App\\Models\\Client] architecto"
-          }
+        status: 401
+        content: '{"message":"No autorizado."}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -6617,14 +6932,14 @@ endpoints:
         name: client_slug
         description: 'The slug of the client.'
         required: true
-        example: architecto
+        example: luis-enrique-gonzalez-ramirez
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      client_slug: architecto
+      client_slug: luis-enrique-gonzalez-ramirez
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -6708,14 +7023,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: architecto
+      barber_slug: gonzalez-ramirez-luis-enrique
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters:
@@ -6787,14 +7102,14 @@ endpoints:
         name: barber_slug
         description: 'The slug of the barber.'
         required: true
-        example: architecto
+        example: gonzalez-ramirez-luis-enrique
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      barber_slug: architecto
+      barber_slug: gonzalez-ramirez-luis-enrique
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []
@@ -6803,11 +7118,8 @@ endpoints:
     responses:
       -
         custom: []
-        status: 404
-        content: |-
-          {
-              "message": "No query results for model [App\\Models\\Barber] architecto"
-          }
+        status: 200
+        content: '{"barber":{"id":"6aadd78765a6ba4bd80adfc2","slug":"gonzalez-ramirez-luis-enrique","descripcion":"Barbero profesional de UrbanBlade.","especialidades":null,"foto":"https:\/\/urbanblade-staging-uploads-209479293733.s3.us-east-1.amazonaws.com\/avatars\/6aab96924c163e944d0b36d5\/77335daf-1099-431b-adfc-44780e9aeab1.jpg","user":{"id":"6aab96924c163e944d0b36d5","name":"Gonzalez Ramirez Luis Enrique"}},"works":[{"id":"6ab535ef96a5df8c0a01f10e","title":"test","description":"Ejemplo","images":["http:\/\/localhost:8000\/storage\/portfolio\/IGIDmfOJP4AnLGMBCAdmM6HZU0Xk2M95aWPdHxyv.jpg"]}],"reviews":[{"id":"6ab88e5edcaf4f6afe0123d0","rating":3,"comment":"es malo","created_at":"2026-09-26T21:32:46-06:00","client":{"user":{"name":"Luis G."}},"service":"Combo Corte + Barba"}],"avg_rating":3,"total_reviews":1,"citas_completadas":1,"can_review":false,"already_reviewed":false,"reviewable_services":[]}'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json

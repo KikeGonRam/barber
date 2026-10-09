@@ -174,14 +174,14 @@ endpoints:
         name: work_id
         description: 'The ID of the work.'
         required: true
-        example: architecto
+        example: 6aaa3b0dd95ef709410e382b
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      work_id: architecto
+      work_id: 6aaa3b0dd95ef709410e382b
     queryParameters: []
     cleanQueryParameters: []
     bodyParameters: []

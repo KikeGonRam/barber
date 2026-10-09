@@ -73,7 +73,7 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '{"data": [{"id": "pm_123", "brand": "visa", "last4": "4242", "exp_month": 12, "exp_year": 2032}]}'
+        content: '{"data": [{"id": "pm_123", "brand": "visa", "last4": "4242", "exp_month": 12, "exp_year": 2032, "holder": "LUIS GONZALEZ"}]}'
         headers: []
         description: ''
     responseFields: []
