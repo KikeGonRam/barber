@@ -11,7 +11,7 @@ return [
 
     'activity_model' => Activity::class,
 
-    'table_name' => env('ACTIVITY_LOGGER_TABLE_NAME', 'activity_log'),
+    'table_name' => env('ACTIVITY_LOGGER_TABLE_NAME', 'activities'),
 
     'database_connection' => env('ACTIVITY_LOGGER_DB_CONNECTION', 'mongodb'),
 

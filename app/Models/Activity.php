@@ -28,7 +28,8 @@ class Activity extends Model implements ActivityContract
 {
     protected $connection = 'mongodb';
 
-    protected $collection = 'activity_log';
+    // laravel-mongodb v5 solo respeta $table; $collection se ignoraba y el modelo caía en `activities`.
+    protected $table = 'activities';
 
     protected $guarded = [];
 
