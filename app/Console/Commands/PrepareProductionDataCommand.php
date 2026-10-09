@@ -57,6 +57,8 @@ class PrepareProductionDataCommand extends Command
             $plan[] = [$collection, 'todo el movimiento', [], $db->selectCollection($collection)->countDocuments([])];
         }
 
+        array_push($plan, ...$this->orphanPortfolioPlan($db));
+
         $user = $db->selectCollection('users')->findOne(['name' => (string) $this->option('test-user')]);
         if ($user !== null) {
             $userId = (string) $user['_id'];
@@ -91,6 +93,41 @@ class PrepareProductionDataCommand extends Command
         $this->info("Borrados {$total} documentos y reiniciados los contadores de lealtad de los clientes.");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Publicaciones del portafolio cuyo barbero no existe (datos de seed) y todo lo que cuelga de ellas: imágenes,
+     * comentarios, reacciones y guardados. Las publicaciones de un barbero real nunca entran.
+     *
+     * @return list<array{0: string, 1: string, 2: array<string, mixed>, 3: int}>
+     */
+    private function orphanPortfolioPlan(Database $db): array
+    {
+        $barberIds = [];
+        foreach ($db->selectCollection('barbers')->find([], ['projection' => ['_id' => 1]]) as $barber) {
+            $barberIds[(string) $barber['_id']] = true;
+        }
+
+        $workObjectIds = [];
+        $workIds = [];
+        foreach ($db->selectCollection('works')->find([], ['projection' => ['barbero_id' => 1]]) as $work) {
+            if (! isset($barberIds[(string) ($work['barbero_id'] ?? '')])) {
+                $workObjectIds[] = $work['_id'];
+                $workIds[] = (string) $work['_id'];
+            }
+        }
+        if ($workIds === []) {
+            return [];
+        }
+
+        $plan = [];
+        foreach (['work_images', 'comments', 'reactions', 'saved_works'] as $collection) {
+            $filter = ['work_id' => ['$in' => $workIds]];
+            $plan[] = [$collection, 'de publicaciones sin barbero', $filter, $db->selectCollection($collection)->countDocuments($filter)];
+        }
+        $plan[] = ['works', 'publicaciones sin barbero', ['_id' => ['$in' => $workObjectIds]], count($workObjectIds)];
+
+        return $plan;
     }
 
     /** Los clientes que se conservan quedan como nuevos: sus puntos y citas venían del movimiento que se borró. */
