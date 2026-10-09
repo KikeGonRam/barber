@@ -16,7 +16,8 @@ class DatabaseNotification extends Model
 {
     protected $connection = 'mongodb';
 
-    protected $collection = 'notifications';
+    // laravel-mongodb v5 solo respeta $table; $collection se ignoraba y el modelo caía en `database_notifications`.
+    protected $table = 'database_notifications';
 
     protected $guarded = [];
 
