@@ -38,10 +38,10 @@ npm install --legacy-peer-deps
 npm run dev
 ```
 
-> ⚠️ No uses `migrate --seed` — siembra `BarberSeeder`/`ClientSeeder`
-> completos (50 barberos y 1500 clientes falsos) y volvería a llenar la base
-> de datos sintéticos masivos. Ver [ACCESOS.md](ACCESOS.md) para las notas
-> completas.
+> Los seeders de demostración (50 barberos y 1500 clientes falsos, citas, pagos…)
+> se eliminaron el 2026-10-09: `migrate --seed` ya solo siembra roles/permisos y el
+> administrador. Para la demostración, crea las cuentas y el contenido desde la
+> aplicación. Ver [ACCESOS.md](ACCESOS.md) para las notas completas.
 
 Luego abre:
 

@@ -7,29 +7,16 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Orden de siembra: cada seeder cubre una sola coleccion y depende
-     * unicamente de lo sembrado por los anteriores en esta lista.
+     * Solo lo mínimo para arrancar una base nueva: roles/permisos y el administrador inicial. Los seeders de
+     * demostración (citas, pagos, clientes, catálogo, portafolio…) se eliminaron el 2026-10-09: sembraron los
+     * ~200k registros falsos del incidente de septiembre y el portafolio fantasma de producción. El catálogo real
+     * (servicios, productos) se carga desde la aplicación, y la configuración de la barbería se crea sola.
      */
     public function run(): void
     {
         $this->call([
             RolePermissionSeeder::class,
-            BarbershopSettingSeeder::class,
-            ServiceSeeder::class,
-            ProductSeeder::class,
             AdminUserSeeder::class,
-            ReceptionUserSeeder::class,
-            BarberSeeder::class,
-            BarberScheduleSeeder::class,
-            ClientSeeder::class,
-            AppointmentSeeder::class,
-            PaymentSeeder::class,
-            LoyaltyTransactionSeeder::class,
-            OrderSeeder::class,
-            WorkSeeder::class,
-            WorkImageSeeder::class,
-            CommentSeeder::class,
-            ReactionSeeder::class,
         ]);
     }
 }
