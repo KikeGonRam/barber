@@ -32,6 +32,29 @@ class PrepareProductionDataCommandTest extends TestCase
         User::withTrashed()->forceDelete();
         DB::connection('mongodb')->table('payments')->delete();
         DB::connection('mongodb')->table('push_subscriptions')->delete();
+        foreach (['works', 'work_images', 'comments', 'reactions', 'barbers'] as $collection) {
+            DB::connection('mongodb')->table($collection)->delete();
+        }
+    }
+
+    public function test_apply_removes_portfolio_of_missing_barbers_and_keeps_real_ones(): void
+    {
+        $db = DB::connection('mongodb');
+        $realBarberId = (string) $db->table('barbers')->insertGetId(['nombre' => 'Barbero Real']);
+        $keptWork = (string) $db->table('works')->insertGetId(['barbero_id' => $realBarberId, 'title' => 'Real']);
+        $orphanWork = (string) $db->table('works')->insertGetId(['barbero_id' => '000000000000000000000000', 'title' => 'Seed']);
+        $db->table('work_images')->insert([['work_id' => $keptWork, 'image' => 'a'], ['work_id' => $orphanWork, 'image' => 'b']]);
+        $db->table('comments')->insert(['work_id' => $orphanWork, 'body' => 'x']);
+
+        $this->artisan('data:prepare-production')->assertExitCode(0);
+        $this->assertSame(2, $db->table('works')->count(), 'El simulacro no borra nada.');
+
+        $this->artisan('data:prepare-production', ['--apply' => true, '--confirm-backup' => true])->assertExitCode(0);
+
+        $this->assertSame(1, $db->table('works')->count());
+        $this->assertSame(1, $db->table('works')->where('title', 'Real')->count());
+        $this->assertSame(1, $db->table('work_images')->count());
+        $this->assertSame(0, $db->table('comments')->count());
     }
 
     /** @return array{0: User, 1: User} [real, prueba] */
