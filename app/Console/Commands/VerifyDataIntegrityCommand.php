@@ -37,7 +37,7 @@ class VerifyDataIntegrityCommand extends Command
     {
         /** @var MongoConnection $connection */
         $connection = DB::connection('mongodb');
-        $db = $connection->getMongoDB();
+        $db = $connection->getDatabase();
 
         /** @var array<string, array<string, true>> $ids */
         $ids = [];

@@ -90,6 +90,19 @@ un peering/PrivateLink; queda como mejora antes de producción.
   el nivel del clúster; revisar en *Backup* qué está habilitado. Es la opción más
   reciente ante una pérdida.
 
+### Estado de los respaldos (verificado el 2026-10-09)
+
+- **El clúster es el gratuito (M0): no tiene Cloud Backup ni restauración a un punto en el tiempo.** Atlas no
+  guarda nada por nosotros; los únicos respaldos que existen son los que generamos. Un `drop` o un
+  `migrate:fresh` contra Atlas sin respaldo propio es irrecuperable.
+- El último `mongodump` completo es `barber_db-2026-09-16_1815.archive.gz`, anterior al flujo de citas V2 y a las
+  colecciones nuevas. No hay tarea programada: `Run-BackupDaily.ps1` existe pero nadie lo ejecuta (5D pendiente).
+- **Los `.zip` de la aplicación del 2026-10-09 no se pueden usar como respaldo de Atlas:** traían `activities` con
+  1976 documentos y `database_notifications` con 1561, contra 773 y ~470 reales en Atlas. Se generaron desde otra
+  base (la local de pruebas). Cuenta siempre los documentos contra Atlas antes de confiar en uno.
+- Mientras sea M0, la regla es: **`mongodump` verificado (conteos iguales a Atlas) antes de cualquier migración que
+  borre o cambie índices o colecciones**, y guardarlo fuera de este equipo (5C, S3 cifrado).
+
 ### Restaurar colecciones desde un `.zip` de la aplicación
 
 El zip no conserva índices y las colecciones vacías (`[]`) hay que crearlas antes.
