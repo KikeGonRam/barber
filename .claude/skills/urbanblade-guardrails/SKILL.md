@@ -172,10 +172,12 @@ appointments and 64 payments (restored from the 2026-09-16 backup after the
 2026-09-18 incident, see `docs/MONGODB_ATLAS.md`); `docs/ACCESOS.md` no longer lists
 credentials. Trust the live data over this paragraph.
 
-**Never run `php artisan migrate --seed` or the full `DatabaseSeeder`** in this repo
-again without explicit confirmation — it chains `BarberSeeder` (50 fake barbers) and
-`ClientSeeder` (1500 fake clients), plus appointment/payment/loyalty seeders on top,
-which is exactly how the database got this bloated in the first place. If the app needs
+**The mass/demo seeders were deleted on 2026-10-09** (`BarberSeeder` with 50 fake barbers,
+`ClientSeeder` with 1500 fake clients, plus the appointment/payment/loyalty/portfolio ones
+— exactly how the database got bloated, and how fake portfolio posts reached it).
+`DatabaseSeeder` now only calls `RolePermissionSeeder` + `AdminUserSeeder`. **Never
+recreate mass seeders**, and confirm what `.env` points to before any `db:seed` or
+`migrate --seed`. If the app needs
 to boot from scratch, seed only `RolePermissionSeeder` + `AdminUserSeeder` (see
 README.md's install steps) and create any additional accounts individually
 (`User::create()` + role via `assignRole()`), never through the mass seeders. A backup

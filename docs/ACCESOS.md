@@ -39,9 +39,9 @@ vacío hasta crear perfiles reales. Hay un respaldo local de esas cuentas en
 
 ## Cómo crear una cuenta nueva
 
-No usar los seeders masivos (`BarberSeeder`/`ClientSeeder`/`DatabaseSeeder` completo)
-— ver la advertencia del [README.md](../README.md): ya causaron acumulación de datos
-sintéticos dos veces. Crear cada cuenta individualmente:
+Los seeders de demostración (`BarberSeeder`, `ClientSeeder` y el resto) se eliminaron el
+2026-10-09: ya habían causado acumulación de datos sintéticos dos veces. `DatabaseSeeder`
+solo siembra roles/permisos y el administrador. Crear cada cuenta individualmente:
 
 ```bash
 docker exec barber-app php artisan tinker --execute="

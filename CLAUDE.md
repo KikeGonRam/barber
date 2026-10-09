@@ -86,11 +86,12 @@ docker compose exec app php artisan db:seed --class=AdminUserSeeder
 App (API + surviving pages): http://localhost:8000, Mailpit: http://localhost:8025.
 For the actual product UI, also run `npm run dev` in `frontend-urban` (port 3000).
 
-**Never run `php artisan migrate --seed`** (the full `DatabaseSeeder`) — it chains
-`BarberSeeder`/`ClientSeeder` and is exactly how `barber_db` accumulated ~200k
-synthetic rows before a full wipe on 2026-09-04. The two seeders above are the only
-ones needed to boot; other team accounts are documented individually in
-`docs/ACCESOS.md`.
+The demo seeders (`BarberSeeder`, `ClientSeeder`, `AppointmentSeeder`, `WorkSeeder`…) were
+**deleted on 2026-10-09**: they are how `barber_db` accumulated ~200k synthetic rows before
+a full wipe on 2026-09-04, and how fake portfolio posts reached the data. `DatabaseSeeder`
+now only calls the two seeders above, which are the only ones needed to boot; other team
+accounts are documented individually in `docs/ACCESOS.md`. Still don't run `db:seed` or
+`migrate --seed` without confirming what `.env` points to.
 
 - `composer run dev` — runs `php artisan serve` + queue listener + `npm run dev`
   concurrently (local convenience only; the real containers use `docker compose`).
@@ -189,8 +190,9 @@ Highlights, all covered in much more depth there:
   Sin la orden de subir, entrega el mensaje en español y los comandos. Detalle y límites
   en `git-commit-conventions`.
 - `barber_db` was fully wiped and reseeded on 2026-09-04 after accumulating ~200k
-  synthetic rows from repeated full-seeder runs — **never run the full `DatabaseSeeder`
-  again** without explicit confirmation.
+  synthetic rows from repeated full-seeder runs. The demo seeders no longer exist
+  (deleted 2026-10-09) and `DatabaseSeeder` only seeds roles/permissions and the admin;
+  **never recreate mass seeders** and confirm before any `db:seed`.
 - **Never trust a client-supplied price/amount for money or inventory** — always
   reread the source of truth server-side inside the service layer. Payment methods are
   exactly three: efectivo, transferencia, tarjeta (beta, real Stripe charge) — no QR as

@@ -131,7 +131,8 @@ Requiere autorización explícita del dueño: es una escritura en la base compar
 
 Reglas que se derivan:
 - Las pruebas solo se ejecutan con `.\test.ps1`, nunca con `php artisan test` directo.
-- No ejecutar `DatabaseSeeder` completo ni comandos de `make` que toquen la base sin
-  confirmar antes a qué apunta `.env`.
+- `DatabaseSeeder` ya solo siembra roles/permisos y el administrador (los seeders de
+  demostración se eliminaron el 2026-10-09); aun así, no corras `db:seed` ni comandos de
+  `make` que toquen la base sin confirmar antes a qué apunta `.env`.
 - Los borrados de usuarios son lógicos (`SoftDeletes`): un correo "borrado" sigue
   ocupando el índice único hasta un `forceDelete()`.

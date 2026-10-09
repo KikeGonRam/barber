@@ -117,13 +117,13 @@ docker compose exec app php artisan db:seed --class=RolePermissionSeeder
 docker compose exec app php artisan db:seed --class=AdminUserSeeder
 ```
 
-> ⚠️ **No uses `migrate --seed`** (siembra el `DatabaseSeeder` completo): eso
-> incluye `BarberSeeder`/`ClientSeeder`, que generan 50 barberos y 1500
-> clientes falsos, además de miles de citas/pagos/transacciones sintéticas —
-> así fue como `barber_db` terminó con más de 200,000 registros de basura que
-> hubo que limpiar. Los dos seeders de arriba son los únicos necesarios para
-> que la app arranque (roles/permisos + una cuenta admin); para crear el resto
-> de cuentas, ver [docs/ACCESOS.md](docs/ACCESOS.md).
+> Los seeders de demostración (`BarberSeeder`, `ClientSeeder`, citas, pagos…)
+> **se eliminaron el 2026-10-09**: así fue como `barber_db` terminó con más de
+> 200,000 registros de basura que hubo que limpiar. `DatabaseSeeder` ya solo
+> siembra roles/permisos y la cuenta admin, que son los únicos necesarios para
+> que la app arranque; aun así confirma a qué base apunta `.env` antes de
+> cualquier `db:seed`. Para crear el resto de cuentas, ver
+> [docs/ACCESOS.md](docs/ACCESOS.md).
 
 Abre la aplicación en:
 
@@ -155,9 +155,8 @@ Ruta de login:
 
 > `barber_db` ya no viene precargada con datos de demo masivos (se limpió por
 > completo el 2026-09-04). El estado actual de las cuentas está resumido en
-> [docs/ACCESOS.md](docs/ACCESOS.md). No correr `BarberSeeder`/`ClientSeeder`
-> completos salvo que de verdad se quiera repoblar con datos de prueba a gran
-> escala (crean 50 barberos y 1500 clientes falsos respectivamente).
+> [docs/ACCESOS.md](docs/ACCESOS.md). Los seeders masivos ya no existen (se
+> eliminaron el 2026-10-09): el contenido real se carga desde la aplicación.
 
 ## 🧪 Validación y pruebas
 

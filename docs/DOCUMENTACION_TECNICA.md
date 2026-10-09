@@ -169,14 +169,13 @@ nivel, y descarga en PDF.
 
 ### 2.5 Base de datos (MongoDB)
 
-Colecciones principales, cada una poblada por un seeder dedicado en
-`database/seeders/` (17 seeders, orquestados por `DatabaseSeeder.php` en orden
-estricto de dependencias):
-
-`roles`/`permissions` → `barbershop_settings` → `services` → `products` →
-usuarios (`administrador`, `recepcionista`, `barbers`, `clients`) →
-`barber_schedules` → `appointments` → `payments` → `loyalty_transactions` →
-`orders` → `works` → `work_images` → `comments` → `reactions`.
+Desde el 2026-10-09 `database/seeders/` solo tiene `DatabaseSeeder.php`,
+`RolePermissionSeeder` (`roles`/`permissions`) y `AdminUserSeeder` (el administrador
+inicial). Los 16 seeders de demostración se eliminaron. El resto se crea desde la
+aplicación: `barbershop_settings` (se crea sola), `services`, `products`, usuarios
+(`administrador`, `recepcionista`, `barbers`, `clients`) y todo el movimiento
+(`appointments`, `payments`, `loyalty_transactions`, `orders`, `works`, `work_images`,
+`comments`, `reactions`…).
 
 > ⚠️ **`barber_db` se limpió por completo el 2026-09-04** (tenía ~214,623
 > citas y ~323,095 transacciones de lealtad sintéticas acumuladas de siembras
@@ -193,13 +192,11 @@ usuarios (`administrador`, `recepcionista`, `barbers`, `clients`) →
 > directamente con la configuración de Atlas; se restauraron desde
 > `backup-2026-09-16_180906.zip`. Ver [MONGODB_ATLAS.md](MONGODB_ATLAS.md).
 >
-> Si se corre el `DatabaseSeeder` completo (`migrate --seed`, **no
-> recomendado**, ver [README.md](../README.md)), sí generaría un dataset
-> sintético de referencia grande: 1 administrador + 1 recepcionista + 50
-> barberos + 1500 clientes, ~112,000 citas históricas (2024 → semana actual,
-> con la regla de que ninguna cita futura puede estar en un estado distinto
-> de `pendiente`), ~19,000 pedidos de tienda, ~200 publicaciones sociales con
-> comentarios y reacciones — es exactamente ese volumen el que se limpió.
+> Esos incidentes venían de los seeders masivos (1 administrador + 1
+> recepcionista + 50 barberos + 1500 clientes, ~112,000 citas históricas, ~19,000
+> pedidos de tienda, ~200 publicaciones sociales con comentarios y reacciones), que
+> **se eliminaron el 2026-10-09**. El 2026-10-09 también se limpió el movimiento de
+> prueba restante de `barber_db` (ver [MONGODB_ATLAS.md](MONGODB_ATLAS.md)).
 
 ### 2.6 Rutas
 
