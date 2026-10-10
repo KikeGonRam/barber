@@ -40,7 +40,7 @@ class PublicUploadsCacheControlTest extends TestCase
         }
 
         try {
-            return require config_path('filesystems.php');
+            return $this->app['files']->getRequire(config_path('filesystems.php'));
         } finally {
             foreach ($keys as $key) {
                 unset($_ENV[$key], $_SERVER[$key]);
