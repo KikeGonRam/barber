@@ -46,6 +46,13 @@ return [
             'bucket' => env('UPLOADS_BUCKET'),
             'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
             'url' => env('UPLOADS_URL', 'https://'.env('UPLOADS_BUCKET').'.s3.'.env('AWS_DEFAULT_REGION', 'us-east-1').'.amazonaws.com'),
+            // Todo lo que se sube aquí lleva un nombre único (UUID o hash de store()) y un
+            // cambio de foto genera un archivo nuevo, así que el navegador puede guardarlo un
+            // año sin revalidar. Sin esto S3 responde sin Cache-Control y cada visita vuelve
+            // a pedir (o a revalidar) todas las imágenes.
+            'options' => [
+                'CacheControl' => 'public, max-age=31536000, immutable',
+            ],
             'throw' => false,
             'report' => false,
         ] : [
