@@ -114,8 +114,13 @@ class AppServiceProvider extends ServiceProvider
         // redirects y URLs firmadas saldrian como http:// y el navegador las
         // bloquearia como contenido mixto en un sitio HTTPS. Se activa solo
         // cuando APP_URL ya es https, asi que local (http) no cambia.
+        // Tambien se fuerza la raiz: el puerto interno (":8080") llegaba en la cabecera Host y
+        // asset() generaba https://api.urbanblade.com.mx:8080/..., inalcanzable desde fuera
+        // (mascota e icono rotos en las paginas Blade de staging, verificado 2026-10-10).
+        // No se confia en X-Forwarded-Port a proposito (ver TrustProxyChain); APP_URL es la fuente.
         if (str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
+            URL::forceRootUrl((string) config('app.url'));
         }
 
         Paginator::defaultView('vendor.pagination.tailwind');
