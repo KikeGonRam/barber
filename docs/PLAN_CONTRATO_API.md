@@ -137,3 +137,22 @@ Sonar): ver la sección «Fase 4» de `.claude/skills/api-contract-plan/SKILL.md
    queda desactualizado.~~ Hecho (frontend-urban, `contract:check`).
 4. Evaluar el mismo paso para los modelos Kotlin (pendiente).
 5. Extender los ejemplos veraces a pagos, pedidos, dashboards, inventario y perfil.
+
+## Experiencia por rol sincronizada (12-oct-2026, TT32 / HT-12)
+
+`App\Support\UserExperience` selecciona el dashboard con prioridad administrador →
+recepción → barbero → ingeniero → cliente. Android (`core/access/UserExperience`)
+y web (`app/utils/userExperience.ts`) aplican el mismo orden en Inicio, Cuenta y
+navegación. Se prueba con los cinco roles, orden invertido, cuentas mixtas y rol
+desconocido. Esta selección visual no concede permisos ni sustituye middleware,
+policies o verificaciones de propiedad; las rutas y respuestas conservan su forma.
+
+El cliente mantiene Inicio / Reservar / Mis citas / Cuenta. Web reutiliza
+`BookingWizard` en `/my/reservar`; móvil conserva su asistente compartido. Los
+avisos de pago leen `AppointmentResource.pago_resuelto`: confirmar una cita no
+equivale a confirmar su pago. `has_payment` indica un registro, no necesariamente
+liquidación; no calcular la autorización de inicio desde el cliente.
+
+La revisión manual de esta fase usa la app habitual y la API publicada. La
+automatización del backend continúa exclusivamente en Mongo local con `test.ps1`;
+usar producción para UI no autoriza pruebas destructivas ni cobros reales.

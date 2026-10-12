@@ -252,4 +252,24 @@ class DashboardApiTest extends TestCase
 
         $response->assertUnauthorized();
     }
+
+    public function test_mixed_roles_keep_the_same_experience_as_mobile_and_web(): void
+    {
+        $cases = [
+            ['roles' => ['cliente', 'ingeniero'], 'expected' => 'ingeniero'],
+            ['roles' => ['barbero', 'recepcionista'], 'expected' => 'recepcionista'],
+            ['roles' => ['cliente', 'barbero'], 'expected' => 'barbero'],
+        ];
+        foreach ($cases as $index => $case) {
+            $user = User::create(['name' => 'Roles QA', 'email' => "roles-{$index}@test.local", 'password' => 'password']);
+            $roleIds = Role::whereIn('name', $case['roles'])->pluck('id')->map(fn ($id) => (string) $id)->all();
+            $user->forceFill(['email_verified_at' => now(), 'role_id' => $roleIds])->save();
+            Client::create(['user_id' => (string) $user->id]);
+            Barber::create(['user_id' => (string) $user->id, 'slug' => "roles-qa-{$index}"]);
+            $token = "roles-qa-{$index}";
+            MobileApiToken::create(['user_id' => (string) $user->id, 'name' => 'test', 'token_hash' => hash('sha256', $token)]);
+            $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/dashboard')
+                ->assertOk()->assertJsonPath('role', $case['expected']);
+        }
+    }
 }
