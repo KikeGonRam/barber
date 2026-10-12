@@ -11,6 +11,7 @@ use App\Services\Analytics\AnalyticsInsightService;
 use App\Services\Dashboard\DashboardService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Member\MemberCardService;
+use App\Support\UserExperience;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -38,35 +39,37 @@ class DashboardController extends Controller
             return response()->json(['message' => 'No autorizado.'], 401);
         }
 
-        if ($user->hasRole('administrador')) {
+        $role = UserExperience::primaryRole($user->roleNames());
+
+        if ($role === 'administrador') {
             return response()->json([
                 'role' => 'administrador',
                 'data' => $this->adminPayload(),
             ]);
         }
 
-        if ($user->hasRole('barbero') && $user->barberProfile) {
+        if ($role === 'barbero' && $user->barberProfile) {
             return response()->json([
                 'role' => 'barbero',
                 'data' => $this->barberPayload($user),
             ]);
         }
 
-        if ($user->hasRole('recepcionista')) {
+        if ($role === 'recepcionista') {
             return response()->json([
                 'role' => 'recepcionista',
                 'data' => $this->receptionistPayload(),
             ]);
         }
 
-        if ($user->hasRole('cliente') && $user->clientProfile) {
+        if ($role === 'cliente' && $user->clientProfile) {
             return response()->json([
                 'role' => 'cliente',
                 'data' => $this->clientPayload($user),
             ]);
         }
 
-        if ($user->hasRole('ingeniero')) {
+        if ($role === 'ingeniero') {
             return response()->json([
                 'role' => 'ingeniero',
                 'data' => $this->ingenieroPayload(),

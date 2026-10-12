@@ -27,6 +27,7 @@ use App\Services\Order\OrderService;
 use App\Services\Payment\DepositService;
 use App\Services\Payment\NoShowFeeService;
 use App\Services\Payment\ServiceTicketService;
+use App\Support\UserExperience;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -68,7 +69,8 @@ class AppointmentController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $isClient = $user?->hasRole('cliente') && $user->clientProfile;
+        $experience = UserExperience::primaryRole($user?->roleNames() ?? []);
+        $isClient = $experience === 'cliente' && $user->clientProfile;
 
         // withCount('payments') alimenta AppointmentResource::has_payment --
         // el frontend del cliente lo usa para saber si mostrar "Pagar con
@@ -78,7 +80,7 @@ class AppointmentController extends Controller
 
         if ($isClient) {
             $query->where('client_id', (string) $user->clientProfile->id);
-        } elseif ($user?->hasRole('barbero') && $user->barberProfile) {
+        } elseif ($experience === 'barbero' && $user->barberProfile) {
             $query->where('barber_id', (string) $user->barberProfile->id);
         } elseif (! $user?->hasAnyRole(['administrador', 'recepcionista'])) {
             abort(403, 'No autorizado para consultar citas.');
