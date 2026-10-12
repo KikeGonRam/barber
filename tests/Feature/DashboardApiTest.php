@@ -270,6 +270,12 @@ class DashboardApiTest extends TestCase
             MobileApiToken::create(['user_id' => (string) $user->id, 'name' => 'test', 'token_hash' => hash('sha256', $token)]);
             $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/dashboard')
                 ->assertOk()->assertJsonPath('role', $case['expected']);
+            $appointments = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/appointments');
+            if ($case['expected'] === 'ingeniero') {
+                $appointments->assertForbidden();
+            } else {
+                $appointments->assertOk()->assertJsonMissingPath('next');
+            }
         }
     }
 }

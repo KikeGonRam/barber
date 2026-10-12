@@ -146,6 +146,9 @@ y web (`app/utils/userExperience.ts`) aplican el mismo orden en Inicio, Cuenta y
 navegación. Se prueba con los cinco roles, orden invertido, cuentas mixtas y rol
 desconocido. Esta selección visual no concede permisos ni sustituye middleware,
 policies o verificaciones de propiedad; las rutas y respuestas conservan su forma.
+El listado de citas usa la misma experiencia: personal no recibe el resumen de
+autoservicio por tener además el rol cliente; barbero conserva su recorte y el
+ingeniero no recibe citas operativas.
 
 El cliente mantiene Inicio / Reservar / Mis citas / Cuenta. Web reutiliza
 `BookingWizard` en `/my/reservar`; móvil conserva su asistente compartido. Los
