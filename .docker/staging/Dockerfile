@@ -3,7 +3,7 @@
 # para desarrollo local, no lo toca este archivo). Combina PHP-FPM + Caddy
 # (en vez de nginx) en una sola imagen, para desplegarse como un unico
 # servicio/tarea (ej. App Runner o una sola tarea de ECS).
-FROM php:8.4-fpm
+FROM php:8.5-fpm
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER=1
