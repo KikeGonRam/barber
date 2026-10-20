@@ -6393,6 +6393,157 @@ paths:
         required: true
         schema:
           type: string
+  '/api/v1/social/comment/{comment_id}/report':
+    post:
+      summary: 'Reporta un comentario ajeno. Idempotente: reportar dos veces lo mismo no duplica el reporte.'
+      operationId: reportaUnComentarioAjenoIdempotenteReportarDosVecesLoMismoNoDuplicaElReporte
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: ''
+                  example: architecto
+                details:
+                  type: string
+                  description: 'El campo value no debe tener más de 200 caracteres.'
+                  example: 'n'
+                  nullable: true
+              required:
+                - reason
+      security: []
+    parameters:
+      -
+        in: path
+        name: comment_id
+        description: 'The ID of the comment.'
+        example: architecto
+        required: true
+        schema:
+          type: string
+  '/api/v1/social/comment/{comment_id}/block-author':
+    post:
+      summary: 'Bloquea al autor de un comentario: dejas de ver sus comentarios. Idempotente.'
+      operationId: bloqueaAlAutorDeUnComentarioDejasDeVerSusComentariosIdempotente
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: comment_id
+        description: 'The ID of the comment.'
+        example: architecto
+        required: true
+        schema:
+          type: string
+  /api/v1/social/blocks:
+    get:
+      summary: 'Usuarios que bloqueaste (con el nombre público, nunca el completo) para poder deshacerlo.'
+      operationId: usuariosQueBloqueasteconElNombrePblicoNuncaElCompletoParaPoderDeshacerlo
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  '/api/v1/social/blocks/{block}':
+    delete:
+      summary: 'Deshace un bloqueo propio. Solo puedes borrar los tuyos.'
+      operationId: deshaceUnBloqueoPropioSoloPuedesBorrarLosTuyos
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: block
+        description: 'The block.'
+        example: architecto
+        required: true
+        schema:
+          type: string
+  /api/v1/admin/comment-reports:
+    get:
+      summary: 'Comentarios con reportes pendientes, uno por comentario, con cuántos reportes y por qué motivos.'
+      operationId: comentariosConReportesPendientesUnoPorComentarioConCuntosReportesYPorQuMotivos
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  '/api/v1/admin/comment-reports/{comment}/resolve':
+    post:
+      summary: 'Resuelve todos los reportes pendientes de un comentario.'
+      operationId: resuelveTodosLosReportesPendientesDeUnComentario
+      description: "- remove: elimina el comentario.\n- remove_and_ban: lo elimina y el autor ya no puede comentar.\n- dismiss: el comentario cumple las reglas; se descartan los reportes y se conserva."
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  description: ''
+                  example: architecto
+              required:
+                - action
+      security: []
+    parameters:
+      -
+        in: path
+        name: comment
+        description: ''
+        example: architecto
+        required: true
+        schema:
+          type: string
   /api/v1/admin/dashboard/stats:
     get:
       summary: ''
