@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\Social;
 
 use App\Http\Controllers\Controller;
+use App\Models\CommentReport;
 use App\Models\Reaction;
 use App\Models\SavedWork;
+use App\Models\UserBlock;
 use App\Models\Work;
 use App\Support\PublicName;
 use App\Support\UploadedImage;
@@ -31,8 +33,22 @@ class SocialController extends Controller
 
         $authUser = $request->user();
 
+        // Lo que este usuario ya reportó y los autores que bloqueó no se le vuelven a mostrar.
+        $hiddenCommentIds = [];
+        $blockedAuthorIds = [];
+        if ($authUser) {
+            $hiddenCommentIds = CommentReport::query()->where('reporter_id', (string) $authUser->id)->pluck('comment_id')
+                ->map(fn ($id) => (string) $id)->all();
+            $blockedAuthorIds = UserBlock::query()->where('blocker_id', (string) $authUser->id)->pluck('blocked_id')
+                ->map(fn ($id) => (string) $id)->all();
+        }
+
         return response()->json([
-            'data' => $works->getCollection()->map(function (Work $work) use ($authUser) {
+            'data' => $works->getCollection()->map(function (Work $work) use ($authUser, $hiddenCommentIds, $blockedAuthorIds) {
+                $comments = $work->comments
+                    ->reject(fn ($c) => in_array((string) $c->getKey(), $hiddenCommentIds, true) || in_array((string) $c->getAttribute('user_id'), $blockedAuthorIds, true))
+                    ->values();
+
                 return [
                     'id' => $work->id,
                     'title' => $work->title,
@@ -54,13 +70,15 @@ class SocialController extends Controller
                         'type' => $img->type ?? 'image',
                     ])->values(),
                     'reactions_count' => $work->reactions->count(),
-                    'comments_count' => $work->comments->count(),
+                    'comments_count' => $comments->count(),
                     'saved_count' => $work->saves->count(),
                     'is_reacted' => $authUser ? $work->reactions->contains('user_id', $authUser->id) : false,
                     'is_saved' => $authUser ? $work->saves->contains('user_id', $authUser->id) : false,
-                    'comments' => $work->comments->take(3)->map(fn ($c) => [
+                    'comments' => $comments->take(3)->map(fn ($c) => [
                         'id' => $c->id,
                         'comment' => $c->comment,
+                        // La app lo usa para no ofrecer «Reportar» en los comentarios propios.
+                        'is_mine' => $authUser ? (string) $c->getAttribute('user_id') === (string) $authUser->id : false,
                         // El muro es público: nombre e inicial del apellido, nunca el nombre completo.
                         'user' => ['name' => $this->authorName($c->user?->name)],
                         'created_at' => optional($c->created_at)?->toAtomString(),
@@ -142,6 +160,7 @@ class SocialController extends Controller
     {
         $user = $request->user();
         abort_if(! $user, 401, 'No autorizado.');
+        abort_if($user->getAttribute('comments_banned_at'), 403, 'Tu cuenta ya no puede comentar en el muro por incumplir las reglas de la comunidad.');
 
         $data = $request->validate([
             'comment' => ['required', 'string', 'max:500'],

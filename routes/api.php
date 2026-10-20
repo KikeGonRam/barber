@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Admin\Client\ClientAdminController;
 use App\Http\Controllers\Api\Admin\Dashboard\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\Inventory\InventoryAdminController;
 use App\Http\Controllers\Api\Admin\Membership\MembershipPlanController;
+use App\Http\Controllers\Api\Admin\Moderation\CommentReportAdminController;
 use App\Http\Controllers\Api\Admin\Package\ServicePackageController as AdminServicePackageController;
 use App\Http\Controllers\Api\Admin\Report\ReportAdminController;
 use App\Http\Controllers\Api\Admin\System\BackupController;
@@ -49,6 +50,7 @@ use App\Http\Controllers\Api\Report\ReportController as ApiReportController;
 use App\Http\Controllers\Api\Review\ReviewController as ApiReviewController;
 use App\Http\Controllers\Api\Service\ServiceManagementController as ApiServiceManagementController;
 use App\Http\Controllers\Api\Setting\SettingController as ApiSettingController;
+use App\Http\Controllers\Api\Social\CommentModerationController;
 use App\Http\Controllers\Api\Social\SocialController as ApiSocialController;
 use App\Http\Controllers\Api\User\UserController as ApiUserController;
 use App\Http\Controllers\Chatbot\ChatbotController;
@@ -388,6 +390,13 @@ Route::prefix('v1')->group(function (): void {
         Route::post('social/work/{work}/save', [ApiSocialController::class, 'save']);
         Route::post('social/work/{work}/comment', [ApiSocialController::class, 'comment']);
 
+        // Contenido de usuarios (política de Google Play): reportar un comentario, bloquear a su autor y deshacerlo.
+        // Throttle propio: reportar y bloquear son escrituras baratas de abusar.
+        Route::post('social/comment/{comment}/report', [CommentModerationController::class, 'report'])->middleware('throttle:20,1');
+        Route::post('social/comment/{comment}/block-author', [CommentModerationController::class, 'blockAuthor'])->middleware('throttle:20,1');
+        Route::get('social/blocks', [CommentModerationController::class, 'blocks']);
+        Route::delete('social/blocks/{block}', [CommentModerationController::class, 'unblock']);
+
         // Chatbot - Gestión (Historial, Perfil, Estadísticas)
         Route::get('chatbot/history', [ChatbotManagementController::class, 'getHistory']);
         Route::post('chatbot/clear-history', [ChatbotManagementController::class, 'clearHistory']);
@@ -454,6 +463,10 @@ Route::prefix('v1')->group(function (): void {
         // Gestión real (crea/edita/borra) de barberos, clientes e
         // inventario -- solo administrador, nunca ingeniero.
         Route::prefix('admin')->middleware('role.custom:administrador')->group(function (): void {
+            // Moderación del muro: comentarios reportados y qué hacer con ellos.
+            Route::get('comment-reports', [CommentReportAdminController::class, 'index']);
+            Route::post('comment-reports/{comment}/resolve', [CommentReportAdminController::class, 'resolve']);
+
             // Barberos (Phase 2)
             Route::get('barbers', [BarberAdminController::class, 'getBarbers']);
             Route::get('barbers/{barber}', [BarberAdminController::class, 'show']);
