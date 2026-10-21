@@ -242,6 +242,129 @@ class ReportAdminController
         ]);
     }
 
+    /**
+     * Demanda por día de la semana y hora, calculada con las citas reales (sin IA: el análisis
+     * de /predictions/peak-hours pasa por Ollama, es lento y devuelve texto). Cuenta toda cita que
+     * reservó o usó un hueco, es decir, todas menos las canceladas.
+     *
+     * Usa una ventana en días (30, 90, 180 o 365) y no el "period" del resto de reportes: un día o
+     * una semana no bastan para distinguir un patrón de una casualidad.
+     */
+    public function generatePeakHoursReport(Request $request): JsonResponse
+    {
+        $this->authorizeAdmin();
+
+        $days = (int) $request->query('days', 90);
+        $days = in_array($days, [30, 90, 180, 365], true) ? $days : 90;
+        $endDate = Carbon::now()->endOfDay();
+        $startDate = Carbon::now()->subDays($days - 1)->startOfDay();
+
+        // `fecha` se guarda como medianoche UTC: se consulta y se lee en UTC. Con la zona de México la
+        // medianoche cae en el día anterior (los lunes saldrían como domingo) y el primer día de la ventana se perdería.
+        $fromUtc = Carbon::parse($startDate->toDateString(), 'UTC')->startOfDay();
+        $toUtc = Carbon::parse($endDate->toDateString(), 'UTC')->endOfDay();
+
+        $appointments = Appointment::whereBetween('fecha', [$fromUtc, $toUtc])
+            ->where('estado', '!=', 'cancelada')
+            ->get(['fecha', 'hora_inicio']);
+
+        $weekdayNames = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
+
+        // Cuántas veces cae cada día de la semana dentro de la ventana (para promediar por semana).
+        $occurrences = array_fill(1, 7, 0);
+        for ($day = $startDate->copy(); $day->lte($endDate); $day->addDay()) {
+            $occurrences[$day->dayOfWeekIso]++;
+        }
+
+        $counts = []; // [díaISO][hora] => citas
+        $total = 0;
+        foreach ($appointments as $appointment) {
+            if (! $appointment->hora_inicio || ! $appointment->fecha) {
+                continue;
+            }
+            $date = Carbon::parse($appointment->fecha)->setTimezone('UTC');
+            $hour = (int) substr((string) $appointment->hora_inicio, 0, 2);
+            $counts[$date->dayOfWeekIso][$hour] = ($counts[$date->dayOfWeekIso][$hour] ?? 0) + 1;
+            $total++;
+        }
+
+        if ($total === 0) {
+            return response()->json(['success' => true, 'data' => [
+                'days' => $days,
+                'startDate' => $startDate->toDateString(),
+                'endDate' => $endDate->toDateString(),
+                'totalAppointments' => 0,
+                'hours' => [],
+                'weekdays' => [],
+                'matrix' => [],
+                'hourlyTotals' => [],
+                'peakSlots' => [],
+                'quietSlots' => [],
+            ]]);
+        }
+
+        $allHours = collect($counts)->flatMap(fn (array $byHour) => array_keys($byHour));
+        $hours = range($allHours->min(), $allHours->max());
+
+        $matrix = [];
+        $weekdays = [];
+        $slots = [];
+        foreach ($weekdayNames as $iso => $name) {
+            $row = [];
+            foreach ($hours as $hour) {
+                $row[] = $counts[$iso][$hour] ?? 0;
+            }
+            $dayTotal = array_sum($row);
+            $matrix[] = $row;
+            $weekdays[] = ['iso' => $iso, 'label' => $name, 'short' => mb_substr($name, 0, 3), 'total' => $dayTotal, 'occurrences' => $occurrences[$iso]];
+
+            foreach ($hours as $i => $hour) {
+                $slots[] = [
+                    'weekday' => $name,
+                    'weekdayIso' => $iso,
+                    'hour' => $hour,
+                    'label' => sprintf('%s %02d:00', $name, $hour),
+                    'total' => $row[$i],
+                    'avgPerWeek' => round($row[$i] / max($occurrences[$iso], 1), 2),
+                    'dayTotal' => $dayTotal,
+                ];
+            }
+        }
+
+        $hourlyTotals = [];
+        foreach ($hours as $i => $hour) {
+            $hourlyTotals[] = [
+                'hour' => $hour,
+                'label' => sprintf('%02d:00', $hour),
+                'total' => array_sum(array_column($matrix, $i)),
+            ];
+        }
+
+        $byDemand = fn (array $a, array $b) => [$b['total'], $a['weekdayIso'], $a['hour']] <=> [$a['total'], $b['weekdayIso'], $b['hour']];
+        $peak = collect($slots)->filter(fn (array $s) => $s['total'] > 0)->sort($byDemand)->take(3)->values()->all();
+        // Horas tranquilas: solo en días con actividad (un día cerrado no es "una hora tranquila").
+        $quiet = collect($slots)->filter(fn (array $s) => $s['dayTotal'] > 0)
+            ->sortBy([['total', 'asc'], ['weekdayIso', 'asc'], ['hour', 'asc']])->take(3)->values()->all();
+
+        $strip = fn (array $s) => array_diff_key($s, ['dayTotal' => true, 'weekdayIso' => true]);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'days' => $days,
+                'startDate' => $startDate->toDateString(),
+                'endDate' => $endDate->toDateString(),
+                'totalAppointments' => $total,
+                'hours' => $hours,
+                'weekdays' => $weekdays,
+                'matrix' => $matrix,
+                'hourlyTotals' => $hourlyTotals,
+                'peakSlots' => array_map($strip, $peak),
+                'quietSlots' => array_map($strip, $quiet),
+            ],
+        ]);
+    }
+
     // Traduce el nombre del periodo a la fecha de inicio correspondiente (mes por defecto)
     private function getStartDate(string $period): Carbon
     {
