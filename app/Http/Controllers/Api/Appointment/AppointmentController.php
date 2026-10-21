@@ -254,16 +254,20 @@ class AppointmentController extends Controller
      * calendario del frontend Nuxt (ver
      * frontend-urban/.claude/skills/nuxt-migration-plan/SKILL.md, Fase 7).
      * Esa versión web solo es alcanzable con sesión + permiso
-     * 'citas.gestionar'; aquí se restringe por rol vía token Bearer,
-     * mismo criterio de admin/recepcionista.
+     * 'citas.gestionar'; aquí se restringe por rol vía token Bearer:
+     * admin/recepcionista ven todo, el barbero solo sus propias citas.
      */
     public function calendarData(Request $request): JsonResponse
     {
-        abort_unless($request->user()?->hasAnyRole(['administrador', 'recepcionista']), 403, 'No autorizado para consultar el calendario.');
+        $user = $request->user();
+        $isStaff = (bool) $user?->hasAnyRole(['administrador', 'recepcionista']);
+        $ownBarberId = $user?->hasRole('barbero') && $user->barberProfile ? (string) $user->barberProfile->getKey() : null;
+        abort_unless($isStaff || $ownBarberId, 403, 'No autorizado para consultar el calendario.');
 
         $start = $request->query('start');
         $end = $request->query('end');
-        $barberId = $request->query('barber_id');
+        // El barbero solo ve su propio calendario: se ignora el barber_id que mande.
+        $barberId = $isStaff ? $request->query('barber_id') : $ownBarberId;
 
         $appointments = Appointment::with(['client.user:id,name', 'service:id,nombre', 'barber.user:id,name'])
             ->when($start, fn ($q) => $q->whereDate('fecha', '>=', $start))
