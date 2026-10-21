@@ -93,7 +93,7 @@
         </tr>
     </table>
 
-    <div class="foot">Gracias por tu compra. Este recibo fue generado electronicamente por UrbanBlade.</div>
+    <div class="foot">Gracias por tu compra. Este recibo fue generado electronicamente por UrbanBlade.<br>Comprobante de pago: no es una factura fiscal (CFDI).</div>
 
 </div>
 </body>
