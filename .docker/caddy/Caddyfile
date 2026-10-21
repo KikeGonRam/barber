@@ -9,6 +9,24 @@
 	root * /var/www/html/public
 	encode gzip
 
+	# Observabilidad: una línea JSON por petición (método, ruta, estado, duración y bytes) a stdout,
+	# que ECS manda a CloudWatch. Sirve para ver qué rutas son lentas. Sin query string (puede traer
+	# tokens), sin cabeceras (Authorization, Cookie) y sin los chequeos de salud del ALB (cada 30 s).
+	@health path /up
+	log_skip @health
+	log {
+		output stdout
+		format filter {
+			wrap json
+			fields {
+				request>uri regexp \?.* ""
+				request>headers delete
+				request>tls delete
+				resp_headers delete
+			}
+		}
+	}
+
 	header {
 		X-Frame-Options "SAMEORIGIN"
 		X-Content-Type-Options "nosniff"

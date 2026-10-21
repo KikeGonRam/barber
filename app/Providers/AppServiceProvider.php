@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Listeners\EmbedMailLogo;
 use App\Models\User;
 use App\Notifications\Auth\WelcomeNotification;
+use App\Observability\MongoCommandTimer;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use App\Repositories\Contracts\InventoryMovementRepositoryInterface;
 use App\Repositories\Contracts\PaymentRepositoryInterface;
@@ -98,6 +99,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->warnIfMailIsNotDelivering();
+
+        // Mide cada comando a MongoDB (cuántos y cuánto tardan por petición) y avisa de los lentos. Ver config/observability.php.
+        MongoCommandTimer::register();
 
         // Logo incrustado en todos los correos (imagen cid:), para que se vea aunque el cliente bloquee imágenes remotas.
         Event::listen(MessageSending::class, EmbedMailLogo::class);

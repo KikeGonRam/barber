@@ -7,6 +7,7 @@ use App\Http\Middleware\Api\CheckApiMaintenanceMode;
 use App\Http\Middleware\AuthenticateMobileApiToken;
 use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\LogSlowRequests;
 use App\Http\Middleware\OptionalMobileApiToken;
 use App\Http\Middleware\RejectMongoOperators;
 use App\Http\Middleware\Role\EnsureUserHasPermission;
@@ -31,6 +32,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // en staging todos los visitantes compartían la IP del ALB y los throttle por
         // IP eran globales. Ver TrustProxyChain.
         $middleware->replace(TrustProxies::class, TrustProxyChain::class);
+
+        // Avisa en el log de las peticiones lentas (ruta, estado y tiempo en MongoDB). Ver config/observability.php.
+        $middleware->append(LogSlowRequests::class);
 
         $middleware->validateCsrfTokens(except: [
             'api/v1/auth/get-api-token',
