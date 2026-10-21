@@ -29,11 +29,9 @@ class PeakHoursReportApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        Appointment::query()->delete();
-        MobileApiToken::query()->delete();
-        User::query()->delete();
-        Role::query()->delete();
-        Permission::query()->delete();
+        foreach ([Appointment::class, MobileApiToken::class, User::class, Role::class, Permission::class] as $model) {
+            $model::query()->delete();
+        }
         \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
