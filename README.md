@@ -14,10 +14,12 @@ experiencias diferenciadas para administrador, recepcionista, barbero y cliente.
 
 **Este repositorio (`barber`) es hoy una API JSON pura** — consumida por el frontend
 real de la aplicación, [`frontend-urban`](https://github.com/KikeGonRam/frontend_Urbanblade)
-(Nuxt 4). No queda ninguna página Blade real: landing pública, login/registro/
+(Nuxt 4). No queda ninguna interfaz de usuario en Blade: landing pública, login/registro/
 recuperación de contraseña, catálogo público, perfil, notificaciones, respaldo de base
 de datos y tarjeta de membresía eran las últimas en pie y todas se retiraron hacia Nuxt
-el 2026-09-09 (cada una con paridad funcional confirmada antes de tocar su ruta). El
+el 2026-09-09 (cada una con paridad funcional confirmada antes de tocar su ruta). Blade
+solo se usa ya para lo que no es pantalla: correos, PDF (recibos y reportes), páginas de
+error y de mantenimiento, y la documentación generada de la API. El
 panel administrativo completo (los 4 dashboards por rol, citas, clientes, pagos,
 pedidos, inventario, servicios, usuarios, campañas, reportes, etc.) se había retirado
 antes, el 2026-09-06 — ver `.claude/skills/urbanblade-guardrails/SKILL.md` (guardrail
@@ -31,24 +33,38 @@ antes, el 2026-09-06 — ver `.claude/skills/urbanblade-guardrails/SKILL.md` (gu
   `frontend-urban`.
 - Separa flujos por rol para cada perfil del negocio (administrador, recepcionista,
   barbero, cliente, e "ingeniero" — este último solo lectura).
-- Mantiene vivo solo lo que Nuxt no cubre: landing pública, login/registro/
-  recuperación de contraseña y el chatbot. Catálogo público, perfil, notificaciones,
-  respaldo de base de datos y tarjeta de membresía ya son redirects a `frontend-urban`
-  (paridad completa desde el 2026-09-09).
+- Las rutas web de siempre (`/`, `/login`, `/register`, `/dashboard`, `/profile`,
+  `/notifications`, catálogo público, respaldo y tarjeta de membresía) ya solo redirigen a
+  `frontend-urban` (paridad completa desde el 2026-09-09). Lo que sigue respondiendo aquí
+  son los endpoints del chatbot, el rastreo de campañas (`/t/o`, `/t/c`) y los retornos de
+  pago.
 - Cobros reales con Stripe (tarjeta, beta), transferencia con comprobante, y efectivo;
   programa de lealtad con puntos y descuentos por nivel.
+- Flujo de citas como máquina de estados estricta (pendiente → confirmada → en proceso →
+  completada, más cancelada y no asistió) con aprobación del barbero y cobro solo desde
+  confirmada.
+- Reportes de ingresos, citas, inventario y clientes en JSON, **PDF y Excel corporativos**
+  (ver más abajo) y un cálculo de **horas pico** con las citas reales.
 
 ## 🏗️ Stack
 
-- PHP 8.3+, Laravel 13
+- PHP 8.4 en las imágenes de Docker (`composer.json` exige `^8.3`), Laravel 13
 - MongoDB con mongodb/laravel-mongodb (Atlas, compartida con `spark/`)
-- Redis para caché, sesiones y cola (workers dedicados: `queue:work`, `schedule:work`)
-- Vite + Tailwind CSS 4 + Alpine.js — solo para landing/auth/chatbot/páginas de error;
-  el frontend real es Nuxt 4 en `frontend-urban`
+- Redis para caché, sesiones y cola en desarrollo (workers dedicados: `queue:work`,
+  `schedule:work`); la imagen de staging puede correr el scheduler dentro del mismo
+  contenedor (`RUN_SCHEDULER=true`)
+- Vite + Tailwind CSS 4 + Alpine.js — solo para las pocas páginas Blade que quedan
+  (errores, mantenimiento); el frontend real es Nuxt 4 en `frontend-urban`
 - Stripe, Socialite (login con Google), Laravel Pulse (panel de operación para
-  "ingeniero"), Scribe (documentación de la API)
+  "ingeniero"), Scribe (documentación de la API), DomPDF y Maatwebsite Excel (documentos),
+  Firebase y Web Push (notificaciones), Sentry
 - Docker Compose para entorno local (`app`, `web`, `worker`, `scheduler`, `redis`,
-  `mongo-test`, `mailpit`, `ollama`)
+  `mongo-test`, `mongo-test-init`, `mailpit`, `ollama`, `dns`)
+
+> **Seguridad de PHP:** el 21-oct-2026 se publicaron 8.5.12, 8.4.27, 8.3.36 y 8.2.35 por dos
+> fallos críticos de ejecución remota (CVE-2026-109618 y CVE-2026-109619, "PHP2Shell").
+> Cualquier imagen debe construirse con PHP **8.4.27 o superior**: al reconstruir, baja la
+> base más reciente (`docker build --pull`) y comprueba `php -v` dentro de la imagen.
 
 ## 🧭 Roles del sistema
 
@@ -127,7 +143,7 @@ docker compose exec app php artisan db:seed --class=AdminUserSeeder
 
 Abre la aplicación en:
 
-- http://localhost:8000 — API + landing/auth/chatbot (lo único que sigue siendo Blade)
+- http://localhost:8000 — la API (`/api/v1`); las rutas web redirigen al frontend
 - Mailpit: http://localhost:8025
 
 Para la experiencia real del producto (dashboards, citas, pagos, inventario, etc.),
@@ -158,6 +174,53 @@ Ruta de login:
 > [docs/ACCESOS.md](docs/ACCESOS.md). Los seeders masivos ya no existen (se
 > eliminaron el 2026-10-09): el contenido real se carga desde la aplicación.
 
+## 📄 Reportes y documentos
+
+`GET /api/v1/reports/{tipo}/{formato}` (administrador e ingeniero) con `tipo` =
+`ingresos | citas | inventario | clientes` y `formato` = `json | pdf | excel`.
+
+- **PDF**: portada de marca (folio, periodo, quién lo preparó), introducción y alcance,
+  resumen ejecutivo con indicadores, hallazgos redactados con las cifras reales, gráfica,
+  detalle con montos en pesos y notas de metodología; encabezado y «Página n de N».
+- **Excel**: libro de tres hojas — Portada, Resumen (introducción, tarjetas, hallazgos y
+  gráfica nativa editable) y Detalle (filtros, panel congelado, formato de moneda y totales).
+- Indicadores y hallazgos salen de `App\Services\Report\ReportNarrative`, a partir de las
+  mismas filas del JSON, para que ningún formato contradiga a otro.
+- Los recibos de pago y de pedidos (`resources/views/pdf/`) llevan la leyenda de que no son
+  factura fiscal (CFDI).
+- Horas pico: `GET /api/v1/admin/reports/peak-hours?days=30|90|180|365` — demanda real de
+  citas por día de la semana y hora, sin contar canceladas.
+
+## 📈 Observabilidad
+
+Para saber qué ruta o consulta frena a la API (los logs van a stderr/CloudWatch):
+
+- **Caddy** (imagen de staging) escribe una línea JSON por petición: método, ruta sin query
+  string, estado, duración y bytes. Sin cabeceras ni cookies, y sin los chequeos `/up`.
+- **Peticiones lentas**: aviso `Petición lenta` cuando pasan de `SLOW_REQUEST_MS` (2000),
+  con el patrón de la ruta, el estado, la memoria y cuántos comandos a MongoDB hizo y cuánto
+  tardaron.
+- **Consultas lentas**: aviso `Consulta lenta a MongoDB` por cada comando que pasa de
+  `SLOW_QUERY_MS` (300), con el comando y la colección.
+- Un umbral en `-1` apaga el aviso. Ver `config/observability.php`.
+
+## 🚢 Imágenes de Docker
+
+- `Dockerfile` (raíz) — **solo desarrollo** local (`docker-compose.yml`).
+- `.docker/staging/Dockerfile` — la imagen que se despliega a AWS: PHP-FPM + Caddy en un
+  solo contenedor, con assets de Vite compilados. Su build valida el `Caddyfile`. Detalles
+  en [docs/DESPLIEGUE_AWS_STAGING.md](docs/DESPLIEGUE_AWS_STAGING.md).
+
+Desplegar con el Dockerfile de la raíz arranca solo PHP-FPM, sin Caddy ni credenciales de
+Firebase, y el balanceador lo marca como no saludable.
+
+## 🔌 API y contrato
+
+- Documentación navegable en `/docs` (Scribe) y spec en `public/docs/openapi.yaml`.
+- `frontend-urban` guarda una copia (`contract/openapi.yaml`) y genera sus tipos de ella;
+  al cambiar la API, actualiza el spec y avisa al frontend (`npm run contract:sync` allá).
+  Ver [docs/PLAN_CONTRATO_API.md](docs/PLAN_CONTRATO_API.md).
+
 ## 🧪 Validación y pruebas
 
 Importante: en este proyecto no se deben ejecutar pruebas con `php artisan test` directo. La configuración real usa la base local de pruebas y la forma recomendada es:
@@ -167,6 +230,13 @@ Importante: en este proyecto no se deben ejecutar pruebas con `php artisan test`
 ```
 
 Esto evita que Laravel use accidentalmente la base Atlas compartida con Spark.
+
+La suite tiene hoy más de 900 pruebas. En CI (`.github/workflows/ci.yml`) corren, en cada
+push/PR a `main`: **Backend** (Pint, Larastan, PHPUnit con cobertura, `composer audit`),
+**Frontend** (ESLint, build de Vite y auditoría), **Security scan** (Gitleaks y Trivy) y
+**Smoke test** de rutas HTTP;
+`docker-image.yml` construye las dos imágenes (desarrollo y staging). SonarCloud y
+GitGuardian revisan además cada PR.
 
 ## 🛠️ Comandos útiles
 
@@ -223,6 +293,8 @@ Si todo queda en verde, el proyecto está listo para demo local.
 - [docs/GOOGLE_CLOUD_OAUTH.md](docs/GOOGLE_CLOUD_OAUTH.md)
 - [docs/MONGODB_ATLAS.md](docs/MONGODB_ATLAS.md)
 - [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md)
+- [docs/PLAN_CONTRATO_API.md](docs/PLAN_CONTRATO_API.md)
+- [docs/PLAN_FLUJO_CITAS_V2.md](docs/PLAN_FLUJO_CITAS_V2.md)
 
 ## 🧩 Estado del repositorio
 
