@@ -156,6 +156,8 @@ Route::prefix('v1')->group(function (): void {
         Route::get('appointments', [AppointmentController::class, 'index']);
         Route::get('appointments/calendar-data', [AppointmentController::class, 'calendarData']);
         Route::get('appointments/chargeable', [AppointmentController::class, 'chargeable']);
+        // Detalle de una cita (va después de las rutas fijas de arriba para no taparlas).
+        Route::get('appointments/{appointment}', [AppointmentController::class, 'show']);
         Route::post('appointments', [AppointmentController::class, 'store']);
         Route::put('appointments/{appointment}', [AppointmentController::class, 'update']);
         Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);

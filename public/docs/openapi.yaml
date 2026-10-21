@@ -1887,6 +1887,26 @@ paths:
         - Citas
       security: []
   '/api/v1/appointments/{appointment_code}':
+    get:
+      summary: 'Detalle de una cita'
+      operationId: detalleDeUnaCita
+      description: "Todos los datos de una cita para mostrarlos en una ventana: servicio, barbero, cliente, estado, notas,\ndepósito y pagos. La administración y la recepción ven cualquier cita (con el contacto del cliente); el\nbarbero y el cliente, solo las suyas (sin el contacto)."
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No query results for model [App\Models\Appointment] architecto'
+                properties:
+                  message:
+                    type: string
+                    example: 'No query results for model [App\Models\Appointment] architecto'
+      tags:
+        - Citas
     put:
       summary: "Edita una cita completa (todos los campos). Reservado a administración/recepción;\nel barbero solo puede cambiar el estado vía updateStatus()."
       operationId: editaUnaCitaCompletatodosLosCamposReservadoAAdministracinrecepcinElBarberoSoloPuedeCambiarElEstadoVaUpdateStatus
