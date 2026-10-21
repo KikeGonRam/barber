@@ -125,7 +125,7 @@
             <p class="cover-period">{{ $narrative['period'] }}</p>
         </div>
         <div class="cover-meta">
-            <table>
+            <table role="presentation">
                 <tr>
                     <td>
                         <p class="meta-label">Generado</p>
@@ -153,7 +153,7 @@
         <p class="lead">Las cifras se calculan a partir de los registros de UrbanBlade al momento de la generación y se actualizan cada vez que se exporta el documento.</p>
 
         <h3 class="sub-title">Alcance</h3>
-        <table class="kv">
+        <table class="kv" role="presentation">
             <tr><td class="k">Periodo</td><td>{{ $narrative['period'] }}</td></tr>
             @foreach($narrative['scope'] as [$label, $value])
                 <tr><td class="k">{{ $label }}</td><td>{{ $value }}</td></tr>
@@ -163,7 +163,7 @@
         </table>
 
         <h3 class="sub-title">Contenido</h3>
-        <table class="toc">
+        <table class="toc" role="presentation">
             <tr><td class="n">01</td><td>Introducción y alcance</td></tr>
             <tr><td class="n">02</td><td>Resumen ejecutivo e indicadores clave</td></tr>
             <tr><td class="n">03</td><td>Análisis y hallazgos</td></tr>
@@ -177,7 +177,7 @@
         <p class="eyebrow">02 · Resumen ejecutivo</p>
         <h2 class="section-title">Indicadores clave</h2>
         @if(! empty($narrative['kpis']))
-            <table class="kpis">
+            <table class="kpis" role="presentation">
                 <tr>
                     @foreach($narrative['kpis'] as $kpi)
                         <td>
@@ -194,7 +194,7 @@
 
         <p class="eyebrow" style="margin-top: 30px;">03 · Análisis</p>
         <h2 class="section-title">Hallazgos principales</h2>
-        <table class="findings">
+        <table class="findings" role="presentation">
             @foreach($narrative['findings'] as $i => $finding)
                 <tr><td class="n">{{ $i + 1 }}</td><td>{{ $finding }}</td></tr>
             @endforeach
@@ -209,7 +209,7 @@
                 @endif
 
                 @if($isTimeSeries)
-                    <table class="cols">
+                    <table class="cols" role="presentation">
                         <tr>
                             @foreach($chartValues as $v)
                                 <td><div class="col-bar" style="height: {{ max(2, round(($v / $chartMax) * 120)) }}px;"></div></td>
@@ -284,7 +284,7 @@
         </ul>
 
         <h3 class="sub-title">Control del documento</h3>
-        <table class="kv">
+        <table class="kv" role="presentation">
             <tr><td class="k">Folio</td><td>{{ $folio }}</td></tr>
             <tr><td class="k">Generado</td><td>{{ $generated->format('d/m/Y H:i') }}</td></tr>
             <tr><td class="k">Preparado por</td><td>{{ $preparedBy ?? 'Administración UrbanBlade' }}</td></tr>

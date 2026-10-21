@@ -12,6 +12,7 @@ use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Spatie\Permission\PermissionRegistrar;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Tests\TestCase;
 
 /**
@@ -65,7 +66,9 @@ class ReportDocumentsApiTest extends TestCase
 
         $reader = IOFactory::createReader('Xlsx');
         $reader->setIncludeCharts(true);
-        $book = $reader->load($response->baseResponse->getFile()->getPathname());
+        $file = $response->baseResponse;
+        $this->assertInstanceOf(BinaryFileResponse::class, $file);
+        $book = $reader->load($file->getFile()->getPathname());
         $this->assertSame(['Portada', 'Resumen', 'Detalle'], $book->getSheetNames());
 
         $summary = $book->getSheetByName('Resumen');
