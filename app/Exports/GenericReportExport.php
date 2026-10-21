@@ -11,12 +11,15 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Conditional;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
@@ -38,7 +41,68 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
         private readonly array $headings,
         private readonly string $reportTitle = 'Reporte BarberPro',
         private readonly ?array $chart = null,
+        private readonly array $keys = [],
     ) {}
+
+    // Columnas en pesos (formato moneda) y columnas que además llevan renglón de total al final.
+    private const MONEY_KEYS = ['monto', 'propina', 'total', 'precio_cobrado', 'precio_venta', 'gasto_total'];
+
+    private const SUMMED_KEYS = ['monto', 'propina', 'total', 'precio_cobrado', 'gasto_total'];
+
+    private const COUNT_KEYS = ['visitas', 'completadas', 'stock_actual', 'stock_minimo', 'movimientos'];
+
+    /**
+     * Estilo de la hoja de detalle: panel congelado, filtros, rayado, formato de moneda y renglón de totales.
+     */
+    private function styleDetail(Worksheet $sheet): void
+    {
+        $lastRow = $this->rows->count() + 1;
+        $lastColumn = Coordinate::stringFromColumnIndex(max(count($this->headings), 1));
+
+        $sheet->setShowGridlines(false);
+        $sheet->getTabColor()->setRGB('0A0A0A');
+        $sheet->getRowDimension(1)->setRowHeight(26);
+        $sheet->freezePane('A2');
+        $sheet->setAutoFilter("A1:{$lastColumn}{$lastRow}");
+
+        if ($lastRow > 1) {
+            $sheet->getStyle("A2:{$lastColumn}{$lastRow}")->getBorders()->getBottom()->setBorderStyle(Border::BORDER_HAIR)->getColor()->setRGB('CCCCCC');
+            $zebra = new Conditional;
+            $zebra->setConditionType(Conditional::CONDITION_EXPRESSION)->addCondition('MOD(ROW(),2)=0');
+            $zebra->getStyle()->getFill()->setFillType(Fill::FILL_SOLID)->getEndColor()->setRGB('F7F7F5');
+            $sheet->getStyle("A2:{$lastColumn}{$lastRow}")->setConditionalStyles([$zebra]);
+        }
+
+        foreach ($this->keys as $i => $key) {
+            $column = Coordinate::stringFromColumnIndex($i + 1);
+            $isMoney = in_array($key, self::MONEY_KEYS, true);
+            if ($isMoney || in_array($key, self::COUNT_KEYS, true)) {
+                $range = "{$column}2:{$column}".($lastRow + 1);
+                $sheet->getStyle($range)->getNumberFormat()->setFormatCode($isMoney ? '"$"#,##0.00' : '#,##0');
+                $sheet->getStyle($range)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            }
+        }
+
+        $this->addTotalsRow($sheet, $lastRow, $lastColumn);
+    }
+
+    private function addTotalsRow(Worksheet $sheet, int $lastRow, string $lastColumn): void
+    {
+        $sums = array_filter($this->keys, fn ($key) => in_array($key, self::SUMMED_KEYS, true));
+        if ($lastRow < 2 || $sums === []) {
+            return;
+        }
+
+        $totalRow = $lastRow + 1;
+        $sheet->setCellValue('A'.$totalRow, 'TOTAL');
+        foreach (array_keys($sums) as $i) {
+            $column = Coordinate::stringFromColumnIndex($i + 1);
+            $sheet->setCellValue($column.$totalRow, "=SUBTOTAL(109,{$column}2:{$column}{$lastRow})");
+        }
+        $style = $sheet->getStyle("A{$totalRow}:{$lastColumn}{$totalRow}");
+        $style->getFont()->setBold(true)->getColor()->setRGB('D4AF37');
+        $style->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('0A0A0A');
+    }
 
     /**
      * Filas de datos ya calculadas por el servicio de reportes.
@@ -100,11 +164,15 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                if ($this->keys !== []) {
+                    $this->styleDetail($sheet);
+                }
+
                 if (empty($this->chart['labels']) || empty($this->chart['values'])) {
                     return;
                 }
 
-                $sheet = $event->sheet->getDelegate();
                 $labels = $this->chart['labels'];
                 $values = $this->chart['values'];
 
