@@ -6764,6 +6764,28 @@ paths:
       tags:
         - Endpoints
       security: []
+  /api/v1/admin/reports/peak-hours:
+    get:
+      summary: "Demanda por día de la semana y hora, calculada con las citas reales (sin IA: el análisis\nde /predictions/peak-hours pasa por Ollama, es lento y devuelve texto)."
+      operationId: demandaPorDaDeLaSemanaYHoraCalculadaConLasCitasRealesSinIA
+      description: "Cuenta toda cita que reservó o usó un hueco (todas menos las canceladas). Usa una\nventana en días (`days`: 30, 90, 180 o 365; 90 por defecto) y no el \"period\" del resto de reportes."
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
   '/api/v1/admin/predictions/income/{days}':
     get:
       summary: 'Proyección de ingresos futuros a N días calculada por el servicio de predicción.'
