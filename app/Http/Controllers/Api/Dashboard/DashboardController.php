@@ -5,16 +5,15 @@ namespace App\Http\Controllers\Api\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Order;
-use App\Models\Service;
 use App\Models\User;
 use App\Services\Analytics\AnalyticsInsightService;
+use App\Services\Dashboard\BusinessInsightService;
 use App\Services\Dashboard\DashboardService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Member\MemberCardService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Controlador del dashboard unificado.
@@ -381,62 +380,6 @@ class DashboardController extends Controller
      */
     private function analysisInsights(): array
     {
-        return Cache::remember('dashboard_insights', 600, function () {
-            $insights = [];
-
-            $premium = Service::where('activo', true)->orderByDesc('precio')->first();
-            $totalCitas = Appointment::count();
-            if ($premium && $totalCitas > 0) {
-                $premiumCitas = Appointment::where('service_id', (string) $premium->id)->count();
-                $avgTicket = (float) (Appointment::avg('precio_cobrado') ?: 1);
-                $insights[] = [
-                    'titulo' => 'Segmento premium',
-                    'dato' => sprintf('%.1f%% de las citas', $premiumCitas / $totalCitas * 100),
-                    'detalle' => sprintf(
-                        '"%s" factura %.1fx el ticket promedio ($%s vs $%s) — candidato a upsell.',
-                        $premium->nombre, ((float) $premium->precio) / max($avgTicket, 1),
-                        number_format((float) $premium->precio, 0), number_format($avgTicket, 0)
-                    ),
-                ];
-            }
-
-            $iniMes = now()->startOfMonth();
-            $iniPrev = now()->subMonthNoOverflow()->startOfMonth();
-            $finPrev = $iniMes->copy()->subSecond();
-            $mesTot = Appointment::where('fecha', '>=', $iniMes)->count();
-            $mesCan = Appointment::where('fecha', '>=', $iniMes)->where('estado', 'cancelada')->count();
-            $prevTot = Appointment::whereBetween('fecha', [$iniPrev, $finPrev])->count();
-            $prevCan = Appointment::whereBetween('fecha', [$iniPrev, $finPrev])->where('estado', 'cancelada')->count();
-            if ($mesTot >= 10 && $prevTot >= 10) {
-                $tasaMes = $mesCan / $mesTot * 100;
-                $tasaPrev = $prevCan / $prevTot * 100;
-                $insights[] = [
-                    'titulo' => 'Cancelaciones del mes',
-                    'dato' => sprintf('%.1f%%', $tasaMes),
-                    'detalle' => sprintf(
-                        '%s vs %.1f%% el mes pasado (%d de %d citas).',
-                        $tasaMes > $tasaPrev ? 'Subió' : 'Bajó', $tasaPrev, $mesCan, $mesTot
-                    ),
-                ];
-            }
-
-            $horas = Appointment::where('fecha', '>=', now()->subDays(30))
-                ->pluck('hora_inicio')
-                ->map(fn ($h) => substr((string) $h, 0, 2))
-                ->countBy();
-            if ($horas->isNotEmpty()) {
-                $pico = $horas->sortDesc()->keys()->first();
-                $insights[] = [
-                    'titulo' => 'Hora pico (30 días)',
-                    'dato' => "{$pico}:00",
-                    'detalle' => sprintf(
-                        '%d citas en esa franja — reforzar barberos ahí y promocionar horas valle.',
-                        $horas[$pico]
-                    ),
-                ];
-            }
-
-            return $insights;
-        });
+        return app(BusinessInsightService::class)->build();
     }
 }
