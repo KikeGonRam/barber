@@ -98,6 +98,7 @@ class DashboardController extends Controller
             'kpis' => $data['kpis'],
             'nextAppointments' => $data['next_appointments']->map(fn (Appointment $appt) => [
                 'id' => (string) $appt->id,
+                'code' => $appt->getAttribute('code'),
                 'hora_inicio' => $appt->hora_inicio,
                 'cliente' => $appt->client?->user?->name ?? 'Cliente',
                 'servicio' => $appt->service?->nombre ?? '—',
@@ -311,6 +312,7 @@ class DashboardController extends Controller
             'chatbotTelemetry' => $data['chatbot_telemetry'] ?? [],
             'todayAppointments' => $todayAppointments->map(fn (Appointment $appt) => [
                 'id' => (string) $appt->id,
+                'code' => $appt->getAttribute('code'),
                 'estado' => $appt->estado,
                 'hora_inicio' => $appt->hora_inicio,
                 'hora_fin' => $appt->hora_fin,
@@ -320,6 +322,7 @@ class DashboardController extends Controller
             ])->values(),
             'recentAppointments' => $recentAppointments->map(fn (Appointment $appt) => [
                 'id' => (string) $appt->id,
+                'code' => $appt->getAttribute('code'),
                 'estado' => $appt->estado,
                 'hora_inicio' => $appt->hora_inicio,
                 'fecha' => Carbon::parse($appt->fecha)->translatedFormat('d M'),

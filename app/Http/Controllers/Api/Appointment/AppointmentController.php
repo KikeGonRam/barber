@@ -55,6 +55,47 @@ class AppointmentController extends Controller
     ) {}
 
     /**
+     * Detalle de una cita
+     *
+     * Todos los datos de una cita para mostrarlos en una ventana: servicio, barbero, cliente, estado, notas,
+     * depósito y pagos. La administración y la recepción ven cualquier cita (con el contacto del cliente); el
+     * barbero y el cliente, solo las suyas (sin el contacto).
+     *
+     * @authenticated
+     *
+     * @urlParam appointment string required Código público de la cita. Example: jfb7ffye
+     */
+    public function show(Request $request, Appointment $appointment): JsonResponse
+    {
+        $user = $request->user();
+        abort_if(! $user, 403, 'No autorizado.');
+
+        $isStaff = $user->hasAnyRole(['administrador', 'recepcionista']);
+        $isOwnerClient = $user->hasRole('cliente') && $user->clientProfile && (string) $appointment->client_id === (string) $user->clientProfile->id;
+        $isOwnerBarber = $user->hasRole('barbero') && $user->barberProfile && (string) $appointment->barber_id === (string) $user->barberProfile->getKey();
+        abort_if(! $isStaff && ! $isOwnerClient && ! $isOwnerBarber, 403, 'No autorizado para ver esta cita.');
+
+        $appointment->load(['client.user', 'barber.user', 'service', 'payments', 'deposits']);
+
+        $detail = (new AppointmentResource($appointment))->resolve($request);
+        // El contacto del cliente solo lo ve el personal; el barbero y el propio cliente no lo necesitan aquí.
+        $detail['contacto'] = $isStaff ? [
+            'email' => $appointment->client?->getRelation('user')?->getAttribute('email'),
+            'telefono' => $appointment->client?->getAttribute('telefono'),
+        ] : null;
+        $detail['pagos'] = $appointment->payments->map(fn ($payment) => [
+            'metodo_pago' => $payment->getAttribute('metodo_pago'),
+            'estado' => $payment->getAttribute('estado'),
+            'monto' => (float) $payment->getAttribute('monto'),
+            'propina' => (float) $payment->getAttribute('propina'),
+            'fecha' => optional($payment->getAttribute('created_at'))->toIso8601String(),
+        ])->values();
+        $detail['creada_en'] = optional($appointment->created_at)->toIso8601String();
+
+        return response()->json(['data' => $detail]);
+    }
+
+    /**
      * Listar Citas
      *
      * Obtiene el historial de citas filtrado por el rol del usuario autenticado.
