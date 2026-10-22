@@ -34,5 +34,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
+    # --pull: siempre la base de PHP más reciente, no una guardada en caché.
     - name: Build the Docker image
-      run: docker build . --file ${{ matrix.image.dockerfile }} --tag urbanblade/barber-${{ matrix.image.name }}:${{ github.sha }}
+      run: docker build . --pull --file ${{ matrix.image.dockerfile }} --tag urbanblade/barber-${{ matrix.image.name }}:${{ github.sha }}
+
+    # T048 (HT-17): construir no basta. El 21-oct-2026 PHP publicó dos fallos críticos de ejecución remota
+    # (CVE-2026-109618 y CVE-2026-109619, «PHP2Shell») corregidos en 8.4.27: una imagen con una base más
+    # vieja no debe pasar. Al salir un parche nuevo de la serie 8.4, subir este mínimo.
+    - name: La imagen trae PHP parchado (8.4.27 o superior)
+      env:
+        PHP_MINIMO: '8.4.27'
+      run: |
+        version=$(docker run --rm --entrypoint php urbanblade/barber-${{ matrix.image.name }}:${{ github.sha }} -r 'echo PHP_VERSION;')
+        echo "PHP en la imagen: $version (mínimo $PHP_MINIMO)"
+        printf '%s\n%s\n' "$PHP_MINIMO" "$version" | sort -V -C
