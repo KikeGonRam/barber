@@ -22,6 +22,10 @@ use Tests\TestCase;
  */
 class AppointmentDetailApiTest extends TestCase
 {
+    private const BARBERO = 'Barbero Dueño';
+
+    private const SERVICIO = 'Corte a Navaja';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -32,15 +36,13 @@ class AppointmentDetailApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        Payment::query()->delete();
-        Appointment::withTrashed()->forceDelete();
-        Service::query()->delete();
-        Barber::query()->delete();
-        Client::query()->delete();
-        MobileApiToken::query()->delete();
-        User::withTrashed()->forceDelete();
-        Role::query()->delete();
-        Permission::query()->delete();
+        // Los modelos con borrado lógico se borran de verdad; el pivote de permisos no es un modelo.
+        foreach ([Appointment::class, User::class] as $softDeleting) {
+            $softDeleting::withTrashed()->forceDelete();
+        }
+        foreach ([Payment::class, Service::class, Barber::class, Client::class, MobileApiToken::class, Role::class, Permission::class] as $model) {
+            $model::query()->delete();
+        }
         \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
@@ -68,10 +70,10 @@ class AppointmentDetailApiTest extends TestCase
     private function cita(): array
     {
         $clientUser = $this->user('cliente', 'Cliente Dueño');
-        $barberUser = $this->user('barbero', 'Barbero Dueño');
+        $barberUser = $this->user('barbero', self::BARBERO);
         $client = Client::create(['user_id' => (string) $clientUser->id, 'telefono' => '5512345678', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
-        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Dueño', 'activo' => true]);
-        $service = Service::create(['nombre' => 'Corte a Navaja', 'precio' => 260, 'duracion' => 45, 'activo' => true]);
+        $barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => self::BARBERO, 'activo' => true]);
+        $service = Service::create(['nombre' => self::SERVICIO, 'precio' => 260, 'duracion' => 45, 'activo' => true]);
 
         $appointment = Appointment::create([
             'client_id' => (string) $client->id,
@@ -100,9 +102,9 @@ class AppointmentDetailApiTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('data.code', $appointment->getAttribute('code'))
             ->assertJsonPath('data.estado', 'completada')
-            ->assertJsonPath('data.service.nombre', 'Corte a Navaja')
+            ->assertJsonPath('data.service.nombre', self::SERVICIO)
             ->assertJsonPath('data.client.user.name', 'Cliente Dueño')
-            ->assertJsonPath('data.barber.user.name', 'Barbero Dueño')
+            ->assertJsonPath('data.barber.user.name', self::BARBERO)
             ->assertJsonPath('data.notas', 'Prefiere el degradado bajo')
             ->assertJsonPath('data.contacto.email', $clientUser->email)
             ->assertJsonPath('data.contacto.telefono', '5512345678')
@@ -120,7 +122,7 @@ class AppointmentDetailApiTest extends TestCase
         $this->withToken($this->token($barberUser))->getJson("/api/v1/appointments/{$code}")
             ->assertOk()
             ->assertJsonPath('data.contacto', null)
-            ->assertJsonPath('data.service.nombre', 'Corte a Navaja');
+            ->assertJsonPath('data.service.nombre', self::SERVICIO);
     }
 
     public function test_el_cliente_dueno_la_ve_sin_el_contacto(): void
