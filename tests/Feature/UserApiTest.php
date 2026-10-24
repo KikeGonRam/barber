@@ -103,7 +103,7 @@ class UserApiTest extends TestCase
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/v1/users', [
                 'name' => 'Nuevo Barbero', 'email' => 'nuevo-barbero@test.local',
-                'password' => 'password123', 'password_confirmation' => 'password123', 'role' => 'barbero',
+                'password' => 'Password123', 'password_confirmation' => 'Password123', 'role' => 'barbero',
             ]);
 
         $response->assertCreated();

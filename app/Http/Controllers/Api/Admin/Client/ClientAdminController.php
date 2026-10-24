@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 
 /**
  * Controlador de administración de clientes (panel admin).
@@ -202,7 +203,7 @@ class ClientAdminController
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'telefono' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8',
+            'password' => ['required', 'string', PasswordRule::defaults()],
         ]);
 
         $user = User::create([

@@ -24,7 +24,7 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Password::min(8)],
+            'password' => ['required', 'confirmed', Password::defaults()],
             // El rol debe existir como Role de Spatie con guard "web"; evita
             // asignar nombres de rol inválidos o de otro guard (p.ej. api).
             'role' => [

@@ -192,7 +192,7 @@ class ClientAdminApiTest extends TestCase
             'name' => 'Cliente Nuevo',
             'email' => $email,
             'telefono' => '5559876543',
-            'password' => 'password123',
+            'password' => 'Password123',
         ]);
 
         $response->assertCreated();
@@ -318,7 +318,7 @@ class ClientAdminApiTest extends TestCase
         $this->withToken($token)->postJson('/api/v1/admin/clients', [
             'name' => 'Alta En Mostrador',
             'email' => 'alta-mostrador-'.Str::uuid().'@test.local',
-            'password' => 'password123',
+            'password' => 'Password123',
         ])->assertCreated();
     }
 

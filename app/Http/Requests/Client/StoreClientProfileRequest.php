@@ -25,7 +25,7 @@ class StoreClientProfileRequest extends FormRequest
             // 'password' es nullable porque este request también se reutiliza
             // cuando un admin/recepción crea el perfil de cliente sin definir
             // contraseña (el cliente la establece después).
-            'password' => ['nullable', 'confirmed', Password::min(8)],
+            'password' => ['nullable', 'confirmed', Password::defaults()],
             'telefono' => ['nullable', 'string', 'max:30'],
             'fecha_nacimiento' => ['nullable', 'date'],
             'pref_in_app' => ['nullable', 'boolean'],

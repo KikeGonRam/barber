@@ -35,7 +35,7 @@ class UpdateUserRequest extends FormRequest
             ],
             // password es nullable: dejar el campo vacío significa "no
             // cambiar la contraseña actual" (a diferencia del alta, donde es obligatorio).
-            'password' => ['nullable', 'confirmed', Password::min(8)],
+            'password' => ['nullable', 'confirmed', Password::defaults()],
             'role' => [
                 'required',
                 'string',

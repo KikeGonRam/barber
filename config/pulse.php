@@ -1,6 +1,6 @@
 <?php
 
-use Laravel\Pulse\Http\Middleware\Authorize;
+use App\Http\Middleware\PulseOrNotFound;
 use Laravel\Pulse\Pulse;
 use Laravel\Pulse\Recorders;
 
@@ -122,7 +122,7 @@ return [
 
     'middleware' => [
         'web',
-        Authorize::class,
+        PulseOrNotFound::class,
     ],
 
     /*

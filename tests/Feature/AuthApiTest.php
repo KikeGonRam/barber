@@ -20,6 +20,8 @@ use Tests\TestCase;
  */
 class AuthApiTest extends TestCase
 {
+    private const FORGOT_PASSWORD_URL = '/api/v1/auth/forgot-password';
+
     protected function tearDown(): void
     {
         MobileApiToken::query()->delete();
@@ -43,8 +45,8 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'Nuevo Cliente',
             'email' => 'nuevo-cliente-register@test.local',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
         ]);
 
         $response->assertCreated();
@@ -70,8 +72,8 @@ class AuthApiTest extends TestCase
         $firstResponse = $this->postJson('/api/v1/auth/register', [
             'name' => 'Primer Administrador',
             'email' => 'primer-admin-register@test.local',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
         ]);
 
         $firstResponse->assertCreated();
@@ -81,8 +83,8 @@ class AuthApiTest extends TestCase
         $secondResponse = $this->postJson('/api/v1/auth/register', [
             'name' => 'Nuevo Cliente',
             'email' => 'nuevo-cliente-register@test.local',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
         ]);
 
         $secondResponse->assertCreated();
@@ -99,8 +101,8 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'Otro',
             'email' => 'duplicado@test.local',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
         ]);
 
         $response->assertStatus(422);
@@ -111,7 +113,7 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'Alguien',
             'email' => 'confirmacion-no-coincide@test.local',
-            'password' => 'password123',
+            'password' => 'Password123',
             'password_confirmation' => 'otra-cosa',
         ]);
 
@@ -123,7 +125,7 @@ class AuthApiTest extends TestCase
         Notification::fake();
         $user = User::create(['name' => 'Recupera Cliente', 'email' => 'recupera@test.local', 'password' => 'password']);
 
-        $response = $this->postJson('/api/v1/auth/forgot-password', ['email' => 'recupera@test.local']);
+        $response = $this->postJson(self::FORGOT_PASSWORD_URL, ['email' => 'recupera@test.local']);
         $response->assertOk();
 
         Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
@@ -135,17 +137,32 @@ class AuthApiTest extends TestCase
         });
     }
 
-    public function test_forgot_password_does_not_reveal_whether_the_email_exists(): void
+    public function test_forgot_password_answers_the_same_whether_the_email_exists_or_not(): void
     {
         Notification::fake();
+        User::create(['name' => 'Existe', 'email' => 'existe-recupera@test.local', 'password' => 'password']);
 
-        $response = $this->postJson('/api/v1/auth/forgot-password', ['email' => 'no-existe-para-nada@test.local']);
+        $existing = $this->postJson(self::FORGOT_PASSWORD_URL, ['email' => 'existe-recupera@test.local']);
+        $missing = $this->postJson(self::FORGOT_PASSWORD_URL, ['email' => 'no-existe-para-nada@test.local']);
 
-        // El status de Laravel para "usuario no encontrado" en Password::sendResetLink()
-        // no es RESET_LINK_SENT -> AuthController lo traduce a 400, mismo mensaje
-        // genérico que un fallo real de envío (nunca "ese correo no existe").
-        $response->assertStatus(400);
-        $response->assertJsonMissingPath('email');
+        // TT04: mismo código y mismo mensaje; nunca "ese correo no existe".
+        $existing->assertOk();
+        $missing->assertOk();
+        $this->assertSame($existing->json(), $missing->json());
+        $missing->assertJsonMissingPath('email');
+        Notification::assertSentTimes(ResetPassword::class, 1);
+    }
+
+    public function test_register_rejects_weak_passwords(): void
+    {
+        foreach (['12345678', 'password', 'PASSWORD1', 'abcdefgh1', 'ABCDEFGH1'] as $weak) {
+            $this->postJson('/api/v1/auth/register', [
+                'name' => 'Débil',
+                'email' => 'debil-'.bin2hex($weak).'@test.local',
+                'password' => $weak,
+                'password_confirmation' => $weak,
+            ])->assertStatus(422)->assertJsonValidationErrors(['password']);
+        }
     }
 
     public function test_reset_password_with_a_valid_token_updates_the_password(): void
@@ -156,13 +173,13 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/v1/auth/reset-password', [
             'token' => $token,
             'email' => 'resetea@test.local',
-            'password' => 'password-nueva-123',
-            'password_confirmation' => 'password-nueva-123',
+            'password' => 'Password-nueva-123',
+            'password_confirmation' => 'Password-nueva-123',
         ]);
 
         $response->assertOk();
 
-        $this->assertTrue(Hash::check('password-nueva-123', $user->fresh()->password));
+        $this->assertTrue(Hash::check('Password-nueva-123', $user->fresh()->password));
     }
 
     public function test_reset_password_rejects_an_invalid_token(): void
@@ -172,8 +189,8 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/v1/auth/reset-password', [
             'token' => 'un-token-que-no-existe',
             'email' => 'token-invalido@test.local',
-            'password' => 'password-nueva-123',
-            'password_confirmation' => 'password-nueva-123',
+            'password' => 'Password-nueva-123',
+            'password_confirmation' => 'Password-nueva-123',
         ]);
 
         $response->assertStatus(400);
@@ -184,7 +201,7 @@ class AuthApiTest extends TestCase
         $user = User::create([
             'name' => 'Login User',
             'email' => 'login-user@test.local',
-            'password' => Hash::make('secret123'),
+            'password' => Hash::make('Secret123'),
         ]);
         $user->markEmailAsVerified();
 
@@ -194,7 +211,7 @@ class AuthApiTest extends TestCase
 
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'login-user@test.local',
-            'password' => 'secret123',
+            'password' => 'Secret123',
             'device_name' => 'Test Mobile',
         ]);
 
@@ -251,12 +268,12 @@ class AuthApiTest extends TestCase
         User::create([
             'name' => 'Unverified User',
             'email' => 'unverified@test.local',
-            'password' => Hash::make('secret123'),
+            'password' => Hash::make('Secret123'),
         ]);
 
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'unverified@test.local',
-            'password' => 'secret123',
+            'password' => 'Secret123',
         ]);
 
         $response->assertStatus(403)
@@ -268,7 +285,7 @@ class AuthApiTest extends TestCase
         $user = User::create([
             'name' => 'Me User',
             'email' => 'me-user@test.local',
-            'password' => Hash::make('secret123'),
+            'password' => Hash::make('Secret123'),
         ]);
         $user->markEmailAsVerified();
         $role = Role::firstOrCreate(['name' => 'cliente', 'guard_name' => 'web']);
@@ -300,7 +317,7 @@ class AuthApiTest extends TestCase
         $user = User::create([
             'name' => 'Logout User',
             'email' => 'logout-user@test.local',
-            'password' => Hash::make('secret123'),
+            'password' => Hash::make('Secret123'),
         ]);
         $user->markEmailAsVerified();
 
@@ -324,7 +341,7 @@ class AuthApiTest extends TestCase
         $user = User::create([
             'name' => 'Refresh User',
             'email' => 'refresh-user@test.local',
-            'password' => Hash::make('secret123'),
+            'password' => Hash::make('Secret123'),
         ]);
         $user->markEmailAsVerified();
 
