@@ -20,6 +20,8 @@ use Tests\TestCase;
  */
 class AuthApiTest extends TestCase
 {
+    private const FORGOT_PASSWORD_URL = '/api/v1/auth/forgot-password';
+
     protected function tearDown(): void
     {
         MobileApiToken::query()->delete();
@@ -123,7 +125,7 @@ class AuthApiTest extends TestCase
         Notification::fake();
         $user = User::create(['name' => 'Recupera Cliente', 'email' => 'recupera@test.local', 'password' => 'password']);
 
-        $response = $this->postJson('/api/v1/auth/forgot-password', ['email' => 'recupera@test.local']);
+        $response = $this->postJson(self::FORGOT_PASSWORD_URL, ['email' => 'recupera@test.local']);
         $response->assertOk();
 
         Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
@@ -140,8 +142,8 @@ class AuthApiTest extends TestCase
         Notification::fake();
         User::create(['name' => 'Existe', 'email' => 'existe-recupera@test.local', 'password' => 'password']);
 
-        $existing = $this->postJson('/api/v1/auth/forgot-password', ['email' => 'existe-recupera@test.local']);
-        $missing = $this->postJson('/api/v1/auth/forgot-password', ['email' => 'no-existe-para-nada@test.local']);
+        $existing = $this->postJson(self::FORGOT_PASSWORD_URL, ['email' => 'existe-recupera@test.local']);
+        $missing = $this->postJson(self::FORGOT_PASSWORD_URL, ['email' => 'no-existe-para-nada@test.local']);
 
         // TT04: mismo código y mismo mensaje; nunca "ese correo no existe".
         $existing->assertOk();
@@ -156,7 +158,7 @@ class AuthApiTest extends TestCase
         foreach (['12345678', 'password', 'PASSWORD1', 'abcdefgh1', 'ABCDEFGH1'] as $weak) {
             $this->postJson('/api/v1/auth/register', [
                 'name' => 'Débil',
-                'email' => 'debil-'.md5($weak).'@test.local',
+                'email' => 'debil-'.bin2hex($weak).'@test.local',
                 'password' => $weak,
                 'password_confirmation' => $weak,
             ])->assertStatus(422)->assertJsonValidationErrors(['password']);
