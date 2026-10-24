@@ -3,6 +3,18 @@
 # para desarrollo local, no lo toca este archivo). Combina PHP-FPM + Caddy
 # (en vez de nginx) en una sola imagen, para desplegarse como un unico
 # servicio/tarea (ej. App Runner o una sola tarea de ECS).
+# Etapa 1: compila los assets de Vite/Tailwind (public/build). Sin ella la imagen no traía
+# manifest.json y @safeVite no emitía nada: las paginas Blade (errores, mantenimiento) salian
+# sin estilos en staging. Node 22 = el mismo major que usa el CI (.github/workflows/ci.yml).
+# Solo se copia lo que el build necesita, para que cambiar PHP no invalide la cache de npm.
+FROM node:22-alpine AS assets
+WORKDIR /build
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY vite.config.js tailwind.config.js ./
+COPY resources ./resources
+RUN npm run build
+
 FROM php:8.4-fpm
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -41,6 +53,9 @@ COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
 WORKDIR /var/www/html
 
 COPY . .
+
+# .dockerignore excluye public/build/ del contexto; los assets salen de la etapa "assets".
+COPY --from=assets /build/public/build public/build
 
 RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framework/sessions \
         storage/logs bootstrap/cache \
