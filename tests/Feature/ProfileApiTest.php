@@ -166,12 +166,12 @@ class ProfileApiTest extends TestCase
 
         $response = $this->withToken($token)->putJson('/api/v1/profile/password', [
             'current_password' => 'old-password-123',
-            'password' => 'new-secure-password-456',
-            'password_confirmation' => 'new-secure-password-456',
+            'password' => 'New-secure-password-456',
+            'password_confirmation' => 'New-secure-password-456',
         ]);
 
         $response->assertOk()->assertJsonPath('message', 'Contraseña actualizada exitosamente');
-        $this->assertTrue(Hash::check('new-secure-password-456', $user->fresh()->password));
+        $this->assertTrue(Hash::check('New-secure-password-456', $user->fresh()->password));
     }
 
     public function test_update_password_rejects_incorrect_current_password(): void
@@ -185,8 +185,8 @@ class ProfileApiTest extends TestCase
 
         $this->withToken($token)->putJson('/api/v1/profile/password', [
             'current_password' => 'incorrect-guess',
-            'password' => 'new-secure-password-456',
-            'password_confirmation' => 'new-secure-password-456',
+            'password' => 'New-secure-password-456',
+            'password_confirmation' => 'New-secure-password-456',
         ])->assertStatus(422)
             ->assertJsonPath('message', 'La contraseña actual es incorrecta.');
     }

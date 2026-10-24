@@ -41,6 +41,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -137,6 +138,10 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute(5)->by($email.$request->ip());
         });
+
+        // TT07: una sola política de contraseñas para toda la API: mínimo 8 caracteres con
+        // mayúscula, minúscula y número. Se usa con Password::defaults() en los formularios.
+        Password::defaults(fn () => Password::min(8)->letters()->mixedCase()->numbers());
 
         // Sin este Gate, Laravel Pulse deniega /pulse a todos por defecto
         // (Gate::authorize('viewPulse') sobre una ability no definida =

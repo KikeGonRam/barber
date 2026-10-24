@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use Throwable;
 
 /**
@@ -108,7 +109,7 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', PasswordRule::defaults(), 'confirmed'],
             'device_name' => ['nullable', 'string', 'max:100'],
             'plataforma' => ['nullable', 'string', Rule::in(MobileApiToken::PLATAFORMAS)],
         ]);
@@ -338,10 +339,7 @@ class AuthController extends Controller
      * @bodyParam email string required El correo del usuario registrado. Example: usuario@urbanblade.com
      *
      * @response {
-     *  "message": "Enlace de recuperación enviado a tu correo."
-     * }
-     * @response 400 {
-     *  "message": "No se pudo enviar el enlace de recuperación."
+     *  "message": "Si el correo está registrado, te enviamos un enlace para recuperar tu contraseña."
      * }
      */
     public function forgotPassword(Request $request): JsonResponse
@@ -350,17 +348,18 @@ class AuthController extends Controller
             'email' => ['required', 'email'],
         ]);
 
+        // TT04: la respuesta no depende de si el correo existe, para que nadie pueda usar este
+        // endpoint y descubrir qué correos están registrados. El estado (enviado, usuario
+        // inexistente, límite de envíos) solo queda en el registro del servidor.
         $status = Password::sendResetLink(['email' => $validated['email']]);
 
-        if ($status === Password::RESET_LINK_SENT) {
-            return response()->json([
-                'message' => 'Enlace de recuperación enviado a tu correo.',
-            ]);
+        if ($status !== Password::RESET_LINK_SENT) {
+            Log::info('forgot-password sin envío', ['status' => $status]);
         }
 
         return response()->json([
-            'message' => 'No se pudo enviar el enlace de recuperación.',
-        ], 400);
+            'message' => 'Si el correo está registrado, te enviamos un enlace para recuperar tu contraseña.',
+        ]);
     }
 
     /**
@@ -372,8 +371,8 @@ class AuthController extends Controller
      *
      * @bodyParam token string required El token de recuperación recibido por correo. Example: abc123
      * @bodyParam email string required El correo del usuario. Example: usuario@urbanblade.com
-     * @bodyParam password string required Nueva contraseña (mínimo 8 caracteres). Example: nuevaPassword123
-     * @bodyParam password_confirmation string required Confirmación de la nueva contraseña. Example: nuevaPassword123
+     * @bodyParam password string required Nueva contraseña (mínimo 8 caracteres, con mayúscula, minúscula y número). Example: NuevaPassword123
+     * @bodyParam password_confirmation string required Confirmación de la nueva contraseña. Example: NuevaPassword123
      *
      * @response {
      *  "message": "Contraseña restablecida exitosamente."
@@ -387,7 +386,7 @@ class AuthController extends Controller
         $validated = $request->validate([
             'token' => ['required', 'string'],
             'email' => ['required', 'email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', PasswordRule::defaults(), 'confirmed'],
         ]);
 
         $status = Password::reset(

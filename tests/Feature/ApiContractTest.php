@@ -60,7 +60,7 @@ class ApiContractTest extends TestCase
         $this->adminUser->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $adminRole->id]])->save();
 
         $clientRole = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
-        $this->clientUser = User::create(['name' => 'Cliente Contrato', 'email' => 'cliente-contrato@test.local', 'password' => 'password123']);
+        $this->clientUser = User::create(['name' => 'Cliente Contrato', 'email' => 'cliente-contrato@test.local', 'password' => 'Password123']);
         $this->clientUser->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $clientRole->id]])->save();
         $this->clientProfile = Client::create([
             'user_id' => (string) $this->clientUser->id, 'telefono' => '5512345678',
@@ -109,7 +109,7 @@ class ApiContractTest extends TestCase
     public function test_login_matches_the_documented_contract(): void
     {
         $response = $this->postJson('/api/v1/auth/login', [
-            'email' => 'cliente-contrato@test.local', 'password' => 'password123',
+            'email' => 'cliente-contrato@test.local', 'password' => 'Password123',
         ]);
 
         $response->assertOk();

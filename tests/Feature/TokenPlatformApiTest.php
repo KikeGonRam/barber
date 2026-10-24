@@ -24,7 +24,7 @@ class TokenPlatformApiTest extends TestCase
         parent::setUp();
 
         config(['auth.api_token_ttl_days' => ['web' => 30, 'movil' => 180]]);
-        User::create(['name' => 'Cliente Token', 'email' => 'token-plataforma@test.local', 'password' => 'password123'])
+        User::create(['name' => 'Cliente Token', 'email' => 'token-plataforma@test.local', 'password' => 'Password123'])
             ->forceFill(['email_verified_at' => now()])->save();
     }
 
@@ -41,7 +41,7 @@ class TokenPlatformApiTest extends TestCase
     private function login(array $extra = []): TestResponse
     {
         return $this->postJson('/api/v1/auth/login', array_merge([
-            'email' => 'token-plataforma@test.local', 'password' => 'password123',
+            'email' => 'token-plataforma@test.local', 'password' => 'Password123',
         ], $extra));
     }
 
