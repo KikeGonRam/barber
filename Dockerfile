@@ -34,7 +34,14 @@ RUN apt-get update && apt-get install -y \
 # "ingeniero"): Pulse necesita una conexion SQL dedicada y este proyecto usa
 # MongoDB como conexion por defecto, que Pulse no soporta -- ver config/pulse.php
 # y la conexion 'sqlite' en config/database.php.
-RUN docker-php-ext-install pdo pdo_sqlite zip exif pcntl gd intl
+#
+# docker-php-ext-configure gd antes de instalar: las libs del sistema (libjpeg62-turbo-dev,
+# libwebp-dev) ya estaban arriba, pero sin este paso "docker-php-ext-install gd" las ignora y
+# compila GD sin soporte de JPEG ni WebP -- confirmado con gd_info() (25-oct-2026): solo traia
+# PNG/GIF/BMP. Con casi todas las fotos subidas en .jpg, UploadedImage::resizeAndStore() (misma
+# fecha, App\Support\UploadedImage) nunca llegaba a redimensionarlas, solo guardaba el original.
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install pdo pdo_sqlite zip exif pcntl gd intl
 
 # Install MongoDB and Redis extensions
 RUN pecl install mongodb redis \

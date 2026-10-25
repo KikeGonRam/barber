@@ -15,12 +15,12 @@ use App\Models\Work;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Membership\MembershipService;
 use App\Services\Push\FcmPushService;
+use App\Support\UploadedImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 /**
@@ -146,11 +146,9 @@ class ProfileController extends Controller
 
         $user = $request->user();
         $oldPath = $this->localAvatarPath($user->avatar_url);
-        $path = $request->file('avatar')->storeAs(
-            'avatars/'.(string) $user->id,
-            Str::uuid().'.'.$request->file('avatar')->getClientOriginalExtension(),
-            'public',
-        );
+        // UploadedImage::resizeAndStore() (25-oct-2026): mismo ajuste que la foto del barbero —
+        // el avatar se ve en círculos pequeños (topbar, sidebar, reseñas), nunca a tamaño completo.
+        $path = UploadedImage::resizeAndStore($request->file('avatar'), 'avatars/'.(string) $user->id);
 
         $user->forceFill(['avatar_url' => Storage::disk('public')->url($path)])->save();
 
@@ -304,11 +302,10 @@ class ProfileController extends Controller
             }
 
             $directory = 'barbers/'.(string) $request->user()->id.'/'.now()->format('d/m/Y');
-            $payload['foto'] = $request->file('foto')->storeAs(
-                $directory,
-                Str::uuid().'.'.$request->file('foto')->getClientOriginalExtension(),
-                'public',
-            );
+            // UploadedImage::resizeAndStore() en vez de storeAs() directo (25-oct-2026, hallazgo
+            // de PageSpeed Insights): esta es la foto que llegaba a 2.1 MB a 1051×1405 cuando
+            // nunca se muestra a más de unos cientos de px.
+            $payload['foto'] = UploadedImage::resizeAndStore($request->file('foto'), $directory);
         }
 
         $barber->update($payload);

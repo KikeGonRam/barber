@@ -124,12 +124,16 @@ class BarberPortfolioController extends Controller
             'work_date' => now(),
         ]);
 
-        // Subir imágenes si existen
+        // Subir imágenes si existen. Las imágenes se redimensionan (UploadedImage::resizeAndStore,
+        // 25-oct-2026, hallazgo de PageSpeed Insights); los videos se guardan tal cual, Intervention
+        // Image no los procesa.
         if ($request->hasFile('media')) {
             foreach ($request->file('media') as $file) {
                 $mime = $file->getMimeType();
                 $isVideo = str_starts_with($mime, 'video/');
-                $path = $file->store($isVideo ? 'portfolio/videos' : 'portfolio', 'public');
+                $path = $isVideo
+                    ? $file->store('portfolio/videos', 'public')
+                    : UploadedImage::resizeAndStore($file, 'portfolio');
 
                 $work->images()->create([
                     'image' => $path,
@@ -141,7 +145,7 @@ class BarberPortfolioController extends Controller
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('portfolio', 'public');
+                $path = UploadedImage::resizeAndStore($image, 'portfolio');
                 $work->images()->create([
                     'image' => $path,
                     'type' => 'image',
