@@ -91,13 +91,13 @@ Route::prefix('v1')->group(function (): void {
     // Ficha del negocio (identidad/contacto/horario/política/redes) sin token:
     // la consumen la landing y la reserva pública. Distinta de GET settings
     // (admin), que además expone datos bancarios.
-    Route::get('barbershop', [CatalogController::class, 'barbershop']);
-    Route::get('services', [CatalogController::class, 'services']);
+    Route::get('barbershop', [CatalogController::class, 'barbershop'])->middleware('throttle:catalog');
+    Route::get('services', [CatalogController::class, 'services'])->middleware('throttle:catalog');
     // mobile.auth.optional: para que un cliente autenticado vea "ya te
     // cortaste N veces con él" en su propio historial -- sigue siendo
     // publica para invitados, nunca exige token (ver OptionalMobileApiToken).
-    Route::get('barbers', [CatalogController::class, 'barbers'])->middleware('mobile.auth.optional');
-    Route::get('products', [CatalogController::class, 'products']);
+    Route::get('barbers', [CatalogController::class, 'barbers'])->middleware(['throttle:catalog', 'mobile.auth.optional']);
+    Route::get('products', [CatalogController::class, 'products'])->middleware('throttle:catalog');
     Route::get('availability/slots', [AvailabilityController::class, 'slots'])->middleware('throttle:30,1');
 
     // Gestión de cita por enlace del recordatorio: sin sesión, autorizada por
@@ -109,7 +109,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('appointments/{appointment}/manage/cancel', [AppointmentManageController::class, 'cancel']);
         Route::post('appointments/{appointment}/manage/reschedule', [AppointmentManageController::class, 'reschedule']);
     });
-    Route::get('social/feed', [ApiSocialController::class, 'feed'])->middleware('mobile.auth.optional');
+    Route::get('social/feed', [ApiSocialController::class, 'feed'])->middleware(['throttle:catalog', 'mobile.auth.optional']);
 
     // Chatbot (público con rate limiting; mobile.auth.optional para que, si
     // hay un token válido, el mensaje quede asociado y persistido en Mongo
@@ -528,5 +528,5 @@ Route::prefix('v1')->group(function (): void {
     // quedan en false para visitantes anónimos). mobile.auth.optional (26-sep):
     // sin él $request->user() era siempre null y can_review nunca salía true
     // aunque el cliente enviara su token.
-    Route::get('barbers/{barber}', [CatalogController::class, 'showBarber'])->middleware('mobile.auth.optional');
+    Route::get('barbers/{barber}', [CatalogController::class, 'showBarber'])->middleware(['throttle:catalog', 'mobile.auth.optional']);
 });
