@@ -5,6 +5,7 @@ use App\Exceptions\Domain\InsufficientStockException;
 use App\Exceptions\Domain\PaymentException;
 use App\Http\Middleware\Api\CheckApiMaintenanceMode;
 use App\Http\Middleware\AuthenticateMobileApiToken;
+use App\Http\Middleware\BlockAbusiveIps;
 use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\LogSlowRequests;
@@ -32,6 +33,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // en staging todos los visitantes compartían la IP del ALB y los throttle por
         // IP eran globales. Ver TrustProxyChain.
         $middleware->replace(TrustProxies::class, TrustProxyChain::class);
+
+        // Bloquea un rato a la IP que manda demasiadas peticiones en pocos segundos (como fail2ban).
+        $middleware->prepend(BlockAbusiveIps::class);
 
         // Avisa en el log de las peticiones lentas (ruta, estado y tiempo en MongoDB). Ver config/observability.php.
         $middleware->append(LogSlowRequests::class);
