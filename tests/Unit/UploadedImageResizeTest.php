@@ -62,16 +62,18 @@ class UploadedImageResizeTest extends TestCase
 
     public function test_store_borra_la_imagen_anterior_de_la_misma_carpeta(): void
     {
+        $rutaAnterior = 'pruebas/vieja.jpg';
+
         Storage::fake('public');
-        Storage::disk('public')->put('pruebas/vieja.jpg', 'contenido-viejo');
+        Storage::disk('public')->put($rutaAnterior, 'contenido-viejo');
 
         $request = Request::create('/', 'POST', [], [], [
             'foto' => UploadedFile::fake()->image('nueva.jpg', 500, 500),
         ]);
 
-        $path = UploadedImage::store($request, 'foto', 'pruebas', 'pruebas/vieja.jpg');
+        $path = UploadedImage::store($request, 'foto', 'pruebas', $rutaAnterior);
 
-        Storage::disk('public')->assertMissing('pruebas/vieja.jpg');
+        Storage::disk('public')->assertMissing($rutaAnterior);
         Storage::disk('public')->assertExists($path);
     }
 }
