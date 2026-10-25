@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Encoders\FileExtensionEncoder;
 use Intervention\Image\ImageManager;
-use RuntimeException;
 use Throwable;
 
 /**
@@ -77,7 +76,7 @@ class UploadedImage
      * una imagen sin optimizar que un 500 al cliente. Pero si ni siquiera ese respaldo logra
      * escribirse (disco/S3 realmente caído), sí lanza: nunca devuelve una ruta que no exista.
      *
-     * @throws RuntimeException si no se pudo escribir ni la versión optimizada ni el respaldo.
+     * @throws ImageStorageException si no se pudo escribir ni la versión optimizada ni el respaldo.
      */
     public static function resizeAndStore(UploadedFile $file, string $folder, string $disk = 'public'): string
     {
@@ -89,7 +88,7 @@ class UploadedImage
             $dimensions = @getimagesize($file->getRealPath());
 
             if ($dimensions && ($dimensions[0] * $dimensions[1]) > self::MAX_DECODE_PIXELS) {
-                throw new RuntimeException(sprintf(
+                throw new ImageStorageException(sprintf(
                     'Imagen de %dx%d px supera el límite de decodificación (%d px).',
                     $dimensions[0],
                     $dimensions[1],
@@ -103,7 +102,7 @@ class UploadedImage
                 ->encode(new FileExtensionEncoder($extension));
 
             if (! Storage::disk($disk)->put($path, $encoded->toString(), $cacheControl)) {
-                throw new RuntimeException("No se pudo escribir la imagen redimensionada en el disco '{$disk}'.");
+                throw new ImageStorageException("No se pudo escribir la imagen redimensionada en el disco '{$disk}'.");
             }
         } catch (Throwable $exception) {
             Log::warning('No se pudo redimensionar la imagen subida; se guarda sin optimizar.', [
@@ -115,7 +114,7 @@ class UploadedImage
             // un 500 que devolver una ruta "exitosa" que apunta a un archivo que nunca se escribió
             // -- store() borraría la imagen anterior y dejaría al usuario sin ninguna de las dos.
             if (! Storage::disk($disk)->putFileAs($folder, $file, basename($path), $cacheControl)) {
-                throw new RuntimeException("No se pudo guardar la imagen subida en el disco '{$disk}'.");
+                throw new ImageStorageException("No se pudo guardar la imagen subida en el disco '{$disk}'.");
             }
         }
 
