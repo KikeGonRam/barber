@@ -131,6 +131,12 @@ class AppServiceProvider extends ServiceProvider
             return "<?php if (file_exists(public_path('build/manifest.json'))) { echo app(\\Illuminate\\Foundation\\Vite::class)($expression); } ?>";
         });
 
+        // Catálogo público (servicios, barberos, productos, ficha del negocio, muro): sin sesión no
+        // había ningún límite. 1200 por minuto y por IP (20 por segundo) no estorba a un visitante
+        // ni a las páginas que la web renderiza en servidor (cada tarea de ECS es una IP), pero
+        // frena una inundación sostenida desde un solo origen. Al pasarse responde 429.
+        RateLimiter::for('catalog', fn (Request $request) => Limit::perMinute(1200)->by($request->ip()));
+
         // Rate Limiter para Login API
         RateLimiter::for('login', function (Request $request) {
             // Solo si el correo es texto: un arreglo («email": [...]) tronaba aquí con 500 antes de validar (T054).
