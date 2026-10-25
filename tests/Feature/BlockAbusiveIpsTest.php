@@ -51,13 +51,13 @@ class BlockAbusiveIpsTest extends TestCase
 
     public function test_the_block_is_logged_with_the_ip(): void
     {
-        Log::spy();
+        $log = Log::spy();
 
         foreach (range(1, 6) as $_) {
             $this->hit('203.0.113.20');
         }
 
-        Log::shouldHaveReceived('warning')
+        $log->shouldHaveReceived('warning')
             ->withArgs(fn (string $message, array $context) => $message === 'IP_BLOQUEADA' && $context['ip'] === '203.0.113.20')
             ->once();
     }
