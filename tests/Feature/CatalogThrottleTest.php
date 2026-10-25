@@ -15,7 +15,6 @@ class CatalogThrottleTest extends TestCase
     public function test_public_catalog_routes_use_the_catalog_limiter(): void
     {
         foreach (['api/v1/services', 'api/v1/barbers', 'api/v1/products', 'api/v1/barbershop', 'api/v1/social/feed'] as $uri) {
-            /** @var Route $route */
             $route = collect(RouteFacade::getRoutes()->getRoutes())
                 ->first(fn (Route $r) => $r->uri() === $uri && in_array('GET', $r->methods(), true));
 
