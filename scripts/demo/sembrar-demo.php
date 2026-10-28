@@ -23,11 +23,12 @@ use App\Models\Product;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 
 // La clave de las cuentas de demostración no se versiona: se toma de UB_DEMO_CLAVE o se genera al sembrar.
-$claveDemo = getenv('UB_DEMO_CLAVE') ?: 'Ub!' . bin2hex(random_bytes(8));
+$claveDemo = getenv('UB_DEMO_CLAVE') ?: 'Ub!'.bin2hex(random_bytes(8));
 
 $db = (string) config('database.connections.mongodb.database');
 $dsn = (string) config('database.connections.mongodb.dsn');
@@ -118,7 +119,7 @@ demo_paso('historial de citas del cliente', function () use ($clientes, $barbero
     $combo = $servicios['Corte + barba'];
     // 5 citas completadas con su pago verificado.
     foreach ([[-10, '11:00', $corte, 0], [-24, '16:00', $combo, 1], [-38, '10:00', $corte, 0], [-52, '17:00', $corte, 1], [-66, '12:00', $combo, 0]] as [$dias, $hora, $svc, $b]) {
-        $fin = \Carbon\Carbon::parse($hora)->addMinutes($svc->duracion_min)->format('H:i:s');
+        $fin = Carbon::parse($hora)->addMinutes($svc->duracion_min)->format('H:i:s');
         $cita = Appointment::create([
             'client_id' => (string) $clientes[0]->id, 'barber_id' => (string) $barberos[$b]->id, 'service_id' => (string) $svc->id,
             'fecha' => now()->addDays($dias)->toDateString(), 'hora_inicio' => $hora.':00', 'hora_fin' => $fin,
@@ -157,7 +158,7 @@ demo_paso('clientes adicionales y agenda de hoy y de la semana', function () use
     ];
     foreach ($agenda as [$ci, $bi, $si, $dias, $hora, $estado, $pagado]) {
         $s = $svc[$si];
-        $fin = \Carbon\Carbon::parse($hora)->addMinutes($s->duracion_min)->format('H:i:s');
+        $fin = Carbon::parse($hora)->addMinutes($s->duracion_min)->format('H:i:s');
         $cita = Appointment::create(['client_id' => (string) $clientesExtra[$ci]->id, 'barber_id' => (string) $barberos[$bi]->id, 'service_id' => (string) $s->id,
             'fecha' => now()->addDays($dias)->toDateString(), 'hora_inicio' => $hora.':00', 'hora_fin' => $fin, 'estado' => $estado, 'metodo_pago' => 'efectivo',
             'precio_cobrado' => $estado === 'completada' ? $s->precio : null]);
