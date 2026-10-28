@@ -246,7 +246,7 @@ function Verificar-Documentacion {
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Chequeo de contrato: el OpenAPI debe describir las rutas reales.
-# Ver barber/docs/PLAN_CONTRATO_API.md y scripts/verificar_contrato_api.mjs.
+# Ver barber/docs/referencia/PLAN_CONTRATO_API.md y scripts/verificar_contrato_api.mjs.
 # ─────────────────────────────────────────────────────────────────────────────
 function Verificar-Contrato {
     param([Parameter(Mandatory)][string]$Dir)

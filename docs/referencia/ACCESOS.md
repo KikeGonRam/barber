@@ -11,7 +11,7 @@ El login de producto está en el frontend Nuxt:
 Para un entorno remoto, utiliza la URL entregada por el responsable.
 El backend expone autenticación por API y las redirecciones web heredadas.
 
-![Pantalla de acceso ilustrativa](assets/login.png)
+![Pantalla de acceso ilustrativa](../assets/login.png)
 
 ## Alta y recuperación
 
@@ -49,5 +49,5 @@ autenticación ni exportaciones de usuarios en documentación pública.
 Un usuario eliminado lógicamente puede seguir ocupando su correo en un índice;
 no se recomienda `forceDelete` como solución rutinaria.
 
-Consulta [seguridad](../SECURITY.md), [gestión de credenciales](PLAN_ROTACION_CREDENCIALES.md)
+Consulta [seguridad](../../SECURITY.md), [gestión de credenciales](PLAN_ROTACION_CREDENCIALES.md)
 y [manual de usuario](MANUAL_USUARIO.md).

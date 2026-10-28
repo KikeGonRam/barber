@@ -12,6 +12,6 @@ description: Reglas de autorización y privacidad para perfiles y cuentas.
 - Cambios de API requieren ejemplos y pruebas de autorización adecuados.
 - En backend probar exclusivamente con .\test.ps1, sin Atlas ni datos reales.
 - Coordinar clientes mediante el contrato, sin publicar automáticamente.
-Consulta docs/ACCESOS.md y docs/PRUEBAS.md en barber.
+Consulta docs/referencia/ACCESOS.md y docs/referencia/PRUEBAS.md en barber.
 Esta guía mantiene reglas vigentes; no es un roadmap pendiente ni una autorización
 para cambiar cuentas. Mantén sincronizadas las copias .claude/.agents.

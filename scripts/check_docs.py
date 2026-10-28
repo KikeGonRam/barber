@@ -14,8 +14,8 @@ from urllib.parse import unquote, urlsplit
 
 DEFAULT_FILES = (
     "README.md", "CONTRIBUTING.md", "SECURITY.md", "docs/README.md",
-    "docs/CI_CD.md", ".github/pull_request_template.md",
-    "docs/CLONAR_PROYECTOS.md",
+    "docs/referencia/CI_CD.md", ".github/pull_request_template.md",
+    "docs/referencia/CLONAR_PROYECTOS.md",
 )
 INLINE_LINK = re.compile(r'!?\[[^\]\n]*\]\(\s*(<[^>\n]+>|[^\s)]+)(?:\s+"[^"\n]*")?\s*\)')
 CONFLICT = re.compile(r"^(?:<{7}|={7}|>{7})(?:\s|$)", re.MULTILINE)

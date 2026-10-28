@@ -30,17 +30,17 @@ En particular, el código no demuestra los roles efectivos de una cuenta Atlas.
 ## Estilo y capas
 
 Es un monolito modular por dominios, no una colección de microservicios.
-La entrada HTTP está en [routes/api.php](../routes/api.php).
-[bootstrap/app.php](../bootstrap/app.php) registra middleware, excepciones y rutas.
+La entrada HTTP está en [routes/api.php](../../routes/api.php).
+[bootstrap/app.php](../../bootstrap/app.php) registra middleware, excepciones y rutas.
 
 | Capa | Responsabilidad | Fuente |
 | --- | --- | --- |
-| Rutas y middleware | Autenticación, mantenimiento, límites y permisos. | [Middleware](../app/Http/Middleware) |
-| Controladores y requests | Orquestación HTTP, validación y alcance del usuario. | [API](../app/Http/Controllers/Api), [requests](../app/Http/Requests) |
-| Servicios | Reglas y operaciones de negocio. | [Services](../app/Services) |
-| Modelos | Persistencia, relaciones y conversiones. | [Models](../app/Models) |
-| Resources | Forma pública de las respuestas. | [Resources](../app/Http/Resources) |
-| Jobs y notificaciones | Trabajo diferido e integración multicanal. | [Jobs](../app/Jobs), [Notifications](../app/Notifications) |
+| Rutas y middleware | Autenticación, mantenimiento, límites y permisos. | [Middleware](../../app/Http/Middleware) |
+| Controladores y requests | Orquestación HTTP, validación y alcance del usuario. | [API](../../app/Http/Controllers/Api), [requests](../../app/Http/Requests) |
+| Servicios | Reglas y operaciones de negocio. | [Services](../../app/Services) |
+| Modelos | Persistencia, relaciones y conversiones. | [Models](../../app/Models) |
+| Resources | Forma pública de las respuestas. | [Resources](../../app/Http/Resources) |
+| Jobs y notificaciones | Trabajo diferido e integración multicanal. | [Jobs](../../app/Jobs), [Notifications](../../app/Notifications) |
 
 Los controladores también validan pertenencia de recursos; el middleware de rol
 por sí solo no establece que una cita, un pago o un perfil pertenezcan al usuario.
@@ -52,24 +52,24 @@ MongoDB se integra mediante `mongodb/laravel-mongodb`.
 Vite, Tailwind CSS 4 y Alpine sirven recursos propios de Laravel.
 La interfaz principal está en Nuxt, no en Blade.
 
-[Compose](../docker-compose.yml) define API PHP-FPM, Nginx, worker, scheduler,
+[Compose](../../docker-compose.yml) define API PHP-FPM, Nginx, worker, scheduler,
 Redis, Mailpit, Ollama y MongoDB de pruebas.
-El [overlay de desarrollo](../docker-compose.development.yml) añade MongoDB
+El [overlay de desarrollo](../../docker-compose.development.yml) añade MongoDB
 persistente local; no se activa por usar únicamente el Compose base.
 
-La [imagen de staging](../.docker/staging/Dockerfile) combina PHP-FPM y Caddy.
-Su [entrypoint](../.docker/staging/entrypoint.sh) aplica migraciones al arrancar,
+La [imagen de staging](../../.docker/staging/Dockerfile) combina PHP-FPM y Caddy.
+Su [entrypoint](../../.docker/staging/entrypoint.sh) aplica migraciones al arrancar,
 cachea Laravel y puede iniciar el scheduler con `RUN_SCHEDULER=true`.
 Por eso arrancar o reemplazar esa imagen es una operación sobre datos, no una
 comprobación documental inocua.
 
 ## Autenticación y autorización
 
-- El login emite tokens propios en [MobileApiToken](../app/Models/MobileApiToken.php).
+- El login emite tokens propios en [MobileApiToken](../../app/Models/MobileApiToken.php).
 - Se almacena el hash SHA-256, no el token plano. El middleware compara el hash,
   comprueba usuario y expiración y actualiza la actividad.
 - La vigencia deslizante es configurable por plataforma: valores predeterminados
-  de 30 días web y 180 móvil en [auth.php](../config/auth.php).
+  de 30 días web y 180 móvil en [auth.php](../../config/auth.php).
 - Logout revoca el token actual; refresh lo sustituye.
 - Google web usa Socialite; Android envía un ID token para verificación en el servidor.
 - Los roles se resuelven desde el documento de usuario con métodos propios.
@@ -78,9 +78,9 @@ comprobación documental inocua.
   consultas de operación/observabilidad, no administración de negocio.
 - Registro público y alta por Google no permiten elegir un rol administrativo.
 
-Fuentes: [AuthController](../app/Http/Controllers/Api/Auth/AuthController.php),
-[AuthenticateMobileApiToken](../app/Http/Middleware/AuthenticateMobileApiToken.php),
-[User](../app/Models/User.php), [Google OAuth](GOOGLE_CLOUD_OAUTH.md).
+Fuentes: [AuthController](../../app/Http/Controllers/Api/Auth/AuthController.php),
+[AuthenticateMobileApiToken](../../app/Http/Middleware/AuthenticateMobileApiToken.php),
+[User](../../app/Models/User.php), [Google OAuth](GOOGLE_CLOUD_OAUTH.md).
 
 ## Persistencia y aislamiento
 
@@ -93,11 +93,11 @@ Fuentes: [AuthController](../app/Http/Controllers/Api/Auth/AuthController.php),
 | SQLite de Pulse | Telemetría de Laravel Pulse. | No contiene la fuente de verdad del negocio. |
 | Redis | Caché, sesiones o colas según configuración. | No sustituye un respaldo de MongoDB. |
 
-[database.php](../config/database.php) ejecuta
-[DataEnvironmentGuard](../app/Support/DataEnvironmentGuard.php).
+[database.php](../../config/database.php) ejecuta
+[DataEnvironmentGuard](../../app/Support/DataEnvironmentGuard.php).
 La guarda distingue `shared`, `development` y `testing`, y rechaza mezclas
 conocidas de host, entorno y nombre. Esto no sustituye permisos mínimos de Atlas.
-[Tests\TestCase](../tests/TestCase.php) comprueba además ambas conexiones antes
+[Tests\TestCase](../../tests/TestCase.php) comprueba además ambas conexiones antes
 de permitir los métodos de limpieza de las pruebas.
 
 Las transacciones de pagos e inventario necesitan un replica set.
@@ -119,7 +119,7 @@ Consulta [MongoDB](MONGODB_ATLAS.md) y [ADR-001](ADR-001-ARQUITECTURA-DE-DATOS.m
 
 ### Citas y cobro
 
-[AppointmentStatusService](../app/Services/Appointment/AppointmentStatusService.php)
+[AppointmentStatusService](../../app/Services/Appointment/AppointmentStatusService.php)
 define las transiciones:
 
 ```text
@@ -149,25 +149,25 @@ No se imprimen claves, firmas ni cuerpos reales de eventos.
 
 ## Archivos y datos sensibles
 
-[filesystems.php](../config/filesystems.php) distingue imágenes públicas y
+[filesystems.php](../../config/filesystems.php) distingue imágenes públicas y
 comprobantes/recibos. Con S3, `receipts` usa URLs temporales de 15 minutos
-mediante [ReceiptStorage](../app/Support/ReceiptStorage.php).
+mediante [ReceiptStorage](../../app/Support/ReceiptStorage.php).
 El fallback local comparte `storage/app/public`: no debe describirse como
 almacenamiento privado equivalente a S3.
 
-[UploadedImage](../app/Support/UploadedImage.php) concentra validaciones y
+[UploadedImage](../../app/Support/UploadedImage.php) concentra validaciones y
 optimización de imágenes. Un Resource o una URL temporal no sustituyen la
 autorización para acceder a un comprobante.
 
 ## Tareas, observabilidad y errores
 
-[routes/console.php](../routes/console.php) es la lista vigente del scheduler:
+[routes/console.php](../../routes/console.php) es la lista vigente del scheduler:
 recordatorios, tokens, campañas, stock, no-shows, avisos de servicio, lealtad,
 pedidos, cumpleaños, paquetes y lista de espera.
 
 Los jobs necesitan worker; las tareas necesitan scheduler. Evita duplicar
 scheduler al escalar servicios.
-[observability.php](../config/observability.php), LogSlowRequests y Pulse cubren
+[observability.php](../../config/observability.php), LogSlowRequests y Pulse cubren
 peticiones/consultas y operación. Sentry depende de la configuración del entorno.
 Nunca registrar cabeceras de autorización, URIs con credenciales ni datos de pago.
 

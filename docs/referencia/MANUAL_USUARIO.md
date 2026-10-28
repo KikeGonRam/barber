@@ -83,7 +83,7 @@ de operación exitosa.
 
 Si una operación falla, comunicar rol, acción, fecha y mensaje sin incluir
 contraseñas, tokens, comprobantes ni datos de otras personas.
-Reportar vulnerabilidades por el [canal privado](../SECURITY.md).
+Reportar vulnerabilidades por el [canal privado](../../SECURITY.md).
 
 El módulo académico Spark es un consumidor separado; su panel no es requisito
 para usar la agenda o los pagos de la aplicación.

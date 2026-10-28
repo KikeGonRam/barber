@@ -1,0 +1,12 @@
+{
+  "name": "urbanblade-docs-word",
+  "private": true,
+  "description": "Genera los .docx de docs/manuales a partir de sus .md con el diseño del equipo (Arial, carta, negro y oro).",
+  "scripts": {
+    "word": "node generar-word.js"
+  },
+  "dependencies": {
+    "docx": "9.5.1",
+    "marked": "16.4.2"
+  }
+}

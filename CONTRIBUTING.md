@@ -18,7 +18,7 @@ no se utiliza push directo ni forzado a `main`.
 ## Validación y documentación
 
 Los comandos vigentes están en el [README](README.md) y
-[CI/CD](docs/CI_CD.md). Para documentación:
+[CI/CD](docs/referencia/CI_CD.md). Para documentación:
 
 ```powershell
 python scripts/check_docs.py --all

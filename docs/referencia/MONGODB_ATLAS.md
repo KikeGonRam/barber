@@ -18,10 +18,10 @@ Web y Android consumen la API y no se conectan directamente a Atlas.
 
 ## Guardas de entorno
 
-[DataEnvironmentGuard](../app/Support/DataEnvironmentGuard.php) valida los
+[DataEnvironmentGuard](../../app/Support/DataEnvironmentGuard.php) valida los
 contextos `shared`, `development` y `testing`.
-La [configuración de base](../config/database.php) la invoca al arrancar.
-[TestCase](../tests/TestCase.php) rechaza conexiones operativas o Atlas en
+La [configuración de base](../../config/database.php) la invoca al arrancar.
+[TestCase](../../tests/TestCase.php) rechaza conexiones operativas o Atlas en
 pruebas antes de los métodos de limpieza.
 
 No cambies el nombre de una base ni desactives una guarda para superar un error.
@@ -69,7 +69,7 @@ No puede calificarse como el último respaldo por aparecer en una guía de septi
 
 El backup ZIP de la aplicación no debe confundirse con un archivo BSON completo
 con índices. Su implementación está en
-[DatabaseBackupService](../app/Services/System/DatabaseBackupService.php).
+[DatabaseBackupService](../../app/Services/System/DatabaseBackupService.php).
 Consulta [continuidad operativa](CONTINUIDAD_OPERATIVA.md).
 
 Antes de restaurar o modificar índices: confirmar origen/destino, respaldo,

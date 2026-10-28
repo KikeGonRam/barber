@@ -5,8 +5,8 @@ description: Mantener ejemplos, OpenAPI, tipos y mocks sincronizados con la API.
 
 # Contrato verificable
 
-La guía vigente es docs/PLAN_CONTRATO_API.md en barber. En frontend consulta
-docs/ARQUITECTURA.md y docs/PRUEBAS.md.
+La guía vigente es docs/referencia/PLAN_CONTRATO_API.md en barber. En frontend consulta
+docs/ARQUITECTURA.md y docs/referencia/PRUEBAS.md.
 
 - Backend: ejemplos ficticios docs/contrato, ApiContractTest y generador de required.
 - Frontend: contract/openapi.yaml, app/types/api.d.ts y adaptaciones en contract.ts.

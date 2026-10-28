@@ -20,7 +20,7 @@
   SIN -Aplicar es una simulacion: solo lee de AWS (get-distribution-config, list-objects-v2,
   head-object, get-object-acl) y muestra lo que cambiaria. No escribe nada.
 
-  Regla del propietario (2026-10-03, docs/FASE-5C-S3.md): la IA no escribe en AWS. Este script lo
+  Regla del propietario (2026-10-03, docs/referencia/FASE-5C-S3.md): la IA no escribe en AWS. Este script lo
   corre el propietario en su terminal con un perfil que pueda escribir en CloudFront y S3.
 
 .PARAMETER Aplicar

@@ -26,18 +26,18 @@ correos/PDF, errores, redirecciones y documentación de API.
 | Pagos | Stripe: intentos, depósitos, tarjetas guardadas y membresías. |
 | Documentos y calidad | DomPDF, Excel, Scribe/OpenAPI, PHPUnit, Pint y Larastan. |
 
-La [arquitectura](docs/DOCUMENTACION_TECNICA.md) explica capas, procesos,
-integraciones y límites. Las [decisiones](docs/DECISIONES.md) distinguen lo
+La [arquitectura](docs/referencia/DOCUMENTACION_TECNICA.md) explica capas, procesos,
+integraciones y límites. Las [decisiones](docs/referencia/DECISIONES.md) distinguen lo
 implementado de las propuestas.
 
 ## Desarrollo local
 
 Requisitos: Git, Docker con Compose y Node.js/npm para los recursos Laravel.
-La [guía de instalación aislada](docs/CLONAR_PROYECTOS.md) utiliza el overlay de
+La [guía de instalación aislada](docs/referencia/CLONAR_PROYECTOS.md) utiliza el overlay de
 desarrollo con mongo-dev y evita copiar credenciales de Atlas.
 
 No ejecutar setup, migraciones o seeders sobre un entorno operativo para revisar
-documentación. Las [cuentas y roles](docs/ACCESOS.md) se gestionan sin publicar
+documentación. Las [cuentas y roles](docs/referencia/ACCESOS.md) se gestionan sin publicar
 credenciales ni inventarios de usuarios.
 
 ## Pruebas
@@ -50,7 +50,7 @@ En local, exclusivamente:
 
 El runner aplica el entorno de pruebas y gestiona cachés.
 Comprobar antes el montaje de barber-app y el Mongo local.
-La [guía de pruebas](docs/PRUEBAS.md) incluye comandos, matriz de regresiones,
+La [guía de pruebas](docs/referencia/PRUEBAS.md) incluye comandos, matriz de regresiones,
 dependencias y límites de evidencia.
 
 Para documentación:
@@ -64,11 +64,11 @@ git diff --check
 
 [OpenAPI](public/docs/openapi.yaml) y los ejemplos versionados describen la API
 para clientes web/Android. Consulta el
-[procedimiento de contrato](docs/PLAN_CONTRATO_API.md).
+[procedimiento de contrato](docs/referencia/PLAN_CONTRATO_API.md).
 
 CI verifica código, seguridad, contrato y builds; no acredita publicación.
 Incluso un push de Markdown puede activar un proveedor externo.
-Consulta [CI/CD](docs/CI_CD.md) antes de subir o fusionar cambios.
+Consulta [CI/CD](docs/referencia/CI_CD.md) antes de subir o fusionar cambios.
 
 ## Documentación y seguridad
 
@@ -79,4 +79,4 @@ no se mantienen copias Word/PDF independientes del Markdown.
 
 Nunca publicar secretos, sesiones, dumps o datos personales.
 Consulta [SECURITY.md](SECURITY.md) y
-[la revisión documental de seguridad](docs/SEGURIDAD_DOCUMENTACION.md).
+[la revisión documental de seguridad](docs/referencia/SEGURIDAD_DOCUMENTACION.md).

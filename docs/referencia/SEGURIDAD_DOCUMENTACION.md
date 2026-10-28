@@ -33,7 +33,7 @@ en comandos. Los manuales Word/PDF duplicados se sustituyen por Markdown manteni
 No se ha confirmado una credencial activa durante esta revisión; la procedencia y
 revocación de cualquier valor histórico dudoso requieren revisión privada del propietario.
 Si se confirma una exposición, seguir [rotación de credenciales](PLAN_ROTACION_CREDENCIALES.md)
-y [SECURITY](../SECURITY.md); borrar un archivo actual no lo elimina del historial.
+y [SECURITY](../../SECURITY.md); borrar un archivo actual no lo elimina del historial.
 
 ## Límites y pendientes técnicos
 

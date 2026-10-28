@@ -8,9 +8,9 @@ de proveedores se configuran también fuera del repositorio.
 
 | Workflow | Comprobaciones |
 | --- | --- |
-| [CI](../.github/workflows/ci.yml) | Pint, Larastan, PHPUnit con cobertura, auditorías Composer/npm, ESLint/Vite, Gitleaks, Trivy y smoke HTTP/contrato. |
-| [Docker Image CI](../.github/workflows/docker-image.yml) | Construcción de imágenes de desarrollo/staging y mínimo de PHP. |
-| [Documentación](../.github/workflows/documentation.yml) | Validación de documentos y destinos locales. |
+| [CI](../../.github/workflows/ci.yml) | Pint, Larastan, PHPUnit con cobertura, auditorías Composer/npm, ESLint/Vite, Gitleaks, Trivy y smoke HTTP/contrato. |
+| [Docker Image CI](../../.github/workflows/docker-image.yml) | Construcción de imágenes de desarrollo/staging y mínimo de PHP. |
+| [Documentación](../../.github/workflows/documentation.yml) | Validación de documentos y destinos locales. |
 
 Corren con PR hacia main y push a main. Sus jobs usan permisos acotados y
 timeouts. La concurrencia cancela ejecuciones anteriores del mismo PR; las de
@@ -18,7 +18,7 @@ main utilizan un grupo único por ejecución.
 
 CI prepara MongoDB replica set y Redis efímeros. Su comando PHPUnit no debe
 copiarse al contenedor local con configuración operativa.
-En local se utiliza exclusivamente [test.ps1](../test.ps1).
+En local se utiliza exclusivamente [test.ps1](../../test.ps1).
 
 Construir una imagen en el runner no la publica.
 Estos workflows no contienen docker push ni actualización de ECS.

@@ -27,9 +27,9 @@ Copy-Item .env.example .env
 Copy-Item .env.development.example .env.development
 ```
 
-Revisa primero [la plantilla](../.env.development.example), el
-[Compose base](../docker-compose.yml) y el
-[overlay de desarrollo](../docker-compose.development.yml).
+Revisa primero [la plantilla](../../.env.development.example), el
+[Compose base](../../docker-compose.yml) y el
+[overlay de desarrollo](../../docker-compose.development.yml).
 El overlay define `mongo-dev`/rsdev y la base `urbanblade_dev`, separados
 de `mongo-test`/barber_db_test. No necesita las credenciales operativas de Atlas.
 

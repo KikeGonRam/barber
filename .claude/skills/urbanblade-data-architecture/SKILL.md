@@ -5,8 +5,8 @@ description: Guía para conexiones, aislamiento y persistencia de UrbanBlade.
 
 # Arquitectura de datos
 
-Fuentes canónicas: docs/ADR-001-ARQUITECTURA-DE-DATOS.md, docs/MONGODB_ATLAS.md,
-docs/CONTINUIDAD_OPERATIVA.md y config/database.php.
+Fuentes canónicas: docs/referencia/ADR-001-ARQUITECTURA-DE-DATOS.md, docs/referencia/MONGODB_ATLAS.md,
+docs/referencia/CONTINUIDAD_OPERATIVA.md y config/database.php.
 
 - La conexión operativa conserva barber_db como nombre predeterminado; urbanblade_core
   es una propuesta, no un renombrado ejecutado.
