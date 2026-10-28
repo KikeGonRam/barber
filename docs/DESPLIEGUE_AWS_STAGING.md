@@ -20,6 +20,26 @@ desplegar la aplicación.
   ahorrar costo; `barber` y `frontend` están encendidos. Si alguien vuelve a leer esto
   meses después y algo no cuadra con lo que ve en la consola de AWS, confía en lo que
   ve, no en esta fecha.
+- **Actualización del 28 de octubre de 2026** (solo lectura: `describe-services`,
+  `describe-task-definition`, `list-secrets`, `list-distributions`, `describe-repositories`).
+  Cambió respecto a lo anterior y **prevalece sobre las demás secciones si hay diferencia**:
+
+  | Servicio | Estrategia | Tareas | Task definition |
+  |---|---|---|---|
+  | `uba-stg-barber` | FARGATE | 2 | `urbanblade-staging-barber:11` |
+  | `uba-stg-frontend` | FARGATE | 2 | `urbanblade-staging-frontend:6` |
+  | `uba-stg-spark` | FARGATE_SPOT | 1 (encendido) | `urbanblade-staging-spark:2` |
+  | `uba-stg-ollama` (nuevo) | FARGATE_SPOT | 1 | `urbanblade-staging-ollama:1` |
+
+  `ollama` sirve el chatbot (`qwen2.5:0.5b`, 2 vCPU / 4 GB, puerto 11434, imagen
+  `urbanblade/ollama:qwen2.5-0.5b`); barber lo alcanza en
+  `http://ollama.urbanblade.local:11434` con `CHATBOT_AI_PROVIDER=ollama`. El 24-oct-2026 el
+  servicio del frontend quedó atascado con una tarea Spot interrumpida (0 tareas, sin eventos)
+  y se recreó; por eso `barber` y `frontend` pasaron a FARGATE normal. `TRUSTED_PROXY_HOPS=2`
+  ya está en las task definitions de barber y frontend. El secreto `MAIL_PASSWORD` y las
+  variables `MAIL_*` ya existen. **Atención:** `barber` tiene 2 tareas con `RUN_SCHEDULER=true`
+  y sin `CACHE_LIMITER_STORE`: el scheduler corre dos veces y los límites de intentos se
+  cuentan por tarea (ver "Limitaciones conocidas").
 
 ## Antes de empezar: qué es cada cosa
 
@@ -86,10 +106,10 @@ Los usuarios de Atlas siguen el mínimo privilegio descrito en
 
 | Recurso | Nombre / valor |
 |---|---|
-| Repos ECR | `urbanblade/barber`, `urbanblade/frontend-urban`, `urbanblade/spark` |
-| Cluster ECS | `urbanblade-staging` (estrategia por defecto FARGATE_SPOT) |
-| Servicios | `uba-stg-barber`, `uba-stg-frontend`, `uba-stg-spark` |
-| Task definitions | `urbanblade-staging-barber` (512 CPU / 1 GB), `-frontend` (512 / 1 GB), `-spark` (1024 / 3 GB) |
+| Repos ECR | `urbanblade/barber`, `urbanblade/frontend-urban`, `urbanblade/spark`, `urbanblade/ollama` |
+| Cluster ECS | `urbanblade-staging` (barber y frontend en FARGATE; spark y ollama en FARGATE_SPOT, desde el 24-oct-2026) |
+| Servicios | `uba-stg-barber`, `uba-stg-frontend`, `uba-stg-spark`, `uba-stg-ollama` |
+| Task definitions | `urbanblade-staging-barber` (512 CPU / 1 GB), `-frontend` (512 / 1 GB), `-spark` (1024 / 3 GB), `-ollama` (2048 / 4 GB) |
 | Balanceador | ALB `urbanblade-staging`; listeners 80 → frontend, 8080 → barber, 8501 → spark |
 | Health checks | frontend `/api/health`, barber `/up`, spark `/_stcore/health` |
 | Red | VPC por defecto `vpc-052236dd391444209`, subredes d y f; SG del ALB `sg-0a537dcb25fcf51b2` (:80), `sg-0372b1aa878f1657f` (:8080), `sg-01da9703671ffd6ad` (:8501), todos solo desde CloudFront; SG de tareas (solo desde el ALB) `sg-0d01fa3c3044c3832` |
@@ -119,8 +139,8 @@ empieza con `https://` la app fuerza el esquema https: el ALB reescribe
 `QUEUE_CONNECTION=sync`, `UPLOADS_BUCKET`, `RECEIPTS_BUCKET`, `AWS_DEFAULT_REGION`,
 `TRUSTED_PROXY_HOPS=2`.
 
-**`TRUSTED_PROXY_HOPS=2` es obligatoria** (pendiente de agregar a la task definition al
-desplegar el cambio que la introduce). Le dice a Laravel que delante hay dos proxies
+**`TRUSTED_PROXY_HOPS=2` es obligatoria** (ya está en barber:11 y frontend:6, verificado el
+28-oct-2026). Le dice a Laravel que delante hay dos proxies
 propios, CloudFront y el ALB (`App\Http\Middleware\TrustProxyChain`). Sin ella, el
 contenedor ve la IP privada del ALB en todas las peticiones y los límites por IP
 (registro, horarios, Google, enlaces de cita) se vuelven globales para todo el sitio.
@@ -181,7 +201,10 @@ trabajan contra la base real (recordatorios de 24 h y 2 h cada diez minutos, no-
 vencidos, lealtad, campañas, cumpleaños, sorteo mensual). En el log se ven como
 `Running ['artisan' appointments:send-reminders] ... DONE`. Para apagarlo, registrar una revisión
 sin `RUN_SCHEDULER` (o con `false`) y forzar el despliegue. Con más de una tarea de `barber` se ejecutarían en
-paralelo: dejar una sola o mover el scheduler a un servicio propio.
+paralelo: dejar una sola o mover el scheduler a un servicio propio. **Estado al 28-oct-2026:
+`barber` corre con 2 tareas y `RUN_SCHEDULER=true`, así que los recordatorios y demás tareas
+se ejecutan por duplicado.** Decisión pendiente del propietario: volver a 1 tarea, o dejar
+`RUN_SCHEDULER=true` solo en un servicio aparte.
 
 ## Dar acceso a un compañero
 
@@ -290,19 +313,21 @@ válido en PowerShell y viceversa.
 > instrucciones (por ejemplo `Unknown options: --followaws,logs,tail,...`), lo cual es un
 > problema de la terminal, no del comando en sí.
 
-**Apagar (ahorra el cómputo; el ALB sigue cobrando):**
+**Apagar (ahorra el cómputo; el ALB sigue cobrando).** `ollama` también cuenta; sin él el
+chatbot deja de responder, pero el resto de la app no se afecta:
 
 ```powershell
-foreach ($s in "barber","frontend","spark") {
+foreach ($s in "barber","frontend","spark","ollama") {
   aws ecs update-service --cluster urbanblade-staging --service "uba-stg-$s" --desired-count 0 --region us-east-1
 }
 ```
 
 ```bash
-for s in barber frontend spark; do aws ecs update-service --cluster urbanblade-staging --service uba-stg-$s --desired-count 0 --region us-east-1; done
+for s in barber frontend spark ollama; do aws ecs update-service --cluster urbanblade-staging --service uba-stg-$s --desired-count 0 --region us-east-1; done
 ```
 
-**Encender:** el mismo comando con `--desired-count 1`.
+**Encender:** el mismo comando con `--desired-count 1` (barber y frontend estaban en 2 al
+28-oct-2026; ver la advertencia del scheduler).
 
 **Desplegar una imagen nueva** (ejemplo `barber`; `frontend-urban` y `spark` igual con su repo):
 
@@ -395,8 +420,14 @@ recrearlo todo.
 ### Publicar un cambio de código (nueva imagen)
 
 Repite el bloque "Desplegar una imagen nueva" del runbook, con el repo que corresponda
-(`barber`, `frontend-urban` o `spark`; el `Dockerfile` de cada uno vive en
-`.docker/staging/Dockerfile` de su propio repositorio). Verifica que terminó:
+(`barber`, `frontend-urban` o `spark`). **El `Dockerfile` cambia según el repo:** `barber`
+usa `.docker/staging/Dockerfile` (PHP-FPM + Caddy; el `Dockerfile` de la raíz es el de
+desarrollo y con él la tarea arranca sin Caddy, falla `/up` y el rollout se queda en
+`IN_PROGRESS`); `frontend-urban` usa el `Dockerfile` de la raíz, no tiene
+`.docker/staging/`. Construir desde `git archive <sha>` en un directorio temporal, no desde la
+carpeta de trabajo (`COPY . .` metería archivos sin versionar como `.codex/`). Guardar antes
+una etiqueta de respaldo (`rollback-AAAAMMDD-pre-<sha>`) con `ecr put-image`. Verifica que
+terminó:
 
 ```powershell
 aws ecs describe-services --cluster urbanblade-staging --services uba-stg-barber `
@@ -473,7 +504,7 @@ Los servidores de nombres de la zona son `ns-1626.awsdns-11.co.uk`, `ns-904.awsd
 `ns-274.awsdns-34.com` y `ns-1511.awsdns-60.org`.
 
 **Variables que apuntan al dominio** (task definitions `urbanblade-staging-barber:6` y
-`urbanblade-staging-frontend:5`): `APP_URL=https://api.urbanblade.com.mx`,
+`urbanblade-staging-frontend:5`; al 28-oct-2026 las vigentes son `barber:11` y `frontend:6`): `APP_URL=https://api.urbanblade.com.mx`,
 `FRONTEND_URL=https://urbanblade.com.mx`, `SPARK_URL=https://spark.urbanblade.com.mx`,
 `CORS_ALLOWED_ORIGINS=https://urbanblade.com.mx,https://www.urbanblade.com.mx`,
 `GOOGLE_REDIRECT_URI=https://api.urbanblade.com.mx/api/v1/auth/google/callback` y, en el
@@ -545,7 +576,10 @@ aws ce get-cost-and-usage --time-period Start=$(date -d "-30 days" +%Y-%m-%d),En
 ## Costo aproximado
 
 Con los tres servicios encendidos 24/7: ~55–65 USD/mes (Fargate Spot + ALB). Apagados,
-queda el ALB (~16–18 USD/mes) más centavos de ECR, S3 y Secrets Manager.
+queda el ALB (~16–18 USD/mes) más centavos de ECR, S3 y Secrets Manager. Esa cifra es de
+septiembre: desde entonces barber y frontend pasaron a FARGATE normal con 2 tareas cada uno
+y se sumó `ollama` (2 vCPU / 4 GB), así que el costo real es mayor; consultarlo con Cost
+Explorer (sección anterior) en lugar de fiarse de este número.
 
 ## Limitaciones conocidas
 
@@ -564,7 +598,11 @@ queda el ALB (~16–18 USD/mes) más centavos de ECR, S3 y Secrets Manager.
   grupo de seguridad por puerto (`uba-stg-alb-cf-80`, `-8080`, `-8501`) porque la lista
   cuenta como ~55 reglas y el límite es 60 por grupo. Las tareas aceptan tráfico de
   `uba-stg-alb-cf-80`. El acceso directo `http://<ALB>:puerto` ya no responde.
-- Fargate Spot puede interrumpir tareas; el servicio las repone solo.
+- Fargate Spot puede interrumpir tareas; el servicio las repone solo. El 24-oct-2026 una
+  interrupción dejó el servicio del frontend atascado (3 despliegues abiertos, 0 tareas);
+  hubo que borrarlo y recrearlo. `spark` y `ollama` siguen en Spot.
+- Con 2 tareas de `barber` falta `CACHE_LIMITER_STORE=mongodb` (ver arriba) y el scheduler se
+  duplica (ver "Tareas programadas").
 - **Pendiente en Stripe:** el destino del webhook aún apunta a la URL `*.cloudfront.net`
   antigua (sigue funcionando). Cuando se quiera, cambiarlo a
   `https://api.urbanblade.com.mx/api/stripe/webhook`; el `whsec_` no cambia si se edita el
