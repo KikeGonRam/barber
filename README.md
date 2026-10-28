@@ -1,118 +1,56 @@
-# UrbanBlade
+# UrbanBlade · Backend API
 
-<p align="center">
-  <img src="docs/assets/landing.png" alt="UrbanBlade landing" width="1000" />
-</p>
+API para gestionar la operación de una barbería: citas, clientes, cobros,
+inventario, pedidos, lealtad, notificaciones y reportes.
 
-<p align="center">
-  <a href="public/video/UrbanBlade.mp4"><strong>▶ Ver presentación de UrbanBlade (8 segundos)</strong></a>
-</p>
+[![CI](https://github.com/KikeGonRam/barber/actions/workflows/ci.yml/badge.svg)](https://github.com/KikeGonRam/barber/actions/workflows/ci.yml)
+[![Docker Image CI](https://github.com/KikeGonRam/barber/actions/workflows/docker-image.yml/badge.svg)](https://github.com/KikeGonRam/barber/actions/workflows/docker-image.yml)
 
-UrbanBlade es una plataforma operativa y analítica para barberías: administración,
-atención al cliente, agenda, pagos, inventario y decisiones basadas en datos, con
-experiencias diferenciadas para administrador, recepcionista, barbero y cliente.
+[Frontend](https://github.com/KikeGonRam/frontend_Urbanblade) ·
+[Documentación](docs/README.md) · [Contribuir](CONTRIBUTING.md) · [Seguridad](SECURITY.md)
 
-**Este repositorio (`barber`) es hoy una API JSON pura** — consumida por el frontend
-real de la aplicación, [`frontend-urban`](https://github.com/KikeGonRam/frontend_Urbanblade)
-(Nuxt 4). No queda ninguna interfaz de usuario en Blade: landing pública, login/registro/
-recuperación de contraseña, catálogo público, perfil, notificaciones, respaldo de base
-de datos y tarjeta de membresía eran las últimas en pie y todas se retiraron hacia Nuxt
-el 2026-09-09 (cada una con paridad funcional confirmada antes de tocar su ruta). Blade
-solo se usa ya para lo que no es pantalla: correos, PDF (recibos y reportes), páginas de
-error y de mantenimiento, y la documentación generada de la API. El
-panel administrativo completo (los 4 dashboards por rol, citas, clientes, pagos,
-pedidos, inventario, servicios, usuarios, campañas, reportes, etc.) se había retirado
-antes, el 2026-09-06 — ver `.claude/skills/urbanblade-guardrails/SKILL.md` (guardrail
-#18) para el historial completo. Para la experiencia real del producto hace falta correr
-**ambos** repos.
+![Panel administrativo del frontend UrbanBlade](docs/assets/dashboard-admin.png)
 
-## ✨ ¿Qué hace UrbanBlade?
+## Responsabilidad del repositorio
 
-- Expone una API JSON (Bearer token, no Sanctum) para citas, clientes, pagos,
-  inventario, campañas, lealtad, notificaciones y analítica — consumida por
-  `frontend-urban`.
-- Separa flujos por rol para cada perfil del negocio (administrador, recepcionista,
-  barbero, cliente, e "ingeniero" — este último solo lectura).
-- Las rutas web de siempre (`/`, `/login`, `/register`, `/dashboard`, `/profile`,
-  `/notifications`, catálogo público, respaldo y tarjeta de membresía) ya solo redirigen a
-  `frontend-urban` (paridad completa desde el 2026-09-09). Lo que sigue respondiendo aquí
-  son los endpoints del chatbot, el rastreo de campañas (`/t/o`, `/t/c`) y los retornos de
-  pago.
-- Cobros reales con Stripe (tarjeta, beta), transferencia con comprobante, y efectivo;
-  programa de lealtad con puntos y descuentos por nivel.
-- Flujo de citas como máquina de estados estricta (pendiente → confirmada → en proceso →
-  completada, más cancelada y no asistió) con aprobación del barbero y cobro solo desde
-  confirmada.
-- Reportes de ingresos, citas, inventario y clientes en JSON, **PDF y Excel corporativos**
-  (ver más abajo) y un cálculo de **horas pico** con las citas reales.
+Expone una API JSON bajo `/api/v1`, consumida por el frontend Nuxt y Android.
+La autenticación usa tokens Bearer propios (`mobile_api_tokens`).
+Las pantallas del producto viven en
+[`frontend-urban`](https://github.com/KikeGonRam/frontend_Urbanblade).
 
-## 🏗️ Stack
+Laravel conserva plantillas para correos, PDF, errores y documentación de la API.
+Las rutas web heredadas redirigen al frontend cuando corresponde.
+La [documentación técnica](docs/DOCUMENTACION_TECNICA.md) describe la arquitectura.
 
-- PHP 8.4 en las imágenes de Docker (`composer.json` exige `^8.3`), Laravel 13
-- MongoDB con mongodb/laravel-mongodb (Atlas, compartida con `spark/`)
-- Redis para caché, sesiones y cola en desarrollo (workers dedicados: `queue:work`,
-  `schedule:work`); la imagen de staging puede correr el scheduler dentro del mismo
-  contenedor (`RUN_SCHEDULER=true`)
-- Vite + Tailwind CSS 4 + Alpine.js — solo para las pocas páginas Blade que quedan
-  (errores, mantenimiento); el frontend real es Nuxt 4 en `frontend-urban`
-- Stripe, Socialite (login con Google), Laravel Pulse (panel de operación para
-  "ingeniero"), Scribe (documentación de la API), DomPDF y Maatwebsite Excel (documentos),
-  Firebase y Web Push (notificaciones), Sentry
-- Docker Compose para entorno local (`app`, `web`, `worker`, `scheduler`, `redis`,
-  `mongo-test`, `mongo-test-init`, `mailpit`, `ollama`, `dns`)
+## Funcionalidades
 
-> **Seguridad de PHP:** el 21-oct-2026 se publicaron 8.5.12, 8.4.27, 8.3.36 y 8.2.35 por dos
-> fallos críticos de ejecución remota (CVE-2026-109618 y CVE-2026-109619, "PHP2Shell").
-> Cualquier imagen debe construirse con PHP **8.4.27 o superior**: al reconstruir, baja la
-> base más reciente (`docker build --pull`) y comprueba `php -v` dentro de la imagen.
+- Agenda con disponibilidad y transiciones de estado de citas.
+- Permisos para administración, recepción, barberos y clientes; ingeniero de solo lectura.
+- Pagos con efectivo, transferencia y tarjeta mediante Stripe.
+- Inventario, pedidos, puntos, descuentos y membresías.
+- Reportes de ingresos, citas, clientes e inventario en JSON, PDF y Excel.
+- Notificaciones, campañas y consultas de analítica.
 
-## 🧭 Roles del sistema
+Los importes y movimientos de inventario se validan en el backend.
 
-| Rol           | Visión principal                                                                   |
-| ------------- | ---------------------------------------------------------------------------------- |
-| Administrador | Dashboard global, reportes, KPIs, clientes, pagos, inventario y control operativo. |
-| Recepcionista | Agenda del día, atención rápida, cobros y gestión de clientes.                     |
-| Barbero       | Horario personal, citas, perfil, portafolio y seguimiento de actividad.            |
-| Cliente       | Reservas, historial, tienda, facturas y membresía.                                 |
-| Ingeniero     | Solo lectura: reportes, logs y estado del sistema (`/pulse`).                       |
+## Stack
 
-Todas estas vistas viven hoy en **`frontend-urban`** (Nuxt), no en este repositorio.
+| Componente | Tecnología |
+| --- | --- |
+| API | Laravel 13; PHP `^8.3` en Composer y PHP 8.4 en Docker/CI. |
+| Datos | MongoDB con `mongodb/laravel-mongodb`. |
+| Caché y colas | Redis y workers de Laravel. |
+| Integraciones | Stripe, Google OAuth, notificaciones y almacenamiento S3. |
+| Documentos | DomPDF, Maatwebsite Excel y Scribe/OpenAPI. |
+| Calidad | PHPUnit, Pint, Larastan, Gitleaks y Trivy. |
 
-## 🔐 Política de asignación de roles
+El build Vite sirve los recursos propios de Laravel; la aplicación web tiene
+su repositorio y pipeline independientes.
 
-- Con `FIRST_USER_ADMIN_ENABLED=true` (por defecto solo si `APP_ENV=local`,
-  y explícitamente `false` en `.env.example` incluso ahí — ver
-  `config/auth.php`), el primer usuario creado en una base vacía, ya sea por
-  registro con contraseña o mediante Google, recibe el rol `administrador`.
-  **En producción este flag debe permanecer deshabilitado**: el administrador
-  inicial se crea vía `AdminUserSeeder`, no por el primer registro público que
-  llegue.
-- Todo registro público posterior (o el primero, si el flag está deshabilitado)
-  recibe exclusivamente el rol `cliente` y su perfil de cliente correspondiente.
-- Un inicio de sesión posterior con Google conserva el rol existente; Google
-  confirma identidad, no otorga ni reduce permisos.
-- Solo un `administrador` puede crear usuarios con otro rol o cambiar el rol
-  de una cuenta mediante la gestión de usuarios de la API.
+## Desarrollo local
 
-El conteo inicial incluye cuentas eliminadas lógicamente, de modo que borrar la
-única cuenta no habilita accidentalmente a otro registro público como administrador.
-
-## 📸 Vista previa
-
-Estas dos capturas ya son de la interfaz real actual — Nuxt (`frontend-urban`), no el
-panel Blade/Inertia retirado. El resto de las capturas (dashboard del cliente,
-gestión de citas, modal de reserva con disponibilidad real) vive en el
-[README de `frontend-urban`](https://github.com/KikeGonRam/frontend_Urbanblade#-vista-previa).
-
-<p align="center">
-  <img src="docs/assets/login.png" alt="Login de UrbanBlade" width="900" />
-</p>
-
-<p align="center">
-  <img src="docs/assets/dashboard-admin.png" alt="Panel administrativo de UrbanBlade" width="1000" />
-</p>
-
-## 🚀 Arranque rápido
+Requisitos: Docker con Compose, Node.js 22 y npm para los recursos de Laravel.
+PHP y sus extensiones están definidos en [Dockerfile](Dockerfile).
 
 ```powershell
 git clone https://github.com/KikeGonRam/barber.git
@@ -120,188 +58,80 @@ cd barber
 Copy-Item .env.example .env
 ```
 
-Edita el archivo `.env` con los valores locales de tu entorno y luego levanta el proyecto:
+Configura conexiones locales aisladas antes de arrancar los servicios. Revisa
+[.env.example](.env.example), [docker-compose.yml](docker-compose.yml) y
+[la guía de MongoDB](docs/MONGODB_ATLAS.md).
+La base de pruebas usa un replica set local; Atlas contiene datos operativos.
+
+Con las conexiones locales verificadas:
 
 ```powershell
 docker compose up -d --build
-npm install
-npm run build
-docker compose exec app php artisan key:generate
-docker compose exec app php artisan storage:link
-docker compose exec app php artisan migrate
-docker compose exec app php artisan db:seed --class=RolePermissionSeeder
-docker compose exec app php artisan db:seed --class=AdminUserSeeder
-```
-
-> Los seeders de demostración (`BarberSeeder`, `ClientSeeder`, citas, pagos…)
-> **se eliminaron el 2026-10-09**: así fue como `barber_db` terminó con más de
-> 200,000 registros de basura que hubo que limpiar. `DatabaseSeeder` ya solo
-> siembra roles/permisos y la cuenta admin, que son los únicos necesarios para
-> que la app arranque; aun así confirma a qué base apunta `.env` antes de
-> cualquier `db:seed`. Para crear el resto de cuentas, ver
-> [docs/ACCESOS.md](docs/ACCESOS.md).
-
-Abre la aplicación en:
-
-- http://localhost:8000 — la API (`/api/v1`); las rutas web redirigen al frontend
-- Mailpit: http://localhost:8025
-
-Para la experiencia real del producto (dashboards, citas, pagos, inventario, etc.),
-clona y levanta también el frontend en un directorio hermano:
-
-```powershell
-git clone https://github.com/KikeGonRam/frontend_Urbanblade.git ../frontend-urban
-cd ../frontend-urban
-npm install --legacy-peer-deps
-npm run dev
-```
-
-Nuxt sirve en http://localhost:3000 y apunta a este backend vía
-`NUXT_PUBLIC_API_BASE=http://127.0.0.1:8000/api/v1` (ver `.env.example` de ese repo).
-
-## 🔐 Demo y acceso
-
-Las contraseñas del equipo ya no se documentan en el repositorio; las administra el
-dueño del proyecto. **[docs/ACCESOS.md](docs/ACCESOS.md)** explica qué cuentas hay y
-cómo crear nuevas. La guía de presentación está en [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md).
-
-Ruta de login:
-
-- http://localhost:3000/login (Nuxt — el login real; `:8000/login` solo redirige aquí)
-
-> `barber_db` ya no viene precargada con datos de demo masivos (se limpió por
-> completo el 2026-09-04). El estado actual de las cuentas está resumido en
-> [docs/ACCESOS.md](docs/ACCESOS.md). Los seeders masivos ya no existen (se
-> eliminaron el 2026-10-09): el contenido real se carga desde la aplicación.
-
-## 📄 Reportes y documentos
-
-`GET /api/v1/reports/{tipo}/{formato}` (administrador e ingeniero) con `tipo` =
-`ingresos | citas | inventario | clientes` y `formato` = `json | pdf | excel`.
-
-- **PDF**: portada de marca (folio, periodo, quién lo preparó), introducción y alcance,
-  resumen ejecutivo con indicadores, hallazgos redactados con las cifras reales, gráfica,
-  detalle con montos en pesos y notas de metodología; encabezado y «Página n de N».
-- **Excel**: libro de tres hojas — Portada, Resumen (introducción, tarjetas, hallazgos y
-  gráfica nativa editable) y Detalle (filtros, panel congelado, formato de moneda y totales).
-- Indicadores y hallazgos salen de `App\Services\Report\ReportNarrative`, a partir de las
-  mismas filas del JSON, para que ningún formato contradiga a otro.
-- Los recibos de pago y de pedidos (`resources/views/pdf/`) llevan la leyenda de que no son
-  factura fiscal (CFDI).
-- Horas pico: `GET /api/v1/admin/reports/peak-hours?days=30|90|180|365` — demanda real de
-  citas por día de la semana y hora, sin contar canceladas.
-
-## 📈 Observabilidad
-
-Para saber qué ruta o consulta frena a la API (los logs van a stderr/CloudWatch):
-
-- **Caddy** (imagen de staging) escribe una línea JSON por petición: método, ruta sin query
-  string, estado, duración y bytes. Sin cabeceras ni cookies, y sin los chequeos `/up`.
-- **Peticiones lentas**: aviso `Petición lenta` cuando pasan de `SLOW_REQUEST_MS` (2000),
-  con el patrón de la ruta, el estado, la memoria y cuántos comandos a MongoDB hizo y cuánto
-  tardaron.
-- **Consultas lentas**: aviso `Consulta lenta a MongoDB` por cada comando que pasa de
-  `SLOW_QUERY_MS` (300), con el comando y la colección.
-- Un umbral en `-1` apaga el aviso. Ver `config/observability.php`.
-
-## 🚢 Imágenes de Docker
-
-- `Dockerfile` (raíz) — **solo desarrollo** local (`docker-compose.yml`).
-- `.docker/staging/Dockerfile` — la imagen que se despliega a AWS: PHP-FPM + Caddy en un
-  solo contenedor, con assets de Vite compilados. Su build valida el `Caddyfile`. Detalles
-  en [docs/DESPLIEGUE_AWS_STAGING.md](docs/DESPLIEGUE_AWS_STAGING.md).
-
-Desplegar con el Dockerfile de la raíz arranca solo PHP-FPM, sin Caddy ni credenciales de
-Firebase, y el balanceador lo marca como no saludable.
-
-## 🔌 API y contrato
-
-- Documentación navegable en `/docs` (Scribe) y spec en `public/docs/openapi.yaml`.
-- `frontend-urban` guarda una copia (`contract/openapi.yaml`) y genera sus tipos de ella;
-  al cambiar la API, actualiza el spec y avisa al frontend (`npm run contract:sync` allá).
-  Ver [docs/PLAN_CONTRATO_API.md](docs/PLAN_CONTRATO_API.md).
-
-## 🧪 Validación y pruebas
-
-Importante: en este proyecto no se deben ejecutar pruebas con `php artisan test` directo. La configuración real usa la base local de pruebas y la forma recomendada es:
-
-```powershell
-./test.ps1
-```
-
-Esto evita que Laravel use accidentalmente la base Atlas compartida con Spark.
-
-La suite tiene hoy más de 900 pruebas. En CI (`.github/workflows/ci.yml`) corren, en cada
-push/PR a `main`: **Backend** (Pint, Larastan, PHPUnit con cobertura, `composer audit`),
-**Frontend** (ESLint, build de Vite y auditoría), **Security scan** (Gitleaks y Trivy) y
-**Smoke test** de rutas HTTP;
-`docker-image.yml` construye las dos imágenes (desarrollo y staging). SonarCloud y
-GitGuardian revisan además cada PR.
-
-## 🛠️ Comandos útiles
-
-```powershell
-docker compose ps
-docker compose logs -f app
-docker compose logs -f web
-docker compose exec app php artisan validate:user-roles
-docker compose exec app composer audit
-docker compose exec app ./vendor/bin/pint --test
+npm ci
 npm run build
 ```
 
-También puedes usar Make:
+La API escucha en [localhost:8000](http://localhost:8000/api/v1);
+Mailpit, en [localhost:8025](http://localhost:8025).
+Levanta el frontend por separado en el puerto 3000.
 
-```bash
-make setup
-make validate
-make logs
-make shell
-```
+Migraciones, claves, enlaces de almacenamiento y cuentas son pasos de
+inicialización según el entorno; no deben ejecutarse sobre datos operativos como
+parte de una instalación rutinaria. Consulta
+[CLONAR_PROYECTOS.md](docs/CLONAR_PROYECTOS.md) y [ACCESOS.md](docs/ACCESOS.md).
+No se utilizan seeders masivos de demostración.
 
-## ⚙️ Configuración extra
+## Pruebas y validación
 
-### Chatbot con Ollama
-
-```env
-CHATBOT_AI_PROVIDER=ollama
-OLLAMA_URL=http://host.docker.internal:11434
-OLLAMA_MODEL=qwen2.5:3b
-```
-
-### Validación antes de entregar
+Las pruebas locales se ejecutan **exclusivamente mediante `test.ps1`**:
 
 ```powershell
-./test.ps1
-docker compose exec app php artisan validate:user-roles
-docker compose exec app php artisan view:cache
-docker compose exec app composer audit
-docker compose exec app composer validate --strict
-docker compose exec app ./vendor/bin/pint --test
-npm run build
+.\test.ps1
 ```
 
-Si todo queda en verde, el proyecto está listo para demo local.
+El script fuerza `.env.testing` en Docker, limpia las cachés antes de probar y
+las restaura después. Ejecutar `php artisan test` directamente en el contenedor
+de desarrollo puede usar la conexión real a Atlas. Verifica que `barber-app`
+monta este checkout y que `mongo-test` está disponible.
 
-## 📚 Documentación relevante
+| Comando | Qué comprueba |
+| --- | --- |
+| `docker compose exec app ./vendor/bin/pint --test` | Formato PHP sin modificar archivos. |
+| `docker compose exec app ./vendor/bin/phpstan analyse --no-progress --memory-limit=1G --configuration=phpstan.neon.dist` | Análisis estático. |
+| `npx eslint resources/js --max-warnings=0` | JavaScript de Laravel. |
+| `npm run build` | Compilación de recursos. |
+| `docker compose exec app composer audit` | Vulnerabilidades de dependencias PHP. |
+| `python scripts/check_docs.py` | Enlaces locales de la documentación de entrada. |
 
-- [docs/ACCESOS.md](docs/ACCESOS.md)
-- [docs/DEMO_DEMOSTRACION.md](docs/DEMO_DEMOSTRACION.md)
-- [docs/DOCUMENTACION_TECNICA.md](docs/DOCUMENTACION_TECNICA.md)
-- [docs/STRIPE_PRUEBAS_LOCALES.md](docs/STRIPE_PRUEBAS_LOCALES.md)
-- [docs/DESPLIEGUE_AWS_STAGING.md](docs/DESPLIEGUE_AWS_STAGING.md)
-- [docs/GOOGLE_CLOUD_OAUTH.md](docs/GOOGLE_CLOUD_OAUTH.md)
-- [docs/MONGODB_ATLAS.md](docs/MONGODB_ATLAS.md)
-- [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md)
-- [docs/PLAN_CONTRATO_API.md](docs/PLAN_CONTRATO_API.md)
-- [docs/PLAN_FLUJO_CITAS_V2.md](docs/PLAN_FLUJO_CITAS_V2.md)
+Los resultados pertenecen al checkout y entorno probados; consulta las acciones
+del repositorio para conocer el estado actual del CI.
 
-## 🧩 Estado del repositorio
+## Contrato de API
 
-- Rama actual: `main`
-- El proyecto comparte datos operativos con `spark` mediante MongoDB
-- Las pruebas de integración usan una base local de pruebas configurada en `.env.testing`
+El contrato está en [public/docs/openapi.yaml](public/docs/openapi.yaml).
+Scribe sirve documentación navegable en `/docs` cuando se genera.
+El frontend conserva una copia del contrato y genera sus tipos a partir de ella.
 
----
+Los cambios de endpoints deben coordinarse con web y Android.
+Consulta [PLAN_CONTRATO_API.md](docs/PLAN_CONTRATO_API.md).
+Una actualización documental no requiere regenerar el contrato.
 
-UrbanBlade está pensado para presentar una barbería como una operación real, moderna y basada en métricas, no como un simple calendario de citas.
+## CI y operación
+
+[CI](.github/workflows/ci.yml) comprueba PHP, JavaScript, seguridad y rutas HTTP
+con servicios efímeros.
+[Docker Image CI](.github/workflows/docker-image.yml) construye las imágenes
+de desarrollo y staging sin publicarlas.
+[Documentación](.github/workflows/documentation.yml) valida los enlaces de entrada.
+
+Estos workflows no despliegan. Un CI verde no acredita publicación.
+Consulta [CI/CD](docs/CI_CD.md) y
+[la guía operativa de staging](docs/DESPLIEGUE_AWS_STAGING.md).
+
+## Documentación y colaboración
+
+El [índice documental](docs/README.md) enlaza las guías de arquitectura, acceso,
+pruebas, usuario y operación sin duplicar sus instrucciones.
+Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para preparar un PR y
+[SECURITY.md](SECURITY.md) para reportar vulnerabilidades.
+Las contraseñas son administradas fuera del repositorio.

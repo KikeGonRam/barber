@@ -1,0 +1,35 @@
+name: Reportar un fallo
+description: Describe un problema reproducible sin publicar información privada.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Para vulnerabilidades utiliza el canal privado enlazado en SECURITY.md.
+        No incluyas contraseñas, tokens, datos personales ni archivos .env.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema y resultado esperado
+      description: Explica qué ocurre y qué debería ocurrir.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      description: Usa datos ficticios y el mínimo recorrido necesario.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Entorno
+      description: Indica rama o commit, entorno local/CI, sistema y rol si corresponde.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidencia sin información privada
+      description: Mensaje de error, resultado de pruebas o captura depurada.
