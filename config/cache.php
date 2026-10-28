@@ -128,6 +128,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Schedule Store
+    |--------------------------------------------------------------------------
+    |
+    | Store con locks atomicos para que onOneServer() (routes/console.php) evite
+    | que las tareas programadas corran en cada tarea de ECS. SCHEDULE_CACHE_STORE=mongodb
+    | las ejecuta una sola vez; sin valor, el mutex usa el store por defecto.
+    |
+    */
+
+    'schedule_store' => env('SCHEDULE_CACHE_STORE'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Cache Key Prefix
     |--------------------------------------------------------------------------
     |
