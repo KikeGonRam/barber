@@ -9,7 +9,7 @@ El nombre del archivo se conserva para no romper referencias anteriores.
 | --- | --- |
 | Rutas y middleware reales | [routes/api.php](../routes/api.php), Laravel route:list. |
 | Validación y respuestas | Requests, controladores y Resources. |
-| Ejemplos comprobables | [docs/contrato](contrato), [ApiContractTest](../tests/Feature/ApiContractTest.php). |
+| Ejemplos comprobables | [docs/contrato](contrato), [ApiContractTest](../tests/SIT/ApiContractTest.php). |
 | OpenAPI versionado | [public/docs/openapi.yaml](../public/docs/openapi.yaml). |
 | Detección de deriva de rutas | [verificar_contrato_api.mjs](../scripts/verificar_contrato_api.mjs). |
 | Required de respuestas | [ContractRequiredFieldsGenerator](../app/Support/Docs/ContractRequiredFieldsGenerator.php). |

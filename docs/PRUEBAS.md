@@ -1,8 +1,9 @@
 # Pruebas y verificación del backend
 
 Revisión: 28 de octubre de 2026. La suite existe y está activa.
-Su configuración está en [phpunit.xml](../phpunit.xml); las pruebas viven en
-[tests/Unit](../tests/Unit) y [tests/Feature](../tests/Feature).
+Su configuración está en [phpunit.xml](../phpunit.xml); las pruebas viven en cuatro carpetas por tipo:
+[tests/UT](../tests/UT), [tests/SIT](../tests/SIT), [tests/UAT](../tests/UAT) y
+[tests/OAT](../tests/OAT) (ver "Tipos de prueba").
 
 ## Ejecución segura
 
@@ -26,6 +27,32 @@ No ejecutes `php artisan test` directamente en el entorno de desarrollo.
 [DataEnvironmentGuard](../app/Support/DataEnvironmentGuard.php) y
 [TestCase](../tests/TestCase.php) son defensas adicionales, no un reemplazo del
 runner. No se desactivan para hacer pasar una prueba.
+
+## Tipos de prueba
+
+Cada archivo vive en la carpeta de su tipo y declara el namespace `Tests\UT`,
+`Tests\SIT`, `Tests\UAT` o `Tests\OAT`. Hay una suite de PHPUnit por tipo.
+
+| Tipo | Carpeta y suite | Qué verifica | Cómo se reconoce |
+| --- | --- | --- | --- |
+| **UT / UIT** · Unitarias y de integración de unidades | `tests/UT` | Una clase o función aislada (reglas, normalización, formato) y unidades que colaboran con la base de datos de pruebas: servicios, comandos de negocio, correos, notificaciones y seeders. | No llaman a rutas HTTP. Las puramente unitarias no usan base de datos; las de integración de unidades sí, pero sin pasar por la API. |
+| **SIT** · Integración de sistema | `tests/SIT` | Que los módulos y sistemas externos funcionen juntos a través de la API: contrato OpenAPI, autenticación y roles, entradas maliciosas, privacidad de datos, webhook de Stripe y el flujo de citas de punta a punta. | Llaman a las rutas y recorren varias capas o módulos; la regla es transversal, no de una sola funcionalidad. |
+| **UAT** · Aceptación de usuario | `tests/UAT` | Criterios de aceptación de una funcionalidad vista por su rol (cliente, barbero, recepción, administrador): citas, pagos, inventario, pedidos, reseñas, perfil, notificaciones, reportes. | Llaman a las rutas con el rol correspondiente y comprueban respuesta y efecto visibles. |
+| **OAT** · Aceptación operativa | `tests/OAT` | Que el sistema se pueda operar: aislamiento de entornos, colas y trabajos fallidos, correo, planificador (una sola ejecución), mantenimiento y respaldos, integridad de datos, límites de peticiones, bloqueo de IP abusivas, logs de lentitud y cabeceras de caché. | Verifican configuración, salud o mantenimiento, no una regla de negocio. |
+
+Un archivo nuevo se clasifica así: si verifica configuración, salud o mantenimiento
+del sistema, es OAT; si no llama rutas, es UT; si llama rutas y la regla es
+transversal (seguridad, contrato, plataforma), es SIT; si llama rutas y verifica una
+funcionalidad concreta de un rol, es UAT. El nombre de una carpeta no sustituye leer
+la prueba: ante la duda, elige el tipo que realmente recorre.
+
+```powershell
+# Por tipo (suites de phpunit.xml)
+.\test.ps1 --testsuite=UT
+.\test.ps1 --testsuite=SIT
+.\test.ps1 --testsuite=UAT
+.\test.ps1 --testsuite=OAT
+```
 
 ## Requisitos y comandos
 
@@ -62,19 +89,20 @@ limpiar colecciones operativas para preparar una suite.
 
 | Riesgo o regla | Pruebas de referencia |
 | --- | --- |
-| Mezcla de entornos de datos | [DataEnvironmentGuardTest](../tests/Unit/DataEnvironmentGuardTest.php), [TestCase](../tests/TestCase.php) |
-| Operadores Mongo procedentes del cliente | [RejectMongoOperatorsTest](../tests/Unit/RejectMongoOperatorsTest.php) |
-| Emisión, renovación y revocación de tokens | [ApiTokenSecurityTest](../tests/Feature/ApiTokenSecurityTest.php), [AuthApiTest](../tests/Feature/AuthApiTest.php) |
-| Disponibilidad y límites de reserva | [AvailabilityApiTest](../tests/Feature/AvailabilityApiTest.php), [AppointmentApiTest](../tests/Feature/AppointmentApiTest.php) |
-| Estados y condiciones para iniciar | [AppointmentStatusServiceTest](../tests/Unit/AppointmentStatusServiceTest.php), [AppointmentStartRulesTest](../tests/Feature/AppointmentStartRulesTest.php) |
-| Autorización por rol y pertenencia | [RoleAuthorizationTest](../tests/Feature/RoleAuthorizationTest.php) |
-| Contrato de respuestas | [ApiContractTest](../tests/Feature/ApiContractTest.php) |
-| Imágenes y cabeceras públicas | [UploadedImageResizeTest](../tests/Unit/UploadedImageResizeTest.php), [PublicUploadsCacheControlTest](../tests/Unit/PublicUploadsCacheControlTest.php) |
-| Configuración y fallos de cola | [QueueConfigurationTest](../tests/Unit/QueueConfigurationTest.php), [QueueFailureMonitorTest](../tests/Unit/QueueFailureMonitorTest.php) |
+| Mezcla de entornos de datos | [DataEnvironmentGuardTest](../tests/OAT/DataEnvironmentGuardTest.php), [TestCase](../tests/TestCase.php) |
+| Operadores Mongo procedentes del cliente | [RejectMongoOperatorsTest](../tests/UT/RejectMongoOperatorsTest.php) |
+| Emisión, renovación y revocación de tokens | [ApiTokenSecurityTest](../tests/SIT/ApiTokenSecurityTest.php), [AuthApiTest](../tests/UAT/AuthApiTest.php) |
+| Disponibilidad y límites de reserva | [AvailabilityApiTest](../tests/UAT/AvailabilityApiTest.php), [AppointmentApiTest](../tests/UAT/AppointmentApiTest.php) |
+| Estados y condiciones para iniciar | [AppointmentStatusServiceTest](../tests/UT/AppointmentStatusServiceTest.php), [AppointmentStartRulesTest](../tests/UAT/AppointmentStartRulesTest.php) |
+| Autorización por rol y pertenencia | [RoleAuthorizationTest](../tests/SIT/RoleAuthorizationTest.php) |
+| Contrato de respuestas | [ApiContractTest](../tests/SIT/ApiContractTest.php) |
+| Imágenes y cabeceras públicas | [UploadedImageResizeTest](../tests/UT/UploadedImageResizeTest.php), [PublicUploadsCacheControlTest](../tests/OAT/PublicUploadsCacheControlTest.php) |
+| Configuración y fallos de cola | [QueueConfigurationTest](../tests/OAT/QueueConfigurationTest.php), [QueueFailureMonitorTest](../tests/OAT/QueueFailureMonitorTest.php) |
 
 La tabla es un índice, no una lista exhaustiva de los casos.
-Algunos archivos bajo Unit también arrancan Laravel; el nombre de la carpeta
-no demuestra que una prueba esté libre de dependencias o base de datos.
+Las pruebas UT también arrancan Laravel (extienden `Tests\TestCase`); no usan
+la base de datos ni las rutas, pero el nombre de la carpeta no demuestra por sí
+solo que una prueba esté libre de dependencias.
 
 ## Contrato HTTP
 

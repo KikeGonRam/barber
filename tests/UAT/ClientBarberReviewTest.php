@@ -1,0 +1,164 @@
+<?php
+
+namespace Tests\UAT;
+
+use App\Models\Appointment;
+use App\Models\Barber;
+use App\Models\BarberReview;
+use App\Models\Client;
+use App\Models\MobileApiToken;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\Service;
+use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Support\Str;
+use Spatie\Permission\PermissionRegistrar;
+use Tests\TestCase;
+
+/**
+ * Integración real contra el Mongo local de pruebas. Regresión: antes solo
+ * CatalogController (API móvil) sincronizaba calificacion_promedio/
+ * total_resenas del barbero al crear una reseña. Client\ClientBarberController
+ * (web) tenía el mismo bug hasta que ambos empezaron a delegar en
+ * BarberReviewService — esa página web se retiró (Nuxt tiene "Nuestros
+ * Barberos" con paridad funcional confirmada, ver Fase 9.8), así que este
+ * archivo ya solo cubre la vía API, que sigue siendo el contrato real.
+ */
+class ClientBarberReviewTest extends TestCase
+{
+    private User $clientUser;
+
+    private Client $client;
+
+    private Barber $barber;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        $this->seed(RolePermissionSeeder::class);
+
+        $role = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
+        $this->clientUser = User::create(['name' => 'Cliente Web', 'email' => 'cliente-review-web@test.local', 'password' => 'password']);
+        $this->clientUser->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+        $this->client = Client::create(['user_id' => (string) $this->clientUser->id, 'telefono' => '5551234567', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+
+        $barberUser = User::create(['name' => 'Barbero Web', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $this->barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Web', 'activo' => true]);
+
+        Appointment::create([
+            'client_id' => (string) $this->client->id,
+            'barber_id' => (string) $this->barber->id,
+            'service_id' => (string) Str::uuid(),
+            'fecha' => now()->subDay()->format('Y-m-d'),
+            'hora_inicio' => '09:00:00',
+            'hora_fin' => '09:30:00',
+            'estado' => 'completada',
+        ]);
+    }
+
+    protected function tearDown(): void
+    {
+        BarberReview::query()->delete();
+        Appointment::withTrashed()->forceDelete();
+        Barber::query()->delete();
+        Service::query()->delete();
+        Client::query()->delete();
+        MobileApiToken::query()->delete();
+        User::query()->delete();
+        Role::query()->delete();
+        Permission::query()->delete();
+        \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        parent::tearDown();
+    }
+
+    public function test_api_review_submission_syncs_barber_denormalized_stats(): void
+    {
+        $token = 'test-plaintext-token-review';
+        MobileApiToken::create([
+            'user_id' => (string) $this->clientUser->id,
+            'name' => 'test',
+            'token_hash' => hash('sha256', $token),
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/barbers/'.$this->barber->slug.'/review', [
+                'rating' => 2,
+                'comment' => 'Regular',
+            ]);
+
+        $response->assertCreated();
+
+        $freshBarber = Barber::find($this->barber->id);
+        $this->assertEquals(2.0, (float) $freshBarber->calificacion_promedio);
+        $this->assertSame(1, $freshBarber->total_resenas);
+    }
+
+    /**
+     * Regresión: GET barbers/{barber} salió del grupo mobile.auth el
+     * 2026-09-09 para que el perfil público de barbero en Nuxt (portafolio +
+     * reseñas) sea visible sin iniciar sesión, igual que /services y
+     * /barbers. Sin token, debe responder 200 (no 401) y marcar can_review/
+     * already_reviewed como false para el visitante anónimo.
+     */
+    public function test_public_barber_detail_is_accessible_without_authentication(): void
+    {
+        $response = $this->getJson('/api/v1/barbers/'.$this->barber->slug);
+
+        $response->assertOk();
+        $response->assertJsonPath('barber.slug', $this->barber->slug);
+        $response->assertJsonPath('can_review', false);
+        $response->assertJsonPath('already_reviewed', false);
+    }
+
+    public function test_review_submission_still_requires_authentication(): void
+    {
+        $response = $this->postJson('/api/v1/barbers/'.$this->barber->slug.'/review', [
+            'rating' => 4,
+        ]);
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_client_rates_a_service_received_with_the_barber(): void
+    {
+        $service = Service::create(['nombre' => 'Fade clásico', 'categoria' => 'corte', 'precio' => 180, 'duracion_min' => 30, 'activo' => true]);
+        $other = Service::create(['nombre' => 'Tinte', 'categoria' => 'color', 'precio' => 300, 'duracion_min' => 60, 'activo' => true]);
+        Appointment::create([
+            'client_id' => (string) $this->client->id,
+            'barber_id' => (string) $this->barber->id,
+            'service_id' => (string) $service->id,
+            'fecha' => now()->subDays(2)->format('Y-m-d'),
+            'hora_inicio' => '10:00:00',
+            'hora_fin' => '10:30:00',
+            'estado' => 'completada',
+        ]);
+
+        $token = 'test-plaintext-token-service-review';
+        MobileApiToken::create(['user_id' => (string) $this->clientUser->id, 'name' => 'test', 'token_hash' => hash('sha256', $token)]);
+        $auth = ['Authorization' => "Bearer {$token}"];
+
+        $this->withHeaders($auth)->getJson('/api/v1/barbers/'.$this->barber->getRouteKey())
+            ->assertOk()
+            ->assertJsonPath('can_review', true)
+            ->assertJsonPath('reviewable_services.0.nombre', 'Fade clásico');
+
+        // Un servicio que nunca recibió con este barbero no se puede calificar.
+        $this->withHeaders($auth)->postJson('/api/v1/barbers/'.$this->barber->getRouteKey().'/review', [
+            'rating' => 5, 'service_id' => (string) $other->id,
+        ])->assertStatus(422);
+
+        $this->withHeaders($auth)->postJson('/api/v1/barbers/'.$this->barber->getRouteKey().'/review', [
+            'rating' => 5, 'comment' => 'Excelente fade', 'service_id' => (string) $service->id,
+        ])->assertCreated();
+
+        $this->getJson('/api/v1/barbers/'.$this->barber->getRouteKey())
+            ->assertOk()
+            ->assertJsonPath('reviews.0.service', 'Fade clásico')
+            ->assertJsonPath('reviews.0.rating', 5);
+    }
+}
