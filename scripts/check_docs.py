@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Check local inline Markdown/HTML links in the repository's entry documents.
+"""Check local inline Markdown/HTML links in maintained repository documents.
 
 No network requests or product dependencies. Explicit file arguments override
-the default scope. Reference-style links and fragments are intentionally omitted.
+the default scope; --all discovers root/docs/.github Markdown. Reference-style links and fragments are intentionally omitted.
 """
 from __future__ import annotations
 
@@ -84,9 +84,17 @@ def check(root: Path, relative: str) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("files", nargs="*", help="Repository-relative Markdown files")
+    parser.add_argument("--all", action="store_true", help="Check all maintained docs and root Markdown files")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
+    if args.all and args.files:
+        parser.error("--all cannot be combined with file arguments")
     files = args.files or DEFAULT_FILES
+    if args.all:
+        files = sorted({str(path.relative_to(root)).replace("\\", "/")
+                        for path in [*root.glob("*.md"), *(root / "docs").rglob("*.md"),
+                                     *(root / ".github").rglob("*.md")]
+                        if path.is_file()})
     errors = [error for relative in files for error in check(root, relative)]
     for error in errors:
         print(f"ERROR: {error}")

@@ -1,76 +1,53 @@
-# Accesos del equipo — UrbanBlade
+# Acceso y roles de UrbanBlade
 
-> **Actualizado 2026-09-18.** Este archivo ya **no lista correos ni contraseñas**.
-> Las cuentas que documentaba (una por rol, de septiembre) dejaron de existir en la
-> base tras los incidentes del 2026-09-04, 2026-09-11 y 2026-09-18, y mantener
-> contraseñas en un repositorio público solo genera copias desactualizadas. Las
-> credenciales vigentes las administra el dueño del proyecto fuera del repositorio.
+Esta guía documenta el proceso de acceso, no un inventario de cuentas.
+No contiene correos reales, contraseñas ni tokens.
+Las cantidades de usuarios y perfiles cambian y no se mantienen en un README.
 
-URL de acceso:
+## Entrar
 
-- Local: http://localhost:3000/login (frontend-urban/Nuxt — el login real; `:8000/login`
-  redirige aquí, `barber` ya no renderiza ninguna página).
-- Staging AWS: la URL de CloudFront del frontend
-  (ver [DESPLIEGUE_AWS_STAGING.md](DESPLIEGUE_AWS_STAGING.md)).
+El login de producto está en el frontend Nuxt:
+`http://localhost:3000/login` en desarrollo.
+Para un entorno remoto, utiliza la URL entregada por el responsable.
+El backend expone autenticación por API y las redirecciones web heredadas.
 
-![Login de acceso](assets/login.png)
+![Pantalla de acceso ilustrativa](assets/login.png)
 
-## Qué cuentas hay hoy en `barber_db`
+## Alta y recuperación
 
-Estado verificado el 2026-09-18 (solo lectura sobre Atlas), después de eliminar las
-cuentas de demostración:
+- Un cliente se registra desde la interfaz pública o mediante Google.
+- Las altas y cambios de roles internos se realizan desde la administración
+  autorizada del producto.
+- El registro público y Google no permiten escoger un rol privilegiado.
+- Los perfiles de cliente/barbero se enlazan al usuario; un rol por sí solo
+  no demuestra que exista un perfil operativo completo.
+- Para recuperar acceso, utilizar el flujo de recuperación; no publicar
+  contraseñas temporales ni ejecutar Tinker con credenciales pegadas en el comando.
+- El bootstrap de una instalación aislada es distinto de crear una cuenta en
+  producción. Los seeders modifican datos y requieren revisar el destino.
 
-| Rol | Cuentas | Notas |
-|---|---|---|
-| administrador | 2 | cuentas reales del equipo |
-| ingeniero | 1 | acceso al panel de estado del servidor |
-| barbero | 1 | sin perfil de barbero todavía: no aparece en el catálogo hasta crearlo |
-| cliente | 0 | los clientes reales se registran desde el frontend |
-| recepcionista | 0 | no existe ninguna; crearla cuando se necesite |
+## Roles
 
-Las 26 cuentas de demostración (`*.demoN@urbanblade.test`: 6 barberos y 20 clientes) y
-sus perfiles se eliminaron el 2026-09-18. Sus citas (100) y pagos (64) siguen en la
-base pero ya no tienen cliente ni barbero asociado; el catálogo de barberos queda
-vacío hasta crear perfiles reales. Hay un respaldo local de esas cuentas en
-`storage/app/backups/demo-accounts-2026-09-18.json` (ignorado por Git).
+| Rol | Ámbito |
+| --- | --- |
+| Administrador | Configuración y gestión de negocio conforme a permisos. |
+| Recepcionista | Agenda, atención, clientes, cobros y pedidos autorizados. |
+| Barbero | Citas y perfil propios, horario, portafolio y actividad personal. |
+| Cliente | Reservas propias, compras, recibos y servicios de su cuenta. |
+| Ingeniero | Consultas autorizadas de estado, reportes y observabilidad. |
 
-> Los números cambian: para el estado real, consultar la colección `users` en lugar de
-> confiar en esta tabla.
+El backend valida rol, permisos y pertenencia de cada recurso.
+El menú visible del frontend no es una barrera de seguridad.
+La asignación de roles se describe en
+[arquitectura](DOCUMENTACION_TECNICA.md).
 
-## Cómo crear una cuenta nueva
+## Custodia
 
-Los seeders de demostración (`BarberSeeder`, `ClientSeeder` y el resto) se eliminaron el
-2026-10-09: ya habían causado acumulación de datos sintéticos dos veces. `DatabaseSeeder`
-solo siembra roles/permisos y el administrador. Crear cada cuenta individualmente:
+El propietario administra las credenciales fuera del repositorio.
+No incluir capturas del gestor de secretos, resultados completos de
+autenticación ni exportaciones de usuarios en documentación pública.
+Un usuario eliminado lógicamente puede seguir ocupando su correo en un índice;
+no se recomienda `forceDelete` como solución rutinaria.
 
-```bash
-docker exec barber-app php artisan tinker --execute="
-\$u = \App\Models\User::create(['name' => 'Nombre', 'email' => 'correo@ejemplo.com', 'password' => bcrypt('elige-una-contraseña-larga')]);
-\$u->forceFill(['email_verified_at' => now()])->save();
-\$u->assignRole('administrador'); // o recepcionista/barbero/cliente/ingeniero
-"
-```
-
-Para barbero/cliente, además crear el perfil correspondiente
-(`Barber::create([...])` / `Client::create([...])`) enlazado con `user_id`; sin perfil,
-el rol no funciona.
-
-Notas:
-- Los borrados de usuarios son lógicos (`SoftDeletes`): un correo "borrado" sigue
-  ocupando el índice único hasta un `forceDelete()`.
-- Si el comando corre contra Atlas, es una escritura en la base compartida: confirmar
-  primero a qué apunta `.env`.
-
-## Qué puede ver cada rol
-
-- **Administrador**: dashboard con KPIs globales, gestión de citas, clientes, pagos, reportes, inventario, campañas y analítica.
-- **Recepción**: panel operativo, agenda del turno, clientes, cobros, pedidos y flujo acelerado de atención.
-- **Barbero**: agenda personal, aprobación o rechazo de citas, perfil, horario, portafolio y analítica individual.
-- **Cliente**: reserva de citas, historial, tienda, carrito, facturas y membresía.
-- **Ingeniero**: panel de estado del servidor (Laravel Pulse).
-
-## Documentación relacionada
-
-- [README.md](../README.md)
-- [DEMO_DEMOSTRACION.md](DEMO_DEMOSTRACION.md)
-- [MONGODB_ATLAS.md](MONGODB_ATLAS.md) — usuarios de base de datos (no confundir con cuentas de la app)
+Consulta [seguridad](../SECURITY.md), [gestión de credenciales](PLAN_ROTACION_CREDENCIALES.md)
+y [manual de usuario](MANUAL_USUARIO.md).

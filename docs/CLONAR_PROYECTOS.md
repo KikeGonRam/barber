@@ -1,129 +1,90 @@
-# Cómo clonar los proyectos UrbanBlade
+# Preparar un entorno local de UrbanBlade
 
-UrbanBlade reúne repositorios independientes que integran sus cambios en **`main`**
-mediante ramas de trabajo y pull requests. El alcance de desarrollo actual incluye
-backend, frontend web y Android; `spark` se conserva como proyecto de analítica.
+Backend, frontend y Android son repositorios independientes.
+Spark se conserva como proyecto académico de analítica.
+Cada componente tiene su `main`; el trabajo se realiza en ramas y PR.
 
----
+## Repositorios
 
-## Los cuatro proyectos
+| Componente | Repositorio |
+| --- | --- |
+| API Laravel | [barber](https://github.com/KikeGonRam/barber) |
+| Web Nuxt | [frontend_Urbanblade](https://github.com/KikeGonRam/frontend_Urbanblade) |
+| Android | [UrbanBladeMobile](https://github.com/al140605/UrbanBladeMobile) |
+| Analítica académica | [spark](https://github.com/KikeGonRam/spark) |
 
-| Proyecto | Repositorio | Carpeta local | Qué es |
-|---|---|---|---|
-| **barber** | `https://github.com/KikeGonRam/barber.git` | `barber` | Backend: API JSON en Laravel 13 + MongoDB |
-| **frontend-urban** | `https://github.com/KikeGonRam/frontend_Urbanblade.git` | `frontend-urban` | Web: Nuxt 4 + Vue 3 (el producto real) |
-| **spark** | `https://github.com/KikeGonRam/spark.git` | `spark` | Analítica: PySpark + Streamlit (proyecto escolar) |
-| **UrbanBladeMobile** | `https://github.com/al140605/UrbanBladeMobile.git` | `UrbanBladeMobile` | Android: Kotlin + Jetpack Compose |
+No es necesario clonar ni arrancar los cuatro para actualizar documentación.
 
-## Clonar todo de una vez
+## Backend aislado
 
-```bash
-git clone https://github.com/KikeGonRam/barber.git barber
-git clone https://github.com/KikeGonRam/frontend_Urbanblade.git frontend-urban
-git clone https://github.com/KikeGonRam/spark.git spark
-git clone https://github.com/al140605/UrbanBladeMobile.git UrbanBladeMobile
-```
-
-Cada repo se clona en `main`, la rama de integración protegida; el trabajo se hace en
-ramas propias que entran por PR (ver `git-commit-conventions`). Para verificar:
-
-```bash
-cd barber && git branch --show-current        # main
-cd ../spark && git branch --show-current      # main
-```
-
-## 1. barber (backend Laravel)
+Requisitos: Git, Docker con Compose y Node.js/npm para los recursos de Laravel.
+Usa las versiones declaradas por el repositorio, no las de una guía antigua.
 
 ```powershell
+git clone https://github.com/KikeGonRam/barber.git barber
 cd barber
 Copy-Item .env.example .env
+Copy-Item .env.development.example .env.development
 ```
 
-Configura conexiones locales aisladas siguiendo el [README](../README.md).
-No copies credenciales operativas como requisito de una primera instalación.
+Revisa primero [la plantilla](../.env.development.example), el
+[Compose base](../docker-compose.yml) y el
+[overlay de desarrollo](../docker-compose.development.yml).
+El overlay define `mongo-dev`/rsdev y la base `urbanblade_dev`, separados
+de `mongo-test`/barber_db_test. No necesita las credenciales operativas de Atlas.
 
-`setup.ps1` es una alternativa de bootstrap que instala dependencias y ejecuta
-migraciones con la configuración seleccionada. Revísalo antes de usarlo y confirma
-el destino de datos; no forma parte de una actualización documental ni de CI.
+Configura una APP_KEY exclusiva de desarrollo en .env.development antes de
+arrancar; el overlay hereda otras variables de .env. Mantén ambos archivos
+ignorados y no copies la clave de producción.
 
-Documentación completa:
-[`barber/docs/DOCUMENTACION_TECNICA.md`](DOCUMENTACION_TECNICA.md).
-
-> Para correr pruebas: `.\test.ps1`, **nunca** `php artisan test` directamente. La
-> razón está explicada en `barber/AGENTS.md`: bare `php artisan test` apunta a la base
-> de Atlas compartida y ya borró datos reales una vez.
-
-## 2. frontend-urban (web Nuxt)
-
-Necesita el backend arriba en `http://127.0.0.1:8000`.
+Con el entorno local verificado:
 
 ```powershell
+docker compose --env-file .env.development -f docker-compose.yml -f docker-compose.development.yml up -d --build
+npm ci
+npm run build
+docker compose --env-file .env.development -f docker-compose.yml -f docker-compose.development.yml ps
+```
+
+El Compose base carga también configuración de la aplicación: verifica sus
+`env_file` y requisitos locales. No sobrescribas un `.env` ya existente ni
+copies el de producción. Si falta una variable, obtén un valor de desarrollo
+adecuado en lugar de apuntar a la base real.
+
+La API local está en el puerto 8000; Mailpit, en 8025.
+`setup.ps1` es otra herramienta de bootstrap y puede ejecutar migraciones.
+No se ejecuta para revisar documentación ni sobre datos operativos.
+
+## Frontend
+
+Desde una carpeta hermana:
+
+```powershell
+git clone https://github.com/KikeGonRam/frontend_Urbanblade.git frontend-urban
 cd frontend-urban
 npm ci --legacy-peer-deps
 Copy-Item .env.example .env
 npm run dev
 ```
 
-Queda en `http://localhost:3000`. `--legacy-peer-deps` es necesario por un bug conocido
-de npm con el grafo de peer-dependencies de Nuxt 4.
+La aplicación usa el puerto 3000 y consume la API local con `/api/v1`.
+Todo valor `NUXT_PUBLIC_*` se expone al cliente.
+La guía vigente está en el
+[README del frontend](https://github.com/KikeGonRam/frontend_Urbanblade/blob/main/README.md).
 
-Documentación completa: [README del frontend](https://github.com/KikeGonRam/frontend_Urbanblade/blob/main/README.md).
+## Android y analítica
 
-## 3. spark (analítica)
+Sigue las instrucciones de sus repositorios: dependen de sus herramientas,
+contratos y entornos. No copies una receta de WSL/Gradle antigua del backend
+como si fuera la configuración actual de esos componentes.
 
-```powershell
-cd spark
-.\setup-spark.ps1
-```
+## Pruebas y colaboración
 
-El script instala/valida WSL2, Java, Miniconda y el entorno `spark_env`, y se detiene
-pidiendo el `.env` real (usa `.env.example` como plantilla). Vuelve a correr
-`.\setup-spark.ps1` para validar la conexión a MongoDB Atlas.
+Backend: exclusivamente `.\test.ps1`, con montaje y Mongo de pruebas comprobados.
+Consulta [PRUEBAS.md](PRUEBAS.md).
+Para cuentas y permisos, [ACCESOS.md](ACCESOS.md).
 
-Documentación completa: [guía de unidades de spark](https://github.com/KikeGonRam/spark/blob/main/unidades/README.md) y
-[comandos de spark](https://github.com/KikeGonRam/spark/blob/main/unidades/COMANDOS.txt).
-
-> En `spark` el usuario de Atlas es de **solo lectura**: los scripts leen `barber_db` y
-> los derivados se escriben aparte, en `urbanblade_analytics`. Ver
-> [`PLAN_ENDURECIMIENTO_ATLAS.md`](PLAN_ENDURECIMIENTO_ATLAS.md).
-
-## 4. UrbanBladeMobile (Android)
-
-No tiene script de arranque: se abre con **Android Studio** (→ Open → la carpeta
-`UrbanBladeMobile`) y se espera la sincronización de Gradle.
-
-Antes de ejecutar necesitas `local.properties` con `GOOGLE_CLIENT_ID` y, para pagos con
-tarjeta, `STRIPE_PUBLISHABLE_KEY` (claves públicas; nunca la secreta). El backend debe
-estar arriba y, en celular físico, correr `adb reverse tcp:8000 tcp:8000`.
-
-Documentación completa: [README de Android](https://github.com/al140605/UrbanBladeMobile/blob/main/README.md).
-
----
-
-## Verificar que quedaste en la rama correcta
-
-```bash
-cd barber && git branch --show-current
-```
-
-Un clon nuevo parte de la rama predeterminada del repositorio. Durante el trabajo
-es normal estar en una rama propia: su nombre no indica que esté retirada.
-Para consultar la referencia de integración sin cambiar de rama ni alterar el
-árbol de trabajo:
-
-```bash
-git fetch origin
-git log -1 --oneline origin/main
-```
-
-## Sobre los archivos `.env`
-
-El backend administra las conexiones a MongoDB. Web y Android consumen la API;
-no necesitan credenciales directas de Atlas. `spark` tiene su configuración de
-lectura y analítica. Los archivos `.env` reales no se publican ni se comparten en
-issues o mensajes públicos. Los procedimientos de rotación están en
-[PLAN_ROTACION_CREDENCIALES.md](PLAN_ROTACION_CREDENCIALES.md).
-
-Si nunca has usado Git ni Docker, empieza mejor por
-[`COMO_DESCARGAR_LOS_PROYECTOS.txt`](COMO_DESCARGAR_LOS_PROYECTOS.txt), que explica
-todo desde cero.
+Antes de trabajar: `git status --short`, `git fetch origin` y una rama desde
+`origin/main`. Conserva cambios ajenos y revisa el diff antes de publicar.
+Un push o merge puede activar integraciones externas; incluso una rama de
+documentación necesita revisar ese alcance.

@@ -1,222 +1,101 @@
-# Stripe en UrbanBlade: pagos y webhooks locales
+# Stripe: arquitectura y pruebas locales
 
-Esta guía explica cómo preparar Stripe para desarrollar y probar pagos con tarjeta
-en UrbanBlade. Está dirigida tanto al equipo humano como a los asistentes de IA que
-trabajen en este repositorio.
+Revisión del código: 28 de octubre de 2026.
+Esta guía se limita a sandbox y backend local aislado. No autoriza cobros,
+cambios de claves, suscripciones o reembolsos de producción.
 
-> Este procedimiento es exclusivamente para el entorno de pruebas de Stripe. No
-> configura producción y no autoriza crear, rotar o sustituir credenciales reales.
+## Funciones implementadas
 
-## Qué usa actualmente UrbanBlade
+[StripePaymentService](../app/Services/Payment/StripePaymentService.php) utiliza:
 
-UrbanBlade procesa pagos únicos con Stripe Elements y Payment Intents:
+| Función | Recursos o comportamiento |
+| --- | --- |
+| Cobros y depósitos | Crear/consultar Payment Intents y conciliar con servicios de negocio. |
+| Tarjetas guardadas | Customers y métodos de pago; cargos posteriores cuando el flujo lo permite. |
+| Cancelaciones y devoluciones | Refunds asociados al intento original. |
+| Membresías | Productos/precios, Customers, suscripciones y consulta de invoices. |
+| Renovaciones y cambios | Eventos de suscripción e invoice procesados por el webhook. |
 
-- El navegador usa `STRIPE_KEY` (`pk_test_...`) para mostrar el formulario y confirmar
-  el pago con `stripe.confirmCardPayment()`.
-- Laravel usa `STRIPE_SECRET` (`rk_test_...`) para crear y consultar Payment Intents.
-- Stripe CLI reenvía eventos locales a `POST /api/stripe/webhook`.
-- Laravel verifica cada evento con `STRIPE_WEBHOOK_SECRET` (`whsec_...`).
-- Cuando recibe `payment_intent.succeeded`, el sistema concilia el pago usando
-  `PaymentService`.
+[MembershipService](../app/Services/Membership/MembershipService.php) coordina
+membresías. [StripeWebhookController](../app/Http/Controllers/Api/Payment/StripeWebhookController.php)
+procesa pagos, fallos, reembolsos, disputas y eventos de suscripción.
 
-Las facturas visibles en UrbanBlade son PDFs generados por Laravel con DomPDF. El
-proyecto no usa Stripe Billing, Stripe Invoices, suscripciones, Customers, Prices ni
-Products. No se deben conceder permisos para esos recursos mientras el código no los
-utilice.
+La antigua instrucción de conceder únicamente Payment Intents y excluir siempre
+Billing/Customers estaba desactualizada. Define los permisos mínimos por las
+funciones que se probarán, revisando los métodos efectivamente usados.
+No habilitar recursos ajenos a ese alcance.
 
-Archivos principales:
+## Configuración y custodia
 
-- `app/Services/Payment/StripePaymentService.php`
-- `app/Http/Controllers/Api/Payment/PaymentController.php`
-- `app/Http/Controllers/Api/Payment/StripeWebhookController.php`
-- `resources/views/payments/create.blade.php`
-- `config/services.php`
-- `routes/api.php`
+| Variable | Uso |
+| --- | --- |
+| STRIPE_KEY | Clave publicable del entorno de pruebas. |
+| STRIPE_SECRET | Credencial secreta/restringida del backend. |
+| STRIPE_WEBHOOK_SECRET | Firma del listener o endpoint correspondiente. |
+| NUXT_PUBLIC_STRIPE_KEY | Clave publicable utilizada por Nuxt, en el frontend. |
 
-## Requisitos
+No hay valores de ejemplo con formato de clave en esta guía.
+Obtén los valores del sandbox autorizado y guárdalos fuera de Git.
+Las cuatro configuraciones deben corresponder al mismo entorno/cuenta.
+Nunca enviar la clave secreta al navegador ni pegar valores en comandos,
+capturas, fixtures o informes.
 
-- UrbanBlade ejecutándose en Docker en `http://localhost:8000`.
-- Acceso al sandbox de Stripe asignado al equipo.
-- PowerShell en Windows 10 u 11 de 64 bits.
-- Permiso explícito del responsable antes de crear, rotar o eliminar credenciales.
+Los contenedores conservan su entorno inicial y Laravel puede cachear configuración.
+Una modificación de variables exige revisar qué proceso debe recrearse y con qué
+Compose; no reemplazar servicios conectados a Atlas por seguir una receta local.
 
-## 1. Instalar Stripe CLI manualmente en Windows
+## Preparación
 
-La instalación validada por el equipo utilizó Stripe CLI `1.50.10`. En versiones
-posteriores, descarga el asset equivalente para Windows x86-64 desde los releases
-oficiales de Stripe CLI:
-
-```text
-stripe_<version>_windows_x86_64.zip
-```
-
-Para la versión validada, el archivo fue:
-
-```text
-stripe_1.50.10_windows_x86_64.zip
-```
-
-1. Descarga y extrae el ZIP.
-2. Mueve `stripe.exe` a una carpeta permanente:
-
-   ```text
-   C:\Program Files\Stripe\
-   ```
-
-3. Agrega `C:\Program Files\Stripe\` a la variable de entorno `Path`.
-4. Cierra y abre PowerShell para recargar el `Path`.
-5. Verifica la instalación:
-
-   ```powershell
-   stripe --version
-   ```
-
-## 2. Autorizar Stripe CLI y verificar el sandbox
-
-Ejecuta:
+1. Levantar el backend contra Mongo local siguiendo [clonado](CLONAR_PROYECTOS.md).
+2. Utilizar un sandbox Stripe autorizado y comprobar el contexto de la CLI.
+3. Configurar las variables sin mostrar sus valores.
+4. Tener el frontend local y datos ficticios para los escenarios que lo necesiten.
+5. Mantener redirigido el correo a un capturador local y no usar teléfonos reales.
 
 ```powershell
-stripe login
-```
-
-Abre la URL que muestre Stripe, introduce el código de verificación y confirma la
-autorización. La salida final indica el negocio, el tipo de entorno y el identificador
-`acct_...` activo.
-
-Antes de continuar, compara ese `acct_...` con la cuenta abierta en el Dashboard. Las
-claves API, Stripe CLI y el listener deben pertenecer al mismo sandbox. Que dos cuentas
-tengan el mismo nombre visible no garantiza que sean el mismo entorno.
-
-Para consultar posteriormente el contexto de la CLI:
-
-```powershell
+stripe --version
 stripe whoami --format json
+stripe listen --forward-to http://127.0.0.1:8000/api/stripe/webhook
 ```
 
-## 3. Crear la clave restringida de pruebas
+El listener muestra un secreto de firma temporal: no copiar su salida a
+documentación. Configurarlo solo en el backend de prueba.
 
-En el Dashboard del mismo sandbox:
-
-1. Abre **Desarrolladores → Claves de API**.
-2. Selecciona **Crear clave restringida**.
-3. Elige que se utilizará en una integración propia.
-4. Selecciona permisos personalizados.
-5. Asigna un nombre identificable, por ejemplo:
-
-   ```text
-   UrbanBlade local test payments
-   ```
-
-6. Concede únicamente:
-
-   ```text
-   Payment Intents: Escritura
-   ```
-
-7. Mantén el resto de los recursos en `Ninguno` y crea la clave.
-
-El permiso de escritura de Payment Intents cubre las operaciones de creación y
-consulta que realiza `StripePaymentService`. No habilites la plantilla de pagos únicos
-completa ni Stripe Billing solamente por comodidad.
-
-## 4. Configurar `.env`
-
-Obtén la clave publicable y la clave restringida del mismo sandbox y configura:
-
-```dotenv
-STRIPE_KEY=pk_test_REEMPLAZAR
-STRIPE_SECRET=rk_test_REEMPLAZAR
-STRIPE_WEBHOOK_SECRET=whsec_REEMPLAZAR
-```
-
-Reglas de seguridad:
-
-- Nunca copies valores reales a esta guía, `.env.example`, issues, commits o chats.
-- `.env` debe permanecer ignorado por Git.
-- No uses `sk_live_`, `rk_live_` ni `pk_live_` durante este procedimiento.
-- No uses una clave secreta estándar si una clave restringida cubre el caso.
-
-## 5. Iniciar el listener local
-
-Ejecuta y conserva abierta esta terminal durante las pruebas:
+## Qué valida cada prueba
 
 ```powershell
-stripe listen --forward-to http://localhost:8000/api/stripe/webhook
-```
-
-La CLI mostrará un secreto `whsec_...`. Copia ese valor a
-`STRIPE_WEBHOOK_SECRET`. Si una ejecución posterior de `stripe listen` muestra un
-secreto distinto, actualiza `.env` antes de seguir probando.
-
-Abrir `http://localhost:8000/api/stripe/webhook` en un navegador produce
-`405 Method Not Allowed`. Es el comportamiento correcto: el navegador envía `GET` y
-el endpoint acepta únicamente `POST` firmado por Stripe.
-
-## 6. Recargar Laravel después de cambiar credenciales
-
-`docker-compose.yml` inyecta `.env` al crear los contenedores y el entrypoint optimiza
-la configuración de Laravel. Por eso editar `.env` no basta. Recarga solamente los
-servicios PHP, sin bajar MongoDB ni ejecutar migraciones o seeders:
-
-```powershell
-docker compose up -d --force-recreate app worker scheduler
-docker compose exec -T app php artisan config:clear
-```
-
-No uses `docker compose down`, `make clean`, `migrate` ni `db:seed` como parte de esta
-configuración.
-
-## 7. Probar el webhook
-
-Con `stripe listen` todavía activo, abre otra terminal y ejecuta:
-
-```powershell
+# Con el listener abierto y el sandbox verificado
 stripe trigger payment_intent.succeeded
 ```
 
-La terminal del listener debe mostrar eventos como:
+Un trigger valida entrega/firma y manejo del evento. Si no contiene metadatos de
+una operación de UrbanBlade, no demuestra que una cita o membresía se conciliara.
 
-```text
-payment_intent.created
-payment_intent.succeeded
-charge.succeeded
-POST http://localhost:8000/api/stripe/webhook [200]
-```
+Para validar una compra completa, crearla desde el producto en entorno aislado y
+comprobar importe calculado por servidor, respuesta de error, evento recibido,
+estado final y ausencia de duplicados al repetir el evento.
+Los objetos creados en sandbox siguen siendo escrituras en una cuenta externa;
+esa prueba necesita alcance autorizado.
 
-El fixture de Stripe no contiene un ID de cita real de UrbanBlade, por lo que valida la
-entrega y la firma sin conciliar una cita de la base de datos.
+La suite PHPUnit cubre el webhook y servicios mediante dobles de prueba y
+datos locales; consulta [PRUEBAS.md](PRUEBAS.md).
 
-También puede confirmarse la respuesta del servidor con:
+## Diagnóstico
 
-```powershell
-docker compose logs --since 2m web
-```
+| Síntoma | Comprobación |
+| --- | --- |
+| GET del webhook devuelve 405 | Es un endpoint POST; no se prueba abriéndolo en un navegador. |
+| Evento rechazado por firma | Revisar secreto del endpoint/listener y configuración efectiva, sin imprimirlo. |
+| Operación rechazada por Stripe | Revisar sandbox, recurso y permiso concreto requerido. |
+| HTTP 200 sin cambio de negocio | Revisar tipo de evento y metadatos; un fixture genérico no identifica una cita. |
+| Membresía sin actualizar | Revisar eventos de suscripción/invoice y MembershipService, no solo Payment Intents. |
+| Formulario de tarjeta ausente | Revisar la clave publicable del frontend y el entorno utilizado. |
 
-## Diagnóstico rápido
-
-| Síntoma | Causa probable | Acción |
-|---|---|---|
-| `GET .../api/stripe/webhook` devuelve 405 | Se abrió el endpoint en un navegador | No es un fallo; prueba con Stripe CLI |
-| El listener muestra HTTP 400 | `STRIPE_WEBHOOK_SECRET` no coincide o Laravel conserva caché | Copia el `whsec_...` actual, recrea los servicios y ejecuta `config:clear` |
-| Stripe devuelve 403 al crear el intento | La clave restringida no tiene el permiso requerido | Verifica `Payment Intents: Escritura` en el mismo sandbox |
-| El trigger funciona pero los pagos de la app no llegan | CLI y claves API usan cuentas `acct_...` distintas | Vuelve a autorizar o genera las claves en un único sandbox |
-| El formulario de tarjeta no aparece | Falta `STRIPE_KEY` o no comienza con `pk_test_` | Configura la clave publicable del mismo sandbox y recarga Laravel |
-
-## Lista de entrega para el equipo
-
-- [ ] `stripe --version` funciona.
-- [ ] `stripe login` está autorizado en el sandbox correcto.
-- [ ] Dashboard y CLI muestran el mismo `acct_...`.
-- [ ] La clave restringida solo tiene `Payment Intents: Escritura`.
-- [ ] Las tres variables Stripe están configuradas en `.env` y no están versionadas.
-- [ ] `app`, `worker` y `scheduler` fueron recreados después del cambio.
-- [ ] `stripe listen` permanece abierto durante la prueba.
-- [ ] `stripe trigger payment_intent.succeeded` produce respuestas HTTP 200.
-- [ ] No se habilitaron permisos de Billing, suscripciones o facturas de Stripe.
+Los recibos y reportes PDF del backend no deben describirse como CFDI.
+La existencia de invoices de Stripe para membresías no cambia esa limitación fiscal.
 
 ## Producción
 
-Producción requiere credenciales distintas, un endpoint HTTPS público y un secreto de
-firma generado para ese endpoint en el Dashboard. Nunca reutilices las claves de
-prueba ni el secreto temporal de Stripe CLI. Cualquier configuración de producción
-debe revisarse y autorizarse por separado.
+Las credenciales y firmas de producción son diferentes de las del sandbox.
+No crear o rotar claves, cambiar webhooks, modificar planes ni reiniciar servicios
+en esta revisión. Consulta [gestión de credenciales](PLAN_ROTACION_CREDENCIALES.md).
