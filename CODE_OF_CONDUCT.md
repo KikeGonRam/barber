@@ -1,3 +1,16 @@
+# Código de conducta de UrbanBlade
+
+Esperamos un trato respetuoso, inclusivo y profesional en issues, PR, Wikis y demás
+espacios del proyecto. Estas normas se basan en Contributor Covenant 2.0.
+
+Para incidentes de conducta, utiliza el correo público del equipo:
+[al222310427@gmail.com](mailto:al222310427@gmail.com), ya utilizado como contacto
+del proyecto. No publiques información privada de las personas implicadas.
+Para vulnerabilidades técnicas utiliza el canal privado de [SECURITY](SECURITY.md).
+
+El texto de referencia se conserva a continuación con su atribución y el contacto
+del equipo.
+
 # Contributor Covenant Code of Conduct
 
 ## Our Pledge
@@ -59,8 +72,8 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-.
+reported privately to the team at
+[al222310427@gmail.com](mailto:al222310427@gmail.com).
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the

@@ -66,3 +66,9 @@ Los antiguos manuales Word/PDF duplicados y planes retirados se identifican en
 
 El contrato se conserva en [OpenAPI](../public/docs/openapi.yaml).
 No se regenera ni modifica como efecto lateral de editar Markdown.
+
+## Políticas del proyecto
+
+[Seguridad](../SECURITY.md) · [Código de conducta](../CODE_OF_CONDUCT.md) ·
+[Contribución](../CONTRIBUTING.md) · [Licencia GPL-3.0-only](../LICENSE) ·
+[Alcance de la licencia](../LICENSING.md).

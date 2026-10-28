@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Reportar una vulnerabilidad en privado
+    url: https://github.com/KikeGonRam/barber/security/advisories/new
+    about: No publiques secretos, exploits o datos personales en issues.
+  - name: Documentación del proyecto
+    url: https://github.com/KikeGonRam/barber/wiki
+    about: Arquitectura, pruebas, decisiones y guía para contribuir.
