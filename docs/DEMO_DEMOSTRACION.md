@@ -1,141 +1,44 @@
-# Demo de demostración — UrbanBlade
+# Guía de demostración de UrbanBlade
 
-## Objetivo
+Mostrar el producto en un entorno de prueba aislado y con datos ficticios.
+La demo se navega en el frontend; este repositorio proporciona la API.
 
-Presentar UrbanBlade en 5 a 10 minutos mostrando la plataforma como sistema real de operación para barberías, con varios roles, datos sembrados y una experiencia funcional completa para administración, atención y cliente.
+## Preparación
 
-## Vista previa de la demo
+- Usar [clonado](CLONAR_PROYECTOS.md) y [accesos](ACCESOS.md).
+- Confirmar el entorno de API, frontend, MongoDB, correo y Stripe.
+- Preparar cuentas autorizadas por rol y recursos mínimos desde la aplicación.
+- No ejecutar migraciones, seeders o reinicios de servicios operativos para una demo.
+- No mostrar contraseñas, tokens, comprobantes reales, consola de secretos ni
+  listados de usuarios del negocio.
 
-<div align="center">
+Las capturas incluidas son ilustrativas y pueden pertenecer a una revisión
+anterior del diseño.
 
-![Landing de UrbanBlade](assets/landing.png)
+![Landing ilustrativa](assets/landing.png)
+![Panel administrativo ilustrativo](assets/dashboard-admin.png)
 
-![Login de UrbanBlade](assets/login.png)
+## Recorrido sugerido
 
-![Dashboard administrativo](assets/dashboard-admin.png)
+| Paso | Mostrar | Qué explica |
+| --- | --- | --- |
+| 1 | Sitio público y catálogo. | Separación entre consulta pública y operación autenticada. |
+| 2 | Login y panel de un rol. | Permisos y prioridades distintas por usuario. |
+| 3 | Reserva con disponibilidad. | Barbero, servicio, fecha y reglas del backend. |
+| 4 | Agenda y estados. | Aprobar, iniciar y completar son operaciones diferentes. |
+| 5 | Cobro en sandbox o datos de prueba. | Importe calculado por servidor y conciliación. |
+| 6 | Recibos, reportes y notificaciones. | Trazabilidad y operación diaria. |
+| 7 | Pruebas y arquitectura. | API, contratos, datos aislados y CI. |
 
-</div>
+No es necesario realizar un pago para explicar el flujo. Una demo con mocks
+debe identificarse como simulada y no presentarse como cobro real.
 
-## Preparación rápida
+## Cierre técnico
 
-**La demo se ve y se navega en `frontend-urban` (Nuxt, puerto 3000) — este repo
-(`barber`) solo corre la API detrás.** Hace falta levantar los dos:
+- [Arquitectura](DOCUMENTACION_TECNICA.md).
+- [Pruebas](PRUEBAS.md).
+- [Decisiones](DECISIONES.md).
+- [Contrato](PLAN_CONTRATO_API.md).
 
-```powershell
-# 1. Backend (barber) — este repo
-docker compose up -d --build
-npm install
-npm run build
-docker compose exec app php artisan key:generate
-docker compose exec app php artisan storage:link
-docker compose exec app php artisan migrate
-docker compose exec app php artisan db:seed --class=RolePermissionSeeder
-docker compose exec app php artisan db:seed --class=AdminUserSeeder
-
-# 2. Frontend (frontend-urban) — repo hermano, clonado aparte
-cd ../frontend-urban
-npm install --legacy-peer-deps
-npm run dev
-```
-
-> Los seeders de demostración (50 barberos y 1500 clientes falsos, citas, pagos…)
-> se eliminaron el 2026-10-09: `migrate --seed` ya solo siembra roles/permisos y el
-> administrador. Para la demostración, crea las cuentas y el contenido desde la
-> aplicación. Ver [ACCESOS.md](ACCESOS.md) para las notas completas.
-
-Luego abre:
-
-- http://localhost:3000/login — **aquí es donde ocurre toda la demo**
-- Mailpit: http://localhost:8025
-- http://localhost:8000 ya solo sirve la API — no tiene ninguna página real (`/` y
-  `/login` redirigen a `:3000`) — no navegues ahí para la demo.
-
-## Credenciales
-
-Las contraseñas no se documentan en el repositorio. [ACCESOS.md](ACCESOS.md) resume qué
-cuentas hay por rol y cómo crear o restablecer una para la demo.
-
----
-
-## Guion de presentación (5 minutos)
-
-### 1. Login como administrador (45 s)
-
-- Entra con la cuenta de administrador.
-- Muestra el dashboard principal con KPIs y métricas.
-- Destaca la visión general del negocio, ventas, clientes, productividad y reportes.
-
-### 2. Mostrar operación real (1 min)
-
-- Navega a citas, clientes y pagos.
-- Explica que el sistema centraliza atención y cobro.
-- Destaca la gestión de servicios y seguimiento operativo.
-
-### 3. Mostrar analítica (1 min)
-
-- Abre la vista /analitica.
-- Muestra que hay insights accionables para decisiones del negocio.
-- Explica que esta parte complementa la operación con orientación estratégica.
-
-### 4. Cambiar a recepcionista (45 s)
-
-- Cierra sesión y entra con recepcionista.
-- Muestra la agenda del turno y la atención rápida al cliente.
-- Enfatiza la parte operativa del negocio.
-
-### 5. Cambiar a barbero (45 s)
-
-- Entra como barbero.
-- Muestra Mi Agenda, perfil y estados de cita.
-- Destaca la gestión personal del barbero y su flujo diario.
-
-### 6. Cambiar a cliente (1 min)
-
-- Inicia sesión como cliente.
-- Muestra historial de citas, tienda, carrito y membresía.
-- Explica que la experiencia del cliente es parte central del producto.
-
----
-
-## Qué resaltar en la demo
-
-### Administrador
-
-- Dashboard global.
-- Reportes y control operativo.
-- Pagos, clientes, servicios y analítica.
-
-### Recepción
-
-- Atención rápida.
-- Agenda del día.
-- Cobro y gestión de pedidos.
-
-### Barbero
-
-- Agenda personal.
-- Aceptar o rechazar citas.
-- Portafolio y perfil profesional.
-
-### Cliente
-
-- Reservas.
-- Historial y pagos.
-- Compras y membresía.
-
----
-
-## Mensaje de cierre
-
-> UrbanBlade no es solo un sistema de citas; es una plataforma completa de operación para barberías con enfoque administrativo, servicio al cliente y decisiones basadas en datos.
-
----
-
-## Recomendación final
-
-Para una demo limpia conviene comenzar como administrador y luego cambiar de rol para mostrar el mismo negocio desde distintas perspectivas. Eso comunica mejor el valor real del producto en menos tiempo.
-
-## Documentación relacionada
-
-- [README.md](../README.md)
-- [ACCESOS.md](ACCESOS.md)
+No mostrar el panel académico de Spark como requisito de funcionamiento del
+producto si no está configurado en el entorno de la demo.

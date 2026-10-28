@@ -1,7 +1,7 @@
 # UrbanBlade · Backend API
 
-API para gestionar la operación de una barbería: citas, clientes, cobros,
-inventario, pedidos, lealtad, notificaciones y reportes.
+API para gestionar citas, clientes, pagos, inventario, pedidos, lealtad,
+notificaciones y reportes de una barbería.
 
 [![CI](https://github.com/KikeGonRam/barber/actions/workflows/ci.yml/badge.svg)](https://github.com/KikeGonRam/barber/actions/workflows/ci.yml)
 [![Docker Image CI](https://github.com/KikeGonRam/barber/actions/workflows/docker-image.yml/badge.svg)](https://github.com/KikeGonRam/barber/actions/workflows/docker-image.yml)
@@ -9,129 +9,74 @@ inventario, pedidos, lealtad, notificaciones y reportes.
 [Frontend](https://github.com/KikeGonRam/frontend_Urbanblade) ·
 [Documentación](docs/README.md) · [Contribuir](CONTRIBUTING.md) · [Seguridad](SECURITY.md)
 
-![Panel administrativo del frontend UrbanBlade](docs/assets/dashboard-admin.png)
+![Panel ilustrativo del frontend UrbanBlade](docs/assets/dashboard-admin.png)
 
-## Responsabilidad del repositorio
+## Responsabilidad y arquitectura
 
-Expone una API JSON bajo `/api/v1`, consumida por el frontend Nuxt y Android.
-La autenticación usa tokens Bearer propios (`mobile_api_tokens`).
-Las pantallas del producto viven en
-[`frontend-urban`](https://github.com/KikeGonRam/frontend_Urbanblade).
-
-Laravel conserva plantillas para correos, PDF, errores y documentación de la API.
-Las rutas web heredadas redirigen al frontend cuando corresponde.
-La [documentación técnica](docs/DOCUMENTACION_TECNICA.md) describe la arquitectura.
-
-## Funcionalidades
-
-- Agenda con disponibilidad y transiciones de estado de citas.
-- Permisos para administración, recepción, barberos y clientes; ingeniero de solo lectura.
-- Pagos con efectivo, transferencia y tarjeta mediante Stripe.
-- Inventario, pedidos, puntos, descuentos y membresías.
-- Reportes de ingresos, citas, clientes e inventario en JSON, PDF y Excel.
-- Notificaciones, campañas y consultas de analítica.
-
-Los importes y movimientos de inventario se validan en el backend.
-
-## Stack
+Monolito modular Laravel que expone JSON bajo /api/v1.
+Nuxt y Android consumen la API con tokens Bearer propios; no acceden a MongoDB.
+Las pantallas del producto viven en el frontend. Laravel conserva plantillas para
+correos/PDF, errores, redirecciones y documentación de API.
 
 | Componente | Tecnología |
 | --- | --- |
-| API | Laravel 13; PHP `^8.3` en Composer y PHP 8.4 en Docker/CI. |
-| Datos | MongoDB con `mongodb/laravel-mongodb`. |
-| Caché y colas | Redis y workers de Laravel. |
-| Integraciones | Stripe, Google OAuth, notificaciones y almacenamiento S3. |
-| Documentos | DomPDF, Maatwebsite Excel y Scribe/OpenAPI. |
-| Calidad | PHPUnit, Pint, Larastan, Gitleaks y Trivy. |
+| API | Laravel 13; PHP ^8.3 en Composer y PHP 8.4 en Docker/CI. |
+| Datos | MongoDB operativo, conexión analítica y entornos locales separados. |
+| Trabajo asíncrono | Redis, workers y scheduler de Laravel. |
+| Pagos | Stripe: intentos, depósitos, tarjetas guardadas y membresías. |
+| Documentos y calidad | DomPDF, Excel, Scribe/OpenAPI, PHPUnit, Pint y Larastan. |
 
-El build Vite sirve los recursos propios de Laravel; la aplicación web tiene
-su repositorio y pipeline independientes.
+La [arquitectura](docs/DOCUMENTACION_TECNICA.md) explica capas, procesos,
+integraciones y límites. Las [decisiones](docs/DECISIONES.md) distinguen lo
+implementado de las propuestas.
 
 ## Desarrollo local
 
-Requisitos: Docker con Compose, Node.js 22 y npm para los recursos de Laravel.
-PHP y sus extensiones están definidos en [Dockerfile](Dockerfile).
+Requisitos: Git, Docker con Compose y Node.js/npm para los recursos Laravel.
+La [guía de instalación aislada](docs/CLONAR_PROYECTOS.md) utiliza el overlay de
+desarrollo con mongo-dev y evita copiar credenciales de Atlas.
 
-```powershell
-git clone https://github.com/KikeGonRam/barber.git
-cd barber
-Copy-Item .env.example .env
-```
+No ejecutar setup, migraciones o seeders sobre un entorno operativo para revisar
+documentación. Las [cuentas y roles](docs/ACCESOS.md) se gestionan sin publicar
+credenciales ni inventarios de usuarios.
 
-Configura conexiones locales aisladas antes de arrancar los servicios. Revisa
-[.env.example](.env.example), [docker-compose.yml](docker-compose.yml) y
-[la guía de MongoDB](docs/MONGODB_ATLAS.md).
-La base de pruebas usa un replica set local; Atlas contiene datos operativos.
+## Pruebas
 
-Con las conexiones locales verificadas:
-
-```powershell
-docker compose up -d --build
-npm ci
-npm run build
-```
-
-La API escucha en [localhost:8000](http://localhost:8000/api/v1);
-Mailpit, en [localhost:8025](http://localhost:8025).
-Levanta el frontend por separado en el puerto 3000.
-
-Migraciones, claves, enlaces de almacenamiento y cuentas son pasos de
-inicialización según el entorno; no deben ejecutarse sobre datos operativos como
-parte de una instalación rutinaria. Consulta
-[CLONAR_PROYECTOS.md](docs/CLONAR_PROYECTOS.md) y [ACCESOS.md](docs/ACCESOS.md).
-No se utilizan seeders masivos de demostración.
-
-## Pruebas y validación
-
-Las pruebas locales se ejecutan **exclusivamente mediante `test.ps1`**:
+En local, exclusivamente:
 
 ```powershell
 .\test.ps1
 ```
 
-El script fuerza `.env.testing` en Docker, limpia las cachés antes de probar y
-las restaura después. Ejecutar `php artisan test` directamente en el contenedor
-de desarrollo puede usar la conexión real a Atlas. Verifica que `barber-app`
-monta este checkout y que `mongo-test` está disponible.
+El runner aplica el entorno de pruebas y gestiona cachés.
+Comprobar antes el montaje de barber-app y el Mongo local.
+La [guía de pruebas](docs/PRUEBAS.md) incluye comandos, matriz de regresiones,
+dependencias y límites de evidencia.
 
-| Comando | Qué comprueba |
-| --- | --- |
-| `docker compose exec app ./vendor/bin/pint --test` | Formato PHP sin modificar archivos. |
-| `docker compose exec app ./vendor/bin/phpstan analyse --no-progress --memory-limit=1G --configuration=phpstan.neon.dist` | Análisis estático. |
-| `npx eslint resources/js --max-warnings=0` | JavaScript de Laravel. |
-| `npm run build` | Compilación de recursos. |
-| `docker compose exec app composer audit` | Vulnerabilidades de dependencias PHP. |
-| `python scripts/check_docs.py` | Enlaces locales de la documentación de entrada. |
+Para documentación:
 
-Los resultados pertenecen al checkout y entorno probados; consulta las acciones
-del repositorio para conocer el estado actual del CI.
+```powershell
+python scripts/check_docs.py --all
+git diff --check
+```
 
-## Contrato de API
+## Contrato y publicación
 
-El contrato está en [public/docs/openapi.yaml](public/docs/openapi.yaml).
-Scribe sirve documentación navegable en `/docs` cuando se genera.
-El frontend conserva una copia del contrato y genera sus tipos a partir de ella.
+[OpenAPI](public/docs/openapi.yaml) y los ejemplos versionados describen la API
+para clientes web/Android. Consulta el
+[procedimiento de contrato](docs/PLAN_CONTRATO_API.md).
 
-Los cambios de endpoints deben coordinarse con web y Android.
-Consulta [PLAN_CONTRATO_API.md](docs/PLAN_CONTRATO_API.md).
-Una actualización documental no requiere regenerar el contrato.
+CI verifica código, seguridad, contrato y builds; no acredita publicación.
+Incluso un push de Markdown puede activar un proveedor externo.
+Consulta [CI/CD](docs/CI_CD.md) antes de subir o fusionar cambios.
 
-## CI y operación
+## Documentación y seguridad
 
-[CI](.github/workflows/ci.yml) comprueba PHP, JavaScript, seguridad y rutas HTTP
-con servicios efímeros.
-[Docker Image CI](.github/workflows/docker-image.yml) construye las imágenes
-de desarrollo y staging sin publicarlas.
-[Documentación](.github/workflows/documentation.yml) valida los enlaces de entrada.
+El [índice](docs/README.md) enlaza las fuentes vigentes de arquitectura,
+decisiones, pruebas, operación y uso.
+Los documentos obsoletos se retiran con sus sustitutos identificados;
+no se mantienen copias Word/PDF independientes del Markdown.
 
-Estos workflows no despliegan. Un CI verde no acredita publicación.
-Consulta [CI/CD](docs/CI_CD.md) y
-[la guía operativa de staging](docs/DESPLIEGUE_AWS_STAGING.md).
-
-## Documentación y colaboración
-
-El [índice documental](docs/README.md) enlaza las guías de arquitectura, acceso,
-pruebas, usuario y operación sin duplicar sus instrucciones.
-Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para preparar un PR y
-[SECURITY.md](SECURITY.md) para reportar vulnerabilidades.
-Las contraseñas son administradas fuera del repositorio.
+Nunca publicar secretos, sesiones, dumps o datos personales.
+Consulta [SECURITY.md](SECURITY.md) y
+[la revisión documental de seguridad](docs/SEGURIDAD_DOCUMENTACION.md).

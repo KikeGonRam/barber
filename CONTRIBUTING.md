@@ -21,12 +21,12 @@ Los comandos vigentes están en el [README](README.md) y
 [CI/CD](docs/CI_CD.md). Para documentación:
 
 ```powershell
-python scripts/check_docs.py
+python scripts/check_docs.py --all
 git diff --check
 ```
 
-El validador revisa los enlaces locales de los documentos de entrada, no todas las
-guías históricas ni los enlaces externos o sus anclas. No necesita credenciales,
+El validador revisa Markdown de raíz, docs y .github; omite enlaces
+externos, anclas y enlaces de referencia. No necesita credenciales,
 dependencias del producto, red ni acceso a datos.
 
 Reutiliza la guía que ya es dueña de un tema y enlázala desde el

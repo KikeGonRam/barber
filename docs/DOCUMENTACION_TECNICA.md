@@ -1,359 +1,180 @@
-# UrbanBlade — Documentación Técnica
+# Arquitectura del backend UrbanBlade
 
-Sistema de gestión integral para barbería: reservas, cobros, inventario, tienda de
-productos, fidelización, muro social y analítica de datos.
+Revisada contra el código del repositorio el 28 de octubre de 2026.
+Describe la implementación versionada; no certifica la configuración efectiva de
+un servicio remoto ni el estado de sus datos.
 
----
+## Contexto y límites
 
-## 1. Arquitectura general
+UrbanBlade tiene un backend Laravel, un frontend Nuxt y una aplicación Android.
+Web y Android consumen HTTP; no reciben credenciales de MongoDB.
+El proyecto académico Spark conserva una integración de analítica separada.
 
-UrbanBlade está compuesto por **tres proyectos independientes**:
-
-| Proyecto | Repositorio | Función |
-|---|---|---|
-| **`barber/`** | `KikeGonRam/barber` (rama `main`) | API JSON pura (Bearer token, `mobile_api_tokens`) — sin ninguna página Blade real desde el 2026-09-09; solo redirects a `frontend-urban` |
-| **`frontend-urban/`** | `KikeGonRam/frontend_Urbanblade` (rama `main`) | **La app real** — Nuxt 4, consume la API de `barber/`. Aquí viven los 4 dashboards por rol, citas, pagos, inventario, tienda, campañas, reportes, analítica, muro social y reseñas. El panel Blade/Inertia equivalente en `barber/` se retiró por completo el 2026-09-06 al alcanzar paridad funcional confirmada — ver `.claude/skills/urbanblade-guardrails/SKILL.md`, guardrail #18. |
-| **`spark/`** | `KikeGonRam/spark` (rama `urbanblade-analytics`) | Módulo de analítica Big Data (PySpark) — proyecto académico independiente que lee la misma base de datos MongoDB en modo solo-lectura. Pausado, no se trabaja activamente. |
-
-Los tres comparten la misma base de datos MongoDB Atlas (`barber/` y `frontend-urban/`
-también comparten esa API), pero corren en entornos separados: `barber/` en Docker,
-`frontend-urban/` con `npm run dev` (Node), `spark/` en WSL Ubuntu.
-
----
-
-## 2. Backend API (`barber/`)
-
-### 2.1 Stack
-
-- **Backend**: PHP 8.3+, Laravel 13
-- **Base de datos**: MongoDB (paquete `mongodb/laravel-mongodb`) — sin MySQL
-- **Vistas propias**: TailwindCSS 3 + Alpine.js + Vite, solo para las páginas Blade
-  que sobreviven (ver §1) — no es la interfaz principal del producto, esa es
-  `frontend-urban` (Nuxt 4, consume esta API)
-- **Paquetes clave**:
-  - `spatie/laravel-permission` — roles y permisos (adaptado a MongoDB, ver §2.3)
-  - `laravel/socialite` — login con Google
-  - `laravel/pulse` — panel de operación (`/pulse`) para el rol `ingeniero`, en su
-    propia conexión `sqlite`
-  - `barryvdh/laravel-dompdf` — generación de PDF (facturas, recibos, tarjeta de socio)
-  - `endroid/qr-code` — solo vistas históricas de solo lectura; QR ya no es un método
-    de pago activo
-  - `stripe/stripe-php` — pagos con tarjeta (beta, webhook dedicado)
-  - Twilio (integrado a mano vía `Http::withBasicAuth()`, sin SDK) — SMS/WhatsApp
-  - `spatie/laravel-activitylog` — bitácora de acciones
-  - `knuckleswtf/scribe` — documentación de la API (contrato externo real para
-    `frontend-urban` y una futura app Android nativa)
-
-### 2.2 Infraestructura Docker
-
-`docker-compose.yml` define los siguientes servicios sobre una imagen compartida
-(`barber-app`):
-
-- **`app`** — PHP-FPM (procesa las peticiones)
-- **`web`** — Nginx (puerto 8000, expuesto al host)
-- **`worker`** — `queue:work` (colas: correos, notificaciones, PDFs)
-- **`scheduler`** — `schedule:work` (tareas programadas: no-show automático, campañas, resúmenes diarios)
-- **`redis`** — caché y backend de colas
-- **`mongo-test` / `mongo-test-init`** — réplica local de un solo nodo para pruebas
-  (nunca Atlas), inicializada con `rs.initiate()`
-- **`mailpit`** — capturador de correo para desarrollo (puertos 8025 UI / 1025 SMTP)
-- **`ollama`** — proveedor local del chatbot en desarrollo
-
-Todos comparten un volumen `vendor_data` para no reinstalir dependencias PHP por contenedor.
-
-### 2.3 Roles y permisos
-
-Cinco roles: **administrador, recepcionista, barbero, cliente, ingeniero** (este
-último, agregado 2026-09-06, es de solo lectura: reportes, logs y estado del
-sistema — nunca un superset de administrador).
-
-MongoDB no soporta las tablas pivote (`MorphToMany`) que usa Spatie Permission por
-defecto, así que además del paquete se mantiene un campo `role_id` embebido
-directamente en el documento de cada usuario. La protección de rutas usa un
-middleware propio `role.custom:<roles>` (no el `role:` estándar de Spatie).
-
-Permisos granulares (ademsás del rol): `citas.gestionar`, `pagos.gestionar`,
-`inventario.ver/gestionar`, `clientes.gestionar`, `reportes.ver`,
-`servicios.gestionar`, `usuarios.gestionar`, `barberos.gestionar`,
-`configuracion.gestionar`, `logs.ver`. El administrador tiene todos; la
-recepcionista tiene el subconjunto operativo (citas/pagos/clientes/inventario).
-
-### 2.4 Módulos de dominio
-
-**Máquina de estados de citas** (`AppointmentStatusService`):
-
-```
-pendiente   → confirmada | cancelada
-confirmada  → en_proceso | completada | no_asistio | cancelada
-en_proceso  → completada | cancelada
-(terminales: completada, cancelada, no_asistio)
+```mermaid
+flowchart LR
+    Web[Frontend Nuxt] -->|HTTPS y Bearer| API[API Laravel]
+    Android[Aplicación Android] -->|HTTPS y Bearer| API
+    API --> Core[(MongoDB operativo)]
+    API -->|lectura| Analytics[(MongoDB analítico)]
+    Spark[Spark, consumidor separado] -->|lectura prevista| Core
+    Spark -->|publicación de derivados| Analytics
+    API --> Redis[(Redis: caché y colas)]
+    API --> Pulse[(SQLite: Laravel Pulse)]
+    API --> Files[Discos de archivos y S3]
+    API --> Providers[Stripe, Google, correo y push]
 ```
 
-El cobro solo se habilita desde `confirmada`, `en_proceso` o `completada` — nunca
-desde una cita `pendiente` sin aprobar. El barbero aprueba/rechaza sus propias
-citas (recepción y administración, como respaldo); el cliente solo puede
-cancelar. Un job programado marca automáticamente como `no_asistio` las citas
-confirmadas cuyo horario ya pasó, **sin cobrar cargo** (no sabe si el barbero
-olvidó registrar la visita).
+El diagrama muestra responsabilidades, no permisos remotos comprobados.
+En particular, el código no demuestra los roles efectivos de una cuenta Atlas.
 
-**Flujo de citas V2** (plan y decisiones en
-[`PLAN_FLUJO_CITAS_V2.md`](PLAN_FLUJO_CITAS_V2.md)): la cita y el pago son
-máquinas de estado separadas.
+## Estilo y capas
 
-- *Iniciar* (`confirmada → en_proceso`) lo valida `ServiceStartGuard`: solo el
-  día de la cita, desde `appointments.start_margin_minutes` antes de su hora, y
-  con el pago resuelto (`Payment` verificado no-depósito, o depósito verificado
-  que cubre `PaymentService::amountDueFor`). Se aplica en `PATCH
-  /appointments/{cita}/status` y `PUT /appointments/{cita}`; `AppointmentResource`
-  expone `pago_resuelto`, `puede_iniciar`, `motivo_no_iniciar` (solo en
-  `confirmada`).
-- **Cobrar una cita `confirmada` ya no la completa** (`PaymentService::completeCharge`):
-  solo registra el pago y genera el PDF. La completa el barbero (ahí se dan los
-  puntos). Si la cita ya iba `en_proceso`/`completada`, cobrar la completa como antes.
-- **Ticket** (`ServiceTicketService`): al pasar a `completada` se envía una sola
-  vez (`payments.ticket_enviado_en`) el correo con comprobante y factura; si se
-  pagó todo al reservar se registra un cobro final neto $0. `GET
-  /appointments/{cita}/ticket` lo devuelve para las apps y la respuesta de
-  «completada» trae `ticket`.
-- **Tiempo del servicio**: `appointments:notify-service-ending` (cada minuto)
-  avisa al barbero 5 min antes (`ServiceEndingNotification`, push con acciones
-  `terminar,extender_10,extender_15`; `FcmPushService` lo envía solo como datos
-  para que Android dibuje los botones). `POST /appointments/{cita}/extend`
-  (`ServiceTimeService`) agrega 10/15/20/30 min (máx. `appointments.max_extra_minutes`),
-  avisa al cliente y, si choca con la siguiente cita, exige `forzar` y avisa a ese cliente.
-- **Cargo por inasistencia** (`NoShowFeeService`, colección `no_show_fees`): al
-  marcar `no_asistio` una persona se genera el cargo
-  (`BarbershopSetting.comision_no_show_porcentaje`, 50 % por defecto, 0 lo apaga),
-  descontando pagos anticipados. Se intenta cobrar a la tarjeta guardada
-  (`StripePaymentService::chargeSavedCard`, off-session); si no, queda `pendiente` y
-  bloquea nuevas reservas (`422` con `adeudo_inasistencia`) hasta `POST
-  /no-show-fees/{id}/pay` (recepción/admin) o `…/waive` (solo admin, con motivo).
-  Los cobros entran a `CashCloseService`. `acepta_cargo_inasistencia` queda en la
-  cita; se vuelve obligatorio con `APPOINTMENT_REQUIRE_NO_SHOW_ACCEPTANCE=true`.
+Es un monolito modular por dominios, no una colección de microservicios.
+La entrada HTTP está en [routes/api.php](../routes/api.php).
+[bootstrap/app.php](../bootstrap/app.php) registra middleware, excepciones y rutas.
 
-**Pagos y fidelización**: cada cita completada genera un `Payment` (monto,
-propina, método) y una `LoyaltyTransaction` (puntos ganados). El nivel del
-cliente (`nuevo → regular → vip → leyenda`) se recalcula por umbrales de citas
-completadas. Existe integración con Stripe para pago con tarjeta, con webhook
-dedicado excluido de CSRF. La instalación del CLI, permisos mínimos, variables,
-listener y validación local se mantienen en
-[`STRIPE_PRUEBAS_LOCALES.md`](STRIPE_PRUEBAS_LOCALES.md).
+| Capa | Responsabilidad | Fuente |
+| --- | --- | --- |
+| Rutas y middleware | Autenticación, mantenimiento, límites y permisos. | [Middleware](../app/Http/Middleware) |
+| Controladores y requests | Orquestación HTTP, validación y alcance del usuario. | [API](../app/Http/Controllers/Api), [requests](../app/Http/Requests) |
+| Servicios | Reglas y operaciones de negocio. | [Services](../app/Services) |
+| Modelos | Persistencia, relaciones y conversiones. | [Models](../app/Models) |
+| Resources | Forma pública de las respuestas. | [Resources](../app/Http/Resources) |
+| Jobs y notificaciones | Trabajo diferido e integración multicanal. | [Jobs](../app/Jobs), [Notifications](../app/Notifications) |
 
-**Tienda de productos**: catálogo (`Product`, con `tipo` = `uso_interno` o
-`venta`), carrito (`CartService`) y pedidos (`Order`, `OrderService`). Un pedido
-puede ser de dos tipos: `cita` (add-on comprado dentro de la reserva) o `tienda`
-(compra suelta). La entrega se gestiona desde una bandeja de pedidos para
-recepción/administración, que notifica al cliente al marcar como entregado.
+Los controladores también validan pertenencia de recursos; el middleware de rol
+por sí solo no establece que una cita, un pago o un perfil pertenezcan al usuario.
 
-**Muro social**: los barberos publican trabajos (`Work` + `WorkImage`,
-portafolio), que los clientes pueden comentar (`Comment`) y reaccionar
-(`Reaction`). Sirve como escaparate del trabajo de cada barbero.
+## Stack y procesos
 
-**Notificaciones**: multicanal — correo (con plantilla de marca compartida),
-`database` (centro de notificaciones in-app) y un canal Twilio propio (SMS/
-WhatsApp; se simula/registra en log si no hay credenciales configuradas).
-Eventos cubiertos: confirmación/cancelación de cita (con adjunto `.ics` y enlace
-a Google Calendar), recibo de pago con factura PDF adjunta, solicitud de reseña
-tras completar el servicio, alerta de stock bajo al administrador, resumen
-diario del negocio, y entrega de pedido.
+Laravel 13 y PHP `^8.3` en Composer; las imágenes usan PHP 8.4.
+MongoDB se integra mediante `mongodb/laravel-mongodb`.
+Vite, Tailwind CSS 4 y Alpine sirven recursos propios de Laravel.
+La interfaz principal está en Nuxt, no en Blade.
 
-**Campañas de marketing**: el módulo `Campaign` permite enviar promociones ahora
-o programarlas, con tracking de apertura (`/t/o/{campaign}/{user}`) y clic
-(`/t/c/{campaign}/{user}`) vía píxel/redirección, y métricas agregadas en la UI
-de campañas. Los clientes pueden optar por no recibir promociones
-(`PromotionNotification` respeta preferencias por usuario).
+[Compose](../docker-compose.yml) define API PHP-FPM, Nginx, worker, scheduler,
+Redis, Mailpit, Ollama y MongoDB de pruebas.
+El [overlay de desarrollo](../docker-compose.development.yml) añade MongoDB
+persistente local; no se activa por usar únicamente el Compose base.
 
-**Tarjeta de socio**: tarjeta de membresía dinámica (nivel de lealtad), con
-volteo para mostrar un QR de identificación, animación de confeti al subir de
-nivel, y descarga en PDF.
+La [imagen de staging](../.docker/staging/Dockerfile) combina PHP-FPM y Caddy.
+Su [entrypoint](../.docker/staging/entrypoint.sh) aplica migraciones al arrancar,
+cachea Laravel y puede iniciar el scheduler con `RUN_SCHEDULER=true`.
+Por eso arrancar o reemplazar esa imagen es una operación sobre datos, no una
+comprobación documental inocua.
 
-### 2.5 Base de datos (MongoDB)
+## Autenticación y autorización
 
-Desde el 2026-10-09 `database/seeders/` solo tiene `DatabaseSeeder.php`,
-`RolePermissionSeeder` (`roles`/`permissions`) y `AdminUserSeeder` (el administrador
-inicial). Los 16 seeders de demostración se eliminaron. El resto se crea desde la
-aplicación: `barbershop_settings` (se crea sola), `services`, `products`, usuarios
-(`administrador`, `recepcionista`, `barbers`, `clients`) y todo el movimiento
-(`appointments`, `payments`, `loyalty_transactions`, `orders`, `works`, `work_images`,
-`comments`, `reactions`…).
+- El login emite tokens propios en [MobileApiToken](../app/Models/MobileApiToken.php).
+- Se almacena el hash SHA-256, no el token plano. El middleware compara el hash,
+  comprueba usuario y expiración y actualiza la actividad.
+- La vigencia deslizante es configurable por plataforma: valores predeterminados
+  de 30 días web y 180 móvil en [auth.php](../config/auth.php).
+- Logout revoca el token actual; refresh lo sustituye.
+- Google web usa Socialite; Android envía un ID token para verificación en el servidor.
+- Los roles se resuelven desde el documento de usuario con métodos propios.
+  Existen administrador, recepcionista, barbero, cliente e ingeniero.
+- `role.custom` y `permission.custom` restringen rutas. Ingeniero tiene
+  consultas de operación/observabilidad, no administración de negocio.
+- Registro público y alta por Google no permiten elegir un rol administrativo.
 
-> ⚠️ **`barber_db` se limpió por completo el 2026-09-04** (tenía ~214,623
-> citas y ~323,095 transacciones de lealtad sintéticas acumuladas de siembras
-> masivas repetidas, además de ~4,767 usuarios de sobra).
->
-> ⚠️ **Segundo incidente, 2026-09-11**: `clients`, `barbers` y `services`
-> volvieron a vaciarse por completo (un comando de limpieza de datos de
-> prueba corrió por error contra Atlas en vez de la base local de pruebas).
-> Esa vez no hubo respaldo; los datos se recuperaron después desde el respaldo del
-> 2026-09-16. Ver [ACCESOS.md](ACCESOS.md) para el estado actual de las cuentas.
->
-> ⚠️ **Tercer incidente, 2026-09-18**: `services`, `barbers`, `clients`, `payments`,
-> `appointments` y `barbershop_settings` se borraron por un `artisan test` ejecutado
-> directamente con la configuración de Atlas; se restauraron desde
-> `backup-2026-09-16_180906.zip`. Ver [MONGODB_ATLAS.md](MONGODB_ATLAS.md).
->
-> Esos incidentes venían de los seeders masivos (1 administrador + 1
-> recepcionista + 50 barberos + 1500 clientes, ~112,000 citas históricas, ~19,000
-> pedidos de tienda, ~200 publicaciones sociales con comentarios y reacciones), que
-> **se eliminaron el 2026-10-09**. El 2026-10-09 también se limpió el movimiento de
-> prueba restante de `barber_db` (ver [MONGODB_ATLAS.md](MONGODB_ATLAS.md)).
+Fuentes: [AuthController](../app/Http/Controllers/Api/Auth/AuthController.php),
+[AuthenticateMobileApiToken](../app/Http/Middleware/AuthenticateMobileApiToken.php),
+[User](../app/Models/User.php), [Google OAuth](GOOGLE_CLOUD_OAUTH.md).
 
-### 2.6 Rutas
+## Persistencia y aislamiento
 
-- **`routes/web.php`**: rutas públicas (landing, equipo, servicios, tracking de
-  campañas, chatbot) + grupos protegidos por `auth`, `role.custom:administrador`,
-  `role.custom:administrador,recepcionista`, `role.custom:cliente` (prefijo
-  `/cliente`) y `role.custom:barbero` (prefijo `/barbero`).
-- **`routes/api.php`**: webhook de Stripe (sin CSRF), y todo bajo `prefix('v1')`
-  — endpoints públicos (auth, catálogo, chatbot), luego un grupo protegido por
-  autenticación móvil (`mobile.auth`), con un subgrupo `admin` +
-  `role.custom:administrador` para endpoints administrativos (dashboard,
-  barberos, clientes, inventario, reportes).
+| Conexión o servicio | Contenido | Límite |
+| --- | --- | --- |
+| `mongodb` | Usuarios, citas, pagos, inventario y demás operación. | Nombre/URI definidos por entorno. |
+| `mongodb_analytics` | Derivados de analítica consumidos por Laravel. | Conexión explícita; sin variables propias hereda la conexión operativa. |
+| `mongo-dev`, `rsdev` | Desarrollo local, `urbanblade_dev`. | Persistente; volumen separado. |
+| `mongo-test`, `rs0` | Pruebas, `barber_db_test`. | Local y desechable. |
+| SQLite de Pulse | Telemetría de Laravel Pulse. | No contiene la fuente de verdad del negocio. |
+| Redis | Caché, sesiones o colas según configuración. | No sustituye un respaldo de MongoDB. |
 
-### 2.7 Estado de pruebas
+[database.php](../config/database.php) ejecuta
+[DataEnvironmentGuard](../app/Support/DataEnvironmentGuard.php).
+La guarda distingue `shared`, `development` y `testing`, y rechaza mezclas
+conocidas de host, entorno y nombre. Esto no sustituye permisos mínimos de Atlas.
+[Tests\TestCase](../tests/TestCase.php) comprueba además ambas conexiones antes
+de permitir los métodos de limpieza de las pruebas.
 
-El proyecto no cuenta actualmente con un directorio `tests/` ni suite de pruebas
-automatizadas activa. Cualquier verificación de cambios se hace manualmente
-(navegador + revisión de logs de Docker).
+Las transacciones de pagos e inventario necesitan un replica set.
+Los borrados lógicos de modelos no liberan necesariamente índices únicos.
+Consulta [MongoDB](MONGODB_ATLAS.md) y [ADR-001](ADR-001-ARQUITECTURA-DE-DATOS.md).
 
-### 2.8 Antes de desplegar a producción
+## Dominios y reglas relevantes
 
-El `.env` local trae `APP_ENV=local` y `APP_DEBUG=true` a propósito — así
-Laravel muestra la traza completa del error (archivo, línea, versión de
-PHP/Laravel) cuando algo falla, útil en desarrollo. **En producción esto es
-una fuga de información**: cualquier visitante que provoque un error (incluso
-sin haber iniciado sesión) puede ver rutas del servidor y detalles internos.
+| Dominio | Servicios principales | Invariantes |
+| --- | --- | --- |
+| Citas | AppointmentService, AppointmentStatusService, ServiceStartGuard, ServiceTimeService. | Disponibilidad, transiciones válidas, pertenencia y condiciones de inicio. |
+| Pagos | PaymentService, DepositService, NoShowFeeService, StripePaymentService, ServiceTicketService. | Importes calculados en servidor; pago y cita tienen estados distintos. |
+| Inventario y pedidos | InventoryService, OrderService, CartService. | Precio/stock se releen en servidor; operaciones consistentes. |
+| Lealtad y membresías | LoyaltyService, ReferralService, MembershipService. | Descuentos y puntos controlados por reglas del backend. |
+| Paquetes y regalos | PackageService, GiftCardService. | Compra, saldo, vigencia y conciliación. |
+| Social | Controladores de social, comentarios y moderación. | Autoría, visibilidad, reportes y permisos. |
+| Reportes y analítica | ReportService, ReportNarrative, AnalyticsInsightService. | Resultados filtrados por rol y periodo; derivados separados de operación. |
+| Comunicación | Notificaciones, FcmPushService, WebPushService, MessagingService. | Entrega depende de canales, credenciales, preferencias y workers. |
 
-Antes de publicar el sistema, en el `.env` de producción:
+### Citas y cobro
 
-```
-APP_ENV=production
-APP_DEBUG=false
+[AppointmentStatusService](../app/Services/Appointment/AppointmentStatusService.php)
+define las transiciones:
+
+```text
+pendiente  -> confirmada | cancelada
+confirmada -> en_proceso | completada | no_asistio | cancelada
+en_proceso -> completada | cancelada
+completada, cancelada y no_asistio son terminales
 ```
 
-y confirmar que aparece una página de error genérica (no la traza de Laravel)
-al forzar un error, por ejemplo visitando una ruta que no existe.
+Cobrar requiere `confirmada`, `en_proceso` o `completada`.
+Iniciar tiene reglas adicionales de fecha, margen y pago resuelto.
+Cobrar una cita confirmada no equivale a completar el servicio.
+Los avisos, extensiones, depósitos y cargos por inasistencia tienen servicios
+y pruebas propios; no deben deducirse únicamente del estado de la cita.
 
----
+### Stripe
 
-## 3. Módulo de analítica (`spark/`)
+El código utiliza Payment Intents, Customers y tarjetas guardadas, reembolsos,
+precios/productos y suscripciones de membresía. El webhook atiende también
+eventos de suscripción e invoice. La guía anterior que descartaba Billing y
+Customers ya no describía la implementación.
 
-### 3.1 Propósito y contexto académico
+El webhook público `POST /api/stripe/webhook` se autoriza mediante la firma
+de Stripe, no mediante el token de un usuario.
+Consulta [pruebas locales de Stripe](STRIPE_PRUEBAS_LOCALES.md).
+No se imprimen claves, firmas ni cuerpos reales de eventos.
 
-`spark/` es un proyecto independiente de la materia *Extracción del
-conocimiento en bases de datos* (UTVT IDGS-93). No es parte de la app en
-producción — es un módulo de analítica que **lee** la misma base MongoDB Atlas
-en modo solo-lectura y aplica las técnicas de las 5 unidades del programa:
-introducción, preparación de datos (ETL/MapReduce), aprendizaje supervisado,
-aprendizaje no supervisado y visualización.
+## Archivos y datos sensibles
 
-### 3.2 Stack y entorno
+[filesystems.php](../config/filesystems.php) distingue imágenes públicas y
+comprobantes/recibos. Con S3, `receipts` usa URLs temporales de 15 minutos
+mediante [ReceiptStorage](../app/Support/ReceiptStorage.php).
+El fallback local comparte `storage/app/public`: no debe describirse como
+almacenamiento privado equivalente a S3.
 
-- **PySpark** 3.5.1, **PyMongo** 4.7.2, **Python** 3.11 (vía Miniconda, entorno
-  `spark_env`)
-- **Streamlit** + **Plotly** para los dashboards interactivos
-- **PyTorch** + **scikit-learn** para el módulo de red neuronal
-- Corre en **WSL Ubuntu** (no en Docker); el proyecto vive en
-  `C:\Users\...\UrbanBlade\spark` y se monta automáticamente en `/mnt/c/...`
+[UploadedImage](../app/Support/UploadedImage.php) concentra validaciones y
+optimización de imágenes. Un Resource o una URL temporal no sustituyen la
+autorización para acceder a un comprobante.
 
-### 3.3 Capa de datos: `config/mongo_spark_conexion_sinnulos.py`
+## Tareas, observabilidad y errores
 
-Es el módulo central del que dependen todos los scripts. En vez de usar el
-conector nativo Spark-MongoDB, hace un **JOIN en memoria vía PyMongo** entre
-`appointments → services → barbers → users → clients → users`, arma un
-DataFrame de Spark con las columnas ya resueltas (`servicio`, `barbero`,
-`cliente`, `nivel`, `precio`, `ingreso`, `estado`, fecha desagregada en
-`anio/mes/dia/dia_semana/hora`, etc.) y expone `get_spark_session()` →
-`(spark, df, df_vector)`.
+[routes/console.php](../routes/console.php) es la lista vigente del scheduler:
+recordatorios, tokens, campañas, stock, no-shows, avisos de servicio, lealtad,
+pedidos, cumpleaños, paquetes y lista de espera.
 
-Además de la sesión base, expone helpers especializados que cada script importa
-según necesite:
+Los jobs necesitan worker; las tareas necesitan scheduler. Evita duplicar
+scheduler al escalar servicios.
+[observability.php](../config/observability.php), LogSlowRequests y Pulse cubren
+peticiones/consultas y operación. Sentry depende de la configuración del entorno.
+Nunca registrar cabeceras de autorización, URIs con credenciales ni datos de pago.
 
-| Helper | Qué devuelve |
-|---|---|
-| `get_clientes_df` | Perfil RFM (recencia/frecuencia/monto) por cliente |
-| `get_pagos_df` | Pagos reconciliados contra citas + quién cobró |
-| `get_loyalty_df` | Puntos de lealtad por cliente/mes/nivel |
-| `get_horarios_df` / `get_utilizacion_barberos_df` | Horas disponibles vs. ocupadas por barbero |
-| `get_productos_df` | Inventario con márgenes y alertas de reorden |
-| `get_pedidos_df` | Un pedido por fila (`orders`: tipo, estado, total) |
-| `get_top_productos_df` | Ranking de productos vendidos (explode de `items[]`) |
-| `get_publicaciones_df` | Engagement del muro social por barbero |
+## Contrato, pruebas y decisiones
 
-Reglas importantes documentadas en `SKILL.md`:
-- Los estados válidos de cita son **6** (`pendiente, confirmada, en_proceso,
-  completada, cancelada, no_asistio`), no 4 como en versiones anteriores del
-  proyecto.
-- `ingreso = precio_cobrado` de la cita — nunca `cantidad × precio` (ese campo
-  no existe en este esquema).
-- Los campos `Decimal128` de MongoDB (precios de productos, subtotales de
-  pedidos) requieren el helper `_num()` antes de operarse como `float`.
-
-### 3.4 Organización por unidad
-
-```
-unidades/
-├── unidad_1_introduccion/       Comparativa y caso de estudio (documentación)
-├── unidad_2_preparacion/        01-13: tipos de datos, data warehouse, limpieza,
-│                                 minería de patrones, ETL/MapReduce, calidad de
-│                                 pagos, fidelización, utilización de barberos,
-│                                 inventario, pedidos de tienda, engagement social
-├── unidad_3_supervisado/        Regresión (6 modelos), árbol de decisión,
-│                                 bosque aleatorio, red neuronal, predicción de
-│                                 cancelación (churn) y de demanda
-├── unidad_4_no_supervisado/     KMeans, PCA, segmentación de clientes,
-│                                 motor de recomendación
-└── unidad_5_visualizacion/      main_dashboard.py (dashboard ejecutivo unificado,
-                                  15 pestañas) + dashboards individuales por tema
-```
-
-### 3.5 Dashboard ejecutivo
-
-`unidades/unidad_5_visualizacion/main_dashboard.py` es el tablero principal:
-carga los datos una sola vez por sesión (`@st.cache_resource`), entrena los
-modelos de ML bajo demanda, y organiza el contenido en pestañas agrupadas por
-unidad (selector en el sidebar). Incluye desde el resumen ejecutivo del negocio
-hasta modelos predictivos y segmentación de clientes — incluyendo, desde esta
-última actualización, pedidos de tienda y engagement del muro social.
-
-### 3.6 Cómo ejecutarlo
-
-Todo corre en WSL Ubuntu con el entorno conda `spark_env` activado:
-
-```bash
-wsl -d Ubuntu
-conda activate spark_env
-cd /mnt/c/Users/.../UrbanBlade/spark
-
-# Un script individual
-spark-submit --master local[*] unidades/unidad_2_preparacion/12_pedidos_tienda.py
-
-# El dashboard ejecutivo
-streamlit run unidades/unidad_5_visualizacion/main_dashboard.py
-```
-
-Requiere un archivo `.env` en la raíz de `spark/` con las 5 variables de
-conexión a MongoDB Atlas (`MONGO_USER`, `MONGO_PASSWORD`, `MONGO_CLUSTER`,
-`MONGO_DB`, `MONGO_COLLECTION`) — nunca una sola `MONGO_URI`.
-
----
-
-## 4. Relación entre los dos proyectos
-
-```
-┌─────────────────┐        lee (solo-lectura)        ┌──────────────────┐
-│   barber/        │ ───────── MongoDB Atlas ────────▶│   spark/          │
-│   (Laravel,       │        (misma base de datos)     │   (PySpark,        │
-│    Docker)         │                                   │    WSL Ubuntu)     │
-└─────────────────┘                                   └──────────────────┘
-     escribe/opera                                      solo analiza y
-     el negocio real                                     visualiza
-```
-
-`spark/` nunca escribe en la base de datos de producción — es puramente
-analítico. Cualquier cambio de esquema en `barber/` (nuevos campos, nuevas
-colecciones, cambio de estados) debe reflejarse manualmente en
-`mongo_spark_conexion_sinnulos.py` para que el análisis siga siendo correcto;
-esto ya ocurrió una vez en este proyecto (la ampliación de 4 a 6 estados de
-cita, y la incorporación de `orders`/`works`/`comments`/`reactions` al
-análisis, antes vacías).
+- [Contrato API](PLAN_CONTRATO_API.md): endpoints, ejemplos y coordinación con clientes.
+- [Pruebas](PRUEBAS.md): entornos, matriz, comandos y límites de evidencia.
+- [Decisiones](DECISIONES.md): decisiones implementadas y propuestas separadas.
+- [CI/CD](CI_CD.md): controles y límites de publicación.
+- [Seguridad documental](SEGURIDAD_DOCUMENTACION.md): alcance del escaneo y saneamiento.

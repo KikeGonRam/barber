@@ -1,49 +1,24 @@
 ---
 name: urbanblade-data-architecture
-description: Planifica o modifica conexiones, bases, MongoDB, Redis, Pulse, Docker o integración de datos entre barber, frontend-urban y spark. Usar antes de cualquier cambio de persistencia o contenedores.
+description: Guía para conexiones, aislamiento y persistencia de UrbanBlade.
 ---
 
-# Arquitectura de datos de UrbanBlade
+# Arquitectura de datos
 
-Lee primero `docs/ADR-001-ARQUITECTURA-DE-DATOS.md`: es la fuente de verdad y su
-estado es **Aceptado**. Las fases 0 a 4 están terminadas. No repitas inventarios,
-contenedores, migraciones ni cambios de usuarios ya realizados. Cualquier fase nueva
-requiere planificación y autorización expresa antes de escribir datos, cambiar
-infraestructura o actuar sobre Atlas.
+Fuentes canónicas: docs/ADR-001-ARQUITECTURA-DE-DATOS.md, docs/MONGODB_ATLAS.md,
+docs/CONTINUIDAD_OPERATIVA.md y config/database.php.
 
-Estado vigente:
-
-- La base operativa continúa siendo `barber_db`; no la renombres ni la dividas por
-  colección sin una nueva decisión arquitectónica aprobada.
-- Los derivados permanecen en `urbanblade_analytics.analytics_insights`.
-- `mongo-dev` (`rsdev`, `urbanblade_dev`) es persistente y `mongo-test`
-  (`barber_db_test`) es aislado para pruebas; no crees contenedores equivalentes.
-- Las fases 5A y 5B de continuidad están completadas. El ensayo local cifrado y
-  restaurable vive en `scripts/Invoke-SyntheticBackupDrill.ps1`.
-- La Fase 5C para Amazon S3 está preparada en `docs/FASE-5C-S3.md`; el publicador
-  funciona en dry-run por defecto. No configures infraestructura o credenciales ni
-  ejecutes una carga real sin autorización explícita con bucket, región y perfil.
-- La Fase 5D de automatización y monitoreo no está autorizada.
-- La cuenta personal `luis` se conserva en Spark por decisión explícita del
-  propietario. No la elimines, rotes, sustituyas ni reduzcas sin una orden nueva.
-
-Invariantes:
-
-1. `barber` es la única puerta de escritura de negocio; `frontend-urban` solo consume
-   su API y nunca recibe credenciales de base.
-2. Mantén juntos los datos operativos acoplados. No crees una base por colección.
-3. Separa derivados analíticos en `urbanblade_analytics`; Spark lee core y solo escribe
-   analytics con mínimo privilegio.
-4. Pulse permanece en SQLite y Redis no es fuente de verdad.
-5. Desarrollo, pruebas y Atlas deben usar nombres, credenciales y volúmenes distintos.
-   `mongo-dev` será persistente; `mongo-test` seguirá efímero. Ambos requieren replica
-   set.
-6. Antes de una migración exige inventario, backup restaurable, conteos de referencia,
-   ensayo local, corte reversible y ventana sin borrar el origen.
-7. Nunca ejecutes pruebas fuera de `./test.ps1` ni comandos de escritura contra Atlas
-   sin autorización explícita.
-8. Git por rama y PR a `main` con el CI en verde, sin borrar la rama; la IA solo hace
-   commit, push y PR con la orden del usuario, y fusión y despliegue automáticos si todo sale bien
-   (ver `git-commit-conventions`).
-9. Antes de editar, ejecuta `git status` en cada repositorio implicado y preserva los
-   cambios locales. Cada cambio va en su propia rama creada desde `origin/main`.
+- La conexión operativa conserva barber_db como nombre predeterminado; urbanblade_core
+  es una propuesta, no un renombrado ejecutado.
+- Los derivados usan mongodb_analytics. La configuración tiene fallback a la conexión
+  operativa si faltan variables; declarar dos conexiones no garantiza aislamiento físico.
+- Spark debe leer core y escribir únicamente derivados con mínimo privilegio.
+  No se presupone que las cuentas remotas ya cumplan ese objetivo.
+- Pulse usa SQLite; Redis es soporte de caché/colas, no fuente de verdad de negocio.
+- mongo-dev es persistente; mongo-test es exclusivo de pruebas. Ambos requieren
+  replica set para transacciones. No duplicar contenedores sin revisar Compose.
+- Antes de cambiar datos: inventario, respaldo restaurable, ensayo aislado, comparación
+  y reversión. Los runbooks no autorizan por sí mismos ninguna escritura.
+- Las pruebas usan exclusivamente .\test.ps1; nunca probar contra Atlas.
+- No rotar, eliminar o alterar cuentas remotas como parte de una revisión documental.
+- Mantener este archivo sincronizado en .claude/skills y .agents/skills.

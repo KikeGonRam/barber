@@ -20,5 +20,5 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - name: Validar documentos de entrada
-        run: python3 scripts/check_docs.py
+      - name: Validar documentación mantenida
+        run: python3 scripts/check_docs.py --all

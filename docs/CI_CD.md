@@ -1,96 +1,78 @@
-# CI/CD del backend
+# Integración continua y publicación del backend
 
-## Comprobaciones existentes
+Revisión documental: 28 de octubre de 2026.
+El comportamiento de los workflows está en .github/workflows; las integraciones
+de proveedores se configuran también fuera del repositorio.
+
+## Controles versionados
 
 | Workflow | Comprobaciones |
 | --- | --- |
-| [CI](../.github/workflows/ci.yml) | Pint, Larastan, PHPUnit con cobertura, auditorías Composer/npm, ESLint, Vite, Gitleaks, Trivy y smoke HTTP. |
-| [Docker Image CI](../.github/workflows/docker-image.yml) | Build de imágenes de desarrollo/staging y comprobación de versión mínima de PHP. |
-| [Documentación](../.github/workflows/documentation.yml) | Enlaces locales de los documentos de entrada. |
+| [CI](../.github/workflows/ci.yml) | Pint, Larastan, PHPUnit con cobertura, auditorías Composer/npm, ESLint/Vite, Gitleaks, Trivy y smoke HTTP/contrato. |
+| [Docker Image CI](../.github/workflows/docker-image.yml) | Construcción de imágenes de desarrollo/staging y mínimo de PHP. |
+| [Documentación](../.github/workflows/documentation.yml) | Validación de documentos y destinos locales. |
 
-CI prepara MongoDB como replica set y Redis efímeros.
-Esto es distinto del contenedor de desarrollo, que puede tener variables de
-Atlas: **en local usa exclusivamente `test.ps1`**, tras verificar el montaje y
-la conexión a `mongo-test` / `barber_db_test`.
+Corren con PR hacia main y push a main. Sus jobs usan permisos acotados y
+timeouts. La concurrencia cancela ejecuciones anteriores del mismo PR; las de
+main utilizan un grupo único por ejecución.
 
-## Límites del mantenimiento
+CI prepara MongoDB replica set y Redis efímeros. Su comando PHPUnit no debe
+copiarse al contenedor local con configuración operativa.
+En local se utiliza exclusivamente [test.ps1](../test.ps1).
 
-Esta actualización se limita a Markdown, plantillas, validación documental y
-configuración de CI. No cambia lógica de negocio, dependencias del producto,
-Dockerfiles, variables de entorno, contrato de API ni infraestructura.
+Construir una imagen en el runner no la publica.
+Estos workflows no contienen docker push ni actualización de ECS.
+Los checks externos y sus requisitos se consultan en GitHub; no se infieren de
+una lista antigua de nombres.
 
-Los workflows versionados revisados se disparan con `push` a `main` o
-`pull_request` hacia `main`. Construir una imagen en un runner no la publica.
-No contienen `docker push`, actualización de ECS ni un trabajo de despliegue.
-Los cambios documentales también ejecutan la CI existente: no se añaden filtros
-que puedan dejar checks requeridos pendientes o saltarse controles de seguridad.
-
-Esto no confirma la configuración de integraciones externas como Vercel,
-webhooks o pipelines configurados fuera del repositorio. Antes de fusionar,
-revisa esas conexiones. Durante este mantenimiento no se despliega, publica
-ni ejecutan comandos de infraestructura.
-
-## Comprobación documental
-
-`python scripts/check_docs.py` comprueba README, contribución, seguridad,
-índice documental, esta guía, la plantilla de PR y la guía de clonado.
-Detecta archivos vacíos, conflictos de merge y destinos locales inexistentes
-en enlaces Markdown en línea e imágenes/enlaces HTML.
-Omite bloques de código, URLs externas y anclas; no comprueba sintaxis Markdown
-completa, enlaces de referencia ni vigencia semántica de todas las guías.
-
-Para revisar otros documentos explícitamente:
+## Documentación
 
 ```powershell
-python scripts/check_docs.py docs/README.md docs/CI_CD.md
+python scripts/check_docs.py --all
+git diff --check
 ```
 
-El workflow `documentation.yml` usa Python del runner y no instala dependencias.
-Se ejecuta con PR/push a `main` para no omitir un check si se configura como requerido.
-Los workflows del producto mantienen sus nombres de jobs. Los límites de tiempo
-evitan ejecuciones atascadas; la concurrencia cancela corridas anteriores del
-mismo PR, conservando las corridas de `main`.
+Con --all el validador comprueba Markdown de raíz, docs y .github; también
+admite rutas explícitas sin --all.
+No utiliza red ni credenciales. Comprueba enlaces Markdown en línea y HTML,
+archivos vacíos y conflictos; omite URLs externas, anclas y enlaces de referencia.
+No certifica semántica, permisos remotos ni ausencia de secretos.
 
-## Evidencia y publicación
+La revisión integral añade un escaneo de archivos rastreados, documentos
+ofimáticos extraídos e historial; alcance en
+[SEGURIDAD_DOCUMENTACION.md](SEGURIDAD_DOCUMENTACION.md).
 
-En cada PR registra comandos y resultados del checkout probado. Distingue:
-validación local, checks de GitHub, fusión y publicación.
-Ninguno implica automáticamente el siguiente.
+## Push, fusión y despliegue
 
-El badge del README enlaza al workflow del repositorio; no representa un
-certificado del commit de una rama local.
+1. La validación local comprueba el checkout y entorno probados.
+2. Los checks del PR comprueban ese commit.
+3. Fusionar cambia main y dispara sus workflows.
+4. Publicar cambia un servicio remoto y requiere alcance propio.
 
-No se modifica la licencia ni se renombran repositorios durante este mantenimiento.
+Un paso no acredita el siguiente. No usar saltos de CI para evitar un despliegue:
+los controles de calidad y el mecanismo de publicación son distintos.
 
-## Presentación en GitHub
+En el mantenimiento anterior, Vercel generó una Preview con un push documental.
+Para fusionar el frontend sin publicar otra versión se autorizó una pausa temporal
+del Ignored Build Step; el merge recibió Canceled by Ignored Build Step y luego se
+restauró Automatic. Esta evidencia no configura una exclusión permanente.
+Antes de otro push/merge debe revisarse la integración vigente.
 
-Descripción de About:
+El [runbook](DESPLIEGUE_AWS_STAGING.md) describe los límites operativos.
+No se publican claves ni se copian instrucciones de cambios de secretos al CI.
 
-> API de UrbanBlade para barberías: citas, pagos, inventario y reportes con Laravel, MongoDB, Redis y Stripe.
+## Evidencia histórica comprobada
 
-Temas configurados: `laravel`, `php`, `mongodb`, `redis`, `rest-api`,
-`barbershop`, `stripe`. Sitio del producto: https://urbanblade.com.mx/.
+La integración anterior, backend main en `4ca64c3`, terminó con CI,
+documentación, construcción de imágenes y análisis aprobados el 28 de octubre de
+2026. La ejecución local previa reportó 951 pruebas y 3,679 aserciones.
+[PR #49](https://github.com/KikeGonRam/barber/pull/49).
 
-La revisión inicial encontró una descripción del antiguo dashboard web, sin
-temas ni sitio en About. El propietario autorizó actualizar estos metadatos;
-los valores anteriores ya se aplicaron y verificaron mediante la API de GitHub.
+La presente revisión documental tiene su propio diff y validaciones; no se
+presenta aquel resultado como una suite recién ejecutada.
 
-Los procedimientos operativos permanecen en
-[DESPLIEGUE_AWS_STAGING.md](DESPLIEGUE_AWS_STAGING.md).
-Sus fechas, nombres históricos de entorno y verificaciones no acreditan el
-estado actual de producción.
+## Presentación del repositorio
 
-## Verificación local del mantenimiento · 27 de octubre de 2026
-
-- Base revisada: `origin/main` en `c1ebede`.
-- `.\test.ps1 --compact`: 951 pruebas aprobadas, 3,679 aserciones.
-  Se verificó el montaje de `barber-app` y el destino `mongo-test` / `barber_db_test`.
-- Validador documental: siete documentos de entrada aprobados y 15 casos
-  positivos/negativos del validador comprobados en archivos temporales.
-- Enlaces locales: 23 Markdown públicos versionados revisados sin destinos faltantes.
-- YAML: workflows y formularios de issues parseados sin errores.
-  Se compararon los jobs anteriores: solo cambian sus límites de tiempo.
-- `git diff --check`: sin errores.
-
-Esta evidencia es local. Los workflows nuevos aún requieren ejecutarse en el PR.
-No se reconstruyeron imágenes ni se ejecutaron despliegues en esta actualización.
+About describe la API de barberías con Laravel, MongoDB, Redis y Stripe.
+El sitio del producto es [urbanblade.com.mx](https://urbanblade.com.mx/).
+Los metadatos de GitHub no modifican la aplicación ni la licencia.
