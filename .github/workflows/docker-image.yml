@@ -14,11 +14,17 @@ on:
 permissions:
   contents: read
 
+# Cancela solo ejecuciones anteriores del mismo PR; main conserva su evidencia.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
 
   build:
     name: Build ${{ matrix.image.name }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     strategy:
       fail-fast: false

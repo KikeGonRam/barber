@@ -1,37 +1,35 @@
 ## Qué cambia y por qué
 
-<!-- Una o dos frases. Enlaza la tarea o historia (por ejemplo T077 / HT-26). -->
+<!-- Describe el problema y el resultado. Enlaza una tarea o issue si existe. -->
 
-## Lista de verificación del revisor (T077)
+## Alcance
 
-Marca cada punto antes de aprobar. Si no aplica, escribe «N/A» y por qué.
+- Tipo de cambio:
+- Componentes afectados:
+- ¿Cambia comportamiento, contrato, dependencias o configuración del producto?:
+- ¿Requiere migración, variables, reinicio o despliegue?:
 
-### Estándares
-- [ ] El cambio hace una sola cosa y el título del PR la describe (en español, sin créditos de herramientas).
-- [ ] El código sigue el estilo del archivo que toca: nombres, comentarios y formato (Pint).
-- [ ] No quedan código muerto, `dd()`, `dump()` ni comentarios de depuración.
-- [ ] Los mensajes de la API y los textos para el usuario están en español.
+<!-- Para mantenimiento documental/CI, explica que no requiere despliegue.
+     Si depende de una integración externa, identifica la comprobación pendiente. -->
 
-### Seguridad
-- [ ] No hay secretos, tokens, contraseñas ni correos reales en el código, los datos de prueba ni los comentarios.
-- [ ] Toda entrada se valida (FormRequest o reglas) y las respuestas pasan por un API Resource.
-- [ ] Un endpoint nuevo o cambiado tiene prueba de qué rol sí y cuál no puede usarlo.
-- [ ] Ninguna consulta de Mongo arma filtros con datos sin validar.
-- [ ] Una dependencia nueva está justificada y `composer audit` no empeora.
+## Validación
 
-### Pruebas
-- [ ] Hay pruebas nuevas o actualizadas que fallan sin el cambio.
-- [ ] PHPUnit y PHPStan pasaron en local y el CI está en verde (la línea base de PHPStan no crece).
-- [ ] Probé el caso feliz y al menos un caso de error.
+| Comando o comprobación | Resultado y entorno |
+| --- | --- |
+| | |
 
-### Documentación y contrato
-- [ ] El README o la documentación afectada está actualizada.
-- [ ] Si cambió la API, `openapi.yaml` está actualizado y `scripts/verificar_contrato_api.mjs` pasa.
+<!-- Distingue local, API simulada, integración real y checks del PR.
+     Anota los fallos y lo no ejecutado; no declares CI verde antes de comprobarlo. -->
 
-### Despliegue
-- [ ] Sé si requiere migración, variable de entorno nueva o reinicio, y está anotado aquí.
-- [ ] Sé cómo volver atrás si falla.
+## Revisión
 
-## Cómo lo probé
+- [ ] El título y la descripción explican el cambio en español.
+- [ ] Revisé el diff y excluí trabajo ajeno, secretos y datos personales.
+- [ ] Actualicé la documentación responsable y revisé sus enlaces.
+- [ ] Ejecuté los controles aplicables; justifiqué lo que no aplica.
+- [ ] Si cambió comportamiento, cubrí el caso afectado y un error relevante.
+- [ ] Si cambió la API, coordiné contrato y clientes consumidores.
+- [ ] Identifiqué el impacto operativo y cómo revertir el cambio si corresponde.
 
-<!-- Comandos ejecutados y resultado. -->
+<!-- Un cambio editorial no requiere crear pruebas de comportamiento.
+     La fusión y el despliegue son acciones separadas. -->

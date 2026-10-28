@@ -1,0 +1,36 @@
+name: Mejorar documentación o calidad
+description: Propón una mejora de guías, pruebas o integración continua.
+title: "[Mantenimiento]: "
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      options:
+        - Documentación
+        - Pruebas
+        - Integración continua
+        - Presentación del repositorio
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema
+      description: Enlaza el archivo o workflow afectado y explica qué dificulta.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Resultado y forma de comprobarlo
+      description: Describe una mejora concreta y cómo verificarla.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impacto operativo
+      description: Indica si toca runtime, dependencias, infraestructura o despliegue.
+    validations:
+      required: true
