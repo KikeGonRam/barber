@@ -30,7 +30,10 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr-spa \
     && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install pdo pdo_sqlite zip exif pcntl gd intl
+# Igual que el Dockerfile de desarrollo (25-oct-2026): sin configure, GD compila sin JPEG ni
+# WebP aunque las libs ya estén arriba -- ver ese comentario para el detalle completo.
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install pdo pdo_sqlite zip exif pcntl gd intl
 RUN pecl install mongodb redis \
     && docker-php-ext-enable mongodb redis
 
