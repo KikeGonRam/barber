@@ -82,13 +82,13 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/DashboardApiTest.php
+			path: tests/UAT/DashboardApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/PaymentApiTest.php
+			path: tests/UAT/PaymentApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
@@ -292,7 +292,7 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 7
-			path: tests/Feature/AppointmentStatusApiTest.php
+			path: tests/UAT/AppointmentStatusApiTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
@@ -1031,25 +1031,25 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/SocialApiTest.php
+			path: tests/UAT/SocialApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\User\:\:\$avatar_url\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/SocialAuthApiTest.php
+			path: tests/UAT/SocialAuthApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\User\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\User\>\:\:\$avatar_url\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/SocialAuthApiTest.php
+			path: tests/UAT/SocialAuthApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\User\:\:\$avatar_url\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/ProfileApiTest.php
+			path: tests/UAT/ProfileApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\User\:\:\$verification_code\.$#'
@@ -2261,7 +2261,7 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\PushSubscription\:\:\$public_key\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PushApiTest.php
+			path: tests/UAT/PushApiTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
@@ -2345,242 +2345,242 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 3
-			path: tests/Feature/AppointmentApiTest.php
+			path: tests/UAT/AppointmentApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Waitlist\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Waitlist\>\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/AppointmentApiTest.php
+			path: tests/UAT/AppointmentApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/AppointmentServiceIntegrationTest.php
+			path: tests/UT/AppointmentServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Appointment\>\:\:\$servicio_iniciado_en\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/AppointmentStatusServiceIntegrationTest.php
+			path: tests/UT/AppointmentStatusServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/InventoryApiTest.php
+			path: tests/UAT/InventoryApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Order\>\:\:\$client_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/OrderApiTest.php
+			path: tests/UAT/OrderApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/OrderApiTest.php
+			path: tests/UAT/OrderApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 4
-			path: tests/Feature/BarberAdminRatingTest.php
+			path: tests/UAT/BarberAdminRatingTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$comment\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/BarberReviewServiceIntegrationTest.php
+			path: tests/UT/BarberReviewServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\BarberReview\:\:\$rating\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/BarberReviewServiceIntegrationTest.php
+			path: tests/UT/BarberReviewServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Barber\>\:\:\$calificacion_promedio\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/BarberReviewServiceIntegrationTest.php
+			path: tests/UT/BarberReviewServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Barber\>\:\:\$total_resenas\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/BarberReviewServiceIntegrationTest.php
+			path: tests/UT/BarberReviewServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Order\>\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 4
-			path: tests/Feature/CancelExpiredOrdersCommandTest.php
+			path: tests/UT/CancelExpiredOrdersCommandTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 4
-			path: tests/Feature/ClientBarberReviewTest.php
+			path: tests/UAT/ClientBarberReviewTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Barber\>\:\:\$calificacion_promedio\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/ClientBarberReviewTest.php
+			path: tests/UAT/ClientBarberReviewTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Barber\>\:\:\$total_resenas\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/ClientBarberReviewTest.php
+			path: tests/UAT/ClientBarberReviewTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/DrawMonthlyRaffleTest.php
+			path: tests/UT/DrawMonthlyRaffleTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$vence_en\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/DrawMonthlyRaffleTest.php
+			path: tests/UT/DrawMonthlyRaffleTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$activo\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/InventoryServiceIntegrationTest.php
+			path: tests/UT/InventoryServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$reabastecimiento_pedido_en\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/InventoryServiceIntegrationTest.php
+			path: tests/UT/InventoryServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$reabastecimiento_pedido_por\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/InventoryServiceIntegrationTest.php
+			path: tests/UT/InventoryServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\LoyaltyTransaction\:\:\$client_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/LoyaltyServiceIntegrationTest.php
+			path: tests/UT/LoyaltyServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\LoyaltyTransaction\:\:\$puntos\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/LoyaltyServiceIntegrationTest.php
+			path: tests/UT/LoyaltyServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\LoyaltyTransaction\:\:\$tipo\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/LoyaltyServiceIntegrationTest.php
+			path: tests/UT/LoyaltyServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/OrderServiceIntegrationTest.php
+			path: tests/UT/OrderServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$folio\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/OrderServiceIntegrationTest.php
+			path: tests/UT/OrderServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$items\.$#'
 			identifier: property.notFound
 			count: 4
-			path: tests/Feature/OrderServiceIntegrationTest.php
+			path: tests/UT/OrderServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$tipo\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/OrderServiceIntegrationTest.php
+			path: tests/UT/OrderServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$total\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/OrderServiceIntegrationTest.php
+			path: tests/UT/OrderServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Order\>\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 3
-			path: tests/Feature/OrderServiceIntegrationTest.php
+			path: tests/UT/OrderServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$comprobante_cliente\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PaymentServiceIntegrationTest.php
+			path: tests/UT/PaymentServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 5
-			path: tests/Feature/PaymentServiceIntegrationTest.php
+			path: tests/UT/PaymentServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$motivo_rechazo\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PaymentServiceIntegrationTest.php
+			path: tests/UT/PaymentServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$raffle_result_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PaymentServiceIntegrationTest.php
+			path: tests/UT/PaymentServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\RaffleResult\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\RaffleResult\>\:\:\$appointment_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PaymentServiceIntegrationTest.php
+			path: tests/UT/PaymentServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\RaffleResult\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\RaffleResult\>\:\:\$reclamado_en\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PaymentServiceIntegrationTest.php
+			path: tests/UT/PaymentServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$puntos\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/PaymentServiceIntegrationTest.php
+			path: tests/UT/PaymentServiceIntegrationTest.php
 
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Product\:\:\$reabastecimiento_pedido_en\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Unit/ProductRestockOrderTest.php
+			path: tests/UT/ProductRestockOrderTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$reclamado_en\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Unit/RaffleResultTest.php
+			path: tests/UT/RaffleResultTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\RaffleResult\:\:\$vence_en\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Unit/RaffleResultTest.php
+			path: tests/UT/RaffleResultTest.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Campaign\>\:\:map\(\) contains unresolvable type\.$#'
@@ -2700,19 +2700,19 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$destinatarios\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/CampaignApiTest.php
+			path: tests/UAT/CampaignApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/CampaignApiTest.php
+			path: tests/UAT/CampaignApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Campaign\:\:\$enviada_en\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/CampaignApiTest.php
+			path: tests/UAT/CampaignApiTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
@@ -2832,13 +2832,13 @@ parameters:
 			message: '#^Call to an undefined static method Illuminate\\Support\\Facades\\Log\:\:shouldHaveReceived\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
-			path: tests/Feature/MessagingServiceTest.php
+			path: tests/UT/MessagingServiceTest.php
 
 		-
 			message: '#^Call to an undefined static method Illuminate\\Support\\Facades\\Log\:\:shouldNotHaveReceived\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: tests/Feature/MessagingServiceTest.php
+			path: tests/UT/MessagingServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$monto_total\.$#'
@@ -2874,25 +2874,25 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Client\:\:\$sexo\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/ProfileApiTest.php
+			path: tests/UAT/ProfileApiTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$puntos\.$#'
 			identifier: property.notFound
 			count: 4
-			path: tests/Feature/StripeWebhookControllerTest.php
+			path: tests/SIT/StripeWebhookControllerTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/StripeWebhookControllerTest.php
+			path: tests/SIT/StripeWebhookControllerTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$loyalty_refund_reconciled_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/StripeWebhookControllerTest.php
+			path: tests/SIT/StripeWebhookControllerTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
@@ -2904,7 +2904,7 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/PublicRouteRedirectsTest.php
+			path: tests/SIT/PublicRouteRedirectsTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
@@ -2916,43 +2916,43 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 4
-			path: tests/Feature/BarberAdminApiTest.php
+			path: tests/UAT/BarberAdminApiTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/BarberAdminApiTest.php
+			path: tests/UAT/BarberAdminApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Barber\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 3
-			path: tests/Feature/BarberManagementApiTest.php
+			path: tests/UAT/BarberManagementApiTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/BarberManagementApiTest.php
+			path: tests/UAT/BarberManagementApiTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/BarberManagementApiTest.php
+			path: tests/UAT/BarberManagementApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Client\:\:\$slug\.$#'
 			identifier: property.notFound
 			count: 12
-			path: tests/Feature/ClientAdminApiTest.php
+			path: tests/UAT/ClientAdminApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Client\:\:\$notas\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/ClientAdminApiTest.php
+			path: tests/UAT/ClientAdminApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Client\:\:\$notas\.$#'
@@ -2964,13 +2964,13 @@ parameters:
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/ClientAdminApiTest.php
+			path: tests/UAT/ClientAdminApiTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/ClientAdminApiTest.php
+			path: tests/UAT/ClientAdminApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$metodo_pago\.$#'
@@ -3030,19 +3030,19 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 13
-			path: tests/Feature/AppointmentManageLinkApiTest.php
+			path: tests/UAT/AppointmentManageLinkApiTest.php
 
 		-
 			message: '#^Cannot call method format\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 1
-			path: tests/Feature/AppointmentManageLinkApiTest.php
+			path: tests/UAT/AppointmentManageLinkApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Appointment\:\:\$bloquea_horario\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/AppointmentManageLinkApiTest.php
+			path: tests/UAT/AppointmentManageLinkApiTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$avatar_url\.$#'
@@ -3204,13 +3204,13 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 3
-			path: tests/Feature/DepositServiceTest.php
+			path: tests/UT/DepositServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Payment\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Payment\>\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/DepositServiceTest.php
+			path: tests/UT/DepositServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$client_id\.$#'
@@ -3282,19 +3282,19 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/WaitlistServiceTest.php
+			path: tests/UT/WaitlistServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Waitlist\:\:\$client_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/WaitlistServiceTest.php
+			path: tests/UT/WaitlistServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Waitlist\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Waitlist\>\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 4
-			path: tests/Feature/WaitlistServiceTest.php
+			path: tests/UT/WaitlistServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ServicePackage\:\:\$nombre\.$#'
@@ -3504,55 +3504,55 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$usos_totales\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PackageServiceTest.php
+			path: tests/UT/PackageServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$usos_restantes\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PackageServiceTest.php
+			path: tests/UT/PackageServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$precio_pagado\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PackageServiceTest.php
+			path: tests/UT/PackageServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$metodo_pago\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PackageServiceTest.php
+			path: tests/UT/PackageServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PackageServiceTest.php
+			path: tests/UT/PackageServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientPackage\:\:\$expira_en\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/PackageServiceTest.php
+			path: tests/UT/PackageServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$client_package_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PackageServiceTest.php
+			path: tests/UT/PackageServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientPackage\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\ClientPackage\>\:\:\$usos_restantes\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/PackageServiceTest.php
+			path: tests/UT/PackageServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientPackage\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\ClientPackage\>\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/PackageServiceTest.php
+			path: tests/UT/PackageServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$code\.$#'
@@ -3630,49 +3630,49 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$saldo\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/GiftCardServiceTest.php
+			path: tests/UAT/GiftCardServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$monto_inicial\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/GiftCardServiceTest.php
+			path: tests/UAT/GiftCardServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/GiftCardServiceTest.php
+			path: tests/UAT/GiftCardServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 5
-			path: tests/Feature/GiftCardServiceTest.php
+			path: tests/UAT/GiftCardServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\GiftCard\>\:\:\$saldo\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/GiftCardServiceTest.php
+			path: tests/UAT/GiftCardServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\GiftCard\>\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 3
-			path: tests/Feature/GiftCardServiceTest.php
+			path: tests/UAT/GiftCardServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$gift_card_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/GiftCardServiceTest.php
+			path: tests/UAT/GiftCardServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Payment\:\:\$gift_card_monto_aplicado\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/GiftCardServiceTest.php
+			path: tests/UAT/GiftCardServiceTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio\.$#'
@@ -3780,31 +3780,31 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Client\:\:\$codigo_referido\.$#'
 			identifier: property.notFound
 			count: 10
-			path: tests/Feature/ReferralServiceTest.php
+			path: tests/UT/ReferralServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$referrer_client_id\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/ReferralServiceTest.php
+			path: tests/UT/ReferralServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$referee_client_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/ReferralServiceTest.php
+			path: tests/UT/ReferralServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/ReferralServiceTest.php
+			path: tests/UT/ReferralServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Referral\:\:\$recompensa_otorgada_en\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/ReferralServiceTest.php
+			path: tests/UT/ReferralServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$precio_mensual\.$#'
@@ -3972,31 +3972,31 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\Client\:\:\$stripe_customer_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/MembershipServiceTest.php
+			path: tests/UT/MembershipServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$cancelar_al_finalizar\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/MembershipServiceTest.php
+			path: tests/UT/MembershipServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 4
-			path: tests/Feature/MembershipServiceTest.php
+			path: tests/UT/MembershipServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$bloquea_membresia\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/MembershipServiceTest.php
+			path: tests/UT/MembershipServiceTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$periodo_actual_fin\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/MembershipServiceTest.php
+			path: tests/UT/MembershipServiceTest.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>subscription" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
@@ -4014,19 +4014,19 @@ parameters:
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 3
-			path: tests/Feature/PaymentApiTest.php
+			path: tests/UAT/PaymentApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$saldo\.$#'
 			identifier: property.notFound
 			count: 1
-			path: tests/Feature/PaymentApiTest.php
+			path: tests/UAT/PaymentApiTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\GiftCard\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 2
-			path: tests/Feature/PaymentServiceIntegrationTest.php
+			path: tests/UT/PaymentServiceIntegrationTest.php
 
 		-
 			message: '#^Access to an undefined property App\\Http\\Resources\\AppointmentResource\:\:\$propina_sugerida\.$#'
