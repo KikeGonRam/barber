@@ -19,7 +19,7 @@
 
 .NOTES
   Requiere Docker. Para la web: en frontend-urban, `$env:NUXT_PUBLIC_API_BASE='http://localhost:8001/api/v1'; npm run build`
-  una vez. Las cuentas son demo-<rol>@urbanblade.test; la contraseña de prueba está en sembrar-demo.php.
+  una vez. Las cuentas son demo-<rol>@urbanblade.test; la contraseña se define con la variable UB_DEMO_CLAVE o se genera al sembrar (sembrar-demo.php la muestra).
 #>
 [CmdletBinding()]
 param([switch]$Sembrar, [switch]$Detener)

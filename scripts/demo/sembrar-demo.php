@@ -26,7 +26,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 
-const DEMO_PASSWORD = 'Prueba-UrbanBlade-2026!';
+// La clave de las cuentas de demostración no se versiona: se toma de UB_DEMO_CLAVE o se genera al sembrar.
+$claveDemo = getenv('UB_DEMO_CLAVE') ?: 'Ub!' . bin2hex(random_bytes(8));
 
 $db = (string) config('database.connections.mongodb.database');
 $dsn = (string) config('database.connections.mongodb.dsn');
@@ -52,7 +53,7 @@ function demo_usuario(string $rol, string $nombre, string $email): User
 {
     $user = User::updateOrCreate(['email' => $email], [
         'name' => $nombre,
-        'password' => Hash::make(DEMO_PASSWORD),
+        'password' => Hash::make($claveDemo),
         'email_verified_at' => now(),
     ]);
     $user->syncRoles([Role::firstOrCreate(['name' => $rol, 'guard_name' => 'web'])]);
@@ -167,4 +168,6 @@ demo_paso('clientes adicionales y agenda de hoy y de la semana', function () use
 });
 
 echo "\nCuentas (correo): demo-administrador, demo-recepcion, demo-barbero, demo-barbero2, demo-ingeniero, demo-cliente, demo-cliente2 .. demo-cliente8 @urbanblade.test\n";
+echo "Clave de las cuentas de demostración: $claveDemo
+";
 echo 'Usuarios: '.User::count().' | Citas: '.Appointment::count()."\n";
