@@ -14,18 +14,29 @@ Artisan::command('inspire', function () {
 // ScheduledTaskFinished/Failed con la tarea correcta -- sin esto, el nombre
 // visible en esos eventos sería el comando shell completo (con ruta al
 // binario de PHP y redirecciones), no un identificador limpio.
-Schedule::command('appointments:send-reminders')->everyTenMinutes()->description('appointments:send-reminders');
-Schedule::command('tokens:clean-expired')->daily()->description('tokens:clean-expired'); // Limpia tokens de API/reset expirados
-Schedule::command('loyalty:draw-raffle')->monthlyOn(1, '08:00')->description('loyalty:draw-raffle'); // Sorteo mensual de fidelización, día 1
-Schedule::command('inventory:low-stock-alert')->dailyAt('09:00')->description('inventory:low-stock-alert'); // Notifica productos con stock bajo
-Schedule::command('reports:daily-summary')->dailyAt('21:30')->description('reports:daily-summary'); // Resumen diario para administración
-Schedule::command('campaigns:dispatch-due')->everyFiveMinutes()->description('campaigns:dispatch-due'); // Envía campañas de correo programadas que ya vencieron
-Schedule::command('appointments:mark-no-show')->hourly()->description('appointments:mark-no-show'); // Marca citas vencidas sin asistencia como "no-show"
-Schedule::command('appointments:notify-service-ending')->everyMinute()->description('appointments:notify-service-ending'); // Avisa al barbero 5 min antes de que termine el servicio en curso (terminar ya / agregar tiempo)
-Schedule::command('appointments:notify-service-overrun')->everyFiveMinutes()->description('appointments:notify-service-overrun'); // Avisa si un servicio se está alargando más de lo esperado
-Schedule::command('loyalty:apply-inactivity')->dailyAt('04:00')->description('loyalty:apply-inactivity'); // Baja de nivel (180+ días) y caducidad de puntos (365+ días) por inactividad
-Schedule::command('barbers:monthly-performance')->monthlyOn(1, '08:30')->description('barbers:monthly-performance'); // Reporte mensual de desempeño de barberos (mejor mes y caídas fuertes)
-Schedule::command('orders:cancel-expired')->dailyAt('05:00')->description('orders:cancel-expired'); // Cancela pedidos pendientes no recogidos en 3+ días y devuelve su stock
-Schedule::command('clients:send-birthday-greetings')->dailyAt('08:15')->description('clients:send-birthday-greetings'); // Felicita y regala puntos a quien cumple años hoy
-Schedule::command('waitlist:expire-stale')->dailyAt('03:30')->description('waitlist:expire-stale'); // Expira anotaciones de lista de espera con fecha ya pasada
-Schedule::command('packages:expire-stale')->dailyAt('03:45')->description('packages:expire-stale'); // Expira paquetes prepagados vencidos
+
+// Con varias tareas de ECS, cada una corre schedule:work. Si SCHEDULE_CACHE_STORE apunta a un
+// almacen compartido con locks atomicos (mongodb), onOneServer() hace que cada ejecucion
+// ocurra una sola vez. Sin la variable, el mutex usa la cache por defecto (archivo) y el
+// comportamiento es el de siempre: pensado para una sola tarea.
+if (config('cache.schedule_store')) {
+    Schedule::useCache(config('cache.schedule_store'));
+}
+
+Schedule::onOneServer()->group(function () {
+    Schedule::command('appointments:send-reminders')->everyTenMinutes()->description('appointments:send-reminders');
+    Schedule::command('tokens:clean-expired')->daily()->description('tokens:clean-expired'); // Limpia tokens de API/reset expirados
+    Schedule::command('loyalty:draw-raffle')->monthlyOn(1, '08:00')->description('loyalty:draw-raffle'); // Sorteo mensual de fidelización, día 1
+    Schedule::command('inventory:low-stock-alert')->dailyAt('09:00')->description('inventory:low-stock-alert'); // Notifica productos con stock bajo
+    Schedule::command('reports:daily-summary')->dailyAt('21:30')->description('reports:daily-summary'); // Resumen diario para administración
+    Schedule::command('campaigns:dispatch-due')->everyFiveMinutes()->description('campaigns:dispatch-due'); // Envía campañas de correo programadas que ya vencieron
+    Schedule::command('appointments:mark-no-show')->hourly()->description('appointments:mark-no-show'); // Marca citas vencidas sin asistencia como "no-show"
+    Schedule::command('appointments:notify-service-ending')->everyMinute()->description('appointments:notify-service-ending'); // Avisa al barbero 5 min antes de que termine el servicio en curso (terminar ya / agregar tiempo)
+    Schedule::command('appointments:notify-service-overrun')->everyFiveMinutes()->description('appointments:notify-service-overrun'); // Avisa si un servicio se está alargando más de lo esperado
+    Schedule::command('loyalty:apply-inactivity')->dailyAt('04:00')->description('loyalty:apply-inactivity'); // Baja de nivel (180+ días) y caducidad de puntos (365+ días) por inactividad
+    Schedule::command('barbers:monthly-performance')->monthlyOn(1, '08:30')->description('barbers:monthly-performance'); // Reporte mensual de desempeño de barberos (mejor mes y caídas fuertes)
+    Schedule::command('orders:cancel-expired')->dailyAt('05:00')->description('orders:cancel-expired'); // Cancela pedidos pendientes no recogidos en 3+ días y devuelve su stock
+    Schedule::command('clients:send-birthday-greetings')->dailyAt('08:15')->description('clients:send-birthday-greetings'); // Felicita y regala puntos a quien cumple años hoy
+    Schedule::command('waitlist:expire-stale')->dailyAt('03:30')->description('waitlist:expire-stale'); // Expira anotaciones de lista de espera con fecha ya pasada
+    Schedule::command('packages:expire-stale')->dailyAt('03:45')->description('packages:expire-stale'); // Expira paquetes prepagados vencidos
+});
