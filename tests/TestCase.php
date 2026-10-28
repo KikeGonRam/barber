@@ -25,6 +25,12 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // ChatbotController y PredictionController llaman a set_time_limit(60|120) para
+        // esperar a Ollama. En un solo proceso de PHPUnit ese límite sobrevive a su prueba y
+        // corre sobre todas las siguientes (con cobertura en el CI superaba los 60 s y
+        // abortaba el proceso en una prueba ajena). Se reinicia el reloj en cada prueba.
+        set_time_limit(0);
+
         // La conexión analítica también se valida: AnalyticsApiTest borra
         // AnalyticsInsight en tearDown() y, sin ANALYTICS_* en .env.testing,
         // heredaba la URI de Atlas (usuario de solo lectura) del contenedor.
