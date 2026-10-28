@@ -19,7 +19,7 @@ Desarrollo y pruebas requieren aislamiento para no afectar datos operativos.
 1. Mantener juntos los datos operativos en la conexión `mongodb`.
    El valor predeterminado del código sigue siendo `barber_db`.
 2. Leer los derivados a través de `mongodb_analytics`.
-   El modelo [AnalyticsInsight](../app/Models/AnalyticsInsight.php) fija esa conexión.
+   El modelo [AnalyticsInsight](../../app/Models/AnalyticsInsight.php) fija esa conexión.
 3. Mantener Pulse en su conexión dedicada y Redis fuera de la fuente de verdad.
 4. Usar `mongo-dev` persistente para desarrollo y `mongo-test` aislado para pruebas.
    Ambos usan replica set.
@@ -29,12 +29,12 @@ Desarrollo y pruebas requieren aislamiento para no afectar datos operativos.
 
 | Elemento | Fuente |
 | --- | --- |
-| Conexiones y fallback analítico | [config/database.php](../config/database.php) |
-| Contextos shared/development/testing | [DataEnvironmentGuard](../app/Support/DataEnvironmentGuard.php) |
-| Mongo de desarrollo, rsdev y volumen propio | [docker-compose.development.yml](../docker-compose.development.yml) |
-| Mongo de pruebas y su inicialización | [docker-compose.yml](../docker-compose.yml) |
-| Guardia de ambas conexiones en pruebas | [tests/TestCase.php](../tests/TestCase.php) |
-| Ejecución local segura | [test.ps1](../test.ps1) |
+| Conexiones y fallback analítico | [config/database.php](../../config/database.php) |
+| Contextos shared/development/testing | [DataEnvironmentGuard](../../app/Support/DataEnvironmentGuard.php) |
+| Mongo de desarrollo, rsdev y volumen propio | [docker-compose.development.yml](../../docker-compose.development.yml) |
+| Mongo de pruebas y su inicialización | [docker-compose.yml](../../docker-compose.yml) |
+| Guardia de ambas conexiones en pruebas | [tests/TestCase.php](../../tests/TestCase.php) |
+| Ejecución local segura | [test.ps1](../../test.ps1) |
 
 La conexión analítica hereda URI/base operativa si sus variables no están
 definidas. Por tanto, su mera existencia en código no garantiza separación física.

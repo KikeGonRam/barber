@@ -5,7 +5,7 @@ description: Revisar pagos y webhooks de Stripe en un sandbox autorizado.
 
 # Stripe local
 
-Consulta docs/STRIPE_PRUEBAS_LOCALES.md. Inspecciona usos actuales del SDK antes
+Consulta docs/referencia/STRIPE_PRUEBAS_LOCALES.md. Inspecciona usos actuales del SDK antes
 de decidir permisos: el backend utiliza Payment Intents, Customers/tarjetas,
 reembolsos y recursos de membresías/suscripciones. No conceder permisos generales
 a partir de una guía antigua ni asumir que solo existen Payment Intents.

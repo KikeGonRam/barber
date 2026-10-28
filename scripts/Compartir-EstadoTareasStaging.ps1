@@ -14,7 +14,7 @@
 
   ORDEN: SCHEDULE_CACHE_STORE solo tiene efecto con una imagen que incluya routes/console.php con
   onOneServer() y config('cache.schedule_store'). Despliega primero esa imagen (ver
-  docs/DESPLIEGUE_AWS_STAGING.md) y despues corre este script. Con la imagen vieja las variables
+  docs/referencia/DESPLIEGUE_AWS_STAGING.md) y despues corre este script. Con la imagen vieja las variables
   se ignoran sin dano.
 
   Ejecutalo con un perfil que pueda registrar task definitions (ecs:RegisterTaskDefinition); el usuario

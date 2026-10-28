@@ -15,8 +15,8 @@ La demo se navega en el frontend; este repositorio proporciona la API.
 Las capturas incluidas son ilustrativas y pueden pertenecer a una revisión
 anterior del diseño.
 
-![Landing ilustrativa](assets/landing.png)
-![Panel administrativo ilustrativo](assets/dashboard-admin.png)
+![Landing ilustrativa](../assets/landing.png)
+![Panel administrativo ilustrativo](../assets/dashboard-admin.png)
 
 ## Recorrido sugerido
 

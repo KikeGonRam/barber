@@ -31,7 +31,7 @@ description: Mantiene el Product Backlog académico de Urban Blade (Excel en la 
 | Web | `frontend-urban`: Nuxt 4 (Vue 3), E2E con Playwright | Next.js |
 | Móvil | `UrbanBladeMobile`: Android nativo, Kotlin + Jetpack Compose, MVVM, Retrofit | Expo, React Native |
 | Pagos | Efectivo, transferencia y tarjeta (Stripe en modo prueba) | "pago simulado", QR |
-| Infraestructura | Staging en AWS creado a mano (ECR, ECS Fargate, ALB, CloudFront, S3, Secrets Manager), ver `barber/docs/DESPLIEGUE_AWS_STAGING.md`; Terraform aún no existe | — |
+| Infraestructura | Staging en AWS creado a mano (ECR, ECS Fargate, ALB, CloudFront, S3, Secrets Manager), ver `barber/docs/referencia/DESPLIEGUE_AWS_STAGING.md`; Terraform aún no existe | — |
 | CI | `.github/workflows/ci.yml` en barber y frontend-urban; Android sin CI | — |
 
 Repositorios: `KikeGonRam/barber`, `KikeGonRam/frontend_Urbanblade`,

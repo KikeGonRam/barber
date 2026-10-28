@@ -108,7 +108,7 @@ Puntos 1, 3 o 5; 1 punto = 8 horas. Estados: Pendiente, En progreso, Completado.
 - Terraform: aún no existe en ningún repositorio; su ubicación la define **T112**
   (Alan). No crear archivos `.tf` antes de que T112 esté en `main`.
 - Secretos: nunca en código, `.tf`, docs ni en la app Android (solo claves públicas
-  como `pk_test_...`). `docs/ACCESOS.md` de `barber` es la única fuente de credenciales.
+  como `pk_test_...`). `docs/referencia/ACCESOS.md` de `barber` es la única fuente de credenciales.
 - Diseños (Stitch, Figma) se revisan contra la HU que implementan antes de codificar.
 
 ## Tareas de este repositorio (barber)
@@ -155,7 +155,7 @@ Puntos 1, 3 o 5; 1 punto = 8 horas. Estados: Pendiente, En progreso, Completado.
 
 ### Terraform (EP-17, HU-33 a HU-37 y HU-41) — ubicación por definir en T112
 
-Hoy el staging de AWS está creado a mano (`docs/DESPLIEGUE_AWS_STAGING.md`). Estas
+Hoy el staging de AWS está creado a mano (`docs/referencia/DESPLIEGUE_AWS_STAGING.md`). Estas
 tareas no tienen repositorio todavía: **T112 (Alan) decide dónde vive Terraform**.
 Hasta entonces no se crean archivos `.tf` en ningún lado.
 

@@ -21,7 +21,7 @@ aprobada. Comprueba el resumen de ejecución, no solo el código de salida.
 
 En backend se utiliza exclusivamente [test.ps1](../../test.ps1), con MongoDB local
 de pruebas; nunca sustituirlo por Artisan/PHPUnit directo. Las condiciones, dependencias
-y cobertura están en [PRUEBAS.md](../../docs/PRUEBAS.md).
+y cobertura están en [PRUEBAS.md](../../docs/referencia/PRUEBAS.md).
 
 Los grupos de frontend pueden ejecutar lint, tipos, build y Playwright según sus
 opciones y dependencias; `-Rapido` omite trabajo costoso. Los de Spark y Android
@@ -29,4 +29,4 @@ requieren sus propios entornos. Una prueba local no acredita un despliegue.
 
 El detector local de seguridad es una ayuda, no una certificación de ausencia de
 secretos. La revisión documental y sus límites están en
-[SEGURIDAD_DOCUMENTACION.md](../../docs/SEGURIDAD_DOCUMENTACION.md).
+[SEGURIDAD_DOCUMENTACION.md](../../docs/referencia/SEGURIDAD_DOCUMENTACION.md).

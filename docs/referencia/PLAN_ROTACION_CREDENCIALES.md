@@ -18,7 +18,7 @@ clave secreta, pero no justifica copiar datos operativos innecesarios.
 
 1. No copiar su valor al chat, informe, issue, PR o captura.
 2. Registrar solo proveedor, archivo y ubicación de la coincidencia.
-3. Informar por el [canal privado](../SECURITY.md).
+3. Informar por el [canal privado](../../SECURITY.md).
 4. El propietario verifica si es real y coordina revocación o rotación.
 5. Eliminarlo de la versión actual y sustituirlo por configuración externa.
 6. Evaluar el historial, artefactos, logs y otras copias de la exposición.

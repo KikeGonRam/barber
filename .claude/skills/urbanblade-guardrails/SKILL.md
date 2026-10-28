@@ -6,7 +6,7 @@ description: Reglas de seguridad, dominio y validación del backend UrbanBlade.
 # Guardas del backend
 
 Lee AGENTS.md y docs/README.md antes de modificar el proyecto. La arquitectura vigente
-está en docs/DOCUMENTACION_TECNICA.md y las decisiones en docs/DECISIONES.md.
+está en docs/referencia/DOCUMENTACION_TECNICA.md y las decisiones en docs/referencia/DECISIONES.md.
 El código y los resultados observados prevalecen sobre inventarios históricos.
 
 - Revisa rama, estado y diff; preserva trabajo ajeno. Cambios selectivos, sin reescribir historial.
@@ -19,7 +19,7 @@ El código y los resultados observados prevalecen sobre inventarios históricos.
 - Las pruebas de backend se ejecutan exclusivamente con `.\test.ps1`.
   No usar Artisan/PHPUnit directamente: pueden heredar la conexión operativa.
 - Desarrollo usa mongo-dev; pruebas usan mongo-test y barber_db_test.
-  Atlas, desarrollo y pruebas deben mantenerse separados. Ver docs/PRUEBAS.md.
+  Atlas, desarrollo y pruebas deben mantenerse separados. Ver docs/referencia/PRUEBAS.md.
 - No ejecutar migraciones, seeders, vaciados, restores, cargas de backups ni escrituras
   contra datos reales por una tarea de documentación.
 - No imprimir .env, claves, tokens, cookies, dumps o credenciales. Ejemplos ficticios y

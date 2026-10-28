@@ -7,10 +7,10 @@ La petición y los límites actuales del propietario prevalecen sobre planes his
 ## Leer antes de actuar
 
 - [Índice documental](docs/README.md).
-- [Arquitectura](docs/DOCUMENTACION_TECNICA.md).
-- [Pruebas](docs/PRUEBAS.md).
-- [Decisiones](docs/DECISIONES.md) y [ADR de datos](docs/ADR-001-ARQUITECTURA-DE-DATOS.md).
-- [Seguridad](SECURITY.md) y [credenciales](docs/PLAN_ROTACION_CREDENCIALES.md).
+- [Arquitectura](docs/referencia/DOCUMENTACION_TECNICA.md).
+- [Pruebas](docs/referencia/PRUEBAS.md).
+- [Decisiones](docs/referencia/DECISIONES.md) y [ADR de datos](docs/referencia/ADR-001-ARQUITECTURA-DE-DATOS.md).
+- [Seguridad](SECURITY.md) y [credenciales](docs/referencia/PLAN_ROTACION_CREDENCIALES.md).
 
 Las instrucciones específicas de seguridad están en
 [urbanblade-guardrails](.claude/skills/urbanblade-guardrails/SKILL.md).

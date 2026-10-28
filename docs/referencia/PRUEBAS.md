@@ -1,9 +1,9 @@
 # Pruebas y verificación del backend
 
 Revisión: 28 de octubre de 2026. La suite existe y está activa.
-Su configuración está en [phpunit.xml](../phpunit.xml); las pruebas viven en cuatro carpetas por tipo:
-[tests/UT](../tests/UT), [tests/SIT](../tests/SIT), [tests/UAT](../tests/UAT) y
-[tests/OAT](../tests/OAT) (ver "Tipos de prueba").
+Su configuración está en [phpunit.xml](../../phpunit.xml); las pruebas viven en cuatro carpetas por tipo:
+[tests/UT](../../tests/UT), [tests/SIT](../../tests/SIT), [tests/UAT](../../tests/UAT) y
+[tests/OAT](../../tests/OAT) (ver "Tipos de prueba").
 
 ## Ejecución segura
 
@@ -13,7 +13,7 @@ En Windows, desde la raíz de este checkout:
 .\test.ps1
 ```
 
-[test.ps1](../test.ps1) limpia las cachés de configuración/rutas, fuerza
+[test.ps1](../../test.ps1) limpia las cachés de configuración/rutas, fuerza
 `.env.testing` en el proceso `docker exec`, ejecuta PHPUnit y restaura las
 cachés de desarrollo después. No usa un contenedor separado para la API:
 trabaja sobre `barber-app`; comprueba su montaje antes de ejecutar.
@@ -24,8 +24,8 @@ La configuración de entorno del contenedor tiene precedencia sobre Dotenv;
 un archivo `.env.testing` por sí solo no garantiza aislamiento.
 
 No ejecutes `php artisan test` directamente en el entorno de desarrollo.
-[DataEnvironmentGuard](../app/Support/DataEnvironmentGuard.php) y
-[TestCase](../tests/TestCase.php) son defensas adicionales, no un reemplazo del
+[DataEnvironmentGuard](../../app/Support/DataEnvironmentGuard.php) y
+[TestCase](../../tests/TestCase.php) son defensas adicionales, no un reemplazo del
 runner. No se desactivan para hacer pasar una prueba.
 
 ## Tipos de prueba
@@ -89,15 +89,15 @@ limpiar colecciones operativas para preparar una suite.
 
 | Riesgo o regla | Pruebas de referencia |
 | --- | --- |
-| Mezcla de entornos de datos | [DataEnvironmentGuardTest](../tests/OAT/DataEnvironmentGuardTest.php), [TestCase](../tests/TestCase.php) |
-| Operadores Mongo procedentes del cliente | [RejectMongoOperatorsTest](../tests/UT/RejectMongoOperatorsTest.php) |
-| Emisión, renovación y revocación de tokens | [ApiTokenSecurityTest](../tests/SIT/ApiTokenSecurityTest.php), [AuthApiTest](../tests/UAT/AuthApiTest.php) |
-| Disponibilidad y límites de reserva | [AvailabilityApiTest](../tests/UAT/AvailabilityApiTest.php), [AppointmentApiTest](../tests/UAT/AppointmentApiTest.php) |
-| Estados y condiciones para iniciar | [AppointmentStatusServiceTest](../tests/UT/AppointmentStatusServiceTest.php), [AppointmentStartRulesTest](../tests/UAT/AppointmentStartRulesTest.php) |
-| Autorización por rol y pertenencia | [RoleAuthorizationTest](../tests/SIT/RoleAuthorizationTest.php) |
-| Contrato de respuestas | [ApiContractTest](../tests/SIT/ApiContractTest.php) |
-| Imágenes y cabeceras públicas | [UploadedImageResizeTest](../tests/UT/UploadedImageResizeTest.php), [PublicUploadsCacheControlTest](../tests/OAT/PublicUploadsCacheControlTest.php) |
-| Configuración y fallos de cola | [QueueConfigurationTest](../tests/OAT/QueueConfigurationTest.php), [QueueFailureMonitorTest](../tests/OAT/QueueFailureMonitorTest.php) |
+| Mezcla de entornos de datos | [DataEnvironmentGuardTest](../../tests/OAT/DataEnvironmentGuardTest.php), [TestCase](../../tests/TestCase.php) |
+| Operadores Mongo procedentes del cliente | [RejectMongoOperatorsTest](../../tests/UT/RejectMongoOperatorsTest.php) |
+| Emisión, renovación y revocación de tokens | [ApiTokenSecurityTest](../../tests/SIT/ApiTokenSecurityTest.php), [AuthApiTest](../../tests/UAT/AuthApiTest.php) |
+| Disponibilidad y límites de reserva | [AvailabilityApiTest](../../tests/UAT/AvailabilityApiTest.php), [AppointmentApiTest](../../tests/UAT/AppointmentApiTest.php) |
+| Estados y condiciones para iniciar | [AppointmentStatusServiceTest](../../tests/UT/AppointmentStatusServiceTest.php), [AppointmentStartRulesTest](../../tests/UAT/AppointmentStartRulesTest.php) |
+| Autorización por rol y pertenencia | [RoleAuthorizationTest](../../tests/SIT/RoleAuthorizationTest.php) |
+| Contrato de respuestas | [ApiContractTest](../../tests/SIT/ApiContractTest.php) |
+| Imágenes y cabeceras públicas | [UploadedImageResizeTest](../../tests/UT/UploadedImageResizeTest.php), [PublicUploadsCacheControlTest](../../tests/OAT/PublicUploadsCacheControlTest.php) |
+| Configuración y fallos de cola | [QueueConfigurationTest](../../tests/OAT/QueueConfigurationTest.php), [QueueFailureMonitorTest](../../tests/OAT/QueueFailureMonitorTest.php) |
 
 La tabla es un índice, no una lista exhaustiva de los casos.
 Las pruebas UT también arrancan Laravel (extienden `Tests\TestCase`); no usan
@@ -106,7 +106,7 @@ solo que una prueba esté libre de dependencias.
 
 ## Contrato HTTP
 
-[verificar_contrato_api.mjs](../scripts/verificar_contrato_api.mjs) compara el
+[verificar_contrato_api.mjs](../../scripts/verificar_contrato_api.mjs) compara el
 resultado de `route:list --json` con el OpenAPI versionado.
 La fuente de rutas es Laravel, no expresiones regulares sobre grupos de rutas.
 
@@ -132,7 +132,7 @@ credenciales de proveedores, cobros reales o despliegue de producción.
 
 ## Sandbox de varios repositorios
 
-El [sandbox](../scripts/verificacion/README.md) agrega comprobaciones del workspace
+El [sandbox](../../scripts/verificacion/README.md) agrega comprobaciones del workspace
 y comienza por una puerta de seguridad. Usa únicamente los grupos del cambio;
 no requiere activar Spark o Android para revisar Markdown del backend.
 

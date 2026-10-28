@@ -2,7 +2,7 @@ name: Docker Image CI
 
 # Construye las dos imagenes del repo para detectar a tiempo un Dockerfile roto. No
 # publica nada: el despliegue a staging sigue siendo manual (ver
-# docs/DESPLIEGUE_AWS_STAGING.md), porque el CI no tiene credenciales de AWS.
+# docs/referencia/DESPLIEGUE_AWS_STAGING.md), porque el CI no tiene credenciales de AWS.
 
 on:
   push:

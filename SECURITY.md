@@ -23,7 +23,7 @@ ni modificaciones de datos. Coordina cualquier reproducción con el propietario.
 ## Credenciales y dependencias
 
 Las credenciales se administran fuera del repositorio.
-[ACCESOS.md](docs/ACCESOS.md) documenta el proceso de acceso sin contraseñas.
+[ACCESOS.md](docs/referencia/ACCESOS.md) documenta el proceso de acceso sin contraseñas.
 Si detectas un secreto expuesto, comunícalo en privado para que el propietario
 coordine su revocación y rotación.
 

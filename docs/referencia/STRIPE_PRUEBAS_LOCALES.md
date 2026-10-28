@@ -6,7 +6,7 @@ cambios de claves, suscripciones o reembolsos de producción.
 
 ## Funciones implementadas
 
-[StripePaymentService](../app/Services/Payment/StripePaymentService.php) utiliza:
+[StripePaymentService](../../app/Services/Payment/StripePaymentService.php) utiliza:
 
 | Función | Recursos o comportamiento |
 | --- | --- |
@@ -16,8 +16,8 @@ cambios de claves, suscripciones o reembolsos de producción.
 | Membresías | Productos/precios, Customers, suscripciones y consulta de invoices. |
 | Renovaciones y cambios | Eventos de suscripción e invoice procesados por el webhook. |
 
-[MembershipService](../app/Services/Membership/MembershipService.php) coordina
-membresías. [StripeWebhookController](../app/Http/Controllers/Api/Payment/StripeWebhookController.php)
+[MembershipService](../../app/Services/Membership/MembershipService.php) coordina
+membresías. [StripeWebhookController](../../app/Http/Controllers/Api/Payment/StripeWebhookController.php)
 procesa pagos, fallos, reembolsos, disputas y eventos de suscripción.
 
 La antigua instrucción de conceder únicamente Payment Intents y excluir siempre

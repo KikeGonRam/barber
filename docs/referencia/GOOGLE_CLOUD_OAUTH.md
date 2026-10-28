@@ -1,6 +1,6 @@
 # Autenticación con Google
 
-Revisión de [SocialAuthController](../app/Http/Controllers/Api/Auth/SocialAuthController.php):
+Revisión de [SocialAuthController](../../app/Http/Controllers/Api/Auth/SocialAuthController.php):
 28 de octubre de 2026. Describe los flujos implementados, no el estado de la consola
 Google ni las credenciales del equipo.
 
@@ -41,7 +41,7 @@ no se duplican huellas ni claves de firma aquí.
 | FRONTEND_URL | Destino web al terminar el callback. |
 | SPARK_URL | Destino de compatibilidad cuando se solicita Spark. |
 
-La configuración se carga en [config/services.php](../config/services.php).
+La configuración se carga en [config/services.php](../../config/services.php).
 Sin client ID, los endpoints relevantes responden 503.
 Un identificador de cliente público no es una clave secreta; el client secret sí
 requiere custodia. Ninguno necesita publicarse en esta guía.

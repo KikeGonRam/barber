@@ -20,18 +20,18 @@ No constituye autorización para escribir datos, cambiar infraestructura o despl
 ## Fuentes y consecuencias
 
 - D01/D03: [arquitectura](DOCUMENTACION_TECNICA.md), rutas, controladores y servicios.
-- D02: [MobileApiToken](../app/Models/MobileApiToken.php),
-  [middleware de autenticación](../app/Http/Middleware/AuthenticateMobileApiToken.php)
-  y [config/auth.php](../config/auth.php).
+- D02: [MobileApiToken](../../app/Models/MobileApiToken.php),
+  [middleware de autenticación](../../app/Http/Middleware/AuthenticateMobileApiToken.php)
+  y [config/auth.php](../../config/auth.php).
 - D04/D05: [ADR-001](ADR-001-ARQUITECTURA-DE-DATOS.md),
-  [config/database.php](../config/database.php) y Compose.
-- D06/D07: [PaymentService](../app/Services/Payment/PaymentService.php),
-  [InventoryService](../app/Services/Inventory/InventoryService.php),
-  [AppointmentStatusService](../app/Services/Appointment/AppointmentStatusService.php)
-  y [ServiceStartGuard](../app/Services/Appointment/ServiceStartGuard.php).
-- D08: [ReceiptStorage](../app/Support/ReceiptStorage.php) y filesystems.
+  [config/database.php](../../config/database.php) y Compose.
+- D06/D07: [PaymentService](../../app/Services/Payment/PaymentService.php),
+  [InventoryService](../../app/Services/Inventory/InventoryService.php),
+  [AppointmentStatusService](../../app/Services/Appointment/AppointmentStatusService.php)
+  y [ServiceStartGuard](../../app/Services/Appointment/ServiceStartGuard.php).
+- D08: [ReceiptStorage](../../app/Support/ReceiptStorage.php) y filesystems.
 - D09: [contrato](PLAN_CONTRATO_API.md) y [pruebas](PRUEBAS.md).
-- D10: [CI/CD](CI_CD.md) y [contribución](../CONTRIBUTING.md).
+- D10: [CI/CD](CI_CD.md) y [contribución](../../CONTRIBUTING.md).
 
 ## Propuestas y comprobaciones pendientes
 

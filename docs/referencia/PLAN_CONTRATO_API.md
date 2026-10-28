@@ -7,12 +7,12 @@ El nombre del archivo se conserva para no romper referencias anteriores.
 
 | Elemento | Fuente |
 | --- | --- |
-| Rutas y middleware reales | [routes/api.php](../routes/api.php), Laravel route:list. |
+| Rutas y middleware reales | [routes/api.php](../../routes/api.php), Laravel route:list. |
 | Validación y respuestas | Requests, controladores y Resources. |
-| Ejemplos comprobables | [docs/contrato](contrato), [ApiContractTest](../tests/SIT/ApiContractTest.php). |
-| OpenAPI versionado | [public/docs/openapi.yaml](../public/docs/openapi.yaml). |
-| Detección de deriva de rutas | [verificar_contrato_api.mjs](../scripts/verificar_contrato_api.mjs). |
-| Required de respuestas | [ContractRequiredFieldsGenerator](../app/Support/Docs/ContractRequiredFieldsGenerator.php). |
+| Ejemplos comprobables | [docs/contrato](../contrato), [ApiContractTest](../../tests/SIT/ApiContractTest.php). |
+| OpenAPI versionado | [public/docs/openapi.yaml](../../public/docs/openapi.yaml). |
+| Detección de deriva de rutas | [verificar_contrato_api.mjs](../../scripts/verificar_contrato_api.mjs). |
+| Required de respuestas | [ContractRequiredFieldsGenerator](../../app/Support/Docs/ContractRequiredFieldsGenerator.php). |
 
 El frontend copia el spec a `contract/openapi.yaml` y genera tipos.
 El Android consume el mismo contrato mediante sus modelos y capa HTTP.
@@ -54,7 +54,7 @@ identidades, recibos y tokens. Los encabezados de autorización reales nunca se
 guardan en fixtures, colecciones de Postman, HTML ni capturas.
 
 La configuración actual contiene `auth.enabled=false` en
-[config/scribe.php](../config/scribe.php). Es una limitación conocida del generador:
+[config/scribe.php](../../config/scribe.php). Es una limitación conocida del generador:
 la API real sí tiene autenticación Bearer. Esta revisión documental no modifica
 la configuración ni regenera artefactos para corregirla; ese cambio necesita
 validación técnica separada.
