@@ -203,8 +203,14 @@ vencidos, lealtad, campañas, cumpleaños, sorteo mensual). En el log se ven com
 sin `RUN_SCHEDULER` (o con `false`) y forzar el despliegue. Con más de una tarea de `barber` se ejecutarían en
 paralelo: dejar una sola o mover el scheduler a un servicio propio. **Estado al 28-oct-2026:
 `barber` corre con 2 tareas y `RUN_SCHEDULER=true`, así que los recordatorios y demás tareas
-se ejecutan por duplicado.** Decisión pendiente del propietario: volver a 1 tarea, o dejar
-`RUN_SCHEDULER=true` solo en un servicio aparte.
+se ejecutan por duplicado.** Corrección preparada (no aplicada en AWS): `routes/console.php`
+agrupa las tareas con `onOneServer()` y usa `SCHEDULE_CACHE_STORE` como almacén del mutex.
+Pasos, en este orden: (1) desplegar la imagen que incluye ese cambio; (2) correr
+`scripts/Compartir-EstadoTareasStaging.ps1` (simulación por defecto; con `-Aplicar` registra
+una revisión con `SCHEDULE_CACHE_STORE=mongodb` y `CACHE_LIMITER_STORE=mongodb`, que además
+comparte los contadores de límites entre las dos tareas); (3) comprobar en los logs que cada
+tarea programada se ejecuta en una sola tarea. El script necesita un perfil con
+`ecs:RegisterTaskDefinition` (no `staging-deploy`). Alternativa sin código: volver a 1 tarea.
 
 ## Dar acceso a un compañero
 
