@@ -141,7 +141,7 @@ class PaymentController extends Controller
                 'total_pagado' => (float) $payments
                     ->whereNotIn('estado', [Payment::ESTADO_PENDIENTE_VERIFICACION, Payment::ESTADO_RECHAZADO, Payment::ESTADO_REEMBOLSADO])
                     ->sum(fn ($p) => (float) $p->monto + (float) $p->propina),
-                'total_citas' => $appointmentIds->count(),
+                'total_citas' => $payments->pluck('appointment_id')->unique()->count(),
             ],
         ]);
     }
