@@ -33,13 +33,10 @@ class AppointmentCheckInApiTest extends TestCase
     protected function tearDown(): void
     {
         Appointment::withTrashed()->forceDelete();
-        Service::query()->delete();
-        Barber::query()->delete();
-        Client::query()->delete();
-        MobileApiToken::query()->delete();
         User::withTrashed()->forceDelete();
-        Role::query()->delete();
-        Permission::query()->delete();
+        foreach ([Service::class, Barber::class, Client::class, MobileApiToken::class, Role::class, Permission::class] as $modelo) {
+            $modelo::query()->delete();
+        }
         \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
