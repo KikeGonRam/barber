@@ -50,7 +50,8 @@ class SendAppointmentRemindersCommand extends Command
             ->with(['client.user', 'service'])
             ->whereIn('estado', ['pendiente', 'confirmada'])
             ->whereNull('reminder_24h_sent_at')
-            ->where('fecha', $tomorrow)
+            // whereDate, no where: `fecha` se guarda como fecha (BSON) y comparada con un texto no coincide con nada.
+            ->whereDate('fecha', $tomorrow)
             ->chunkById(100, function ($appointments) use ($messagingService, $manageLinks) {
                 foreach ($appointments as $appointment) {
                     $user = $appointment->client?->user;
@@ -107,7 +108,7 @@ class SendAppointmentRemindersCommand extends Command
             ->with(['client.user', 'service'])
             ->whereIn('estado', ['pendiente', 'confirmada'])
             ->whereNull('reminder_2h_sent_at')
-            ->where('fecha', $today)
+            ->whereDate('fecha', $today)
             ->where('hora_inicio', '>=', $from)
             ->where('hora_inicio', '<=', $to)
             ->chunkById(100, function ($appointments) use ($messagingService) {
