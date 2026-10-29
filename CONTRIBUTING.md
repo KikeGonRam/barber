@@ -54,3 +54,17 @@ alcance y autorización propios.
 Describe el problema, el resultado, las comprobaciones ejecutadas y sus límites.
 Marca como no aplicables las comprobaciones ajenas al cambio, explicando por qué.
 No declares CI verde antes de ver los checks del commit del PR.
+
+
+## Conducta y licencia de las contribuciones
+
+Respeta el [código de conducta](CODE_OF_CONDUCT.md).
+Los incidentes de conducta se comunican por su contacto privado; las vulnerabilidades,
+por el canal de [seguridad](SECURITY.md).
+
+El proyecto adopta [GPL-3.0-only](LICENSE). Debes tener derecho a aportar el contenido
+que propones bajo esa licencia. Conserva avisos y atribuciones de terceros e identifica
+su licencia cuando incorpores material externo. No se exige una cesión de autoría.
+
+Consulta el [alcance de la licencia](LICENSING.md). La licencia no otorga permisos
+para acceder a servicios, credenciales o datos reales ni autoriza un despliegue.

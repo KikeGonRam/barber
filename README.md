@@ -80,3 +80,10 @@ no se mantienen copias Word/PDF independientes del Markdown.
 Nunca publicar secretos, sesiones, dumps o datos personales.
 Consulta [SECURITY.md](SECURITY.md) y
 [la revisión documental de seguridad](docs/referencia/SEGURIDAD_DOCUMENTACION.md).
+
+## Políticas y licencia
+
+- [Política de seguridad y reporte privado](SECURITY.md).
+- [Código de conducta](CODE_OF_CONDUCT.md) y [contribución](CONTRIBUTING.md).
+- [GNU GPLv3, versión 3 únicamente](LICENSE) — identificador GPL-3.0-only.
+- [Alcance, autoría y componentes de terceros](LICENSING.md).
