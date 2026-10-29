@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Services\Analytics\BarberCommissionService;
+use App\Services\Analytics\PeriodComparisonService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -363,6 +364,22 @@ class ReportAdminController
                 'quietSlots' => array_map($strip, $quiet),
             ],
         ]);
+    }
+
+    // Periodo actual contra el mismo tramo del periodo anterior, con la variación de cada métrica.
+    public function generateComparisonReport(Request $request, PeriodComparisonService $comparison): JsonResponse
+    {
+        $this->authorizeAdmin();
+
+        return response()->json(['data' => $comparison->compare((string) $request->query('period', 'mes'))]);
+    }
+
+    // Cohortes de retención: de los clientes que se registraron cada mes, cuántos regresan en los meses siguientes.
+    public function generateCohortsReport(Request $request, PeriodComparisonService $comparison): JsonResponse
+    {
+        $this->authorizeAdmin();
+
+        return response()->json(['data' => $comparison->cohorts((int) $request->query('months', 6))]);
     }
 
     // Traduce el nombre del periodo a la fecha de inicio correspondiente (mes por defecto)
