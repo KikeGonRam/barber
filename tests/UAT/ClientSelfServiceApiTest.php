@@ -232,7 +232,9 @@ class ClientSelfServiceApiTest extends TestCase
         $response->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $ownPayment->id)
-            ->assertJsonPath('meta.total_pagado', 220);
+            ->assertJsonPath('meta.total_pagado', 220)
+            // «Citas con recibo» cuenta las citas que tienen pago, no todas las del cliente.
+            ->assertJsonPath('meta.total_citas', 1);
 
         $this->withToken($this->clientToken)->getJson("/api/v1/payments/{$ownPayment->id}/receipt")->assertOk();
         $this->withToken($this->clientToken)->getJson("/api/v1/payments/{$otherPayment->id}/receipt")->assertStatus(403);
