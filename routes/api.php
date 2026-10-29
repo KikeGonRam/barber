@@ -461,6 +461,8 @@ Route::prefix('v1')->group(function (): void {
             // programadas. Nueva en esta fase -- ver App\Services\System.
             Route::get('system/status', [SystemController::class, 'status'])
                 ->middleware('permission.custom:sistema.ver');
+            Route::get('system/metrics', [SystemController::class, 'metrics'])
+                ->middleware('permission.custom:sistema.ver');
         });
 
         // Gestión real (crea/edita/borra) de barberos, clientes e

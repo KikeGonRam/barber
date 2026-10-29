@@ -10,6 +10,7 @@ use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\LogSlowRequests;
 use App\Http\Middleware\OptionalMobileApiToken;
+use App\Http\Middleware\RecordRequestMetrics;
 use App\Http\Middleware\RejectMongoOperators;
 use App\Http\Middleware\Role\EnsureUserHasPermission;
 use App\Http\Middleware\Role\EnsureUserHasRole;
@@ -39,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Avisa en el log de las peticiones lentas (ruta, estado y tiempo en MongoDB). Ver config/observability.php.
         $middleware->append(LogSlowRequests::class);
+        $middleware->append(RecordRequestMetrics::class);
 
         $middleware->validateCsrfTokens(except: [
             'api/v1/auth/get-api-token',

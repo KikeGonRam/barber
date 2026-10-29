@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\Admin\System;
 
+use App\Services\System\RequestMetrics;
 use App\Services\System\ScheduledTaskMonitor;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
@@ -21,7 +23,24 @@ use MongoDB\Laravel\Connection as MongoConnection;
  */
 class SystemController
 {
-    public function __construct(private readonly ScheduledTaskMonitor $taskMonitor) {}
+    public function __construct(
+        private readonly ScheduledTaskMonitor $taskMonitor,
+        private readonly RequestMetrics $requestMetrics,
+    ) {}
+
+    /** Tráfico, errores 5xx y latencia media por minuto (muestreado; ver config/observability.php). */
+    public function metrics(Request $request): JsonResponse
+    {
+        $datos = $request->validate([
+            'minutes' => ['nullable', 'integer', 'min:5', 'max:1440'],
+            'step' => ['nullable', 'integer', 'min:1', 'max:60'],
+        ]);
+
+        return response()->json($this->requestMetrics->series(
+            (int) ($datos['minutes'] ?? 60),
+            (int) ($datos['step'] ?? 1),
+        ));
+    }
 
     public function status(): JsonResponse
     {
