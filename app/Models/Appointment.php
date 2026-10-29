@@ -51,6 +51,8 @@ class Appointment extends Model
         'reminder_2h_sent_at',
         'cancellation_notified_at',
         'servicio_iniciado_en',
+        // Check-in: cuándo marcó la recepción que el cliente llegó (no cambia el estado de la cita).
+        'llegada_en',
         'ultimo_aviso_barbero_en',
         'bloquea_horario',
         // Token opaco del enlace de gestión que viaja en los recordatorios
@@ -89,6 +91,7 @@ class Appointment extends Model
             'reminder_2h_sent_at' => 'datetime',
             'cancellation_notified_at' => 'datetime',
             'servicio_iniciado_en' => 'datetime',
+            'llegada_en' => 'datetime',
             'ultimo_aviso_barbero_en' => 'datetime',
             'bloquea_horario' => 'boolean',
             'deposito_requerido' => 'boolean',
