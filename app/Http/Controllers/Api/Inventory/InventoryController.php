@@ -68,6 +68,7 @@ class InventoryController extends Controller
                 'stats' => [
                     'total' => Product::count(),
                     'bajo_stock' => $this->inventoryService->lowStockCount(),
+                    'sin_stock' => Product::where('stock_actual', '<=', 0)->count(),
                     'valor_total' => (float) Product::get(['stock_actual', 'precio_compra'])->sum(fn ($p) => (float) $p->stock_actual * (float) $p->precio_compra),
                 ],
                 'categorias' => $categorias,

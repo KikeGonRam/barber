@@ -90,7 +90,7 @@ class InventoryApiTest extends TestCase
         $response->assertJsonCount(2, 'data');
         $response->assertJsonStructure([
             'data' => ['*' => ['id', 'nombre', 'stock_actual', 'precio_compra', 'precio_venta', 'low_stock', 'pending_restock']],
-            'meta' => ['total', 'stats' => ['total', 'bajo_stock', 'valor_total'], 'categorias', 'tipos'],
+            'meta' => ['total', 'stats' => ['total', 'bajo_stock', 'sin_stock', 'valor_total'], 'categorias', 'tipos'],
         ]);
         // precio_compra/precio_venta usan cast decimal:2 (serializan como string en
         // el modelo) — deben llegar como number real ("150", no "150.00" con
