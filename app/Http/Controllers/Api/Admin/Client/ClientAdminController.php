@@ -124,7 +124,11 @@ class ClientAdminController
         $totalSpent = (float) $appointments->where('estado', 'completada')
             ->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
 
-        $segment = $this->segments->segment($client, $appointments->count(), $appointments->first()?->fecha);
+        // «Última visita» es la última cita ya atendida: las futuras o canceladas no cuentan
+        // (antes salía «hace -4 días» con una cita próxima).
+        $ultimaVisita = $appointments->first(fn ($a) => $a->estado === 'completada' && $a->fecha !== null && ! $a->fecha->isFuture());
+
+        $segment = $this->segments->segment($client, $appointments->count(), $ultimaVisita?->fecha);
 
         $preferredBarber = 'N/A';
         $grouped = $appointments->groupBy(fn ($a) => (string) $a->barber_id)->map->count()->sortDesc();
@@ -155,14 +159,14 @@ class ClientAdminController
                 'totalAppointments' => $appointments->count(),
                 'totalSpent' => $totalSpent,
                 'averageSpent' => $appointments->count() > 0 ? round($totalSpent / $appointments->count(), 2) : 0,
-                'lastAppointment' => optional($appointments->first()?->fecha)->toDateString(),
+                'lastAppointment' => optional($ultimaVisita?->fecha)->toDateString(),
                 // (int): diffInDays() devuelve flotante en esta versión de
                 // Carbon, así que un campo llamado "días" salía como
                 // 0.043811839895833336 y la ficha lo pintaba tal cual. El
                 // resto del proyecto ya castea (ClientSegmentService,
                 // ApplyLoyaltyInactivityCommand); aquí faltaba.
-                'daysSinceLastAppointment' => $appointments->isNotEmpty()
-                    ? (int) optional($appointments->first()->fecha)->diffInDays(Carbon::now())
+                'daysSinceLastAppointment' => $ultimaVisita !== null
+                    ? max(0, (int) $ultimaVisita->fecha->diffInDays(Carbon::now()))
                     : null,
                 'preferredBarber' => $preferredBarber,
                 'appointments' => $appointments->map(fn ($a) => [
