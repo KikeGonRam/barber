@@ -1,0 +1,40 @@
+name: Semgrep
+
+# Análisis estático (SAST) con las reglas OWASP Top 10 (HT-07 / TT19-TT20). Bloquea el PR si aparece un hallazgo de
+# severidad ERROR. Los falsos positivos se suprimen en la línea con `# nosemgrep: <regla>` y una justificación; la
+# lista y el procedimiento están en docs/referencia/PRUEBAS.md («Análisis estático»).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: semgrep-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  semgrep:
+    name: Semgrep (OWASP Top 10)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: semgrep/semgrep:1.182.1
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Semgrep OWASP Top 10
+        env:
+          SEMGREP_SEND_METRICS: 'off'
+        run: >
+          semgrep scan
+          --config p/owasp-top-ten
+          --severity ERROR
+          --error
+          --metrics=off
+          --exclude vendor --exclude node_modules --exclude public --exclude storage
+          --exclude .claude --exclude .agents --exclude docs

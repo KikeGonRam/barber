@@ -81,4 +81,7 @@ HEALTHCHECK --interval=15s --timeout=5s --retries=8 --start-period=90s \
 COPY .docker/staging/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Excepción de Semgrep documentada (docs/referencia/PRUEBAS.md, «Análisis estático»): el entrypoint corre como root
+# para preparar /run/app-secrets y arrancar Caddy; PHP-FPM atiende como www-data y el programador con su www-data.
+# nosemgrep: dockerfile.security.missing-user-entrypoint.missing-user-entrypoint
 ENTRYPOINT ["/entrypoint.sh"]

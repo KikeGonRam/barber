@@ -130,6 +130,42 @@ Los E2E con API simulada del frontend no prueban esta API.
 Una suite verde tampoco verifica permisos Atlas efectivos, backups restaurables,
 credenciales de proveedores, cobros reales o despliegue de producción.
 
+## Cobertura mínima
+
+El job `backend` de CI genera `coverage/coverage.xml` (clover) y
+[verificar_cobertura.py](../../scripts/verificar_cobertura.py) falla si la cobertura de
+sentencias baja del umbral `COVERAGE_MIN` definido en `.github/workflows/ci.yml`.
+
+- Umbral inicial: **70 %**, fijado cuando la cobertura medida era 73,2 % (10 021 de 13 696
+  sentencias, 29 de octubre de 2026). Es un piso, no una meta.
+- Cuando se agreguen pruebas (autenticación y citas, TT24), sube el umbral; no lo bajes para
+  que pase el CI.
+- La cobertura mide líneas ejecutadas, no calidad de aserciones. Una cifra alta no sustituye
+  las pruebas de regresión de la matriz anterior.
+
+## Análisis estático
+
+El workflow [semgrep.yml](../../.github/workflows/semgrep.yml) ejecuta Semgrep con las reglas
+`p/owasp-top-ten` en cada PR y en `main`. Bloquea con cualquier hallazgo de severidad `ERROR`.
+
+Para correrlo en local (PowerShell, desde la raíz del repositorio):
+
+```powershell
+docker run --rm -v "${PWD}:/src" -w /src semgrep/semgrep:1.182.1 semgrep scan --config p/owasp-top-ten --severity ERROR --error --metrics=off --exclude vendor --exclude node_modules --exclude public --exclude storage --exclude .claude --exclude .agents --exclude docs
+```
+
+**Supresiones aceptadas.** Un falso positivo o un riesgo aceptado se suprime en la propia línea
+con `# nosemgrep: <regla>` y una justificación en el comentario anterior. No se suprime una
+regla completa ni se excluyen carpetas de código para que pase el CI.
+
+| Regla | Dónde | Justificación |
+| --- | --- | --- |
+| `dockerfile.security.missing-user` y `missing-user-entrypoint` | `Dockerfile` (desarrollo) | El proceso maestro arranca como root para preparar permisos; los workers de PHP-FPM corren como `www-data` (`.docker/php/www.conf`). |
+| `dockerfile.security.missing-user-entrypoint` | `.docker/staging/Dockerfile` | El entrypoint corre como root para preparar `/run/app-secrets` y arrancar Caddy; PHP-FPM atiende como `www-data` y el programador con `su www-data`. |
+
+Pendiente de evaluar: ejecutar los contenedores sin root (`USER` no root) exige revisar el
+entrypoint, los puertos y el directorio de secretos; no se hizo en esta tarea.
+
 ## Sandbox de varios repositorios
 
 El [sandbox](../../scripts/verificacion/README.md) agrega comprobaciones del workspace

@@ -112,6 +112,12 @@ jobs:
       - name: PHPUnit with coverage
         run: php artisan test --coverage-clover=coverage/coverage.xml
 
+      # Umbral mínimo de cobertura (HT-09). Mide 73 % al fijarlo; súbelo al agregar pruebas, no lo bajes.
+      - name: Verificar umbral de cobertura
+        env:
+          COVERAGE_MIN: '70'
+        run: python3 scripts/verificar_cobertura.py
+
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v7
         if: always()
