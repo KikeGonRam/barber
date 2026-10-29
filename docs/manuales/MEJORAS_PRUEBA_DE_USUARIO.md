@@ -58,11 +58,11 @@ Después de la prueba se corrigieron y desplegaron a staging la mayoría de los 
 
 | Estado | Hallazgos |
 | --- | --- |
-| Corregidos y desplegados | 1, 2, 3, 4, 5, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 28, 29, 30, 32, 33 |
+| Corregidos y desplegados | 1, 2, 3, 4, 5, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 26, 28, 29, 30, 32, 33 |
 | Corregidos en parte | 10 (se arregló el plural; quedan el título en inglés, las fotos y el aviso de cookies), 13 (anular pide motivo y queda en la bitácora; el cobro sigue borrándose, no hay anulación lógica) |
 | Decididos sin cambio de código | 34 (el panel y Reportes del ingeniero muestran datos agregados por diseño: "consulta agregados y salud"), 21 (era un efecto de los datos de demostración: se sembró `especialidad` y la pantalla lee `especialidades`), 25 (el texto del selector de archivos lo pone el navegador) |
-| Por verificar | 6 (el código ya conserva la hora actual al reagendar; falta reproducirlo en un navegador) |
-| Pendientes | 11 (avisos de hidratación), 26 (dos franjas por día en el horario del barbero), 27 (perfil público del barbero: especialidad y descripción), 31 (ficha de cliente lenta en una corrida), 35 (tareas programadas "Sin uso": falta aplicar en staging el script del scheduler) |
+| Pendiente | 35 (tareas programadas "Sin uso": falta aplicar en staging el script del scheduler, que requiere un perfil de AWS con permiso para registrar task definitions) |
+| Revisados el 29 de octubre y sin reproducir | 6 (la hora actual sí abre seleccionada al reagendar), 11 (sin avisos de hidratación en la compilación de producción), 27 (el perfil público del barbero ya existe en Perfil: foto, especialidades y presentación; no se veía por el menú vacío del #2), 31 (la ficha tarda cerca de 1 s en la demostración; los 34 s fueron un valor aislado del servidor de demostración) |
 
 Decisiones de producto tomadas: anular un cobro y exportar clientes a CSV son solo del administrador; anular exige un motivo.
 
