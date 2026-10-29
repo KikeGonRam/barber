@@ -105,6 +105,24 @@ class BarberWorkspaceApiTest extends TestCase
             ->assertJsonStructure(['range' => ['start', 'end', 'label']]);
     }
 
+    public function test_barber_can_save_two_windows_per_day_but_not_three_or_overlapping(): void
+    {
+        $franja = fn (string $inicio, string $fin) => ['day_of_week' => 'monday', 'start_time' => $inicio, 'end_time' => $fin, 'is_active' => true];
+
+        $this->withToken($this->token)->putJson('/api/v1/barber/schedule', ['schedules' => [$franja('09:00', '14:00'), $franja('16:00', '20:00')]])
+            ->assertOk();
+        $this->withToken($this->token)->getJson('/api/v1/barber/schedule')
+            ->assertOk()
+            ->assertJsonCount(2, 'schedules');
+
+        $this->withToken($this->token)->putJson('/api/v1/barber/schedule', ['schedules' => [$franja('08:00', '10:00'), $franja('11:00', '13:00'), $franja('15:00', '18:00')]])
+            ->assertStatus(422);
+        $this->withToken($this->token)->putJson('/api/v1/barber/schedule', ['schedules' => [$franja('09:00', '14:00'), $franja('13:00', '18:00')]])
+            ->assertStatus(422);
+        $this->withToken($this->token)->putJson('/api/v1/barber/schedule', ['schedules' => [$franja('14:00', '09:00')]])
+            ->assertStatus(422);
+    }
+
     public function test_barber_can_manage_schedule_portfolio_and_profile(): void
     {
         Storage::fake('public');

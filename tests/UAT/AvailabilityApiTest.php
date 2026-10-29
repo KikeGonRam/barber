@@ -127,6 +127,34 @@ class AvailabilityApiTest extends TestCase
      * prefijo /v1) "for older frontend cache" -- si algo la rompe sin que
      * nadie lo note, esa caché vieja empezaría a fallar en silencio.
      */
+    public function test_two_windows_in_a_day_leave_the_break_without_slots(): void
+    {
+        $barber = Barber::create(['nombre' => 'Barbero dos franjas', 'activo' => true]);
+        $service = Service::create(['nombre' => 'Corte dos franjas', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
+        $target = $this->futureDate();
+        $nombres = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+        // El día guardado por PUT /barber/schedule es el nombre en inglés, no el número.
+        foreach ([['09:00', '10:00'], ['16:00', '17:00']] as [$inicio, $fin]) {
+            BarberSchedule::create([
+                'barber_id' => (string) $barber->id,
+                'day_of_week' => $nombres[$target->dayOfWeek],
+                'start_time' => $inicio,
+                'end_time' => $fin,
+                'is_working' => true,
+            ]);
+        }
+
+        $response = $this->getJson('/api/v1/availability/slots?'.http_build_query([
+            'barber_id' => (string) $barber->id,
+            'service_id' => (string) $service->id,
+            'date' => $target->format('Y-m-d'),
+        ]));
+
+        $response->assertOk();
+        $this->assertSame(['09:00', '09:30', '16:00', '16:30'], collect($response->json('slots'))->pluck('time')->all());
+    }
+
     public function test_legacy_route_without_v1_prefix_still_works(): void
     {
         $barber = Barber::create(['nombre' => 'Barbero disponibilidad', 'activo' => true]);

@@ -97,6 +97,23 @@ class BarberScheduleController extends Controller
             'schedules.*.is_active' => ['sometimes', 'boolean'],
         ]);
 
+        // Hasta dos franjas por día, con fin posterior al inicio y sin traslapes (p. ej. 09-14 y 16-20).
+        $porDia = collect($validated['schedules'])->groupBy('day_of_week');
+        foreach ($porDia as $dia => $franjas) {
+            if ($franjas->count() > 2) {
+                return response()->json(['message' => "Solo puedes definir hasta dos franjas por día ({$dia})."], 422);
+            }
+            $ordenadas = $franjas->sortBy('start_time')->values();
+            foreach ($ordenadas as $i => $franja) {
+                if ($franja['end_time'] <= $franja['start_time']) {
+                    return response()->json(['message' => "En {$dia}, el cierre debe ser posterior a la apertura."], 422);
+                }
+                if ($i > 0 && $franja['start_time'] < $ordenadas[$i - 1]['end_time']) {
+                    return response()->json(['message' => "En {$dia}, las franjas no pueden traslaparse."], 422);
+                }
+            }
+        }
+
         // Eliminar horarios existentes
         BarberSchedule::where('barber_id', (string) $barber->id)->delete();
 

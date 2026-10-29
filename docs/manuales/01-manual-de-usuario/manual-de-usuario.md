@@ -281,7 +281,7 @@ Cinco minutos antes de que termine el servicio recibes un aviso con dos opciones
 
 ### 4.5 Tu horario
 
-**Mi Horario Laboral** define los días y las horas en que los clientes pueden agendar contigo. Para cada día activas o desactivas el interruptor y eliges la **apertura** y el **cierre**; **Copiar a todos** repite ese horario en los demás días. A la derecha, **Tu semana** resume cómo ven los clientes tu disponibilidad: los días con atención y las horas por semana. Pulsa **Guardar horario** para aplicar los cambios.
+**Mi Horario Laboral** define los días y las horas en que los clientes pueden agendar contigo. Para cada día activas o desactivas el interruptor y eliges la **apertura** y el **cierre**. Si descansas a media jornada, pulsa **+ Agregar descanso (segunda franja)**: el día queda con dos franjas (por ejemplo 09:00 a 14:00 y 16:00 a 20:00), sin traslapes, y los clientes no ven horarios en el descanso. **Copiar a todos** repite ese horario en los demás días. A la derecha, **Tu semana** resume cómo ven los clientes tu disponibilidad: los días con atención y las horas por semana. Pulsa **Guardar horario** para aplicar los cambios.
 
 > **Importante** La disponibilidad que ven los clientes al reservar sale de este horario y de las citas que ya tienes. Si cambias un día, las reservas nuevas lo respetan de inmediato.
 
