@@ -52,6 +52,20 @@ Esta lista es un **punto de partida para el backlog**, no una auditoría exhaust
 | 32 | Recepción | Analítica muestra "No hay análisis históricos publicados para tu rol". | Ocultar el mensaje cuando hay indicadores del día. | Baja |
 | 35 | Ingeniero | En Estado del servidor las tareas programadas aparecen todas "Sin uso", sin última ejecución (*por confirmar*). | Mostrar la última ejecución y su resultado. | Baja |
 
+## Estado al 29 de octubre de 2026
+
+Después de la prueba se corrigieron y desplegaron a staging la mayoría de los hallazgos. Este resumen dice qué pasó con cada número.
+
+| Estado | Hallazgos |
+| --- | --- |
+| Corregidos y desplegados | 1, 2, 3, 4, 5, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 28, 29, 30, 32, 33 |
+| Corregidos en parte | 10 (se arregló el plural; quedan el título en inglés, las fotos y el aviso de cookies), 13 (anular pide motivo y queda en la bitácora; el cobro sigue borrándose, no hay anulación lógica) |
+| Decididos sin cambio de código | 34 (el panel y Reportes del ingeniero muestran datos agregados por diseño: "consulta agregados y salud"), 21 (era un efecto de los datos de demostración: se sembró `especialidad` y la pantalla lee `especialidades`), 25 (el texto del selector de archivos lo pone el navegador) |
+| Por verificar | 6 (el código ya conserva la hora actual al reagendar; falta reproducirlo en un navegador) |
+| Pendientes | 11 (avisos de hidratación), 26 (dos franjas por día en el horario del barbero), 27 (perfil público del barbero: especialidad y descripción), 31 (ficha de cliente lenta en una corrida), 35 (tareas programadas "Sin uso": falta aplicar en staging el script del scheduler) |
+
+Decisiones de producto tomadas: anular un cobro y exportar clientes a CSV son solo del administrador; anular exige un motivo.
+
 ## Lo que funciona bien
 
 - La reserva se puede empezar sin cuenta y se entiende en cuatro pasos, con un resumen siempre visible y horarios agrupados en mañana, tarde y noche.
