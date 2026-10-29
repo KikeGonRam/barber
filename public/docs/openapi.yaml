@@ -6806,6 +6806,28 @@ paths:
       tags:
         - Endpoints
       security: []
+  '/api/v1/admin/system/metrics':
+    get:
+      summary: "Tráfico de la API por minuto (peticiones, errores 5xx y latencia media), muestreado y reescalado."
+      operationId: getApiV1AdminSystemMetrics
+      description: "Acepta `minutes` (5 a 1440) y `step` (1 a 60). Requiere el permiso sistema.ver."
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
   '/api/v1/admin/predictions/income/{days}':
     get:
       summary: 'Proyección de ingresos futuros a N días calculada por el servicio de predicción.'
