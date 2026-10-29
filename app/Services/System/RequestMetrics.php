@@ -20,9 +20,22 @@ class RequestMetrics
 
     private const PREFIX = 'ub:metrics:';
 
+    private const DRIVERS_ATOMICOS = ['redis', 'memcached', 'array'];
+
+    /**
+     * Solo con un almacén de contadores atómicos (Redis o Memcached). Los almacenes basados en MongoDB o en archivos
+     * no sirven: el `increment` de MongoDB deja documentos sin `key` y rompe el índice único de la colección `cache`
+     * (incidente en staging del 29-oct-2026), así que ahí las métricas quedan apagadas aunque estén activadas.
+     */
     public function enabled(): bool
     {
-        return (bool) config('observability.metrics_enabled', true);
+        if (! config('observability.metrics_enabled', false)) {
+            return false;
+        }
+
+        $store = config('observability.metrics_cache_store') ?: config('cache.default');
+
+        return in_array(config("cache.stores.{$store}.driver"), self::DRIVERS_ATOMICOS, true);
     }
 
     public function sampleRate(): float

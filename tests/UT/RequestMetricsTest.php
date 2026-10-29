@@ -59,4 +59,21 @@ class RequestMetricsTest extends TestCase
 
         $this->assertCount(1440, $serie['points']);
     }
+
+    public function test_solo_se_activa_con_un_almacen_de_contadores_atomicos(): void
+    {
+        $metrics = new RequestMetrics;
+
+        config(['observability.metrics_enabled' => false]);
+        $this->assertFalse($metrics->enabled());
+
+        config(['observability.metrics_enabled' => true, 'observability.metrics_cache_store' => 'array']);
+        $this->assertTrue($metrics->enabled());
+
+        config(['cache.stores.mongodb' => ['driver' => 'mongodb'], 'observability.metrics_cache_store' => 'mongodb']);
+        $this->assertFalse($metrics->enabled());
+
+        config(['cache.stores.file' => ['driver' => 'file'], 'observability.metrics_cache_store' => null, 'cache.default' => 'file']);
+        $this->assertFalse($metrics->enabled());
+    }
 }
