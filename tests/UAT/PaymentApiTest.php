@@ -2,6 +2,7 @@
 
 namespace Tests\UAT;
 
+use App\Models\Activity;
 use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\BarbershopSetting;
@@ -77,6 +78,48 @@ class PaymentApiTest extends TestCase
         $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
 
         return $user;
+    }
+
+    private function paymentToAnnul(User $creator): Payment
+    {
+        $client = Client::create(['user_id' => (string) User::create(['name' => 'Cliente Anular', 'email' => Str::uuid().'@test.local', 'password' => 'password'])->id, 'telefono' => '5551230000', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 1]);
+
+        return Payment::create([
+            'appointment_id' => (string) $this->chargeableAppointmentFor($client)->id,
+            'monto' => 150, 'metodo_pago' => 'efectivo', 'propina' => 0,
+            'created_by' => (string) $creator->id, 'estado' => Payment::ESTADO_VERIFICADO,
+        ]);
+    }
+
+    public function test_recepcionista_cannot_annul_a_payment(): void
+    {
+        $recepcion = $this->staffUser('recepcionista', 'recepcion-anular@test.local');
+        $payment = $this->paymentToAnnul($recepcion);
+
+        $this->withToken($this->tokenFor($recepcion, 'tok-recepcion-anular'))
+            ->deleteJson("/api/v1/payments/{$payment->id}", ['motivo' => 'Cobro duplicado por error'])
+            ->assertStatus(403);
+
+        $this->assertNotNull(Payment::find($payment->id));
+    }
+
+    public function test_annulling_requires_a_reason_and_leaves_it_in_the_audit_log(): void
+    {
+        $admin = $this->staffUser('administrador', 'admin-anular@test.local');
+        $payment = $this->paymentToAnnul($admin);
+        $token = $this->tokenFor($admin, 'tok-admin-anular');
+
+        $this->withToken($token)->deleteJson("/api/v1/payments/{$payment->id}")->assertStatus(422);
+        $this->assertNotNull(Payment::find($payment->id));
+
+        $this->withToken($token)
+            ->deleteJson("/api/v1/payments/{$payment->id}", ['motivo' => 'Cobro duplicado por error'])
+            ->assertOk();
+
+        $this->assertNull(Payment::find($payment->id));
+        $this->assertTrue(
+            Activity::where('log_name', 'payments')->where('properties.motivo', 'Cobro duplicado por error')->exists(),
+        );
     }
 
     public function test_recepcionista_gets_payment_history_with_stats_and_pending_count(): void
