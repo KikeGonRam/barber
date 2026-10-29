@@ -6762,6 +6762,28 @@ paths:
       tags:
         - Endpoints
       security: []
+  '/api/v1/appointments/{appointment}/check-in':
+    post:
+      summary: "Registra la llegada del cliente a una cita de hoy sin cambiar su estado."
+      operationId: postApiV1AppointmentsAppointmentCheckIn
+      description: "Solo administrador, recepcionista o el barbero de la cita. Responde 422 si la cita no está pendiente o confirmada, o no es de hoy. Es idempotente."
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
   /api/v1/admin/reports/barber-commissions:
     get:
       summary: "Comisiones de barberos: cuánto le corresponde a cada uno por sus\ncitas completadas en el periodo, sobre el precio de lista del\nservicio (ver BarberCommissionService -- distinto criterio a\npropósito de generateRevenueReport(), que usa precio_cobrado real)."

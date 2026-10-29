@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Admin\System\BackupController;
 use App\Http\Controllers\Api\Admin\System\SystemController;
 use App\Http\Controllers\Api\Ai\BriefingController;
 use App\Http\Controllers\Api\Analytics\AnalyticsController as ApiAnalyticsController;
+use App\Http\Controllers\Api\Appointment\AppointmentCheckInController;
 use App\Http\Controllers\Api\Appointment\AppointmentController;
 use App\Http\Controllers\Api\Appointment\AppointmentManageController;
 use App\Http\Controllers\Api\Appointment\AppointmentTicketController;
@@ -161,6 +162,8 @@ Route::prefix('v1')->group(function (): void {
         Route::post('appointments', [AppointmentController::class, 'store']);
         Route::put('appointments/{appointment}', [AppointmentController::class, 'update']);
         Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
+        // Check-in («Llegó»): registra la hora de llegada sin cambiar el estado (recepción, administrador o barbero de la cita).
+        Route::post('appointments/{appointment}/check-in', [AppointmentCheckInController::class, 'store']);
         // Agregar tiempo al servicio en curso (barbero de la cita o personal; el controlador lo valida).
         Route::post('appointments/{appointment}/extend', [ServiceTimeController::class, 'extend']);
         // Ticket del servicio terminado (cliente dueño, barbero de la cita o personal; el controlador lo valida).
