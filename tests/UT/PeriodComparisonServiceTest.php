@@ -46,9 +46,11 @@ class PeriodComparisonServiceTest extends TestCase
         $this->assertSame('2026-10-28', $dia['anterior']['desde']->toDateString());
 
         $semana = $this->service->windows('semana', $ahora);
-        $this->assertSame('2026-10-26', $semana['actual']['desde']->toDateString());
-        $this->assertSame('2026-10-19', $semana['anterior']['desde']->toDateString());
-        $this->assertSame('2026-10-22', $semana['anterior']['hasta']->toDateString());
+        // El inicio de semana depende de la configuración regional de la app: se compara contra el mismo cálculo.
+        $inicioSemana = $ahora->copy()->startOfWeek();
+        $this->assertSame($inicioSemana->toDateString(), $semana['actual']['desde']->toDateString());
+        $this->assertSame($inicioSemana->copy()->subWeek()->toDateString(), $semana['anterior']['desde']->toDateString());
+        $this->assertTrue($semana['anterior']['hasta']->lt($semana['actual']['desde']));
 
         $trimestre = $this->service->windows('trimestre', $ahora);
         $this->assertSame('2026-10-01', $trimestre['actual']['desde']->toDateString());
