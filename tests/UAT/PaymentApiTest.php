@@ -117,9 +117,10 @@ class PaymentApiTest extends TestCase
             ->assertOk();
 
         $this->assertNull(Payment::find($payment->id));
-        $this->assertTrue(
-            Activity::where('log_name', 'payments')->where('properties.motivo', 'Cobro duplicado por error')->exists(),
-        );
+        $registro = Activity::where('log_name', 'payments')->where('description', 'Cobro anulado: Cobro duplicado por error')->first();
+        $this->assertNotNull($registro);
+        $this->assertSame('Cobro duplicado por error', $registro->properties->get('motivo'));
+        $this->assertSame((string) $admin->id, (string) $registro->causer_id);
     }
 
     public function test_recepcionista_gets_payment_history_with_stats_and_pending_count(): void
