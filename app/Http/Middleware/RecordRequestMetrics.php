@@ -25,7 +25,7 @@ class RecordRequestMetrics
             return;
         }
 
-        if (mt_rand() / mt_getrandmax() > $this->metrics->sampleRate()) {
+        if (random_int(1, 10000) / 10000 > $this->metrics->sampleRate()) {
             return;
         }
 
