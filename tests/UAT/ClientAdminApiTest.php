@@ -162,7 +162,7 @@ class ClientAdminApiTest extends TestCase
         ]);
 
         $this->withToken($this->adminToken)
-            ->getJson('/api/v1/admin/clients/'.$client->slug)
+            ->getJson('/api/v1/admin/clients/'.$client->getAttribute('slug'))
             ->assertOk()
             ->assertJsonPath('data.lastAppointment', null)
             ->assertJsonPath('data.daysSinceLastAppointment', null);

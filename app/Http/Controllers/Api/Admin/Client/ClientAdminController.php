@@ -126,7 +126,7 @@ class ClientAdminController
 
         // «Última visita» es la última cita ya atendida: las futuras o canceladas no cuentan
         // (antes salía «hace -4 días» con una cita próxima).
-        $ultimaVisita = $appointments->first(fn ($a) => $a->estado === 'completada' && $a->fecha !== null && ! $a->fecha->isFuture());
+        $ultimaVisita = $appointments->first(fn ($a) => $a->estado === 'completada' && ! Carbon::parse($a->fecha)->isFuture());
 
         $segment = $this->segments->segment($client, $appointments->count(), $ultimaVisita?->fecha);
 
@@ -166,7 +166,7 @@ class ClientAdminController
                 // resto del proyecto ya castea (ClientSegmentService,
                 // ApplyLoyaltyInactivityCommand); aquí faltaba.
                 'daysSinceLastAppointment' => $ultimaVisita !== null
-                    ? max(0, (int) $ultimaVisita->fecha->diffInDays(Carbon::now()))
+                    ? max(0, (int) Carbon::parse($ultimaVisita->fecha)->diffInDays(Carbon::now()))
                     : null,
                 'preferredBarber' => $preferredBarber,
                 'appointments' => $appointments->map(fn ($a) => [
