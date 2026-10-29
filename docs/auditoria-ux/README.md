@@ -46,6 +46,22 @@ Son lo que cambia la percepción de "bonita" a "plataforma":
 | 2 · Sistema | Reglas 3 a 7 como componentes compartidos; imágenes por defecto. | 1–2 semanas | Coherencia entre los cinco roles. |
 | 3 · Producto | Las cinco apuestas, empezando por la reserva del cliente (conversión) y el Centro de Análisis. | 3–5 semanas | La parte "premium" visible para negocio y dirección. |
 
+## Estado de las fases (29 de octubre de 2026)
+
+| Fase | Contenido | Estado |
+| --- | --- | --- |
+| 1 · Pulido | Formatos de moneda y fecha, texto mínimo de 12 px, un `h1` por panel, botón principal del cliente, ítem activo único, `Eliminar` a un menú, imagen por defecto, pulidos de gráficas y rótulos. | Desplegada (frontend #94 a #99). |
+| 2 · Sistema | Esqueletos de carga, estado vacío unificado, menú `⋯` en Citas, selector de rango de fechas, tabla común `UiDataTable`. | Esqueletos, vacíos, Citas y fechas desplegados (#100 a #103). La tabla común (#104) está publicada y adoptada en Pedidos y Logs. |
+| 3 · Producto | Reserva en dos columnas (#105), Mi día del barbero (#106), consola de mostrador de recepción (#107), tablero del negocio del administrador (#108) y tendencias del ingeniero (#109). | Publicadas con el CI en verde; pendientes de fusión y despliegue. |
+
+**Decisiones tomadas en la fase 3**
+
+- **Barbero:** se enriqueció el panel existente (franja *En curso* o *Próxima*, tiempo relativo y huecos libres) en lugar de crear otra pantalla, para no duplicar la agenda ni romper aprobar, iniciar y terminar.
+- **Recepción:** cobro directo desde cada llegada y entrega de pedidos desde el panel. El botón *Llegó* (check-in) **no** se hizo porque requiere un estado nuevo en el backend y la máquina de estados de las citas es estricta; queda como propuesta aparte.
+- **Administrador:** el tablero usa los reportes agregados que ya existen. La comparación con el periodo anterior y las cohortes necesitan un endpoint que las calcule.
+- **Ingeniero:** la API solo entrega instantáneas, así que el historial se acumula en el navegador (24 h, solo latencias, cola y salud) y la pantalla lo dice. Registrar métricas en el servidor (Pulse o CloudWatch) sigue siendo la decisión de arquitectura pendiente.
+- **Tabla común:** se adoptó en dos pantallas simples; Citas, Clientes y Pagos conservan su marcado propio por la complejidad de sus celdas.
+
 ## Límites de esta auditoría
 
 - Una sola pasada, con datos de demostración (algunas pantallas se ven más vacías que en producción).
