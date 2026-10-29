@@ -364,7 +364,7 @@ En **Citas** ves la agenda completa (las 50 citas más recientes), con filtros p
 
 ### 5.4 Clientes
 
-**Clientes** lista a las personas registradas con su correo, teléfono, segmento, número de citas y fecha de registro. Puedes buscar por nombre o correo, crear un cliente con **+ Nuevo Cliente**, **Exportar CSV** y abrir su **ficha** o **Editar**.
+**Clientes** lista a las personas registradas con su correo, teléfono, segmento, número de citas y fecha de registro. Puedes buscar por nombre o correo, crear un cliente con **+ Nuevo Cliente** y abrir su **ficha** o **Editar**. La exportación a CSV y la eliminación de clientes son solo del administrador.
 
 La **ficha** resume sus citas, gasto total, ticket promedio, última visita y barbero preferido. Incluye las **Notas del equipo** (alergias, tipo de corte, acuerdos), que solo ve el personal, y el **historial de citas**.
 
@@ -376,7 +376,7 @@ La **ficha** resume sus citas, gasto total, ticket promedio, última visita y ba
 
 ### 5.5 Pagos, cobros y corte de caja
 
-El **Centro de Facturación** muestra la facturación de hoy y del mes, el total de cobros y el desglose por método, con filtros por texto, método, barbero y fechas. Cada cobro lista su folio, cliente, servicio, barbero, método, total y propina, con los botones **PDF** (recibo) y **Anular**.
+El **Centro de Facturación** muestra la facturación de hoy y del mes, el total de cobros y el desglose por método, con filtros por texto, método, barbero y fechas. Cada cobro lista su folio, cliente, servicio, barbero, método, total y propina, con el botón **PDF** (recibo). **Anular** un cobro es solo del administrador, que debe escribir un motivo; el motivo queda en la bitácora.
 
 - **+ Nuevo Cobro** abre el **Registro de cobro**: eliges la cita pendiente de cobro y registras el pago.
 - **Por Revisar** reúne los pagos que esperan verificación, por ejemplo las transferencias con comprobante.
@@ -482,7 +482,7 @@ La **ficha** de un cliente resume sus **citas**, el **gasto total**, el **ticket
 
 ### 6.4 Pagos, cobros y corte de caja
 
-El **Centro de Facturación** muestra la facturación de hoy y del mes, el total de cobros y el desglose por método (efectivo, tarjeta, transferencia). Puedes filtrar por texto, método, barbero y fechas. Cada cobro lista su folio, cliente, servicio, barbero, método, total y propina, con los botones **PDF** (recibo) y **Anular**.
+El **Centro de Facturación** muestra la facturación de hoy y del mes, el total de cobros y el desglose por método (efectivo, tarjeta, transferencia). Puedes filtrar por texto, método, barbero y fechas. Cada cobro lista su folio, cliente, servicio, barbero, método, total y propina, con los botones **PDF** (recibo) y **Anular**. Al anular, el sistema pide un **motivo** (mínimo 5 caracteres) que queda en la bitácora junto con el monto; el cobro se borra y no se puede deshacer.
 
 - **+ Nuevo Cobro** abre el **Registro de cobro**: eliges la cita pendiente de cobro y registras el pago.
 - **Por Revisar** reúne los pagos que esperan verificación, por ejemplo las transferencias con comprobante.
@@ -626,7 +626,9 @@ La **Auditoría** registra la actividad del sistema. Muestra totales (**total**,
 
 ### 7.6 Lo que el ingeniero no puede hacer
 
-Las pantallas de negocio (Clientes, Citas, Pagos, Configuración, Usuarios…) no forman parte de este rol. Si abres una por su dirección, el sistema te devuelve al panel.
+Las pantallas de negocio (Clientes, Citas, Pagos, Configuración, Usuarios…) no forman parte de este rol. Si abres una por su dirección, el sistema te devuelve al panel y muestra el aviso *No tienes permiso para abrir esa pantalla*.
+
+Lo que sí ve son **datos agregados** de negocio (por ejemplo ingresos del periodo y valor del inventario en el panel y en Reportes), pero nunca listas de clientes ni datos personales.
 
 ![Al intentar abrir Clientes, el sistema devuelve al panel](../../assets/ingeniero/i11-sin-permiso-clientes.jpg)
 
