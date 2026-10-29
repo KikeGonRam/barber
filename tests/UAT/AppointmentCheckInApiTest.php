@@ -12,6 +12,7 @@ use App\Models\Service;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
@@ -68,12 +69,17 @@ class AppointmentCheckInApiTest extends TestCase
         ]);
     }
 
+    private function checkIn(string $token, Appointment $appointment): TestResponse
+    {
+        return $this->withToken($token)->postJson("/api/v1/appointments/{$appointment->getAttribute('code')}/check-in");
+    }
+
     public function test_reception_marks_arrival_without_changing_the_status(): void
     {
         [, $token] = $this->tokenFor('recepcionista', 'tok-recepcion-checkin');
         $appointment = $this->appointment('confirmada');
 
-        $this->withToken($token)->postJson("/api/v1/appointments/{$appointment->getAttribute('code')}/check-in")
+        $this->checkIn($token, $appointment)
             ->assertOk()
             ->assertJsonPath('message', 'Llegada registrada.')
             ->assertJsonStructure(['llegada_en']);
@@ -88,8 +94,8 @@ class AppointmentCheckInApiTest extends TestCase
         [, $token] = $this->tokenFor('recepcionista', 'tok-recepcion-idem');
         $appointment = $this->appointment('pendiente');
 
-        $primera = $this->withToken($token)->postJson("/api/v1/appointments/{$appointment->getAttribute('code')}/check-in")->assertOk()->json('llegada_en');
-        $segunda = $this->withToken($token)->postJson("/api/v1/appointments/{$appointment->getAttribute('code')}/check-in")->assertOk()->json('llegada_en');
+        $primera = $this->checkIn($token, $appointment)->assertOk()->json('llegada_en');
+        $segunda = $this->checkIn($token, $appointment)->assertOk()->json('llegada_en');
 
         $this->assertSame($primera, $segunda);
     }
@@ -99,10 +105,10 @@ class AppointmentCheckInApiTest extends TestCase
         [, $token] = $this->tokenFor('recepcionista', 'tok-recepcion-reglas');
 
         $manana = $this->appointment('confirmada', now()->addDay()->toDateString());
-        $this->withToken($token)->postJson("/api/v1/appointments/{$manana->getAttribute('code')}/check-in")->assertStatus(422);
+        $this->checkIn($token, $manana)->assertStatus(422);
 
         $terminada = $this->appointment('completada');
-        $this->withToken($token)->postJson("/api/v1/appointments/{$terminada->getAttribute('code')}/check-in")->assertStatus(422);
+        $this->checkIn($token, $terminada)->assertStatus(422);
 
         $this->assertNull($manana->fresh()->getAttribute('llegada_en'));
         $this->assertNull($terminada->fresh()->getAttribute('llegada_en'));
@@ -115,10 +121,10 @@ class AppointmentCheckInApiTest extends TestCase
         $miCita = $this->appointment('confirmada', null, $propio);
         $ajena = $this->appointment('confirmada');
 
-        $this->withToken($barberToken)->postJson("/api/v1/appointments/{$miCita->getAttribute('code')}/check-in")->assertOk();
-        $this->withToken($barberToken)->postJson("/api/v1/appointments/{$ajena->getAttribute('code')}/check-in")->assertStatus(403);
+        $this->checkIn($barberToken, $miCita)->assertOk();
+        $this->checkIn($barberToken, $ajena)->assertStatus(403);
 
         [, $clientToken] = $this->tokenFor('cliente', 'tok-cliente-checkin');
-        $this->withToken($clientToken)->postJson("/api/v1/appointments/{$ajena->getAttribute('code')}/check-in")->assertStatus(403);
+        $this->checkIn($clientToken, $ajena)->assertStatus(403);
     }
 }
