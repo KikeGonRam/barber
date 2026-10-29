@@ -81,7 +81,7 @@ Los requisitos nacen de las **41 historias de usuario** del Product Backlog, agr
 
 | RF | Requisito | HU |
 | --- | --- | --- |
-| RF-01 | El sistema debe registrar clientes con correo, teléfono y contraseña, y verificar el correo. | HU-01 |
+| RF-01 | El sistema debe registrar clientes con nombre, correo y contraseña (la cuenta queda activa sin código de verificación) y completar teléfono, fecha de nacimiento y sexo en el perfil. | HU-01 |
 | RF-02 | El sistema debe autenticar con token Bearer y por Google, y permitir recuperar la contraseña. | HU-02, HU-03 |
 | RF-03 | El cliente debe consultar el catálogo de servicios y barberos. | HU-04, HU-06 |
 | RF-04 | El administrador debe administrar servicios y barberos. | HU-05, HU-07 |
@@ -120,6 +120,7 @@ Además, el producto implementa capacidades que **crecieron durante los sprints*
 | RN-10 | El registro público y Google solo crean clientes; los roles de personal los asigna un administrador. |
 | RN-11 | Cada recurso se valida por **pertenencia**: un cliente solo ve sus citas, pagos y recibos. |
 | RN-12 | Los comprobantes de pago se sirven con URL temporal; no son públicos. |
+| RN-13 | Un cliente solo puede tener **una cita por día**. |
 
 ## 7. Requisitos no funcionales
 

@@ -151,14 +151,30 @@ function code(token) {
   }));
 }
 
+// Dimensiones de un JPEG: se busca el marcador SOF (0xFFC0 a 0xFFC3) y se leen alto y ancho.
+function jpgSize(buf) {
+  let i = 2;
+  while (i + 9 < buf.length) {
+    if (buf[i] !== 0xff) { i += 1; continue; }
+    const marker = buf[i + 1];
+    if (marker >= 0xc0 && marker <= 0xc3) return { ih: buf.readUInt16BE(i + 5), iw: buf.readUInt16BE(i + 7) };
+    i += 2 + buf.readUInt16BE(i + 2);
+  }
+  return null;
+}
+
 function picture(token, baseDir) {
   const file = path.resolve(baseDir, decodeURIComponent(token.href));
   if (!fs.existsSync(file)) return [para([{ type: "text", text: `[Imagen no encontrada: ${token.href}]` }], { italics: true, color: MUTED })];
   const ext = path.extname(file).slice(1).toLowerCase().replace("jpeg", "jpg");
   const data = fs.readFileSync(file);
-  // Tamaño real desde la cabecera PNG; JPG usa un ancho fijo.
+  // Tamaño real desde la cabecera (PNG o JPG); el ancho máximo es 560 px y las capturas altas se limitan en alto.
   let w = 560, h = 315;
-  if (ext === "png") { const iw = data.readUInt32BE(16), ih = data.readUInt32BE(20); const f = Math.min(1, 560 / iw); w = Math.round(iw * f); h = Math.round(ih * f); }
+  const dim = ext === "png" ? { iw: data.readUInt32BE(16), ih: data.readUInt32BE(20) } : jpgSize(data);
+  if (dim) {
+    const f = Math.min(1, 560 / dim.iw, ext === "jpg" && dim.ih > dim.iw ? 640 / dim.ih : 1);
+    w = Math.round(dim.iw * f); h = Math.round(dim.ih * f);
+  }
   return [
     new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 80, after: 60 }, keepNext: true,
       children: [new ImageRun({ type: ext, data, transformation: { width: w, height: h }, altText: { title: token.text || "Imagen", description: token.text || "Imagen", name: path.basename(file) } })] }),

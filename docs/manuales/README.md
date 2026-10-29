@@ -18,4 +18,5 @@ Revisados el 28 de octubre de 2026.
 - El **Markdown es la fuente**. El Word se genera a partir de él; no se edita a mano.
 - Para regenerar los Word: `cd scripts/docs`, `npm install` y `node generar-word.js` (o `node generar-word.js 02-manual-tecnico` para uno solo).
 - Los documentos de referencia técnica y operación (runbook de AWS, MongoDB, continuidad, credenciales, pruebas, CI/CD, decisiones) viven en [`../referencia/`](../referencia/) y **no se borran**: los manuales los resumen y remiten a ellos.
+- Las capturas del Manual de Usuario viven en `docs/assets/cliente/` y salen de un **entorno de demostración aislado** (MongoDB de desarrollo, no Atlas) con cuentas ficticias por rol. Se levanta con `scripts/demo/levantar-demo.ps1` y se siembra con `scripts/demo/sembrar-demo.php`.
 - Valida los enlaces con `python scripts/check_docs.py --all`.
