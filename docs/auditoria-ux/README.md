@@ -52,15 +52,25 @@ Son lo que cambia la percepción de "bonita" a "plataforma":
 | --- | --- | --- |
 | 1 · Pulido | Formatos de moneda y fecha, texto mínimo de 12 px, un `h1` por panel, botón principal del cliente, ítem activo único, `Eliminar` a un menú, imagen por defecto, pulidos de gráficas y rótulos. | Desplegada (frontend #94 a #99). |
 | 2 · Sistema | Esqueletos de carga, estado vacío unificado, menú `⋯` en Citas, selector de rango de fechas, tabla común `UiDataTable`. | Esqueletos, vacíos, Citas y fechas desplegados (#100 a #103). La tabla común (#104) está publicada y adoptada en Pedidos y Logs. |
-| 3 · Producto | Reserva en dos columnas (#105), Mi día del barbero (#106), consola de mostrador de recepción (#107), tablero del negocio del administrador (#108) y tendencias del ingeniero (#109). | Publicadas con el CI en verde; pendientes de fusión y despliegue. |
+| 3 · Producto | Reserva en dos columnas (#105), Mi día del barbero (#106), consola de mostrador de recepción (#107), tablero del negocio del administrador (#108) y tendencias del ingeniero (#109). | Desplegadas. Los tres pendientes (check-in, comparación y cohortes, métricas del servidor) están en la sección siguiente. |
 
 **Decisiones tomadas en la fase 3**
 
 - **Barbero:** se enriqueció el panel existente (franja *En curso* o *Próxima*, tiempo relativo y huecos libres) en lugar de crear otra pantalla, para no duplicar la agenda ni romper aprobar, iniciar y terminar.
-- **Recepción:** cobro directo desde cada llegada y entrega de pedidos desde el panel. El botón *Llegó* (check-in) **no** se hizo porque requiere un estado nuevo en el backend y la máquina de estados de las citas es estricta; queda como propuesta aparte.
-- **Administrador:** el tablero usa los reportes agregados que ya existen. La comparación con el periodo anterior y las cohortes necesitan un endpoint que las calcule.
-- **Ingeniero:** la API solo entrega instantáneas, así que el historial se acumula en el navegador (24 h, solo latencias, cola y salud) y la pantalla lo dice. Registrar métricas en el servidor (Pulse o CloudWatch) sigue siendo la decisión de arquitectura pendiente.
+- **Recepción:** cobro directo desde cada llegada y entrega de pedidos desde el panel. El botón *Llegó* se resolvió después sin tocar la máquina de estados (ver «Pendientes cerrados»).
+- **Administrador:** el tablero usa los reportes agregados que ya existían; la comparación y las cohortes llegaron con un endpoint propio (ver «Pendientes cerrados»).
+- **Ingeniero:** el historial local del navegador (24 h, solo latencias, cola y salud) se conserva como respaldo; el tráfico real del servidor llegó después (ver «Pendientes cerrados»).
 - **Tabla común:** se adoptó en dos pantallas simples; Citas, Clientes y Pagos conservan su marcado propio por la complejidad de sus celdas.
+
+**Pendientes cerrados**
+
+| Pendiente | Solución | Publicación |
+| --- | --- | --- |
+| *Llegó* (check-in) | `POST /appointments/{código}/check-in` guarda `llegada_en` **sin cambiar el estado** de la cita; es idempotente y solo acepta citas pendientes o confirmadas de hoy. Recepción y barbero ven «En sala». | barber #67, frontend #110 |
+| Comparación y cohortes | La variación se calcula contra el **mismo tramo** del periodo calendario anterior (no contra el periodo completo, para no mostrar caídas falsas a mitad de mes). `GET /admin/reports/comparison` y `/admin/reports/cohorts`; el tablero añade variaciones, frases de lectura y una matriz de retención. | barber #66, frontend #111 |
+| Métricas del servidor | Middleware que cuenta por minuto peticiones, errores 5xx y latencia media en la caché (sin rutas ni usuarios), con muestreo (`METRICS_SAMPLE_RATE`, 0.2 por defecto): las cifras son **aproximadas**. `GET /admin/system/metrics` alimenta las gráficas de tráfico del monitor. No sustituye a Pulse ni a CloudWatch. | barber #68, frontend #111 |
+
+Orden de despliegue: primero el backend (#66, #67, #68) y después el frontend (#110, #111); si el frontend llega antes, las secciones nuevas simplemente no aparecen.
 
 ## Límites de esta auditoría
 
