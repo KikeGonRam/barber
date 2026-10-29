@@ -85,5 +85,9 @@ HEALTHCHECK --interval=10s --timeout=5s --retries=12 --start-period=60s \
 COPY .docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Excepción de Semgrep documentada (docs/referencia/PRUEBAS.md, «Análisis estático»): el proceso maestro arranca
+# como root para preparar permisos, pero los workers de PHP-FPM corren como www-data (.docker/php/www.conf).
+# nosemgrep: dockerfile.security.missing-user-entrypoint.missing-user-entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
+# nosemgrep: dockerfile.security.missing-user.missing-user
 CMD ["php-fpm"]
