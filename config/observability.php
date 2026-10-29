@@ -13,7 +13,8 @@ return [
     'slow_query_ms' => (int) env('SLOW_QUERY_MS', 300),
 
     // Métricas de tráfico por minuto para el monitor del ingeniero (peticiones, errores 5xx, latencia media).
-    'metrics_enabled' => (bool) env('METRICS_ENABLED', true),
+    // Apagadas por defecto: requieren un almacén de caché Redis o Memcached (ver RequestMetrics::enabled).
+    'metrics_enabled' => (bool) env('METRICS_ENABLED', false),
 
     // Fracción de peticiones que se cuentan (0.01 a 1). Las cifras se reescalan, así que son aproximadas.
     'metrics_sample_rate' => (float) env('METRICS_SAMPLE_RATE', 0.2),
