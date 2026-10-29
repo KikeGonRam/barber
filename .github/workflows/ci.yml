@@ -116,7 +116,7 @@ jobs:
       - name: Verificar umbral de cobertura
         env:
           COVERAGE_MIN: '70'
-        run: python3 scripts/verificar_cobertura.py coverage/coverage.xml
+        run: python3 scripts/verificar_cobertura.py
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v7
