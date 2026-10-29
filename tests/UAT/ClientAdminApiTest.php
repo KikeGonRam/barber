@@ -147,6 +147,27 @@ class ClientAdminApiTest extends TestCase
         $this->assertIsInt($dias);
     }
 
+    public function test_a_future_appointment_is_not_the_last_visit(): void
+    {
+        // Antes la ficha decía «hace -4 días» porque tomaba la cita más reciente aunque fuera futura.
+        $client = $this->makeClient('Cliente Futuro', 'futuro-'.Str::uuid().'@test.local');
+        Appointment::create([
+            'client_id' => (string) $client->id,
+            'barber_id' => (string) Str::uuid(),
+            'service_id' => (string) Str::uuid(),
+            'fecha' => now()->addDays(4)->format('Y-m-d'),
+            'hora_inicio' => '09:00:00',
+            'hora_fin' => '09:30:00',
+            'estado' => 'confirmada',
+        ]);
+
+        $this->withToken($this->adminToken)
+            ->getJson('/api/v1/admin/clients/'.$client->getAttribute('slug'))
+            ->assertOk()
+            ->assertJsonPath('data.lastAppointment', null)
+            ->assertJsonPath('data.daysSinceLastAppointment', null);
+    }
+
     public function test_update_saves_and_clears_staff_notes(): void
     {
         $client = $this->makeClient('Cliente Notas', 'notas-'.Str::uuid().'@test.local');
