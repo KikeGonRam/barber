@@ -33,7 +33,9 @@ class WaitlistApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach ([Waitlist::class, Appointment::class, BarberSchedule::class, Barber::class, Client::class, Service::class, MobileApiToken::class] as $modelo) {
+        // Appointment usa borrado lógico: forceDelete, o quedarían citas huérfanas para data:verify-integrity.
+        Appointment::withTrashed()->forceDelete();
+        foreach ([Waitlist::class, BarberSchedule::class, Barber::class, Client::class, Service::class, MobileApiToken::class] as $modelo) {
             $modelo::query()->delete();
         }
         User::withTrashed()->forceDelete();

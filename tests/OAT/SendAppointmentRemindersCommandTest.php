@@ -32,7 +32,9 @@ class SendAppointmentRemindersCommandTest extends TestCase
     protected function tearDown(): void
     {
         Carbon::setTestNow();
-        foreach ([Appointment::class, Barber::class, Client::class, Service::class] as $modelo) {
+        // Appointment usa borrado lógico: forceDelete, o quedarían citas huérfanas para data:verify-integrity.
+        Appointment::withTrashed()->forceDelete();
+        foreach ([Barber::class, Client::class, Service::class] as $modelo) {
             $modelo::query()->delete();
         }
         User::withTrashed()->forceDelete();
