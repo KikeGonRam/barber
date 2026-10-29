@@ -111,6 +111,22 @@ servicios, despliega primero barber, verifícalo y después frontend.
   `/ecs/urbanblade-staging/<barber|frontend-urban>` (filtra el ruido del scheduler y del
   health check) y reporta la causa.
 
+### 5b. Guardar la copia local de la imagen
+
+Solo cuando la verificación del paso 5 salió bien (una imagen que se revirtió no se guarda).
+Desde `C:\Users\luis1\Documents\UrbanBlade\_deploys`, con la imagen recién construida todavía en el
+Docker local:
+
+```powershell
+.\guardar-imagen.ps1 -Servicio barber -Sha <SHA>
+.\guardar-imagen.ps1 -Servicio frontend-urban -Sha <SHA>
+```
+
+Escribe `<servicio>\<fecha>_<sha>.tar.gz`, agrega una fila a `registro.md` (fecha, commit, digest de ECR,
+tag de rollback) y conserva las últimas 3 copias por servicio. Es solo un respaldo local adicional: ECR y las
+etiquetas `rollback-...` siguen siendo el respaldo principal. Esa carpeta no es un repositorio y no se sube a git.
+Si el script falla, repórtalo en el resumen final; no bloquea el despliegue ya verificado.
+
 ### 6. Reversión (si la verificación falla)
 
 Sin pedir permiso: vuelve a etiquetar la imagen `rollback-...` como `latest`
@@ -121,5 +137,5 @@ commit hasta que el propietario lo vea.
 ## Reporte final
 
 Breve y en español: qué servicio, qué SHA, resultado del CI, etiqueta de respaldo, digest
-desplegado, estado del servicio y de las URL, y cualquier incidente (reintentos, timeouts,
+desplegado, estado del servicio y de las URL, la copia local guardada en `_deploys`, y cualquier incidente (reintentos, timeouts,
 reversión). Si algo no se pudo verificar, dilo tal cual; no lo des por bueno.
