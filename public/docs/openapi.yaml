@@ -6811,6 +6811,34 @@ paths:
       summary: "Tráfico de la API por minuto (peticiones, errores 5xx y latencia media), muestreado y reescalado."
       operationId: getApiV1AdminSystemMetrics
       description: "Acepta `minutes` (5 a 1440) y `step` (1 a 60). Requiere el permiso sistema.ver."
+||||||| 05d8070
+  /api/v1/admin/reports/comparison:
+    get:
+      summary: "Compara el periodo actual con el mismo tramo del periodo calendario anterior (ingresos, citas, completadas, perdidas y clientes nuevos)."
+      operationId: getApiV1AdminReportsComparison
+      description: "Acepta `period` (dia, semana, mes, trimestre o año; mes por defecto). Devuelve la variación porcentual de cada métrica, o null cuando el periodo anterior estaba en cero."
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No autorizado.'
+                properties:
+                  message:
+                    type: string
+                    example: 'No autorizado.'
+      tags:
+        - Endpoints
+      security: []
+  /api/v1/admin/reports/cohorts:
+    get:
+      summary: "Cohortes de retención: de los clientes registrados cada mes, qué porcentaje vuelve a reservar en los meses siguientes."
+      operationId: getApiV1AdminReportsCohorts
+      description: "Acepta `months` (1 a 12; 6 por defecto)."
       parameters: []
       responses:
         401:
