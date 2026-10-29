@@ -521,7 +521,23 @@ class PaymentController extends Controller
      */
     public function destroy(Request $request, Payment $payment): JsonResponse
     {
-        $this->authorizeStaff($request);
+        // Anular borra el cobro y su comprobante: solo un administrador, y dejando el motivo en la bitácora
+        // (antes la recepción podía borrarlo sin dejar más rastro que el evento genérico «deleted»).
+        $user = $request->user();
+        abort_if(! $user || ! $user->hasRole('administrador'), 403, 'Solo un administrador puede anular un cobro.');
+
+        $data = $request->validate(['motivo' => ['required', 'string', 'min:5', 'max:300']]);
+
+        activity('payments')
+            ->performedOn($payment)
+            ->causedBy($user)
+            ->withProperties([
+                'motivo' => $data['motivo'],
+                'monto' => (string) $payment->monto,
+                'propina' => (string) $payment->propina,
+                'appointment_id' => (string) $payment->appointment_id,
+            ])
+            ->log('Cobro anulado: '.$data['motivo']);
 
         if ($payment->comprobante_pdf) {
             Storage::disk('receipts')->delete($payment->comprobante_pdf);
