@@ -366,4 +366,35 @@ class ClientAdminApiTest extends TestCase
         $this->withToken($this->adminToken)->get('/api/v1/admin/clients/export')->assertOk();
         $this->withToken($this->adminToken)->getJson('/api/v1/admin/clients/segmentation/data')->assertOk();
     }
+
+    public function test_list_and_detail_agree_on_last_completed_visit(): void
+    {
+        $client = $this->makeClient('QA Ultima Visita', 'qa-visita-'.Str::uuid().'@test.local');
+        foreach ([[-12, 'completada'], [-2, 'cancelada'], [0, 'confirmada'], [3, 'confirmada'], [5, 'completada']] as [$days, $status]) {
+            Appointment::withoutEvents(fn () => Appointment::create([
+                'client_id' => (string) $client->id, 'barber_id' => (string) Str::uuid(),
+                'service_id' => (string) Str::uuid(), 'fecha' => now()->addDays($days)->toDateString(),
+                'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00', 'estado' => $status,
+            ]));
+        }
+        $expected = now()->subDays(12)->toDateString();
+        $this->withToken($this->adminToken)->getJson('/api/v1/admin/clients?search=QA%20Ultima%20Visita')
+            ->assertOk()->assertJsonPath('data.0.lastAppointment', $expected);
+        $this->withToken($this->adminToken)->getJson('/api/v1/admin/clients/'.$client->getAttribute('slug'))
+            ->assertOk()->assertJsonPath('data.lastAppointment', $expected);
+    }
+
+    public function test_list_without_past_completed_visits_has_no_last_appointment(): void
+    {
+        $client = $this->makeClient('QA Sin Visitas', 'qa-sin-visita-'.Str::uuid().'@test.local');
+        foreach ([[-2, 'cancelada'], [0, 'confirmada'], [3, 'completada']] as [$days, $status]) {
+            Appointment::withoutEvents(fn () => Appointment::create([
+                'client_id' => (string) $client->id, 'barber_id' => (string) Str::uuid(),
+                'service_id' => (string) Str::uuid(), 'fecha' => now()->addDays($days)->toDateString(),
+                'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00', 'estado' => $status,
+            ]));
+        }
+        $this->withToken($this->adminToken)->getJson('/api/v1/admin/clients?search=QA%20Sin%20Visitas')
+            ->assertOk()->assertJsonPath('data.0.lastAppointment', null);
+    }
 }

@@ -343,7 +343,12 @@ class ClientAdminController
         $appts = $allApptsByClient->get((string) $client->id, collect());
         $totalSpent = (float) $appts->where('estado', 'completada')
             ->sum(fn ($a) => (float) ($a->precio_cobrado ?? 0));
-        $lastAppt = $appts->sortByDesc(fn ($a) => (string) $a->fecha)->first();
+        // «Última visita» = la última cita completada y ya ocurrida, igual que el detalle: una cita futura,
+        // cancelada o sin atender no es una visita (antes el listado mostraba incluso citas de la próxima semana).
+        $lastAppt = $appts
+            ->filter(fn ($a) => $a->estado === 'completada' && ! Carbon::parse($a->fecha)->isFuture())
+            ->sortByDesc(fn ($a) => (string) $a->fecha)
+            ->first();
         $lastFecha = $lastAppt?->fecha;
         $lastDate = $lastFecha
             ? (is_string($lastFecha) ? substr($lastFecha, 0, 10) : Carbon::parse($lastFecha)->toDateString())
