@@ -27,8 +27,21 @@ una lista antigua de nombres.
 
 ## Despliegue a staging
 
-[Desplegar a staging](../../.github/workflows/desplegar-staging.yml) publica el backend en ECS Fargate. Se lanza a
-mano y solo desde main; no se dispara con un push ni con un merge.
+[Desplegar a staging](../../.github/workflows/desplegar-staging.yml) publica el backend en ECS Fargate. Arranca solo cuando
+el CI de `main` termina en verde tras fusionar un PR, o a mano desde Actions con Run workflow. Nunca arranca desde un PR, un
+fork ni otra rama. **Siempre espera la aprobación del propietario**: arrancar solo significa que la solicitud ya está
+lista, no que se despliegue sin ti.
+
+Un job previo (`decidir`) compara el commit con el anterior de `main`:
+
+| El commit cambia… | Qué hace |
+| --- | --- |
+| Solo Markdown, `.github/`, `tests/` o archivos de agentes | No pide aprobación: nada de eso entra a la imagen. |
+| Migraciones o seeders (`database/migrations`, `database/seeders`) | No despliega solo y avisa. Se revisan y se lanza a mano con `confirmar_migraciones`. |
+| Cualquier otro archivo (código, dependencias, configuración) | Pide la aprobación del entorno `staging` y despliega. |
+
+A mano siempre se despliega, y es ahí donde se confirman las migraciones. El commit que se construye es el que terminó el CI
+(`head_sha`), no la punta de `main`: si entran dos fusiones seguidas, cada ejecución usa el suyo.
 
 | Control | Cómo se cumple |
 | --- | --- |
@@ -41,9 +54,9 @@ mano y solo desde main; no se dispara con un push ni con un merge.
 | Trazabilidad | Cada imagen lleva `sha-<corto>` además de `latest`; el resumen del job guarda commit, digest y respaldo. |
 | Verificación | El digest de las tareas en ejecución debe ser el recién subido, y `/up` y `/api/v1/barbershop` deben responder 200. |
 
-Antes del primer uso hacen falta dos pasos fuera del repositorio, con permiso del propietario: aplicar
-`oidc_despliegue.tf` en urbanbladeTerraform (crea el proveedor OIDC y el rol) y crear en GitHub el entorno `staging`
-con revisores obligatorios y la variable `AWS_DEPLOY_ROLE_ARN`, que es el ARN del rol y no un secreto.
+Dependencias fuera del repositorio, ya creadas el 31-oct-2026: el rol OIDC de AWS (`oidc_despliegue.tf` en urbanbladeTerraform) y,
+en GitHub, el entorno `staging` con revisor obligatorio, limitado a la rama `main`, y la variable `AWS_DEPLOY_ROLE_ARN`
+(el ARN del rol, que no es un secreto). Si falta alguna, el workflow falla en el paso de credenciales sin publicar nada.
 
 El frontend tiene su propio workflow con la misma estructura. El agente `urbanblade-deploy` sigue siendo el
 procedimiento manual de respaldo si el workflow no estuviera disponible.
