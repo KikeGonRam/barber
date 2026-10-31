@@ -2,15 +2,24 @@ name: Desplegar a staging
 
 # Despliegue controlado del backend a AWS (ECS Fargate), sin llaves de larga duración y sin depender de un equipo personal.
 #
-#  - Se lanza a mano (Actions > Desplegar a staging > Run workflow) y solo desde main.
-#  - Exige el CI en verde del commit exacto, y el entorno `staging` de GitHub pide la aprobación del propietario.
+#  - Arranca solo cuando el CI de main termina en verde tras un push (es decir, después de fusionar un PR), o a mano
+#    (Actions > Desplegar a staging > Run workflow). Nunca desde un PR, un fork ni otra rama.
+#  - Un job previo decide si el commit cambia lo que entra a la imagen. Si solo cambian documentación, workflows, pruebas o
+#    archivos de agentes, no pide aprobación. Si trae migraciones o seeders, tampoco despliega solo: avisa y se lanza a mano
+#    con `confirmar_migraciones` después de revisarlas.
+#  - El despliegue siempre espera la aprobación del propietario en el entorno `staging` de GitHub.
 #  - AWS se asume por OIDC con un rol de privilegio mínimo (ver urbanbladeTerraform, oidc_despliegue.tf).
 #  - Antes de subir deja la imagen actual con la etiqueta rollback-<fecha>-pre-<sha>; si la verificación falla, revierte sola.
-#  - Se detiene ante migraciones o seeders nuevos: el contenedor migra contra la base al arrancar y eso se decide a mano.
 #
 # Procedimiento operativo y límites: docs/referencia/DESPLIEGUE_AWS_STAGING.md y docs/referencia/CI_CD.md.
 
 on:
+  # El workflow se ejecuta con la versión de main, y el commit que se despliega es el que terminó el CI (head_sha), no la
+  # punta de main: si entraron dos fusiones seguidas, cada ejecución usa su propio commit.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       confirmar_migraciones:
@@ -18,7 +27,7 @@ on:
         type: boolean
         default: false
 
-# Mínimo privilegio: el job solo lee el repositorio y los resultados del CI; id-token es para pedir el token OIDC de AWS.
+# Mínimo privilegio: los jobs solo leen el repositorio y los resultados del CI; id-token es para pedir el token OIDC de AWS.
 permissions:
   contents: read
   actions: read
@@ -36,11 +45,65 @@ env:
   ECS_SERVICE: uba-stg-barber
   ECS_CONTAINER: barber
   HEALTH_URL: https://api.urbanblade.com.mx
+  # Commit que se despliega: con workflow_run es el del CI que terminó; a mano, el de la ejecución.
+  SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 
 jobs:
+  decidir:
+    name: ¿El commit cambia la imagen?
+    # Solo un push a main del propio repositorio con el CI en verde. Un PR de un fork cuya rama se llame main no cumple
+    # `event == push` ni `head_repository`, así que no puede arrancar un despliegue.
+    if: >-
+      github.ref == 'refs/heads/main' && (
+        github.event_name == 'workflow_dispatch' || (
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_branch == 'main' &&
+          github.event.workflow_run.head_repository.full_name == github.repository
+        )
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      desplegar: ${{ steps.cambios.outputs.desplegar }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.SHA }}
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Comparar con el commit anterior de main
+        id: cambios
+        env:
+          EVENTO: ${{ github.event_name }}
+        run: |
+          # A mano siempre se despliega: ahí el propietario ya decidió y puede confirmar las migraciones.
+          if [ "$EVENTO" = "workflow_dispatch" ]; then
+            echo "desplegar=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # En una fusión, HEAD^ es la punta anterior de main: el diff es exactamente lo que trajo el PR.
+          cambios=$(git diff --name-only HEAD^ HEAD)
+          echo "Archivos del commit:"; echo "$cambios"
+          migraciones=$(echo "$cambios" | grep -E '^database/(migrations|seeders)/' || true)
+          # Sin efecto en la imagen: Markdown, workflows, pruebas y archivos de agentes. Todo lo demás sí cuenta.
+          imagen=$(echo "$cambios" | grep -vE '(\.md$|^\.github/|^tests/|^\.claude/|^\.agents/|^\.codex/)' || true)
+          if [ -n "$migraciones" ]; then
+            echo "desplegar=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Este commit trae migraciones o seeders; no se despliega solo. Revísalos y lanza el workflow a mano con confirmar_migraciones."
+            echo "$migraciones"
+          elif [ -z "$imagen" ]; then
+            echo "desplegar=false" >> "$GITHUB_OUTPUT"
+            echo "El commit no cambia nada que entre a la imagen; no hay nada que desplegar."
+          else
+            echo "desplegar=true" >> "$GITHUB_OUTPUT"
+          fi
+
   desplegar:
     name: Desplegar barber a staging
-    if: github.ref == 'refs/heads/main'
+    needs: decidir
+    if: needs.decidir.outputs.desplegar == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     environment:
@@ -50,6 +113,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ env.SHA }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -57,9 +121,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          ok=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${GITHUB_SHA}&status=success" --jq '.total_count')
+          ok=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${SHA}&status=success" --jq '.total_count')
           if [ "${ok:-0}" -lt 1 ]; then
-            echo "::error::El CI de ${GITHUB_SHA} no terminó en verde; no se despliega."
+            echo "::error::El CI de ${SHA} no terminó en verde; no se despliega."
             exit 1
           fi
 
@@ -87,7 +151,7 @@ jobs:
             cambios="(commit anterior desconocido)"
           else
             base="${previa#sha-}"
-            cambios=$(git diff --name-only "$base" "$GITHUB_SHA" -- database/migrations database/seeders || echo "(no se pudo comparar con $base)")
+            cambios=$(git diff --name-only "$base" "$SHA" -- database/migrations database/seeders || echo "(no se pudo comparar con $base)")
           fi
           if [ -n "$cambios" ] && [ "$CONFIRMADAS" != "true" ]; then
             echo "::error::Este despliegue puede traer migraciones o seeders. Revisa y vuelve a lanzarlo con confirmar_migraciones:"
@@ -98,7 +162,7 @@ jobs:
       - name: Respaldo de la imagen actual
         id: respaldo
         run: |
-          etiqueta="rollback-$(date -u +%Y%m%d)-pre-${GITHUB_SHA::7}"
+          etiqueta="rollback-$(date -u +%Y%m%d)-pre-${SHA::7}"
           manifiesto=$(aws ecr batch-get-image --repository-name "$ECR_REPOSITORY" --image-ids imageTag=latest \
             --query 'images[0].imageManifest' --output text)
           if [ -z "$manifiesto" ] || [ "$manifiesto" = "None" ]; then
@@ -112,7 +176,7 @@ jobs:
         env:
           REGISTRO: ${{ steps.ecr.outputs.registry }}
         run: |
-          corto="${GITHUB_SHA::7}"
+          corto="${SHA::7}"
           docker build --pull -f .docker/staging/Dockerfile \
             -t "$REGISTRO/$ECR_REPOSITORY:sha-$corto" -t "$REGISTRO/$ECR_REPOSITORY:latest" .
 
@@ -121,7 +185,7 @@ jobs:
         env:
           REGISTRO: ${{ steps.ecr.outputs.registry }}
         run: |
-          corto="${GITHUB_SHA::7}"
+          corto="${SHA::7}"
           docker push "$REGISTRO/$ECR_REPOSITORY:sha-$corto"
           docker push "$REGISTRO/$ECR_REPOSITORY:latest"
           digest=$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids imageTag="sha-$corto" \
@@ -174,7 +238,7 @@ jobs:
         run: |
           {
             echo "### Despliegue de barber a staging: ${ESTADO}"
-            echo "- Commit: \`${GITHUB_SHA::7}\`"
+            echo "- Commit: \`${SHA::7}\`"
             echo "- Imagen: \`${DIGEST:-sin subir}\`"
             echo "- Respaldo: \`${RESPALDO:-ninguno}\`"
           } >> "$GITHUB_STEP_SUMMARY"
