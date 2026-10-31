@@ -1,0 +1,180 @@
+name: Desplegar a staging
+
+# Despliegue controlado del backend a AWS (ECS Fargate), sin llaves de larga duración y sin depender de un equipo personal.
+#
+#  - Se lanza a mano (Actions > Desplegar a staging > Run workflow) y solo desde main.
+#  - Exige el CI en verde del commit exacto, y el entorno `staging` de GitHub pide la aprobación del propietario.
+#  - AWS se asume por OIDC con un rol de privilegio mínimo (ver urbanbladeTerraform, oidc_despliegue.tf).
+#  - Antes de subir deja la imagen actual con la etiqueta rollback-<fecha>-pre-<sha>; si la verificación falla, revierte sola.
+#  - Se detiene ante migraciones o seeders nuevos: el contenedor migra contra la base al arrancar y eso se decide a mano.
+#
+# Procedimiento operativo y límites: docs/referencia/DESPLIEGUE_AWS_STAGING.md y docs/referencia/CI_CD.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmar_migraciones:
+        description: 'Hay migraciones o seeders en este despliegue y el propietario los aprobó'
+        type: boolean
+        default: false
+
+# Mínimo privilegio: el job solo lee el repositorio y los resultados del CI; id-token es para pedir el token OIDC de AWS.
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+# Un despliegue a la vez; nunca se cancela uno que ya está publicando.
+concurrency:
+  group: desplegar-staging-barber
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: urbanblade/barber
+  ECS_CLUSTER: urbanblade-staging
+  ECS_SERVICE: uba-stg-barber
+  ECS_CONTAINER: barber
+  HEALTH_URL: https://api.urbanblade.com.mx
+
+jobs:
+  desplegar:
+    name: Desplegar barber a staging
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: staging
+      url: https://api.urbanblade.com.mx/up
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: CI en verde del commit exacto
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ok=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${GITHUB_SHA}&status=success" --jq '.total_count')
+          if [ "${ok:-0}" -lt 1 ]; then
+            echo "::error::El CI de ${GITHUB_SHA} no terminó en verde; no se despliega."
+            exit 1
+          fi
+
+      - name: Credenciales temporales de AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: desplegar-barber-${{ github.run_id }}
+
+      - name: Inicio de sesión en ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
+
+      - name: Detener ante migraciones o seeders
+        id: migraciones
+        env:
+          CONFIRMADAS: ${{ inputs.confirmar_migraciones }}
+        run: |
+          # El SHA del despliegue anterior viaja en la etiqueta sha-<corto> de la imagen que hoy es `latest`.
+          previa=$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids imageTag=latest \
+            --query 'imageDetails[0].imageTags[?starts_with(@, `sha-`)] | [0]' --output text 2>/dev/null || true)
+          if [ -z "$previa" ] || [ "$previa" = "None" ]; then
+            echo "No se conoce el commit desplegado antes; se exige confirmar las migraciones."
+            cambios="(commit anterior desconocido)"
+          else
+            base="${previa#sha-}"
+            cambios=$(git diff --name-only "$base" "$GITHUB_SHA" -- database/migrations database/seeders || echo "(no se pudo comparar con $base)")
+          fi
+          if [ -n "$cambios" ] && [ "$CONFIRMADAS" != "true" ]; then
+            echo "::error::Este despliegue puede traer migraciones o seeders. Revisa y vuelve a lanzarlo con confirmar_migraciones:"
+            echo "$cambios"
+            exit 1
+          fi
+
+      - name: Respaldo de la imagen actual
+        id: respaldo
+        run: |
+          etiqueta="rollback-$(date -u +%Y%m%d)-pre-${GITHUB_SHA::7}"
+          manifiesto=$(aws ecr batch-get-image --repository-name "$ECR_REPOSITORY" --image-ids imageTag=latest \
+            --query 'images[0].imageManifest' --output text)
+          if [ -z "$manifiesto" ] || [ "$manifiesto" = "None" ]; then
+            echo "::warning::No hay imagen latest que respaldar (primer despliegue)."
+            exit 0
+          fi
+          aws ecr put-image --repository-name "$ECR_REPOSITORY" --image-tag "$etiqueta" --image-manifest "$manifiesto" > /dev/null
+          echo "etiqueta=$etiqueta" >> "$GITHUB_OUTPUT"
+
+      - name: Construir la imagen del commit
+        env:
+          REGISTRO: ${{ steps.ecr.outputs.registry }}
+        run: |
+          corto="${GITHUB_SHA::7}"
+          docker build --pull -f .docker/staging/Dockerfile \
+            -t "$REGISTRO/$ECR_REPOSITORY:sha-$corto" -t "$REGISTRO/$ECR_REPOSITORY:latest" .
+
+      - name: Subir la imagen
+        id: subida
+        env:
+          REGISTRO: ${{ steps.ecr.outputs.registry }}
+        run: |
+          corto="${GITHUB_SHA::7}"
+          docker push "$REGISTRO/$ECR_REPOSITORY:sha-$corto"
+          docker push "$REGISTRO/$ECR_REPOSITORY:latest"
+          digest=$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids imageTag="sha-$corto" \
+            --query 'imageDetails[0].imageDigest' --output text)
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Redesplegar el servicio
+        id: servicio
+        run: |
+          aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --force-new-deployment > /dev/null
+          aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE"
+
+      - name: Verificar el despliegue
+        env:
+          ESPERADO: ${{ steps.subida.outputs.digest }}
+        run: |
+          # La tarea en ejecución debe correr la imagen recién subida, no una anterior.
+          tareas=$(aws ecs list-tasks --cluster "$ECS_CLUSTER" --service-name "$ECS_SERVICE" --desired-status RUNNING --query 'taskArns' --output text)
+          [ -n "$tareas" ] || { echo "::error::El servicio no tiene tareas en ejecución."; exit 1; }
+          # shellcheck disable=SC2086
+          digests=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks $tareas \
+            --query "tasks[].containers[?name=='$ECS_CONTAINER'].imageDigest[]" --output text)
+          for d in $digests; do
+            [ "$d" = "$ESPERADO" ] || { echo "::error::Una tarea corre $d y se esperaba $ESPERADO."; exit 1; }
+          done
+          for ruta in /up /api/v1/barbershop; do
+            codigo=$(curl -s -o /dev/null -m 20 --retry 5 --retry-delay 6 --retry-all-errors -w '%{http_code}' "$HEALTH_URL$ruta")
+            echo "$ruta -> $codigo"
+            [ "$codigo" = "200" ] || { echo "::error::$ruta respondió $codigo."; exit 1; }
+          done
+
+      - name: Revertir a la imagen anterior
+        if: failure() && steps.servicio.outcome != 'skipped' && steps.respaldo.outputs.etiqueta != ''
+        env:
+          ETIQUETA: ${{ steps.respaldo.outputs.etiqueta }}
+        run: |
+          echo "::warning::La verificación falló; se vuelve a la imagen $ETIQUETA."
+          manifiesto=$(aws ecr batch-get-image --repository-name "$ECR_REPOSITORY" --image-ids imageTag="$ETIQUETA" \
+            --query 'images[0].imageManifest' --output text)
+          aws ecr put-image --repository-name "$ECR_REPOSITORY" --image-tag latest --image-manifest "$manifiesto" > /dev/null
+          aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --force-new-deployment > /dev/null
+          aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE"
+
+      - name: Resumen
+        if: always()
+        env:
+          DIGEST: ${{ steps.subida.outputs.digest }}
+          RESPALDO: ${{ steps.respaldo.outputs.etiqueta }}
+          ESTADO: ${{ job.status }}
+        run: |
+          {
+            echo "### Despliegue de barber a staging: ${ESTADO}"
+            echo "- Commit: \`${GITHUB_SHA::7}\`"
+            echo "- Imagen: \`${DIGEST:-sin subir}\`"
+            echo "- Respaldo: \`${RESPALDO:-ninguno}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

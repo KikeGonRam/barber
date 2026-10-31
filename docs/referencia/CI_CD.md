@@ -20,10 +20,33 @@ CI prepara MongoDB replica set y Redis efímeros. Su comando PHPUnit no debe
 copiarse al contenedor local con configuración operativa.
 En local se utiliza exclusivamente [test.ps1](../../test.ps1).
 
-Construir una imagen en el runner no la publica.
-Estos workflows no contienen docker push ni actualización de ECS.
+Construir una imagen en el runner no la publica: CI y Docker Image CI no contienen docker push ni actualización de ECS.
+La publicación a staging vive en un workflow aparte, descrito en la sección siguiente.
 Los checks externos y sus requisitos se consultan en GitHub; no se infieren de
 una lista antigua de nombres.
+
+## Despliegue a staging
+
+[Desplegar a staging](../../.github/workflows/desplegar-staging.yml) publica el backend en ECS Fargate. Se lanza a
+mano y solo desde main; no se dispara con un push ni con un merge.
+
+| Control | Cómo se cumple |
+| --- | --- |
+| Credenciales | OIDC: el job pide un token a GitHub y asume un rol de AWS con credenciales temporales. No hay llaves de AWS en GitHub. |
+| Privilegio mínimo | El rol solo sube imágenes a dos repositorios ECR y redespliega dos servicios; lo define `oidc_despliegue.tf` en urbanbladeTerraform. |
+| Aprobación | El entorno `staging` de GitHub exige revisión del propietario antes de que el job use el rol. |
+| Commit probado | Se comprueba que el CI de ese SHA terminó en verde. |
+| Migraciones | Se detiene si cambian `database/migrations` o `database/seeders` desde el commit desplegado antes, salvo `confirmar_migraciones`. |
+| Reversibilidad | Etiqueta `rollback-<fecha>-pre-<sha>` con la imagen anterior; si la verificación falla, vuelve sola a ella. |
+| Trazabilidad | Cada imagen lleva `sha-<corto>` además de `latest`; el resumen del job guarda commit, digest y respaldo. |
+| Verificación | El digest de las tareas en ejecución debe ser el recién subido, y `/up` y `/api/v1/barbershop` deben responder 200. |
+
+Antes del primer uso hacen falta dos pasos fuera del repositorio, con permiso del propietario: aplicar
+`oidc_despliegue.tf` en urbanbladeTerraform (crea el proveedor OIDC y el rol) y crear en GitHub el entorno `staging`
+con revisores obligatorios y la variable `AWS_DEPLOY_ROLE_ARN`, que es el ARN del rol y no un secreto.
+
+El frontend tiene su propio workflow con la misma estructura. El agente `urbanblade-deploy` sigue siendo el
+procedimiento manual de respaldo si el workflow no estuviera disponible.
 
 ## Documentación
 
