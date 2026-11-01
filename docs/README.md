@@ -48,6 +48,7 @@ ninguna guía certifica por sí sola un entorno remoto.
 | Base de datos y privilegios | [MongoDB](referencia/MONGODB_ATLAS.md) |
 | Respaldos y recuperación | [Continuidad](referencia/CONTINUIDAD_OPERATIVA.md) |
 | Operación y publicación | [Runbook](referencia/DESPLIEGUE_AWS_STAGING.md) |
+| Incidentes, alarmas y reversión | [Runbook de incidentes](referencia/RUNBOOK_INCIDENTES_STAGING.md) |
 | Pagos en sandbox | [Stripe local](referencia/STRIPE_PRUEBAS_LOCALES.md) |
 | Autenticación externa | [Google OAuth](referencia/GOOGLE_CLOUD_OAUTH.md) |
 

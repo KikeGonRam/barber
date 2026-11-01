@@ -306,6 +306,8 @@ el usuario `staging-deploy`.
 
 ## Runbook
 
+> **Nota (1-nov-2026):** este apartado describe el flujo manual anterior. Hoy se despliega con el workflow «Desplegar a staging» (aprobación, pruebas de humo y reversión automática), spark ya no existe y el autoescalado mantiene 1 o 2 tareas. Para incidentes, alarmas y reversión usar [RUNBOOK_INCIDENTES_STAGING.md](RUNBOOK_INCIDENTES_STAGING.md); lo de abajo queda como último recurso.
+
 Los comandos usan `aws` con el usuario IAM `staging-deploy`. Cada bloque trae primero la
 versión **PowerShell** (Windows, lo que usa el dueño del proyecto) y luego **bash/zsh**
 (Linux/macOS) — no son intercambiables línea por línea: PowerShell continúa una línea
