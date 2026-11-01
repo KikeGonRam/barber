@@ -1,6 +1,8 @@
 name: Desplegar a staging
 
 # Despliegue controlado del backend a AWS (ECS Fargate), sin llaves de larga duración y sin depender de un equipo personal.
+# La lógica común con el frontend vive en la plantilla KikeGonRam/urbanblade-ci (desplegar-ecs.yml), fijada por SHA; aquí solo
+# quedan los disparadores, la concurrencia, los permisos y los parámetros propios de este repositorio.
 #
 #  - Arranca solo cuando el CI de main termina en verde tras un push (es decir, después de fusionar un PR), o a mano
 #    (Actions > Desplegar a staging > Run workflow). Nunca desde un PR, un fork ni otra rama.
@@ -9,9 +11,11 @@ name: Desplegar a staging
 #    con `confirmar_migraciones` después de revisarlas.
 #  - El despliegue siempre espera la aprobación del propietario en el entorno `staging` de GitHub.
 #  - AWS se asume por OIDC con un rol de privilegio mínimo (ver urbanbladeTerraform, oidc_despliegue.tf).
-#  - Antes de subir deja la imagen actual con la etiqueta rollback-<fecha>-pre-<sha>; si la verificación falla, revierte sola.
+#  - Antes de subir deja la imagen actual con la etiqueta rollback-<fecha>-pre-<sha>; si la verificación o las pruebas de humo
+#    (.github/scripts/humo.sh) fallan, revierte sola.
 #
-# Procedimiento operativo y límites: docs/referencia/DESPLIEGUE_AWS_STAGING.md y docs/referencia/CI_CD.md.
+# Procedimiento operativo y límites: docs/referencia/DESPLIEGUE_AWS_STAGING.md, docs/referencia/CI_CD.md y
+# docs/referencia/RUNBOOK_INCIDENTES_STAGING.md.
 
 on:
   # El workflow se ejecuta con la versión de main, y el commit que se despliega es el que terminó el CI (head_sha), no la
@@ -27,7 +31,7 @@ on:
         type: boolean
         default: false
 
-# Mínimo privilegio: el workflow no concede nada; cada job declara solo lo que necesita.
+# Mínimo privilegio: el workflow no concede nada; el job que llama declara solo lo que la plantilla necesita.
 permissions: {}
 
 # Un despliegue a la vez; nunca se cancela uno que ya está publicando.
@@ -35,278 +39,23 @@ concurrency:
   group: desplegar-staging-barber
   cancel-in-progress: false
 
-env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY: urbanblade/barber
-  ECS_CLUSTER: urbanblade-staging
-  ECS_SERVICE: uba-stg-barber
-  ECS_CONTAINER: barber
-  HEALTH_URL: https://api.urbanblade.com.mx
-  # Commit que se despliega: con workflow_run es el del CI que terminó; a mano, el de la ejecución.
-  SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
-
 jobs:
-  decidir:
-    name: ¿El commit cambia la imagen?
-    # Solo un push a main del propio repositorio con el CI en verde. Un PR de un fork cuya rama se llame main no cumple
-    # `event == push` ni `head_repository`, así que no puede arrancar un despliegue.
-    if: >-
-      github.ref == 'refs/heads/main' && (
-        github.event_name == 'workflow_dispatch' || (
-          github.event.workflow_run.conclusion == 'success' &&
-          github.event.workflow_run.event == 'push' &&
-          github.event.workflow_run.head_branch == 'main' &&
-          github.event.workflow_run.head_repository.full_name == github.repository
-        )
-      )
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    # Solo lee el repositorio para comparar el commit; sin acceso a AWS.
-    permissions:
-      contents: read
-    outputs:
-      desplegar: ${{ steps.cambios.outputs.desplegar }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ env.SHA }}
-          fetch-depth: 2
-          persist-credentials: false
-
-      - name: Comparar con el commit anterior de main
-        id: cambios
-        env:
-          EVENTO: ${{ github.event_name }}
-        run: |
-          # A mano siempre se despliega: ahí el propietario ya decidió y puede confirmar las migraciones.
-          if [ "$EVENTO" = "workflow_dispatch" ]; then
-            echo "desplegar=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          # En una fusión, HEAD^ es la punta anterior de main: el diff es exactamente lo que trajo el PR.
-          cambios=$(git diff --name-only HEAD^ HEAD)
-          echo "Archivos del commit:"; echo "$cambios"
-          migraciones=$(echo "$cambios" | grep -E '^database/(migrations|seeders)/' || true)
-          # Sin efecto en la imagen: Markdown, workflows, pruebas y archivos de agentes. Todo lo demás sí cuenta.
-          imagen=$(echo "$cambios" | grep -vE '(\.md$|^\.github/|^tests/|^\.claude/|^\.agents/|^\.codex/)' || true)
-          if [ -n "$migraciones" ]; then
-            echo "desplegar=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::Este commit trae migraciones o seeders; no se despliega solo. Revísalos y lanza el workflow a mano con confirmar_migraciones."
-            echo "$migraciones"
-          elif [ -z "$imagen" ]; then
-            echo "desplegar=false" >> "$GITHUB_OUTPUT"
-            echo "El commit no cambia nada que entre a la imagen; no hay nada que desplegar."
-          else
-            echo "desplegar=true" >> "$GITHUB_OUTPUT"
-          fi
-
   desplegar:
-    name: Desplegar barber a staging
-    needs: decidir
-    # Se repiten las comprobaciones de origen del job `decidir`: este job construye código del commit del CI y pide el token
-    # OIDC, así que no debe depender solo de la salida de otro job para descartar un PR, un fork u otra rama.
-    if: >-
-      needs.decidir.outputs.desplegar == 'true' &&
-      github.ref == 'refs/heads/main' && (
-        github.event_name == 'workflow_dispatch' || (
-          github.event.workflow_run.event == 'push' &&
-          github.event.workflow_run.head_branch == 'main' &&
-          github.event.workflow_run.head_repository.full_name == github.repository
-        )
-      )
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    # contents: leer el código; actions: consultar el CI del commit; id-token: pedir el token OIDC de AWS.
+    name: Barber
+    uses: KikeGonRam/urbanblade-ci/.github/workflows/desplegar-ecs.yml@117f4bfb9f21467e4918418fcc597bc22163f680
     permissions:
       contents: read
       actions: read
       id-token: write
-    environment:
-      name: staging
-      url: https://api.urbanblade.com.mx/up
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ env.SHA }}
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: CI en verde del commit exacto
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          ok=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${SHA}&status=success" --jq '.total_count')
-          if [ "${ok:-0}" -lt 1 ]; then
-            echo "::error::El CI de ${SHA} no terminó en verde; no se despliega."
-            exit 1
-          fi
-
-      - name: Credenciales temporales de AWS (OIDC)
-        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
-        with:
-          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-          role-session-name: desplegar-barber-${{ github.run_id }}
-
-      - name: Inicio de sesión en ECR
-        id: ecr
-        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
-
-      - name: Detener ante migraciones o seeders
-        id: migraciones
-        env:
-          CONFIRMADAS: ${{ inputs.confirmar_migraciones }}
-        run: |
-          # El SHA del despliegue anterior viaja en la etiqueta sha-<corto> de la imagen que hoy es `latest`.
-          previa=$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids imageTag=latest \
-            --query 'imageDetails[0].imageTags[?starts_with(@, `sha-`)] | [0]' --output text 2>/dev/null || true)
-          if [ -z "$previa" ] || [ "$previa" = "None" ]; then
-            echo "No se conoce el commit desplegado antes; se exige confirmar las migraciones."
-            cambios="(commit anterior desconocido)"
-          else
-            base="${previa#sha-}"
-            cambios=$(git diff --name-only "$base" "$SHA" -- database/migrations database/seeders || echo "(no se pudo comparar con $base)")
-          fi
-          if [ -n "$cambios" ] && [ "$CONFIRMADAS" != "true" ]; then
-            echo "::error::Este despliegue puede traer migraciones o seeders. Revisa y vuelve a lanzarlo con confirmar_migraciones:"
-            echo "$cambios"
-            exit 1
-          fi
-
-      - name: Respaldo de la imagen actual
-        id: respaldo
-        run: |
-          etiqueta="rollback-$(date -u +%Y%m%d)-pre-${SHA::7}"
-          manifiesto=$(aws ecr batch-get-image --repository-name "$ECR_REPOSITORY" --image-ids imageTag=latest \
-            --query 'images[0].imageManifest' --output text)
-          if [ -z "$manifiesto" ] || [ "$manifiesto" = "None" ]; then
-            echo "::warning::No hay imagen latest que respaldar (primer despliegue)."
-            exit 0
-          fi
-          aws ecr put-image --repository-name "$ECR_REPOSITORY" --image-tag "$etiqueta" --image-manifest "$manifiesto" > /dev/null
-          echo "etiqueta=$etiqueta" >> "$GITHUB_OUTPUT"
-
-      - name: Construir la imagen del commit
-        env:
-          REGISTRO: ${{ steps.ecr.outputs.registry }}
-        run: |
-          corto="${SHA::7}"
-          docker build --pull -f .docker/staging/Dockerfile \
-            -t "$REGISTRO/$ECR_REPOSITORY:sha-$corto" -t "$REGISTRO/$ECR_REPOSITORY:latest" .
-
-      - name: Subir la imagen
-        id: subida
-        env:
-          REGISTRO: ${{ steps.ecr.outputs.registry }}
-        run: |
-          corto="${SHA::7}"
-          docker push "$REGISTRO/$ECR_REPOSITORY:sha-$corto"
-          docker push "$REGISTRO/$ECR_REPOSITORY:latest"
-          digest=$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids imageTag="sha-$corto" \
-            --query 'imageDetails[0].imageDigest' --output text)
-          echo "digest=$digest" >> "$GITHUB_OUTPUT"
-
-      - name: Redesplegar el servicio
-        id: servicio
-        run: |
-          aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --force-new-deployment > /dev/null
-          aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE"
-
-      - name: Verificar el despliegue
-        env:
-          ESPERADO: ${{ steps.subida.outputs.digest }}
-        run: |
-          # La tarea en ejecución debe correr la imagen recién subida, no una anterior.
-          tareas=$(aws ecs list-tasks --cluster "$ECS_CLUSTER" --service-name "$ECS_SERVICE" --desired-status RUNNING --query 'taskArns' --output text)
-          [ -n "$tareas" ] || { echo "::error::El servicio no tiene tareas en ejecución."; exit 1; }
-          # shellcheck disable=SC2086
-          digests=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks $tareas \
-            --query "tasks[].containers[?name=='$ECS_CONTAINER'].imageDigest[]" --output text)
-          for d in $digests; do
-            [ "$d" = "$ESPERADO" ] || { echo "::error::Una tarea corre $d y se esperaba $ESPERADO."; exit 1; }
-          done
-          for ruta in /up /api/v1/barbershop; do
-            codigo=$(curl -s -o /dev/null -m 20 --retry 5 --retry-delay 6 --retry-all-errors -w '%{http_code}' "$HEALTH_URL$ruta")
-            echo "$ruta -> $codigo"
-            [ "$codigo" = "200" ] || { echo "::error::$ruta respondió $codigo."; exit 1; }
-          done
-
-      # Pruebas de humo de solo lectura contra la API real: la salud solo prueba que el proceso responde; esto prueba que lee la
-      # base de datos y que la autenticación sigue puesta. No inicia sesión ni escribe nada. Si falla, el paso de reversión
-      # (failure()) vuelve a la imagen anterior como con la verificación de arriba.
-      - name: Pruebas de humo de la API
-        run: |
-          pedir() { # ruta -> cuerpo en /tmp/humo.json y código HTTP en la salida
-            curl -s -m 20 --retry 5 --retry-delay 6 --retry-all-errors -H 'Accept: application/json' \
-              -o /tmp/humo.json -w '%{http_code}' "$HEALTH_URL$1"
-          }
-          fallo=0
-          for ruta in services barbers products; do
-            codigo=$(pedir "/api/v1/$ruta")
-            ok=$([ "$codigo" = 200 ] && jq -e '.data | type == "array"' /tmp/humo.json > /dev/null 2>&1 && echo si || echo no)
-            echo "GET /api/v1/$ruta -> $codigo, data es lista: $ok"
-            [ "$ok" = si ] || { echo "::error::/api/v1/$ruta no devolvió una lista válida (código $codigo)."; fallo=1; }
-          done
-          # El catálogo de servicios nunca debe estar vacío: vacío indica que la API lee una base equivocada.
-          codigo=$(pedir /api/v1/services)
-          [ "$codigo" = 200 ] && jq -e '.data | length > 0' /tmp/humo.json > /dev/null 2>&1 \
-            || { echo "::error::El catálogo de servicios está vacío o no responde (código $codigo)."; fallo=1; }
-          codigo=$(pedir /api/v1/barbershop)
-          [ "$codigo" = 200 ] && jq -e '.data.nombre | type == "string" and length > 0' /tmp/humo.json > /dev/null 2>&1 \
-            || { echo "::error::La ficha del negocio no tiene nombre (código $codigo)."; fallo=1; }
-          # Una ruta protegida sin token debe responder 401: si respondiera 200 la autenticación estaría rota.
-          codigo=$(pedir /api/v1/profile)
-          echo "GET /api/v1/profile sin token -> $codigo"
-          [ "$codigo" = 401 ] || { echo "::error::/api/v1/profile sin token respondió $codigo y se esperaba 401."; fallo=1; }
-          exit "$fallo"
-
-      - name: Vulnerabilidades de la imagen (informativo)
-        if: success()
-        # Informativo: nunca bloquea ni revierte el despliegue. Necesita el escaneo al subir de ECR (ecr_ciclo_de_vida.tf en
-        # urbanbladeTerraform); si todavía no está activo, avisa y sigue.
-        continue-on-error: true
-        run: |
-          corto="${SHA::7}"
-          estado=$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids imageTag="sha-$corto" \
-            --query 'imageDetails[0].imageScanStatus.status' --output text 2>/dev/null || true)
-          if [ -z "$estado" ] || [ "$estado" = "None" ]; then
-            echo "::notice::El escaneo al subir de ECR no está activo; no hay resumen de vulnerabilidades."
-            exit 0
-          fi
-          aws ecr wait image-scan-complete --repository-name "$ECR_REPOSITORY" --image-id imageTag="sha-$corto"
-          resumen=$(aws ecr describe-image-scan-findings --repository-name "$ECR_REPOSITORY" --image-id imageTag="sha-$corto" \
-            --query 'imageScanFindings.findingSeverityCounts' --output json)
-          echo "Vulnerabilidades por severidad: $resumen"
-          {
-            echo "### Vulnerabilidades de la imagen (escaneo básico de ECR)"
-            echo '```json'
-            echo "$resumen"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Revertir a la imagen anterior
-        if: failure() && steps.servicio.outcome != 'skipped' && steps.respaldo.outputs.etiqueta != ''
-        env:
-          ETIQUETA: ${{ steps.respaldo.outputs.etiqueta }}
-        run: |
-          echo "::warning::La verificación falló; se vuelve a la imagen $ETIQUETA."
-          manifiesto=$(aws ecr batch-get-image --repository-name "$ECR_REPOSITORY" --image-ids imageTag="$ETIQUETA" \
-            --query 'images[0].imageManifest' --output text)
-          aws ecr put-image --repository-name "$ECR_REPOSITORY" --image-tag latest --image-manifest "$manifiesto" > /dev/null
-          aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --force-new-deployment > /dev/null
-          aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE"
-
-      - name: Resumen
-        if: always()
-        env:
-          DIGEST: ${{ steps.subida.outputs.digest }}
-          RESPALDO: ${{ steps.respaldo.outputs.etiqueta }}
-          ESTADO: ${{ job.status }}
-        run: |
-          {
-            echo "### Despliegue de barber a staging: ${ESTADO}"
-            echo "- Commit: \`${SHA::7}\`"
-            echo "- Imagen: \`${DIGEST:-sin subir}\`"
-            echo "- Respaldo: \`${RESPALDO:-ninguno}\`"
-          } >> "$GITHUB_STEP_SUMMARY"
+    with:
+      ecr_repository: urbanblade/barber
+      ecs_service: uba-stg-barber
+      ecs_container: barber
+      health_url: https://api.urbanblade.com.mx
+      environment_url: https://api.urbanblade.com.mx/up
+      rutas_salud: /up /api/v1/barbershop
+      role_arn: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+      dockerfile: .docker/staging/Dockerfile
+      rutas_migraciones: database/migrations database/seeders
+      confirmar_migraciones: ${{ inputs.confirmar_migraciones || false }}
+      script_humo: .github/scripts/humo.sh

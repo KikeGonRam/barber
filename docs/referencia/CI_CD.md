@@ -43,6 +43,11 @@ Un job previo (`decidir`) compara el commit con el anterior de `main`:
 A mano siempre se despliega, y es ahí donde se confirman las migraciones. El commit que se construye es el que terminó el CI
 (`head_sha`), no la punta de `main`: si entran dos fusiones seguidas, cada ejecución usa el suyo.
 
+La lógica de despliegue es una plantilla compartida con el frontend: el repositorio
+[KikeGonRam/urbanblade-ci](https://github.com/KikeGonRam/urbanblade-ci) (`desplegar-ecs.yml`). `desplegar-staging.yml` solo declara los
+disparadores, los permisos y los parámetros de barber, y la fija por SHA de commit: un cambio en la plantilla no llega aquí sin un PR.
+Las pruebas de humo propias de este repositorio están en `.github/scripts/humo.sh`.
+
 | Control | Cómo se cumple |
 | --- | --- |
 | Credenciales | OIDC: el job pide un token a GitHub y asume un rol de AWS con credenciales temporales. No hay llaves de AWS en GitHub. |
