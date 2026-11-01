@@ -53,6 +53,7 @@ A mano siempre se despliega, y es ahí donde se confirman las migraciones. El co
 | Reversibilidad | Etiqueta `rollback-<fecha>-pre-<sha>` con la imagen anterior; si la verificación falla, vuelve sola a ella. |
 | Trazabilidad | Cada imagen lleva `sha-<corto>` además de `latest`; el resumen del job guarda commit, digest y respaldo. |
 | Verificación | El digest de las tareas en ejecución debe ser el recién subido, y `/up` y `/api/v1/barbershop` deben responder 200. |
+| Pruebas de humo | Solo lectura y sin sesión: `/api/v1/services`, `barbers` y `products` devuelven una lista (la de servicios, no vacía), `/api/v1/barbershop` trae nombre y `/api/v1/profile` sin token responde 401. Si falla, revierte como la verificación. |
 | Vulnerabilidades | Informativo: el resumen de la ejecución muestra el escaneo básico de ECR por severidad. Nunca bloquea ni revierte; si el escaneo al subir no está activo, solo avisa. |
 
 Dependencias fuera del repositorio, ya creadas el 31-oct-2026: el rol OIDC de AWS (`oidc_despliegue.tf` en urbanbladeTerraform) y,
