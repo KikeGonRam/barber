@@ -232,6 +232,30 @@ jobs:
             [ "$codigo" = "200" ] || { echo "::error::$ruta respondió $codigo."; exit 1; }
           done
 
+      - name: Vulnerabilidades de la imagen (informativo)
+        if: success()
+        # Informativo: nunca bloquea ni revierte el despliegue. Necesita el escaneo al subir de ECR (ecr_ciclo_de_vida.tf en
+        # urbanbladeTerraform); si todavía no está activo, avisa y sigue.
+        continue-on-error: true
+        run: |
+          corto="${SHA::7}"
+          estado=$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids imageTag="sha-$corto" \
+            --query 'imageDetails[0].imageScanStatus.status' --output text 2>/dev/null || true)
+          if [ -z "$estado" ] || [ "$estado" = "None" ]; then
+            echo "::notice::El escaneo al subir de ECR no está activo; no hay resumen de vulnerabilidades."
+            exit 0
+          fi
+          aws ecr wait image-scan-complete --repository-name "$ECR_REPOSITORY" --image-id imageTag="sha-$corto"
+          resumen=$(aws ecr describe-image-scan-findings --repository-name "$ECR_REPOSITORY" --image-id imageTag="sha-$corto" \
+            --query 'imageScanFindings.findingSeverityCounts' --output json)
+          echo "Vulnerabilidades por severidad: $resumen"
+          {
+            echo "### Vulnerabilidades de la imagen (escaneo básico de ECR)"
+            echo '```json'
+            echo "$resumen"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Revertir a la imagen anterior
         if: failure() && steps.servicio.outcome != 'skipped' && steps.respaldo.outputs.etiqueta != ''
         env:
