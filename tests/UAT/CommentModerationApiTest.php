@@ -27,6 +27,8 @@ use Tests\TestCase;
  */
 class CommentModerationApiTest extends TestCase
 {
+    private const ADMIN_NAME = 'Ana Admin';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -275,7 +277,7 @@ class CommentModerationApiTest extends TestCase
     public function test_resolving_notifies_each_reporter_once_and_never_the_author(): void
     {
         Notification::fake();
-        [$admin, $adminToken] = $this->makeUser('Ana Admin', 'administrador');
+        [$admin, $adminToken] = $this->makeUser(self::ADMIN_NAME, 'administrador');
         [$author] = $this->makeUser('Ana Autora');
         [$reporterA, $tokenA] = $this->makeUser('Rosa Reporta');
         [$reporterB, $tokenB] = $this->makeUser('Beto Reporta');
@@ -296,7 +298,7 @@ class CommentModerationApiTest extends TestCase
     public function test_dismissing_tells_the_reporter_the_comment_was_kept_without_revealing_the_author(): void
     {
         Notification::fake();
-        [, $adminToken] = $this->makeUser('Ana Admin', 'administrador');
+        [, $adminToken] = $this->makeUser(self::ADMIN_NAME, 'administrador');
         [$author] = $this->makeUser('Ana Autora');
         [$reporter, $token] = $this->makeUser('Rosa Reporta');
         $comment = $this->makeComment($this->makeWork(), $author);
@@ -316,7 +318,7 @@ class CommentModerationApiTest extends TestCase
 
     public function test_the_stored_notification_reaches_the_reporter_inbox(): void
     {
-        [, $adminToken] = $this->makeUser('Ana Admin', 'administrador');
+        [, $adminToken] = $this->makeUser(self::ADMIN_NAME, 'administrador');
         [$author] = $this->makeUser('Ana Autora');
         [, $token] = $this->makeUser('Rosa Reporta');
         $comment = $this->makeComment($this->makeWork(), $author);
