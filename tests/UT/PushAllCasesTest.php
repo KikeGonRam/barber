@@ -19,6 +19,7 @@ use App\Notifications\Loyalty\LoyaltyNotification;
 use App\Notifications\Loyalty\LoyaltyPointsExpiredNotification;
 use App\Notifications\Loyalty\RaffleWinNotification;
 use App\Notifications\Membership\MembershipInvoiceNotification;
+use App\Notifications\Moderation\ReportResolvedNotification;
 use App\Notifications\Order\OrderDeliveredNotification;
 use App\Notifications\Order\OrderExpiredNotification;
 use App\Notifications\Payment\PaymentReceiptNotification;
@@ -82,6 +83,7 @@ class PushAllCasesTest extends TestCase
             'sorteo' => [new RaffleWinNotification($prize), 'fidelidad', 'wallet'],
             'cumpleaños' => [new ClientBirthdayNotification, 'fidelidad', 'wallet'],
             'promoción' => [new PromotionNotification('2x1', 'Solo hoy'), 'promociones', 'notifications'],
+            'reporte resuelto' => [new ReportResolvedNotification(ReportResolvedNotification::OUTCOME_REMOVED), 'comunidad', 'social'],
             'stock bajo' => [new InventoryLowStockNotification([['nombre' => 'Cera', 'stock_actual' => 1]]), 'operacion', 'inventory'],
         ];
     }

@@ -14,7 +14,9 @@ use App\Models\User;
 use App\Models\UserBlock;
 use App\Models\Work;
 use App\Models\WorkImage;
+use App\Notifications\Moderation\ReportResolvedNotification;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
@@ -268,5 +270,61 @@ class CommentModerationApiTest extends TestCase
         $this->withToken($adminToken)->postJson("/api/v1/admin/comment-reports/{$comment->id}/resolve", ['action' => 'borrar_todo'])->assertStatus(422);
         $this->withToken($adminToken)->postJson("/api/v1/admin/comment-reports/{$comment->id}/resolve", ['action' => 'remove'])->assertNotFound();
         $this->assertNotNull(Comment::query()->where('_id', (string) $comment->id)->first());
+    }
+
+    public function test_resolving_notifies_each_reporter_once_and_never_the_author(): void
+    {
+        Notification::fake();
+        [$admin, $adminToken] = $this->makeUser('Ana Admin', 'administrador');
+        [$author] = $this->makeUser('Ana Autora');
+        [$reporterA, $tokenA] = $this->makeUser('Rosa Reporta');
+        [$reporterB, $tokenB] = $this->makeUser('Beto Reporta');
+        $comment = $this->makeComment($this->makeWork(), $author, 'Texto ofensivo');
+        $this->withToken($tokenA)->postJson("/api/v1/social/comment/{$comment->id}/report", ['reason' => 'ofensivo'])->assertCreated();
+        $this->withToken($tokenB)->postJson("/api/v1/social/comment/{$comment->id}/report", ['reason' => 'spam'])->assertCreated();
+
+        $this->withToken($adminToken)->postJson("/api/v1/admin/comment-reports/{$comment->id}/resolve", ['action' => 'remove_and_ban'])->assertOk();
+
+        foreach ([$reporterA, $reporterB] as $reporter) {
+            Notification::assertSentToTimes($reporter, ReportResolvedNotification::class, 1);
+            Notification::assertSentTo($reporter, ReportResolvedNotification::class, fn ($n) => $n->outcome === 'removed');
+        }
+        Notification::assertNotSentTo($author, ReportResolvedNotification::class);
+        Notification::assertNotSentTo($admin, ReportResolvedNotification::class);
+    }
+
+    public function test_dismissing_tells_the_reporter_the_comment_was_kept_without_revealing_the_author(): void
+    {
+        Notification::fake();
+        [, $adminToken] = $this->makeUser('Ana Admin', 'administrador');
+        [$author] = $this->makeUser('Ana Autora');
+        [$reporter, $token] = $this->makeUser('Rosa Reporta');
+        $comment = $this->makeComment($this->makeWork(), $author);
+        $this->withToken($token)->postJson("/api/v1/social/comment/{$comment->id}/report", ['reason' => 'otro'])->assertCreated();
+
+        $this->withToken($adminToken)->postJson("/api/v1/admin/comment-reports/{$comment->id}/resolve", ['action' => 'dismiss'])->assertOk();
+
+        Notification::assertSentTo($reporter, ReportResolvedNotification::class, function ($n) use ($reporter, $author) {
+            $payload = $n->toArray($reporter);
+
+            return $n->outcome === 'dismissed'
+                && $payload['type'] === 'report_resolved'
+                && ! str_contains(json_encode($payload), (string) $author->id)
+                && ! str_contains(json_encode($payload), 'Ana Autora');
+        });
+    }
+
+    public function test_the_stored_notification_reaches_the_reporter_inbox(): void
+    {
+        [, $adminToken] = $this->makeUser('Ana Admin', 'administrador');
+        [$author] = $this->makeUser('Ana Autora');
+        [, $token] = $this->makeUser('Rosa Reporta');
+        $comment = $this->makeComment($this->makeWork(), $author);
+        $this->withToken($token)->postJson("/api/v1/social/comment/{$comment->id}/report", ['reason' => 'spam'])->assertCreated();
+
+        $this->withToken($adminToken)->postJson("/api/v1/admin/comment-reports/{$comment->id}/resolve", ['action' => 'remove'])->assertOk();
+
+        $inbox = $this->withToken($token)->getJson('/api/v1/notifications')->assertOk();
+        $this->assertContains('report_resolved', collect($inbox->json('data'))->pluck('data.type')->all());
     }
 }
