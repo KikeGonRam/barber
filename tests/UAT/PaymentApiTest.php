@@ -117,7 +117,10 @@ class PaymentApiTest extends TestCase
             ->assertOk();
 
         $this->assertNull(Payment::find($payment->id));
-        $registro = Activity::where('log_name', 'payments')->where('description', 'Cobro anulado: Cobro duplicado por error')->first();
+        $registro = Activity::where('log_name', 'payments')
+            ->where('description', 'Cobro anulado: Cobro duplicado por error')
+            ->where('subject_id', (string) $payment->id)
+            ->first();
         $this->assertNotNull($registro);
         $this->assertSame('Cobro duplicado por error', collect($registro->getAttribute('properties'))->get('motivo'));
         $this->assertSame((string) $admin->id, (string) $registro->getAttribute('causer_id'));
@@ -902,5 +905,88 @@ class PaymentApiTest extends TestCase
         $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/v1/appointments/'.$appointment->getAttribute('code').'/deposit/stripe-intent')
             ->assertOk();
+    }
+
+    private function transferQuoteFixture(): array
+    {
+        $user = $this->staffUser('cliente', 'quote-'.Str::uuid().'@test.local');
+        $client = Client::create(['user_id' => (string) $user->id, 'nivel' => 'vip', 'puntos' => 0]);
+        $service = Service::create(['nombre' => 'Servicio QA cotización', 'precio' => 300, 'duracion_min' => 30, 'activo' => true]);
+        $appointment = Appointment::withoutEvents(fn () => Appointment::create([
+            'client_id' => (string) $client->id, 'service_id' => (string) $service->id,
+            'code' => 'qa-quote-'.Str::lower(Str::random(10)),
+            'barber_id' => (string) Str::uuid(), 'fecha' => now()->addDay()->toDateString(),
+            'hora_inicio' => '09:00:00', 'hora_fin' => '09:30:00', 'estado' => 'confirmada',
+        ]));
+
+        return [$user, $appointment, $service];
+    }
+
+    public function test_transfer_quote_uses_server_discount_and_tip_without_writes(): void
+    {
+        [$user, $appointment] = $this->transferQuoteFixture();
+        $before = Appointment::count();
+        $this->withToken($this->tokenFor($user, 'qa-quote'))->getJson('/api/v1/payments/transfer-info?'.http_build_query([
+            'appointment_id' => (string) $appointment->id, 'propina' => 20, 'monto' => 1,
+        ]))->assertOk()->assertJsonPath('data.cotizacion.monto_servicio', 270)
+            ->assertJsonPath('data.cotizacion.propina', 20)->assertJsonPath('data.cotizacion.total', 290)
+            ->assertJsonPath('data.cotizacion.moneda', 'mxn');
+        $this->assertSame($before, Appointment::count());
+        $this->assertSame(0, Payment::count());
+    }
+
+    public function test_transfer_quote_for_booking_does_not_create_an_appointment(): void
+    {
+        [$user, $appointment, $service] = $this->transferQuoteFixture();
+        $before = Appointment::count();
+        $this->withToken($this->tokenFor($user, 'qa-draft'))->getJson('/api/v1/payments/transfer-info?'.http_build_query([
+            'service_id' => (string) $service->id, 'propina' => 10,
+        ]))->assertOk()->assertJsonPath('data.cotizacion.appointment_id', null)->assertJsonPath('data.cotizacion.total', 280);
+        $this->assertSame($before, Appointment::count());
+        $this->assertSame(0, Payment::count());
+    }
+
+    public function test_transfer_quote_rejects_other_clients_appointment(): void
+    {
+        [$owner, $appointment] = $this->transferQuoteFixture();
+        [$other] = $this->transferQuoteFixture();
+        $this->withToken($this->tokenFor($other, 'qa-other'))->getJson('/api/v1/payments/transfer-info?appointment_id='.$appointment->id)->assertForbidden();
+    }
+
+    public function test_transfer_quote_rejects_unapproved_or_already_paid_appointment(): void
+    {
+        [$user, $appointment] = $this->transferQuoteFixture();
+        $token = $this->tokenFor($user, 'qa-eligibility');
+        $appointment->update(['estado' => 'pendiente']);
+        $this->withToken($token)->getJson('/api/v1/payments/transfer-info?appointment_id='.$appointment->id)->assertUnprocessable();
+        $appointment->update(['estado' => 'confirmada']);
+        Payment::create(['appointment_id' => (string) $appointment->id, 'monto' => 270, 'metodo_pago' => 'efectivo', 'estado' => 'verificado']);
+        $this->withToken($token)->getJson('/api/v1/payments/transfer-info?appointment_id='.$appointment->id)->assertUnprocessable();
+    }
+
+    public function test_transfer_quote_rejects_invalid_context_and_negative_tip(): void
+    {
+        [$user, $appointment, $service] = $this->transferQuoteFixture();
+        $token = $this->tokenFor($user, 'qa-invalid');
+        $this->withToken($token)->getJson('/api/v1/payments/transfer-info?'.http_build_query([
+            'appointment_id' => (string) $appointment->id, 'service_id' => (string) $service->id,
+        ]))->assertUnprocessable();
+        $this->withToken($token)->getJson('/api/v1/payments/transfer-info?appointment_id='.$appointment->id.'&propina=-1')->assertUnprocessable();
+        $barber = $this->staffUser('barbero', 'quote-barber-'.Str::uuid().'@test.local');
+        $this->withToken($this->tokenFor($barber, 'qa-barber'))->getJson('/api/v1/payments/transfer-info?appointment_id=invalid')->assertForbidden();
+    }
+
+    public function test_transfer_quote_matches_the_uploaded_receipt_amount(): void
+    {
+        Storage::fake('receipts');
+        [$user, $appointment] = $this->transferQuoteFixture();
+        $token = $this->tokenFor($user, 'qa-receipt-quote');
+        $quote = $this->withToken($token)->getJson('/api/v1/payments/transfer-info?appointment_id='.$appointment->id.'&propina=20')->assertOk()->json('data.cotizacion');
+        $this->withToken($token)->post('/api/v1/appointments/'.$appointment->code.'/payment/receipt', [
+            'comprobante' => UploadedFile::fake()->image('qa-receipt.png'), 'propina' => 20,
+        ])->assertCreated();
+        $payment = Payment::where('appointment_id', (string) $appointment->id)->firstOrFail();
+        $this->assertEquals($quote['monto_servicio'], (float) $payment->monto);
+        $this->assertEquals($quote['total'], (float) $payment->monto + (float) $payment->propina);
     }
 }

@@ -71,6 +71,31 @@ class PaymentService
         return $this->applyBestDiscount($precioBase, $appointment->client);
     }
 
+    /** Cotización de solo lectura; no crea pagos, reservas ni intentos Stripe. */
+    public function transferQuoteFor(Appointment $appointment, float $propina = 0.0): array
+    {
+        if ($appointment->exists) {
+            if (! in_array($appointment->estado, AppointmentStatusService::CHARGEABLE, true)) {
+                throw new PaymentException('Esta cita no está lista para cobro.');
+            }
+            if ($this->payments->existsForAppointment((string) $appointment->id)) {
+                throw new PaymentException('La cita ya tiene un pago registrado o en revisión.');
+            }
+        }
+
+        $monto = round($this->amountDueFor($appointment), 2);
+        $tip = round($propina, 2);
+
+        return [
+            'appointment_id' => $appointment->exists ? (string) $appointment->id : null,
+            'service_id' => (string) $appointment->service_id,
+            'monto_servicio' => $monto,
+            'propina' => $tip,
+            'total' => round($monto + $tip, 2),
+            'moneda' => 'mxn',
+        ];
+    }
+
     /**
      * Lista pagos paginados aplicando filtros del repositorio.
      */
