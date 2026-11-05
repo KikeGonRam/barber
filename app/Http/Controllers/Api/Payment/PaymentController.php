@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\Payment;
+use App\Models\Service;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Membership\MembershipService;
@@ -422,13 +423,44 @@ class PaymentController extends Controller
         $bank = BarbershopSetting::cached()?->getAttribute('datos_bancarios') ?? [];
         $clabe = $bank['clabe'] ?? null;
 
-        return response()->json(['data' => [
+        $data = [
             'configurado' => filled($clabe),
             'banco' => $bank['banco'] ?? null,
             'beneficiario' => $bank['beneficiario'] ?? null,
             'clabe' => $clabe,
             'concepto' => $bank['concepto'] ?? null,
-        ]]);
+        ];
+
+        if ($request->hasAny(['appointment_id', 'service_id', 'propina'])) {
+            $user = $request->user();
+            $isStaff = $user->hasAnyRole(['administrador', 'recepcionista']);
+            $isClient = $user->hasRole('cliente') && $user->clientProfile;
+            abort_unless($isStaff || $isClient, 403, 'No autorizado.');
+
+            $validated = $request->validate([
+                'appointment_id' => ['required_without:service_id', 'prohibits:service_id', 'string'],
+                'service_id' => ['required_without:appointment_id', 'prohibits:appointment_id', 'string'],
+                'propina' => ['nullable', 'numeric', 'min:0'],
+            ]);
+            if (isset($validated['appointment_id'])) {
+                $appointment = Appointment::findOrFail($validated['appointment_id']);
+                abort_unless($isStaff || (string) $appointment->client_id === (string) $user->clientProfile->id, 403, 'No autorizado.');
+            } else {
+                abort_unless($isClient, 403, 'Solo el cliente puede cotizar su reserva.');
+                $service = Service::where('activo', true)->findOrFail($validated['service_id']);
+                // Borrador en memoria: consultar el precio no ocupa el horario ni crea la cita.
+                $appointment = new Appointment(['service_id' => (string) $service->id]);
+                $appointment->setRelation('service', $service);
+                $appointment->setRelation('client', $user->clientProfile);
+            }
+            try {
+                $data['cotizacion'] = $this->paymentService->transferQuoteFor($appointment, (float) ($validated['propina'] ?? 0));
+            } catch (PaymentException $exception) {
+                return response()->json(['message' => $exception->getMessage()], 422);
+            }
+        }
+
+        return response()->json(['data' => $data]);
     }
 
     /**
