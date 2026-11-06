@@ -7,6 +7,7 @@ use App\Models\Comment;
 use App\Models\CommentReport;
 use App\Models\User;
 use App\Models\Work;
+use App\Notifications\Moderation\ReportResolvedNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -108,6 +109,14 @@ class CommentReportAdminController extends Controller
                 'resolved_at' => now(),
             ]);
         }
+
+        // El reportante se entera de que su reporte se atendió; sin decirle qué pasó con el autor.
+        $outcome = $status === CommentReport::STATUS_REMOVED
+            ? ReportResolvedNotification::OUTCOME_REMOVED
+            : ReportResolvedNotification::OUTCOME_DISMISSED;
+        $reporterIds = $pending->pluck('reporter_id')->filter()->map(fn ($id) => (string) $id)->unique()->values()->all();
+        User::query()->whereIn('_id', $reporterIds)->get()
+            ->each(fn (User $reporter) => $reporter->notify(new ReportResolvedNotification($outcome)));
 
         return response()->json([
             'message' => match ($data['action']) {

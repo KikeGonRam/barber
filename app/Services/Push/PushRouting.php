@@ -10,7 +10,7 @@ namespace App\Services\Push;
 final class PushRouting
 {
     /** Canales que la app Android crea al arrancar (ver PushChannels.kt). */
-    public const CHANNELS = ['citas', 'pagos', 'pedidos', 'fidelidad', 'promociones', 'operacion'];
+    public const CHANNELS = ['citas', 'pagos', 'pedidos', 'fidelidad', 'promociones', 'operacion', 'comunidad'];
 
     private const MAP = [
         'appointment' => ['citas', 'appointments'],
@@ -29,6 +29,7 @@ final class PushRouting
         'service_overrun' => ['operacion', 'appointments'],
         'service_ending' => ['operacion', 'barber_agenda'],
         'inventory_low_stock' => ['operacion', 'inventory'],
+        'report_resolved' => ['comunidad', 'social'],
     ];
 
     /** @return array{0: string, 1: string} [canal, ruta de la app] */
