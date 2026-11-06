@@ -70,15 +70,15 @@ ENV COMPOSER_MEMORY_LIMIT=-1
 # HEALTHCHECK y Tesseract para el OCR. Si cambia la base de Debian y un nombre de paquete
 # desaparece, el build falla aqui o en la comprobacion de extensiones de mas abajo, no en ECS.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
     ca-certificates \
+    curl \
     libfreetype6 \
+    libicu76 \
     libjpeg62-turbo \
     libpng16-16t64 \
+    libsqlite3-0 \
     libwebp7 \
     libzip5 \
-    libicu76 \
-    libsqlite3-0 \
     tesseract-ocr \
     tesseract-ocr-spa \
     && rm -rf /var/lib/apt/lists/*
