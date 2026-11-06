@@ -182,7 +182,7 @@ class DashboardService
                 $weeklyPayments->filter(fn ($p) => Carbon::parse($p->created_at)->between($start, $end))
             );
 
-            return ['label' => $start->format('d M'), 'total' => $total];
+            return ['label' => $start->translatedFormat('d M'), 'total' => $total];
         });
 
         $chatbotTelemetry = $this->chatbotTelemetrySummary(7);
@@ -334,7 +334,7 @@ class DashboardService
             $de = $dateEnd->toDateString();
             $count = $apptDates->filter(fn ($d) => $d >= $ds && $d < $de)->count();
 
-            return ['label' => $date->format('d M'), 'count' => $count];
+            return ['label' => $date->translatedFormat('d M'), 'count' => $count];
         });
 
         return [
@@ -408,7 +408,7 @@ class DashboardService
             $date = Carbon::now()->subDays(6 - $offset)->toDateString();
             $count = $weeklyAppts->filter(fn ($d) => $d === $date)->count();
 
-            return ['label' => Carbon::parse($date)->format('D'), 'total' => $count];
+            return ['label' => Carbon::parse($date)->translatedFormat('D'), 'total' => $count];
         });
 
         return [
@@ -710,7 +710,7 @@ class DashboardService
             }
 
             return [
-                'date' => Carbon::parse($date)->format('M d'),
+                'date' => Carbon::parse($date)->translatedFormat('d M'),
                 'error_rate_pct' => $count > 0 ? round(($errors / $count) * 100, 1) : 0.0,
                 'avg_latency_ms' => $count > 0 ? (int) round($latencyTotal / $count) : 0,
             ];
