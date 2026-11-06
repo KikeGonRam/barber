@@ -36,6 +36,7 @@ ninguna guía certifica por sí sola un entorno remoto.
 | Ejecución y matriz de regresiones | [Pruebas](referencia/PRUEBAS.md) |
 | OpenAPI y consumidores | [Contrato API](referencia/PLAN_CONTRATO_API.md) |
 | Controles y publicación | [CI/CD](referencia/CI_CD.md) |
+| Evaluación de un modelo de IA externo | [Kimi K3.1 Pro](referencia/EVALUACION_KIMI_K31.md) |
 
 ## Seguridad y operación
 
