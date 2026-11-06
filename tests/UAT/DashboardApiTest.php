@@ -114,6 +114,10 @@ class DashboardApiTest extends TestCase
         // frontend Nuxt necesita 'code' para PATCH /appointments/{code}/status,
         // 'id' ahí da 404 aunque la cita exista. Ver commit que agregó esto.
         $response->assertJsonPath('data.barberPending.0.code', $pendingAppointment->code);
+        // Las etiquetas de la gráfica salen en español (antes «Mon», «Tue»…): se formatean con translatedFormat.
+        foreach ($response->json('data.performanceChart.labels') as $label) {
+            $this->assertDoesNotMatchRegularExpression('/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/', $label);
+        }
     }
 
     public function test_cliente_gets_the_curated_dashboard_payload(): void
