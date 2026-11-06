@@ -66,6 +66,15 @@ Todo esto debe cumplirse antes de activarlo, y cada punto requiere decisión del
   (sin correos, teléfonos ni notas internas).
 - [ ] Medir costo, límites de tasa y latencia con carga real, y repetir las pruebas de abajo con más casos.
 
+## Alternativa con API: Mistral Large 4
+
+La [página de Mistral Large 4](https://build.nvidia.com/mistralai/mistral-large-4-1t-a52b) sí ofrece un **punto final
+gratuito** con API (`https://integrate.api.nvidia.com/v1/chat/completions`, modelo `mistralai/mistral-large-4-1t-a52b`).
+Según la página: Mixture-of-Experts de unos 1 billón de parámetros y 52 mil millones activos, contexto de 262 mil tokens,
+entrada de texto e imagen, razonamiento, llamada a funciones y salida estructurada. No hay descarga ni punto final de
+socio. Es el mismo servicio de prueba: sirve para prototipar, el uso se registra y no se deben subir datos
+confidenciales ni personales, así que **tampoco es para el chatbot de producción**. No se probó en esta revisión.
+
 ## Cómo repetir la comparación
 
 `scripts/evaluacion-ia/comparar.py` envía los mismos tres casos a cualquier servidor con API de chat compatible con
@@ -77,7 +86,12 @@ python scripts/evaluacion-ia/comparar.py --url http://localhost:11434/v1 --model
 ```
 
 Con un servicio que pida clave, el propietario la define en su terminal (`$env:NVIDIA_API_KEY = ...`) y la pasa con
-`--clave-env NVIDIA_API_KEY`. No hay línea base de `qwen2.5:3b` en este documento: Ollama no estaba en ejecución al
+`--clave-env NVIDIA_API_KEY`. El script solo habla con `localhost`, `127.0.0.1` y `integrate.api.nvidia.com`; otro
+servidor exige `--permitir-host`.
+
+```powershell
+python scripts/evaluacion-ia/comparar.py --url https://integrate.api.nvidia.com/v1 --modelo mistralai/mistral-large-4-1t-a52b --clave-env NVIDIA_API_KEY
+``` No hay línea base de `qwen2.5:3b` en este documento: Ollama no estaba en ejecución al
 momento de la revisión.
 
 ## Límites de esta evaluación

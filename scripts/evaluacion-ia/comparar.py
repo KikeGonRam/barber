@@ -19,7 +19,12 @@ import os
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
+
+# Solo se habla con estos servidores: evita que una URL mal escrita o pegada de otro lado mande las indicaciones y la
+# clave a un destino inesperado. Otro servidor exige --permitir-host, a propósito.
+HOSTS_PERMITIDOS = {"localhost", "127.0.0.1", "integrate.api.nvidia.com"}
 
 CASOS = [
     {
@@ -51,6 +56,15 @@ CASOS = [
 ]
 
 
+def validar_url(url, extra):
+    partes = urllib.parse.urlparse(url)
+    if partes.scheme not in ("http", "https") or not partes.hostname:
+        sys.exit("La URL debe empezar con http:// o https:// y tener un servidor.")
+    if partes.hostname not in HOSTS_PERMITIDOS | set(extra):
+        sys.exit(f"El servidor {partes.hostname} no está en la lista permitida; usa --permitir-host {partes.hostname} si es el correcto.")
+    return url.rstrip("/")
+
+
 def preguntar(url, modelo, clave, caso, tiempo_max):
     cuerpo = json.dumps({
         "model": modelo,
@@ -61,7 +75,7 @@ def preguntar(url, modelo, clave, caso, tiempo_max):
     cabeceras = {"Content-Type": "application/json"}
     if clave:
         cabeceras["Authorization"] = f"Bearer {clave}"
-    peticion = urllib.request.Request(url.rstrip("/") + "/chat/completions", data=cuerpo, headers=cabeceras)
+    peticion = urllib.request.Request(url + "/chat/completions", data=cuerpo, headers=cabeceras)
     inicio = time.monotonic()
     with urllib.request.urlopen(peticion, timeout=tiempo_max) as respuesta:
         datos = json.load(respuesta)
@@ -75,15 +89,17 @@ def main():
     p.add_argument("--modelo", required=True)
     p.add_argument("--clave-env", help="Nombre de la variable de entorno que guarda la clave (no se imprime)")
     p.add_argument("--tiempo-max", type=int, default=120)
+    p.add_argument("--permitir-host", action="append", default=[], help="Servidor adicional permitido (repetible)")
     a = p.parse_args()
+    url = validar_url(a.url, a.permitir_host)
     clave = os.environ.get(a.clave_env, "") if a.clave_env else ""
     if a.clave_env and not clave:
         sys.exit(f"La variable {a.clave_env} no está definida en este terminal.")
 
-    print(f"| Caso | Segundos | Cumple | Respuesta |\n|---|---:|:---:|---|")
+    print("| Caso | Segundos | Cumple | Respuesta |\n|---|---:|:---:|---|")
     for caso in CASOS:
         try:
-            segundos, texto = preguntar(a.url, a.modelo, clave, caso, a.tiempo_max)
+            segundos, texto = preguntar(url, a.modelo, clave, caso, a.tiempo_max)
             cumple = "sí" if caso["comprobar"](texto) else "no"
             print(f"| {caso['nombre']} | {segundos:.1f} | {cumple} | {texto.replace(chr(10), ' / ')} |")
         except (urllib.error.URLError, TimeoutError, KeyError, json.JSONDecodeError) as error:
