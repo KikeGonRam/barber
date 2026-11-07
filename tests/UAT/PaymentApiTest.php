@@ -45,6 +45,8 @@ class PaymentApiTest extends TestCase
     protected function tearDown(): void
     {
         Payment::query()->delete();
+        Order::query()->delete();
+        Product::query()->delete();
         GiftCard::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Service::query()->delete();
@@ -989,4 +991,81 @@ class PaymentApiTest extends TestCase
         $this->assertEquals($quote['monto_servicio'], (float) $payment->monto);
         $this->assertEquals($quote['total'], (float) $payment->monto + (float) $payment->propina);
     }
+    private function ventaProducto(int $stock = 5): Product
+    {
+        return Product::create([
+            'nombre' => 'Cera mate', 'categoria' => 'cuidado', 'descripcion' => 'Test',
+            'precio_compra' => 80, 'precio_venta' => 120, 'stock_actual' => $stock, 'stock_minimo' => 1,
+            'tipo' => Product::TYPE_SALE, 'activo' => true,
+        ]);
+    }
+
+    public function test_staff_sells_products_with_the_charge_and_they_are_attributed_to_the_appointment(): void
+    {
+        $staff = $this->staffUser('recepcionista', 'venta-productos@test.local');
+        $token = $this->tokenFor($staff, 'token-venta-productos');
+        [, $client] = $this->clientWithToken('token-cliente-venta-productos');
+        $appointment = $this->chargeableAppointmentFor($client);
+        $producto = $this->ventaProducto(5);
+
+        $response = $this->withToken($token)->postJson('/api/v1/payments', [
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 200,
+            'metodo_pago' => 'efectivo',
+            'productos' => [['product_id' => (string) $producto->id, 'cantidad' => 2]],
+        ]);
+
+        $response->assertCreated();
+        // El pago sigue siendo solo el servicio; el producto vive en su pedido.
+        $this->assertSame(200.0, (float) $response->json('data.monto'));
+        $this->assertSame(3, (int) $producto->fresh()->stock_actual);
+
+        $order = Order::where('appointment_id', (string) $appointment->id)->firstOrFail();
+        $this->assertSame('cita', $order->tipo);
+        $this->assertSame('entregado', $order->estado);
+        $this->assertSame('efectivo', $order->metodo_pago);
+        $this->assertSame(240.0, (float) $order->total);
+    }
+
+    public function test_a_sale_without_enough_stock_rolls_back_the_whole_charge(): void
+    {
+        $staff = $this->staffUser('recepcionista', 'venta-sin-stock@test.local');
+        $token = $this->tokenFor($staff, 'token-venta-sin-stock');
+        [, $client] = $this->clientWithToken('token-cliente-sin-stock');
+        $appointment = $this->chargeableAppointmentFor($client);
+        $producto = $this->ventaProducto(1);
+
+        $response = $this->withToken($token)->postJson('/api/v1/payments', [
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 200,
+            'metodo_pago' => 'efectivo',
+            'productos' => [['product_id' => (string) $producto->id, 'cantidad' => 3]],
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertSame(0, Payment::where('appointment_id', (string) $appointment->id)->count());
+        $this->assertSame(1, (int) $producto->fresh()->stock_actual);
+        $this->assertSame(0, Order::where('appointment_id', (string) $appointment->id)->count());
+    }
+
+    public function test_products_are_not_accepted_in_a_card_charge(): void
+    {
+        $staff = $this->staffUser('recepcionista', 'venta-tarjeta@test.local');
+        $token = $this->tokenFor($staff, 'token-venta-tarjeta');
+        [, $client] = $this->clientWithToken('token-cliente-venta-tarjeta');
+        $appointment = $this->chargeableAppointmentFor($client);
+        $producto = $this->ventaProducto(5);
+
+        $response = $this->withToken($token)->postJson('/api/v1/payments', [
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 200,
+            'metodo_pago' => 'tarjeta',
+            'stripe_payment_id' => 'pi_test_productos',
+            'productos' => [['product_id' => (string) $producto->id, 'cantidad' => 1]],
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertSame(5, (int) $producto->fresh()->stock_actual);
+    }
+
 }
