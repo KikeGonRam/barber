@@ -17,6 +17,7 @@ use App\Services\Loyalty\LoyaltyService;
 use App\Services\Loyalty\RaffleService;
 use App\Services\Loyalty\ReferralService;
 use App\Services\Membership\MembershipService;
+use App\Services\Order\OrderService;
 use App\Services\Package\GiftCardService;
 use App\Services\Package\PackageService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -43,6 +44,7 @@ class PaymentService
         private readonly GiftCardService $giftCards,
         private readonly ReferralService $referrals,
         private readonly MembershipService $memberships,
+        private readonly OrderService $orders,
     ) {}
 
     /**
@@ -284,8 +286,47 @@ class PaymentService
                 $this->raffle->claim($premioRifa, $appointment);
             }
 
+            // Productos vendidos en el cobro: viven como un pedido de la cita
+            // (descuenta stock y queda atribuido al barbero de la cita), se
+            // entrega y se cobra en el mismo acto, con el mismo método. No
+            // entran en Payment::monto para no alterar precio_cobrado, el
+            // recibo ni los totales del servicio. Si falta stock, la
+            // transacción completa se revierte: no queda un cobro a medias.
+            if (! empty($payload['productos'])) {
+                $this->sellProductsAtCharge($appointment, $payload['productos'], (string) $payload['metodo_pago']);
+            }
+
             return $this->completeCharge($payment, $appointment, $monto);
         });
+    }
+
+    /**
+     * Vende productos junto con el cobro de una cita: crea el pedido de tipo
+     * 'cita' (valida y descuenta stock con precio vigente) y lo marca como
+     * entregado y cobrado con el método del pago.
+     */
+    private function sellProductsAtCharge(Appointment $appointment, array $productos, string $metodoPago): void
+    {
+        if ($metodoPago === 'tarjeta') {
+            throw new PaymentException('Los productos no se pueden agregar a un cobro con tarjeta: cóbralos en efectivo o transferencia.');
+        }
+
+        $client = $appointment->client;
+        if (! $client instanceof Client) {
+            throw new PaymentException('No se pueden vender productos: esta cita no tiene un cliente asociado.');
+        }
+
+        try {
+            $order = $this->orders->place($client, $productos, 'cita', (string) $appointment->id);
+        } catch (\RuntimeException $e) {
+            throw new PaymentException($e->getMessage());
+        }
+
+        $order->update([
+            'estado' => 'entregado',
+            'metodo_pago' => $metodoPago,
+            'entregado_en' => now(),
+        ]);
     }
 
     /**

@@ -67,7 +67,7 @@ class OrderService
         // stock permanentemente descontado sin ningun Order que lo
         // respalde (el gap real que motivo este cambio, ver auditoria de
         // Fase 4).
-        return DB::transaction(function () use ($items, $products, $client, $tipo, $appointmentId) {
+        $crear = function () use ($items, $products, $client, $tipo, $appointmentId) {
             $userId = (string) ($client->user_id ?? '');
             $motivo = $tipo === 'cita' ? 'Productos de cita' : 'Pedido de tienda';
             $lines = [];
@@ -108,7 +108,12 @@ class OrderService
                 'tipo' => $tipo,
                 'appointment_id' => $appointmentId,
             ]);
-        });
+        };
+
+        // El driver mongodb no soporta transacciones anidadas: si el llamador
+        // (p.ej. PaymentService::create() al vender productos con el cobro)
+        // ya abrió una, participamos en ella en vez de abrir otra.
+        return DB::transactionLevel() > 0 ? $crear() : DB::transaction($crear);
     }
 
     /**

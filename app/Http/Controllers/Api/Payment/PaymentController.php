@@ -527,6 +527,9 @@ class PaymentController extends Controller
             'usar_paquete_id' => ['nullable', 'string', 'exists:client_packages,id'],
             'codigo_gift_card' => ['nullable', 'string', 'max:20'],
             'stripe_payment_id' => ['required_if:metodo_pago,tarjeta', 'nullable', 'string'],
+            'productos' => ['nullable', 'array', 'max:10'],
+            'productos.*.product_id' => ['required_with:productos', 'string'],
+            'productos.*.cantidad' => ['required_with:productos', 'integer', 'min:1', 'max:20'],
         ]);
 
         $payment = $this->paymentService->create($validated, (string) $request->user()->id);

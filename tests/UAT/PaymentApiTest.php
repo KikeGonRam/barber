@@ -9,8 +9,10 @@ use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\GiftCard;
 use App\Models\MobileApiToken;
+use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Permission;
+use App\Models\Product;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\User;
@@ -45,6 +47,8 @@ class PaymentApiTest extends TestCase
     protected function tearDown(): void
     {
         Payment::query()->delete();
+        Order::query()->delete();
+        Product::query()->delete();
         GiftCard::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Service::query()->delete();
@@ -988,5 +992,68 @@ class PaymentApiTest extends TestCase
         $payment = Payment::where('appointment_id', (string) $appointment->id)->firstOrFail();
         $this->assertEquals($quote['monto_servicio'], (float) $payment->monto);
         $this->assertEquals($quote['total'], (float) $payment->monto + (float) $payment->propina);
+    }
+
+    private function ventaProducto(int $stock): Product
+    {
+        return Product::create([
+            'nombre' => 'Cera mate', 'categoria' => 'cuidado', 'descripcion' => 'Test',
+            'precio_compra' => 80, 'precio_venta' => 120, 'stock_actual' => $stock, 'stock_minimo' => 1,
+            'tipo' => Product::TYPE_SALE, 'activo' => true,
+        ]);
+    }
+
+    /** Cobra una cita con productos y devuelve [respuesta, cita, producto]. */
+    private function cobrarConProducto(string $metodo, int $stock, int $cantidad): array
+    {
+        $staff = $this->staffUser('recepcionista', Str::uuid().'@test.local');
+        $token = $this->tokenFor($staff, 'token-venta-'.Str::random(8));
+        [, $client] = $this->clientWithToken('token-cliente-venta-'.Str::random(8));
+        $appointment = $this->chargeableAppointmentFor($client);
+        $producto = $this->ventaProducto($stock);
+
+        $body = [
+            'appointment_id' => (string) $appointment->id,
+            'monto' => 200,
+            'metodo_pago' => $metodo,
+            'productos' => [['product_id' => (string) $producto->id, 'cantidad' => $cantidad]],
+        ];
+        if ($metodo === 'tarjeta') {
+            $body['stripe_payment_id'] = 'pi_test_productos';
+        }
+
+        return [$this->withToken($token)->postJson('/api/v1/payments', $body), $appointment, $producto];
+    }
+
+    public function test_staff_sells_products_with_the_charge_and_they_are_attributed_to_the_appointment(): void
+    {
+        [$response, $appointment, $producto] = $this->cobrarConProducto('efectivo', 5, 2);
+
+        $response->assertCreated();
+        // El pago sigue siendo solo el servicio; el producto vive en su pedido.
+        $this->assertSame(200.0, (float) $response->json('data.monto'));
+        $this->assertSame(3, (int) $producto->fresh()->stock_actual);
+
+        $order = Order::where('appointment_id', (string) $appointment->id)->firstOrFail();
+        $this->assertSame(['cita', 'entregado', 'efectivo'], array_values($order->only(['tipo', 'estado', 'metodo_pago'])));
+        $this->assertSame(240.0, (float) $order->getAttribute('total'));
+    }
+
+    public function test_a_sale_without_enough_stock_rolls_back_the_whole_charge(): void
+    {
+        [$response, $appointment, $producto] = $this->cobrarConProducto('efectivo', 1, 3);
+
+        $response->assertStatus(422);
+        $this->assertSame(0, Payment::where('appointment_id', (string) $appointment->id)->count());
+        $this->assertSame(0, Order::where('appointment_id', (string) $appointment->id)->count());
+        $this->assertSame(1, (int) $producto->fresh()->stock_actual);
+    }
+
+    public function test_products_are_not_accepted_in_a_card_charge(): void
+    {
+        [$response, , $producto] = $this->cobrarConProducto('tarjeta', 5, 1);
+
+        $response->assertStatus(422);
+        $this->assertSame(5, (int) $producto->fresh()->stock_actual);
     }
 }
