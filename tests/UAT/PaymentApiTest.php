@@ -1035,7 +1035,8 @@ class PaymentApiTest extends TestCase
         $this->assertSame(3, (int) $producto->fresh()->stock_actual);
 
         $order = Order::where('appointment_id', (string) $appointment->id)->firstOrFail();
-        $this->assertSame(['cita', 'entregado', 'efectivo', 240.0], [$order->tipo, $order->estado, $order->metodo_pago, (float) $order->total]);
+        $this->assertSame(['cita', 'entregado', 'efectivo'], array_values($order->only(['tipo', 'estado', 'metodo_pago'])));
+        $this->assertSame(240.0, (float) $order->getAttribute('total'));
     }
 
     public function test_a_sale_without_enough_stock_rolls_back_the_whole_charge(): void

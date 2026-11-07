@@ -311,12 +311,13 @@ class PaymentService
             throw new PaymentException('Los productos no se pueden agregar a un cobro con tarjeta: cóbralos en efectivo o transferencia.');
         }
 
-        if (! $appointment->client) {
+        $client = $appointment->client;
+        if (! $client instanceof Client) {
             throw new PaymentException('No se pueden vender productos: esta cita no tiene un cliente asociado.');
         }
 
         try {
-            $order = $this->orders->place($appointment->client, $productos, 'cita', (string) $appointment->id);
+            $order = $this->orders->place($client, $productos, 'cita', (string) $appointment->id);
         } catch (\RuntimeException $e) {
             throw new PaymentException($e->getMessage());
         }
