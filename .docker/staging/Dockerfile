@@ -9,7 +9,7 @@
 # ejecucion. Asi el compilador y los encabezados (~200 MB) no viajan a ECR ni a Fargate.
 
 # ---------- Etapa 1: compilar extensiones y dependencias ----------
-FROM php:8.4-fpm AS build
+FROM php:8.5-fpm AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -60,7 +60,7 @@ RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framew
 RUN composer install --no-interaction --no-progress --optimize-autoloader --no-scripts 2>&1
 
 # ---------- Etapa 2: imagen final ----------
-FROM php:8.4-fpm
+FROM php:8.5-fpm
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER=1
