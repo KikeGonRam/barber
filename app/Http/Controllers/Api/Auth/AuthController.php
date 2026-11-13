@@ -97,12 +97,7 @@ class AuthController extends Controller
      * @bodyParam device_name string Nombre del dispositivo. Example: Android Emulator
      * @bodyParam plataforma string Cliente que se registra: `web` o `movil` (ver login). Example: movil
      *
-     * @response 201 {
-     *  "message": "Registro exitoso.",
-     *  "token_type": "Bearer",
-     *  "token": "2|xyz...",
-     *  "user": { "id": 5, "name": "Nuevo Cliente", "role": "cliente" }
-     * }
+     * @responseFile 201 docs/contrato/auth-register.201.json
      */
     public function register(Request $request): JsonResponse
     {

@@ -116,6 +116,21 @@ class ApiContractTest extends TestCase
         $this->assertMatchesContract('auth-login.200.json', $response->json());
     }
 
+    public function test_register_matches_the_documented_contract(): void
+    {
+        $response = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Nuevo Contrato',
+            'email' => 'nuevo-contrato@test.local',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
+            'device_name' => 'Contrato',
+            'plataforma' => 'movil',
+        ]);
+
+        $response->assertCreated();
+        $this->assertMatchesContract('auth-register.201.json', $response->json());
+    }
+
     public function test_me_matches_the_documented_contract(): void
     {
         $token = $this->tokenFor($this->clientUser, 'token-contrato-me');
