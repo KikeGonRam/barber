@@ -265,35 +265,108 @@ paths:
               schema:
                 type: object
                 example:
-                  message: 'Registro exitoso.'
+                  message: 'Cuenta creada exitosamente.'
                   token_type: Bearer
-                  token: 2|xyz...
+                  token: TOKEN_DE_EJEMPLO
+                  expires_at: '2026-11-04T12:00:00.000000Z'
                   user:
-                    id: 5
-                    name: 'Nuevo Cliente'
-                    role: cliente
+                    id: 6710a1b2c3d4e5f607182930
+                    name: 'Juan Pérez'
+                    email: juan@example.com
+                    avatar_url: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                    roles:
+                      - cliente
+                    profile_complete: true
+                    profile_missing:
+                      - telefono
+                    client_id: 6710a1b2c3d4e5f607182931
+                    barber_id: 6710a1b2c3d4e5f607182932
+                    client:
+                      telefono: '5512345678'
+                      fecha_nacimiento: '1995-04-12'
+                      sexo: masculino
                 properties:
                   message:
                     type: string
-                    example: 'Registro exitoso.'
+                    example: 'Cuenta creada exitosamente.'
                   token_type:
                     type: string
                     example: Bearer
                   token:
                     type: string
-                    example: 2|xyz...
+                    example: TOKEN_DE_EJEMPLO
+                  expires_at:
+                    type: string
+                    example: '2026-11-04T12:00:00.000000Z'
                   user:
                     type: object
                     properties:
                       id:
-                        type: integer
-                        example: 5
+                        type: string
+                        example: 6710a1b2c3d4e5f607182930
                       name:
                         type: string
-                        example: 'Nuevo Cliente'
-                      role:
+                        example: 'Juan Pérez'
+                      email:
                         type: string
-                        example: cliente
+                        example: juan@example.com
+                      avatar_url:
+                        type: string
+                        example: 'https://urbanblade.example/storage/avatars/juan.jpg'
+                      roles:
+                        type: array
+                        example:
+                          - cliente
+                        items:
+                          type: string
+                      profile_complete:
+                        type: boolean
+                        example: true
+                      profile_missing:
+                        type: array
+                        example:
+                          - telefono
+                        items:
+                          type: string
+                      client_id:
+                        type: string
+                        example: 6710a1b2c3d4e5f607182931
+                      barber_id:
+                        type: string
+                        example: 6710a1b2c3d4e5f607182932
+                      client:
+                        type: object
+                        properties:
+                          telefono:
+                            type: string
+                            example: '5512345678'
+                          fecha_nacimiento:
+                            type: string
+                            example: '1995-04-12'
+                          sexo:
+                            type: string
+                            example: masculino
+                        required:
+                          - telefono
+                          - fecha_nacimiento
+                          - sexo
+                    required:
+                      - id
+                      - name
+                      - email
+                      - avatar_url
+                      - roles
+                      - profile_complete
+                      - profile_missing
+                      - client_id
+                      - barber_id
+                      - client
+                required:
+                  - message
+                  - token_type
+                  - token
+                  - expires_at
+                  - user
       tags:
         - Autenticación
       requestBody:
