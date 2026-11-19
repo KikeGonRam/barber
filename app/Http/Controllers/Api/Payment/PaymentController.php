@@ -282,7 +282,8 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Esta cita no está lista para cobro.'], 422);
         }
 
-        if ($appointment->payments()->exists()) {
+        // Misma regla que PaymentService::create(): un pago rechazado o un anticipo no bloquean el cobro final.
+        if (app(\App\Repositories\Eloquent\PaymentRepository::class)->existsForAppointment((string) $appointment->id)) {
             return response()->json(['message' => 'La cita ya tiene un pago registrado.'], 422);
         }
 

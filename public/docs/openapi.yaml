@@ -837,6 +837,8 @@ paths:
                           propina_sugerida: 25
                           has_payment: false
                           is_chargeable: true
+                          payment_status: pendiente_en_recepcion
+                          can_change_payment_method: true
                           pago_resuelto: false
                           puede_iniciar: false
                           motivo_no_iniciar: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
@@ -879,6 +881,8 @@ paths:
                             propina_sugerida: 25
                             has_payment: false
                             is_chargeable: true
+                            payment_status: pendiente_en_recepcion
+                            can_change_payment_method: true
                             pago_resuelto: false
                             puede_iniciar: false
                             motivo_no_iniciar: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
@@ -939,6 +943,13 @@ paths:
                               type: boolean
                               example: false
                             is_chargeable:
+                              type: boolean
+                              example: true
+                            payment_status:
+                              type: string
+                              enum: [sin_pago, pendiente_en_recepcion, transferencia_en_revision, pagado]
+                              example: pendiente_en_recepcion
+                            can_change_payment_method:
                               type: boolean
                               example: true
                             pago_resuelto:
@@ -1051,6 +1062,8 @@ paths:
                             - propina_sugerida
                             - has_payment
                             - is_chargeable
+                            - payment_status
+                            - can_change_payment_method
                             - pago_resuelto
                             - puede_iniciar
                             - motivo_no_iniciar
@@ -1083,6 +1096,8 @@ paths:
                           propina_sugerida: 25
                           has_payment: false
                           is_chargeable: true
+                          payment_status: pendiente_en_recepcion
+                          can_change_payment_method: true
                           pago_resuelto: false
                           puede_iniciar: false
                           motivo_no_iniciar: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
@@ -1167,6 +1182,8 @@ paths:
                             propina_sugerida: 25
                             has_payment: false
                             is_chargeable: true
+                            payment_status: pendiente_en_recepcion
+                            can_change_payment_method: true
                             pago_resuelto: false
                             puede_iniciar: false
                             motivo_no_iniciar: 'El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.'
@@ -1227,6 +1244,13 @@ paths:
                               type: boolean
                               example: false
                             is_chargeable:
+                              type: boolean
+                              example: true
+                            payment_status:
+                              type: string
+                              enum: [sin_pago, pendiente_en_recepcion, transferencia_en_revision, pagado]
+                              example: pendiente_en_recepcion
+                            can_change_payment_method:
                               type: boolean
                               example: true
                             pago_resuelto:
@@ -1339,6 +1363,8 @@ paths:
                             - propina_sugerida
                             - has_payment
                             - is_chargeable
+                            - payment_status
+                            - can_change_payment_method
                             - pago_resuelto
                             - puede_iniciar
                             - motivo_no_iniciar

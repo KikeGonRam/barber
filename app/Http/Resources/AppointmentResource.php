@@ -32,8 +32,15 @@ class AppointmentResource extends JsonResource
             // Solo presentes cuando el query de origen usó withCount('payments')
             // (AppointmentController::index()) -- el resto de usos de este
             // Resource simplemente no incluyen estos dos campos.
-            'has_payment' => $this->when(isset($this->payments_count), fn () => $this->payments_count > 0),
+            // has_payment ignora los pagos rechazados (antes un rechazo escondía «Pagar cita»).
+            'has_payment' => $this->when(isset($this->payments_count), fn () => ($this->pagos_vigentes_count ?? $this->payments_count) > 0),
             'is_chargeable' => $this->when(isset($this->payments_count), fn () => in_array($this->estado, AppointmentStatusService::CHARGEABLE, true)),
+            // sin_pago | pendiente_en_recepcion | transferencia_en_revision | pagado. El efectivo no deja
+            // registro: «pendiente_en_recepcion» = cita ya cobrable sin pagos (se paga al llegar o desde la app).
+            'payment_status' => $this->when(isset($this->payments_count), fn () => $this->paymentStatus($confirmada)),
+            // El cliente aún puede elegir cómo pagar: cita pendiente/confirmada sin cobro ni transferencia en revisión.
+            'can_change_payment_method' => $this->when(isset($this->payments_count), fn () => in_array($this->estado, ['pendiente', 'confirmada'], true)
+                && in_array($this->paymentStatus($confirmada), ['sin_pago', 'pendiente_en_recepcion'], true)),
             // Reglas para iniciar el servicio (ServiceStartGuard), solo en citas confirmadas: las apps
             // deshabilitan «Iniciar» y muestran el motivo en vez de dejar que el servidor responda 422.
             // Siempre presentes (null fuera de «confirmada») para que el contrato de la API sea estable.
@@ -80,5 +87,20 @@ class AppointmentResource extends JsonResource
                 'duracion_min' => $this->service?->duracion_min,
             ],
         ];
+    }
+
+    /** Estado del pago de la cita a partir de los conteos de AppointmentController::index(). */
+    private function paymentStatus(bool $confirmada): string
+    {
+        if ((int) ($this->pagos_cobrados_count ?? 0) > 0
+            || ($confirmada && app(ServiceStartGuard::class)->isPaymentResolved($this->resource))) {
+            return 'pagado';
+        }
+
+        if ((int) ($this->pagos_en_revision_count ?? 0) > 0) {
+            return 'transferencia_en_revision';
+        }
+
+        return in_array($this->estado, AppointmentStatusService::CHARGEABLE, true) ? 'pendiente_en_recepcion' : 'sin_pago';
     }
 }
