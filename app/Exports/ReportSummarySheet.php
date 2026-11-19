@@ -85,8 +85,9 @@ class ReportSummarySheet implements WithCharts, WithEvents, WithTitle
     {
         $sheet->mergeCells('A1:L2');
         $sheet->setCellValue('A1', 'Resumen ejecutivo  ·  '.$this->title);
-        $sheet->getStyle('A1:L2')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('0A0A0A');
-        $sheet->getStyle('A1')->getFont()->setSize(16)->setBold(true)->getColor()->setRGB('D4AF37');
+        $sheet->getStyle('A1:L2')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F7F4E8');
+        $sheet->getStyle('A1:L2')->getBorders()->getTop()->setBorderStyle(Border::BORDER_THICK)->getColor()->setRGB('D4AF37');
+        $sheet->getStyle('A1')->getFont()->setSize(16)->setBold(true)->getColor()->setRGB('0A0A0A');
         $sheet->getStyle('A1')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER)->setIndent(1);
         $sheet->getRowDimension(1)->setRowHeight(18);
         $sheet->getRowDimension(2)->setRowHeight(18);
@@ -131,14 +132,14 @@ class ReportSummarySheet implements WithCharts, WithEvents, WithTitle
         foreach (array_slice($this->narrative['kpis'], 0, 4) as $i => $kpi) {
             $from = chr(ord('A') + $i * 3);
             $to = chr(ord($from) + 2);
-            foreach ([[$first, strtoupper($kpi['label']), 8, '999999', false], [$first + 1, $kpi['value'], 18, 'FFFFFF', true], [$first + 2, $kpi['hint'], 9, 'D4AF37', false]] as [$row, $text, $size, $color, $bold]) {
+            foreach ([[$first, strtoupper($kpi['label']), 8, '777777', false], [$first + 1, $kpi['value'], 18, '0A0A0A', true], [$first + 2, $kpi['hint'], 9, '8A6D12', false]] as [$row, $text, $size, $color, $bold]) {
                 $sheet->mergeCells("{$from}{$row}:{$to}{$row}");
                 $sheet->setCellValue($from.$row, $text);
                 $sheet->getStyle($from.$row)->getFont()->setSize($size)->setBold($bold)->getColor()->setRGB($color);
                 $sheet->getStyle($from.$row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_CENTER)->setIndent(1);
             }
             $block = "{$from}{$first}:{$to}".($first + 2);
-            $sheet->getStyle($block)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('0A0A0A');
+            $sheet->getStyle($block)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FAF8F0');
             $sheet->getStyle("{$from}{$first}:{$to}{$first}")->getBorders()->getTop()->setBorderStyle(Border::BORDER_THICK)->getColor()->setRGB('D4AF37');
             // Separación visual entre tarjetas: borde blanco a la derecha de cada una.
             $sheet->getStyle($block)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK)->getColor()->setRGB('FFFFFF');

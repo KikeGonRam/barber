@@ -36,29 +36,24 @@
     <title>{{ $title }}</title>
     <style>
         @page { margin: 78px 44px 64px 44px; }
-        @page :first { margin: 0; }
         body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #2b2b2b; line-height: 1.5; margin: 0; padding: 0; }
 
-        /* ---------- Portada ---------- */
-        .cover { background-color: #0a0a0a; height: 1118px; page-break-after: always; position: relative; }
-        .cover-band { height: 10px; background-color: #d4af37; }
-        .cover-inner { padding: 70px 70px 0 70px; }
-        .brand { font-size: 30px; font-weight: bold; color: #ffffff; letter-spacing: -1px; margin: 0; }
-        .brand span { color: #d4af37; }
-        .brand-sub { font-size: 8px; letter-spacing: 4px; color: #8a8a8a; text-transform: uppercase; margin: 4px 0 0; }
-        .cover-kind { margin-top: 260px; font-size: 10px; letter-spacing: 4px; color: #d4af37; text-transform: uppercase; font-weight: bold; }
-        .cover-title { font-size: 42px; line-height: 1.05; font-weight: bold; color: #ffffff; margin: 14px 0 0; letter-spacing: -1px; }
-        .cover-rule { width: 90px; height: 4px; background-color: #d4af37; margin: 26px 0; }
-        .cover-period { font-size: 14px; color: #cfcfcf; margin: 0; }
-        .cover-meta { position: absolute; left: 70px; right: 70px; bottom: 80px; border-top: 1px solid #333333; padding-top: 18px; }
-        .cover-meta table { width: 100%; border-collapse: collapse; }
-        .cover-meta td { width: 33%; vertical-align: top; padding-right: 10px; }
-        .meta-label { font-size: 7px; letter-spacing: 2px; text-transform: uppercase; color: #777777; margin: 0 0 3px; }
-        .meta-value { font-size: 11px; color: #ffffff; margin: 0; font-weight: bold; }
-        .cover-conf { margin-top: 18px; font-size: 7px; letter-spacing: 2px; text-transform: uppercase; color: #666666; }
+        /* ---------- Encabezado del reporte (compacto, en la primera página) ---------- */
+        .cover { border-top: 6px solid #d4af37; padding: 18px 0 16px; margin-bottom: 18px; border-bottom: 1px solid #e6e1cf; }
+        .cover table { width: 100%; border-collapse: collapse; }
+        .cover td { vertical-align: bottom; }
+        .brand { font-size: 22px; font-weight: bold; color: #0a0a0a; letter-spacing: -0.5px; margin: 0; }
+        .brand span { color: #b8941f; }
+        .brand-sub { font-size: 7px; letter-spacing: 3px; color: #8a8a8a; text-transform: uppercase; margin: 2px 0 0; }
+        .cover-kind { font-size: 8px; letter-spacing: 3px; color: #b8941f; text-transform: uppercase; font-weight: bold; margin: 0; }
+        .cover-title { font-size: 24px; line-height: 1.1; font-weight: bold; color: #0a0a0a; margin: 4px 0 0; letter-spacing: -0.5px; }
+        .cover-period { font-size: 11px; color: #555555; margin: 6px 0 0; }
+        .cover-chips { margin-top: 12px; }
+        .cover-chips span { display: inline-block; background-color: #f7f4e8; border: 1px solid #e6e1cf; padding: 3px 9px; margin-right: 6px; font-size: 8px; color: #5c4a0f; }
+        .cover-chips b { color: #0a0a0a; }
 
         /* ---------- Secciones ---------- */
-        .section { page-break-before: always; }
+        .section { page-break-before: auto; margin-bottom: 8px; }
         .section.first, .section.flow { page-break-before: auto; }
         .eyebrow { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: #b8941f; font-weight: bold; margin: 0 0 4px; }
         h2.section-title { font-size: 20px; margin: 0 0 14px; color: #0a0a0a; letter-spacing: -0.5px; }
@@ -75,33 +70,33 @@
 
         /* ---------- Resumen ejecutivo ---------- */
         table.kpis { width: 100%; border-collapse: separate; border-spacing: 8px 0; margin: 0 -8px; }
-        table.kpis td { width: 25%; background-color: #0a0a0a; padding: 14px 12px; vertical-align: top; border-top: 3px solid #d4af37; }
-        .kpi-label { font-size: 7px; letter-spacing: 2px; text-transform: uppercase; color: #999999; margin: 0 0 6px; }
-        .kpi-value { font-size: 17px; font-weight: bold; color: #ffffff; margin: 0; }
-        .kpi-hint { font-size: 8px; color: #d4af37; margin: 4px 0 0; }
+        table.kpis td { width: 25%; background-color: #faf8f0; border: 1px solid #e6e1cf; padding: 12px 12px; vertical-align: top; border-top: 3px solid #d4af37; }
+        .kpi-label { font-size: 7px; letter-spacing: 2px; text-transform: uppercase; color: #777777; margin: 0 0 6px; }
+        .kpi-value { font-size: 17px; font-weight: bold; color: #0a0a0a; margin: 0; }
+        .kpi-hint { font-size: 8px; color: #8a6d12; margin: 4px 0 0; }
 
         table.findings { width: 100%; border-collapse: collapse; }
         table.findings td { padding: 9px 0; border-bottom: 1px solid #ececec; font-size: 11px; vertical-align: top; }
         table.findings td.n { width: 26px; font-weight: bold; color: #d4af37; font-size: 13px; }
 
         /* ---------- Graficas ---------- */
-        .chart-box { background-color: #0a0a0a; padding: 20px 24px; }
-        .chart-title { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #d4af37; margin: 0 0 2px; }
-        .chart-subtitle { font-size: 8px; color: #8a8a8a; margin: 0 0 14px; }
+        .chart-box { background-color: #fdfcf8; border: 1px solid #e6e1cf; padding: 16px 20px; }
+        .chart-title { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #8a6d12; margin: 0 0 2px; }
+        .chart-subtitle { font-size: 8px; color: #777777; margin: 0 0 14px; }
         .chart-row { margin-bottom: 8px; white-space: nowrap; }
-        .chart-label { display: inline-block; width: 130px; font-size: 9px; color: #d0d0d0; vertical-align: middle; overflow: hidden; }
-        .chart-track { display: inline-block; width: 270px; height: 12px; background-color: #1c1c1c; vertical-align: middle; }
+        .chart-label { display: inline-block; width: 130px; font-size: 9px; color: #333333; vertical-align: middle; overflow: hidden; }
+        .chart-track { display: inline-block; width: 270px; height: 12px; background-color: #efece0; vertical-align: middle; }
         .chart-bar { display: block; height: 12px; }
-        .chart-value { display: inline-block; width: 90px; text-align: right; font-size: 9px; font-weight: bold; color: #ffffff; vertical-align: middle; }
+        .chart-value { display: inline-block; width: 90px; text-align: right; font-size: 9px; font-weight: bold; color: #0a0a0a; vertical-align: middle; }
         table.cols { width: 100%; border-collapse: collapse; table-layout: fixed; }
         table.cols td { vertical-align: bottom; text-align: center; padding: 0 1px; }
-        table.cols td.lbl { font-size: 6px; color: #8a8a8a; padding-top: 4px; vertical-align: top; }
+        table.cols td.lbl { font-size: 6px; color: #666666; padding-top: 4px; vertical-align: top; }
         table.cols .col-bar { background-color: #d4af37; margin: 0 auto; width: 100%; }
-        .chart-note { font-size: 8px; color: #8a8a8a; margin: 10px 0 0; }
+        .chart-note { font-size: 8px; color: #777777; margin: 10px 0 0; }
 
         /* ---------- Tabla de detalle ---------- */
         table.data { width: 100%; border-collapse: collapse; }
-        table.data th { text-align: left; font-size: 8px; text-transform: uppercase; letter-spacing: 0.8px; color: #d4af37; background-color: #0a0a0a; padding: 9px 7px; }
+        table.data th { text-align: left; font-size: 8px; text-transform: uppercase; letter-spacing: 0.8px; color: #5c4a0f; background-color: #f1ecd8; border-bottom: 2px solid #d4af37; padding: 9px 7px; }
         table.data td { padding: 7px; border-bottom: 1px solid #ececec; font-size: 9px; color: #333333; }
         table.data tr.alt td { background-color: #f7f7f5; }
         table.data .r { text-align: right; }
@@ -114,34 +109,23 @@
 <body>
     {{-- ============ PORTADA ============ --}}
     <div class="cover">
-        <div class="cover-band"></div>
-        <div class="cover-inner">
-            <p class="brand">Urban<span>Blade</span></p>
-            <p class="brand-sub">Elite Grooming Studio</p>
-
-            <p class="cover-kind">Reporte ejecutivo</p>
-            <p class="cover-title">{{ $title }}</p>
-            <div class="cover-rule"></div>
-            <p class="cover-period">{{ $narrative['period'] }}</p>
-        </div>
-        <div class="cover-meta">
-            <table role="presentation">
-                <tr>
-                    <td>
-                        <p class="meta-label">Generado</p>
-                        <p class="meta-value">{{ $generated->translatedFormat('d \d\e F \d\e Y') }}</p>
-                    </td>
-                    <td>
-                        <p class="meta-label">Folio del reporte</p>
-                        <p class="meta-value">{{ $folio }}</p>
-                    </td>
-                    <td>
-                        <p class="meta-label">Preparado por</p>
-                        <p class="meta-value">{{ $preparedBy ?? 'Administración UrbanBlade' }}</p>
-                    </td>
-                </tr>
-            </table>
-            <p class="cover-conf">Documento confidencial · Uso interno · Inteligencia de negocio</p>
+        <table role="presentation">
+            <tr>
+                <td>
+                    <p class="cover-kind">Reporte ejecutivo</p>
+                    <p class="cover-title">{{ $title }}</p>
+                    <p class="cover-period">{{ $narrative['period'] }}</p>
+                </td>
+                <td style="text-align: right; width: 150px;">
+                    <p class="brand">Urban<span>Blade</span></p>
+                    <p class="brand-sub">Elite Grooming Studio</p>
+                </td>
+            </tr>
+        </table>
+        <div class="cover-chips">
+            <span>Generado <b>{{ $generated->translatedFormat('d \d\e F \d\e Y') }}</b></span>
+            <span>Folio <b>{{ $folio }}</b></span>
+            <span>Preparado por <b>{{ $preparedBy ?? 'Administración UrbanBlade' }}</b></span>
         </div>
     </div>
 
@@ -162,14 +146,6 @@
             <tr><td class="k">Generado</td><td>{{ $generated->format('d/m/Y H:i') }}</td></tr>
         </table>
 
-        <h3 class="sub-title">Contenido</h3>
-        <table class="toc" role="presentation">
-            <tr><td class="n">01</td><td>Introducción y alcance</td></tr>
-            <tr><td class="n">02</td><td>Resumen ejecutivo e indicadores clave</td></tr>
-            <tr><td class="n">03</td><td>Análisis y hallazgos</td></tr>
-            <tr><td class="n">04</td><td>Detalle del informe</td></tr>
-            <tr><td class="n">05</td><td>Notas y metodología</td></tr>
-        </table>
     </div>
 
     {{-- ============ RESUMEN EJECUTIVO ============ --}}
