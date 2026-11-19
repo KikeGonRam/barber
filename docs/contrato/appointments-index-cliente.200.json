@@ -12,6 +12,8 @@
             "propina_sugerida": 25,
             "has_payment": false,
             "is_chargeable": true,
+            "payment_status": "pendiente_en_recepcion",
+            "can_change_payment_method": true,
             "pago_resuelto": false,
             "puede_iniciar": false,
             "motivo_no_iniciar": "El pago de esta cita aún no está resuelto. Cóbrala en recepción o espera a que se verifique la transferencia antes de iniciar el servicio.",

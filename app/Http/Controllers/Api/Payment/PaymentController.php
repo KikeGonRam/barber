@@ -282,7 +282,10 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Esta cita no está lista para cobro.'], 422);
         }
 
-        if ($appointment->payments()->exists()) {
+        // Cualquier pago vigente bloquea el intento, también un anticipo: el importe de Stripe es el precio
+        // completo y el webhook resta después el depósito verificado, así que el cliente pagaría de más.
+        // Solo un pago rechazado no cuenta (antes un rechazo impedía pagar con tarjeta).
+        if ($appointment->payments()->where('estado', '!=', Payment::ESTADO_RECHAZADO)->exists()) {
             return response()->json(['message' => 'La cita ya tiene un pago registrado.'], 422);
         }
 
