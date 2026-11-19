@@ -37,10 +37,10 @@ class AppointmentResource extends JsonResource
             'is_chargeable' => $this->when(isset($this->payments_count), fn () => in_array($this->estado, AppointmentStatusService::CHARGEABLE, true)),
             // sin_pago | pendiente_en_recepcion | transferencia_en_revision | pagado. El efectivo no deja
             // registro: «pendiente_en_recepcion» = cita ya cobrable sin pagos (se paga al llegar o desde la app).
-            'payment_status' => $this->when(isset($this->payments_count), fn () => $this->paymentStatus($confirmada)),
+            'payment_status' => $this->when(isset($this->payments_count), fn () => $this->paymentStatus()),
             // El cliente aún puede elegir cómo pagar: cita pendiente/confirmada sin cobro ni transferencia en revisión.
             'can_change_payment_method' => $this->when(isset($this->payments_count), fn () => in_array($this->resource->getAttribute('estado'), ['pendiente', 'confirmada'], true)
-                && in_array($this->paymentStatus($confirmada), ['sin_pago', 'pendiente_en_recepcion'], true)),
+                && in_array($this->paymentStatus(), ['sin_pago', 'pendiente_en_recepcion'], true)),
             // Reglas para iniciar el servicio (ServiceStartGuard), solo en citas confirmadas: las apps
             // deshabilitan «Iniciar» y muestran el motivo en vez de dejar que el servidor responda 422.
             // Siempre presentes (null fuera de «confirmada») para que el contrato de la API sea estable.
@@ -89,11 +89,20 @@ class AppointmentResource extends JsonResource
         ];
     }
 
+    /** Se calcula una sola vez por cita: payment_status y can_change_payment_method comparten el resultado. */
+    private ?string $paymentStatusMemo = null;
+
     /** Estado del pago de la cita a partir de los conteos de AppointmentController::index(). */
-    private function paymentStatus(bool $confirmada): string
+    private function paymentStatus(): string
     {
-        if ((int) ($this->pagos_cobrados_count ?? 0) > 0
-            || ($confirmada && app(ServiceStartGuard::class)->isPaymentResolved($this->resource))) {
+        return $this->paymentStatusMemo ??= $this->resolvePaymentStatus();
+    }
+
+    private function resolvePaymentStatus(): string
+    {
+        $estado = $this->resource->getAttribute('estado');
+
+        if ((int) ($this->pagos_cobrados_count ?? 0) > 0) {
             return 'pagado';
         }
 
@@ -101,6 +110,13 @@ class AppointmentResource extends JsonResource
             return 'transferencia_en_revision';
         }
 
-        return in_array($this->resource->getAttribute('estado'), AppointmentStatusService::CHARGEABLE, true) ? 'pendiente_en_recepcion' : 'sin_pago';
+        // Pago completo hecho al reservar («pagar ahora»): se guarda como depósito verificado y la cita puede seguir
+        // pendiente, así que también cuenta como pagada fuera de las citas terminales.
+        if (in_array($estado, ['pendiente', 'confirmada', 'en_proceso', 'completada'], true)
+            && app(ServiceStartGuard::class)->isPaymentResolved($this->resource)) {
+            return 'pagado';
+        }
+
+        return in_array($estado, AppointmentStatusService::CHARGEABLE, true) ? 'pendiente_en_recepcion' : 'sin_pago';
     }
 }

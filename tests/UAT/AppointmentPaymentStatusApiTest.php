@@ -182,6 +182,29 @@ class AppointmentPaymentStatusApiTest extends TestCase
         $this->assertNotSame('La cita ya tiene un pago registrado.', $res->json('message'));
     }
 
+    public function test_pago_completo_al_reservar_como_deposito_marca_pagado_aunque_la_cita_siga_pendiente(): void
+    {
+        $cita = $this->cita('pendiente');
+        $this->pago($cita, Payment::ESTADO_VERIFICADO, true);
+
+        $row = $this->fila($cita);
+
+        $this->assertSame('pagado', $row['payment_status']);
+        $this->assertFalse($row['can_change_payment_method']);
+    }
+
+    public function test_stripe_intent_sigue_bloqueado_con_un_deposito_verificado_para_no_cobrar_dos_veces(): void
+    {
+        $cita = $this->cita('confirmada');
+        $this->pago($cita, Payment::ESTADO_VERIFICADO, true);
+
+        $res = $this->withHeader('Authorization', "Bearer {$this->clientToken}")
+            ->postJson(self::STRIPE_INTENT_URL, ['appointment_id' => (string) $cita->id]);
+
+        $res->assertStatus(422);
+        $this->assertSame('La cita ya tiene un pago registrado.', $res->json('message'));
+    }
+
     public function test_cliente_ajeno_no_puede_pagar_la_cita(): void
     {
         $cita = $this->cita('confirmada');
