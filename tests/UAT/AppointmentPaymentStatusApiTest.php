@@ -30,6 +30,10 @@ class AppointmentPaymentStatusApiTest extends TestCase
 
     private Service $service;
 
+    private const EMAIL_DOMAIN = '@test.local';
+
+    private const STRIPE_INTENT_URL = '/api/v1/payments/stripe-intent';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -37,28 +41,24 @@ class AppointmentPaymentStatusApiTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
 
         $role = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
-        $user = User::create(['name' => 'Cliente Pago', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $user = User::create(['name' => 'Cliente Pago', 'email' => Str::uuid().self::EMAIL_DOMAIN, 'password' => 'password']);
         $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
         $this->clientToken = 'tok-'.Str::uuid();
         MobileApiToken::create(['user_id' => (string) $user->id, 'name' => 't', 'token_hash' => hash('sha256', $this->clientToken)]);
         $this->client = Client::create(['user_id' => (string) $user->id, 'telefono' => '5551234567']);
 
-        $barberUser = User::create(['name' => 'Barbero Pago', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $barberUser = User::create(['name' => 'Barbero Pago', 'email' => Str::uuid().self::EMAIL_DOMAIN, 'password' => 'password']);
         $this->barber = Barber::create(['user_id' => (string) $barberUser->id, 'nombre' => 'Barbero Pago', 'activo' => true]);
         $this->service = Service::create(['nombre' => 'Corte', 'categoria' => 'corte', 'precio' => 100, 'duracion_min' => 30, 'activo' => true]);
     }
 
     protected function tearDown(): void
     {
-        Payment::query()->delete();
         Appointment::withTrashed()->forceDelete();
-        Service::query()->delete();
-        Barber::query()->delete();
-        Client::query()->delete();
-        MobileApiToken::query()->delete();
         User::withTrashed()->forceDelete();
-        Role::query()->delete();
-        Permission::query()->delete();
+        foreach ([Payment::class, Service::class, Barber::class, Client::class, MobileApiToken::class, Role::class, Permission::class] as $model) {
+            $model::query()->delete();
+        }
         \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();
         app(PermissionRegistrar::class)->forgetCachedPermissions();
         parent::tearDown();
@@ -165,7 +165,7 @@ class AppointmentPaymentStatusApiTest extends TestCase
         $this->pago($cita, Payment::ESTADO_PENDIENTE_VERIFICACION);
 
         $res = $this->withHeader('Authorization', "Bearer {$this->clientToken}")
-            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $cita->id]);
+            ->postJson(self::STRIPE_INTENT_URL, ['appointment_id' => (string) $cita->id]);
 
         $res->assertStatus(422);
         $this->assertSame('La cita ya tiene un pago registrado.', $res->json('message'));
@@ -177,7 +177,7 @@ class AppointmentPaymentStatusApiTest extends TestCase
         $this->pago($cita, Payment::ESTADO_RECHAZADO);
 
         $res = $this->withHeader('Authorization', "Bearer {$this->clientToken}")
-            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $cita->id]);
+            ->postJson(self::STRIPE_INTENT_URL, ['appointment_id' => (string) $cita->id]);
 
         $this->assertNotSame('La cita ya tiene un pago registrado.', $res->json('message'));
     }
@@ -186,13 +186,13 @@ class AppointmentPaymentStatusApiTest extends TestCase
     {
         $cita = $this->cita('confirmada');
         $role = Role::where('name', 'cliente')->where('guard_name', 'web')->firstOrFail();
-        $otro = User::create(['name' => 'Otro', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
+        $otro = User::create(['name' => 'Otro', 'email' => Str::uuid().self::EMAIL_DOMAIN, 'password' => 'password']);
         $otro->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
         Client::create(['user_id' => (string) $otro->id, 'telefono' => '5550000000']);
         MobileApiToken::create(['user_id' => (string) $otro->id, 'name' => 't', 'token_hash' => hash('sha256', 'tok-otro')]);
 
         $this->withHeader('Authorization', 'Bearer tok-otro')
-            ->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $cita->id])
+            ->postJson(self::STRIPE_INTENT_URL, ['appointment_id' => (string) $cita->id])
             ->assertStatus(403);
     }
 }
