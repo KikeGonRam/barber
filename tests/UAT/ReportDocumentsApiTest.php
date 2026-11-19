@@ -83,7 +83,7 @@ class ReportDocumentsApiTest extends TestCase
         $this->assertSame('TOTAL', $detail->getCell('A4')->getValue(), 'Renglón de totales tras las dos filas de datos');
     }
 
-    public function test_el_pdf_trae_portada_y_varias_paginas(): void
+    public function test_el_pdf_se_genera_con_encabezado_compacto(): void
     {
         $this->pago(200, 20, 'tarjeta');
 
@@ -92,7 +92,11 @@ class ReportDocumentsApiTest extends TestCase
         $response->assertOk()->assertHeader('content-type', 'application/pdf');
         $pdf = $response->baseResponse->getContent();
         $this->assertStringStartsWith('%PDF', $pdf);
-        $this->assertGreaterThanOrEqual(4, preg_match_all('/\/Type\s*\/Page[^s]/', $pdf), 'Portada, introducción, resumen y detalle con notas');
+        // Diseño claro: el encabezado va en la primera hoja (sin portada de página completa), así que un reporte
+        // de un solo registro ocupa una o dos páginas con encabezado, resumen, detalle y notas.
+        $pages = preg_match_all('/\/Type\s*\/Page[^s]/', $pdf);
+        $this->assertGreaterThanOrEqual(1, $pages);
+        $this->assertLessThanOrEqual(3, $pages, 'Sin portada ni índice, un reporte corto no debe pasar de tres páginas');
     }
 
     public function test_todos_los_tipos_generan_pdf_y_excel_aun_sin_datos(): void

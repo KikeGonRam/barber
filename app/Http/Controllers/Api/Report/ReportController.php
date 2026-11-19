@@ -42,16 +42,16 @@ class ReportController extends Controller
         // Márgenes de la hoja: 44px de CSS = 33pt en el canvas, para alinear con el contenido.
         $margin = 33;
         $canvas->page_script(function (int $page, int $count, $canvas, $metrics) use ($font, $title, $folio, $gold, $gray, $margin) {
-            if ($page < 2) {
-                return;
-            }
             $width = $canvas->get_width();
             $height = $canvas->get_height();
             $right = fn (string $text, float $size) => $width - $margin - $metrics->getTextWidth($text, $font, $size, 0, 1);
-            $canvas->text($margin, 34, 'URBANBLADE', $font, 8, $gold, 0, 2);
-            $header = mb_strtoupper($title);
-            $canvas->text($right($header, 7), 34, $header, $font, 7, $gray, 0, 1);
-            $canvas->line($margin, 46, $width - $margin, 46, $gold, 0.8);
+            // La primera página lleva su propio encabezado en la plantilla; solo las siguientes repiten marca y título.
+            if ($page >= 2) {
+                $canvas->text($margin, 34, 'URBANBLADE', $font, 8, $gold, 0, 2);
+                $header = mb_strtoupper($title);
+                $canvas->text($right($header, 7), 34, $header, $font, 7, $gray, 0, 1);
+                $canvas->line($margin, 46, $width - $margin, 46, $gold, 0.8);
+            }
             $canvas->line($margin, $height - 44, $width - $margin, $height - 44, [0.88, 0.88, 0.88], 0.5);
             $canvas->text($margin, $height - 32, 'CONFIDENCIAL · '.$folio, $font, 6.5, $gray, 0, 1);
             $label = sprintf('Página %d de %d', $page, $count);

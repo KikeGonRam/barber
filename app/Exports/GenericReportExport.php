@@ -60,7 +60,7 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
         $lastColumn = Coordinate::stringFromColumnIndex(max(count($this->headings), 1));
 
         $sheet->setShowGridlines(false);
-        $sheet->getTabColor()->setRGB('0A0A0A');
+        $sheet->getTabColor()->setRGB('D4AF37');
         $sheet->getRowDimension(1)->setRowHeight(26);
         $sheet->freezePane('A2');
         $sheet->setAutoFilter("A1:{$lastColumn}{$lastRow}");
@@ -100,8 +100,9 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
             $sheet->setCellValue($column.$totalRow, "=SUBTOTAL(109,{$column}2:{$column}{$lastRow})");
         }
         $style = $sheet->getStyle("A{$totalRow}:{$lastColumn}{$totalRow}");
-        $style->getFont()->setBold(true)->getColor()->setRGB('D4AF37');
-        $style->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('0A0A0A');
+        $style->getFont()->setBold(true)->getColor()->setRGB('5C4A0F');
+        $style->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F1ECD8');
+        $style->getBorders()->getTop()->setBorderStyle(Border::BORDER_MEDIUM)->getColor()->setRGB('D4AF37');
     }
 
     /**
@@ -131,12 +132,15 @@ class GenericReportExport implements FromCollection, ShouldAutoSize, WithCharts,
             1 => [
                 'font' => [
                     'bold' => true,
-                    'color' => ['rgb' => 'D4AF37'],
+                    'color' => ['rgb' => '5C4A0F'],
                     'size' => 12,
                 ],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '0A0A0A'],
+                    'startColor' => ['rgb' => 'F1ECD8'],
+                ],
+                'borders' => [
+                    'bottom' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => 'D4AF37']],
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
