@@ -39,7 +39,7 @@ class AppointmentResource extends JsonResource
             // registro: «pendiente_en_recepcion» = cita ya cobrable sin pagos (se paga al llegar o desde la app).
             'payment_status' => $this->when(isset($this->payments_count), fn () => $this->paymentStatus($confirmada)),
             // El cliente aún puede elegir cómo pagar: cita pendiente/confirmada sin cobro ni transferencia en revisión.
-            'can_change_payment_method' => $this->when(isset($this->payments_count), fn () => in_array($this->estado, ['pendiente', 'confirmada'], true)
+            'can_change_payment_method' => $this->when(isset($this->payments_count), fn () => in_array($this->resource->getAttribute('estado'), ['pendiente', 'confirmada'], true)
                 && in_array($this->paymentStatus($confirmada), ['sin_pago', 'pendiente_en_recepcion'], true)),
             // Reglas para iniciar el servicio (ServiceStartGuard), solo en citas confirmadas: las apps
             // deshabilitan «Iniciar» y muestran el motivo en vez de dejar que el servidor responda 422.
@@ -101,6 +101,6 @@ class AppointmentResource extends JsonResource
             return 'transferencia_en_revision';
         }
 
-        return in_array($this->estado, AppointmentStatusService::CHARGEABLE, true) ? 'pendiente_en_recepcion' : 'sin_pago';
+        return in_array($this->resource->getAttribute('estado'), AppointmentStatusService::CHARGEABLE, true) ? 'pendiente_en_recepcion' : 'sin_pago';
     }
 }

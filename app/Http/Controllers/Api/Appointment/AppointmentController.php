@@ -13,6 +13,7 @@ use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\ClientPackage;
 use App\Models\NoShowFee;
+use App\Models\Payment;
 use App\Models\RaffleResult;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentNotifier;
@@ -119,10 +120,10 @@ class AppointmentController extends Controller
             'payments',
             // Pagos vigentes (todo menos los rechazados, depósitos incluidos): un rechazo no debe
             // esconder «Pagar cita», pero un anticipo sí cuenta como pago de la cita.
-            'payments as pagos_vigentes_count' => fn ($q) => $q->where('estado', '!=', \App\Models\Payment::ESTADO_RECHAZADO),
-            'payments as pagos_cobrados_count' => fn ($q) => $q->where('estado', \App\Models\Payment::ESTADO_VERIFICADO)
+            'payments as pagos_vigentes_count' => fn ($q) => $q->where('estado', '!=', Payment::ESTADO_RECHAZADO),
+            'payments as pagos_cobrados_count' => fn ($q) => $q->where('estado', Payment::ESTADO_VERIFICADO)
                 ->where(fn ($d) => $d->where('es_deposito', false)->orWhereNull('es_deposito')),
-            'payments as pagos_en_revision_count' => fn ($q) => $q->where('estado', \App\Models\Payment::ESTADO_PENDIENTE_VERIFICACION),
+            'payments as pagos_en_revision_count' => fn ($q) => $q->where('estado', Payment::ESTADO_PENDIENTE_VERIFICACION),
         ])->latest('fecha')->latest('hora_inicio');
 
         if ($isClient) {

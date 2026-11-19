@@ -9,6 +9,7 @@ use App\Models\BarbershopSetting;
 use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Service;
+use App\Repositories\Eloquent\PaymentRepository;
 use App\Services\Appointment\AppointmentStatusService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Services\Membership\MembershipService;
@@ -283,7 +284,7 @@ class PaymentController extends Controller
         }
 
         // Misma regla que PaymentService::create(): un pago rechazado o un anticipo no bloquean el cobro final.
-        if (app(\App\Repositories\Eloquent\PaymentRepository::class)->existsForAppointment((string) $appointment->id)) {
+        if (app(PaymentRepository::class)->existsForAppointment((string) $appointment->id)) {
             return response()->json(['message' => 'La cita ya tiene un pago registrado.'], 422);
         }
 
