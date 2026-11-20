@@ -55,11 +55,40 @@ class SocialAuthController extends Controller
         }
 
         $target = $request->query('target') === 'spark' ? 'spark' : 'frontend';
+        $state = 'spark';
+
+        if ($target === 'frontend') {
+            // Anti login-CSRF: el navegador que inicia el flujo manda un nonce propio (lo guarda en
+            // sessionStorage) y solo ese mismo navegador podrá canjear el código de callback().
+            $nonce = (string) $request->query('nonce', '');
+
+            if (! self::isValidNonce($nonce)) {
+                return redirect(config('app.frontend_url').'/login?error=google_failed');
+            }
+
+            $state = self::FRONTEND_STATE_PREFIX.$nonce;
+        }
 
         /** @var AbstractProvider $provider */
         $provider = Socialite::driver('google');
 
-        return $provider->stateless()->with(['state' => $target])->redirect();
+        return $provider->stateless()->with(['state' => $state])->redirect();
+    }
+
+    /** Prefijo del `state` del flujo web: "frontend.<nonce>". El de spark sigue siendo "spark". */
+    private const FRONTEND_STATE_PREFIX = 'frontend.';
+
+    /** Vida del código de un solo uso que callback() entrega al frontend. */
+    private const LOGIN_CODE_TTL_SECONDS = 60;
+
+    private static function isValidNonce(string $nonce): bool
+    {
+        return preg_match('/^[A-Za-z0-9_-]{22,128}$/', $nonce) === 1;
+    }
+
+    private static function loginCodeKey(string $code): string
+    {
+        return 'google_login_code:'.hash('sha256', $code);
     }
 
     /**
@@ -75,10 +104,24 @@ class SocialAuthController extends Controller
      */
     public function callback(Request $request): RedirectResponse
     {
-        $target = $request->query('state') === 'spark' ? 'spark' : 'frontend';
+        $state = (string) $request->query('state', '');
+        $target = $state === 'spark' ? 'spark' : 'frontend';
         $frontendUrl = config('app.frontend_url');
         $sparkUrl = config('app.spark_url');
         $errorUrl = $target === 'spark' ? "{$sparkUrl}/?google_error=1" : "{$frontendUrl}/login?error=google_failed";
+
+        // El flujo web exige el nonce que redirect() propagó en `state`; sin él no hay forma de atar
+        // el inicio de sesión al navegador que lo pidió (login CSRF), así que ni se consulta a Google.
+        $nonce = '';
+        if ($target === 'frontend') {
+            $nonce = str_starts_with($state, self::FRONTEND_STATE_PREFIX)
+                ? substr($state, strlen(self::FRONTEND_STATE_PREFIX))
+                : '';
+
+            if (! self::isValidNonce($nonce)) {
+                return redirect($errorUrl);
+            }
+        }
 
         try {
             /** @var AbstractProvider $provider */
@@ -101,19 +144,68 @@ class SocialAuthController extends Controller
             return redirect($target === 'spark' ? "{$sparkUrl}/?google_error=retry" : "{$frontendUrl}/login?error=google_retry");
         }
 
-        // El callback por redirección siempre vuelve a un navegador (Nuxt o el panel de spark).
-        $issued = $user->issueMobileApiToken(
-            $target === 'spark' ? 'Google OAuth (spark)' : 'Google OAuth',
-            null,
-            null,
-            MobileApiToken::PLATAFORMA_WEB,
-        );
-
         if ($target === 'spark') {
+            // spark (Streamlit) conserva su contrato: token directo en la URL.
+            $issued = $user->issueMobileApiToken('Google OAuth (spark)', null, null, MobileApiToken::PLATAFORMA_WEB);
+
             return redirect("{$sparkUrl}/?google_token={$issued['token']}");
         }
 
-        return redirect("{$frontendUrl}/auth/callback?token={$issued['token']}");
+        // Nuxt: el token nunca viaja en la URL (queda en historial y en los logs de CloudFront/ALB).
+        // Se entrega un código de un solo uso, atado al nonce del navegador, que exchange() canjea.
+        $code = Str::random(48);
+        Cache::put(
+            self::loginCodeKey($code),
+            ['user_id' => (string) $user->id, 'nonce' => $nonce],
+            now()->addSeconds(self::LOGIN_CODE_TTL_SECONDS),
+        );
+
+        return redirect("{$frontendUrl}/auth/callback?".http_build_query(['code' => $code, 'state' => $nonce]));
+    }
+
+    /**
+     * Canjea el código de un solo uso de callback() por el Bearer token (flujo web de Nuxt).
+     *
+     * El código vive 60 s, se consume al primer intento (aunque falle) y solo sirve junto con el
+     * nonce que el mismo navegador generó antes de salir hacia Google: quien reciba un enlace de
+     * callback ajeno no tiene ese nonce y no puede iniciar sesión con él.
+     *
+     * @unauthenticated
+     *
+     * @bodyParam code string required Código de un solo uso recibido en la URL de /auth/callback. Example: Qm3x...
+     * @bodyParam state string required Nonce que el navegador guardó antes de iniciar el flujo. Example: k3J9x...
+     *
+     * @response 422 {
+     *  "message": "El código no es válido o ya expiró."
+     * }
+     */
+    public function exchange(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'code' => ['required', 'string', 'max:128'],
+            'state' => ['required', 'string', 'max:128'],
+        ]);
+
+        // pull(): lee y borra en un solo paso, así un código no se canjea dos veces.
+        $payload = Cache::pull(self::loginCodeKey($validated['code']));
+
+        $user = is_array($payload) && hash_equals((string) $payload['nonce'], $validated['state'])
+            ? User::find($payload['user_id'])
+            : null;
+
+        if (! $user) {
+            return response()->json(['message' => 'El código no es válido o ya expiró.'], 422);
+        }
+
+        $issued = $user->issueMobileApiToken('Google OAuth', null, null, MobileApiToken::PLATAFORMA_WEB);
+
+        return response()->json([
+            'message' => 'Autenticación exitosa.',
+            'token_type' => 'Bearer',
+            'token' => $issued['token'],
+            'expires_at' => $issued['token_model']->expires_at?->toISOString(),
+            'user' => new UserResource($user),
+        ]);
     }
 
     /**

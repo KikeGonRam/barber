@@ -21,6 +21,12 @@ use Tests\TestCase;
  */
 class SocialAuthApiTest extends TestCase
 {
+    /** Nonce que el navegador genera y propaga como `state` (22+ caracteres URL-safe). */
+    private const NONCE = 'nonce-del-navegador-0123456789';
+
+    /** Callback tal como lo deja Google: con el `state` "frontend.<nonce>" de redirect(). */
+    private const CALLBACK = '/api/v1/auth/google/callback?state=frontend.'.self::NONCE;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -64,7 +70,7 @@ class SocialAuthApiTest extends TestCase
         Config::set('services.google.client_id', 'fake-client-id');
         Socialite::fake('google');
 
-        $response = $this->get('/api/v1/auth/google/redirect');
+        $response = $this->get('/api/v1/auth/google/redirect?nonce='.self::NONCE);
 
         $response->assertRedirect();
         $this->assertStringContainsString('socialite.fake/google', $response->headers->get('Location'));
@@ -79,11 +85,11 @@ class SocialAuthApiTest extends TestCase
         Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
         Socialite::fake('google', $this->fakeGoogleUser('nuevo-via-google@test.local', 'Nuevo Via Google'));
 
-        $response = $this->get('/api/v1/auth/google/callback');
+        $response = $this->get(self::CALLBACK);
 
         $response->assertRedirect();
         $location = $response->headers->get('Location');
-        $this->assertStringStartsWith(config('app.frontend_url').'/auth/callback?token=', $location);
+        $this->assertStringStartsWith(config('app.frontend_url').'/auth/callback?code=', $location);
 
         $user = User::where('email', 'nuevo-via-google@test.local')->firstOrFail();
         $this->assertNotNull($user->email_verified_at);
@@ -98,7 +104,7 @@ class SocialAuthApiTest extends TestCase
         Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
         Socialite::fake('google', $this->fakeGoogleUser('nuevo-via-google@test.local', 'Nuevo Via Google'));
 
-        $response = $this->get('/api/v1/auth/google/callback');
+        $response = $this->get(self::CALLBACK);
 
         $response->assertRedirect();
         $user = User::where('email', 'nuevo-via-google@test.local')->firstOrFail();
@@ -112,7 +118,7 @@ class SocialAuthApiTest extends TestCase
         Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
         Socialite::fake('google', $this->fakeGoogleUser('cliente-via-google@test.local', 'Cliente Via Google'));
 
-        $response = $this->get('/api/v1/auth/google/callback');
+        $response = $this->get(self::CALLBACK);
 
         $response->assertRedirect();
         $user = User::where('email', 'cliente-via-google@test.local')->firstOrFail();
@@ -129,7 +135,7 @@ class SocialAuthApiTest extends TestCase
 
         Socialite::fake('google', $this->fakeGoogleUser('ya-existe-google@test.local'));
 
-        $response = $this->get('/api/v1/auth/google/callback');
+        $response = $this->get(self::CALLBACK);
 
         $response->assertRedirect();
         $this->assertSame(1, User::where('email', 'ya-existe-google@test.local')->count());
@@ -147,10 +153,10 @@ class SocialAuthApiTest extends TestCase
         Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
         Socialite::fake('google', $this->fakeGoogleUser('eliminado-google@test.local'));
 
-        $response = $this->get('/api/v1/auth/google/callback');
+        $response = $this->get(self::CALLBACK);
 
         $response->assertRedirect();
-        $this->assertStringStartsWith(config('app.frontend_url').'/auth/callback?token=', $response->headers->get('Location'));
+        $this->assertStringStartsWith(config('app.frontend_url').'/auth/callback?code=', $response->headers->get('Location'));
         $this->assertSame(1, User::withTrashed()->where('email', 'eliminado-google@test.local')->count());
         $this->assertFalse(User::withTrashed()->where('email', 'eliminado-google@test.local')->firstOrFail()->trashed());
     }
@@ -164,7 +170,7 @@ class SocialAuthApiTest extends TestCase
 
         Socialite::fake('google', $this->fakeGoogleUser('admin-google@test.local', 'Admin Google'));
 
-        $response = $this->get('/api/v1/auth/google/callback');
+        $response = $this->get(self::CALLBACK);
 
         $response->assertRedirect();
         $this->assertStringContainsString('/storage/avatars/'.(string) $admin->id.'/', User::find($admin->id)->avatar_url);
@@ -179,7 +185,7 @@ class SocialAuthApiTest extends TestCase
         $user->forceFill(['avatar_url' => 'https://api-vieja.example.com/storage/avatars/'.(string) $user->id.'/vieja.jpg'])->save();
 
         Socialite::fake('google', $this->fakeGoogleUser('foto-perdida@test.local', 'Foto Perdida'));
-        $this->get('/api/v1/auth/google/callback')->assertRedirect();
+        $this->get(self::CALLBACK)->assertRedirect();
 
         $this->assertStringStartsWith(rtrim(Storage::disk('public')->url(''), '/').'/avatars/', (string) $user->refresh()->getAttribute('avatar_url'));
     }
@@ -192,7 +198,7 @@ class SocialAuthApiTest extends TestCase
         $user->forceFill(['avatar_url' => $own])->save();
 
         Socialite::fake('google', $this->fakeGoogleUser('foto-propia@test.local', 'Foto Propia'));
-        $this->get('/api/v1/auth/google/callback')->assertRedirect();
+        $this->get(self::CALLBACK)->assertRedirect();
 
         $this->assertSame($own, $user->refresh()->getAttribute('avatar_url'));
         Http::assertNothingSent();
@@ -204,9 +210,104 @@ class SocialAuthApiTest extends TestCase
             throw new \Exception('invalid_state');
         });
 
-        $response = $this->get('/api/v1/auth/google/callback');
+        $response = $this->get(self::CALLBACK);
 
         $response->assertRedirect(config('app.frontend_url').'/login?error=google_failed');
+    }
+
+    /** Devuelve el código de un solo uso que callback() puso en la URL de Nuxt. */
+    private function codeFromCallback(string $email = 'canje@test.local'): string
+    {
+        Http::fake(['https://lh3.googleusercontent.com/*' => Http::response('fake-image', 200, ['Content-Type' => 'image/jpeg'])]);
+        Socialite::fake('google', $this->fakeGoogleUser($email));
+
+        $location = (string) $this->get(self::CALLBACK)->headers->get('Location');
+        parse_str((string) parse_url($location, PHP_URL_QUERY), $query);
+
+        $this->assertSame(self::NONCE, $query['state'] ?? null);
+        $this->assertArrayNotHasKey('token', $query, 'El token nunca debe viajar en la URL.');
+
+        return (string) $query['code'];
+    }
+
+    public function test_redirect_propagates_the_browser_nonce_as_state(): void
+    {
+        Config::set('services.google.client_id', 'fake-client-id');
+
+        $location = (string) $this->get('/api/v1/auth/google/redirect?nonce='.self::NONCE)->headers->get('Location');
+
+        $this->assertStringContainsString('state=frontend.'.self::NONCE, $location);
+    }
+
+    public function test_redirect_without_a_valid_nonce_goes_back_to_login_with_an_error(): void
+    {
+        Config::set('services.google.client_id', 'fake-client-id');
+
+        $this->get('/api/v1/auth/google/redirect')
+            ->assertRedirect(config('app.frontend_url').'/login?error=google_failed');
+        $this->get('/api/v1/auth/google/redirect?nonce=corto')
+            ->assertRedirect(config('app.frontend_url').'/login?error=google_failed');
+    }
+
+    public function test_callback_without_the_browser_nonce_is_rejected_and_creates_nothing(): void
+    {
+        Socialite::fake('google', $this->fakeGoogleUser('sin-nonce@test.local'));
+
+        $this->get('/api/v1/auth/google/callback')
+            ->assertRedirect(config('app.frontend_url').'/login?error=google_failed');
+        $this->get('/api/v1/auth/google/callback?state=frontend.corto')
+            ->assertRedirect(config('app.frontend_url').'/login?error=google_failed');
+
+        $this->assertNull(User::where('email', 'sin-nonce@test.local')->first());
+    }
+
+    public function test_exchange_returns_a_bearer_token_for_the_matching_nonce(): void
+    {
+        $code = $this->codeFromCallback();
+
+        $response = $this->postJson('/api/v1/auth/google/exchange', ['code' => $code, 'state' => self::NONCE]);
+
+        $response->assertOk()
+            ->assertJsonPath('token_type', 'Bearer')
+            ->assertJsonPath('user.email', 'canje@test.local');
+        $this->assertNotEmpty($response->json('token'));
+    }
+
+    public function test_exchange_code_works_only_once(): void
+    {
+        $code = $this->codeFromCallback();
+
+        $this->postJson('/api/v1/auth/google/exchange', ['code' => $code, 'state' => self::NONCE])->assertOk();
+        $this->postJson('/api/v1/auth/google/exchange', ['code' => $code, 'state' => self::NONCE])->assertStatus(422);
+    }
+
+    public function test_exchange_rejects_a_code_presented_with_a_different_nonce_and_burns_it(): void
+    {
+        $code = $this->codeFromCallback();
+
+        // El navegador de la víctima no tiene el nonce del atacante: el canje falla...
+        $this->postJson('/api/v1/auth/google/exchange', ['code' => $code, 'state' => 'otro-nonce-0123456789abcd'])
+            ->assertStatus(422);
+        // ...y el código queda quemado, así que ni el nonce correcto lo recupera después.
+        $this->postJson('/api/v1/auth/google/exchange', ['code' => $code, 'state' => self::NONCE])
+            ->assertStatus(422);
+    }
+
+    public function test_exchange_rejects_an_unknown_code_and_validates_the_body(): void
+    {
+        $this->postJson('/api/v1/auth/google/exchange', ['code' => 'inventado', 'state' => self::NONCE])
+            ->assertStatus(422);
+        $this->postJson('/api/v1/auth/google/exchange', [])->assertStatus(422)->assertJsonValidationErrors(['code', 'state']);
+    }
+
+    public function test_spark_callback_keeps_its_direct_token_contract(): void
+    {
+        Config::set('app.spark_url', 'https://spark.test');
+        Socialite::fake('google', $this->fakeGoogleUser('spark@test.local'));
+
+        $location = (string) $this->get('/api/v1/auth/google/callback?state=spark')->headers->get('Location');
+
+        $this->assertStringStartsWith('https://spark.test/?google_token=', $location);
     }
 
     /**
