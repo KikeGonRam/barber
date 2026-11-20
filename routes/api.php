@@ -88,6 +88,9 @@ Route::prefix('v1')->group(function (): void {
     // fetch/JSON normal.
     Route::post('auth/google/token', [SocialAuthController::class, 'token'])->middleware('throttle:10,1');
 
+    // Canje del código de un solo uso que callback() deja en la URL de Nuxt (/auth/callback?code=…).
+    Route::post('auth/google/exchange', [SocialAuthController::class, 'exchange'])->middleware('throttle:10,1');
+
     // Catálogo público
     // Ficha del negocio (identidad/contacto/horario/política/redes) sin token:
     // la consumen la landing y la reserva pública. Distinta de GET settings

@@ -72,6 +72,10 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
+        // Almacén de caché de los códigos de un solo uso del login web (callback() -> exchange()).
+        // Debe ser COMPARTIDO por todas las tareas de la API: callback y exchange pueden caer en
+        // tareas distintas (staging corre 2 con CACHE_STORE=file, que es local a cada una).
+        'login_code_store' => env('GOOGLE_LOGIN_CODE_STORE', 'mongodb'),
     ],
 
 ];
