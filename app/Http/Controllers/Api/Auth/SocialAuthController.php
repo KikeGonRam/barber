@@ -11,8 +11,9 @@ use App\Models\User;
 use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Cache\Repository as CacheRepository;
+use Illuminate\Contracts\Cache\LockProvider;
 use Illuminate\Contracts\Cache\LockTimeoutException;
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -96,7 +97,11 @@ class SocialAuthController extends Controller
     /** Almacén compartido entre tareas (ver config/services.php); no el CACHE_STORE por defecto. */
     private static function loginCodeStore(): CacheRepository
     {
-        return Cache::store((string) config('services.google.login_code_store', 'mongodb'));
+        // Cache::store() se tipa como el contrato (sin lock()); en runtime es la clase concreta.
+        /** @var CacheRepository $store */
+        $store = Cache::store((string) config('services.google.login_code_store', 'mongodb'));
+
+        return $store;
     }
 
     /**
@@ -199,8 +204,14 @@ class SocialAuthController extends Controller
         $store = self::loginCodeStore();
         $key = self::loginCodeKey($validated['code']);
 
+        $locks = $store->getStore();
+
+        if (! $locks instanceof LockProvider) {
+            throw new RuntimeException('El almacén de códigos de Google no soporta locks.');
+        }
+
         try {
-            $payload = $store->lock('lock:'.$key, 10)->block(2, fn () => $store->pull($key));
+            $payload = $locks->lock('lock:'.$key, 10)->block(2, fn () => $store->pull($key));
         } catch (LockTimeoutException) {
             // Otro canje del mismo código está en curso: este no puede ser el único uso válido.
             $payload = null;

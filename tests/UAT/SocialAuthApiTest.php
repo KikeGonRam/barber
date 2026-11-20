@@ -6,6 +6,8 @@ use App\Models\Client;
 use App\Models\Role;
 use App\Models\User;
 use Firebase\JWT\JWT;
+use Illuminate\Cache\Repository;
+use Illuminate\Contracts\Cache\LockProvider;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
@@ -298,7 +300,12 @@ class SocialAuthApiTest extends TestCase
         $key = 'google_login_code:'.hash('sha256', $code);
 
         // Simula un canje del mismo código en curso (otra petición dentro del lock).
-        $lock = Cache::store(config('services.google.login_code_store'))->lock('lock:'.$key, 10);
+        /** @var Repository $store */
+        $store = Cache::store(config('services.google.login_code_store'));
+        $locks = $store->getStore();
+        $this->assertInstanceOf(LockProvider::class, $locks);
+
+        $lock = $locks->lock('lock:'.$key, 10);
         $this->assertTrue($lock->get());
 
         $this->postJson('/api/v1/auth/google/exchange', ['code' => $code, 'state' => self::NONCE])
