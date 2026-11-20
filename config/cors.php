@@ -42,7 +42,11 @@ return [
 
     'exposed_headers' => [],
 
-    'max_age' => 0,
+    // Con 0 el navegador no guarda el preflight (OPTIONS) y repite una petición extra ANTES de
+    // cada llamada de Nuxt a la API (otro dominio, con Authorization): en una pantalla con 10
+    // llamadas son 10 viajes de ida y vuelta de más. 7200 s es el tope que respetan todos los
+    // navegadores (Chrome limita a 2 h). Se puede ajustar con CORS_MAX_AGE (0 lo desactiva).
+    'max_age' => (int) env('CORS_MAX_AGE', 7200),
 
     'supports_credentials' => false,
 
