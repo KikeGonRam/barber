@@ -2645,6 +2645,86 @@ paths:
               required:
                 - id_token
       security: []
+  /api/v1/auth/google/exchange:
+    post:
+      summary: 'Canjea el código de un solo uso de callback() por el Bearer token (flujo web de Nuxt).'
+      operationId: canjeaElCdigoDeUnSoloUsoDeCallbackPorElBearerTokenflujoWebDeNuxt
+      description: "El código vive 60 s, se consume al primer intento (aunque falle) y solo sirve junto con el\nnonce que el mismo navegador generó antes de salir hacia Google: quien reciba un enlace de\ncallback ajeno no tiene ese nonce y no puede iniciar sesión con él."
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Autenticación exitosa.'
+                  token_type: Bearer
+                  token: TOKEN_DE_EJEMPLO
+                  expires_at: '2026-11-04T12:00:00.000000Z'
+                  user:
+                    id: 6710a1b2c3d4e5f607182930
+                    name: 'Juan Pérez'
+                    email: juan@example.com
+                properties:
+                  message:
+                    type: string
+                    example: 'Autenticación exitosa.'
+                  token_type:
+                    type: string
+                    example: Bearer
+                  token:
+                    type: string
+                    example: TOKEN_DE_EJEMPLO
+                  expires_at:
+                    type: string
+                    example: '2026-11-04T12:00:00.000000Z'
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 6710a1b2c3d4e5f607182930
+                      name:
+                        type: string
+                        example: 'Juan Pérez'
+                      email:
+                        type: string
+                        example: juan@example.com
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'El código no es válido o ya expiró.'
+                properties:
+                  message:
+                    type: string
+                    example: 'El código no es válido o ya expiró.'
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: 'Código de un solo uso recibido en la URL de /auth/callback.'
+                  example: Qm3x...
+                state:
+                  type: string
+                  description: 'Nonce que el navegador guardó antes de iniciar el flujo.'
+                  example: k3J9x...
+              required:
+                - code
+                - state
+      security: []
   /api/v1/services:
     get:
       summary: ''
