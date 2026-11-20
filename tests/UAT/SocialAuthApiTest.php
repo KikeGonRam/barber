@@ -281,6 +281,36 @@ class SocialAuthApiTest extends TestCase
         $this->postJson('/api/v1/auth/google/exchange', ['code' => $code, 'state' => self::NONCE])->assertStatus(422);
     }
 
+    public function test_login_codes_live_in_the_shared_store_not_the_default_one(): void
+    {
+        // callback() y exchange() pueden caer en tareas distintas: el código no puede quedarse en la
+        // caché local de una (CACHE_STORE=file en staging) sino en el almacén compartido configurado.
+        $code = $this->codeFromCallback('compartido@test.local');
+        $key = 'google_login_code:'.hash('sha256', $code);
+
+        $this->assertTrue(Cache::store(config('services.google.login_code_store'))->has($key));
+        $this->assertFalse(Cache::store('array')->has($key));
+    }
+
+    public function test_exchange_does_not_issue_a_token_while_another_exchange_holds_the_code(): void
+    {
+        $code = $this->codeFromCallback('simultaneo@test.local');
+        $key = 'google_login_code:'.hash('sha256', $code);
+
+        // Simula un canje del mismo código en curso (otra petición dentro del lock).
+        $lock = Cache::store(config('services.google.login_code_store'))->lock('lock:'.$key, 10);
+        $this->assertTrue($lock->get());
+
+        $this->postJson('/api/v1/auth/google/exchange', ['code' => $code, 'state' => self::NONCE])
+            ->assertStatus(422);
+
+        $lock->release();
+
+        // El intento que no obtuvo el lock no consumió el código: el canje legítimo sigue funcionando.
+        $this->postJson('/api/v1/auth/google/exchange', ['code' => $code, 'state' => self::NONCE])
+            ->assertOk();
+    }
+
     public function test_exchange_rejects_a_code_presented_with_a_different_nonce_and_burns_it(): void
     {
         $code = $this->codeFromCallback();

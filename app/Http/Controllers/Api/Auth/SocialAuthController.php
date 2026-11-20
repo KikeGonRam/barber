@@ -11,6 +11,8 @@ use App\Models\User;
 use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -91,6 +93,12 @@ class SocialAuthController extends Controller
         return 'google_login_code:'.hash('sha256', $code);
     }
 
+    /** Almacén compartido entre tareas (ver config/services.php); no el CACHE_STORE por defecto. */
+    private static function loginCodeStore(): CacheRepository
+    {
+        return Cache::store((string) config('services.google.login_code_store', 'mongodb'));
+    }
+
     /**
      * Google redirige aquí con el código de autorización. Busca o crea el
      * usuario por email (mismo camino de asignación de rol que
@@ -154,7 +162,7 @@ class SocialAuthController extends Controller
         // Nuxt: el token nunca viaja en la URL (queda en historial y en los logs de CloudFront/ALB).
         // Se entrega un código de un solo uso, atado al nonce del navegador, que exchange() canjea.
         $code = Str::random(48);
-        Cache::put(
+        self::loginCodeStore()->put(
             self::loginCodeKey($code),
             ['user_id' => (string) $user->id, 'nonce' => $nonce],
             now()->addSeconds(self::LOGIN_CODE_TTL_SECONDS),
@@ -186,8 +194,17 @@ class SocialAuthController extends Controller
             'state' => ['required', 'string', 'max:128'],
         ]);
 
-        // pull(): lee y borra en un solo paso, así un código no se canjea dos veces.
-        $payload = Cache::pull(self::loginCodeKey($validated['code']));
+        // Cache::pull() es get()+forget(), no atómico: dos canjes simultáneos podrían leer ambos el
+        // mismo código. El lock serializa la lectura y el borrado; el segundo ya no lo encuentra.
+        $store = self::loginCodeStore();
+        $key = self::loginCodeKey($validated['code']);
+
+        try {
+            $payload = $store->lock('lock:'.$key, 10)->block(2, fn () => $store->pull($key));
+        } catch (LockTimeoutException) {
+            // Otro canje del mismo código está en curso: este no puede ser el único uso válido.
+            $payload = null;
+        }
 
         $user = is_array($payload) && hash_equals((string) $payload['nonce'], $validated['state'])
             ? User::find($payload['user_id'])
