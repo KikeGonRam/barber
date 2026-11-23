@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Notifications\Channels\FcmPushChannel;
 use App\Notifications\Channels\TwilioChannel;
 use App\Notifications\Channels\WebPushChannel;
+use App\Services\Mail\ShopBranding;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -105,7 +106,7 @@ class AppointmentNotification extends Notification implements ShouldQueue
             'rows' => [
                 'Servicio' => $this->appointment->service?->nombre ?? 'N/D',
                 'Barbero' => $this->appointment->barber?->user?->name ?? 'N/D',
-                'Fecha' => optional($this->appointment->fecha)->format('d/m/Y') ?? 'N/D',
+                'Fecha' => ShopBranding::fecha($this->appointment->fecha) ?? 'N/D',
                 'Horario' => $hora,
             ],
             'ctaLabel' => $this->actionLabel ?? 'Ver mis citas',
@@ -158,7 +159,9 @@ class AppointmentNotification extends Notification implements ShouldQueue
             'text' => 'UrbanBlade · '.($this->appointment->service?->nombre ?? 'Cita'),
             'dates' => $range[0].'/'.$range[1],
             'details' => 'Cita con '.($this->appointment->barber?->user?->name ?? 'tu barbero').' en UrbanBlade.',
-            'location' => 'Av. Reforma 123, CDMX',
+            // Dirección real de la barbería (configuración); si no está capturada no se manda ninguna.
+            // Antes iba fija la dirección de ejemplo «Av. Reforma 123, CDMX».
+            'location' => ShopBranding::contact()['direccion'],
         ]);
     }
 
@@ -173,6 +176,13 @@ class AppointmentNotification extends Notification implements ShouldQueue
         $stamp = Carbon::now('UTC')->format('Ymd\THis\Z');
         $summary = 'UrbanBlade · '.($this->appointment->service?->nombre ?? 'Cita');
         $desc = 'Cita con '.($this->appointment->barber?->user?->name ?? 'tu barbero').' en UrbanBlade.';
+        // RFC 5545: en un valor de texto se escapan «\», «,» y «;», y los saltos de línea van como «\n»; si no, una
+        // dirección capturada en varias líneas abriría líneas nuevas en el .ics (y podría inyectar propiedades).
+        // Sin dirección configurada no hay LOCATION.
+        $direccion = ShopBranding::contact()['direccion'];
+        $location = $direccion !== null
+            ? ['LOCATION:'.str_replace(["\r\n", "\r", "\n"], '\n', addcslashes($direccion, '\,;'))]
+            : [];
 
         return implode("\r\n", [
             'BEGIN:VCALENDAR',
@@ -186,7 +196,7 @@ class AppointmentNotification extends Notification implements ShouldQueue
             'DTEND:'.$range[1],
             'SUMMARY:'.$summary,
             'DESCRIPTION:'.$desc,
-            'LOCATION:Av. Reforma 123\, CDMX',
+            ...$location,
             'STATUS:CONFIRMED',
             'END:VEVENT',
             'END:VCALENDAR',

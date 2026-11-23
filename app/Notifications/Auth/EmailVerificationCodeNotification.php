@@ -38,9 +38,9 @@ class EmailVerificationCodeNotification extends Notification implements ShouldQu
                 'title' => 'Confirma tu correo',
                 'greeting' => 'Hola '.$notifiable->name.',',
                 'intro' => 'Usa este código para verificar tu cuenta. Vence en 10 minutos.',
-                'rows' => [
-                    'Código de verificación' => $this->code,
-                ],
+                // Bloque grande en vez de una fila de tabla: es lo único que la persona necesita copiar.
+                'code' => $this->code,
+                'secondary' => 'Si no fuiste tú, ignora este mensaje: nadie podrá usar tu correo sin este código.',
             ]);
     }
 }

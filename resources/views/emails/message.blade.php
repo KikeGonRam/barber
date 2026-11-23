@@ -1,10 +1,17 @@
 @php
     // Plantilla de correo con marca reutilizada por todas las notificaciones.
-    // Parametros: accent (hex), badge, title, greeting, intro, rows (k=>v),
-    // total (['label'=>,'value'=>]), ctaLabel, ctaUrl, secondary.
+    // Parametros: accent (hex), badge, title, greeting, intro, code, rows (k=>v),
+    // total (['label'=>,'value'=>]), ctaLabel, ctaUrl, secondary, preheader.
     $accent = $accent ?? '#d4af37';
+    // Texto de vista previa: lo que Gmail/Outlook muestran junto al asunto en la bandeja. Sin él mostraban
+    // «CITA CONFIRMADA Tu cita…» (la etiqueta y el título). Por defecto es la introducción, sin Markdown.
+    $preheader = $preheader ?? \Illuminate\Support\Str::limit(
+        trim(preg_replace('/\s+/', ' ', strip_tags(\Illuminate\Support\Str::markdown((string) ($intro ?? $title ?? ''))))),
+        110,
+    );
 @endphp
 @component('mail::message')
+<div class="preheader" style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">{{ $preheader }}</div>
 <div style="height:4px;background-color:{{ $accent }};border-radius:4px;line-height:4px;font-size:4px;margin:0 0 22px;">&nbsp;</div>
 @isset($badge)
 <span class="badge" style="color:{{ $accent }};border:1px solid {{ $accent }};background-color:#1c1c1c;">{{ $badge }}</span>
@@ -18,6 +25,10 @@
 
 @isset($intro)
 {{ $intro }}
+@endisset
+
+@isset($code)
+<div class="code-box" style="border:1px solid {{ $accent }};">{{ $code }}</div>
 @endisset
 
 @isset($rows)
