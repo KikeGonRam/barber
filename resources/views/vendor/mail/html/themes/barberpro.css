@@ -242,6 +242,25 @@ p {
     font-weight: 900;
 }
 
+/* Bloque del botón: separado del texto de arriba y del de abajo (antes el texto quedaba pegado). */
+.action {
+    margin: 28px auto 30px;
+}
+
+/* Código (verificación, etc.): grande, centrado y fácil de leer y copiar. */
+.code-box {
+    background-color: #1b1b1b;
+    border-radius: 14px;
+    color: #f6f0e2;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: 0.35em;
+    text-align: center;
+    padding: 20px 12px 20px 24px;
+    margin: 22px 0 26px;
+}
+
 /* Botones */
 
 .button {

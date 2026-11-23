@@ -4,6 +4,7 @@ namespace App\Notifications\Barber;
 
 use App\Models\Appointment;
 use App\Notifications\Concerns\PushesToDevices;
+use App\Services\Mail\ShopBranding;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -43,19 +44,19 @@ class ReviewRequestNotification extends Notification implements ShouldQueue
         $barbero = $this->appointment->barber?->user?->name ?? 'tu barbero';
 
         return (new MailMessage)
-            ->subject('¿Como estuvo tu experiencia en UrbanBlade?')
+            ->subject('¿Cómo estuvo tu experiencia en UrbanBlade?')
             ->markdown('emails.message', [
                 'accent' => '#d4af37',
-                'badge' => 'Tu opinion',
-                'title' => '¿Como te fue con '.$barbero.'?',
+                'badge' => 'Tu opinión',
+                'title' => '¿Cómo te fue con '.$barbero.'?',
                 'greeting' => 'Hola '.$notifiable->name.',',
-                'intro' => 'Gracias por tu visita. Tu opinion ayuda a otros caballeros a elegir y a nuestro equipo a mejorar.',
+                'intro' => 'Gracias por tu visita. Tu opinión ayuda a otros caballeros a elegir y a nuestro equipo a mejorar.',
                 'rows' => [
                     'Barbero' => $barbero,
                     'Servicio' => $this->appointment->service?->nombre ?? 'N/D',
-                    'Fecha' => optional($this->appointment->fecha)->format('d/m/Y') ?? 'N/D',
+                    'Fecha' => ShopBranding::fecha($this->appointment->fecha) ?? 'N/D',
                 ],
-                'ctaLabel' => 'Dejar mi resena',
+                'ctaLabel' => 'Dejar mi reseña',
                 'ctaUrl' => $this->reviewUrl(),
             ]);
     }
@@ -69,7 +70,7 @@ class ReviewRequestNotification extends Notification implements ShouldQueue
             'type' => 'review_request',
             'appointment_id' => $this->appointment->id,
             'title' => 'Cuentanos tu experiencia',
-            'message' => 'Deja una resena de tu ultima visita.',
+            'message' => 'Deja una reseña de tu última visita.',
             'url' => $this->reviewUrl(),
         ];
     }

@@ -4,6 +4,7 @@ namespace App\Notifications\Payment;
 
 use App\Models\Payment;
 use App\Notifications\Concerns\PushesToDevices;
+use App\Services\Mail\ShopBranding;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -58,7 +59,8 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
 
         $appt = $this->payment->appointment;
         $service = $appt?->service?->nombre ?? 'Servicio';
-        $fecha = optional($appt?->fecha)->format('d/m/Y') ?? '';
+        $fechaCita = $appt?->fecha;
+        $fecha = ShopBranding::fecha($fechaCita) ?? '';
         $monto = (float) $this->payment->monto;
         $propina = (float) $this->payment->propina;
 
@@ -66,7 +68,7 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
         if ($propina > 0) {
             $rows['Propina'] = '$'.number_format($propina, 2);
         }
-        $rows['Metodo de pago'] = ucfirst($this->payment->metodo_pago ?? '—');
+        $rows['Método de pago'] = ucfirst($this->payment->metodo_pago ?? '—');
 
         $mail = (new MailMessage)
             ->subject('Tu comprobante de pago — '.$service)
@@ -102,7 +104,8 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
                 'emitido' => now()->format('d/m/Y'),
                 'cliente' => $notifiable->name,
                 'servicio' => $service,
-                'fecha' => $fecha,
+                // La factura se guarda: lleva el año, aunque el correo use la fecha corta.
+                'fecha' => ShopBranding::fecha($fechaCita, conAnio: true) ?? '',
                 'barbero' => $appt?->barber?->user?->name,
                 'monto' => $monto,
                 'propina' => $propina,

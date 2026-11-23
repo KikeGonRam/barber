@@ -3,6 +3,13 @@
 	# (ALB) o se agrega despues con un dominio real. Este Caddy solo sirve
 	# HTTP puro en el puerto 80 detras de esa capa.
 	auto_https off
+	# El ALB (red privada de la VPC) es el único que llega a Caddy. Sin confiar en él, Caddy descartaba el
+	# X-Forwarded-For de CloudFront y lo cambiaba por la IP del ALB: Laravel veía a todos los visitantes como uno
+	# de los dos nodos del ALB y los límites «por IP» (login, horarios) eran compartidos por todo el sitio.
+	# Con esto conserva la cadena y añade al final la IP del ALB (ver App\Http\Middleware\TrustProxyChain).
+	servers {
+		trusted_proxies static private_ranges
+	}
 }
 
 :80 {

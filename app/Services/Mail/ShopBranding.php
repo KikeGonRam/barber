@@ -3,6 +3,8 @@
 namespace App\Services\Mail;
 
 use App\Models\BarbershopSetting;
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
 
 /**
  * Datos de la barbería para correos y facturas. Antes el pie de los correos y de las facturas llevaba datos de
@@ -35,6 +37,24 @@ final class ShopBranding
             'telefono' => $clean($setting?->getAttribute('telefono')),
             'email' => $from !== null && ! preg_match('/(@example\.com|\.test|\.local)$/i', $from) ? $from : null,
         ];
+    }
+
+    /**
+     * Fecha legible en español para los correos: «viernes 28 de noviembre» (o «28 de noviembre de 2026» con año).
+     * Antes salía «28/11/2026», que obliga a calcular el día de la semana. Null si no hay fecha.
+     */
+    public static function fecha(mixed $date, bool $conAnio = false): ?string
+    {
+        // Los atributos de fecha de los modelos pueden llegar como Carbon, como texto o vacíos.
+        if (is_string($date) && trim($date) !== '') {
+            $date = Carbon::parse($date);
+        }
+
+        if (! $date instanceof CarbonInterface) {
+            return null;
+        }
+
+        return $date->copy()->locale('es')->translatedFormat($conAnio ? 'j \d\e F \d\e Y' : 'l j \d\e F');
     }
 
     /** URL del sitio web (Nuxt), sin barra final. */
