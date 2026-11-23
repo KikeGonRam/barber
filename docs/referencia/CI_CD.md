@@ -106,6 +106,9 @@ No se publican claves ni se copian instrucciones de cambios de secretos al CI.
 
 ## Evidencia histórica comprobada
 
+La evidencia del despliegue continuo y de las pruebas del pipeline (bloqueo de integraciones, secretos en registros y reversión) está en [Pruebas del pipeline](PRUEBAS_PIPELINE_CI_CD.md).
+
+
 La integración anterior, backend main en `4ca64c3`, terminó con CI,
 documentación, construcción de imágenes y análisis aprobados el 28 de octubre de
 2026. La ejecución local previa reportó 951 pruebas y 3,679 aserciones.

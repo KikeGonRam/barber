@@ -64,11 +64,16 @@ Elegir la etiqueta `rollback-...` más reciente que corresponda al despliegue qu
 
 ```powershell
 $repo = "urbanblade/barber"; $etiqueta = "rollback-AAAAMMDD-pre-xxxxxxx"
-$manifiesto = aws ecr batch-get-image --repository-name $repo --image-ids imageTag=$etiqueta --query "images[0].imageManifest" --output text
-aws ecr put-image --repository-name $repo --image-tag latest --image-manifest $manifiesto
+$imagen = aws ecr batch-get-image --repository-name $repo --image-ids imageTag=$etiqueta --output json | ConvertFrom-Json
+$archivo = Join-Path $env:TEMP "manifiesto-rollback.json"
+[IO.File]::WriteAllText($archivo, $imagen.images[0].imageManifest, (New-Object Text.UTF8Encoding $false))
+aws ecr put-image --repository-name $repo --image-tag latest --image-manifest "file://$archivo"
 aws ecs update-service --cluster urbanblade-staging --service uba-stg-barber --force-new-deployment
 aws ecs wait services-stable --cluster urbanblade-staging --services uba-stg-barber
+Remove-Item $archivo
 ```
+
+El manifiesto se pasa como archivo con sus bytes exactos. La versión anterior de estos pasos (`--output text` en una variable) no funcionaba en PowerShell: el manifiesto ocupa varias líneas, la variable queda como arreglo y `aws` recibía `{` como manifiesto más una línea por argumento (comprobado el 23-nov-2026). Con los bytes exactos, `latest` vuelve además al mismo digest de la imagen respaldada; si el texto cambia aunque sea un salto de línea, ECR crea un índice con otro digest para la misma imagen. Ver la prueba en [Pruebas del pipeline](PRUEBAS_PIPELINE_CI_CD.md).
 
 Después comprobar el apartado 1. Si el manifiesto llega vacío (`None`), la etiqueta no existe o fue limpiada por la política de ciclo de vida de ECR (conserva las 10 más recientes `rollback-*`); en ese caso hay copias locales en el equipo del propietario (carpeta `_deploys`, ver su `README.md`) que se cargan con `docker load` y se suben con `docker push`.
 
