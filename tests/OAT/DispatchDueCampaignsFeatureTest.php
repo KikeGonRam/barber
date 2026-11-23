@@ -42,7 +42,7 @@ class DispatchDueCampaignsFeatureTest extends TestCase
 
         $this->artisan('campaigns:dispatch-due')->assertSuccessful();
 
-        $this->assertSame('programada', $campaign->fresh()->estado);
+        $this->assertSame('programada', $campaign->fresh()?->getAttribute('estado'));
     }
 
     public function test_el_comando_despacha_las_vencidas_con_las_campanas_encendidas(): void
