@@ -54,7 +54,13 @@ La tarea es pequeña (0.5 vCPU, 1 GB, 16 procesos de PHP-FPM) y la base es Atlas
 
 ### Límites por IP rotos
 
-`rafaga-limite` y `login-limite` no recibieron ningún 429, y el contador restante retrocedía entre peticiones seguidas. Con la imagen de staging en local se comprobó que Caddy (`php_fastcgi`) sustituía el `X-Forwarded-For` por la IP del balanceador: Laravel veía a todos los visitantes como uno de los dos nodos del ALB, y los límites eran compartidos por todo el sitio. Se corrige en el PR `fix/ip-real-detras-de-caddy` (barber#109). Tras desplegarlo hay que repetir estos dos escenarios.
+`rafaga-limite` y `login-limite` no recibieron ningún 429, y el contador restante retrocedía entre peticiones seguidas. Con la imagen de staging en local se comprobó que Caddy (`php_fastcgi`) sustituía el `X-Forwarded-For` por la IP del balanceador: Laravel veía a todos los visitantes como uno de los dos nodos del ALB, y los límites eran compartidos por todo el sitio. Se corrigió en el PR `fix/ip-real-detras-de-caddy` (barber#109), desplegado a staging el 23 de noviembre (imagen `sha-7125eb9`). Verificación tras el despliegue:
+
+| Escenario | Antes del arreglo | Después del arreglo |
+| --- | --- | --- |
+| `login-limite` (7 intentos) | 7 respuestas 422, ningún 429 | 5 respuestas 422 y **429 desde el 6.º** |
+| `rafaga-limite` (35 consultas) | 35 respuestas 200, ningún 429 | 30 respuestas 200 y **429 desde la 31.ª** |
+| `X-RateLimit-Remaining` en consultas seguidas | Retrocedía (29, 29, 28, 27, 28…) | Baja de uno en uno (1199, 1198, 1197…) |
 
 ## T057 · Optimización
 
@@ -72,7 +78,7 @@ La tarea es pequeña (0.5 vCPU, 1 GB, 16 procesos de PHP-FPM) y la base es Atlas
 
 ### Pendientes y recomendaciones
 
-- **Medir en staging después de desplegar**, a 4 req/s como máximo y con el freno activo, y repetir `rafaga-limite` y `login-limite`.
+- **Medir el catálogo en staging después de desplegar este cambio**, a 4 req/s como máximo y con el freno activo.
 - Las operaciones que quedan (unas 5.6 por petición) son los contadores de límites en MongoDB. Con barber#109 el guardián de abuso vuelve a contar por IP real y suma unas 3 operaciones más. Si hace falta más capacidad: llevar los contadores gruesos (catálogo y abuso) a un almacén local por tarea y dejar en MongoDB solo los sensibles, como login. Es un intercambio de seguridad que debe decidir el equipo.
 - Separar la comprobación de salud del grupo de procesos que atiende la API, o subir su tolerancia, para que una saturación pasajera no haga que ECS reemplace la tarea.
 - Los escenarios con sesión de la demostración (`demo-sesion`, `demo-panel`, `demo-reserva-concurrente`) están escritos pero todavía no se han ejecutado.

@@ -1,0 +1,32 @@
+{
+  "escenario": "login-limite",
+  "fecha": "2026-11-23T05:47:39.986Z",
+  "duracion_s": 1,
+  "rps_logrados": 5.58,
+  "total": {
+    "peticiones": 7,
+    "estados": {
+      "422": 5,
+      "429": 2
+    },
+    "p50": null,
+    "p95": null,
+    "p99": null,
+    "max": null
+  },
+  "por_endpoint": {
+    "login": {
+      "peticiones": 7,
+      "estados": {
+        "422": 5,
+        "429": 2
+      },
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    }
+  },
+  "primer_429_en_la_peticion": 6,
+  "freno": null
+}
