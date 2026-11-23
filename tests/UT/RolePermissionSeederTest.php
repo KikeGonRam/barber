@@ -9,12 +9,12 @@ use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /**
- * El rol "ingeniero" existe para alguien de sistemas que necesita ver
- * estado del servidor/analitica/reportes sin poder gestionar nada de
- * negocio -- si alguna vez se le agrega un permiso *.gestionar por error
- * (p. ej. copiando la lista de administrador), este test lo agarra antes
- * de que llegue a producción. Decisión explícita del dueño del proyecto
- * (2026-09-06): nunca debe ser superset de administrador.
+ * El rol "ingeniero" existió desde el 2026-09-06 para alguien de sistemas que necesitaba ver
+ * estado del servidor/analítica/reportes sin poder gestionar nada de negocio. El dueño del
+ * proyecto decidió quitarlo el 23-nov-2026 tras la auditoría de funciones (nadie del equipo lo
+ * usaba): RolePermissionSeeder ya no lo siembra ni le sincroniza permisos (ver su propio
+ * docblock). Este test cubre la lista de roles vigente y que ninguno de ellos tenga un permiso
+ * *.gestionar fuera de lo esperado.
  */
 class RolePermissionSeederTest extends TestCase
 {
@@ -28,36 +28,34 @@ class RolePermissionSeederTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_ingeniero_role_is_read_only(): void
+    public function test_seeds_exactly_the_current_set_of_roles_without_ingeniero(): void
     {
         $this->seed(RolePermissionSeeder::class);
 
-        $ingeniero = Role::where('name', 'ingeniero')->where('guard_name', 'web')->firstOrFail();
-        $permissions = $ingeniero->permissions->pluck('name')->all();
+        $roleNames = Role::where('guard_name', 'web')->pluck('name')->sort()->values()->all();
 
-        sort($permissions);
-        $this->assertSame(['logs.ver', 'reportes.ver', 'sistema.ver'], $permissions);
-
-        foreach ($permissions as $permission) {
-            $this->assertStringEndsNotWith('.gestionar', $permission, "ingeniero nunca debe tener el permiso de gestión '{$permission}'");
-        }
+        $this->assertSame(['administrador', 'barbero', 'cliente', 'recepcionista'], $roleNames);
+        $this->assertNotContains('ingeniero', $roleNames, 'el rol ingeniero se quitó el 23-nov-2026 y ya no debe sembrarse');
     }
 
-    public function test_ingeniero_permissions_are_a_subset_of_administrador(): void
+    public function test_administrador_is_the_only_role_with_management_permissions(): void
     {
         $this->seed(RolePermissionSeeder::class);
 
         $administrador = Role::where('name', 'administrador')->where('guard_name', 'web')->firstOrFail();
-        $ingeniero = Role::where('name', 'ingeniero')->where('guard_name', 'web')->firstOrFail();
-
         $adminPermissions = $administrador->permissions->pluck('name')->all();
-        $ingenieroPermissions = $ingeniero->permissions->pluck('name')->all();
 
-        $this->assertNotEmpty($ingenieroPermissions);
-        foreach ($ingenieroPermissions as $permission) {
-            $this->assertContains($permission, $adminPermissions);
+        $managementPermissions = array_filter($adminPermissions, fn (string $permission) => str_ends_with($permission, '.gestionar'));
+        $this->assertNotEmpty($managementPermissions, 'administrador debe conservar los permisos de gestión de negocio');
+
+        foreach (['barbero', 'cliente'] as $roleName) {
+            $role = Role::where('name', $roleName)->where('guard_name', 'web')->firstOrFail();
+            $this->assertSame([], $role->permissions->pluck('name')->all(), "{$roleName} no debe tener ningún permiso sincronizado por el seeder");
         }
 
-        $this->assertLessThan(count($adminPermissions), count($ingenieroPermissions), 'ingeniero nunca debe ser un superset (ni igual) de administrador');
+        $recepcionista = Role::where('name', 'recepcionista')->where('guard_name', 'web')->firstOrFail();
+        $recepcionistaPermissions = $recepcionista->permissions->pluck('name')->all();
+        $this->assertNotContains('usuarios.gestionar', $recepcionistaPermissions);
+        $this->assertNotContains('configuracion.gestionar', $recepcionistaPermissions);
     }
 }

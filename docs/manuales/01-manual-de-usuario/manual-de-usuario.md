@@ -6,7 +6,7 @@ Guía de uso de UrbanBlade para clientes, barberos, recepción, administración 
 | --- | --- |
 | Documento | Manual de Usuario de UrbanBlade (web y aplicación Android) |
 | Versión | 2.0 · 28 de octubre de 2026 |
-| Audiencia | Cliente, barbero, recepcionista, administrador e ingeniero |
+| Audiencia | Cliente, barbero, recepcionista y administrador |
 | Fuente | Código del backend (`barber`) y del frontend (`frontend-urban`) revisados en esa fecha |
 | Clasificación | Uso general. No contiene contraseñas, claves ni datos de personas reales |
 
@@ -14,7 +14,7 @@ Guía de uso de UrbanBlade para clientes, barberos, recepción, administración 
 
 UrbanBlade es el sistema de una barbería para reservar citas, cobrarlas, vender productos y premiar a los clientes que vuelven. Se usa desde el navegador (web instalable como aplicación) o desde la aplicación Android; las dos muestran la misma información porque consultan la misma API.
 
-El sistema reconoce cinco roles. Al entrar, **detecta tu rol automáticamente** y te muestra solo el menú que te corresponde.
+El sistema reconoce cuatro roles. Al entrar, **detecta tu rol automáticamente** y te muestra solo el menú que te corresponde.
 
 | Rol | Para qué sirve | Capítulo |
 | --- | --- | --- |
@@ -22,9 +22,10 @@ El sistema reconoce cinco roles. Al entrar, **detecta tu rol automáticamente** 
 | Barbero | Atender su agenda, su horario y su portafolio. | 4 |
 | Recepcionista | Operar el día: citas, cobros, pedidos y clientes. | 5 |
 | Administrador | Configurar y analizar todo el negocio. | 6 |
-| Ingeniero | Revisar el estado técnico del sistema, solo lectura. | 7 |
 
 > **Nota** Los nombres de los botones pueden variar ligeramente con la versión instalada. Lo que se describe aquí es el comportamiento del sistema: los permisos y los importes los decide siempre el servidor, no la pantalla.
+
+> **Módulos apagados (23 de noviembre de 2026)** Por decisión del propietario, estos módulos están **apagados por defecto** y no aparecen en el menú de la web ni de la aplicación: paquetes prepagados, tarjetas de regalo, referidos, sorteos mensuales, muro social (con su moderación) y campañas de correo. Las secciones de este manual que los describen aplican solo si el administrador de sistemas los vuelve a encender. Un paquete, una tarjeta de regalo o un premio de sorteo que ya se tenía antes del apagado se sigue pudiendo canjear al cobrar. La membresía y los puntos de lealtad siguen activos.
 
 ![Página principal de UrbanBlade](../../assets/cliente/c01-landing.jpg)
 
@@ -513,7 +514,7 @@ El **Centro de Facturación** muestra la facturación de hoy y del mes, el total
 ### 6.6 Personal, servicios y productos
 
 - **Barberos:** lista con su comisión y su estado (**Activo**); **Editar** cambia especialidad, descripción, foto y estado. Un barbero nuevo se crea desde **Usuarios** (el botón dice *Nuevo barbero (vía Usuarios)*).
-- **Usuarios:** alta del personal y de cuentas con **Nuevo usuario**: nombre, correo, **rol** (Cliente, Barbero, Recepcionista, Ingeniero o Administrador) y contraseña de al menos 8 caracteres con confirmación. Los roles privilegiados solo los asigna un administrador.
+- **Usuarios:** alta del personal y de cuentas con **Nuevo usuario**: nombre, correo, **rol** (Cliente, Barbero, Recepcionista o Administrador) y contraseña de al menos 8 caracteres con confirmación. Los roles privilegiados solo los asigna un administrador.
 - **Servicios y combos:** el **Catálogo de Servicios** guarda nombre, categoría, duración, precio, imagen (JPG, PNG o WebP de hasta 2 MB) y descripción.
 - **Productos:** la **Gestión de Inventario** controla stock, precio y tipo (venta o uso interno), con búsqueda, filtros, **Solo bajo stock** y **Exportar CSV**. **Movimientos** abre el historial.
 - **Planes de Membresía:** define los planes que ven los clientes (precio mensual y porcentaje de descuento).
@@ -571,74 +572,13 @@ El **Centro de Facturación** muestra la facturación de hoy y del mes, el total
 
 ### 6.10 Estado del servidor
 
-**Estado del Servidor** es una vista de solo lectura de la salud del sistema: un **resumen del monitor**, un **mapa del sistema** (API, MongoDB, Redis, cola y tareas programadas, con un color según su estado: activo, lento o con fallos, caído o sin uso) y la lista de cada módulo. Se actualiza sola cada 30 segundos o con **Actualizar**.
+**Estado del Servidor** es una vista de solo lectura de la salud del sistema: un **resumen del monitor** y tarjetas en texto para la API, MongoDB, Redis, la cola y cada tarea programada, con un color según su estado (activo, lento o con fallos, caído o sin uso). Se actualiza sola cada 30 segundos o con **Actualizar**. El mapa del sistema en 3D se retiró el 23 de noviembre de 2026; la captura siguiente corresponde a la versión anterior.
 
-![Estado del servidor](../../assets/admin/a30-estado-servidor.jpg)
+![Estado del servidor (versión anterior, con mapa 3D)](../../assets/admin/a30-estado-servidor.jpg)
 
-## 7. Rol: Ingeniero
+## 7. Rol: Ingeniero (retirado)
 
-El ingeniero es un rol técnico de **solo lectura**: revisa la salud del sistema, los reportes y la bitácora, pero **no administra el negocio ni modifica datos**. Su menú tiene **Dashboard** y **Notificaciones**, la sección **Análisis** (**Reportes** y **Logs**) y la sección **Sistema** (**Estado del Servidor**). El botón principal de la barra lateral dice **Revisar sistema**.
-
-![Panel de ingeniería](../../assets/cliente/r-ingeniero.jpg)
-
-### 7.1 Tu panel
-
-El **Panel Ingeniería** lleva dos insignias arriba a la derecha: **Sistema activo** y **Solo lectura**. Contiene:
-
-- **Centro de observabilidad:** un resumen de la infraestructura (por ejemplo *Infraestructura Estable: infraestructura y tareas programadas saludables*) con la latencia de **MongoDB**, el estado de **Redis** y los trabajos **en cola**, y el enlace **Detalle: Monitor** al estado del servidor.
-- **Módulos del negocio:** el comportamiento agregado de cada módulo, **sin datos operativos de clientes individuales**: citas e ingresos de las últimas semanas, servicios más pedidos y barberos ocupados o libres. Para más detalle usa Reportes, Logs o el estado del servidor.
-
-![Menú del ingeniero con Análisis y Sistema desplegados](../../assets/ingeniero/i03-menu.jpg)
-
-![Módulos del negocio en el panel de ingeniería](../../assets/ingeniero/i10-dashboard-abajo.jpg)
-
-### 7.2 Reportes
-
-El **Centro de Reportes** muestra métricas agregadas del periodo que elijas (**Hoy**, **Esta semana**, **Este mes**, **Este trimestre** o **Este año**): ingresos, ticket promedio, citas, finalización, clientes activos, retención, valor del inventario y stock crítico, además de gráficas por estado de cita e ingresos por barbero. Se exportan a Excel o PDF.
-
-![Centro de reportes](../../assets/ingeniero/i04-reportes.jpg)
-
-### 7.3 Logs
-
-La **Auditoría** registra la actividad del sistema. Muestra totales (**total**, **hoy**, **creados**, **actualizados** y **eliminados**), permite buscar y filtrar por categoría, evento, usuario y fechas, y se **exporta a CSV**. Cada fila indica la fecha, la categoría, el evento, la descripción y el usuario que lo originó.
-
-![Auditoría y logs](../../assets/ingeniero/i05-logs.jpg)
-
-### 7.4 Estado del servidor
-
-**Estado del Servidor** es una vista de solo lectura de **conectividad, cola y tareas programadas**. Se actualiza sola cada 30 segundos (la hora de la última actualización aparece arriba) o con **Actualizar**.
-
-- **Resumen de monitor:** el estado general (*Entorno estable*) y accesos a **Módulos**, **Reportes** y **Logs**.
-- **Mapa del sistema:** un mapa en 3D con la API en el centro y alrededor MongoDB, Redis, la cola y cada tarea programada. El color indica su estado: **activo**, **lento o con fallos**, **caído** o **sin uso**. Puedes girarlo y seleccionar un nodo.
-- **Lista de módulos:** a la derecha, el mismo estado en texto (API, MongoDB, Redis, Cola y cada tarea programada, como `appointments:send-reminders` o `loyalty:draw-raffle`).
-
-![Estado del servidor](../../assets/ingeniero/i06-estado-servidor.jpg)
-
-![Mapa del sistema y lista de módulos](../../assets/ingeniero/i09-estado-servidor-abajo.jpg)
-
-### 7.5 Avisos y perfil
-
-**Notificaciones** reúne tus avisos y **Perfil** (desde tu avatar) permite cambiar tu foto, tus datos y tu contraseña.
-
-![Notificaciones](../../assets/ingeniero/i07-notificaciones.jpg)
-
-![Perfil del ingeniero](../../assets/ingeniero/i08-perfil.jpg)
-
-### 7.6 Lo que el ingeniero no puede hacer
-
-Las pantallas de negocio (Clientes, Citas, Pagos, Configuración, Usuarios…) no forman parte de este rol. Si abres una por su dirección, el sistema te devuelve al panel y muestra el aviso *No tienes permiso para abrir esa pantalla*.
-
-Lo que sí ve son **datos agregados** de negocio (por ejemplo ingresos del periodo y valor del inventario en el panel y en Reportes), pero nunca listas de clientes ni datos personales.
-
-![Al intentar abrir Clientes, el sistema devuelve al panel](../../assets/ingeniero/i11-sin-permiso-clientes.jpg)
-
-### 7.7 En el teléfono
-
-En el teléfono el menú pasa a una barra inferior con **Dashboard**, **Estado del Servidor** y **Más**. El mapa del sistema se muestra más pequeño; para leer cada módulo con comodidad conviene bajar a la lista.
-
-![Panel de ingeniería en el teléfono](../../assets/ingeniero/im01-dashboard.jpg)
-
-![Estado del servidor en el teléfono](../../assets/ingeniero/im02-estado-servidor.jpg)
+El rol de ingeniero (consulta técnica de solo lectura) se quitó el **23 de noviembre de 2026** por decisión del propietario: nadie del equipo lo usaba. La salud del sistema, los reportes y la bitácora los consulta ahora el **administrador** (capítulo 6). Una cuenta antigua con ese rol ya no tiene acceso; un administrador puede eliminarla o cambiarle el rol desde **Usuarios**.
 
 ## 8. Pagos, recibos y membresías
 

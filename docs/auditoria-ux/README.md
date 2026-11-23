@@ -1,5 +1,7 @@
 # Auditoría UI/UX
 
+> **Nota histórica (23-nov-2026):** el rol ingeniero (informe 03) se quitó del sistema por decisión del propietario, y varios módulos que se mencionan aquí (sorteos, campañas, muro social, paquetes, tarjetas de regalo y referidos) quedaron apagados por defecto. Los informes se conservan como registro de lo que se evaluó el 29 de octubre y no se reescriben.
+
 Evaluación profesional de la interfaz de UrbanBlade, rol por rol, hecha el 29 de octubre de 2026 sobre staging (frontend `0f17e84`) con un entorno de demostración aislado. Mide **componentes y experiencia**; no toca la identidad (negro y oro, mascotas), que es una fortaleza.
 
 | # | Rol | Informe | Nota global* |

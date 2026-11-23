@@ -148,14 +148,26 @@ class AppointmentDetailApiTest extends TestCase
         $this->withToken($this->token($otherClient))->getJson("/api/v1/appointments/{$code}")->assertForbidden();
     }
 
-    public function test_el_ingeniero_no_ve_citas_individuales_y_un_codigo_inexistente_es_404(): void
+    public function test_un_codigo_inexistente_es_404(): void
+    {
+        $admin = $this->user('administrador', 'Admin');
+
+        $this->withToken($this->token($admin))->getJson('/api/v1/appointments/no-existe')->assertNotFound();
+    }
+
+    /**
+     * El rol 'ingeniero' se quitó el 23-nov-2026 (auditoría de funciones) y ya no se siembra en
+     * RolePermissionSeeder. Esta prueba simula una cuenta vieja de Mongo que todavía lo tuviera en
+     * role_id (los seeders no borran datos existentes -- ver CLAUDE.md) y comprueba que ya no ve
+     * citas individuales.
+     */
+    public function test_una_cuenta_vieja_con_el_rol_ingeniero_ya_no_ve_citas_individuales(): void
     {
         [$appointment] = $this->cita();
         $code = $appointment->getAttribute('code');
+        Role::firstOrCreate(['name' => 'ingeniero', 'guard_name' => 'web']);
         $engineer = $this->user('ingeniero', 'Ingeniero');
-        $admin = $this->user('administrador', 'Admin');
 
         $this->withToken($this->token($engineer))->getJson("/api/v1/appointments/{$code}")->assertForbidden();
-        $this->withToken($this->token($admin))->getJson('/api/v1/appointments/no-existe')->assertNotFound();
     }
 }

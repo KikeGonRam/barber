@@ -76,8 +76,8 @@ return [
             'database' => env('ANALYTICS_MONGO_DATABASE', env('MONGO_DATABASE', 'barber_db')),
         ],
 
-        // Conexion SQL dedicada solo para Laravel Pulse (rol "ingeniero" --
-        // dashboard de estado del servidor). Pulse necesita una conexion
+        // Conexion SQL dedicada solo para Laravel Pulse (dashboard de
+        // estado del servidor del administrador). Pulse necesita una conexion
         // relacional real y este proyecto usa MongoDB como default, que
         // Pulse no soporta. Un archivo SQLite local (no Atlas, no
         // compartido con spark/) es suficiente para esto: Pulse solo

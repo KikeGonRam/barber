@@ -66,7 +66,6 @@ $usuarios = [];
 demo_paso('usuarios por rol', function () use (&$usuarios) {
     $usuarios['administrador'] = demo_usuario('administrador', 'Ana Administradora', 'demo-administrador@urbanblade.test');
     $usuarios['recepcionista'] = demo_usuario('recepcionista', 'Rosa Recepción', 'demo-recepcion@urbanblade.test');
-    $usuarios['ingeniero'] = demo_usuario('ingeniero', 'Iván Ingeniero', 'demo-ingeniero@urbanblade.test');
     $usuarios['barbero'] = demo_usuario('barbero', 'Nava Panther', 'demo-barbero@urbanblade.test');
     $usuarios['barbero2'] = demo_usuario('barbero', 'Bruno Raven', 'demo-barbero2@urbanblade.test');
     $usuarios['cliente'] = demo_usuario('cliente', 'Carlos Cliente', 'demo-cliente@urbanblade.test');
@@ -168,7 +167,7 @@ demo_paso('clientes adicionales y agenda de hoy y de la semana', function () use
     }
 });
 
-echo "\nCuentas (correo): demo-administrador, demo-recepcion, demo-barbero, demo-barbero2, demo-ingeniero, demo-cliente, demo-cliente2 .. demo-cliente8 @urbanblade.test\n";
+echo "\nCuentas (correo): demo-administrador, demo-recepcion, demo-barbero, demo-barbero2, demo-cliente, demo-cliente2 .. demo-cliente8 @urbanblade.test\n";
 echo "Clave de las cuentas de demostración: $claveDemo
 ";
 echo 'Usuarios: '.User::count().' | Citas: '.Appointment::count()."\n";

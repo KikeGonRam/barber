@@ -25,6 +25,16 @@ class DispatchDueCampaignsCommand extends Command
      */
     public function handle(CampaignDispatcher $dispatcher): int
     {
+        // Campañas apagadas (auditoría de funciones, 23-nov-2026): ver config/features.php. Apagar las rutas no
+        // basta: una campaña ya programada seguiría enviando correo promocional a los clientes cada 5 minutos.
+        // Las campañas 'programada' no se tocan: quedan pendientes y saldrían todas de golpe al volver a
+        // encender el módulo, así que antes de reactivarlo conviene revisarlas o cancelarlas.
+        if (! config('features.campaigns')) {
+            $this->warn('Las campañas están apagadas (config/features.php: campaigns). No se envió nada.');
+
+            return self::SUCCESS;
+        }
+
         $due = Campaign::where('estado', 'programada')
             ->where('programada_para', '<=', now())
             ->get();

@@ -31,5 +31,18 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <!-- Interruptores de funciones (config/features.php) encendidos en pruebas: en producción/staging
+             están apagados por defecto desde el 23-nov-2026 (auditoría de funciones), pero la suite existente
+             de paquetes/gift cards/referidos/sorteos/muro/campañas sigue probando ese código sin que cada
+             prueba tenga que prender el interruptor una por una. El comportamiento "apagado" (404) tiene su
+             propia prueba (tests/SIT/FeatureFlagRoutesTest.php), que fija estas variables con putenv() ANTES
+             de que la aplicación de pruebas arranque, porque routes/api.php solo lee config('features.*') una vez,
+             al registrar las rutas, así que sobrescribir con config() a mitad de la prueba no serviría. -->
+        <env name="FEATURE_PACKAGES" value="true"/>
+        <env name="FEATURE_GIFT_CARDS" value="true"/>
+        <env name="FEATURE_REFERRALS" value="true"/>
+        <env name="FEATURE_RAFFLES" value="true"/>
+        <env name="FEATURE_SOCIAL" value="true"/>
+        <env name="FEATURE_CAMPAIGNS" value="true"/>
     </php>
 </phpunit>

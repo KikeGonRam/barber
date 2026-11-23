@@ -113,6 +113,21 @@ Reglas: nunca pasar un secreto como argumento de línea de comandos que quede en
 | `CACHE_LIMITER_STORE` y `SCHEDULE_CACHE_STORE` | Almacén compartido para límites y para el mutex del planificador. | Con varias réplicas las tareas se repiten y los límites se multiplican. |
 | `CORS_ALLOWED_ORIGINS` | Orígenes web permitidos. | La web no puede llamar a la API. |
 
+### 6.2 Interruptores de funciones
+
+Desde el 23 de noviembre de 2026 seis módulos están **apagados por defecto** (decisión del propietario tras la auditoría de funciones). Se encienden con una variable no secreta en la definición de tarea de `barber`; las cachés de configuración y rutas se regeneran al arrancar el contenedor, así que basta una revisión nueva y reiniciar, sin reconstruir la imagen. Web y móvil leen el estado en `GET /api/v1/barbershop` (campo `features`) y ocultan el módulo apagado.
+
+| Variable | Módulo | Qué pasa apagado |
+| --- | --- | --- |
+| `FEATURE_PACKAGES` | Paquetes prepagados | No se venden ni se listan; un paquete ya comprado se sigue canjeando al cobrar. |
+| `FEATURE_GIFT_CARDS` | Tarjetas de regalo | No se venden ni se consultan; una tarjeta ya comprada se sigue aplicando al cobrar. |
+| `FEATURE_REFERRALS` | Referidos | Sin código de referido ni vínculo. |
+| `FEATURE_RAFFLES` | Sorteos | Sin panel y sin sorteo mensual (`loyalty:draw-raffle` no sortea); un premio ya ganado se sigue canjeando. |
+| `FEATURE_SOCIAL` | Muro social | Sin muro, reacciones, comentarios, moderación ni bloqueo de autores. |
+| `FEATURE_CAMPAIGNS` | Campañas de correo | Sin pantalla ni envío de campañas. |
+
+Un módulo apagado responde 404 en sus rutas. La membresía y los puntos de lealtad no tienen interruptor: siguen activos. Los datos de los módulos apagados no se borran.
+
 ## 7. Datos: MongoDB Atlas, respaldos y archivos
 
 ### 7.1 Atlas
@@ -147,7 +162,7 @@ Las imágenes públicas y los comprobantes usan buckets distintos. Los comproban
 
 ## 9. Usuarios de la aplicación
 
-Los roles son **administrador, recepcionista, barbero, cliente e ingeniero**. El registro público y Google solo crean clientes; el personal lo da de alta un administrador desde la aplicación. Reglas:
+Los roles son **administrador, recepcionista, barbero y cliente** (el rol ingeniero se quitó el 23 de noviembre de 2026; una cuenta antigua con ese rol queda sin permisos y se puede eliminar o cambiar de rol desde Usuarios). El registro público y Google solo crean clientes; el personal lo da de alta un administrador desde la aplicación. Reglas:
 
 - No publicar contraseñas temporales ni ejecutar `tinker` con credenciales en el comando.
 - Un usuario eliminado lógicamente puede seguir ocupando su correo en el índice único; no uses `forceDelete` como solución rutinaria.

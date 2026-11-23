@@ -201,6 +201,16 @@ jobs:
       APP_KEY: base64:3tmJ2lribjQ+hBlJrPj8euKIWSImIqTBRGAzXPUFz/0=
       APP_DEBUG: true
       FRONTEND_URL: http://localhost:3000
+      # El contrato OpenAPI (public/docs/openapi.yaml) documenta TODAS las rutas, incluidas las de los módulos
+      # que en staging/producción están apagados por defecto (config/features.php). Con ellos apagados esas
+      # rutas no existen en `route:list` y la verificación del contrato fallaría. Van a nivel de job (no del
+      # paso) porque `config:cache`/`route:cache` corren en un paso anterior y congelan estos valores.
+      FEATURE_PACKAGES: true
+      FEATURE_GIFT_CARDS: true
+      FEATURE_REFERRALS: true
+      FEATURE_RAFFLES: true
+      FEATURE_SOCIAL: true
+      FEATURE_CAMPAIGNS: true
       DB_CONNECTION: mongodb
       MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
       MONGO_DATABASE: barber_db_test

@@ -34,7 +34,6 @@ El backend expone autenticación por API y las redirecciones web heredadas.
 | Recepcionista | Agenda, atención, clientes, cobros y pedidos autorizados. |
 | Barbero | Citas y perfil propios, horario, portafolio y actividad personal. |
 | Cliente | Reservas propias, compras, recibos y servicios de su cuenta. |
-| Ingeniero | Consultas autorizadas de estado, reportes y observabilidad. |
 
 El backend valida rol, permisos y pertenencia de cada recurso.
 El menú visible del frontend no es una barrera de seguridad.

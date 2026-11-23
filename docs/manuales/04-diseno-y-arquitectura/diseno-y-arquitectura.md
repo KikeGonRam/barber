@@ -30,7 +30,7 @@ Arquitectura lógica y física, modelo de datos, flujos, seguridad e interfaz de
    Barbero ─┤       │                                            │
  Recepción ─┼──►  Web (Nuxt) ─┐                                  │
 Administrador┤                ├─► API Laravel ─► MongoDB         │
-  Ingeniero ─┘  Android ──────┘        │                         │
+             ┘  Android ──────┘        │                         │
                                        ├─► Stripe                │
                                        ├─► Google (acceso)       │
                                        ├─► Correo · Push · SMS   │

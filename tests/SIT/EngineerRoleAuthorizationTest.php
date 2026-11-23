@@ -11,15 +11,13 @@ use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /**
- * Cubre el límite de acceso del rol "ingeniero" (Fase 3 del plan Stripe+ops-
- * role): debe poder ver dashboards/reportes/predicciones/estado del
- * servidor, pero nunca gestionar nada de negocio (usuarios, clientes,
- * inventario, barberos, servicios, configuración). Cada uno de los
- * controladores tocados en esta fase (DashboardAdminController,
- * ReportAdminController, PredictionController, ReportController,
- * LogController) tiene su propio guard interno además del middleware de
- * ruta -- este test prueba el camino real de punta a punta (HTTP + Bearer
- * token), no solo que el middleware de la ruta esté bien escrito.
+ * Prueba de regresión tras la auditoría de funciones del 23-nov-2026: el dueño del proyecto decidió quitar
+ * el rol "ingeniero" (ver config/features.php y el docblock de RolePermissionSeeder). RolePermissionSeeder ya
+ * no siembra este rol ni le sincroniza permisos, pero Mongo puede tener una cuenta vieja que todavía lo tenga
+ * en su campo role_id -- los seeders no borran datos existentes (ver CLAUDE.md). Este test simula justo esa
+ * cuenta vieja (crea el Role 'ingeniero' a mano, como si ya existiera en la base, y un usuario con ese rol en
+ * role_id) y comprueba que ya NO entra a ninguna de las rutas que antes sí: con ningún permiso vigente
+ * sincronizado y con role.custom:administrador en cada grupo de rutas, debe recibir 403, nunca 200.
  */
 class EngineerRoleAuthorizationTest extends TestCase
 {
@@ -43,6 +41,27 @@ class EngineerRoleAuthorizationTest extends TestCase
         parent::tearDown();
     }
 
+    /**
+     * Simula una cuenta vieja de Mongo que todavía trae 'ingeniero' en role_id: el seeder ya no crea este
+     * rol, así que se crea aquí a mano (firstOrCreate, sin sincronizar ningún permiso) tal como quedaría un
+     * Role huérfano que nadie volvió a tocar.
+     */
+    private function legacyIngenieroToken(): string
+    {
+        $role = Role::firstOrCreate(['name' => 'ingeniero', 'guard_name' => 'web']);
+        $user = User::create(['name' => 'Ingeniero Legado', 'email' => 'ingeniero-legado@test.local', 'password' => 'password']);
+        $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
+
+        $plaintext = 'test-token-ingeniero-legado-'.uniqid();
+        MobileApiToken::create([
+            'user_id' => (string) $user->id,
+            'name' => 'test',
+            'token_hash' => hash('sha256', $plaintext),
+        ]);
+
+        return $plaintext;
+    }
+
     private function tokenForRole(string $roleName, string $email): string
     {
         $role = Role::where('name', $roleName)->where('guard_name', 'web')->firstOrFail();
@@ -64,26 +83,21 @@ class EngineerRoleAuthorizationTest extends TestCase
         return $this->withHeader('Authorization', "Bearer {$token}")->getJson($uri);
     }
 
-    public function test_ingeniero_can_reach_every_read_only_dashboard_and_report_route(): void
+    public function test_a_legacy_ingeniero_account_no_longer_reaches_any_route_it_used_to(): void
     {
-        $token = $this->tokenForRole('ingeniero', 'ingeniero-allowed@test.local');
+        $token = $this->legacyIngenieroToken();
 
-        $this->getAs($token, '/api/v1/admin/system/status')->assertOk();
-        $this->getAs($token, '/api/v1/admin/dashboard/stats')->assertOk();
-        $this->getAs($token, '/api/v1/admin/dashboard/metrics')->assertOk();
-        $this->getAs($token, '/api/v1/admin/predictions/insights')->assertOk();
-        $this->getAs($token, '/api/v1/reports')->assertOk();
-        $this->getAs($token, '/api/v1/logs')->assertOk();
-    }
+        // Antes de la auditoría, 'ingeniero' podía ver estas rutas de solo lectura (dashboards, reportes,
+        // predicciones, estado del servidor). Ahora ningún grupo de rutas lo reconoce: 403 en todas.
+        $this->getAs($token, '/api/v1/admin/system/status')->assertForbidden();
+        $this->getAs($token, '/api/v1/admin/dashboard/stats')->assertForbidden();
+        $this->getAs($token, '/api/v1/admin/dashboard/metrics')->assertForbidden();
+        $this->getAs($token, '/api/v1/admin/predictions/insights')->assertForbidden();
+        $this->getAs($token, '/api/v1/reports')->assertForbidden();
+        $this->getAs($token, '/api/v1/logs')->assertForbidden();
+        $this->getAs($token, '/api/v1/admin/reports/peak-hours')->assertForbidden();
 
-    public function test_ingeniero_cannot_manage_any_business_resource(): void
-    {
-        $token = $this->tokenForRole('ingeniero', 'ingeniero-forbidden@test.local');
-
-        // Usuarios, clientes, barberos, servicios, inventario, configuración,
-        // campañas, sorteos y reseñas: nada de esto es "reportes/estado del
-        // servidor" -- son las rutas que motivaron la corrección explícita
-        // del alcance de este rol (nunca superset de administrador).
+        // Nunca tuvo acceso a gestión de negocio, y sigue sin tenerlo.
         $this->getAs($token, '/api/v1/users')->assertForbidden();
         $this->getAs($token, '/api/v1/clients')->assertForbidden();
         $this->getAs($token, '/api/v1/admin/clients')->assertForbidden();
@@ -102,7 +116,7 @@ class EngineerRoleAuthorizationTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_administrador_still_has_full_access_to_the_routes_ingeniero_now_shares(): void
+    public function test_administrador_still_has_full_access_to_the_routes_ingeniero_used_to_share(): void
     {
         $token = $this->tokenForRole('administrador', 'admin-shared-routes@test.local');
 
@@ -112,7 +126,7 @@ class EngineerRoleAuthorizationTest extends TestCase
         $this->getAs($token, '/api/v1/logs')->assertOk();
     }
 
-    public function test_other_roles_cannot_reach_the_new_system_status_route(): void
+    public function test_other_roles_still_cannot_reach_the_system_status_route(): void
     {
         $recepcionistaToken = $this->tokenForRole('recepcionista', 'recep-system@test.local');
         $barberoToken = $this->tokenForRole('barbero', 'barbero-system@test.local');

@@ -208,13 +208,21 @@ class DashboardApiTest extends TestCase
             ->assertJsonPath('data.barberPerformance.revenue', [200, 250]);
     }
 
-    public function test_ingeniero_gets_the_module_dashboard_payload_without_client_pii(): void
+    /**
+     * El rol 'ingeniero' (y su payload dedicado con moduleTelemetry) se quitó el 23-nov-2026
+     * (auditoría de funciones): DashboardController::index() ya no tiene la rama 'ingeniero' ni
+     * el método ingenieroPayload() que armaba ese shape (ver el commit de la auditoría). Esta
+     * prueba simula una cuenta vieja de Mongo que todavía trajera 'ingeniero' en role_id (los
+     * seeders no borran datos existentes) y comprueba que ya no recibe ningún dato de negocio:
+     * ninguna de las ramas hasRole() de index() la reconoce, así que cae al 'guest' sin datos.
+     */
+    public function test_a_legacy_ingeniero_account_no_longer_gets_any_dashboard_payload(): void
     {
-        $role = Role::where('name', 'ingeniero')->where('guard_name', 'web')->firstOrFail();
-        $user = User::create(['name' => 'Ingeniero API', 'email' => 'ingeniero-api-dash@test.local', 'password' => 'password']);
+        $role = Role::firstOrCreate(['name' => 'ingeniero', 'guard_name' => 'web']);
+        $user = User::create(['name' => 'Ingeniero Legado', 'email' => 'ingeniero-legado-dash@test.local', 'password' => 'password']);
         $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
 
-        $token = 'test-plaintext-token-ingeniero-dashboard';
+        $token = 'test-plaintext-token-ingeniero-legado-dashboard';
         MobileApiToken::create([
             'user_id' => (string) $user->id,
             'name' => 'test',
@@ -225,29 +233,7 @@ class DashboardApiTest extends TestCase
             ->getJson('/api/v1/dashboard');
 
         $response->assertOk();
-        $response->assertJson(['role' => 'ingeniero']);
-        $response->assertJsonStructure([
-            'role',
-            'data' => [
-                'todayLabel', 'kpis', 'incomeChart', 'servicesChart', 'barberPerformance',
-                'clientTrends', 'chatbotTelemetry',
-                'moduleTelemetry' => [
-                    'window_days',
-                    'payments' => ['verified_month', 'pending_review', 'rejected_month', 'amount_month'],
-                    'orders' => ['pending', 'delivered_month', 'cancelled_month'],
-                    'campaigns' => ['scheduled', 'sent_month', 'recipients_month', 'opens_month', 'clicks_month'],
-                    'raffles' => ['redeemable', 'claimed_month', 'expired_unclaimed'],
-                    'social' => ['works_month', 'reactions_month', 'comments_month', 'saves_month'],
-                ],
-                'insights', 'sparkHighlights',
-            ],
-        ]);
-        // ingeniero es de solo lectura y sin acceso a datos operativos de
-        // clientes (ver el docblock de ingenieroPayload()) -- a diferencia
-        // de administrador, este payload nunca debe traer las listas de
-        // citas con nombres de clientes.
-        $response->assertJsonMissingPath('data.todayAppointments');
-        $response->assertJsonMissingPath('data.recentAppointments');
+        $response->assertJson(['role' => 'guest', 'data' => []]);
     }
 
     public function test_dashboard_endpoint_requires_a_token(): void

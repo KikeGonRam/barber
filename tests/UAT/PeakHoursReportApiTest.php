@@ -124,9 +124,20 @@ class PeakHoursReportApiTest extends TestCase
         $this->withToken($token)->getJson('/api/v1/admin/reports/peak-hours?days=30')->assertOk()->assertJsonPath('data.days', 30);
     }
 
-    public function test_el_cliente_no_puede_verlo_y_el_ingeniero_si(): void
+    public function test_el_cliente_no_puede_verlo(): void
     {
         $this->withToken($this->tokenFor('cliente'))->getJson('/api/v1/admin/reports/peak-hours')->assertForbidden();
-        $this->withToken($this->tokenFor('ingeniero'))->getJson('/api/v1/admin/reports/peak-hours')->assertOk();
+    }
+
+    /**
+     * El rol 'ingeniero' se quitó el 23-nov-2026 (auditoría de funciones): esta ruta ahora solo
+     * acepta 'administrador' (ver routes/api.php). Se simula una cuenta vieja de Mongo que
+     * todavía trajera 'ingeniero' en role_id -- ya no entra, debe dar 403, no 200.
+     */
+    public function test_una_cuenta_vieja_con_el_rol_ingeniero_ya_no_puede_verlo(): void
+    {
+        Role::firstOrCreate(['name' => 'ingeniero', 'guard_name' => 'web']);
+
+        $this->withToken($this->tokenFor('ingeniero'))->getJson('/api/v1/admin/reports/peak-hours')->assertForbidden();
     }
 }
