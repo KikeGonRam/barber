@@ -4,6 +4,7 @@ namespace App\Notifications\Loyalty;
 
 use App\Models\RaffleResult;
 use App\Notifications\Concerns\PushesToDevices;
+use App\Services\Mail\ShopBranding;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -45,7 +46,7 @@ class RaffleWinNotification extends Notification implements ShouldQueue
                 'intro' => 'Ganaste el sorteo mensual de clientes VIP/Leyenda. Tu premio: **'.$this->prize->premio.'**. Coméntaselo a recepción en tu próxima visita para reclamarlo.',
                 'rows' => [
                     'Premio' => $this->prize->premio,
-                    'Válido hasta' => optional($this->prize->vence_en)->format('d/m/Y'),
+                    'Válido hasta' => ShopBranding::fecha($this->prize->vence_en, conAnio: true),
                 ],
                 'ctaLabel' => 'Reservar una cita',
                 'ctaUrl' => $this->dashboardUrl(),
