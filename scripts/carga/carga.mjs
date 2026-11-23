@@ -7,6 +7,8 @@
  *
  * Escenarios contra STAGING (solo endpoints públicos; nunca credenciales reales):
  *   catalogo         barbershop/services/barbers/products, rampa de 2 a 15 req/s en 3 min (límite: 20 req/s por IP)
+ *                    ¡Satura staging! Solo con aviso. Para medir en staging usar catalogo-suave (máx. 4 req/s).
+ *   catalogo-suave   mismo catálogo a 2 y luego 4 req/s durante 2 min
  *   disponibilidad   horarios de un barbero a 0.4 req/s durante 60 s (límite: 30 por minuto por IP)
  *   rafaga-limite    35 consultas de horarios seguidas: deben llegar 429 después de la 30
  *   login-limite     7 intentos con un correo inventado: 401/422 y luego 429 (límite: 5 por minuto)
@@ -161,6 +163,17 @@ const escenarios = {
       return { nombre, path }
     })
     return resumen('catalogo', r)
+  },
+  async 'catalogo-suave'() {
+    // Medición segura contra staging: nunca pasa de 4 req/s (la capacidad medida antes de optimizar era ~5-6 req/s).
+    const base = opt('--base', STAGING)
+    const rutas = [['barbershop', '/barbershop'], ['services', '/services'], ['barbers', '/barbers'], ['products', '/products']]
+    let i = 0
+    const r = await cargar(base, [{ segundos: 30, rps: 2 }, { segundos: 90, rps: 4 }], () => {
+      const [nombre, path] = rutas[i++ % rutas.length]
+      return { nombre, path }
+    })
+    return resumen('catalogo-suave', r)
   },
   async disponibilidad() {
     const base = opt('--base', STAGING)
