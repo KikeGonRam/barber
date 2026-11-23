@@ -22,10 +22,10 @@ La herramienta tiene un **freno automático**: si en las últimas 40 respuestas 
 | --- | --- | --- | --- | --- | --- |
 | `disponibilidad` | 24 | 24 respuestas 200 | 222 ms | 2,629 ms | 4,897 ms |
 | `catalogo` | 1,890 | 537 respuestas 200 y 1,353 sin respuesta en 15 s | 634 ms | 8,349 ms | 14,878 ms |
-
-Nota: la primera versión de la herramienta calculaba mal la rampa (multiplicaba el tiempo por la tasa *actual*, no por la acumulada), así que `catalogo` envió 1,890 peticiones en lugar de las ~1,395 previstas y llegó a unas 22 req/s en vez de 15. Ya está corregido. Las cifras de capacidad de abajo salen de las métricas del balanceador y no dependen de ese cálculo.
 | `rafaga-limite` | 35 | 35 respuestas 200, ningún 429 | 154 ms | 277 ms | |
 | `login-limite` | 7 | 7 respuestas 422, ningún 429 | | | |
+
+Nota: la primera versión de la herramienta calculaba mal la rampa (multiplicaba el tiempo por la tasa *actual*, no por la acumulada), así que `catalogo` envió 1,890 peticiones en lugar de las ~1,395 previstas y llegó a unas 22 req/s en vez de 15. Ya está corregido. Las cifras de capacidad de abajo salen de las métricas del balanceador y no dependen de ese cálculo.
 
 ### Capacidad del catálogo
 
@@ -78,9 +78,24 @@ La tarea es pequeña (0.5 vCPU, 1 GB, 16 procesos de PHP-FPM) y la base es Atlas
 
 **45 % menos operaciones por petición.** La latencia en serie local no cambia (173 ms frente a 186 ms): el MongoDB local es rápido y lo que pesa ahí es el servidor de desarrollo de PHP. El beneficio está en el tope de operaciones de Atlas M0, que era el cuello de botella en staging.
 
+### Medición en staging tras el despliegue
+
+Los dos cambios llegaron a staging el 23 de noviembre (06:20 UTC, barber#110). Después se corrió `catalogo-suave` (2 req/s durante 30 s y luego 4 req/s), el escenario pensado para medir staging sin saturarlo:
+
+| Escenario | Peticiones | Resultado | p50 | p95 |
+| --- | --- | --- | --- | --- |
+| `catalogo-suave` | 187 | 187 respuestas 200; el freno paró a los 80 s | 157 ms | 3,535 ms |
+
+- Ninguna respuesta falló y la mediana es buena, pero la cola sigue alta: ya en la fase de 4 req/s el p95 pasó de 3 s y el freno detuvo la prueba.
+- En los registros de operaciones lentas **Pulse desapareció** y tampoco quedan consultas del catálogo. **Solo queda la colección `cache`**: 31 actualizaciones, 16 lecturas y 5 `findAndModify` lentos, unas 5 operaciones de MongoDB por petición (límite del catálogo y ventanas del guardián de abuso).
+
+### Índice TTL de la caché
+
+Migración `2026_11_23_000000_add_cache_ttl_indexes`, con su prueba `tests/SIT/CacheTtlIndexTest.php`. Al revisar esa colección se vio que la migración original de `cache` es la de Laravel para SQL (indexa `expiration`), pero MongoStore guarda la caducidad en `expires_at`: sin índice TTL, cada contador vencido se quedaba para siempre en Atlas M0. El índice `expires_at_ttl` (`expireAfterSeconds: 0`) en `cache` y `cache_locks` hace que MongoDB los borre al vencer. Requiere desplegar con `confirmar_migraciones`.
+
 ### Pendientes y recomendaciones
 
-- **Medir el catálogo en staging después de desplegar este cambio**, a 4 req/s como máximo y con el freno activo.
-- Las operaciones que quedan (unas 5.6 por petición) son los contadores de límites en MongoDB. Con barber#109 el guardián de abuso vuelve a contar por IP real y suma unas 3 operaciones más. Si hace falta más capacidad: llevar los contadores gruesos (catálogo y abuso) a un almacén local por tarea y dejar en MongoDB solo los sensibles, como login. Es un intercambio de seguridad que debe decidir el equipo.
+- Tras desplegar el índice TTL, repetir `catalogo-suave` y comparar el p95.
+- Si la cola sigue alta, lo que queda son los contadores en MongoDB. La opción es llevar los gruesos (límite del catálogo y guardián de abuso) a un almacén local por tarea y dejar en MongoDB solo los sensibles, como login. Es un intercambio de seguridad que debe decidir el equipo: con dos tareas, cada una contaría por separado y el límite efectivo por IP se duplicaría.
 - Separar la comprobación de salud del grupo de procesos que atiende la API, o subir su tolerancia, para que una saturación pasajera no haga que ECS reemplace la tarea.
 - Los escenarios con sesión de la demostración (`demo-sesion`, `demo-panel`, `demo-reserva-concurrente`) están escritos pero todavía no se han ejecutado.
