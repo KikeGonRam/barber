@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\Payment;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -55,5 +56,18 @@ abstract class TestCase extends BaseTestCase
                 exit(1);
             }
         }
+    }
+
+    /**
+     * Payment usa SoftDeletes (anulación lógica): las limpiezas `Payment::query()->delete()` de cada
+     * prueba ya no borran, solo marcan como anulados. Se purgan aquí una sola vez para no acumular
+     * cobros anulados en barber_db_test. Corre antes de parent::tearDown(), con la base ya validada
+     * en setUp() (si no era la de pruebas, el proceso se abortó antes de llegar aquí).
+     */
+    protected function tearDown(): void
+    {
+        Payment::onlyTrashed()->forceDelete();
+
+        parent::tearDown();
     }
 }

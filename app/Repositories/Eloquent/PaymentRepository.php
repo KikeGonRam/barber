@@ -14,15 +14,26 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
 
     public function paginateWithFilters(array $filters = [], int $perPage = 15)
     {
-        return $this->model->newQuery()
+        $anulados = ! empty($filters['anulados']);
+
+        // Historial de anulados: solo los cobros con deleted_at (SoftDeletes), del más recientemente
+        // anulado; el listado normal ya los excluye por el filtro global.
+        $query = $anulados
+            ? Payment::onlyTrashed()->with('anuladoPor')->latest('deleted_at')
+            : $this->model->newQuery();
+
+        return $query
             ->with(['appointment.client.user', 'appointment.barber.user', 'appointment.service', 'creator'])
             ->when(isset($filters['metodo_pago']) && $filters['metodo_pago'] !== '', function ($query) use ($filters) {
                 $query->where('metodo_pago', $filters['metodo_pago']);
             })
             ->when(! empty($filters['q']), function ($query) use ($filters) {
                 $q = $filters['q'];
-                $query->whereHas('appointment.client.user', fn ($u) => $u->where('name', 'like', "%{$q}%"))
-                    ->orWhereHas('appointment.service', fn ($s) => $s->where('nombre', 'like', "%{$q}%"));
+                // Agrupado: sin el where() el orWhereHas escapaba de los demás filtros (y del historial
+                // de anulados) y devolvía cobros que no cumplían el resto de condiciones.
+                $query->where(fn ($w) => $w
+                    ->whereHas('appointment.client.user', fn ($u) => $u->where('name', 'like', "%{$q}%"))
+                    ->orWhereHas('appointment.service', fn ($s) => $s->where('nombre', 'like', "%{$q}%")));
             })
             ->when(! empty($filters['barbero_id']), fn ($q) => $q->whereHas('appointment', fn ($a) => $a->where('barber_id', $filters['barbero_id'])))
             ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereDate('created_at', '>=', $filters['fecha_desde']))

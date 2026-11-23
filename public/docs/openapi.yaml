@@ -4714,7 +4714,17 @@ paths:
       summary: "Lista paginada de pagos con datos de cita, cliente, barbero y comprobante,\nfiltrable por método de pago."
       operationId: listaPaginadaDePagosConDatosDeCitaClienteBarberoYComprobanteFiltrablePorMtodoDePago
       description: ''
-      parameters: []
+      parameters:
+        -
+          in: query
+          name: anulados
+          description: 'Solo administrador: lista los cobros anulados (con motivo, autor y fecha en `anulacion`).'
+          example: 1
+          required: false
+          schema:
+            type: boolean
+            description: 'Solo administrador: lista los cobros anulados (con motivo, autor y fecha en `anulacion`).'
+            example: 1
       responses:
         401:
           description: ''
@@ -5103,13 +5113,26 @@ paths:
           type: string
   '/api/v1/payments/{payment_id}':
     delete:
-      summary: 'Elimina un pago y su comprobante PDF asociado (si existe) del almacenamiento público.'
-      operationId: eliminaUnPagoYSuComprobantePDFAsociadosiExisteDelAlmacenamientoPblico
-      description: ''
+      summary: 'Anula un cobro (solo administrador).'
+      operationId: anulaUnCobrosoloAdministrador
+      description: "Anulación lógica: el cobro y su comprobante PDF se conservan con el motivo, quién lo anuló y la fecha; deja de contar en las sumas y la cita se puede volver a cobrar. Se consulta con GET /payments?anulados=1."
       parameters: []
       responses: {}
       tags:
         - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                motivo:
+                  type: string
+                  description: 'Motivo de la anulación (5 a 300 caracteres).'
+                  example: 'Cobro duplicado por error'
+              required:
+                - motivo
       security: []
     parameters:
       -

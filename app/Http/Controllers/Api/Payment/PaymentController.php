@@ -40,6 +40,8 @@ class PaymentController extends Controller
     /**
      * Lista paginada de pagos con datos de cita, cliente, barbero y comprobante,
      * filtrable por método de pago.
+     *
+     * @queryParam anulados boolean Solo administrador: lista los cobros anulados (con motivo, autor y fecha en `anulacion`). Example: 1
      */
     public function index(Request $request): JsonResponse
     {
@@ -54,6 +56,14 @@ class PaymentController extends Controller
         }
 
         $filters = $request->only(['metodo_pago', 'q', 'barbero_id', 'fecha_desde', 'fecha_hasta']);
+        $isAdmin = $user->hasRole('administrador');
+
+        // ?anulados=1: historial de cobros anulados (solo administrador, igual que anular).
+        if ($request->boolean('anulados')) {
+            abort_unless($isAdmin, 403, 'Solo un administrador puede ver los cobros anulados.');
+            $filters['anulados'] = true;
+        }
+
         $payments = $this->paymentService->list($filters, 20);
 
         return response()->json([
@@ -76,11 +86,18 @@ class PaymentController extends Controller
                     'id' => $payment->creator?->id,
                     'name' => $payment->creator?->name,
                 ],
+                'anulacion' => $payment->trashed() ? [
+                    'motivo' => $payment->motivo_anulacion,
+                    'fecha' => optional($payment->deleted_at)->toIso8601String(),
+                    'por' => $payment->anuladoPor?->name,
+                ] : null,
             ])->values(),
             'meta' => [
                 'current_page' => $payments->currentPage(),
                 'last_page' => $payments->lastPage(),
                 'total' => $payments->total(),
+                // Cuántos cobros anulados hay (solo se informa al administrador).
+                'anulados_count' => $isAdmin ? Payment::onlyTrashed()->count() : null,
                 // Estadisticas globales (no del subset filtrado/paginado actual)
                 // y conteo de comprobantes por revisar, igual que la version web
                 // (Payment\PaymentController::index()) para que el "Centro de
@@ -555,11 +572,15 @@ class PaymentController extends Controller
     }
 
     /**
-     * Elimina un pago y su comprobante PDF asociado (si existe) del almacenamiento público.
+     * Anula un cobro (solo administrador). Anulación lógica: el cobro y su comprobante PDF se
+     * conservan con el motivo, quién lo anuló y la fecha; deja de contar en las sumas y la cita se
+     * puede volver a cobrar. Se consulta con GET /payments?anulados=1.
+     *
+     * @bodyParam motivo string required Motivo de la anulación (5 a 300 caracteres). Example: Cobro duplicado por error
      */
     public function destroy(Request $request, Payment $payment): JsonResponse
     {
-        // Anular borra el cobro y su comprobante: solo un administrador, y dejando el motivo en la bitácora
+        // Anular un cobro: solo un administrador, y dejando el motivo en la bitácora
         // (antes la recepción podía borrarlo sin dejar más rastro que el evento genérico «deleted»).
         $user = $request->user();
         abort_if(! $user || ! $user->hasRole('administrador'), 403, 'Solo un administrador puede anular un cobro.');
@@ -577,14 +598,19 @@ class PaymentController extends Controller
             ])
             ->log('Cobro anulado: '.$data['motivo']);
 
-        if ($payment->comprobante_pdf) {
-            Storage::disk('receipts')->delete($payment->comprobante_pdf);
-        }
-
-        $payment->delete();
+        // Anulación lógica: el cobro y su comprobante PDF se conservan para el historial contable;
+        // deleted_at lo saca de todas las sumas y bloquea_cita=false deja volver a cobrar la cita.
+        // withoutEvents: la bitácora ya tiene la entrada «Cobro anulado» con el motivo; sin esto
+        // Activitylog añadiría otra «updated» con los mismos datos. (Antes se borraba el documento.)
+        Payment::withoutEvents(fn () => $payment->forceFill([
+            'anulado_por' => (string) $user->id,
+            'motivo_anulacion' => $data['motivo'],
+            'bloquea_cita' => false,
+            $payment->getDeletedAtColumn() => now(),
+        ])->save());
 
         return response()->json([
-            'message' => 'Pago eliminado correctamente.',
+            'message' => 'Cobro anulado. Se conserva en el historial de cobros anulados.',
         ]);
     }
 
@@ -595,6 +621,11 @@ class PaymentController extends Controller
     public function receipt(Request $request, Payment $payment): JsonResponse
     {
         $user = $request->user();
+
+        // La ruta resuelve también cobros anulados (withTrashed) para que el administrador revise su
+        // comprobante desde «Cobros anulados»; para cualquier otro rol un cobro anulado no existe.
+        abort_if($payment->trashed() && ! $user?->hasRole('administrador'), 404);
+
         $isStaff = $user?->hasAnyRole(['administrador', 'recepcionista']);
         $isOwner = $user?->hasRole('cliente') && $user->clientProfile
             && (string) $payment->appointment?->client_id === (string) $user->clientProfile->id;

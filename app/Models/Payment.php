@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use MongoDB\Laravel\Eloquent\Model;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
@@ -14,7 +15,11 @@ use Spatie\Activitylog\Support\LogOptions;
  */
 class Payment extends Model
 {
-    use HasFactory, LogsActivity;
+    // SoftDeletes = anulación lógica (hallazgo 13 de la prueba de usuario): anular un cobro ya no lo
+    // borra; queda con deleted_at, el motivo y quién lo anuló. El filtro global hace que todas las
+    // sumas (panel, reportes, corte de caja, analítica) y la regla "la cita ya tiene un pago" lo
+    // ignoren sin tocar cada consulta. Para verlo: Payment::onlyTrashed().
+    use HasFactory, LogsActivity, SoftDeletes;
 
     public const ESTADO_VERIFICADO = 'verificado';
 
@@ -62,6 +67,9 @@ class Payment extends Model
         'es_deposito',
         // Cuándo se envió al cliente el ticket (comprobante + factura) de este pago; evita enviarlo dos veces.
         'ticket_enviado_en',
+        // Anulación lógica: quién lo anuló (id de usuario) y por qué. La fecha es deleted_at.
+        'anulado_por',
+        'motivo_anulacion',
     ];
 
     protected function casts(): array
@@ -113,9 +121,18 @@ class Payment extends Model
             // Un depósito anti-no-show no cuenta: el cobro final del servicio
             // debe poder registrarse después (mismo criterio que el filtro
             // es_deposito de existsForAppointment()).
+            // Un cobro anulado tampoco bloquea: si no, el índice único parcial impediría volver a
+            // cobrar la cita después de anular un cobro equivocado.
             $payment->bloquea_cita = $payment->estado !== self::ESTADO_RECHAZADO
-                && ! $payment->es_deposito;
+                && ! $payment->es_deposito
+                && ! $payment->trashed();
         });
+    }
+
+    // Administrador que anuló el cobro (solo en cobros anulados).
+    public function anuladoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'anulado_por');
     }
 
     // Cita a la que corresponde este pago.
