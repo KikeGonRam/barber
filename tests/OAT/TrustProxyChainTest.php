@@ -68,6 +68,21 @@ class TrustProxyChainTest extends TestCase
         $this->assertSame(self::VISITANTE, $ip);
     }
 
+    public function test_con_caddy_delante_de_php_devuelve_la_ip_del_visitante(): void
+    {
+        // Caddy conserva la cadena (trusted_proxies) y añade al final la IP del ALB, que es la misma REMOTE_ADDR.
+        $ip = $this->clientIp(2, ['HTTP_X_FORWARDED_FOR' => self::VISITANTE.', '.self::CLOUDFRONT.', '.self::ALB]);
+
+        $this->assertSame(self::VISITANTE, $ip);
+    }
+
+    public function test_con_caddy_una_x_forwarded_for_falsificada_tampoco_cambia_la_ip(): void
+    {
+        $ip = $this->clientIp(2, ['HTTP_X_FORWARDED_FOR' => '6.6.6.6, '.self::VISITANTE.', '.self::CLOUDFRONT.', '.self::ALB]);
+
+        $this->assertSame(self::VISITANTE, $ip);
+    }
+
     public function test_una_x_forwarded_for_falsificada_no_cambia_la_ip(): void
     {
         $ip = $this->clientIp(2, ['HTTP_X_FORWARDED_FOR' => '6.6.6.6, '.self::VISITANTE.', '.self::CLOUDFRONT]);

@@ -47,13 +47,21 @@ class TrustProxyChain extends TrustProxies
             return;
         }
 
-        $trusted = [(string) $request->server->get('REMOTE_ADDR')];
+        $remote = (string) $request->server->get('REMOTE_ADDR');
+        $trusted = [$remote];
 
         if ($hops > 1) {
             $forwardedFor = array_values(array_filter(array_map(
                 trim(...),
                 explode(',', (string) $request->headers->get('X-Forwarded-For', '')),
             )));
+
+            // Caddy (php_fastcgi) añade al final de X-Forwarded-For a su remitente directo, que es el mismo
+            // REMOTE_ADDR (el ALB). No es un salto más de la cadena: si no se quita, el último proxy de confianza
+            // sería el ALB repetido y la IP «del cliente» acabaría siendo el nodo de CloudFront.
+            if ($forwardedFor !== [] && end($forwardedFor) === $remote) {
+                array_pop($forwardedFor);
+            }
 
             $trusted = array_merge($trusted, array_slice($forwardedFor, -($hops - 1)));
         }
