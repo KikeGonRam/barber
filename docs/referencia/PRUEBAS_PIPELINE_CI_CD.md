@@ -54,11 +54,18 @@ Controles que lo previenen: OIDC (no hay secretos que imprimir), enmascarado aut
 
 ### T040 · Reversión de un despliegue de ECS
 
-**Estado: pendiente de ejecutar con autorización del propietario.** Cambia la imagen que corre en staging durante unos minutos.
+**Ejecutada el 23 de noviembre de 2026, de 04:29 a 04:41 UTC, con autorización del propietario**, sobre el frontend (`uba-stg-frontend`, sin estado, una tarea, despliegue con mínimo sano 100 % y máximo 200 %), siguiendo el apartado 5 del [runbook de incidentes](RUNBOOK_INCIDENTES_STAGING.md). Durante cada cambio se consultó `https://urbanblade.com.mx/login` cada 10 segundos.
 
-Procedimiento previsto, sobre el frontend (sin estado y con una sola tarea), siguiendo el apartado 5 del [runbook de incidentes](RUNBOOK_INCIDENTES_STAGING.md):
+| Paso | Imagen en la tarea | Tiempo hasta estable | Sitio tras el cambio | Sondeos durante el cambio |
+| --- | --- | --- | --- | --- |
+| Estado inicial | `sha-2ba5fb0` (`3ef9b1cd…`) | | 200 | |
+| 1. Revertir a `rollback-20261123-pre-2ba5fb0` (`sha-146898a`) | `0ff925a2…`: mismo contenido que el respaldo `ccfa56b0…` (mismos manifiestos de plataforma `35e4dad8…` y `d6d13b51…`) | 166 s | 200 | 16 de 16 con 200 |
+| 2. Volver a la versión actual | `9428d914…`: mismo contenido que `3ef9b1cd…` (manifiestos `a63dcfc7…` y `562a3466…`) | 158 s | 200 | 16 de 16 con 200 |
+| 3. Dejar `latest` en el digest original exacto | `3ef9b1cd…` | 167 s | 200 | 15 de 16 con 200 |
 
-1. Anotar el digest que corre (`latest` = `sha-2ba5fb0`).
-2. Revertir: poner `latest` en el manifiesto de `rollback-20261123-pre-2ba5fb0` (`sha-146898a`), forzar un nuevo despliegue de `uba-stg-frontend` y esperar a que se estabilice.
-3. Comprobar que la tarea corre el digest anterior y que el sitio responde 200.
-4. Volver a la versión actual por el mismo camino y comprobar de nuevo digest y 200.
+Resultado: **la reversión funciona y no deja el sitio sin servicio**. ECS arranca la tarea nueva antes de retirar la anterior. El único sondeo sin respuesta (04:38:15 UTC) ocurrió antes de registrar la tarea nueva, con la anterior todavía sana y atendiendo, así que se atribuye a la red del equipo de prueba y no al cambio. Staging quedó como estaba al empezar.
+
+Hallazgos de la prueba:
+
+- **El comando de reversión manual del runbook fallaba en PowerShell.** `--output text` devuelve el manifiesto como arreglo de líneas y `aws` recibía `{` como manifiesto. Se corrigió el runbook para pasar el manifiesto como archivo con sus bytes exactos; se comprobó que el SHA-256 del archivo coincide con el digest de la imagen.
+- **Si el texto del manifiesto cambia (saltos de línea, formato), ECR crea otro digest para la misma imagen.** Les pasó a los pasos 1 y 2, ejecutados desde Windows. La imagen es la misma, pero `latest` y la tarea dejan de coincidir con la etiqueta `sha-…` o `rollback-…`. El pipeline no tiene este problema: su respaldo `rollback-20261123-pre-fcae844` de barber conserva el mismo digest que `sha-7cdc87e`.
