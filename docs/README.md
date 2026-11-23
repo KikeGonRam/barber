@@ -34,6 +34,7 @@ ninguna guía certifica por sí sola un entorno remoto.
 | Decisiones implementadas y propuestas | [Decisiones](referencia/DECISIONES.md) |
 | Separación de cargas y entornos | [ADR-001](referencia/ADR-001-ARQUITECTURA-DE-DATOS.md) |
 | Ejecución y matriz de regresiones | [Pruebas](referencia/PRUEBAS.md) |
+| Rendimiento, capacidad y carga (HT-20) | [Pruebas de carga](referencia/PRUEBAS_CARGA.md) |
 | OpenAPI y consumidores | [Contrato API](referencia/PLAN_CONTRATO_API.md) |
 | Controles y publicación | [CI/CD](referencia/CI_CD.md) |
 | Evaluación de un modelo de IA externo | [Kimi K3.1 Pro](referencia/EVALUACION_KIMI_K31.md) |

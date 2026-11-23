@@ -22,6 +22,7 @@ use App\Services\Chatbot\OllamaService;
 use App\Services\Mail\MailConfigCheck;
 use App\Services\System\QueueFailureMonitor;
 use App\Services\System\ScheduledTaskMonitor;
+use App\Support\CatalogCache;
 use App\Support\DataEnvironmentGuard;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -100,6 +101,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->warnIfMailIsNotDelivering();
+
+        // Caché del catálogo público: se borra al guardar o eliminar servicios, productos, barberos o reseñas (HT-20).
+        CatalogCache::registerInvalidation();
 
         // Mide cada comando a MongoDB (cuántos y cuánto tardan por petición) y avisa de los lentos. Ver config/observability.php.
         MongoCommandTimer::register();

@@ -1,0 +1,3 @@
+ANTES (main, Pulse en Mongo): 120 peticiones en 20.7 s (173 ms/petición en serie)
+  operaciones de Mongo: {'insert': 270, 'query': 390, 'update': 240, 'delete': 0, 'getmore': 0, 'command': 308} | total 1208 -> 10.1 por petición
+    120 200 

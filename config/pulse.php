@@ -64,7 +64,10 @@ return [
         ],
 
         'database' => [
-            'connection' => env('PULSE_DB_CONNECTION'),
+            // SQLite local por defecto (conexión «sqlite», ver config/database.php). Pulse no soporta MongoDB: sin
+            // esto, staging escribía las métricas de cada petición en Atlas M0 (con transacciones que abortaban) y en
+            // la prueba de carga de HT-20 fue cerca de un tercio de las operaciones lentas.
+            'connection' => env('PULSE_DB_CONNECTION', 'sqlite'),
             'chunk' => 1000,
         ],
     ],

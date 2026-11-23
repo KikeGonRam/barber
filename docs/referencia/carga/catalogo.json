@@ -1,0 +1,63 @@
+{
+  "escenario": "catalogo",
+  "fecha": "2026-11-23T05:03:41.410Z",
+  "duracion_s": 195,
+  "rps_logrados": 9.69,
+  "total": {
+    "peticiones": 1890,
+    "estados": {
+      "200": 537,
+      "timeout": 1353
+    },
+    "p50": 634,
+    "p95": 8349,
+    "p99": 14878,
+    "max": 14984
+  },
+  "por_endpoint": {
+    "barbershop": {
+      "peticiones": 473,
+      "estados": {
+        "200": 139,
+        "timeout": 334
+      },
+      "p50": 752,
+      "p95": 14577,
+      "p99": 14944,
+      "max": 14957
+    },
+    "services": {
+      "peticiones": 473,
+      "estados": {
+        "200": 134,
+        "timeout": 339
+      },
+      "p50": 573,
+      "p95": 8687,
+      "p99": 14620,
+      "max": 14934
+    },
+    "barbers": {
+      "peticiones": 472,
+      "estados": {
+        "200": 130,
+        "timeout": 342
+      },
+      "p50": 475,
+      "p95": 7510,
+      "p99": 9398,
+      "max": 13787
+    },
+    "products": {
+      "peticiones": 472,
+      "estados": {
+        "200": 134,
+        "timeout": 338
+      },
+      "p50": 600,
+      "p95": 8543,
+      "p99": 14878,
+      "max": 14984
+    }
+  }
+}

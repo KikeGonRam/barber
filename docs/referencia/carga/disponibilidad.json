@@ -1,0 +1,28 @@
+{
+  "escenario": "disponibilidad",
+  "fecha": "2026-11-23T05:00:26.348Z",
+  "duracion_s": 60,
+  "rps_logrados": 0.4,
+  "total": {
+    "peticiones": 24,
+    "estados": {
+      "200": 24
+    },
+    "p50": 222,
+    "p95": 2629,
+    "p99": 4897,
+    "max": 4897
+  },
+  "por_endpoint": {
+    "slots": {
+      "peticiones": 24,
+      "estados": {
+        "200": 24
+      },
+      "p50": 222,
+      "p95": 2629,
+      "p99": 4897,
+      "max": 4897
+    }
+  }
+}
