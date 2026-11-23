@@ -14,6 +14,12 @@ php artisan storage:link --no-interaction || true
 # Laravel Pulse necesita el archivo SQLite creado de antemano.
 touch /var/www/html/database/pulse.sqlite
 chown www-data:www-data /var/www/html/database/pulse.sqlite
+# Pulse guarda sus métricas en este SQLite local (config/pulse.php). El archivo es nuevo en cada tarea, pero su
+# migración ya consta como ejecutada en la tabla de migraciones de MongoDB, así que el migrate general no la repite:
+# se crea su esquema aquí, con un registro de migraciones propio dentro del mismo SQLite. Si falla, la app sigue
+# funcionando sin métricas de Pulse.
+php artisan migrate --force --no-interaction --database=sqlite     --path=database/migrations/2026_09_06_142509_create_pulse_tables.php     || echo "AVISO: no se pudieron crear las tablas de Pulse en SQLite." >&2
+chown www-data:www-data /var/www/html/database/pulse.sqlite
 
 echo "Conectando a MongoDB Atlas y aplicando migraciones..."
 for i in {1..20}; do

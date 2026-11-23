@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\Service;
 use App\Models\Work;
 use App\Services\Barber\BarberReviewService;
+use App\Support\CatalogCache;
 use App\Support\PublicName;
 use App\Support\UploadedImage;
 use Illuminate\Http\JsonResponse;
@@ -79,13 +80,12 @@ class CatalogController extends Controller
     // Lista servicios activos ordenados alfabéticamente
     public function services(): JsonResponse
     {
-        $services = Service::query()
+        // Catálogo público en caché 60 s (se borra al editar un servicio): ver CatalogCache.
+        $data = CatalogCache::remember(CatalogCache::SERVICES, fn () => Service::query()
             ->where('activo', true)
             ->orderBy('nombre')
-            ->get(['id', 'nombre', 'categoria', 'precio', 'duracion_min', 'imagen', 'descripcion']);
-
-        return response()->json([
-            'data' => $services->map(fn (Service $s) => [
+            ->get(['id', 'nombre', 'categoria', 'precio', 'duracion_min', 'imagen', 'descripcion'])
+            ->map(fn (Service $s) => [
                 'id' => $s->id,
                 'nombre' => $s->nombre,
                 'categoria' => $s->categoria,
@@ -96,8 +96,9 @@ class CatalogController extends Controller
                 // la columna guarda solo la ruta relativa de storage, el
                 // cliente necesita la URL absoluta para poder mostrarla.
                 'imagen' => UploadedImage::url($s->imagen),
-            ])->values(),
-        ]);
+            ])->values()->all());
+
+        return response()->json(['data' => $data]);
     }
 
     /**
@@ -111,15 +112,13 @@ class CatalogController extends Controller
         $search = trim((string) $request->query('q', ''));
         $categoria = trim((string) $request->query('categoria', ''));
 
-        $products = Product::query()
+        $build = fn () => Product::query()
             ->availableForSale()
             ->when($search !== '', fn ($q) => $q->where('nombre', 'like', "%{$search}%"))
             ->when($categoria !== '', fn ($q) => $q->where('categoria', $categoria))
             ->orderBy('nombre')
-            ->get(['id', 'nombre', 'categoria', 'descripcion', 'precio_venta', 'stock_actual', 'imagen']);
-
-        return response()->json([
-            'data' => $products->map(fn (Product $p) => [
+            ->get(['id', 'nombre', 'categoria', 'descripcion', 'precio_venta', 'stock_actual', 'imagen'])
+            ->map(fn (Product $p) => [
                 'id' => $p->id,
                 'nombre' => $p->nombre,
                 'categoria' => $p->categoria,
@@ -127,28 +126,21 @@ class CatalogController extends Controller
                 'precio_venta' => (float) $p->precio_venta,
                 'stock_actual' => (int) $p->stock_actual,
                 'imagen' => UploadedImage::url($p->imagen),
-            ])->values(),
-        ]);
+            ])->values()->all();
+
+        // Solo el listado sin filtros va a la caché (el que pide la tienda al abrir); una búsqueda consulta directo.
+        $data = $search === '' && $categoria === '' ? CatalogCache::remember(CatalogCache::PRODUCTS, $build) : $build();
+
+        return response()->json(['data' => $data]);
     }
 
     // Lista barberos activos con rating promedio y total de reseñas precalculados en lote
     public function barbers(Request $request): JsonResponse
     {
-        $barbers = Barber::query()
-            ->with('user:id,name,avatar_url')
-            ->where('activo', true)
-            ->orderBy('id')
-            ->get();
-
-        // Aggregate review stats in one query grouped in PHP (avoids N+1)
-        $barberIds = $barbers->pluck('id')->map(fn ($id) => (string) $id)->all();
-        $reviewStats = BarberReview::whereIn('barber_id', $barberIds)
-            ->get(['barber_id', 'rating'])
-            ->groupBy('barber_id')
-            ->map(fn ($group) => [
-                'avg' => round($group->avg('rating'), 1),
-                'count' => $group->count(),
-            ]);
+        // La parte pública (barberos, foto y calificación) va a la caché 60 s; lo propio de cada cliente
+        // (citas_conmigo, es_favorito) se calcula siempre aparte y nunca se guarda en ella.
+        $publicos = CatalogCache::remember(CatalogCache::BARBERS, fn (): array => $this->publicBarbers());
+        $barberIds = array_map(fn (array $b) => (string) $b['id'], $publicos);
 
         // "Ya te cortaste con él X veces": solo tiene sentido para un cliente
         // autenticado viendo SU propio historial, nunca para un invitado ni
@@ -163,7 +155,37 @@ class CatalogController extends Controller
                 ->countBy('barber_id')
             : collect();
 
-        $payload = $barbers->map(fn (Barber $barber) => [
+        $payload = array_map(fn (array $barber) => $barber + [
+            'citas_conmigo' => $client ? (int) ($citasConmigo[(string) $barber['id']] ?? 0) : null,
+            'es_favorito' => $client && $client->barbero_favorito_id === (string) $barber['id'],
+        ], $publicos);
+
+        return response()->json(['data' => $payload]);
+    }
+
+    /**
+     * Parte pública del listado de barberos (igual para cualquier visitante): va a CatalogCache.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function publicBarbers(): array
+    {
+        $barbers = Barber::query()
+            ->with('user:id,name,avatar_url')
+            ->where('activo', true)
+            ->orderBy('id')
+            ->get();
+
+        // Aggregate review stats in one query grouped in PHP (avoids N+1)
+        $reviewStats = BarberReview::whereIn('barber_id', $barbers->pluck('id')->map(fn ($id) => (string) $id)->all())
+            ->get(['barber_id', 'rating'])
+            ->groupBy('barber_id')
+            ->map(fn ($group) => [
+                'avg' => round($group->avg('rating'), 1),
+                'count' => $group->count(),
+            ]);
+
+        return $barbers->map(fn (Barber $barber) => [
             'id' => $barber->id,
             'slug' => $barber->slug,
             'user' => $barber->user ? ['id' => $barber->user->id, 'name' => $barber->user->name] : null,
@@ -173,11 +195,7 @@ class CatalogController extends Controller
             'activo' => (bool) ($barber->activo ?? true),
             'avg_rating' => $reviewStats[(string) $barber->id]['avg'] ?? null,
             'total_reviews' => $reviewStats[(string) $barber->id]['count'] ?? 0,
-            'citas_conmigo' => $client ? (int) ($citasConmigo[(string) $barber->id] ?? 0) : null,
-            'es_favorito' => $client && $client->barbero_favorito_id === (string) $barber->id,
-        ])->values();
-
-        return response()->json(['data' => $payload]);
+        ])->values()->all();
     }
 
     // Perfil público de un barbero: portafolio, reseñas y si el cliente actual puede reseñarlo

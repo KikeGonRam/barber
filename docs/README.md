@@ -34,6 +34,7 @@ ninguna guía certifica por sí sola un entorno remoto.
 | Decisiones implementadas y propuestas | [Decisiones](referencia/DECISIONES.md) |
 | Separación de cargas y entornos | [ADR-001](referencia/ADR-001-ARQUITECTURA-DE-DATOS.md) |
 | Ejecución y matriz de regresiones | [Pruebas](referencia/PRUEBAS.md) |
+| Rendimiento, capacidad y carga (HT-20) | [Pruebas de carga](referencia/PRUEBAS_CARGA.md) |
 | OpenAPI y consumidores | [Contrato API](referencia/PLAN_CONTRATO_API.md) |
 | Controles y publicación | [CI/CD](referencia/CI_CD.md) |
 | Evidencia de despliegue continuo y pruebas del pipeline (HT-12, HT-14) | [Pruebas del pipeline](referencia/PRUEBAS_PIPELINE_CI_CD.md) |

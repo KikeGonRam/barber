@@ -1,0 +1,32 @@
+{
+  "escenario": "rafaga-limite",
+  "fecha": "2026-11-23T05:47:45.683Z",
+  "duracion_s": 5,
+  "rps_logrados": 6.78,
+  "total": {
+    "peticiones": 35,
+    "estados": {
+      "200": 30,
+      "429": 5
+    },
+    "p50": 160,
+    "p95": 190,
+    "p99": 222,
+    "max": 222
+  },
+  "por_endpoint": {
+    "slots": {
+      "peticiones": 35,
+      "estados": {
+        "200": 30,
+        "429": 5
+      },
+      "p50": 160,
+      "p95": 190,
+      "p99": 222,
+      "max": 222
+    }
+  },
+  "primer_429_en_la_peticion": 31,
+  "freno": null
+}
