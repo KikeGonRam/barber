@@ -1,0 +1,59 @@
+{
+  "escenario": "catalogo-suave",
+  "fecha": "2026-11-23T19:23:02.590Z",
+  "duracion_s": 120,
+  "rps_logrados": 2.75,
+  "total": {
+    "peticiones": 330,
+    "estados": {
+      "200": 330
+    },
+    "p50": 152,
+    "p95": 314,
+    "p99": 435,
+    "max": 736
+  },
+  "por_endpoint": {
+    "barbershop": {
+      "peticiones": 83,
+      "estados": {
+        "200": 83
+      },
+      "p50": 155,
+      "p95": 317,
+      "p99": 736,
+      "max": 736
+    },
+    "services": {
+      "peticiones": 83,
+      "estados": {
+        "200": 83
+      },
+      "p50": 152,
+      "p95": 256,
+      "p99": 430,
+      "max": 430
+    },
+    "barbers": {
+      "peticiones": 82,
+      "estados": {
+        "200": 82
+      },
+      "p50": 151,
+      "p95": 404,
+      "p99": 645,
+      "max": 645
+    },
+    "products": {
+      "peticiones": 82,
+      "estados": {
+        "200": 82
+      },
+      "p50": 152,
+      "p95": 280,
+      "p99": 432,
+      "max": 432
+    }
+  },
+  "freno": null
+}
