@@ -42,7 +42,7 @@ class MembershipServiceTest extends TestCase
         MembershipInvoice::query()->delete();
         ClientMembership::query()->delete();
         MembershipPlan::query()->delete();
-        Payment::withTrashed()->forceDelete();
+        Payment::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();

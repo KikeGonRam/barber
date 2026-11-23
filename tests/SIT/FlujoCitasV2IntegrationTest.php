@@ -81,7 +81,7 @@ class FlujoCitasV2IntegrationTest extends TestCase
         BarbershopSetting::query()->delete();
         Cache::forget(BarbershopSetting::CACHE_KEY);
         Appointment::withTrashed()->forceDelete();
-        Payment::withTrashed()->forceDelete();
+        Payment::query()->delete();
         Barber::query()->delete();
         Client::query()->delete();
         Service::query()->delete();

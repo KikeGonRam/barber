@@ -66,7 +66,7 @@ class AppointmentCancelNotificationsTest extends TestCase
     protected function tearDown(): void
     {
         Appointment::withTrashed()->forceDelete();
-        Payment::withTrashed()->forceDelete();
+        Payment::query()->delete();
         Barber::query()->delete();
         Client::query()->delete();
         Service::query()->delete();

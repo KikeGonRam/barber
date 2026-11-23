@@ -40,7 +40,7 @@ class PaymentServiceIntegrationTest extends TestCase
 
     protected function tearDown(): void
     {
-        Payment::withTrashed()->forceDelete();
+        Payment::query()->delete();
         RaffleResult::query()->delete();
         GiftCard::query()->delete();
         Appointment::withTrashed()->forceDelete();

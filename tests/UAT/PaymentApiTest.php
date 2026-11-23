@@ -36,6 +36,8 @@ use Tests\TestCase;
  */
 class PaymentApiTest extends TestCase
 {
+    private const PAYMENTS_URL = '/api/v1/payments';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -46,7 +48,7 @@ class PaymentApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        Payment::withTrashed()->forceDelete();
+        Payment::query()->delete();
         Order::query()->delete();
         Product::query()->delete();
         GiftCard::query()->delete();
@@ -136,7 +138,7 @@ class PaymentApiTest extends TestCase
         $payment = $this->paymentToAnnul($admin);
 
         $this->withToken($this->tokenFor($admin, 'tok-admin-anular-logico'))
-            ->deleteJson("/api/v1/payments/{$payment->id}", ['motivo' => 'Se cobró a otro cliente'])
+            ->deleteJson(self::PAYMENTS_URL."/{$payment->id}", ['motivo' => 'Se cobró a otro cliente'])
             ->assertOk();
 
         // Ya no cuenta como cobro vigente, pero el documento sigue ahí (antes se borraba).
@@ -144,9 +146,9 @@ class PaymentApiTest extends TestCase
         $anulado = Payment::withTrashed()->find($payment->id);
         $this->assertNotNull($anulado);
         $this->assertTrue($anulado->trashed());
-        $this->assertSame('Se cobró a otro cliente', $anulado->motivo_anulacion);
-        $this->assertSame((string) $admin->id, (string) $anulado->anulado_por);
-        $this->assertFalse((bool) $anulado->bloquea_cita);
+        $this->assertSame('Se cobró a otro cliente', $anulado->getAttribute('motivo_anulacion'));
+        $this->assertSame((string) $admin->id, (string) $anulado->getAttribute('anulado_por'));
+        $this->assertFalse((bool) $anulado->getAttribute('bloquea_cita'));
 
         // La bitácora guarda «Cobro anulado» con el motivo, sin un «updated» duplicado.
         $this->assertSame(0, Activity::where('log_name', 'payments')
@@ -161,7 +163,7 @@ class PaymentApiTest extends TestCase
         $payment = $this->paymentToAnnul($admin);
 
         $this->withToken($this->tokenFor($admin, 'tok-admin-recobrar'))
-            ->deleteJson("/api/v1/payments/{$payment->id}", ['motivo' => 'Monto capturado mal'])
+            ->deleteJson(self::PAYMENTS_URL."/{$payment->id}", ['motivo' => 'Monto capturado mal'])
             ->assertOk();
 
         // El índice único parcial (un cobro activo por cita) no debe chocar con el cobro anulado.
@@ -171,7 +173,7 @@ class PaymentApiTest extends TestCase
             'created_by' => (string) $admin->id, 'estado' => Payment::ESTADO_VERIFICADO,
         ]);
 
-        $this->assertTrue((bool) $nuevo->bloquea_cita);
+        $this->assertTrue((bool) $nuevo->getAttribute('bloquea_cita'));
         $this->assertSame(1, Payment::where('appointment_id', (string) $payment->appointment_id)->count());
     }
 
@@ -183,20 +185,20 @@ class PaymentApiTest extends TestCase
         $adminToken = $this->tokenFor($admin, 'tok-admin-historial');
 
         $this->withToken($adminToken)
-            ->deleteJson("/api/v1/payments/{$payment->id}", ['motivo' => 'Cobro duplicado'])
+            ->deleteJson(self::PAYMENTS_URL."/{$payment->id}", ['motivo' => 'Cobro duplicado'])
             ->assertOk();
 
-        $normal = $this->withToken($adminToken)->getJson('/api/v1/payments')->assertOk();
+        $normal = $this->withToken($adminToken)->getJson(self::PAYMENTS_URL)->assertOk();
         $this->assertNotContains((string) $payment->id, collect($normal->json('data'))->pluck('id')->map(fn ($id) => (string) $id)->all());
         $normal->assertJsonPath('meta.anulados_count', 1);
 
-        $historial = $this->withToken($adminToken)->getJson('/api/v1/payments?anulados=1')->assertOk();
+        $historial = $this->withToken($adminToken)->getJson(self::PAYMENTS_URL.'?anulados=1')->assertOk();
         $this->assertSame([(string) $payment->id], collect($historial->json('data'))->pluck('id')->map(fn ($id) => (string) $id)->all());
         $historial->assertJsonPath('data.0.anulacion.motivo', 'Cobro duplicado')
             ->assertJsonPath('data.0.anulacion.por', $admin->name);
 
         $this->withToken($this->tokenFor($recepcion, 'tok-recepcion-historial'))
-            ->getJson('/api/v1/payments?anulados=1')
+            ->getJson(self::PAYMENTS_URL.'?anulados=1')
             ->assertStatus(403);
     }
 

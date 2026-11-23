@@ -54,7 +54,7 @@ class PaymentController extends Controller
         }
 
         $filters = $request->only(['metodo_pago', 'q', 'barbero_id', 'fecha_desde', 'fecha_hasta']);
-        $isAdmin = (bool) $user?->hasRole('administrador');
+        $isAdmin = $user->hasRole('administrador');
 
         // ?anulados=1: historial de cobros anulados (solo administrador, igual que anular).
         if ($request->boolean('anulados')) {

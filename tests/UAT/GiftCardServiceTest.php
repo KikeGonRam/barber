@@ -45,7 +45,7 @@ class GiftCardServiceTest extends TestCase
     protected function tearDown(): void
     {
         GiftCard::query()->delete();
-        Payment::withTrashed()->forceDelete();
+        Payment::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();

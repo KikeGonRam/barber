@@ -54,7 +54,7 @@ class ClientSelfServiceApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        Payment::withTrashed()->forceDelete();
+        Payment::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Service::query()->delete();
         Barber::query()->delete();

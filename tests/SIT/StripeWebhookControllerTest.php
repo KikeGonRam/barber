@@ -40,7 +40,7 @@ class StripeWebhookControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        Payment::withTrashed()->forceDelete();
+        Payment::query()->delete();
         LoyaltyTransaction::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();

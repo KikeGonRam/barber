@@ -45,7 +45,7 @@ class CashCloseApiTest extends TestCase
     protected function tearDown(): void
     {
         CashClose::query()->delete();
-        Payment::withTrashed()->forceDelete();
+        Payment::query()->delete();
         Order::query()->delete();
         MobileApiToken::query()->delete();
         User::withTrashed()->forceDelete();

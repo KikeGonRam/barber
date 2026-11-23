@@ -16,10 +16,14 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
     {
         $anulados = ! empty($filters['anulados']);
 
-        return $this->model->newQuery()
+        // Historial de anulados: solo los cobros con deleted_at (SoftDeletes), del más recientemente
+        // anulado; el listado normal ya los excluye por el filtro global.
+        $query = $anulados
+            ? Payment::onlyTrashed()->with('anuladoPor')->latest('deleted_at')
+            : $this->model->newQuery();
+
+        return $query
             ->with(['appointment.client.user', 'appointment.barber.user', 'appointment.service', 'creator'])
-            // Historial de anulados: solo los cobros con deleted_at, del más recientemente anulado.
-            ->when($anulados, fn ($q) => $q->onlyTrashed()->with('anuladoPor')->latest('deleted_at'))
             ->when(isset($filters['metodo_pago']) && $filters['metodo_pago'] !== '', function ($query) use ($filters) {
                 $query->where('metodo_pago', $filters['metodo_pago']);
             })

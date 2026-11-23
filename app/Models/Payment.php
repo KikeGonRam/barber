@@ -125,7 +125,7 @@ class Payment extends Model
             // cobrar la cita después de anular un cobro equivocado.
             $payment->bloquea_cita = $payment->estado !== self::ESTADO_RECHAZADO
                 && ! $payment->es_deposito
-                && $payment->deleted_at === null;
+                && ! $payment->trashed();
         });
     }
 
