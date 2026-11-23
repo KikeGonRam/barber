@@ -3,6 +3,7 @@
 namespace Tests\SIT;
 
 use Illuminate\Support\Facades\DB;
+use MongoDB\Laravel\Connection as MongoConnection;
 use Tests\TestCase;
 
 /**
@@ -19,7 +20,9 @@ class CacheTtlIndexTest extends TestCase
         // Repetirla no falla: createIndex con las mismas opciones es idempotente.
         $migration->up();
 
-        $db = DB::connection('mongodb')->getMongoDB();
+        /** @var MongoConnection $connection */
+        $connection = DB::connection('mongodb');
+        $db = $connection->getMongoDB();
 
         foreach (['cache', 'cache_locks'] as $collection) {
             $ttl = null;
