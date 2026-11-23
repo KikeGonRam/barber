@@ -17,6 +17,7 @@
  *   demo-reserva-concurrente  20 reservas simultáneas del mismo horario: debe crearse UNA sola cita
  * Requieren UB_DEMO_CLAVE (la contraseña con la que se sembraron las cuentas demo-*@urbanblade.test).
  */
+import { randomUUID } from 'node:crypto'
 import { writeFileSync } from 'node:fs'
 
 const args = process.argv.slice(2)
@@ -26,7 +27,11 @@ const STAGING = 'https://api.urbanblade.com.mx/api/v1'
 const DEMO = 'http://127.0.0.1:8001/api/v1'
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
-const pct = (arr, p) => { if (!arr.length) return null; const s = [...arr].sort((a, b) => a - b); return Math.round(s[Math.min(s.length - 1, Math.ceil(p / 100 * s.length) - 1)]) }
+const pct = (arr, p) => {
+  if (!arr.length) return null
+  const s = [...arr].sort((a, b) => a - b)
+  return Math.round(s[Math.min(s.length - 1, Math.ceil(p / 100 * s.length) - 1)])
+}
 
 async function req(base, { method = 'GET', path, body, token }) {
   const t0 = performance.now()
@@ -102,7 +107,10 @@ async function cargar(base, etapas, elegir) {
 
 function resumen(titulo, { resultados, duracion }, extra = {}) {
   const porNombre = {}
-  for (const r of resultados) (porNombre[r.nombre] ||= []).push(r)
+  for (const r of resultados) {
+    porNombre[r.nombre] ??= []
+    porNombre[r.nombre].push(r)
+  }
   const fila = (lista) => {
     const ok = lista.filter(r => typeof r.status === 'number' && r.status < 400)
     const estados = {}
@@ -173,9 +181,11 @@ const escenarios = {
   async 'login-limite'() {
     const base = opt('--base', STAGING)
     const email = `carga-limite-${Date.now()}@urbanblade.test`
+    // Valor aleatorio en cada ejecución: no es una credencial, solo debe fallar el login.
+    const clave = randomUUID()
     const resultados = []
     const t0 = performance.now()
-    for (let n = 1; n <= 7; n++) resultados.push({ ...(await req(base, { method: 'POST', path: '/auth/login', body: { email, password: 'no-es-una-clave-real', device_name: 'carga', plataforma: 'web' } })), nombre: 'login', n })
+    for (let n = 1; n <= 7; n++) resultados.push({ ...(await req(base, { method: 'POST', path: '/auth/login', body: { email, password: clave, device_name: 'carga', plataforma: 'web' } })), nombre: 'login', n })
     const primer429 = resultados.find(r => r.status === 429)?.n ?? null
     return resumen('login-limite', { resultados, duracion: (performance.now() - t0) / 1000 }, { primer_429_en_la_peticion: primer429 })
   },
