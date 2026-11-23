@@ -73,7 +73,7 @@ return [
     // Dashboard interno de analítica (spark, Streamlit) — destino alterno del
     // login con Google cuando SocialAuthController::redirect() recibe
     // ?target=spark. Nunca sirve como origen de alta de clientes: ese
-    // dashboard solo deja pasar administrador/ingeniero (ver spark).
+    // dashboard solo deja pasar administrador (ver spark).
     'spark_url' => env('SPARK_URL', 'http://localhost:8501'),
 
     // Cuántos proxies propios hay delante de la aplicación (ver

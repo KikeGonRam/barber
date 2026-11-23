@@ -73,6 +73,10 @@ class CatalogController extends Controller
                 // Sin "?->" aquí: dentro de ?? PHP ya suprime el acceso sobre
                 // null, así que el nullsafe sobra (Larastan: nullsafe.neverNull).
                 'redes_sociales' => $setting->redes_sociales ?? [],
+                // Interruptores de funciones (auditoría del 23-nov-2026, ver config/features.php). Va en este
+                // endpoint público porque web y móvil ya lo piden al arrancar; evita un segundo viaje de red
+                // solo para saber qué ocultar del menú.
+                'features' => config('features'),
             ],
         ]);
     }

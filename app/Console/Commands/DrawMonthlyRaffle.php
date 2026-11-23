@@ -25,6 +25,14 @@ class DrawMonthlyRaffle extends Command
      */
     public function handle(): int
     {
+        // Sorteos apagados (auditoría de funciones, 23-nov-2026): ver config/features.php. Un premio ya
+        // sorteado antes de apagarlo se sigue pudiendo reclamar al cobrar (RaffleService no se toca aquí).
+        if (! config('features.raffles')) {
+            $this->warn('El sorteo mensual está apagado (config/features.php: raffles). No se sorteó nada.');
+
+            return self::SUCCESS;
+        }
+
         $mes = $this->option('month') ?? now()->subMonth()->format('Y-m');
 
         // Evita sortear dos veces el mismo mes si el comando se corre manualmente

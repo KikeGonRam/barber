@@ -113,7 +113,10 @@ Route::prefix('v1')->group(function (): void {
         Route::post('appointments/{appointment}/manage/cancel', [AppointmentManageController::class, 'cancel']);
         Route::post('appointments/{appointment}/manage/reschedule', [AppointmentManageController::class, 'reschedule']);
     });
-    Route::get('social/feed', [ApiSocialController::class, 'feed'])->middleware(['throttle:catalog', 'mobile.auth.optional']);
+    // Muro social apagado (auditoría de funciones, 23-nov-2026): ver config/features.php.
+    if (config('features.social')) {
+        Route::get('social/feed', [ApiSocialController::class, 'feed'])->middleware(['throttle:catalog', 'mobile.auth.optional']);
+    }
 
     // Chatbot (público con rate limiting; mobile.auth.optional para que, si
     // hay un token válido, el mensaje quede asociado y persistido en Mongo
@@ -180,9 +183,11 @@ Route::prefix('v1')->group(function (): void {
         Route::post('waitlist', [WaitlistController::class, 'store']);
         Route::delete('waitlist/{waitlist}', [WaitlistController::class, 'destroy']);
 
-        // Referidos: solo cliente (mi código propio + a quién he referido).
-        Route::get('referrals/mine', [ReferralController::class, 'mine']);
-        Route::post('referrals/link', [ReferralController::class, 'link']);
+        // Referidos: solo cliente (mi código propio + a quién he referido). Apagado, ver config/features.php.
+        if (config('features.referrals')) {
+            Route::get('referrals/mine', [ReferralController::class, 'mine']);
+            Route::post('referrals/link', [ReferralController::class, 'link']);
+        }
 
         // Pedidos (cliente ve/crea/cancela los suyos; admin/recepción ven y
         // gestionan todos — branching por rol dentro del controlador, mismo
@@ -233,9 +238,13 @@ Route::prefix('v1')->group(function (): void {
         // branching por rol dentro del controlador, mismo criterio que
         // appointments.index(). Vender uno nuevo (store) sí es solo staff,
         // ver el grupo de abajo.
-        Route::get('packages/catalog', [PackagePurchaseController::class, 'catalog']);
-        Route::get('packages', [PackagePurchaseController::class, 'index']);
-        Route::post('packages/stripe-intent', [PackagePurchaseController::class, 'stripeIntent']);
+        // Apagados (auditoría de funciones, 23-nov-2026): ver config/features.php. No afecta un paquete YA
+        // comprado (PackageService::redeem() sigue vivo fuera de este if).
+        if (config('features.packages')) {
+            Route::get('packages/catalog', [PackagePurchaseController::class, 'catalog']);
+            Route::get('packages', [PackagePurchaseController::class, 'index']);
+            Route::post('packages/stripe-intent', [PackagePurchaseController::class, 'stripeIntent']);
+        }
 
         // Gift cards: consultar saldo por código y comprar con tarjeta,
         // abiertos a cualquier autenticado (una gift card no "pertenece" a
@@ -243,11 +252,15 @@ Route::prefix('v1')->group(function (): void {
         // efectivo sí es solo staff, ver el grupo de abajo.
         // 'mine' antes de '{code}' -- si no, el comodín lo tragaría como
         // si fuera un código de tarjeta.
-        Route::get('gift-cards/mine', [GiftCardController::class, 'mine']);
-        // Con throttle por usuario: el código son 8 caracteres y esta consulta confirma si
-        // existe y con cuánto saldo, así que sin límite se podrían probar códigos a ritmo libre.
-        Route::get('gift-cards/{code}', [GiftCardController::class, 'show'])->middleware('throttle:20,1');
-        Route::post('gift-cards/stripe-intent', [GiftCardController::class, 'stripeIntent']);
+        // Apagadas (auditoría de funciones, 23-nov-2026): ver config/features.php. No afecta una tarjeta YA
+        // comprada (GiftCardService::apply() sigue vivo fuera de este if).
+        if (config('features.gift_cards')) {
+            Route::get('gift-cards/mine', [GiftCardController::class, 'mine']);
+            // Con throttle por usuario: el código son 8 caracteres y esta consulta confirma si
+            // existe y con cuánto saldo, así que sin límite se podrían probar códigos a ritmo libre.
+            Route::get('gift-cards/{code}', [GiftCardController::class, 'show'])->middleware('throttle:20,1');
+            Route::post('gift-cards/stripe-intent', [GiftCardController::class, 'stripeIntent']);
+        }
 
         // Membresía recurrente (roadmap P1, Stripe Subscriptions): catálogo de
         // planes abierto a cualquier autenticado; contratar/consultar/cancelar
@@ -288,22 +301,29 @@ Route::prefix('v1')->group(function (): void {
             Route::post('no-show-fees/{fee}/pay', [NoShowFeeController::class, 'pay']);
             Route::post('no-show-fees/{fee}/waive', [NoShowFeeController::class, 'waive']);
 
-            // Venta de un paquete prepagado en efectivo (Admin/Recepcionista)
-            Route::post('packages', [PackagePurchaseController::class, 'store']);
+            // Venta de un paquete prepagado en efectivo (Admin/Recepcionista). Apagada, ver config/features.php.
+            if (config('features.packages')) {
+                Route::post('packages', [PackagePurchaseController::class, 'store']);
+            }
 
-            // Venta de una gift card en efectivo (Admin/Recepcionista)
-            Route::post('gift-cards', [GiftCardController::class, 'store']);
+            // Venta de una gift card en efectivo (Admin/Recepcionista). Apagada, ver config/features.php.
+            if (config('features.gift_cards')) {
+                Route::post('gift-cards', [GiftCardController::class, 'store']);
+            }
 
             // Plantillas de paquetes prepagados -- solo administrador (el
             // controlador ya lo exige, la ruta solo evita el viaje redondo
-            // a un 403 para recepcionista).
+            // a un 403 para recepcionista). Apagadas, ver config/features.php.
             Route::middleware('role.custom:administrador')->group(function (): void {
-                Route::get('admin/service-packages', [AdminServicePackageController::class, 'index']);
-                Route::post('admin/service-packages', [AdminServicePackageController::class, 'store']);
-                Route::put('admin/service-packages/{servicePackage}', [AdminServicePackageController::class, 'update']);
-                Route::delete('admin/service-packages/{servicePackage}', [AdminServicePackageController::class, 'destroy']);
+                if (config('features.packages')) {
+                    Route::get('admin/service-packages', [AdminServicePackageController::class, 'index']);
+                    Route::post('admin/service-packages', [AdminServicePackageController::class, 'store']);
+                    Route::put('admin/service-packages/{servicePackage}', [AdminServicePackageController::class, 'update']);
+                    Route::delete('admin/service-packages/{servicePackage}', [AdminServicePackageController::class, 'destroy']);
+                }
 
-                // Planes de membresía recurrente -- solo administrador.
+                // Planes de membresía recurrente -- solo administrador. Sigue activa (el dueño decidió conservar
+                // membresía y puntos de lealtad; solo se apagaron paquetes, gift cards y referidos).
                 Route::get('admin/membership-plans', [MembershipPlanController::class, 'index']);
                 Route::post('admin/membership-plans', [MembershipPlanController::class, 'store']);
                 Route::put('admin/membership-plans/{membershipPlan}', [MembershipPlanController::class, 'update']);
@@ -350,12 +370,18 @@ Route::prefix('v1')->group(function (): void {
             Route::put('settings', [ApiSettingController::class, 'update']);
             Route::post('settings/maintenance', [ApiSettingController::class, 'toggleMaintenance']);
 
-            // Campañas (Admin)
-            Route::get('campaigns', [ApiCampaignController::class, 'index']);
-            Route::post('campaigns', [ApiCampaignController::class, 'store']);
+            // Campañas (Admin). Apagadas (auditoría de funciones, 23-nov-2026), ver config/features.php.
+            if (config('features.campaigns')) {
+                Route::get('campaigns', [ApiCampaignController::class, 'index']);
+                Route::post('campaigns', [ApiCampaignController::class, 'store']);
+            }
 
-            // Sorteos (Admin)
-            Route::get('raffles', [ApiRaffleController::class, 'index']);
+            // Sorteos (Admin). Apagados, ver config/features.php. Un premio ya sorteado y no reclamado se
+            // sigue pudiendo canjear al cobrar (RaffleService no se toca); solo se oculta este panel y se
+            // apaga el sorteo mensual (ver DrawMonthlyRaffle).
+            if (config('features.raffles')) {
+                Route::get('raffles', [ApiRaffleController::class, 'index']);
+            }
 
             // Reseñas de clientes a barberos (Admin)
             Route::get('reviews', [ApiReviewController::class, 'index']);
@@ -365,11 +391,13 @@ Route::prefix('v1')->group(function (): void {
             Route::get('system/backup', [BackupController::class, 'download']);
         });
 
-        // Administrador e ingeniero (rol de solo lectura): reportes y logs.
-        // ingeniero nunca gestiona nada de negocio -- ver guardrail #24 en
-        // .claude/skills/urbanblade-guardrails antes de agregarlo a
-        // cualquier otra ruta de este archivo.
-        Route::middleware('role.custom:administrador,ingeniero')->group(function (): void {
+        // Reportes y logs (Admin). El rol "ingeniero" (de solo lectura) se quitó el 23-nov-2026 por decisión
+        // del propietario tras la auditoría de funciones: ya no se siembra en RolePermissionSeeder ni se
+        // comprueba en ningún Gate/middleware de este archivo. No se borró ningún usuario ni rol existente en
+        // Mongo (son datos, no código): si alguna cuenta antigua todavía tiene el rol 'ingeniero' en la base,
+        // ya no corresponde a ningún permiso vigente y sus peticiones a estas rutas caen por no tener
+        // 'administrador'.
+        Route::middleware('role.custom:administrador')->group(function (): void {
             Route::middleware('permission.custom:reportes.ver')->group(function (): void {
                 Route::get('reports', [ApiReportController::class, 'index']);
                 Route::get('reports/{type}/{format}', [ApiReportController::class, 'export'])
@@ -394,17 +422,20 @@ Route::prefix('v1')->group(function (): void {
         Route::post('push/subscribe', [PushController::class, 'subscribe']);
         Route::delete('push/subscribe', [PushController::class, 'unsubscribe']);
 
-        // Social
-        Route::post('social/work/{work}/react', [ApiSocialController::class, 'react']);
-        Route::post('social/work/{work}/save', [ApiSocialController::class, 'save']);
-        Route::post('social/work/{work}/comment', [ApiSocialController::class, 'comment']);
+        // Social. Apagado (auditoría de funciones, 23-nov-2026), ver config/features.php. Moderación y
+        // bloquear/desbloquear autores dependen solo del muro, así que se apagan con él.
+        if (config('features.social')) {
+            Route::post('social/work/{work}/react', [ApiSocialController::class, 'react']);
+            Route::post('social/work/{work}/save', [ApiSocialController::class, 'save']);
+            Route::post('social/work/{work}/comment', [ApiSocialController::class, 'comment']);
 
-        // Contenido de usuarios (política de Google Play): reportar un comentario, bloquear a su autor y deshacerlo.
-        // Throttle propio: reportar y bloquear son escrituras baratas de abusar.
-        Route::post('social/comment/{comment}/report', [CommentModerationController::class, 'report'])->middleware('throttle:20,1');
-        Route::post('social/comment/{comment}/block-author', [CommentModerationController::class, 'blockAuthor'])->middleware('throttle:20,1');
-        Route::get('social/blocks', [CommentModerationController::class, 'blocks']);
-        Route::delete('social/blocks/{block}', [CommentModerationController::class, 'unblock']);
+            // Contenido de usuarios (política de Google Play): reportar un comentario, bloquear a su autor y
+            // deshacerlo. Throttle propio: reportar y bloquear son escrituras baratas de abusar.
+            Route::post('social/comment/{comment}/report', [CommentModerationController::class, 'report'])->middleware('throttle:20,1');
+            Route::post('social/comment/{comment}/block-author', [CommentModerationController::class, 'blockAuthor'])->middleware('throttle:20,1');
+            Route::get('social/blocks', [CommentModerationController::class, 'blocks']);
+            Route::delete('social/blocks/{block}', [CommentModerationController::class, 'unblock']);
+        }
 
         // Chatbot - Gestión (Historial, Perfil, Estadísticas)
         Route::get('chatbot/history', [ChatbotManagementController::class, 'getHistory']);
@@ -435,12 +466,11 @@ Route::prefix('v1')->group(function (): void {
             Route::put('barber/schedule', [BarberScheduleController::class, 'update']);
         });
 
-        // Panel de administración móvil: dashboards, reportes, predicciones/
-        // insights de IA, y el nuevo estado del servidor -- todo de solo
-        // lectura, así que administrador E ingeniero. La gestión real de
-        // barberos/clientes/inventario (con POST/PUT/DELETE) vive en el
-        // grupo de abajo, solo administrador.
-        Route::prefix('admin')->middleware('role.custom:administrador,ingeniero')->group(function (): void {
+        // Panel de administración móvil: dashboards, reportes, predicciones/insights de IA y estado del
+        // servidor. Antes también entraba el rol "ingeniero" (de solo lectura); se quitó el 23-nov-2026 (ver
+        // el comentario del otro grupo "role.custom:administrador" más arriba). La gestión real de
+        // barberos/clientes/inventario (con POST/PUT/DELETE) vive en el grupo de abajo, solo administrador.
+        Route::prefix('admin')->middleware('role.custom:administrador')->group(function (): void {
             Route::get('dashboard/stats', [DashboardAdminController::class, 'getStats']);
             Route::get('dashboard/appointments', [DashboardAdminController::class, 'getUpcomingAppointments']);
             Route::get('dashboard/revenue', [DashboardAdminController::class, 'getRevenue']);
@@ -466,7 +496,7 @@ Route::prefix('v1')->group(function (): void {
             Route::get('predictions/peak-hours', [PredictionController::class, 'peakHoursAnalysis']);
             Route::get('predictions/insights', [PredictionController::class, 'insights']);
 
-            // Estado del servidor (rol ingeniero): Mongo/Redis, cola, tareas
+            // Estado del servidor (administrador): Mongo/Redis, cola, tareas
             // programadas. Nueva en esta fase -- ver App\Services\System.
             Route::get('system/status', [SystemController::class, 'status'])
                 ->middleware('permission.custom:sistema.ver');
@@ -474,12 +504,14 @@ Route::prefix('v1')->group(function (): void {
                 ->middleware('permission.custom:sistema.ver');
         });
 
-        // Gestión real (crea/edita/borra) de barberos, clientes e
-        // inventario -- solo administrador, nunca ingeniero.
+        // Gestión real (crea/edita/borra) de barberos, clientes e inventario -- solo administrador.
         Route::prefix('admin')->middleware('role.custom:administrador')->group(function (): void {
-            // Moderación del muro: comentarios reportados y qué hacer con ellos.
-            Route::get('comment-reports', [CommentReportAdminController::class, 'index']);
-            Route::post('comment-reports/{comment}/resolve', [CommentReportAdminController::class, 'resolve']);
+            // Moderación del muro: comentarios reportados y qué hacer con ellos. Apagada junto con el muro
+            // (config/features.php: social), ya que depende solo de él.
+            if (config('features.social')) {
+                Route::get('comment-reports', [CommentReportAdminController::class, 'index']);
+                Route::post('comment-reports/{comment}/resolve', [CommentReportAdminController::class, 'resolve']);
+            }
 
             // Barberos (Phase 2)
             Route::get('barbers', [BarberAdminController::class, 'getBarbers']);

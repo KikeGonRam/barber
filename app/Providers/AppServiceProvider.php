@@ -156,11 +156,12 @@ class AppServiceProvider extends ServiceProvider
         // Sin este Gate, Laravel Pulse deniega /pulse a todos por defecto
         // (Gate::authorize('viewPulse') sobre una ability no definida =
         // denegado) -- lo definimos explicitamente para dejar claro que
-        // solo administrador/ingeniero pueden verlo, igual que el resto de
-        // rutas de solo lectura del rol ingeniero.
-        Gate::define('viewPulse', fn (User $user) => $user->hasRoleName('administrador') || $user->hasRoleName('ingeniero'));
+        // solo administrador puede verlo. (El rol "ingeniero", de solo
+        // lectura, se quitó el 23-nov-2026 por decisión del propietario
+        // tras la auditoría de funciones.)
+        Gate::define('viewPulse', fn (User $user) => $user->hasRoleName('administrador'));
 
-        // Alimenta ScheduledTaskMonitor (dashboard del rol ingeniero) con la
+        // Alimenta ScheduledTaskMonitor (dashboard del administrador) con la
         // última corrida de cada tarea de routes/console.php, sin tener que
         // instrumentar cada Schedule::command() una por una.
         Event::listen(ScheduledTaskFinished::class, [ScheduledTaskMonitor::class, 'recordFinished']);

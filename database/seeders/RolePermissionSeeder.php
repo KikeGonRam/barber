@@ -35,20 +35,13 @@ class RolePermissionSeeder extends Seeder
             'inventario.ver',
             'inventario.gestionar',
         ],
-        // Rol de solo lectura para alguien de sistemas: ve estado del
-        // servidor (Pulse), analitica y reportes de cada modulo, pero no
-        // puede gestionar nada de negocio (crear/editar/eliminar usuarios,
-        // clientes, servicios, barberos, citas, pagos, inventario ni
-        // configuracion). Deliberadamente NO es un superset de
-        // administrador -- decision explicita del dueno del proyecto
-        // (2026-09-06) para no ampliar la superficie de riesgo si esta
-        // cuenta se compromete. Ver .claude/skills/urbanblade-guardrails
-        // guardrail #24 antes de agregar 'ingeniero' a cualquier ruta.
-        'ingeniero' => [
-            'reportes.ver',
-            'logs.ver',
-            'sistema.ver',
-        ],
+        // El rol de solo lectura 'ingeniero' (estado del servidor, analítica y reportes, sin gestionar nada
+        // de negocio) existió desde el 2026-09-06 hasta el 23-nov-2026, cuando el dueño del proyecto decidió
+        // quitarlo tras la auditoría de funciones: nadie del equipo lo usaba. Este seeder ya no lo crea ni le
+        // sincroniza permisos; un Role o User que ya lo tuviera en la base de datos no se borra desde aquí
+        // (los seeders no tocan datos existentes -- ver CLAUDE.md), pero ninguna ruta ni Gate de la API lo
+        // reconoce ya (ver routes/api.php y AppServiceProvider::boot()), así que queda sin ningún permiso
+        // efectivo.
         'barbero' => [],
         'cliente' => [],
     ];
