@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Suite de regresión (HT-18): este mismo CI se corre cada lunes sobre main y a mano antes de cada entrega, junto con
+  # los de frontend-urban y la app Android. Ver docs/referencia/SUITE_REGRESION.md. No despliega: desplegar-staging
+  # solo actúa tras un push a main.
+  schedule:
+    - cron: '0 12 * * 1'
+  workflow_dispatch:
 
 # Mínimo privilegio: ningún job escribe en el repositorio. `pull-requests: read` es para
 # gitleaks, que consulta los commits del PR. Sin este bloque el GITHUB_TOKEN toma los
