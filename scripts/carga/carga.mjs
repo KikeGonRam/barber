@@ -67,6 +67,11 @@ const freno = {
 
 /** Tasa abierta: `etapas` = [{ segundos, rps }] con rampa lineal entre el rps anterior y el de la etapa. */
 async function cargar(base, etapas, elegir) {
+  // --sin-freno solo vale contra la demostración local: contra staging (o cualquier otro host) no se permite.
+  if (args.includes('--sin-freno') && !['127.0.0.1', 'localhost', '::1', '[::1]'].includes(new URL(base).hostname)) {
+    console.error('--sin-freno solo se permite contra una base local (127.0.0.1 o localhost).')
+    process.exit(2)
+  }
   const resultados = []
   const vuelo = []
   const t0 = performance.now()
@@ -76,9 +81,11 @@ async function cargar(base, etapas, elegir) {
     let enviadas = 0
     while ((performance.now() - inicio) / 1000 < segundos) {
       const trans = (performance.now() - inicio) / 1000
-      const tasa = previo + (rps - previo) * (trans / segundos)
+      // Peticiones acumuladas que tocan hasta ahora = integral de la tasa (rampa lineal de `previo` a `rps`).
+      // Antes se usaba trans × tasa actual, que adelantaba envíos: la rampa «a 15 req/s» llegó a ~22 req/s.
+      const debidas = previo * trans + (rps - previo) * trans * trans / (2 * segundos)
       if (freno.activado) break
-      if (enviadas < trans * tasa) {
+      if (enviadas < debidas) {
         const r = elegir()
         vuelo.push(req(base, r).then(x => { resultados.push({ ...x, nombre: r.nombre, t: (performance.now() - t0) / 1000 }); freno.revisar(resultados) }))
         enviadas++
@@ -202,12 +209,16 @@ const escenarios = {
     const t0 = performance.now()
     const resultados = (await Promise.all(Array.from({ length: 20 }, () => req(base, { method: 'POST', path: '/appointments', body: cuerpo, token })))).map(r => ({ ...r, nombre: 'reservar' }))
     const creadas = resultados.filter(r => r.status === 201 || r.status === 200)
-    // Limpieza: se cancela lo creado para dejar la demostración como estaba.
+    // Limpieza: el cliente cancela lo creado con su propio endpoint (DELETE), y se comprueba que funcionó.
+    const limpieza = { canceladas: 0, fallidas: 0 }
     for (const c of creadas) {
       const id = c.json?.data?.id ?? c.json?.appointment?.id ?? c.json?.id
-      if (id) await req(base, { method: 'PATCH', path: `/appointments/${id}/status`, body: { estado: 'cancelada' }, token })
+      const r = id ? await req(base, { method: 'DELETE', path: `/appointments/${id}`, token }) : { status: 'sin-id' }
+      if (r.status === 200 || r.status === 204) limpieza.canceladas++
+      else limpieza.fallidas++
     }
-    return resumen('demo-reserva-concurrente', { resultados, duracion: (performance.now() - t0) / 1000 }, { horario: `${fecha} ${hora}`, citas_creadas: creadas.length })
+    if (limpieza.fallidas) console.error(`AVISO: ${limpieza.fallidas} cita(s) de prueba no se pudieron cancelar; revísalas en la demostración.`)
+    return resumen('demo-reserva-concurrente', { resultados, duracion: (performance.now() - t0) / 1000 }, { horario: `${fecha} ${hora}`, citas_creadas: creadas.length, limpieza })
   },
 }
 

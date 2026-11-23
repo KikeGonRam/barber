@@ -22,6 +22,8 @@ La herramienta tiene un **freno automático**: si en las últimas 40 respuestas 
 | --- | --- | --- | --- | --- | --- |
 | `disponibilidad` | 24 | 24 respuestas 200 | 222 ms | 2,629 ms | 4,897 ms |
 | `catalogo` | 1,890 | 537 respuestas 200 y 1,353 sin respuesta en 15 s | 634 ms | 8,349 ms | 14,878 ms |
+
+Nota: la primera versión de la herramienta calculaba mal la rampa (multiplicaba el tiempo por la tasa *actual*, no por la acumulada), así que `catalogo` envió 1,890 peticiones en lugar de las ~1,395 previstas y llegó a unas 22 req/s en vez de 15. Ya está corregido. Las cifras de capacidad de abajo salen de las métricas del balanceador y no dependen de ese cálculo.
 | `rafaga-limite` | 35 | 35 respuestas 200, ningún 429 | 154 ms | 277 ms | |
 | `login-limite` | 7 | 7 respuestas 422, ningún 429 | | | |
 
@@ -40,7 +42,7 @@ Métricas del balanceador por minuto durante la rampa:
 
 ### Incidente
 
-La rampa a 15 req/s **dejó la API de staging sin servicio unos 4 minutos** (de 05:01 a 05:05 UTC del 23 de noviembre). La comprobación de salud `/up` comparte los mismos procesos de PHP, falló 5 veces seguidas y ECS reemplazó la tarea, que se recuperó sola. A partir de entonces la herramienta tiene el freno automático, y contra staging no se pasa de 5 req/s sin acordarlo antes.
+La rampa (planeada a 15 req/s; por el error de cálculo llegó a unas 22 req/s) **dejó la API de staging sin servicio unos 4 minutos** (de 05:01 a 05:05 UTC del 23 de noviembre). La comprobación de salud `/up` comparte los mismos procesos de PHP, falló 5 veces seguidas y ECS reemplazó la tarea, que se recuperó sola. A partir de entonces la herramienta tiene el freno automático, y contra staging no se pasa de 5 req/s sin acordarlo antes.
 
 ### Causa de la saturación
 
