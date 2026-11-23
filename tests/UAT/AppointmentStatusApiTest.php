@@ -48,7 +48,7 @@ class AppointmentStatusApiTest extends TestCase
         // forceDelete(): un delete() masivo deja el registro soft-deleted con
         // bloquea_horario en true y choca con appointments_active_slot_unique.
         Appointment::withTrashed()->forceDelete();
-        Payment::query()->delete();
+        Payment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
         LoyaltyTransaction::query()->delete();

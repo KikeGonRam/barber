@@ -38,7 +38,7 @@ class DepositServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        Payment::query()->delete();
+        Payment::withTrashed()->forceDelete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();

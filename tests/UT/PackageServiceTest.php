@@ -42,7 +42,7 @@ class PackageServiceTest extends TestCase
     {
         ClientPackage::query()->delete();
         ServicePackage::query()->delete();
-        Payment::query()->delete();
+        Payment::withTrashed()->forceDelete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();

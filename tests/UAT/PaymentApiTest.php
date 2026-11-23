@@ -46,7 +46,7 @@ class PaymentApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        Payment::query()->delete();
+        Payment::withTrashed()->forceDelete();
         Order::query()->delete();
         Product::query()->delete();
         GiftCard::query()->delete();
@@ -128,6 +128,76 @@ class PaymentApiTest extends TestCase
         $this->assertNotNull($registro);
         $this->assertSame('Cobro duplicado por error', collect($registro->getAttribute('properties'))->get('motivo'));
         $this->assertSame((string) $admin->id, (string) $registro->getAttribute('causer_id'));
+    }
+
+    public function test_annulling_keeps_the_payment_as_a_logical_record_with_reason_and_author(): void
+    {
+        $admin = $this->staffUser('administrador', 'admin-anular-logico@test.local');
+        $payment = $this->paymentToAnnul($admin);
+
+        $this->withToken($this->tokenFor($admin, 'tok-admin-anular-logico'))
+            ->deleteJson("/api/v1/payments/{$payment->id}", ['motivo' => 'Se cobró a otro cliente'])
+            ->assertOk();
+
+        // Ya no cuenta como cobro vigente, pero el documento sigue ahí (antes se borraba).
+        $this->assertNull(Payment::find($payment->id));
+        $anulado = Payment::withTrashed()->find($payment->id);
+        $this->assertNotNull($anulado);
+        $this->assertTrue($anulado->trashed());
+        $this->assertSame('Se cobró a otro cliente', $anulado->motivo_anulacion);
+        $this->assertSame((string) $admin->id, (string) $anulado->anulado_por);
+        $this->assertFalse((bool) $anulado->bloquea_cita);
+
+        // La bitácora guarda «Cobro anulado» con el motivo, sin un «updated» duplicado.
+        $this->assertSame(0, Activity::where('log_name', 'payments')
+            ->where('subject_id', (string) $payment->id)
+            ->where('event', 'updated')
+            ->count());
+    }
+
+    public function test_an_annulled_payment_no_longer_blocks_charging_the_appointment_again(): void
+    {
+        $admin = $this->staffUser('administrador', 'admin-recobrar@test.local');
+        $payment = $this->paymentToAnnul($admin);
+
+        $this->withToken($this->tokenFor($admin, 'tok-admin-recobrar'))
+            ->deleteJson("/api/v1/payments/{$payment->id}", ['motivo' => 'Monto capturado mal'])
+            ->assertOk();
+
+        // El índice único parcial (un cobro activo por cita) no debe chocar con el cobro anulado.
+        $nuevo = Payment::create([
+            'appointment_id' => (string) $payment->appointment_id,
+            'monto' => 180, 'metodo_pago' => 'efectivo', 'propina' => 0,
+            'created_by' => (string) $admin->id, 'estado' => Payment::ESTADO_VERIFICADO,
+        ]);
+
+        $this->assertTrue((bool) $nuevo->bloquea_cita);
+        $this->assertSame(1, Payment::where('appointment_id', (string) $payment->appointment_id)->count());
+    }
+
+    public function test_only_the_admin_can_see_the_annulled_history_and_it_stays_out_of_the_normal_list(): void
+    {
+        $admin = $this->staffUser('administrador', 'admin-historial-anulados@test.local');
+        $recepcion = $this->staffUser('recepcionista', 'recepcion-historial-anulados@test.local');
+        $payment = $this->paymentToAnnul($admin);
+        $adminToken = $this->tokenFor($admin, 'tok-admin-historial');
+
+        $this->withToken($adminToken)
+            ->deleteJson("/api/v1/payments/{$payment->id}", ['motivo' => 'Cobro duplicado'])
+            ->assertOk();
+
+        $normal = $this->withToken($adminToken)->getJson('/api/v1/payments')->assertOk();
+        $this->assertNotContains((string) $payment->id, collect($normal->json('data'))->pluck('id')->map(fn ($id) => (string) $id)->all());
+        $normal->assertJsonPath('meta.anulados_count', 1);
+
+        $historial = $this->withToken($adminToken)->getJson('/api/v1/payments?anulados=1')->assertOk();
+        $this->assertSame([(string) $payment->id], collect($historial->json('data'))->pluck('id')->map(fn ($id) => (string) $id)->all());
+        $historial->assertJsonPath('data.0.anulacion.motivo', 'Cobro duplicado')
+            ->assertJsonPath('data.0.anulacion.por', $admin->name);
+
+        $this->withToken($this->tokenFor($recepcion, 'tok-recepcion-historial'))
+            ->getJson('/api/v1/payments?anulados=1')
+            ->assertStatus(403);
     }
 
     public function test_recepcionista_gets_payment_history_with_stats_and_pending_count(): void

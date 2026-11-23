@@ -45,7 +45,7 @@ class AppointmentStartRulesTest extends TestCase
     {
         Carbon::setTestNow();
         Appointment::withTrashed()->forceDelete();
-        Payment::query()->delete();
+        Payment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();
         Service::query()->delete();

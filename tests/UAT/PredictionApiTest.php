@@ -50,7 +50,7 @@ class PredictionApiTest extends TestCase
     {
         Cache::forget('prediction_historical_data');
         Appointment::withTrashed()->forceDelete();
-        Payment::query()->delete();
+        Payment::withTrashed()->forceDelete();
         Service::query()->delete();
         MobileApiToken::query()->delete();
         User::withTrashed()->forceDelete();

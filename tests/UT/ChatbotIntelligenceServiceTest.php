@@ -51,7 +51,7 @@ class ChatbotIntelligenceServiceTest extends TestCase
     {
         Comment::query()->delete();
         Work::query()->delete();
-        Payment::query()->delete();
+        Payment::withTrashed()->forceDelete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();
         Client::query()->delete();

@@ -35,7 +35,7 @@ class ReferralServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        Payment::query()->delete();
+        Payment::withTrashed()->forceDelete();
         Referral::query()->delete();
         Appointment::withTrashed()->forceDelete();
         Barber::query()->delete();

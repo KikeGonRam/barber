@@ -14,8 +14,12 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
 
     public function paginateWithFilters(array $filters = [], int $perPage = 15)
     {
+        $anulados = ! empty($filters['anulados']);
+
         return $this->model->newQuery()
             ->with(['appointment.client.user', 'appointment.barber.user', 'appointment.service', 'creator'])
+            // Historial de anulados: solo los cobros con deleted_at, del más recientemente anulado.
+            ->when($anulados, fn ($q) => $q->onlyTrashed()->with('anuladoPor')->latest('deleted_at'))
             ->when(isset($filters['metodo_pago']) && $filters['metodo_pago'] !== '', function ($query) use ($filters) {
                 $query->where('metodo_pago', $filters['metodo_pago']);
             })

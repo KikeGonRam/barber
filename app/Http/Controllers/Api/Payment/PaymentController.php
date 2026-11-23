@@ -54,6 +54,14 @@ class PaymentController extends Controller
         }
 
         $filters = $request->only(['metodo_pago', 'q', 'barbero_id', 'fecha_desde', 'fecha_hasta']);
+        $isAdmin = (bool) $user?->hasRole('administrador');
+
+        // ?anulados=1: historial de cobros anulados (solo administrador, igual que anular).
+        if ($request->boolean('anulados')) {
+            abort_unless($isAdmin, 403, 'Solo un administrador puede ver los cobros anulados.');
+            $filters['anulados'] = true;
+        }
+
         $payments = $this->paymentService->list($filters, 20);
 
         return response()->json([
@@ -76,11 +84,18 @@ class PaymentController extends Controller
                     'id' => $payment->creator?->id,
                     'name' => $payment->creator?->name,
                 ],
+                'anulacion' => $payment->trashed() ? [
+                    'motivo' => $payment->motivo_anulacion,
+                    'fecha' => optional($payment->deleted_at)->toIso8601String(),
+                    'por' => $payment->anuladoPor?->name,
+                ] : null,
             ])->values(),
             'meta' => [
                 'current_page' => $payments->currentPage(),
                 'last_page' => $payments->lastPage(),
                 'total' => $payments->total(),
+                // Cuántos cobros anulados hay (solo se informa al administrador).
+                'anulados_count' => $isAdmin ? Payment::onlyTrashed()->count() : null,
                 // Estadisticas globales (no del subset filtrado/paginado actual)
                 // y conteo de comprobantes por revisar, igual que la version web
                 // (Payment\PaymentController::index()) para que el "Centro de
@@ -577,14 +592,19 @@ class PaymentController extends Controller
             ])
             ->log('Cobro anulado: '.$data['motivo']);
 
-        if ($payment->comprobante_pdf) {
-            Storage::disk('receipts')->delete($payment->comprobante_pdf);
-        }
-
-        $payment->delete();
+        // Anulación lógica: el cobro y su comprobante PDF se conservan para el historial contable;
+        // deleted_at lo saca de todas las sumas y bloquea_cita=false deja volver a cobrar la cita.
+        // withoutEvents: la bitácora ya tiene la entrada «Cobro anulado» con el motivo; sin esto
+        // Activitylog añadiría otra «updated» con los mismos datos. (Antes se borraba el documento.)
+        Payment::withoutEvents(fn () => $payment->forceFill([
+            'anulado_por' => (string) $user->id,
+            'motivo_anulacion' => $data['motivo'],
+            'bloquea_cita' => false,
+            $payment->getDeletedAtColumn() => now(),
+        ])->save());
 
         return response()->json([
-            'message' => 'Pago eliminado correctamente.',
+            'message' => 'Cobro anulado. Se conserva en el historial de cobros anulados.',
         ]);
     }
 
