@@ -59,7 +59,8 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
 
         $appt = $this->payment->appointment;
         $service = $appt?->service?->nombre ?? 'Servicio';
-        $fecha = ShopBranding::fecha($appt?->fecha) ?? '';
+        $fechaCita = $appt?->fecha;
+        $fecha = ShopBranding::fecha($fechaCita) ?? '';
         $monto = (float) $this->payment->monto;
         $propina = (float) $this->payment->propina;
 
@@ -103,7 +104,8 @@ class PaymentReceiptNotification extends Notification implements ShouldQueue
                 'emitido' => now()->format('d/m/Y'),
                 'cliente' => $notifiable->name,
                 'servicio' => $service,
-                'fecha' => $fecha,
+                // La factura se guarda: lleva el año, aunque el correo use la fecha corta.
+                'fecha' => ShopBranding::fecha($fechaCita, conAnio: true) ?? '',
                 'barbero' => $appt?->barber?->user?->name,
                 'monto' => $monto,
                 'propina' => $propina,

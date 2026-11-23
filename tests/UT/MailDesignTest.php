@@ -69,6 +69,17 @@ class MailDesignTest extends TestCase
         $this->assertStringContainsString(rawurlencode('Calle 5 de Mayo 12, Centro; Puebla'), str_replace('+', '%20', (string) $mail->render()));
     }
 
+    public function test_una_direccion_en_varias_lineas_no_abre_lineas_nuevas_en_el_ics(): void
+    {
+        BarbershopSetting::create(['nombre' => 'UrbanBlade', 'direccion' => "Calle 5 de Mayo 12\r\nATTENDEE:mailto:intruso@ejemplo.test"]);
+        Cache::forget(BarbershopSetting::CACHE_KEY);
+
+        $ics = $this->ics($this->confirmacion());
+
+        $this->assertStringContainsString('LOCATION:Calle 5 de Mayo 12\nATTENDEE:mailto:intruso@ejemplo.test', $ics);
+        $this->assertDoesNotMatchRegularExpression('/^ATTENDEE:/m', $ics);
+    }
+
     public function test_la_fecha_de_la_cita_se_lee_en_espanol(): void
     {
         $this->assertSame('viernes 27 de noviembre', ShopBranding::fecha(Carbon::parse('2026-11-27')));

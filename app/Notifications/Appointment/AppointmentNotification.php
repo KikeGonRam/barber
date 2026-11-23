@@ -176,9 +176,13 @@ class AppointmentNotification extends Notification implements ShouldQueue
         $stamp = Carbon::now('UTC')->format('Ymd\THis\Z');
         $summary = 'UrbanBlade · '.($this->appointment->service?->nombre ?? 'Cita');
         $desc = 'Cita con '.($this->appointment->barber?->user?->name ?? 'tu barbero').' en UrbanBlade.';
-        // RFC 5545: en un valor de texto se escapan «\», «,» y «;». Sin dirección configurada no hay LOCATION.
+        // RFC 5545: en un valor de texto se escapan «\», «,» y «;», y los saltos de línea van como «\n»; si no, una
+        // dirección capturada en varias líneas abriría líneas nuevas en el .ics (y podría inyectar propiedades).
+        // Sin dirección configurada no hay LOCATION.
         $direccion = ShopBranding::contact()['direccion'];
-        $location = $direccion !== null ? ['LOCATION:'.addcslashes($direccion, '\,;')] : [];
+        $location = $direccion !== null
+            ? ['LOCATION:'.str_replace(["\r\n", "\r", "\n"], '\n', addcslashes($direccion, '\,;'))]
+            : [];
 
         return implode("\r\n", [
             'BEGIN:VCALENDAR',
