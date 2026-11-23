@@ -29,8 +29,11 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
             })
             ->when(! empty($filters['q']), function ($query) use ($filters) {
                 $q = $filters['q'];
-                $query->whereHas('appointment.client.user', fn ($u) => $u->where('name', 'like', "%{$q}%"))
-                    ->orWhereHas('appointment.service', fn ($s) => $s->where('nombre', 'like', "%{$q}%"));
+                // Agrupado: sin el where() el orWhereHas escapaba de los demás filtros (y del historial
+                // de anulados) y devolvía cobros que no cumplían el resto de condiciones.
+                $query->where(fn ($w) => $w
+                    ->whereHas('appointment.client.user', fn ($u) => $u->where('name', 'like', "%{$q}%"))
+                    ->orWhereHas('appointment.service', fn ($s) => $s->where('nombre', 'like', "%{$q}%")));
             })
             ->when(! empty($filters['barbero_id']), fn ($q) => $q->whereHas('appointment', fn ($a) => $a->where('barber_id', $filters['barbero_id'])))
             ->when(! empty($filters['fecha_desde']), fn ($q) => $q->whereDate('created_at', '>=', $filters['fecha_desde']))

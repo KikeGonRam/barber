@@ -202,7 +202,8 @@ Route::prefix('v1')->group(function (): void {
         // payments/{payment}/receipt: son rutas de un solo segmento, sin comodin).
         Route::get('payments/transfer-info', [ApiPaymentController::class, 'transferInfo']);
         Route::get('payments/cards', [ApiPaymentController::class, 'cards']);
-        Route::get('payments/{payment}/receipt', [ApiPaymentController::class, 'receipt']);
+        // withTrashed: el administrador abre el comprobante de un cobro anulado (receipt() lo restringe).
+        Route::get('payments/{payment}/receipt', [ApiPaymentController::class, 'receipt'])->withTrashed();
 
         // Autopago del cliente (Fase B del plan Stripe, 2026-09-06): abierta a
         // cualquier usuario autenticado a nivel de ruta a propósito -- el

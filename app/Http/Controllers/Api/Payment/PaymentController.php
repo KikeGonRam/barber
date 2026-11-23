@@ -40,6 +40,8 @@ class PaymentController extends Controller
     /**
      * Lista paginada de pagos con datos de cita, cliente, barbero y comprobante,
      * filtrable por método de pago.
+     *
+     * @queryParam anulados boolean Solo administrador: lista los cobros anulados (con motivo, autor y fecha en `anulacion`). Example: 1
      */
     public function index(Request $request): JsonResponse
     {
@@ -570,11 +572,15 @@ class PaymentController extends Controller
     }
 
     /**
-     * Elimina un pago y su comprobante PDF asociado (si existe) del almacenamiento público.
+     * Anula un cobro (solo administrador). Anulación lógica: el cobro y su comprobante PDF se
+     * conservan con el motivo, quién lo anuló y la fecha; deja de contar en las sumas y la cita se
+     * puede volver a cobrar. Se consulta con GET /payments?anulados=1.
+     *
+     * @bodyParam motivo string required Motivo de la anulación (5 a 300 caracteres). Example: Cobro duplicado por error
      */
     public function destroy(Request $request, Payment $payment): JsonResponse
     {
-        // Anular borra el cobro y su comprobante: solo un administrador, y dejando el motivo en la bitácora
+        // Anular un cobro: solo un administrador, y dejando el motivo en la bitácora
         // (antes la recepción podía borrarlo sin dejar más rastro que el evento genérico «deleted»).
         $user = $request->user();
         abort_if(! $user || ! $user->hasRole('administrador'), 403, 'Solo un administrador puede anular un cobro.');
@@ -615,6 +621,11 @@ class PaymentController extends Controller
     public function receipt(Request $request, Payment $payment): JsonResponse
     {
         $user = $request->user();
+
+        // La ruta resuelve también cobros anulados (withTrashed) para que el administrador revise su
+        // comprobante desde «Cobros anulados»; para cualquier otro rol un cobro anulado no existe.
+        abort_if($payment->trashed() && ! $user?->hasRole('administrador'), 404);
+
         $isStaff = $user?->hasAnyRole(['administrador', 'recepcionista']);
         $isOwner = $user?->hasRole('cliente') && $user->clientProfile
             && (string) $payment->appointment?->client_id === (string) $user->clientProfile->id;

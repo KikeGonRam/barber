@@ -202,6 +202,26 @@ class PaymentApiTest extends TestCase
             ->assertStatus(403);
     }
 
+    public function test_only_the_admin_can_open_the_receipt_of_an_annulled_payment(): void
+    {
+        Storage::fake('receipts');
+        $admin = $this->staffUser('administrador', 'admin-recibo-anulado@test.local');
+        $recepcion = $this->staffUser('recepcionista', 'recepcion-recibo-anulado@test.local');
+        $payment = $this->paymentToAnnul($admin);
+        $adminToken = $this->tokenFor($admin, 'tok-admin-recibo-anulado');
+
+        $this->withToken($adminToken)
+            ->deleteJson(self::PAYMENTS_URL."/{$payment->id}", ['motivo' => 'Cobro duplicado'])
+            ->assertOk();
+
+        $this->withToken($adminToken)->getJson(self::PAYMENTS_URL."/{$payment->id}/receipt")
+            ->assertOk()
+            ->assertJsonStructure(['data' => ['receipt_url']]);
+        $this->withToken($this->tokenFor($recepcion, 'tok-recepcion-recibo-anulado'))
+            ->getJson(self::PAYMENTS_URL."/{$payment->id}/receipt")
+            ->assertNotFound();
+    }
+
     public function test_recepcionista_gets_payment_history_with_stats_and_pending_count(): void
     {
         $user = $this->staffUser('recepcionista', 'recepcion-payments@test.local');
