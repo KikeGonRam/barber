@@ -572,9 +572,9 @@ El **Centro de Facturación** muestra la facturación de hoy y del mes, el total
 
 ### 6.10 Estado del servidor
 
-**Estado del Servidor** es una vista de solo lectura de la salud del sistema: un **resumen del monitor**, un **mapa del sistema** (API, MongoDB, Redis, cola y tareas programadas, con un color según su estado: activo, lento o con fallos, caído o sin uso) y la lista de cada módulo. Se actualiza sola cada 30 segundos o con **Actualizar**.
+**Estado del Servidor** es una vista de solo lectura de la salud del sistema: un **resumen del monitor** y tarjetas en texto para la API, MongoDB, Redis, la cola y cada tarea programada, con un color según su estado (activo, lento o con fallos, caído o sin uso). Se actualiza sola cada 30 segundos o con **Actualizar**. El mapa del sistema en 3D se retiró el 23 de noviembre de 2026; la captura siguiente corresponde a la versión anterior.
 
-![Estado del servidor](../../assets/admin/a30-estado-servidor.jpg)
+![Estado del servidor (versión anterior, con mapa 3D)](../../assets/admin/a30-estado-servidor.jpg)
 
 ## 7. Rol: Ingeniero (retirado)
 
