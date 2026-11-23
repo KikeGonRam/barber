@@ -36,7 +36,7 @@
              de paquetes/gift cards/referidos/sorteos/muro/campañas sigue probando ese código sin que cada
              prueba tenga que prender el interruptor una por una. El comportamiento "apagado" (404) tiene su
              propia prueba (tests/SIT/FeatureFlagRoutesTest.php), que fija estas variables con putenv() ANTES
-             de que la aplicación de pruebas arranque -- routes/api.php solo lee config('features.*') una vez,
+             de que la aplicación de pruebas arranque, porque routes/api.php solo lee config('features.*') una vez,
              al registrar las rutas, así que sobrescribir con config() a mitad de la prueba no serviría. -->
         <env name="FEATURE_PACKAGES" value="true"/>
         <env name="FEATURE_GIFT_CARDS" value="true"/>
