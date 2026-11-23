@@ -1,5 +1,7 @@
 # Auditoría UI/UX · 03 Ingeniero
 
+> **Nota histórica (23-nov-2026):** este rol se quitó del sistema por decisión del propietario, junto con el monitor 3D del servidor. El informe se conserva como registro de lo evaluado el 29 de octubre.
+
 Tercer informe de cinco. Mismo método y entorno que el [del administrador](01-administrador.md): staging `0f17e84`, demostración aislada, escritorio a 1440 × 900 px, tema *Sastrería Nocturna*. Los problemas generales (texto pequeño, formatos, esqueletos, tabla) están en ese informe y aquí solo se citan.
 
 **Alcance:** Panel de ingeniería, Estado del servidor (mapa del sistema y tareas programadas) y Auditoría / Logs. Reportes se ve con el administrador.

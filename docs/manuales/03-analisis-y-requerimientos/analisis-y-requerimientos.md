@@ -72,7 +72,6 @@ Entregar una plataforma web y móvil que permita **reservar, atender y cobrar ci
 | Barbero | Profesional que atiende. | Su agenda, horario, portafolio y desempeño. |
 | Recepcionista | Opera el día a día. | Agenda, clientes, cobros, pedidos e inventario de turno. |
 | Administrador | Dueño o gerente. | Configuración y gestión completa del negocio. |
-| Ingeniero | Soporte técnico. | Solo lectura de estado, reportes y bitácoras. |
 | Sistemas externos | Stripe, Google, correo, push, Twilio, IA local. | Se integran por la API. |
 
 ## 5. Requisitos funcionales
@@ -156,7 +155,7 @@ Además, el producto implementa capacidades que **crecieron durante los sprints*
 | CU-05 Acumular beneficios | Cliente | Puntos, nivel y descuento actualizados al completar citas. |
 | CU-06 Cerrar la caja | Recepción | Cierre del turno con los cobros del día. |
 | CU-07 Analizar el negocio | Administrador | Reportes, indicadores y hallazgos automáticos. |
-| CU-08 Revisar el estado técnico | Ingeniero | Consulta de salud, bitácoras y rendimiento. |
+| CU-08 Revisar el estado técnico | Administrador | Consulta de salud, bitácoras y rendimiento (el rol ingeniero se quitó el 23-nov-2026). |
 
 ## 10. Trazabilidad
 

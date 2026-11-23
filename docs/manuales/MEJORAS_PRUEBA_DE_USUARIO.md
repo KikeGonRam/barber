@@ -1,5 +1,7 @@
 # Mejoras detectadas en la prueba de usuario
 
+> **Nota (23-nov-2026):** el rol ingeniero se quitó del sistema; los hallazgos que lo mencionan (17, 28, 34) quedan como registro histórico y ya no aplican a ese rol.
+
 Resultado de recorrer la aplicación como **cliente**, **administrador**, **barbero**, **recepcionista** e **ingeniero** el 28 de octubre de 2026, en un entorno de demostración aislado (base de desarrollo, no Atlas) con cuentas ficticias. Las capturas están en `docs/assets/` y los recorridos se describen en el [Manual de Usuario](01-manual-de-usuario/manual-de-usuario.md).
 
 Esta lista es un **punto de partida para el backlog**, no una auditoría exhaustiva: se probaron pantallas y flujos, no cada caso límite. Los hallazgos marcados *por confirmar* se vieron en la interfaz pero no se comprobaron en el código.
