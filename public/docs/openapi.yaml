@@ -764,6 +764,13 @@ paths:
                       instagram: urbanblade
                       facebook: null
                       tiktok: null
+                    features:
+                      packages: false
+                      gift_cards: false
+                      referrals: false
+                      raffles: false
+                      social: false
+                      campaigns: false
                 properties:
                   data:
                     type: object
@@ -804,6 +811,28 @@ paths:
                             type: string
                             example: null
                             nullable: true
+                      features:
+                        type: object
+                        description: 'Interruptores de módulos (config/features.php). false = el módulo está apagado y sus rutas responden 404.'
+                        properties:
+                          packages:
+                            type: boolean
+                            example: false
+                          gift_cards:
+                            type: boolean
+                            example: false
+                          referrals:
+                            type: boolean
+                            example: false
+                          raffles:
+                            type: boolean
+                            example: false
+                          social:
+                            type: boolean
+                            example: false
+                          campaigns:
+                            type: boolean
+                            example: false
       tags:
         - 'Catálogo público'
       security: []

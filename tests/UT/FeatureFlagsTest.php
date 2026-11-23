@@ -28,10 +28,16 @@ class FeatureFlagsTest extends TestCase
      */
     private function featuresConfig(array $env): array
     {
+        // PHPUnit deja los valores de phpunit.xml en $_ENV/$_SERVER aunque getenv() no los vea: cada fuente se
+        // guarda y se restaura por separado, o la siguiente prueba arrancaría con los interruptores en false.
         $previous = [];
 
         foreach (self::KEYS as $key) {
-            $previous[$key] = getenv($key);
+            $previous[$key] = [
+                'getenv' => getenv($key),
+                'env' => array_key_exists($key, $_ENV) ? $_ENV[$key] : null,
+                'server' => array_key_exists($key, $_SERVER) ? $_SERVER[$key] : null,
+            ];
             putenv($key);
             unset($_ENV[$key], $_SERVER[$key]);
         }
@@ -49,10 +55,14 @@ class FeatureFlagsTest extends TestCase
                 unset($_ENV[$key], $_SERVER[$key]);
                 putenv($key);
 
-                if ($previous[$key] !== false) {
-                    putenv($key.'='.$previous[$key]);
-                    $_ENV[$key] = $previous[$key];
-                    $_SERVER[$key] = $previous[$key];
+                if ($previous[$key]['getenv'] !== false) {
+                    putenv($key.'='.$previous[$key]['getenv']);
+                }
+                if ($previous[$key]['env'] !== null) {
+                    $_ENV[$key] = $previous[$key]['env'];
+                }
+                if ($previous[$key]['server'] !== null) {
+                    $_SERVER[$key] = $previous[$key]['server'];
                 }
             }
         }

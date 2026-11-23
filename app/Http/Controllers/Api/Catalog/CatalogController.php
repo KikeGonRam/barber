@@ -51,7 +51,8 @@ class CatalogController extends Controller
      *    "horario_apertura": "09:00",
      *    "horario_cierre": "21:00",
      *    "politica_cancelacion": 24,
-     *    "redes_sociales": {"instagram": "urbanblade", "facebook": null, "tiktok": null}
+     *    "redes_sociales": {"instagram": "urbanblade", "facebook": null, "tiktok": null},
+     *    "features": {"packages": false, "gift_cards": false, "referrals": false, "raffles": false, "social": false, "campaigns": false}
      *  }
      * }
      */
