@@ -33,7 +33,7 @@ Bloqueos reales registrados en noviembre de 2026:
 - **barber#106**, commit `7328ac0`, y **frontend#163**: SonarCloud marcó duplicación de código nuevo por encima del 3 % y los PR quedaron en estado `BLOCKED` hasta corregirla.
 - Los hilos sin resolver de la revisión automática también dejaron PR en `BLOCKED` (regla de conversaciones).
 
-Además, el despliegue no se ejecuta si el CI del commit no terminó en verde: lo impiden la condición del job y el paso *CI en verde del commit exacto* de la plantilla. Desde que existe el workflow de despliegue, `main` no ha tenido un CI en rojo, porque la protección de rama lo impide antes.
+Además, el despliegue no se ejecuta si el CI del commit no terminó en verde: lo impiden la condición del job y el paso *CI en verde del commit exacto* de la plantilla. La protección de rama exige los checks del PR, pero no garantiza que el CI que corre en `main` después de fusionar salga en verde (por ejemplo, si `main` cambió entre la última ejecución del PR y la fusión). Es una observación histórica, no una garantía: desde que existe el workflow de despliegue, `main` no ha tenido un CI en rojo, y si lo tuviera ese commit no se desplegaría.
 
 ### T039 · Los secretos no se exponen en los registros
 
@@ -50,7 +50,7 @@ Se descargaron los registros completos de 4 despliegues y del último CI de `mai
 
 Nota: el `APP_KEY` que aparece en el CI de barber es una llave de pruebas declarada en claro en `.github/workflows/ci.yml` con `APP_ENV: testing`. Ya es pública en el repositorio, así que verla en el registro no es una fuga. Queda por confirmar que staging usa una llave distinta.
 
-Controles que lo previenen: OIDC (no hay secretos que imprimir), enmascarado automático de GitHub Actions, Gitleaks y Trivy en el CI y GitGuardian en cada PR.
+Lo que protege los registros: OIDC (no hay secretos guardados que se puedan imprimir) y el enmascarado automático de GitHub Actions para los valores registrados como secretos; este barrido es la comprobación sobre los registros. Gitleaks y Trivy en el CI y GitGuardian en cada PR revisan el **código** (que no se versionen secretos), no los registros de Actions: un valor sensible que un paso imprimiera sin estar registrado como secreto no lo detectarían ellos, sino un barrido como este.
 
 ### T040 · Reversión de un despliegue de ECS
 
