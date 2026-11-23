@@ -96,6 +96,7 @@ Migración `2026_11_23_000000_add_cache_ttl_indexes`, con su prueba `tests/SIT/C
 ### Pendientes y recomendaciones
 
 - Hecho el 23 de noviembre tras desplegar el índice TTL (barber#111): `catalogo-suave` dio 330 peticiones, todas 200, p50 155 ms, p95 339 ms y p99 467 ms, sin freno (antes p95 3,535 ms). Resultado en [`carga/catalogo-suave-despues-ttl.json`](carga/catalogo-suave-despues-ttl.json).
+- Repetida el mismo día con los módulos apagados (barber#115 desplegado, `FEATURE_*` en `false`): 330 peticiones, todas 200, p50 152 ms, p95 314 ms y p99 435 ms, sin freno. Apagar módulos no cambia la latencia del catálogo, que ya estaba cacheado. Resultado en [`carga/catalogo-suave-modulos-apagados.json`](carga/catalogo-suave-modulos-apagados.json).
 - Si la cola sigue alta, lo que queda son los contadores en MongoDB. La opción es llevar los gruesos (límite del catálogo y guardián de abuso) a un almacén local por tarea y dejar en MongoDB solo los sensibles, como login. Es un intercambio de seguridad que debe decidir el equipo: con dos tareas, cada una contaría por separado y el límite efectivo por IP se duplicaría.
 - Separar la comprobación de salud del grupo de procesos que atiende la API, o subir su tolerancia, para que una saturación pasajera no haga que ECS reemplace la tarea.
 - Los escenarios con sesión de la demostración (`demo-sesion`, `demo-panel`, `demo-reserva-concurrente`) están escritos pero todavía no se han ejecutado.
