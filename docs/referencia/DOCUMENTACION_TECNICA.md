@@ -73,9 +73,20 @@ comprobación documental inocua.
 - Logout revoca el token actual; refresh lo sustituye.
 - Google web usa Socialite; Android envía un ID token para verificación en el servidor.
 - Los roles se resuelven desde el documento de usuario con métodos propios.
-  Existen administrador, recepcionista, barbero, cliente e ingeniero.
-- `role.custom` y `permission.custom` restringen rutas. Ingeniero tiene
-  consultas de operación/observabilidad, no administración de negocio.
+  Existen administrador, recepcionista, barbero y cliente. El rol ingeniero
+  (solo lectura) se quitó el 23 de noviembre de 2026: el seeder ya no lo crea
+  y ninguna ruta lo acepta; reportes, logs, estado del servidor y Pulse son
+  solo del administrador. No se borró ninguna cuenta ni rol existente en
+  MongoDB: una cuenta antigua con ese rol queda sin permisos.
+- `role.custom` y `permission.custom` restringen rutas.
+- Interruptores de funciones ([features.php](../../config/features.php)):
+  paquetes, tarjetas de regalo, referidos, sorteos, muro social y campañas
+  están apagados por defecto (`FEATURE_PACKAGES`, `FEATURE_GIFT_CARDS`,
+  `FEATURE_REFERRALS`, `FEATURE_RAFFLES`, `FEATURE_SOCIAL`,
+  `FEATURE_CAMPAIGNS`). Con uno apagado sus rutas no se registran (404) y el
+  sorteo mensual no corre; `GET /api/v1/barbershop` expone `features` para que
+  web y móvil oculten el módulo. Un paquete, tarjeta o premio ya adquirido se
+  sigue pudiendo canjear al cobrar. Membresía y puntos de lealtad no se apagan.
 - Registro público y alta por Google no permiten elegir un rol administrativo.
 
 Fuentes: [AuthController](../../app/Http/Controllers/Api/Auth/AuthController.php),

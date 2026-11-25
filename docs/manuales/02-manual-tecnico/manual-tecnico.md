@@ -140,7 +140,7 @@ Se usan Payment Intents, Customers y tarjetas guardadas, reembolsos, productos y
 | --- | --- |
 | Tokens | `MobileApiToken` guarda el **hash SHA-256**, nunca el token plano. Vigencia deslizante: 30 días web y 180 móvil (`config/auth.php`). |
 | Google | Web con Socialite; Android envía un ID token que el servidor verifica. |
-| Roles | Administrador, recepcionista, barbero, cliente e ingeniero. `role.custom` y `permission.custom` restringen rutas. |
+| Roles | Administrador, recepcionista, barbero y cliente (el rol ingeniero se quitó el 23-nov-2026). `role.custom` y `permission.custom` restringen rutas. |
 | Pertenencia | Los controladores validan que la cita, el pago o el perfil pertenezcan al usuario; el rol por sí solo no basta. |
 | Entradas | `RejectMongoOperators` bloquea operadores Mongo (`$ne`, `$gt`, …) que lleguen desde el cliente. |
 | Proxies | `TrustProxyChain` confía solo en `X-Forwarded-For`, con `TRUSTED_PROXY_HOPS` proxies propios. |
@@ -230,7 +230,7 @@ Los cambios entran a `main` por rama y PR con los checks verdes. Un PR verde no 
 
 ## 12. Observabilidad y errores
 
-- **Laravel Pulse** muestra peticiones lentas, consultas, colas y excepciones (accesible solo al ingeniero).
+- **Laravel Pulse** muestra peticiones lentas, consultas, colas y excepciones (accesible solo al administrador).
 - **LogSlowRequests** registra peticiones lentas; `config/observability.php` define los umbrales.
 - **Sentry** recoge errores si el entorno lo configura.
 - **Registro:** no se escriben cabeceras de autorización, URIs con credenciales ni datos de pago.

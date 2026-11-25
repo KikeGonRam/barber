@@ -58,12 +58,6 @@ Los cambios de configuración pueden afectar reservas, pagos y notificaciones.
 Revisar su impacto antes de guardar; la interfaz no concede autorización para
 cambiar infraestructura o credenciales externas.
 
-## Ingeniero
-
-Consultar los reportes, logs y estado del sistema que permitan sus permisos.
-No se considera un administrador de negocio ni puede modificar recursos por
-tener acceso a observabilidad.
-
 ## Pagos, recibos y membresías
 
 Los métodos de cobro incluyen efectivo, transferencia y tarjeta mediante Stripe.

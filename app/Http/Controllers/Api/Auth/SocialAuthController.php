@@ -111,9 +111,9 @@ class SocialAuthController extends Controller
      * el propio flujo de OAuth), emite un token, y manda al usuario de vuelta
      * al destino indicado por `state` (frontend del cliente, o spark) con el
      * token en la URL -- mismo patrón que ResetPassword::createUrlUsing()
-     * usa frontend_url. spark hace su propia verificación de rol
-     * (administrador/ingeniero) llamando a GET /api/v1/auth/me con este
-     * token -- este controlador no filtra por rol, solo acredita identidad.
+     * usa frontend_url. El destino hace su propia verificación de rol
+     * llamando a GET /api/v1/auth/me con este token -- este controlador no
+     * filtra por rol, solo acredita identidad.
      */
     public function callback(Request $request): RedirectResponse
     {

@@ -7,8 +7,8 @@ use App\Models\Service;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Hallazgos de negocio de "Lo que dicen tus datos" en el dashboard del administrador y del ingeniero:
- * servicio premium, cancelaciones del mes y hora pico. Cacheado 10 min porque agrega sobre todas las citas.
+ * Hallazgos de negocio de "Lo que dicen tus datos" en el dashboard del administrador: servicio premium,
+ * cancelaciones del mes y hora pico. Cacheado 10 min porque agrega sobre todas las citas.
  */
 class BusinessInsightService
 {

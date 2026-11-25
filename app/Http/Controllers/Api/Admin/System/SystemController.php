@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Redis;
 use MongoDB\Laravel\Connection as MongoConnection;
 
 /**
- * Dashboard de estado del servidor para el rol "ingeniero" (y administrador):
- * conectividad de MongoDB/Redis, tamaño de la cola y contador de jobs
+ * Dashboard de estado del servidor para administradores: conectividad de MongoDB/Redis, tamaño de la cola y
+ * contador de jobs
  * fallidos, y última ejecución de cada tarea programada. Es deliberadamente
  * de solo lectura -- no expone ninguna acción de gestión, solo diagnóstico.
  * Métricas más finas (requests lentos, excepciones, consultas lentas) viven

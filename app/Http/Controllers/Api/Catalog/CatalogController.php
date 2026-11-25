@@ -51,7 +51,8 @@ class CatalogController extends Controller
      *    "horario_apertura": "09:00",
      *    "horario_cierre": "21:00",
      *    "politica_cancelacion": 24,
-     *    "redes_sociales": {"instagram": "urbanblade", "facebook": null, "tiktok": null}
+     *    "redes_sociales": {"instagram": "urbanblade", "facebook": null, "tiktok": null},
+     *    "features": {"packages": false, "gift_cards": false, "referrals": false, "raffles": false, "social": false, "campaigns": false}
      *  }
      * }
      */
@@ -73,6 +74,10 @@ class CatalogController extends Controller
                 // Sin "?->" aquí: dentro de ?? PHP ya suprime el acceso sobre
                 // null, así que el nullsafe sobra (Larastan: nullsafe.neverNull).
                 'redes_sociales' => $setting->redes_sociales ?? [],
+                // Interruptores de funciones (auditoría del 23-nov-2026, ver config/features.php). Va en este
+                // endpoint público porque web y móvil ya lo piden al arrancar; evita un segundo viaje de red
+                // solo para saber qué ocultar del menú.
+                'features' => config('features'),
             ],
         ]);
     }

@@ -17,14 +17,13 @@ use Illuminate\Http\Request;
  */
 class DashboardAdminController
 {
-    // Defensa en profundidad: aunque la ruta ya exige
-    // role.custom:administrador,ingeniero, este guard evita que un descuido
-    // en routes/api.php exponga métricas del negocio. ingeniero es un rol de
-    // solo lectura (puede ver estos dashboards, nunca gestionar nada).
+    // Defensa en profundidad: aunque la ruta ya exige role.custom:administrador, este guard evita que un
+    // descuido en routes/api.php exponga métricas del negocio. (El rol "ingeniero", de solo lectura, se quitó
+    // el 23-nov-2026 por decisión del propietario tras la auditoría de funciones.)
     private function authorizeAdmin(): void
     {
         $user = request()->user();
-        abort_if(! $user || (! $user->hasRole('administrador') && ! $user->hasRole('ingeniero')), 403, 'Solo administradores pueden acceder a este recurso.');
+        abort_if(! $user || ! $user->hasRole('administrador'), 403, 'Solo administradores pueden acceder a este recurso.');
     }
 
     // Métricas rápidas del día: ingresos, citas completadas, ocupación y clientes nuevos

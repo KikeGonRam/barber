@@ -9,8 +9,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Controlador de auditoría/logs de actividad (administrador e ingeniero,
- * rol de solo lectura). Expone el listado paginado de registros de Spatie
+ * Controlador de auditoría/logs de actividad (solo administrador; el rol "ingeniero" de solo lectura se
+ * quitó el 23-nov-2026 por decisión del propietario tras la auditoría de funciones). Expone el listado
+ * paginado de registros de Spatie
  * Activitylog con búsqueda, filtro por log_name y datos del causante de
  * cada evento.
  */
@@ -21,7 +22,7 @@ class LogController extends Controller
     {
         $user = $request->user();
 
-        abort_if(! $user || (! $user->hasRole('administrador') && ! $user->hasRole('ingeniero')), 403, 'Solo administradores pueden consultar logs.');
+        abort_if(! $user || ! $user->hasRole('administrador'), 403, 'Solo administradores pueden consultar logs.');
 
         $search = trim((string) $request->query('q', ''));
         $logName = trim((string) $request->query('log_name', ''));

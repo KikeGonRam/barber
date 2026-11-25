@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Suma la petición a las métricas por minuto del monitor del ingeniero. Corre al terminar la respuesta (no
+ * Suma la petición a las métricas por minuto del monitor del administrador. Corre al terminar la respuesta (no
  * retrasa al usuario), muestrea según observability.metrics_sample_rate y nunca rompe la petición si la caché falla.
  */
 class RecordRequestMetrics

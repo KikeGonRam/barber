@@ -12,7 +12,7 @@ return [
     // Un solo comando a MongoDB (find, aggregate, update...), en milisegundos.
     'slow_query_ms' => (int) env('SLOW_QUERY_MS', 300),
 
-    // Métricas de tráfico por minuto para el monitor del ingeniero (peticiones, errores 5xx, latencia media).
+    // Métricas de tráfico por minuto para el monitor del administrador (peticiones, errores 5xx, latencia media).
     // Apagadas por defecto: requieren un almacén de caché Redis o Memcached (ver RequestMetrics::enabled).
     'metrics_enabled' => (bool) env('METRICS_ENABLED', false),
 

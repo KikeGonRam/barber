@@ -45,13 +45,17 @@ class SystemControllerTest extends TestCase
         parent::tearDown();
     }
 
-    private function ingenieroToken(): string
+    /**
+     * El rol 'ingeniero' se quitó el 23-nov-2026 (auditoría de funciones): /admin/system/status
+     * ahora solo acepta 'administrador' (ver routes/api.php), así que este helper usa ese rol.
+     */
+    private function administradorToken(): string
     {
-        $role = Role::where('name', 'ingeniero')->where('guard_name', 'web')->firstOrFail();
-        $user = User::create(['name' => 'Ingeniero Status', 'email' => 'ingeniero-status@test.local', 'password' => 'password']);
+        $role = Role::where('name', 'administrador')->where('guard_name', 'web')->firstOrFail();
+        $user = User::create(['name' => 'Admin Status', 'email' => 'admin-status@test.local', 'password' => 'password']);
         $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
 
-        $plaintext = 'test-token-ingeniero-status';
+        $plaintext = 'test-token-admin-status';
         MobileApiToken::create([
             'user_id' => (string) $user->id,
             'name' => 'test',
@@ -63,7 +67,7 @@ class SystemControllerTest extends TestCase
 
     public function test_status_endpoint_returns_the_expected_shape(): void
     {
-        $token = $this->ingenieroToken();
+        $token = $this->administradorToken();
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/admin/system/status');
 
@@ -87,7 +91,7 @@ class SystemControllerTest extends TestCase
     {
         // Como staging en AWS: caché y sesiones en archivo, cola síncrona. Antes esto salía "down".
         config(['cache.default' => 'file', 'session.driver' => 'file', 'queue.default' => 'sync']);
-        $token = $this->ingenieroToken();
+        $token = $this->administradorToken();
 
         $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/v1/admin/system/status')
             ->assertOk()
