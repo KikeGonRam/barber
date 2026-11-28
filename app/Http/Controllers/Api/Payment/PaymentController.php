@@ -598,6 +598,13 @@ class PaymentController extends Controller
             ])
             ->log('Cobro anulado: '.$data['motivo']);
 
+        // precio_cobrado ya trae el descuento (y puntos o anticipo) del cobro anulado y es la base del
+        // siguiente: si se queda, se descuenta dos veces. Se limpia antes de anular, mientras el cobro
+        // aún bloquea la cita, para que un cobro simultáneo no alcance a leerlo. Anular un anticipo no lo toca.
+        if (! $payment->es_deposito) {
+            $payment->appointment?->update(['precio_cobrado' => null]);
+        }
+
         // Anulación lógica: el cobro y su comprobante PDF se conservan para el historial contable;
         // deleted_at lo saca de todas las sumas y bloquea_cita=false deja volver a cobrar la cita.
         // withoutEvents: la bitácora ya tiene la entrada «Cobro anulado» con el motivo; sin esto
@@ -608,12 +615,6 @@ class PaymentController extends Controller
             'bloquea_cita' => false,
             $payment->getDeletedAtColumn() => now(),
         ])->save());
-
-        // precio_cobrado ya trae el descuento (y puntos o anticipo) del cobro anulado y es la base del
-        // siguiente: si se queda, se descuenta dos veces. Anular un anticipo no toca el precio.
-        if (! $payment->es_deposito) {
-            $payment->appointment?->update(['precio_cobrado' => null]);
-        }
 
         return response()->json([
             'message' => 'Cobro anulado. Se conserva en el historial de cobros anulados.',
