@@ -2,28 +2,21 @@
 
 namespace Tests\UAT;
 
-use App\Models\Appointment;
 use App\Models\Barber;
 use App\Models\Client;
 use App\Models\ClientMembership;
 use App\Models\ClientPackage;
-use App\Models\MembershipInvoice;
 use App\Models\MembershipPlan;
-use App\Models\MobileApiToken;
 use App\Models\Payment;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\Service;
 use App\Models\User;
 use App\Services\Membership\MembershipService;
 use App\Services\Payment\CashCloseService;
 use App\Services\Payment\StripePaymentService;
 use Carbon\Carbon;
-use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Spatie\Permission\PermissionRegistrar;
+use Tests\Concerns\CreatesMembershipData;
 use Tests\TestCase;
 
 /**
@@ -32,6 +25,8 @@ use Tests\TestCase;
  */
 class MembershipClubApiTest extends TestCase
 {
+    use CreatesMembershipData;
+
     private Service $corte;
 
     private User $admin;
@@ -40,8 +35,7 @@ class MembershipClubApiTest extends TestCase
     {
         parent::setUp();
 
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
-        $this->seed(RolePermissionSeeder::class);
+        $this->seedRoles();
         Notification::fake();
         Storage::fake('receipts');
         $this->corte = Service::create(['nombre' => 'Corte Club', 'precio' => 180, 'duracion_min' => 30, 'activo' => true]);
@@ -50,34 +44,14 @@ class MembershipClubApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        Appointment::withTrashed()->forceDelete();
-        User::withTrashed()->forceDelete();
-
-        foreach ([ClientPackage::class, MembershipInvoice::class, ClientMembership::class, MembershipPlan::class, Payment::class, Service::class, Barber::class, Client::class, MobileApiToken::class, Role::class, Permission::class] as $model) {
-            $model::query()->delete();
-        }
-
-        \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        $this->cleanMembershipData();
 
         parent::tearDown();
     }
 
-    private function userWithRole(string $roleName): User
-    {
-        $role = Role::where('name', $roleName)->where('guard_name', 'web')->firstOrFail();
-        $user = User::create(['name' => ucfirst($roleName).' Club', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
-        $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
-
-        return $user;
-    }
-
     private function actingWithToken(User $user): static
     {
-        $plaintext = (string) Str::uuid();
-        MobileApiToken::create(['user_id' => (string) $user->id, 'name' => 'test', 'token_hash' => hash('sha256', $plaintext)]);
-
-        return $this->withToken($plaintext);
+        return $this->withToken($this->tokenFor($user));
     }
 
     private function clubPlan(): MembershipPlan
@@ -93,7 +67,7 @@ class MembershipClubApiTest extends TestCase
     private function member(MembershipPlan $plan): array
     {
         $user = $this->userWithRole('cliente');
-        $client = Client::create(['user_id' => (string) $user->id, 'telefono' => '5551230000', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $client = $this->clientFor($user);
         $this->mock(StripePaymentService::class, function ($mock) {
             $mock->shouldReceive('createCustomer')->andReturn('cus_club');
             $mock->shouldReceive('createSubscription')->andReturn(['subscription_id' => 'sub_club', 'client_secret' => 'secret']);
@@ -108,16 +82,6 @@ class MembershipClubApiTest extends TestCase
     private function pay(string $invoiceId, ?Carbon $at = null): void
     {
         app(MembershipService::class)->recordSuccessfulInvoice('sub_club', $invoiceId, 299.0, $at ?? now());
-    }
-
-    private function appointmentFor(Client $client): Appointment
-    {
-        $barber = Barber::create(['nombre' => 'Barbero', 'activo' => true]);
-
-        return Appointment::create([
-            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $this->corte->id,
-            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '11:00:00', 'hora_fin' => '11:30:00', 'estado' => 'confirmada',
-        ]);
     }
 
     private function remaining(Client $client): int
@@ -169,7 +133,7 @@ class MembershipClubApiTest extends TestCase
     {
         [, $client] = $this->member($this->clubPlan());
         $this->pay('in_1');
-        $appointment = $this->appointmentFor($client);
+        $appointment = $this->appointmentFor($client, $this->corte);
 
         $disponible = $this->actingWithToken($this->admin)->getJson('/api/v1/appointments/chargeable')
             ->assertOk()->assertJsonPath('data.0.paquete_disponible.origen', 'membresia')->json('data.0.paquete_disponible.id');
@@ -204,7 +168,7 @@ class MembershipClubApiTest extends TestCase
     {
         [$user, $client] = $this->member($this->clubPlan());
         $this->pay('in_1');
-        $appointment = $this->appointmentFor($client);
+        $appointment = $this->appointmentFor($client, $this->corte);
 
         $this->actingWithToken($user)->postJson('/api/v1/payments/stripe-intent', ['appointment_id' => (string) $appointment->id])
             ->assertStatus(422)->assertJsonPath('incluido_en_membresia', true);
