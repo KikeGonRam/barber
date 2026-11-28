@@ -76,7 +76,9 @@ class CashCloseService
             $porMetodo[$metodo] = ($porMetodo[$metodo] ?? 0.0) + (float) ($order->total ?? 0);
         }
 
+        // Los usos de una membresía no son venta de paquete: su ingreso ya entra con la factura.
         $packages = ClientPackage::whereBetween('comprado_en', [$start, $end])
+            ->where('metodo_pago', '!=', ClientPackage::METODO_MEMBRESIA)
             ->get(['metodo_pago', 'precio_pagado']);
 
         foreach ($packages as $package) {

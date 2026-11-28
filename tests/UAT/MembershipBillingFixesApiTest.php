@@ -3,23 +3,18 @@
 namespace Tests\UAT;
 
 use App\Models\Appointment;
-use App\Models\Barber;
 use App\Models\Client;
 use App\Models\ClientMembership;
 use App\Models\MembershipPlan;
 use App\Models\MobileApiToken;
 use App\Models\Payment;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\Service;
 use App\Models\User;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\StripePaymentService;
-use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Spatie\Permission\PermissionRegistrar;
+use Tests\Concerns\CreatesMembershipData;
 use Tests\TestCase;
 
 /**
@@ -28,51 +23,27 @@ use Tests\TestCase;
  */
 class MembershipBillingFixesApiTest extends TestCase
 {
+    use CreatesMembershipData;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
-        $this->seed(RolePermissionSeeder::class);
+        $this->seedRoles();
     }
 
     protected function tearDown(): void
     {
-        Appointment::withTrashed()->forceDelete();
-        User::withTrashed()->forceDelete();
-
-        foreach ([ClientMembership::class, MembershipPlan::class, Payment::class, Service::class, Barber::class, Client::class, MobileApiToken::class, Role::class, Permission::class] as $model) {
-            $model::query()->delete();
-        }
-
-        \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        $this->cleanMembershipData();
 
         parent::tearDown();
-    }
-
-    private function userWithRole(string $roleName): User
-    {
-        $role = Role::where('name', $roleName)->where('guard_name', 'web')->firstOrFail();
-        $user = User::create(['name' => ucfirst($roleName).' Membresia', 'email' => Str::uuid().'@test.local', 'password' => 'password']);
-        $user->forceFill(['email_verified_at' => now(), 'role_id' => [(string) $role->id]])->save();
-
-        return $user;
-    }
-
-    private function tokenFor(User $user): string
-    {
-        $plaintext = (string) Str::uuid();
-        MobileApiToken::create(['user_id' => (string) $user->id, 'name' => 'test', 'token_hash' => hash('sha256', $plaintext)]);
-
-        return $plaintext;
     }
 
     /** @return array{0: User, 1: Client, 2: ClientMembership} */
     private function member(int $descuentoPct = 10): array
     {
         $user = $this->userWithRole('cliente');
-        $client = Client::create(['user_id' => (string) $user->id, 'telefono' => '5551230000', 'nivel' => 'nuevo', 'puntos' => 0, 'total_citas' => 0]);
+        $client = $this->clientFor($user);
         $plan = MembershipPlan::create([
             'nombre' => 'Plan', 'precio_mensual' => 199, 'descuento_pct' => $descuentoPct,
             'stripe_product_id' => 'prod_test', 'stripe_price_id' => 'price_test', 'activo' => true,
@@ -87,15 +58,9 @@ class MembershipBillingFixesApiTest extends TestCase
         return [$user, $client, $membership];
     }
 
-    private function appointmentFor(Client $client): Appointment
+    private function corteDeMembresia(): Service
     {
-        $barber = Barber::create(['nombre' => 'Barbero', 'activo' => true]);
-        $service = Service::create(['nombre' => 'Corte Membresia', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
-
-        return Appointment::create([
-            'client_id' => (string) $client->id, 'barber_id' => (string) $barber->id, 'service_id' => (string) $service->id,
-            'fecha' => now()->addDay()->toDateString(), 'hora_inicio' => '11:00:00', 'hora_fin' => '11:30:00', 'estado' => 'confirmada',
-        ]);
+        return Service::create(['nombre' => 'Corte Membresia', 'precio' => 200, 'duracion_min' => 30, 'activo' => true]);
     }
 
     public function test_deleting_own_account_cancels_the_stripe_subscription(): void
@@ -150,7 +115,7 @@ class MembershipBillingFixesApiTest extends TestCase
         Storage::fake('receipts');
         [, $client] = $this->member(descuentoPct: 10);
         $admin = $this->userWithRole('administrador');
-        $appointment = $this->appointmentFor($client);
+        $appointment = $this->appointmentFor($client, $this->corteDeMembresia());
         $charge = ['appointment_id' => (string) $appointment->id, 'metodo_pago' => 'efectivo'];
 
         $first = app(PaymentService::class)->create($charge, (string) $admin->id);
@@ -169,7 +134,7 @@ class MembershipBillingFixesApiTest extends TestCase
     {
         [, $client] = $this->member();
         $admin = $this->userWithRole('administrador');
-        $appointment = $this->appointmentFor($client);
+        $appointment = $this->appointmentFor($client, $this->corteDeMembresia());
         $appointment->update(['precio_cobrado' => 180]);
         $payment = Payment::create([
             'appointment_id' => (string) $appointment->id, 'monto' => 180, 'metodo_pago' => 'efectivo', 'propina' => 0,
@@ -191,7 +156,7 @@ class MembershipBillingFixesApiTest extends TestCase
     {
         [, $client] = $this->member();
         $admin = $this->userWithRole('administrador');
-        $appointment = $this->appointmentFor($client);
+        $appointment = $this->appointmentFor($client, $this->corteDeMembresia());
         $appointment->update(['precio_cobrado' => 180]);
         $deposit = Payment::create([
             'appointment_id' => (string) $appointment->id, 'monto' => 90, 'metodo_pago' => 'tarjeta', 'propina' => 0,

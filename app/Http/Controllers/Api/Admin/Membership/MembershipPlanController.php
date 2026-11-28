@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin\Membership;
 
 use App\Http\Controllers\Controller;
 use App\Models\MembershipPlan;
+use App\Services\Membership\MembershipService;
 use App\Services\Payment\StripePaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class MembershipPlanController extends Controller
 {
     public function __construct(
         private readonly StripePaymentService $stripe,
+        private readonly MembershipService $memberships,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -47,7 +49,7 @@ class MembershipPlanController extends Controller
             'precio_mensual' => ['required', 'numeric', 'min:1'],
             'descuento_pct' => ['required', 'integer', 'min:1', 'max:100'],
             'activo' => ['nullable', 'boolean'],
-        ]);
+        ] + $this->includedServicesRules());
 
         try {
             $stripeData = $this->stripe->createMonthlyPrice($data['nombre'], (float) $data['precio_mensual']);
@@ -88,7 +90,7 @@ class MembershipPlanController extends Controller
             'precio_mensual' => ['required', 'numeric', 'min:1'],
             'descuento_pct' => ['required', 'integer', 'min:1', 'max:100'],
             'activo' => ['nullable', 'boolean'],
-        ]);
+        ] + $this->includedServicesRules());
 
         $precioCambio = round((float) $membershipPlan->precio_mensual, 2) !== round((float) $data['precio_mensual'], 2);
 
@@ -129,6 +131,16 @@ class MembershipPlanController extends Controller
         ]);
     }
 
+    /** Servicios incluidos cada mes (planes Club). Opcional: sin ellos el plan es solo de descuento. */
+    private function includedServicesRules(): array
+    {
+        return [
+            'servicios_incluidos' => ['nullable', 'array', 'max:10'],
+            'servicios_incluidos.*.service_id' => ['required', 'string', 'distinct', 'exists:services,id'],
+            'servicios_incluidos.*.usos' => ['required', 'integer', 'min:1', 'max:31'],
+        ];
+    }
+
     private function authorizeAdmin(Request $request): void
     {
         $user = $request->user();
@@ -145,6 +157,8 @@ class MembershipPlanController extends Controller
             'precio_mensual' => $plan->precio_mensual,
             'descuento_pct' => $plan->descuento_pct,
             'activo' => (bool) $plan->activo,
+            'servicios_incluidos' => $incluidos = $this->memberships->describeServices((array) $plan->getAttribute('servicios_incluidos')),
+            'valor_lista' => $this->memberships->listValue($incluidos),
         ];
     }
 }

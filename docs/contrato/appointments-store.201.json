@@ -57,5 +57,6 @@
         ]
     },
     "productos_error": "Sin stock suficiente de Cera mate.",
+    "incluido_en_membresia": false,
     "descuento_pct": 10
 }

@@ -17,6 +17,9 @@ class ClientPackage extends Model
 {
     use HasFactory;
 
+    // metodo_pago de los usos que entrega una membresía: su dinero entra por la factura, no por el paquete.
+    public const METODO_MEMBRESIA = 'membresia';
+
     public const ESTADO_ACTIVO = 'activo';
 
     public const ESTADO_AGOTADO = 'agotado';
@@ -36,6 +39,9 @@ class ClientPackage extends Model
         'expira_en',
         'estado',
         'creado_por',
+        // Solo en usos incluidos por una membresía (planes Club).
+        'membership_id',
+        'membership_invoice_id',
     ];
 
     protected function casts(): array

@@ -41,8 +41,10 @@ class MembershipController extends Controller
                 'id' => $p->id,
                 'nombre' => $p->nombre,
                 'descripcion' => $p->descripcion,
-                'precio_mensual' => $p->precio_mensual,
-                'descuento_pct' => $p->descuento_pct,
+                'precio_mensual' => $p->getAttribute('precio_mensual'),
+                'descuento_pct' => $p->getAttribute('descuento_pct'),
+                'servicios_incluidos' => $incluidos = $this->memberships->describeServices((array) $p->getAttribute('servicios_incluidos')),
+                'valor_lista' => $this->memberships->listValue($incluidos),
             ])->values(),
         ]);
     }
@@ -228,6 +230,9 @@ class MembershipController extends Controller
 
     private function payload(ClientMembership $membership): array
     {
+        // Precio y beneficios contratados, aunque el plan haya cambiado después.
+        $terminos = $this->memberships->termsFor($membership);
+
         return [
             'id' => $membership->id,
             'estado' => $membership->estado,
@@ -236,9 +241,11 @@ class MembershipController extends Controller
             'plan' => [
                 'id' => $membership->plan?->id,
                 'nombre' => $membership->plan?->nombre,
-                'precio_mensual' => $membership->plan?->precio_mensual,
-                'descuento_pct' => $membership->plan?->descuento_pct,
+                'precio_mensual' => $terminos['precio'],
+                'descuento_pct' => $terminos['descuento'],
+                'servicios_incluidos' => $this->memberships->describeServices($terminos['servicios']),
             ],
+            'usos' => $this->memberships->usesFor($membership),
         ];
     }
 }

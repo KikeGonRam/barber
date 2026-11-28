@@ -392,6 +392,9 @@ class AppointmentController extends Controller
             ->where('estado', ClientPackage::ESTADO_ACTIVO)
             ->where('usos_restantes', '>', 0)
             ->get()
+            ->reject(fn (ClientPackage $p) => data_get($p, 'expira_en')?->isPast() === true)
+            // Los usos de membresía primero: vencen al renovar.
+            ->sortBy(fn (ClientPackage $p) => $p->getAttribute('metodo_pago') === ClientPackage::METODO_MEMBRESIA ? 0 : 1)
             ->groupBy(fn ($p) => $p->client_id.'|'.$p->service_id);
 
         return response()->json([
@@ -416,7 +419,11 @@ class AppointmentController extends Controller
                     'nivel_pct' => LoyaltyService::discountPct($nivel),
                     'puntos_disponibles' => (int) ($appt->client?->puntos ?? 0),
                     'premio_rifa' => $premio?->premio,
-                    'paquete_disponible' => $paquete ? ['id' => $paquete->id, 'usos_restantes' => $paquete->usos_restantes] : null,
+                    'paquete_disponible' => $paquete ? [
+                        'id' => $paquete->id,
+                        'usos_restantes' => $paquete->usos_restantes,
+                        'origen' => $paquete->getAttribute('metodo_pago') === ClientPackage::METODO_MEMBRESIA ? 'membresia' : 'paquete',
+                    ] : null,
                 ];
             })->values(),
         ]);
@@ -533,7 +540,11 @@ class AppointmentController extends Controller
         // el deposito parcial es redundante. El precio SIEMPRE se relee del
         // servicio y del descuento real del cliente, nunca del monto que
         // pudiera venir en el request.
-        if (! empty($validated['pagar_ahora'])) {
+        // Servicio incluido en su membresía: no hay nada que pagar por adelantado (el anticipo anti-no-show,
+        // si le toca, se mantiene). El uso se descuenta al cobrar la cita, no al reservar.
+        $incluido = $this->memberships->includedUseFor($client, (string) $service->getKey()) !== null;
+
+        if (! empty($validated['pagar_ahora']) && ! $incluido) {
             $membershipPct = $this->memberships->activeDiscountFor($client);
             $descuentoPct = LoyaltyService::bestDiscountPct($client->nivel ?? 'nuevo', $membershipPct);
             $precioConDescuento = $descuentoPct > 0
@@ -601,6 +612,7 @@ class AppointmentController extends Controller
             'data' => new AppointmentResource($appointment->fresh(['client.user', 'barber.user', 'service'])),
             'productos_agregados' => $productosAgregados,
             'productos_error' => $productosError,
+            'incluido_en_membresia' => $incluido,
             'descuento_pct' => $descuentoPct,
         ], 201);
     }

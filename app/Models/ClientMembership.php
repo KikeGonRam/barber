@@ -43,6 +43,10 @@ class ClientMembership extends Model
         // termine el periodo ya pagado (ver MembershipService::cancel()).
         'cancelar_al_finalizar',
         'periodo_actual_fin',
+        // Copia de lo contratado: editar el plan no cambia lo ya vendido (null en membresías anteriores).
+        'precio_contratado',
+        'descuento_contratado',
+        'servicios_contratados',
     ];
 
     protected function casts(): array

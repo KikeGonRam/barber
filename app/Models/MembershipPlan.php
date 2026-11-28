@@ -29,6 +29,8 @@ class MembershipPlan extends Model
         'stripe_product_id',
         'stripe_price_id',
         'activo',
+        // Planes Club: lista de ['service_id' => string, 'usos' => int] incluidos cada mes. Vacía = solo descuento.
+        'servicios_incluidos',
     ];
 
     protected function casts(): array
