@@ -609,6 +609,12 @@ class PaymentController extends Controller
             $payment->getDeletedAtColumn() => now(),
         ])->save());
 
+        // precio_cobrado ya trae el descuento (y puntos o anticipo) del cobro anulado y es la base del
+        // siguiente: si se queda, se descuenta dos veces. Anular un anticipo no toca el precio.
+        if (! $payment->es_deposito) {
+            $payment->appointment?->update(['precio_cobrado' => null]);
+        }
+
         return response()->json([
             'message' => 'Cobro anulado. Se conserva en el historial de cobros anulados.',
         ]);

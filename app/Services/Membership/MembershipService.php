@@ -12,6 +12,7 @@ use App\Notifications\Membership\MembershipInvoiceNotification;
 use App\Services\Payment\StripePaymentService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use MongoDB\Driver\Exception\BulkWriteException;
 use Stripe\Exception\InvalidRequestException;
 
@@ -23,6 +24,10 @@ use Stripe\Exception\InvalidRequestException;
  */
 class MembershipService
 {
+    // Margen tras el fin del periodo pagado: Stripe tarda en cobrar y avisar la renovación, y
+    // memberships:reconcile (cada hora) tiene tiempo de confirmarla antes de quitar el descuento.
+    private const PERIOD_GRACE_HOURS = 24;
+
     public function __construct(
         private readonly StripePaymentService $stripe,
     ) {}
@@ -50,7 +55,8 @@ class MembershipService
      * vigente. Solo 'activa' otorga el beneficio -- si el pago de renovación
      * está fallando (pago_fallido) el cliente deja de recibirlo hasta que
      * Stripe logre cobrar de nuevo, mismo criterio que cualquier suscripción
-     * con pago atrasado.
+     * con pago atrasado. Tampoco lo otorga si el periodo pagado venció hace más
+     * del margen sin renovarse (webhook perdido).
      */
     public function activeDiscountFor(Client $client): int
     {
@@ -59,6 +65,12 @@ class MembershipService
             ->first();
 
         if (! $membership) {
+            return 0;
+        }
+
+        $fin = $membership->getAttribute('periodo_actual_fin');
+
+        if ($fin !== null && Carbon::parse($fin)->addHours(self::PERIOD_GRACE_HOURS)->isPast()) {
             return 0;
         }
 
@@ -185,6 +197,32 @@ class MembershipService
         $membership->update(['cancelar_al_finalizar' => true]);
 
         return $membership->fresh();
+    }
+
+    /**
+     * Corta de inmediato las suscripciones de un cliente cuya cuenta se va a eliminar: sin
+     * cuenta no puede cancelarlas él mismo y Stripe seguiría cobrando (o reintentando).
+     * Si Stripe no confirma, se lanza un error de validación y la cuenta se conserva.
+     */
+    public function cancelForAccountDeletion(Client $client): void
+    {
+        $memberships = ClientMembership::where('client_id', (string) $client->id)->where('bloquea_membresia', true)->get();
+
+        foreach ($memberships as $membership) {
+            $subscriptionId = (string) $membership->getAttribute('stripe_subscription_id');
+
+            try {
+                $this->stripe->cancelSubscriptionNow($subscriptionId);
+            } catch (\Throwable $e) {
+                Log::warning('No se pudo cancelar la suscripción al eliminar la cuenta.', ['stripe_subscription_id' => $subscriptionId, 'error' => $e->getMessage()]);
+
+                throw ValidationException::withMessages([
+                    'membresia' => 'No se pudo cancelar la membresía en Stripe, así que la cuenta no se eliminó. Intenta de nuevo más tarde.',
+                ]);
+            }
+
+            $this->markCancelledByStripe($subscriptionId);
+        }
     }
 
     /**

@@ -39,4 +39,5 @@ Schedule::onOneServer()->group(function () {
     Schedule::command('clients:send-birthday-greetings')->dailyAt('08:15')->description('clients:send-birthday-greetings'); // Felicita y regala puntos a quien cumple años hoy
     Schedule::command('waitlist:expire-stale')->dailyAt('03:30')->description('waitlist:expire-stale'); // Expira anotaciones de lista de espera con fecha ya pasada
     Schedule::command('packages:expire-stale')->dailyAt('03:45')->description('packages:expire-stale'); // Expira paquetes prepagados vencidos
+    Schedule::command('memberships:reconcile')->hourly()->description('memberships:reconcile'); // Concilia con Stripe las membresías atrasadas
 });

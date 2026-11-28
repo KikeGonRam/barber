@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Membership\MembershipService;
 use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,6 +68,11 @@ class Client extends Model
 
                 $client->codigo_referido = $code;
             }
+        });
+
+        // Borrar el perfil (desde cualquier pantalla) corta antes su suscripción en Stripe.
+        static::deleting(function (self $client) {
+            app(MembershipService::class)->cancelForAccountDeletion($client);
         });
     }
 

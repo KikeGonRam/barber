@@ -177,7 +177,7 @@ Se usan Payment Intents, Customers y tarjetas guardadas, reembolsos, productos y
 | Cada minuto | `appointments:notify-service-ending` | Avisa al barbero que el servicio termina en 5 minutos. |
 | Cada 5 min | `campaigns:dispatch-due`, `appointments:notify-service-overrun` | Envía campañas vencidas; avisa si un servicio se alarga. |
 | Cada 10 min | `appointments:send-reminders` | Recordatorios de 24 h y 2 h. |
-| Cada hora | `appointments:mark-no-show` | Marca como no asistidas las citas vencidas. |
+| Cada hora | `appointments:mark-no-show`, `memberships:reconcile` | Marca como no asistidas las citas vencidas; concilia con Stripe las membresías atrasadas. |
 | Diaria | `tokens:clean-expired`, `inventory:low-stock-alert`, `reports:daily-summary`, `loyalty:apply-inactivity`, `orders:cancel-expired`, `clients:send-birthday-greetings`, `waitlist:expire-stale`, `packages:expire-stale` | Mantenimiento, avisos y caducidades. |
 | Mensual (día 1) | `loyalty:draw-raffle`, `barbers:monthly-performance` | Sorteo de lealtad y reporte de desempeño. |
 

@@ -397,6 +397,62 @@ class MembershipServiceTest extends TestCase
         $this->assertSame(0, $this->memberships->activeDiscountFor($client));
     }
 
+    private function activeMembership(string $subscriptionId, ?Carbon $periodEnd, int $descuentoPct = 20): Client
+    {
+        $client = $this->makeClient();
+        $plan = $this->makePlan(descuentoPct: $descuentoPct);
+        ClientMembership::create([
+            'client_id' => (string) $client->id,
+            'membership_plan_id' => (string) $plan->id,
+            'stripe_customer_id' => 'cus_test',
+            'stripe_subscription_id' => $subscriptionId,
+            'estado' => ClientMembership::ESTADO_ACTIVA,
+            'bloquea_membresia' => true,
+            'cancelar_al_finalizar' => false,
+            'periodo_actual_fin' => $periodEnd,
+        ]);
+
+        return $client;
+    }
+
+    public function test_active_discount_stops_when_the_paid_period_ended_without_renewal(): void
+    {
+        $client = $this->activeMembership('sub_expired', now()->subDays(2));
+
+        $this->assertSame(0, $this->memberships->activeDiscountFor($client));
+    }
+
+    public function test_active_discount_is_kept_while_stripe_may_still_be_renewing(): void
+    {
+        $client = $this->activeMembership('sub_renewing', now()->subHours(3));
+
+        $this->assertSame(20, $this->memberships->activeDiscountFor($client));
+    }
+
+    public function test_reconcile_command_only_asks_stripe_for_stale_memberships(): void
+    {
+        Notification::fake();
+        $renewed = $this->activeMembership('sub_renewed', now()->subDays(2));
+        $cancelled = $this->activeMembership('sub_gone', now()->subDays(2));
+        $this->activeMembership('sub_fresh', now()->addWeek());
+        $newEnd = now()->addMonth()->getTimestamp();
+
+        $this->mock(StripePaymentService::class, function ($mock) use ($newEnd) {
+            $mock->shouldReceive('subscriptionSnapshot')->once()->with('sub_renewed')->andReturn([
+                'status' => 'active', 'cancel_at_period_end' => false, 'current_period_end' => $newEnd, 'invoice' => null,
+            ]);
+            $mock->shouldReceive('subscriptionSnapshot')->once()->with('sub_gone')->andReturn([
+                'status' => 'canceled', 'cancel_at_period_end' => false, 'current_period_end' => null, 'invoice' => null,
+            ]);
+        });
+
+        $this->artisan('memberships:reconcile')->assertSuccessful();
+
+        $service = app(MembershipService::class);
+        $this->assertSame(20, $service->activeDiscountFor($renewed));
+        $this->assertSame(0, $service->activeDiscountFor($cancelled));
+    }
+
     public function test_record_successful_invoice_is_idempotent(): void
     {
         $client = $this->makeClient();
