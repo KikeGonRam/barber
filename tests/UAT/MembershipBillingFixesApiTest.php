@@ -2,6 +2,7 @@
 
 namespace Tests\UAT;
 
+use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\ClientMembership;
 use App\Models\MembershipPlan;
@@ -127,6 +128,28 @@ class MembershipBillingFixesApiTest extends TestCase
         $second = app(PaymentService::class)->create($charge, (string) $admin->id);
 
         $this->assertEquals(180.0, (float) $second->monto);
+    }
+
+    public function test_the_price_is_cleared_before_the_appointment_can_be_charged_again(): void
+    {
+        [, $client] = $this->member();
+        $admin = $this->userWithRole('administrador');
+        $appointment = $this->appointmentFor($client, $this->corteDeMembresia());
+        $appointment->update(['precio_cobrado' => 180]);
+        $payment = Payment::create([
+            'appointment_id' => (string) $appointment->id, 'monto' => 180, 'metodo_pago' => 'efectivo', 'propina' => 0,
+            'estado' => Payment::ESTADO_VERIFICADO,
+        ]);
+        $seguiaBloqueada = null;
+        Appointment::updating(function () use ($payment, &$seguiaBloqueada) {
+            $seguiaBloqueada = Payment::find($payment->getKey()) !== null;
+        });
+
+        $this->withToken($this->tokenFor($admin))
+            ->deleteJson("/api/v1/payments/{$payment->getKey()}", ['motivo' => 'Se cobró con el método equivocado'])
+            ->assertOk();
+
+        $this->assertTrue($seguiaBloqueada, 'El precio debe limpiarse mientras el cobro aún bloquea la cita.');
     }
 
     public function test_annulling_a_deposit_keeps_the_charged_price(): void
