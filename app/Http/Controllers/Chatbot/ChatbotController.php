@@ -340,7 +340,7 @@ class ChatbotController extends Controller
     private function gatherContext($user): array
     {
         // Servicios
-        $services = Service::where('activo', true)->get()->map(fn ($s) => "{$s->nombre} (\${$s->precio})")->toArray();
+        $services = Service::query()->whereActive()->get()->map(fn ($s) => "{$s->nombre} (\${$s->precio})")->toArray();
 
         // Barberos
         $barbers = Barber::with('user')->where('activo', true)->get()->pluck('user.name')->toArray();
@@ -661,7 +661,7 @@ class ChatbotController extends Controller
         $haystack = $normalize($text);
 
         $match = Service::query()
-            ->where('activo', true)
+            ->whereActive()
             ->get(['_id', 'nombre', 'precio', 'duracion_min'])
             ->filter(fn ($service) => ($name = trim((string) $service->getAttribute('nombre'))) !== ''
                 && str_contains($haystack, $normalize($name)))
