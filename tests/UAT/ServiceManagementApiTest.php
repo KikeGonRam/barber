@@ -124,6 +124,23 @@ class ServiceManagementApiTest extends TestCase
         $this->assertSame(1, Service::where('activo', true)->count());
     }
 
+    public function test_services_stored_with_a_text_flag_are_still_published_and_filtered(): void
+    {
+        $admin = $this->roleUser('administrador', 'admin-services-legado@test.local');
+        $token = $this->tokenFor($admin, 'test-plaintext-token-services-legado');
+        // Como quedaron guardados antes del arreglo: inserción directa, sin pasar por el modelo.
+        \DB::connection('mongodb')->table('services')->insert([
+            ['nombre' => 'Texto encendido', 'slug' => 'texto-encendido', 'categoria' => 'Cortes', 'precio' => 200, 'duracion_min' => 40, 'activo' => '1'],
+            ['nombre' => 'Texto apagado', 'slug' => 'texto-apagado', 'categoria' => 'Cortes', 'precio' => 200, 'duracion_min' => 40, 'activo' => '0'],
+        ]);
+
+        $this->getJson('/api/v1/services')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.nombre', 'Texto encendido');
+
+        $headers = ['Authorization' => "Bearer {$token}"];
+        $this->withHeaders($headers)->getJson('/api/v1/services/manage?activo=1')->assertJsonCount(1, 'data')->assertJsonPath('data.0.nombre', 'Texto encendido');
+        $this->withHeaders($headers)->getJson('/api/v1/services/manage?activo=0')->assertJsonCount(1, 'data')->assertJsonPath('data.0.nombre', 'Texto apagado');
+    }
+
     public function test_admin_can_upload_the_service_image_as_a_file(): void
     {
         Storage::fake('public');

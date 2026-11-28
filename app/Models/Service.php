@@ -42,6 +42,17 @@ class Service extends Model
         ];
     }
 
+    // Valores de `activo` que cuentan como encendido o apagado, incluidos los que quedaron como número o
+    // texto antes de normalizarlo al guardar.
+    private const ACTIVE_VALUES = [true, 1, '1'];
+
+    private const INACTIVE_VALUES = [false, 0, '0'];
+
+    public function scopeWhereActive($query, bool $activo = true)
+    {
+        return $query->whereIn('activo', $activo ? self::ACTIVE_VALUES : self::INACTIVE_VALUES);
+    }
+
     // El formulario web (multipart) manda "1"/"0" y el cast boolean solo convierte al leer. MongoDB
     // compara por tipo: un "1" guardado como texto no sale en el catálogo (where('activo', true)).
     public function setActivoAttribute(mixed $value): void
