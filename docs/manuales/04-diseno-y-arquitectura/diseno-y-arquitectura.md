@@ -5,9 +5,9 @@ Arquitectura lógica y física, modelo de datos, flujos, seguridad e interfaz de
 | Dato | Valor |
 | --- | --- |
 | Documento | Diseño y Arquitectura de UrbanBlade |
-| Versión | 2.0 · 28 de octubre de 2026 |
+| Versión | 2.1 · 28 de noviembre de 2026 |
 | Audiencia | Arquitectos, desarrolladores y revisores |
-| Fuente | Código de los repositorios y lectura de solo lectura del entorno de pruebas en AWS el 28 de octubre de 2026 |
+| Fuente | Código de los repositorios y lectura de solo lectura del entorno de pruebas en AWS el 28 de octubre de 2026; modelo de membresías revisado el 28 de noviembre de 2026 |
 | Clasificación | Uso interno. Sin identificadores de cuenta, credenciales ni datos personales |
 
 ## 1. Principios de diseño
@@ -95,6 +95,8 @@ User ──1:1── Client   ──1:N── Appointment ──N:1── Barber
  └─1:N── MobileApiToken            Barber ──1:N── Work ──1:N── WorkImage
 Product ──1:N── InventoryMovement   Work ──1:N── Comment / Reaction / SavedWork
 ```
+
+En los planes Club, cada factura pagada (`MembershipInvoice`) de una `ClientMembership` genera registros `ClientPackage` ligados a la membresía y a la factura, sin `ServicePackage`.
 
 Al ser MongoDB, las relaciones son referencias por identificador resueltas en la aplicación. Los borrados lógicos no liberan necesariamente los índices únicos (por ejemplo el del correo de un usuario).
 

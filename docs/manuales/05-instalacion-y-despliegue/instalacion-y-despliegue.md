@@ -5,7 +5,7 @@ Cómo preparar un entorno local de UrbanBlade y cómo publicar una nueva versió
 | Dato | Valor |
 | --- | --- |
 | Documento | Instalación y Despliegue de UrbanBlade |
-| Versión | 2.0 · 28 de octubre de 2026 |
+| Versión | 2.1 · 28 de noviembre de 2026 |
 | Audiencia | Desarrolladores y responsables de publicar |
 | Fuente | `docs/referencia/CLONAR_PROYECTOS.md`, `docs/referencia/DESPLIEGUE_AWS_STAGING.md`, los `Dockerfile` y el estado de AWS leído en solo lectura el 28 de octubre de 2026 |
 | Clasificación | Uso interno. Sin credenciales ni valores de secretos |
@@ -133,7 +133,7 @@ El runbook completo, con todos los comandos, es `docs/referencia/DESPLIEGUE_AWS_
 2. Revisa el commit exacto, el PR y los checks verdes.
 3. Identifica migraciones, índices, variables y efectos de arranque.
 4. Confirma la **imagen de respaldo** para revertir.
-5. Revisa integraciones externas conectadas al repositorio: un cambio solo de Markdown puede disparar una vista previa en Vercel en el frontend.
+5. Revisa integraciones externas conectadas al repositorio. Vercel se desconectó del frontend el 31 de octubre de 2026 y ya no construye nada.
 
 > **Aviso** Un cambio solo de documentación **no se despliega**. Publicar es una decisión aparte de fusionar.
 

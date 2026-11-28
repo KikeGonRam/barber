@@ -150,7 +150,9 @@ y pruebas propios; no deben deducirse únicamente del estado de la cita.
 
 El código utiliza Payment Intents, Customers y tarjetas guardadas, reembolsos,
 precios/productos y suscripciones de membresía. El webhook atiende también
-eventos de suscripción e invoice. La guía anterior que descartaba Billing y
+eventos de suscripción e invoice. Los planes Club crean los usos incluidos con cada
+factura pagada; ver el apartado de membresías del
+[Manual Técnico](../manuales/02-manual-tecnico/manual-tecnico.md). La guía anterior que descartaba Billing y
 Customers ya no describía la implementación.
 
 El webhook público `POST /api/stripe/webhook` se autoriza mediante la firma

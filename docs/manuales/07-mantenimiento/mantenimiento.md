@@ -5,7 +5,7 @@ Plan y procedimientos de mantenimiento preventivo, correctivo y evolutivo de Urb
 | Dato | Valor |
 | --- | --- |
 | Documento | Manual de Mantenimiento de UrbanBlade |
-| Versión | 2.0 · 28 de octubre de 2026 |
+| Versión | 2.1 · 28 de noviembre de 2026 |
 | Audiencia | Equipo de desarrollo y quien opera el sistema |
 | Fuente | Flujo de trabajo del repositorio, CI/CD, `docs/referencia/PRUEBAS.md`, `docs/referencia/CONTINUIDAD_OPERATIVA.md` y los hallazgos documentados en `docs/referencia/DECISIONES.md` |
 | Clasificación | Uso interno |
@@ -32,7 +32,7 @@ Mantener UrbanBlade **correcto, seguro y recuperable** con el menor riesgo para 
 7. **Checks verdes** en el SHA actual. Se conserva la rama de trabajo.
 8. **Fusionar** y, solo si el propietario lo ordena, **publicar** (manual de Instalación y Despliegue).
 
-> **Importante** Subir, fusionar y desplegar son pasos distintos. Un CI verde no despliega, y un cambio solo de documentación no se publica. Ten en cuenta que en el frontend un archivo `.md` puede disparar una vista previa de Vercel.
+> **Importante** Subir, fusionar y desplegar son pasos distintos. Un CI verde no despliega, y un cambio solo de documentación no se publica.
 
 ## 3. Calendario de mantenimiento preventivo
 
@@ -88,6 +88,7 @@ python scripts/check_docs.py --all
 | Tarea | Detalle |
 | --- | --- |
 | Caducidades automáticas | Tokens vencidos, pedidos sin recoger (3 días), lista de espera y paquetes vencidos, puntos de lealtad (365 días) se limpian con las tareas programadas. |
+| Membresías | `memberships:reconcile` corre cada hora y concilia con Stripe las atrasadas (primer pago sin confirmar, cobro fallido o periodo vencido); los usos incluidos vencen con su periodo. |
 | Integridad | `php artisan data:verify-integrity` revisa la consistencia de los datos y falla si supera `--max-orphans`; ejecútalo en un entorno aislado. |
 | Registros huérfanos | `php artisan data:cancel-orphans` muestra lo que haría; solo con `--apply` cancela de verdad. |
 | Cálculos derivados | `clients:sync-loyalty-counters` y `payments:sync-totals` admiten `--dry-run` para ver el cambio antes de escribir. |

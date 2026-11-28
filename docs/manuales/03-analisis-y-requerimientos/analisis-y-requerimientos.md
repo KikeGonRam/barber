@@ -5,7 +5,7 @@ Problema, alcance, actores, requisitos funcionales y no funcionales, reglas de n
 | Dato | Valor |
 | --- | --- |
 | Documento | Análisis y Requerimientos de UrbanBlade |
-| Versión | 2.0 · 28 de octubre de 2026 |
+| Versión | 2.1 · 28 de noviembre de 2026 |
 | Audiencia | Docentes, Product Owner, equipo de desarrollo y QA |
 | Fuente | Product Backlog (UBv2, 41 historias de usuario) y el código de `barber` y `frontend-urban` |
 | Clasificación | Uso académico e interno |
@@ -38,7 +38,7 @@ Entregar una plataforma web y móvil que permita **reservar, atender y cobrar ci
 2. Dar a barberos y recepción una agenda operativa con estados de cita claros.
 3. Registrar pagos (efectivo, transferencia y tarjeta) y conciliarlos con la cita.
 4. Controlar inventario y pedidos de tienda.
-5. Fidelizar con niveles, puntos, membresías y sorteos.
+5. Fidelizar con niveles, puntos, membresías (descuento y planes Club) y sorteos.
 6. Ofrecer reportes y analítica al administrador.
 7. Proteger los datos con roles, autenticación y validación en el servidor.
 
@@ -51,7 +51,7 @@ Entregar una plataforma web y móvil que permita **reservar, atender y cobrar ci
 | Citas y agenda | Disponibilidad, reserva, estados, lista de espera, enlaces de gestión, avisos de servicio. |
 | Cobros | Efectivo, transferencia, tarjeta (Stripe), propinas, depósitos, cargos por inasistencia, cierre de caja. |
 | Tienda e inventario | Catálogo, carrito, pedidos, movimientos y alertas de stock. |
-| Fidelización | Niveles, puntos, membresías, paquetes, gift cards, referidos y sorteo mensual. |
+| Fidelización | Niveles, puntos, membresías (descuento y servicios incluidos), paquetes, gift cards, referidos y sorteo mensual. |
 | Comunicación | Correo, push (web y Android), SMS y WhatsApp opcionales, campañas, asistente virtual. |
 | Social | Portafolio de barberos con reacciones, comentarios y moderación. |
 | Administración | Usuarios, roles, servicios, configuración, reportes, analítica, bitácora. |

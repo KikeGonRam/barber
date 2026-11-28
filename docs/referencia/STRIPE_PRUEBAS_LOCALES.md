@@ -17,7 +17,9 @@ cambios de claves, suscripciones o reembolsos de producción.
 | Renovaciones y cambios | Eventos de suscripción e invoice procesados por el webhook. |
 
 [MembershipService](../../app/Services/Membership/MembershipService.php) coordina
-membresías. [StripeWebhookController](../../app/Http/Controllers/Api/Payment/StripeWebhookController.php)
+membresías, incluidos los usos de los planes Club (se crean con cada factura pagada).
+El comando `memberships:reconcile` concilia cada hora las atrasadas y eliminar una
+cuenta cancela su suscripción. [StripeWebhookController](../../app/Http/Controllers/Api/Payment/StripeWebhookController.php)
 procesa pagos, fallos, reembolsos, disputas y eventos de suscripción.
 
 La antigua instrucción de conceder únicamente Payment Intents y excluir siempre
