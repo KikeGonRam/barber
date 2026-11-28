@@ -118,6 +118,7 @@ Revisa el [procedimiento del contrato](PLAN_CONTRATO_API.md).
 
 El commit de integración `4ca64c3` pasó CI, smoke HTTP, seguridad, documentación
 y construcción de imágenes el 28 de octubre de 2026.
+El CI de `main` (commit `14412e3`, 28-nov-2026) reportó 1,073 pruebas y 4,178 aserciones.
 La ejecución local anterior reportó 951 pruebas y 3,679 aserciones.
 Son resultados fechados de ese código, no un conteo permanente ni una ejecución
 nueva de esta revisión documental.

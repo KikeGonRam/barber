@@ -5,7 +5,7 @@ Backend, API, datos, servicios, seguridad, pruebas y contrato de UrbanBlade.
 | Dato | Valor |
 | --- | --- |
 | Documento | Manual Técnico de UrbanBlade (API Laravel y clientes web y Android) |
-| Versión | 2.0 · 28 de octubre de 2026 |
+| Versión | 2.1 · 28 de noviembre de 2026 |
 | Audiencia | Desarrolladores y revisores técnicos |
 | Fuente | Repositorios `barber` (API), `frontend-urban` (web) y `UrbanBladeMobile` (Android), revisados en esa fecha |
 | Clasificación | Uso interno. Sin credenciales; los nombres de variables aparecen sin valores |
@@ -51,7 +51,7 @@ La regla que ordena el sistema: **solo la API habla con la base de datos operati
 
 | Carpeta | Contenido |
 | --- | --- |
-| `routes/api.php` | Rutas de la API (`/api/v1`). Hay 263 rutas registradas, 208 de ellas bajo `api/`. |
+| `routes/api.php` | Rutas de la API (`/api/v1`). Con todos los módulos encendidos hay 267 rutas registradas, 213 de ellas bajo `api/` (28 de noviembre de 2026). |
 | `app/Http/Controllers/Api` | Controladores por dominio: Appointment, Payment, Admin, Inventory, Order, Social, Barber, Chatbot, etc. |
 | `app/Http/Middleware` | Autenticación, mantenimiento, límites y filtros (ver capítulo 6). |
 | `app/Http/Requests` y `Resources` | Validación de entrada y forma pública de las respuestas. |
@@ -81,8 +81,8 @@ La regla que ordena el sistema: **solo la API habla con la base de datos operati
 | Familia | Rutas aprox. | Qué cubre |
 | --- | --- | --- |
 | `admin/*` | 49 | Administración: usuarios, roles, servicios, planes, moderación, sistema. |
-| `appointments/*` | 16 | Disponibilidad, reserva, estados, enlaces de gestión. |
-| `auth/*` | 11 | Registro, login, Google, refresco, cierre de sesión, recuperación. |
+| `appointments/*` | 17 | Disponibilidad, reserva, estados, enlaces de gestión. |
+| `auth/*` | 12 | Registro, login, Google, refresco, cierre de sesión, recuperación. |
 | `barber/*` y `barbers/*` | 15 | Agenda, horario, portafolio y desempeño del barbero; catálogo público. |
 | `payments/*`, `deposits/*`, `no-show-fees/*`, `cash-closes/*` | 19 | Cobros, comprobantes, depósitos, cargos por inasistencia y cierre de caja. |
 | `inventory/*`, `orders/*` | 14 | Productos, movimientos, pedidos y entrega. |
@@ -90,7 +90,7 @@ La regla que ordena el sistema: **solo la API habla con la base de datos operati
 | `social/*` | 8 | Muro, comentarios, reacciones, guardados, reportes. |
 | `chatbot/*` | 7 | Asistente virtual. |
 | `memberships/*`, `packages/*`, `gift-cards/*`, `referrals/*` | 16 | Membresías, paquetes, regalos y referidos. |
-| `reports/*`, `dashboard/*`, `analytics`, `campaigns/*` | 8+ | Reportes, paneles, analítica y campañas. |
+| `reports/*`, `dashboard/*`, `analytics`, `campaigns/*` | 7+ | Reportes, paneles, analítica y campañas. |
 
 ### 4.3 Contrato OpenAPI
 
@@ -134,6 +134,16 @@ Los niveles se calculan por **citas completadas**: `nuevo` (0), `regular` (5), `
 
 Se usan Payment Intents, Customers y tarjetas guardadas, reembolsos, productos y precios, y suscripciones de membresía. El webhook procesa eventos de pago, suscripción e *invoice*. Las claves secretas viven solo en el backend; el frontend usa la clave publicable.
 
+### 5.4 Membresías y planes Club
+
+- `MembershipPlan.servicios_incluidos` es una lista opcional de `{service_id, usos}` (1 a 31 usos por mes).
+- Al contratar, `ClientMembership` guarda una copia de precio, descuento y servicios (`precio_contratado`, `descuento_contratado`, `servicios_contratados`): editar el plan no cambia lo vendido.
+- Cada factura pagada crea una sola vez un `ClientPackage` por servicio (`metodo_pago = membresia`, `membership_id`, `membership_invoice_id`) y vence los anteriores. Cada uno dura un mes más 24 horas de gracia.
+- Los usos se canjean al cobrar la cita; `POST /appointments` responde `incluido_en_membresia` y el cobro en línea de un servicio incluido devuelve 422.
+- El descuento aplicado es el mayor entre nivel de lealtad y membresía, nunca la suma.
+- Al eliminar un usuario o cliente se cancela la suscripción en Stripe; si falla, el borrado se rechaza.
+- `memberships:reconcile` consulta Stripe cada hora para las membresías atrasadas.
+
 ## 6. Autenticación, autorización y seguridad
 
 | Mecanismo | Detalle |
@@ -170,7 +180,7 @@ Se usan Payment Intents, Customers y tarjetas guardadas, reembolsos, productos y
 
 ## 8. Tareas programadas y trabajos
 
-`routes/console.php` es la lista vigente. Las 15 tareas se agrupan con `onOneServer()` para que, con varias réplicas y `SCHEDULE_CACHE_STORE` apuntando a un almacén compartido, cada ejecución ocurra una sola vez.
+`routes/console.php` es la lista vigente. Las 16 tareas se agrupan con `onOneServer()` para que, con varias réplicas y `SCHEDULE_CACHE_STORE` apuntando a un almacén compartido, cada ejecución ocurra una sola vez.
 
 | Frecuencia | Comando | Función |
 | --- | --- | --- |
@@ -216,7 +226,7 @@ Las pruebas viven en `tests/` clasificadas por tipo, con una suite de PHPUnit po
 
 > **Aviso** En local las pruebas se ejecutan **solo con `test.ps1`**, que fuerza `.env.testing` y la base `barber_db_test`. No ejecutes `php artisan test` directamente: una configuración cacheada con valores reales ya borró datos una vez (2026-08-28).
 
-El último resultado documentado: **953 pruebas y 3,696 aserciones** en verde. El frontend tiene Vitest (UT), Playwright (SIT, UAT, OAT) y Cypress. Detalle en `docs/referencia/PRUEBAS.md`.
+El último resultado documentado (CI de `main`, commit `14412e3`, 28 de noviembre de 2026): **1,073 pruebas y 4,178 aserciones** del backend en verde. El frontend tiene Vitest (UT), Playwright (SIT, UAT, OAT) y Cypress. Detalle en `docs/referencia/PRUEBAS.md`.
 
 ## 11. Integración continua
 

@@ -5,7 +5,7 @@ Guía de operación diaria del entorno de pruebas de UrbanBlade en AWS, MongoDB 
 | Dato | Valor |
 | --- | --- |
 | Documento | Guía del Administrador de Sistemas de UrbanBlade |
-| Versión | 2.0 · 28 de octubre de 2026 |
+| Versión | 2.1 · 28 de noviembre de 2026 |
 | Audiencia | Quien opera la infraestructura (AWS, Atlas, DNS, secretos) |
 | Fuente | `docs/referencia/DESPLIEGUE_AWS_STAGING.md`, `docs/referencia/MONGODB_ATLAS.md`, `docs/referencia/CONTINUIDAD_OPERATIVA.md`, `docs/referencia/PLAN_ROTACION_CREDENCIALES.md` y el estado de AWS leído en solo lectura el 28 de octubre de 2026 |
 | Clasificación | Uso interno. Sin credenciales; los identificadores de cuenta no se reproducen |
@@ -127,6 +127,8 @@ Desde el 23 de noviembre de 2026 seis módulos están **apagados por defecto** (
 | `FEATURE_CAMPAIGNS` | Campañas de correo | Sin pantalla ni envío de campañas. |
 
 Un módulo apagado responde 404 en sus rutas. La membresía y los puntos de lealtad no tienen interruptor: siguen activos. Los datos de los módulos apagados no se borran.
+
+Los planes Club no necesitan `FEATURE_PACKAGES`, variables nuevas ni migración. La tarea `memberships:reconcile` (cada hora) requiere el planificador activo y las claves de Stripe.
 
 ## 7. Datos: MongoDB Atlas, respaldos y archivos
 

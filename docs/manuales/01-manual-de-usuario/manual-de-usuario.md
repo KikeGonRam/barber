@@ -5,9 +5,9 @@ Guía de uso de UrbanBlade para clientes, barberos, recepción, administración 
 | Dato | Valor |
 | --- | --- |
 | Documento | Manual de Usuario de UrbanBlade (web y aplicación Android) |
-| Versión | 2.0 · 28 de octubre de 2026 |
+| Versión | 2.1 · 28 de noviembre de 2026 |
 | Audiencia | Cliente, barbero, recepcionista y administrador |
-| Fuente | Código del backend (`barber`) y del frontend (`frontend-urban`) revisados en esa fecha |
+| Fuente | Código del backend (`barber`) y del frontend (`frontend-urban`) revisado el 28 de octubre de 2026; membresías, cobros y servicios, el 28 de noviembre de 2026 |
 | Clasificación | Uso general. No contiene contraseñas, claves ni datos de personas reales |
 
 ## 1. Cómo usar este manual
@@ -159,6 +159,8 @@ En **Mis Citas** ves tres contadores (**en total**, **próximas** y **completada
 
 ![Confirmación para cancelar una cita](../../assets/cliente/c15b-cancelar.jpg)
 
+> **Membresía** Si el servicio de tu cita está **incluido en tu plan** y te queda un uso, no tienes que pagarlo: el uso se descuenta cuando la recepción registra el cobro.
+
 ### 3.5 Lista de espera
 
 Si el horario que quieres está lleno, anótate en **Lista de Espera**: elige barbero, servicio y fecha y pulsa **Anotarme**. Si se libera un lugar, el sistema te avisa. Tus anotaciones aparecen en **Mis anotaciones**; las que tienen fecha pasada caducan solas.
@@ -170,6 +172,8 @@ Si el horario que quieres está lleno, anótate en **Lista de Espera**: elige ba
 Los métodos de pago son **efectivo**, **transferencia** y **tarjeta** (con Stripe). Puedes guardar tarjetas y pagar propinas. En una transferencia se sube el comprobante y la barbería lo revisa antes de darlo por pagado. Los importes, descuentos y puntos los calcula el servidor.
 
 > **Importante** Pagar una cita no es lo mismo que completarla: una cita pagada sigue pendiente de atención hasta que el barbero termine el servicio.
+
+Un servicio **incluido en tu membresía** no se cobra en línea ni al reservar: la web te lo avisa y el uso se descuenta al atenderte. Si la barbería pide un anticipo por inasistencias, ese anticipo se mantiene.
 
 ### 3.7 Tienda, carrito, pedidos y recibos
 
@@ -204,7 +208,13 @@ Cada cita **completada** suma avance. El nivel sube con las citas completadas y 
 
 ### 3.9 Membresía, paquetes, gift cards y referidos
 
-- **Membresía:** plan de suscripción de la barbería (por ejemplo, un plan con un porcentaje fijo de descuento en cada servicio mientras esté activa). Se cobra con tarjeta y genera tus recibos de suscripción. Pulsa **Contratar** en el plan que quieras.
+- **Membresía:** plan de suscripción mensual que se cobra con tarjeta y genera tus recibos. Pulsa **Contratar** en el plan que quieras. Hay planes de solo descuento y **planes Club**, que además **incluyen servicios cada mes** (por ejemplo, dos cortes):
+  - Los usos aparecen cuando se confirma cada pago mensual. La pantalla muestra cuántos te quedan y cuándo vencen.
+  - Los usos que no gastes **no se acumulan**: al renovar se reemplazan por los del nuevo periodo.
+  - En los demás servicios recibes el porcentaje de descuento del plan. No se suma al de tu nivel de lealtad: se aplica el mayor de los dos.
+  - Si el plan cambia después de que lo contrataste, tu suscripción conserva el precio, el descuento y los servicios que compraste.
+  - Al **cancelar**, conservas el beneficio hasta el final del periodo ya pagado y no se vuelve a cobrar.
+  - La aplicación Android todavía no muestra los servicios incluidos ni los usos restantes; consúltalos en la web.
 - **Paquetes:** compras varios usos de un servicio pagados por adelantado, con saldo y vigencia. Ves el catálogo y **Mis paquetes**.
 - **Gift cards:** regalas saldo a otra persona.
 - **Referidos:** tu **código** (con el botón **Copiar código**) se lo das a un amigo; cuando él lo use y complete su primera cita, ganas **30 puntos** de lealtad. Si alguien te invitó a ti, escribes su código en **¿A ti te invitó alguien?** y pulsas **Vincular** (solo se puede una vez).
@@ -230,7 +240,7 @@ Cada cita **completada** suma avance. El nivel sube con las citas completadas y 
 
 ### 3.11 Tu perfil y tus avisos
 
-En **Perfil** (se abre desde tu avatar) ves el avance de tu perfil y tres pestañas: **Información** (tus datos y tu foto), **Seguridad** (contraseña y acceso) y **Cuenta** (zona de peligro). Desde **Notificaciones** ves todos tus avisos; la campana del menú muestra cuántos tienes sin leer. Los recordatorios llegan por correo, por avisos del navegador o de la aplicación y, si están activados, por SMS o WhatsApp.
+En **Perfil** (se abre desde tu avatar) ves el avance de tu perfil y tres pestañas: **Información** (tus datos y tu foto), **Seguridad** (contraseña y acceso) y **Cuenta** (zona de peligro). Si **eliminas tu cuenta** y tienes una membresía, la suscripción se cancela de inmediato y los usos incluidos se pierden; si la cancelación falla, la cuenta no se elimina y puedes intentarlo más tarde. Desde **Notificaciones** ves todos tus avisos; la campana del menú muestra cuántos tienes sin leer. Los recordatorios llegan por correo, por avisos del navegador o de la aplicación y, si están activados, por SMS o WhatsApp.
 
 ![Perfil](../../assets/cliente/c27-perfil.jpg)
 
@@ -383,6 +393,8 @@ El **Centro de Facturación** muestra la facturación de hoy y del mes, el total
 - **Por Revisar** reúne los pagos que esperan verificación, por ejemplo las transferencias con comprobante.
 - **Corte de caja** cierra el turno: muestra lo **esperado** (efectivo, tarjeta, propinas y total) y te pide el **efectivo contado**; el sistema calcula la **diferencia**. Agrega observaciones y pulsa **Cerrar caja del día**. Solo el efectivo pasa por el cajón.
 
+**Cobrar un servicio incluido en una membresía.** En el **Registro de cobro** aparece **Incluido en su membresía** con el interruptor **Usar uso de la membresía**. Al activarlo no se cobra el servicio y se descuenta un uso; no se combina con puntos, gift card ni pago con tarjeta. Si el cobro se **anula** y el periodo sigue vigente, el uso se devuelve. Estos usos no cuentan como venta de paquetes en el corte de caja.
+
 ![Centro de facturación](../../assets/recepcion/r09-pagos.jpg)
 
 ![Registro de cobro](../../assets/recepcion/r10-registrar-cobro.jpg)
@@ -515,9 +527,10 @@ El **Centro de Facturación** muestra la facturación de hoy y del mes, el total
 
 - **Barberos:** lista con su comisión y su estado (**Activo**); **Editar** cambia especialidad, descripción, foto y estado. Un barbero nuevo se crea desde **Usuarios** (el botón dice *Nuevo barbero (vía Usuarios)*).
 - **Usuarios:** alta del personal y de cuentas con **Nuevo usuario**: nombre, correo, **rol** (Cliente, Barbero, Recepcionista o Administrador) y contraseña de al menos 8 caracteres con confirmación. Los roles privilegiados solo los asigna un administrador.
-- **Servicios y combos:** el **Catálogo de Servicios** guarda nombre, categoría, duración, precio, imagen (JPG, PNG o WebP de hasta 2 MB) y descripción.
+- **Servicios y combos:** el **Catálogo de Servicios** guarda nombre, categoría, duración, precio, imagen (JPG, PNG o WebP de hasta 2 MB) y descripción. Un servicio activo aparece en el catálogo público; si uno guardado antes de la corrección de noviembre de 2026 no aparece, ábrelo y vuelve a guardarlo.
 - **Productos:** la **Gestión de Inventario** controla stock, precio y tipo (venta o uso interno), con búsqueda, filtros, **Solo bajo stock** y **Exportar CSV**. **Movimientos** abre el historial.
-- **Planes de Membresía:** define los planes que ven los clientes (precio mensual y porcentaje de descuento).
+- **Planes de Membresía:** define los planes que ven los clientes: nombre, descripción, precio mensual, porcentaje de descuento y, si es un plan Club, **Servicios incluidos cada mes** (opcional; servicio y usos de 1 a 31, con **+ Añadir servicio**). El formulario muestra el **valor de lista** de lo incluido y avisa si la cuota iguala o supera ese valor. Desde la web un plan se **crea** y se **desactiva**; no se edita ni se reactiva, así que para cambiar un precio se crea un plan nuevo. Desactivarlo no afecta a las membresías ya contratadas.
+- **Eliminar una cuenta con membresía:** al borrar un usuario o un cliente, su suscripción se cancela de inmediato en Stripe. Si Stripe no responde, la cuenta no se elimina.
 
 ![Gestión de barberos](../../assets/admin/a17-barberos.jpg)
 
@@ -591,6 +604,8 @@ El rol de ingeniero (consulta técnica de solo lectura) se quitó el **23 de nov
 | Inasistencia | Si la barbería lo activa, una cita marcada como *no asistió* puede generar un cargo. |
 | Reembolso | Lo emite la barbería; el cliente recibe aviso. |
 | Propina | Se agrega al cobrar y queda en el recibo. |
+| Membresía | Suscripción mensual con Stripe. Da descuento (el mayor entre nivel y membresía) y, en los planes Club, servicios incluidos que se canjean al cobrar la cita. |
+| Anulación | Solo el administrador, con motivo. Si el cobro usó un servicio incluido y el periodo sigue vigente, el uso se devuelve. |
 
 ## 9. Notificaciones
 

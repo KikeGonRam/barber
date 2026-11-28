@@ -65,6 +65,11 @@ Tarjetas guardadas, depósitos, membresías y reembolsos siguen flujos y reglas
 propios. Una transferencia puede necesitar revisión antes de considerarse pagada.
 Un webhook de proveedor puede completar la conciliación de forma asíncrona.
 
+Una membresía puede dar solo descuento o, en los planes Club, incluir servicios
+cada mes. Un servicio incluido se canjea al cobrar la cita, no se cobra en línea
+y los usos no gastados vencen al renovar. Detalle en el
+[Manual de Usuario](../manuales/01-manual-de-usuario/manual-de-usuario.md).
+
 Los PDF de recibos/reportes de UrbanBlade no se presentan como CFDI.
 Las invoices externas de una suscripción no convierten el recibo de la aplicación
 en una factura fiscal.

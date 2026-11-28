@@ -1,7 +1,7 @@
 # Manuales de UrbanBlade
 
 Siete documentos completos del proyecto, cada uno en Markdown (fuente) y en Word (entregable con el diseño del equipo: Arial, carta, negro y oro).
-Revisados el 28 de octubre de 2026.
+Revisados el 28 de octubre de 2026 y actualizados el 28 de noviembre de 2026 (membresías y planes Club, cobros, servicios, tareas programadas y cifras de pruebas).
 
 | # | Documento | Para quién | Markdown | Word |
 | --- | --- | --- | --- | --- |
