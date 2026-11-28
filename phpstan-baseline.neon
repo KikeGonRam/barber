@@ -3849,18 +3849,6 @@ parameters:
 			path: app/Http/Controllers/Api/Membership/MembershipController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$precio_mensual\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Api/Membership/MembershipController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$descuento_pct\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Api/Membership/MembershipController.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$estado\.$#'
 			identifier: property.notFound
 			count: 1
@@ -3889,30 +3877,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/Api/Membership/MembershipController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio_mensual\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Api/Membership/MembershipController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$descuento_pct\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Api/Membership/MembershipController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\ClientMembership\:\:\$membership_plan_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/Membership/MembershipService.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\MembershipPlan\|Illuminate\\Database\\Eloquent\\Collection\<int\, App\\Models\\MembershipPlan\>\:\:\$descuento_pct\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/Membership/MembershipService.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\MembershipPlan\:\:\$activo\.$#'

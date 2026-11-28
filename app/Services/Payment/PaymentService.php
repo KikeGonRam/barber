@@ -85,6 +85,11 @@ class PaymentService
             }
         }
 
+        $appointment->loadMissing('client');
+        if ($appointment->client instanceof Client && $this->memberships->includedUseFor($appointment->client, (string) $appointment->service_id)) {
+            throw new PaymentException('Este servicio está incluido en tu membresía: no necesitas pagarlo.');
+        }
+
         $monto = round($this->amountDueFor($appointment), 2);
         $tip = round($propina, 2);
 

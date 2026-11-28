@@ -1650,6 +1650,7 @@ paths:
                         cantidad: 1
                         subtotal: 120
                   productos_error: 'Sin stock suficiente de Cera mate.'
+                  incluido_en_membresia: false
                   descuento_pct: 10
                 properties:
                   message:
@@ -1862,6 +1863,9 @@ paths:
                   productos_error:
                     type: string
                     example: 'Sin stock suficiente de Cera mate.'
+                  incluido_en_membresia:
+                    type: boolean
+                    example: false
                   descuento_pct:
                     type: integer
                     example: 10
@@ -1870,6 +1874,7 @@ paths:
                   - data
                   - productos_agregados
                   - productos_error
+                  - incluido_en_membresia
                   - descuento_pct
         403:
           description: ''

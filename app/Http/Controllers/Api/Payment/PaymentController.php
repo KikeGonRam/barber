@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\BarbershopSetting;
 use App\Models\Client;
+use App\Models\ClientPackage;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Services\Appointment\AppointmentStatusService;
@@ -307,6 +308,15 @@ class PaymentController extends Controller
         }
 
         $client = $appointment->client;
+
+        // Con un uso de su plan disponible no se le cobra en línea: recepción lo canjea.
+        if ($client instanceof Client && $this->memberships->includedUseFor($client, (string) $appointment->service_id)) {
+            return response()->json([
+                'message' => 'Este servicio está incluido en tu membresía: no necesitas pagarlo en línea.',
+                'incluido_en_membresia' => true,
+            ], 422);
+        }
+
         $baseMonto = (float) ($appointment->precio_cobrado ?: $appointment->service?->precio ?? 0);
         $membershipPct = $client ? $this->memberships->activeDiscountFor($client) : 0;
         $pct = LoyaltyService::bestDiscountPct($client?->nivel ?? 'nuevo', $membershipPct);
@@ -613,6 +623,12 @@ class PaymentController extends Controller
         // siguiente: si se queda, se descuenta dos veces. Anular un anticipo no toca el precio.
         if (! $payment->es_deposito) {
             $payment->appointment?->update(['precio_cobrado' => null]);
+        }
+
+        $usoId = $payment->getAttribute('client_package_id');
+        $uso = $usoId ? ClientPackage::find($usoId) : null;
+        if ($uso instanceof ClientPackage) {
+            $this->memberships->restoreUse($uso);
         }
 
         return response()->json([

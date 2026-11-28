@@ -5,8 +5,10 @@ namespace App\Services\Membership;
 use App\Exceptions\Domain\MembershipException;
 use App\Models\Client;
 use App\Models\ClientMembership;
+use App\Models\ClientPackage;
 use App\Models\MembershipInvoice;
 use App\Models\MembershipPlan;
+use App\Models\Service;
 use App\Models\User;
 use App\Notifications\Membership\MembershipInvoiceNotification;
 use App\Services\Payment\StripePaymentService;
@@ -74,9 +76,137 @@ class MembershipService
             return 0;
         }
 
-        $plan = MembershipPlan::find($membership->membership_plan_id);
+        return $this->termsFor($membership)['descuento'];
+    }
 
-        return $plan ? (int) $plan->descuento_pct : 0;
+    /**
+     * Condiciones vigentes de una membresía: la copia hecha al contratar o, en las anteriores a esa
+     * copia, las del plan.
+     *
+     * @return array{precio: float, descuento: int, servicios: array<int, array{service_id: string, usos: int}>}
+     */
+    public function termsFor(ClientMembership $membership): array
+    {
+        $conCopia = $membership->getAttribute('descuento_contratado') !== null;
+        $origen = $conCopia ? $membership : MembershipPlan::find($membership->getAttribute('membership_plan_id'));
+
+        return [
+            'precio' => (float) (string) $origen?->getAttribute($conCopia ? 'precio_contratado' : 'precio_mensual'),
+            'descuento' => (int) $origen?->getAttribute($conCopia ? 'descuento_contratado' : 'descuento_pct'),
+            'servicios' => array_values((array) $origen?->getAttribute($conCopia ? 'servicios_contratados' : 'servicios_incluidos')),
+        ];
+    }
+
+    /**
+     * Servicios incluidos con su nombre y precio de lista, para mostrarlos.
+     *
+     * @return array<int, array{service_id: string, nombre: ?string, precio: float, usos: int}>
+     */
+    public function describeServices(array $servicios): array
+    {
+        if ($servicios === []) {
+            return [];
+        }
+
+        $catalogo = Service::whereIn('_id', array_column($servicios, 'service_id'))->get()->keyBy(fn (Service $s) => (string) $s->getKey());
+
+        return array_values(array_map(fn (array $item): array => [
+            'service_id' => (string) $item['service_id'],
+            'nombre' => $catalogo->get((string) $item['service_id'])?->getAttribute('nombre'),
+            'precio' => (float) $catalogo->get((string) $item['service_id'])?->getAttribute('precio'),
+            'usos' => (int) $item['usos'],
+        ], $servicios));
+    }
+
+    /** Valor de lista de lo incluido en un mes (para mostrar el ahorro). */
+    public function listValue(array $descritos): float
+    {
+        return round((float) array_sum(array_map(fn (array $s): float => $s['precio'] * $s['usos'], $descritos)), 2);
+    }
+
+    /** Uso incluido que el cliente puede gastar hoy en ese servicio, si le queda alguno. */
+    public function includedUseFor(Client $client, string $serviceId): ?ClientPackage
+    {
+        return ClientPackage::where('client_id', (string) $client->id)
+            ->where('service_id', $serviceId)
+            ->where('metodo_pago', ClientPackage::METODO_MEMBRESIA)
+            ->where('estado', ClientPackage::ESTADO_ACTIVO)
+            ->where('usos_restantes', '>', 0)
+            ->where('expira_en', '>', now())
+            ->first();
+    }
+
+    /**
+     * Usos del periodo vigente, por servicio.
+     *
+     * @return array<int, array{service_id: string, nombre: ?string, restantes: int, totales: int, vence_en: ?string}>
+     */
+    public function usesFor(ClientMembership $membership): array
+    {
+        return ClientPackage::where('membership_id', (string) $membership->getKey())
+            ->whereIn('estado', [ClientPackage::ESTADO_ACTIVO, ClientPackage::ESTADO_AGOTADO])
+            ->where('expira_en', '>', now())
+            ->with('service')
+            ->get()
+            ->map(fn (ClientPackage $uso): array => [
+                'service_id' => (string) $uso->getAttribute('service_id'),
+                'nombre' => data_get($uso, 'service.nombre'),
+                'restantes' => (int) $uso->getAttribute('usos_restantes'),
+                'totales' => (int) $uso->getAttribute('usos_totales'),
+                'vence_en' => data_get($uso, 'expira_en')?->toIso8601String(),
+            ])->values()->all();
+    }
+
+    /** Devuelve el uso de un cobro anulado, si su periodo sigue vigente. */
+    public function restoreUse(ClientPackage $uso): void
+    {
+        $vence = $uso->getAttribute('expira_en');
+        $vencido = $uso->getAttribute('estado') === ClientPackage::ESTADO_EXPIRADO || ($vence && Carbon::parse($vence)->isPast());
+
+        if (! $uso->getAttribute('membership_id') || $vencido) {
+            return;
+        }
+
+        $uso->update([
+            'usos_restantes' => min((int) $uso->getAttribute('usos_totales'), (int) $uso->getAttribute('usos_restantes') + 1),
+            'estado' => ClientPackage::ESTADO_ACTIVO,
+        ]);
+    }
+
+    /** Crea los usos del periodo que paga una factura, una sola vez por factura, y vence los anteriores. */
+    private function grantUses(ClientMembership $membership, string $invoiceId, ?\DateTimeInterface $pagadoEn): void
+    {
+        $servicios = $this->termsFor($membership)['servicios'];
+
+        if ($servicios === [] || ClientPackage::where('membership_invoice_id', $invoiceId)->exists()) {
+            return;
+        }
+
+        $inicio = Carbon::instance($pagadoEn ?? now());
+        $this->expireUses($membership);
+
+        foreach ($servicios as $item) {
+            ClientPackage::create([
+                'client_id' => (string) $membership->getAttribute('client_id'),
+                'service_id' => (string) $item['service_id'],
+                'usos_totales' => (int) $item['usos'],
+                'usos_restantes' => (int) $item['usos'],
+                'precio_pagado' => 0,
+                'metodo_pago' => ClientPackage::METODO_MEMBRESIA,
+                'comprado_en' => $inicio,
+                'expira_en' => $inicio->copy()->addMonthNoOverflow()->addHours(self::PERIOD_GRACE_HOURS),
+                'estado' => ClientPackage::ESTADO_ACTIVO,
+                'membership_id' => (string) $membership->getKey(),
+                'membership_invoice_id' => $invoiceId,
+            ]);
+        }
+    }
+
+    private function expireUses(ClientMembership $membership): void
+    {
+        ClientPackage::where('membership_id', (string) $membership->getKey())
+            ->where('estado', '!=', ClientPackage::ESTADO_EXPIRADO)
+            ->update(['estado' => ClientPackage::ESTADO_EXPIRADO]);
     }
 
     /**
@@ -165,6 +295,9 @@ class MembershipService
                 'estado' => ClientMembership::ESTADO_PENDIENTE,
                 'bloquea_membresia' => true,
                 'cancelar_al_finalizar' => false,
+                'precio_contratado' => (float) (string) $plan->getAttribute('precio_mensual'),
+                'descuento_contratado' => (int) $plan->getAttribute('descuento_pct'),
+                'servicios_contratados' => array_values((array) $plan->getAttribute('servicios_incluidos')),
             ]);
         } catch (BulkWriteException $e) {
             throw new MembershipException('Ya tienes una membresía activa o pendiente. Cancélala antes de contratar otra.');
@@ -222,6 +355,7 @@ class MembershipService
             }
 
             $this->markCancelledByStripe($subscriptionId);
+            $this->expireUses($membership);
         }
     }
 
@@ -271,6 +405,12 @@ class MembershipService
         if (MembershipInvoice::where('stripe_invoice_id', $stripeInvoiceId)->exists()) {
             Log::info('Stripe webhook: cobro de membresía ya registrado, se omite', ['stripe_invoice_id' => $stripeInvoiceId]);
 
+            // Si un intento anterior registró el cobro pero no llegó a crear los usos, se completan aquí.
+            $previa = ClientMembership::where('stripe_subscription_id', $stripeSubscriptionId)->first();
+            if ($previa) {
+                $this->grantUses($previa, $stripeInvoiceId, $pagadoEn);
+            }
+
             return;
         }
 
@@ -294,6 +434,8 @@ class MembershipService
 
             return;
         }
+
+        $this->grantUses($membership, $stripeInvoiceId, $pagadoEn);
 
         // Factura por correo (y aviso/push). Solo se llega aquí la primera vez que se registra cada factura de
         // Stripe, así que no se repite. Un fallo al avisar nunca deshace el registro del cobro.
