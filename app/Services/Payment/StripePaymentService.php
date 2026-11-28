@@ -5,6 +5,7 @@ namespace App\Services\Payment;
 use App\Models\Client;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Stripe\Exception\InvalidRequestException;
 use Stripe\Invoice;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
@@ -348,5 +349,20 @@ class StripePaymentService
     public function cancelSubscriptionAtPeriodEnd(string $subscriptionId): void
     {
         $this->client()->subscriptions->update($subscriptionId, ['cancel_at_period_end' => true]);
+    }
+
+    /**
+     * Cancela la suscripción en el acto (cuenta eliminada). Que Stripe ya no la tenga cuenta
+     * como éxito: no queda nada que cobrar.
+     */
+    public function cancelSubscriptionNow(string $subscriptionId): void
+    {
+        try {
+            $this->client()->subscriptions->cancel($subscriptionId);
+        } catch (InvalidRequestException $e) {
+            if ($e->getStripeCode() !== 'resource_missing') {
+                throw $e;
+            }
+        }
     }
 }

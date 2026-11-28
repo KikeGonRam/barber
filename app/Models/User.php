@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Notifications\Auth\EmailVerificationCodeNotification;
+use App\Services\Membership\MembershipService;
 use BackedEnum;
 use Carbon\Carbon;
 use Database\Factories\UserFactory;
@@ -125,6 +126,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function clientProfile(): HasOne
     {
         return $this->hasOne(Client::class);
+    }
+
+    // Eliminar la cuenta (aunque sea suave) cancela antes la suscripción de su perfil de cliente.
+    protected static function booted(): void
+    {
+        static::deleting(function (self $user) {
+            $client = $user->clientProfile;
+
+            if ($client instanceof Client) {
+                app(MembershipService::class)->cancelForAccountDeletion($client);
+            }
+        });
     }
 
     // Pagos que este usuario registró (no necesariamente los suyos propios).

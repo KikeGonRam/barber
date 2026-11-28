@@ -499,11 +499,12 @@ class ProfileController extends Controller
             }
         }
 
+        // Eliminación suave del usuario (soft delete). Va primero: si tiene membresía y Stripe no
+        // confirma la cancelación, lanza error y la cuenta y su sesión quedan intactas.
+        $user->delete();
+
         // Eliminar todos los tokens API
         $user->mobileApiTokens()->delete();
-
-        // Eliminación suave del usuario (soft delete)
-        $user->delete();
 
         return response()->json([
             'message' => 'Cuenta eliminada exitosamente',
