@@ -42,6 +42,13 @@ class Service extends Model
         ];
     }
 
+    // El formulario web (multipart) manda "1"/"0" y el cast boolean solo convierte al leer. MongoDB
+    // compara por tipo: un "1" guardado como texto no sale en el catálogo (where('activo', true)).
+    public function setActivoAttribute(mixed $value): void
+    {
+        $this->attributes['activo'] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
     // Combos que incluyen este servicio (pivote combo_service).
     public function combos(): BelongsToMany
     {

@@ -103,6 +103,27 @@ class ServiceManagementApiTest extends TestCase
         $this->assertNull(Service::find($serviceId));
     }
 
+    public function test_a_service_saved_from_the_web_form_is_published_according_to_its_switch(): void
+    {
+        $admin = $this->roleUser('administrador', 'admin-services-activo@test.local');
+        $token = $this->tokenFor($admin, 'test-plaintext-token-services-activo');
+        $headers = ['Authorization' => "Bearer {$token}", 'Accept' => 'application/json'];
+        // El formulario web manda multipart, así que el interruptor llega como texto "1" / "0".
+        $form = ['nombre' => 'Low Fade', 'categoria' => 'Cortes', 'precio' => '200', 'duracion_min' => '40'];
+
+        $created = $this->post('/api/v1/services/manage', $form + ['activo' => '1'], $headers);
+        $created->assertCreated();
+        $url = '/api/v1/services/manage/'.$created->json('data.slug');
+        $this->getJson('/api/v1/services')->assertOk()->assertJsonPath('data.0.nombre', 'Low Fade');
+
+        $this->post($url, $form + ['activo' => '0', '_method' => 'PUT'], $headers)->assertOk()->assertJsonPath('data.activo', false);
+        $this->getJson('/api/v1/services')->assertOk()->assertJsonCount(0, 'data');
+
+        $this->post($url, $form + ['activo' => '1', '_method' => 'PUT'], $headers)->assertOk();
+        $this->getJson('/api/v1/services')->assertOk()->assertJsonCount(1, 'data');
+        $this->assertSame(1, Service::where('activo', true)->count());
+    }
+
     public function test_admin_can_upload_the_service_image_as_a_file(): void
     {
         Storage::fake('public');
