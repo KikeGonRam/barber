@@ -37,7 +37,7 @@ class ServiceRepository extends BaseRepository implements ServiceRepositoryInter
                 $query->where('categoria', $filters['categoria']);
             })
             ->when(isset($filters['activo']) && $filters['activo'] !== '', function ($query) use ($filters) {
-                $query->where('activo', (bool) $filters['activo']);
+                $query->whereActive((bool) $filters['activo']);
             })
             ->orderBy('nombre')
             ->paginate($perPage)
