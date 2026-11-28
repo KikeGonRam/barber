@@ -94,7 +94,7 @@ class ChatbotIntelligenceService
      */
     private function getPopularServices(): array
     {
-        $services = Service::where('activo', true)->get();
+        $services = Service::query()->whereActive()->get();
         $ids = $services->pluck('id')->toArray();
         $cutoff = now()->subMonths(3);
 

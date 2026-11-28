@@ -33,7 +33,7 @@ class BusinessInsightService
     /** El servicio más caro, qué parte de las citas es y cuántas veces supera el ticket real cobrado. */
     private function premium(): ?array
     {
-        $premium = Service::where('activo', true)->orderByDesc('precio')->first();
+        $premium = Service::query()->whereActive()->orderByDesc('precio')->first();
         $totalCitas = Appointment::count();
         if (! $premium || $totalCitas === 0) {
             return null;

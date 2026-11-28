@@ -477,7 +477,7 @@ class PaymentController extends Controller
                 abort_unless($isStaff || (string) $appointment->client_id === (string) $user->clientProfile->id, 403, 'No autorizado.');
             } else {
                 abort_unless($isClient, 403, 'Solo el cliente puede cotizar su reserva.');
-                $service = Service::where('activo', true)->findOrFail($validated['service_id']);
+                $service = Service::query()->whereActive()->findOrFail($validated['service_id']);
                 // Borrador en memoria: consultar el precio no ocupa el horario ni crea la cita.
                 $appointment = new Appointment(['service_id' => (string) $service->id]);
                 $appointment->setRelation('service', $service);

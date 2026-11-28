@@ -87,7 +87,7 @@ class CatalogController extends Controller
     {
         // Catálogo público en caché 60 s (se borra al editar un servicio): ver CatalogCache.
         $data = CatalogCache::remember(CatalogCache::SERVICES, fn () => Service::query()
-            ->where('activo', true)
+            ->whereActive()
             ->orderBy('nombre')
             ->get(['id', 'nombre', 'categoria', 'precio', 'duracion_min', 'imagen', 'descripcion'])
             ->map(fn (Service $s) => [
