@@ -38,17 +38,13 @@ class MembershipBillingFixesApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        ClientMembership::query()->delete();
-        MembershipPlan::query()->delete();
-        Payment::query()->delete();
         Appointment::withTrashed()->forceDelete();
-        Service::query()->delete();
-        Barber::query()->delete();
-        Client::query()->delete();
-        MobileApiToken::query()->delete();
         User::withTrashed()->forceDelete();
-        Role::query()->delete();
-        Permission::query()->delete();
+
+        foreach ([ClientMembership::class, MembershipPlan::class, Payment::class, Service::class, Barber::class, Client::class, MobileApiToken::class, Role::class, Permission::class] as $model) {
+            $model::query()->delete();
+        }
+
         \DB::connection('mongodb')->table(config('permission.table_names.role_has_permissions'))->delete();
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
